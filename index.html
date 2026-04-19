@@ -47,27 +47,34 @@
 }
 .slide.active { opacity: 1; z-index: 1; }
 
-/* 1. 로고 이미지 설정 (logo1.png 전용) */
+/* 1. 로고 이미지 설정 (이미지 깨짐 방지 튜닝) */
 .hero-logo-img {
   margin: 10px 0 15px 0;
-  max-width: 320px; /* 로고가 너무 크면 280px로 줄여보세요 */
+  /* 원본이 작다면 아래 숫자를 280px 정도로 줄여보세요. 작게 볼수록 선명해집니다. */
+  max-width: 320px; 
 }
 
 .hero-logo-img img {
   width: 100%;
   height: auto;
   display: block;
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+
+  /* 👈 브라우저 엔진에 따라 선명도를 높이는 속성들입니다 */
+  image-rendering: -webkit-optimize-contrast; /* 크롬, 사파리 최적화 */
+  image-rendering: crisp-edges;               /* 파이어폭스 등 최적화 */
+  transform: translateZ(0);                   /* 렌더링 가속을 이용한 가독성 향상 */
+  
+  /* 로고 가독성을 위한 은은한 흰색 광채 */
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.9));
 }
 
-/* 2. 글자 레이어 (인물 얼굴 보호를 위해 너비 제한) */
+/* 2. 글자 레이어 (중복된 .hero-inner 설정들을 하나로 통합) */
 .hero-inner {
   position: relative;
   z-index: 2; 
-  padding: 120px 60px; /* 위쪽 여백 120으로 인물 얼굴 아래 배치 */
-  max-width: 550px;    /* 👈 720에서 550으로 줄여야 인물과 안 겹칩니다 */
+  padding: 130px 60px; /* 위쪽 여백을 조금 더 주어 로고가 인물 얼굴 아래로 오게 함 */
+  max-width: 550px;    /* 글자가 인물(오른쪽)을 가리지 않게 가둠 */
 }
-
 /* 3. 텍스트 세부 스타일 */
 .hero-kor {
   font-size: 18px;
