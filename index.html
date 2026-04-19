@@ -794,8 +794,15 @@
   <div class="hero-inner">
     <div class="hero-kor">빛나는 미소의 소녀들</div>
     <h1 class="hero-logo">Lumibelle</h1>
-    ...
+    <div class="hero-sub">✦ 루미벨 ✦</div>
+    <div class="hero-desc">
+      한국에서 활동하고 있는 왕도 아이돌 그룹 Lumibelle (루미벨)입니다.<br />
+      여러분의 일상으로 더 반짝반짝해져…♡
+    </div>
   </div>
+  
+  <div class="hero-bow">🎀</div>
+</section>
 </section>
 
       <section class="section-heading">
@@ -983,22 +990,25 @@
 
   <footer>© 2026 Lumibelle All Rights Reserved.</footer>
   <script>
-  let currentSlide = 0;
-  const slides = document.querySelectorAll('.slide');
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
 
-  function nextSlide() {
-    // 1. 현재 사진 숨기기
-    slides[currentSlide].classList.remove('active');
-    
-    // 2. 다음 사진 인덱스 계산 (마지막 사진이면 다시 0번으로)
-    currentSlide = (currentSlide + 1) % slides.length;
-    
-    // 3. 다음 사진 보여주기
-    slides[currentSlide].classList.add('active');
-  }
+    function nextSlide() {
+      // 사진이 없으면 함수 종료 (방어 코드)
+      if (slides.length === 0) return;
 
-  // 5000ms(5초)마다 nextSlide 함수 실행
-  setInterval(nextSlide, 5000);
-</script>
+      // 1. 현재 사진 숨기기
+      slides[currentSlide].classList.remove('active');
+      
+      // 2. 다음 사진 번호 계산 (0 -> 1 -> 2 -> 다시 0)
+      currentSlide = (currentSlide + 1) % slides.length;
+      
+      // 3. 다음 사진 보여주기
+      slides[currentSlide].classList.add('active');
+    }
+
+    // 4초마다 실행
+    setInterval(nextSlide, 4000);
+  </script>
 </body>
 </html>
