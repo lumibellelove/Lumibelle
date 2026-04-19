@@ -7,10 +7,50 @@
 <link rel="stylesheet" href="style.css">
 
 <style>
-/* ===== SNS 이미지형 ===== */
+/* 카드 전체 높이 */
+.profile-card {
+  min-height: 640px;
+  padding-bottom: 48px;
+}
+
+/* 2단 배치 */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 36px;
+  align-items: stretch;
+}
+
+/* 왼쪽 이미지 */
+.profile-photo {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 540px;
+  border-radius: 28px;
+}
+
+/* 오른쪽 전체를 세로 배치 */
+.profile-grid > div:last-child {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+/* 프로필 정보 */
+.profile-meta {
+  margin-bottom: 0;
+}
+
+/* SNS+버튼 묶음을 아래로 내리기 */
+.sns-block {
+  margin-top: auto;
+}
+
+/* SNS 이미지 */
 .sns-buttons {
   margin-top: 18px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .sns-img {
@@ -28,10 +68,8 @@
   transform: translateY(-6px) scale(1.05);
 }
 
-/* ===== 하단 버튼 ===== */
+/* 하단 버튼 */
 .profile-actions {
-  margin-top: 12px;
-  margin-bottom: 6px;
   display: flex;
   gap: 14px;
 }
@@ -61,9 +99,20 @@
   transform: translateY(-2px);
 }
 
-/* ===== 카드 하단 여백 ===== */
-.profile-card {
-  padding-bottom: 42px;
+/* 모바일 대응 */
+@media (max-width: 900px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-photo {
+    min-height: 420px;
+  }
+
+  .sns-img img {
+    width: 84px;
+    height: 84px;
+  }
 }
 </style>
 
@@ -102,8 +151,10 @@
     <div class="profile-card">
       <div class="profile-grid">
 
+        <!-- 왼쪽 이미지 -->
         <div class="profile-photo" style="background-image:url('iro.png');"></div>
 
+        <!-- 오른쪽 정보 -->
         <div>
           <h3 class="profile-name">이로</h3>
           <div class="profile-en">IRO</div>
@@ -118,16 +169,20 @@
             <div><strong>체키메시 태그</strong> · #이로케맛있다니</div>
           </div>
 
-          <div class="sns-buttons">
-            <a href="https://www.instagram.com/0w0.irochi/" target="_blank" class="sns-img">
-              <img src="img/instagram.png" alt="Instagram">
-            </a>
+          <!-- 아래쪽 고정 영역 -->
+          <div class="sns-block">
+            <div class="sns-buttons">
+              <a href="https://www.instagram.com/0w0.irochi/" target="_blank" class="sns-img">
+                <img src="img/instagram.png" alt="Instagram">
+              </a>
+            </div>
+
+            <div class="profile-actions">
+              <a href="member.html" class="btn-outline pink">멤버 목록</a>
+              <a href="index.html#member" class="btn-outline purple">메인으로</a>
+            </div>
           </div>
 
-          <div class="profile-actions">
-            <a href="member.html" class="btn-outline pink">멤버 목록</a>
-            <a href="index.html#member" class="btn-outline purple">메인으로</a>
-          </div>
         </div>
 
       </div>
