@@ -72,7 +72,7 @@
     }
 
     .calendar-month {
-      min-width: 190px;
+      min-width: 160px;
       margin: 0;
       text-align: center;
       font-size: 24px;
@@ -104,13 +104,13 @@
 
     .calendar-day {
       position: relative;
-      min-height: 98px;
+      min-height: 108px;
       border: 1px solid #f1dfe9;
       border-radius: 18px;
       background: #ffffff;
       padding: 10px 10px 14px;
       cursor: pointer;
-      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
       overflow: hidden;
     }
 
@@ -130,6 +130,14 @@
       background: #ffeef6;
       border-color: #e7aac7;
       box-shadow: 0 4px 14px rgba(228, 163, 193, 0.18);
+    }
+
+    .calendar-day.is-important {
+      min-height: 118px;
+      border-width: 1.5px;
+      border-color: #e6aac7;
+      box-shadow: 0 6px 18px rgba(228, 163, 193, 0.16);
+      background: linear-gradient(180deg, #fff7fb 0%, #fff 100%);
     }
 
     .calendar-day-number {
@@ -156,7 +164,7 @@
     .calendar-preview {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
       position: relative;
       z-index: 2;
     }
@@ -168,11 +176,34 @@
       justify-content: center;
       padding: 4px 8px;
       border-radius: 999px;
-      background: #ffe7f1;
-      color: #de77a7;
       font-size: 11px;
       font-weight: 800;
       letter-spacing: 0.01em;
+      border: 1px solid transparent;
+    }
+
+    .badge-live {
+      background: #ffe7f1;
+      color: #de77a7;
+      border-color: #f3bfd5;
+    }
+
+    .badge-event {
+      background: #eef7ff;
+      color: #6f9bcf;
+      border-color: #c9dff9;
+    }
+
+    .badge-debut {
+      background: #f4ebff;
+      color: #9f74d1;
+      border-color: #dcc8fa;
+    }
+
+    .badge-oneman {
+      background: #fff0f1;
+      color: #de6c88;
+      border-color: #f5c1cc;
     }
 
     .calendar-preview-title {
@@ -184,6 +215,12 @@
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+    }
+
+    .calendar-preview-title.is-important-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #9d6f87;
     }
 
     .schedule-detail {
@@ -226,7 +263,14 @@
     .detail-left {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 7px;
+    }
+
+    .detail-topline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .detail-place {
@@ -267,7 +311,7 @@
       }
 
       .calendar-month {
-        min-width: 150px;
+        min-width: 120px;
         font-size: 20px;
       }
 
@@ -277,9 +321,13 @@
       }
 
       .calendar-day {
-        min-height: 82px;
+        min-height: 92px;
         border-radius: 14px;
         padding: 8px 8px 12px;
+      }
+
+      .calendar-day.is-important {
+        min-height: 98px;
       }
 
       .calendar-day-number {
@@ -288,6 +336,10 @@
 
       .calendar-preview-title {
         font-size: 10px;
+      }
+
+      .calendar-preview-title.is-important-title {
+        font-size: 11px;
       }
 
       .calendar-badge {
@@ -397,6 +449,7 @@
     const events = {
       "2026-05-18": [
         {
+          type: "LIVE",
           place: "秋葉原ZEST",
           event: "Lumi Magic Vol.3",
           ticket: "#"
@@ -404,6 +457,7 @@
       ],
       "2026-05-25": [
         {
+          type: "ONEMAN",
           place: "新宿BLAZE",
           event: "Lumibelle 1st ONEMAN LIVE",
           ticket: "#"
@@ -411,6 +465,7 @@
       ],
       "2026-06-02": [
         {
+          type: "EVENT",
           place: "池袋SPACE",
           event: "アイドルフェスティバル",
           ticket: "#"
@@ -418,6 +473,7 @@
       ],
       "2026-07-12": [
         {
+          type: "DEBUT",
           place: "渋谷DESEO",
           event: "ルミベル デビューライブ",
           ticket: "#"
@@ -425,6 +481,7 @@
       ],
       "2026-08-03": [
         {
+          type: "LIVE",
           place: "下北沢",
           event: "Summer Live",
           ticket: "#"
@@ -432,6 +489,7 @@
       ],
       "2026-09-14": [
         {
+          type: "EVENT",
           place: "新宿",
           event: "Autumn Special Stage",
           ticket: "#"
@@ -439,6 +497,7 @@
       ],
       "2026-10-25": [
         {
+          type: "LIVE",
           place: "渋谷",
           event: "Halloween Live",
           ticket: "#"
@@ -453,11 +512,6 @@
     const scheduleDetail = document.getElementById("scheduleDetail");
     const prevMonthBtn = document.getElementById("prevMonth");
     const nextMonthBtn = document.getElementById("nextMonth");
-
-    const monthNames = [
-      "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
-      "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
-    ];
 
     let currentDate = new Date(2026, 3, 1);
 
@@ -484,6 +538,19 @@
       renderCalendar();
     });
 
+    function getBadgeInfo(type) {
+      switch (type) {
+        case "ONEMAN":
+          return { label: "ONEMAN", className: "badge-oneman", important: true };
+        case "DEBUT":
+          return { label: "DEBUT", className: "badge-debut", important: true };
+        case "EVENT":
+          return { label: "EVENT", className: "badge-event", important: false };
+        default:
+          return { label: "LIVE", className: "badge-live", important: false };
+      }
+    }
+
     function renderCalendar() {
       calendarGrid.innerHTML = "";
       scheduleDetail.innerHTML = '<p class="detail-empty">날짜를 선택하면 상세 일정이 보여집니다.</p>';
@@ -491,7 +558,7 @@
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth();
 
-      calendarMonth.textContent = `${monthNames[month]} ${year}`;
+      calendarMonth.textContent = `${year}.${String(month + 1).padStart(2, "0")}`;
 
       const firstDay = new Date(year, month, 1).getDay();
       const lastDate = new Date(year, month + 1, 0).getDate();
@@ -508,18 +575,27 @@
         dayCell.className = "calendar-day";
 
         const eventList = events[dateKey];
-        if (eventList) {
-          dayCell.classList.add("has-event");
-        }
+        let previewHTML = "";
 
-        const previewHTML = eventList
-          ? `
+        if (eventList && eventList.length > 0) {
+          dayCell.classList.add("has-event");
+
+          const firstEvent = eventList[0];
+          const badgeInfo = getBadgeInfo(firstEvent.type);
+
+          if (badgeInfo.important) {
+            dayCell.classList.add("is-important");
+          }
+
+          previewHTML = `
             <div class="calendar-preview">
-              <span class="calendar-badge">LIVE 예정</span>
-              <div class="calendar-preview-title">${eventList[0].event}</div>
+              <span class="calendar-badge ${badgeInfo.className}">${badgeInfo.label}</span>
+              <div class="calendar-preview-title ${badgeInfo.important ? "is-important-title" : ""}">
+                ${firstEvent.event}
+              </div>
             </div>
-          `
-          : "";
+          `;
+        }
 
         dayCell.innerHTML = `
           <div class="calendar-day-number">${day}</div>
@@ -552,15 +628,22 @@
 
       scheduleDetail.innerHTML = `
         <div class="detail-date">${formattedDate}</div>
-        ${eventList.map(item => `
-          <div class="detail-item">
-            <div class="detail-left">
-              <span class="detail-place">${item.place}</span>
-              <span class="detail-event">${item.event}</span>
+        ${eventList.map(item => {
+          const badgeInfo = getBadgeInfo(item.type);
+
+          return `
+            <div class="detail-item">
+              <div class="detail-left">
+                <div class="detail-topline">
+                  <span class="calendar-badge ${badgeInfo.className}">${badgeInfo.label}</span>
+                  <span class="detail-place">${item.place}</span>
+                </div>
+                <span class="detail-event">${item.event}</span>
+              </div>
+              <a href="${item.ticket}" class="detail-ticket">TICKET</a>
             </div>
-            <a href="${item.ticket}" class="detail-ticket">TICKET</a>
-          </div>
-        `).join("")}
+          `;
+        }).join("")}
       `;
     }
   </script>
