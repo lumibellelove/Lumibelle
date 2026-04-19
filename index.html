@@ -1,93 +1,706 @@
 <!DOCTYPE html>
-<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Lumibelle Official</title><link rel="stylesheet" href="style.css"></head>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lumibelle Official</title>
+  <style>
+    :root {
+      --bg: #fff8fb;
+      --panel: rgba(255, 246, 251, 0.94);
+      --line: #f1d4e3;
+      --pink: #ff78b2;
+      --pink-deep: #ff59a5;
+      --text: #8a6b7c;
+      --soft: #c79bb2;
+      --shadow: 0 16px 30px rgba(255, 120, 178, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(255,230,241,.95), transparent 20%),
+        radial-gradient(circle at 100% 0%, rgba(232,223,255,.85), transparent 26%),
+        linear-gradient(180deg, #fffafd 0%, #fff7fb 100%);
+      color: var(--text);
+      font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    .wrap { width: min(1220px, calc(100% - 28px)); margin: 0 auto; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 248, 252, 0.93);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(241, 212, 227, .85);
+      box-shadow: 0 8px 20px rgba(255, 120, 178, 0.06);
+    }
+
+    .header-box {
+      margin: 18px auto 14px;
+      padding: 18px 24px 16px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255,252,254,.97), rgba(255,246,251,.95));
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      align-items: center;
+      gap: 18px;
+      position: relative;
+    }
+
+    .top-bow {
+      position: absolute;
+      left: 50%;
+      top: -10px;
+      transform: translateX(-50%);
+      font-size: 34px;
+      filter: drop-shadow(0 6px 10px rgba(255,120,178,.18));
+    }
+
+    .logo img {
+      display: block;
+      width: min(100%, 220px);
+      height: auto;
+      object-fit: contain;
+    }
+
+    nav {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      text-align: center;
+    }
+
+    nav a {
+      padding: 8px 4px;
+      border-radius: 14px;
+      transition: transform .18s ease, background .18s ease;
+    }
+
+    nav a:hover { background: rgba(255, 239, 247, 0.8); transform: translateY(-2px); }
+
+    nav b {
+      display: block;
+      color: #d06f9f;
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    nav span {
+      display: block;
+      color: var(--soft);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .06em;
+    }
+
+    .hero {
+      padding: 10px 0 16px;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 0 0 24px 24px;
+      background: linear-gradient(135deg, #fce5f0 0%, #ece4ff 48%, #eef7ff 100%);
+      min-height: 560px;
+      box-shadow: var(--shadow);
+    }
+
+    .curtain-left,
+    .curtain-right {
+      position: absolute;
+      top: 0;
+      width: 190px;
+      height: 100%;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.58), rgba(255,255,255,.10)),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.22) 0 14px, rgba(255,215,235,.22) 14px 28px);
+      opacity: .9;
+      z-index: 1;
+    }
+
+    .curtain-left {
+      left: 0;
+      border-right: 1px solid rgba(255,255,255,.35);
+      clip-path: polygon(0 0, 100% 0, 82% 100%, 0 100%);
+    }
+
+    .curtain-right {
+      right: 0;
+      border-left: 1px solid rgba(255,255,255,.35);
+      clip-path: polygon(18% 0, 100% 0, 100% 100%, 0 100%);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(255,255,255,.9) 0 2px, transparent 4px),
+        radial-gradient(circle at 30% 12%, rgba(255,255,255,.75) 0 2px, transparent 4px),
+        radial-gradient(circle at 62% 16%, rgba(255,255,255,.8) 0 2px, transparent 4px),
+        radial-gradient(circle at 74% 32%, rgba(255,255,255,.85) 0 2px, transparent 4px),
+        radial-gradient(circle at 40% 58%, rgba(255,255,255,.72) 0 2px, transparent 4px),
+        radial-gradient(circle at 84% 58%, rgba(255,255,255,.85) 0 2px, transparent 4px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: .95fr 1.05fr;
+      align-items: stretch;
+      min-height: 560px;
+    }
+
+    .hero-copy {
+      padding: 78px 40px 42px 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .hero-copy .subline {
+      color: #cc7ea6;
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .hero-copy .brand-name {
+      font-size: clamp(62px, 8vw, 108px);
+      line-height: .9;
+      letter-spacing: -.06em;
+      margin: 0 0 10px;
+      color: var(--pink-deep);
+      text-shadow: 0 2px 0 rgba(255,255,255,.95), 0 0 20px rgba(255,255,255,.6);
+      font-weight: 800;
+    }
+
+    .hero-copy .jp {
+      color: #d985ad;
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: .24em;
+      margin-bottom: 22px;
+    }
+
+    .hero-copy .lead,
+    .hero-copy .desc {
+      margin: 0;
+      line-height: 2;
+      font-size: 16px;
+      color: #8f7082;
+    }
+
+    .hero-copy .lead { margin-bottom: 6px; }
+
+    .hero-visual {
+      position: relative;
+      min-height: 560px;
+      background:
+        linear-gradient(rgba(255,255,255,.03), rgba(255,255,255,.03)),
+        url('group-temp.png') center/cover no-repeat;
+    }
+
+    .castle {
+      position: absolute;
+      left: 36px;
+      top: 66px;
+      font-size: 120px;
+      opacity: .18;
+      color: white;
+      z-index: 0;
+    }
+
+    .hero-bottom-bow {
+      position: absolute;
+      left: 50%;
+      bottom: -8px;
+      transform: translateX(-50%);
+      font-size: 34px;
+      z-index: 3;
+      filter: drop-shadow(0 8px 12px rgba(255,120,178,.16));
+    }
+
+    section { padding: 14px 0 18px; }
+
+    .section-title {
+      text-align: center;
+      color: #d977a4;
+      margin-bottom: 14px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: clamp(34px, 4vw, 48px);
+      letter-spacing: -.04em;
+    }
+
+    .section-title p {
+      margin: 4px 0 0;
+      color: var(--soft);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .18em;
+    }
+
+    .member-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .member-card {
+      background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,249,252,.94));
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      padding: 10px;
+    }
+
+    .ribbon {
+      height: 44px;
+      border-radius: 14px 14px 999px 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .member-photo {
+      aspect-ratio: 4 / 5;
+      border-radius: 16px;
+      border: 1px solid #efd8e4;
+      background-size: cover;
+      background-position: center;
+      margin-bottom: 12px;
+    }
+
+    .member-body {
+      padding: 2px 8px 8px;
+      text-align: center;
+    }
+
+    .member-body .color-line {
+      font-size: 13px;
+      color: #b98ea4;
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+
+    .member-body .meta {
+      text-align: left;
+      font-size: 12px;
+      line-height: 1.8;
+      min-height: 76px;
+      color: #9b7d8d;
+      margin-bottom: 12px;
+    }
+
+    .member-btn {
+      display: inline-flex;
+      width: 100%;
+      justify-content: center;
+      padding: 11px 12px;
+      border-radius: 999px;
+      color: white;
+      font-size: 13px;
+      font-weight: 800;
+      transition: transform .18s ease;
+    }
+
+    .member-btn:hover,
+    .more-btn:hover,
+    .ticket:hover,
+    .info-links a:hover,
+    .sns a:hover {
+      transform: translateY(-2px);
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      min-height: 100%;
+    }
+
+    .box-head {
+      text-align: center;
+      padding: 18px 18px 8px;
+      color: #d878a5;
+    }
+
+    .box-head h3 {
+      margin: 0;
+      font-size: 40px;
+      letter-spacing: -.04em;
+    }
+
+    .box-head p {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--soft);
+      font-weight: 800;
+      letter-spacing: .16em;
+    }
+
+    .row {
+      display: grid;
+      gap: 14px;
+      align-items: center;
+      padding: 16px 20px;
+      border-top: 1px solid #f5dce7;
+      font-size: 14px;
+      color: #8f7484;
+    }
+
+    .news-row { grid-template-columns: 108px 76px 1fr 20px; }
+    .schedule-row { grid-template-columns: 96px 110px 1fr 90px; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 7px 10px;
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .new { background: #ff8db9; }
+    .info { background: #ebb1d1; }
+    .live { background: #84bfff; }
+
+    .arrow { color: #d8a1bc; text-align: right; font-weight: 900; }
+
+    .ticket {
+      justify-self: end;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid #f0bfd6;
+      background: white;
+      color: #dc75a3;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .box-footer {
+      padding: 16px 20px 22px;
+      text-align: center;
+    }
+
+    .more-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 210px;
+      padding: 13px 18px;
+      border-radius: 999px;
+      color: white;
+      background: linear-gradient(135deg, #ff7eb3, #ff95c3);
+      font-size: 14px;
+      font-weight: 800;
+      transition: transform .18s ease;
+    }
+
+    .bottom {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .bottom-box {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      padding: 22px 20px 24px;
+      min-height: 150px;
+      text-align: center;
+    }
+
+    .bottom-box h3 {
+      margin: 0;
+      font-size: 38px;
+      color: #d878a5;
+      letter-spacing: -.04em;
+    }
+
+    .bottom-box p.sub {
+      margin: 4px 0 18px;
+      font-size: 12px;
+      color: var(--soft);
+      font-weight: 800;
+      letter-spacing: .16em;
+    }
+
+    .info-links {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .info-links a {
+      display: grid;
+      place-items: center;
+      min-height: 76px;
+      border-radius: 18px;
+      border: 1px solid #edd0df;
+      background: white;
+      color: #d073a1;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 10px;
+      transition: transform .18s ease;
+    }
+
+    .sns {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .sns a {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #ff8fbc, #dca7ff);
+      color: white;
+      font-size: 15px;
+      font-weight: 900;
+      box-shadow: 0 14px 22px rgba(255,120,178,.16);
+      transition: transform .18s ease;
+    }
+
+    footer {
+      padding: 18px 0 30px;
+      text-align: center;
+      color: #c298af;
+      font-size: 13px;
+    }
+
+    @media (max-width: 1180px) {
+      .member-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero-copy { padding-bottom: 24px; }
+      .hero-visual { min-height: 460px; }
+    }
+
+    @media (max-width: 860px) {
+      .header-box { grid-template-columns: 1fr; }
+      .logo img { margin: 0 auto; }
+      nav { grid-template-columns: repeat(3, 1fr); }
+      .member-grid,
+      .split,
+      .bottom { grid-template-columns: 1fr; }
+      .info-links { grid-template-columns: repeat(2, 1fr); }
+      .news-row,
+      .schedule-row { grid-template-columns: 1fr; }
+      .ticket { justify-self: start; }
+      .hero-copy { padding: 46px 24px 24px; }
+      .curtain-left, .curtain-right { width: 110px; }
+    }
+
+    @media (max-width: 560px) {
+      nav { grid-template-columns: repeat(2, 1fr); }
+      .hero-card, .header-box, .box, .bottom-box { border-radius: 18px; }
+      .hero-copy .brand-name { font-size: 58px; }
+      .info-links { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
 <body>
-<header><div class="wrap"><div class="header-box"><div class="top-bow">🎀</div><div class="logo"><h1>Lumibelle</h1><p>ルミベル</p></div><nav><a href="index.html" class="current"><b>TOP</b><span>トップ</span></a><a href="news.html"><b>NEWS</b><span>お知らせ</span></a><a href="member.html"><b>MEMBER</b><span>メンバー紹介</span></a><a href="schedule.html"><b>SCHEDULE</b><span>スケジュール</span></a><a href="fanname.html"><b>FANNAME</b><span>ファンネーム</span></a><a href="info.html"><b>INFO</b><span>インフォメーション</span></a></nav></div></div></header>
-<main>
-<section class="hero" id="top"><div class="wrap"><div class="hero-card">
-<div class="curtain-left"></div><div class="curtain-right"></div>
-<div class="hero-inner">
-  <div class="hero-copy">
-    <div class="castle">🏰</div>
-    <div class="subline">빛나는 미소의 소녀들</div>
-    <h2 class="brand-name">Lumibelle</h2>
-    <div class="jp">✦ ルミベル ✦</div>
-    <p class="lead">한국에서 활동하고 있는 왕도 아이돌 그룹 Lumibelle (루미벨)입니다.</p>
-    <p class="desc">여러분의 일상으로 더 반짝반짝해져…♡</p>
-  </div>
-  <div class="hero-visual"></div>
-</div>
-<div class="hero-bottom-bow">🎀</div>
-</div></div></section>
-
-<section id="member"><div class="wrap"><div class="section-title"><h2>MEMBER</h2><p>メンバー紹介</p></div><div class="member-grid">
-<article class="member-card">
-<div class="ribbon" style="background:linear-gradient(135deg,#ff59a5,#ff8abc)">MARIRING</div>
-<div class="member-photo" style="background-image:url('mariring.jpg');"></div>
-<div class="member-body">
-<div class="color-line">メンバーカラー<br><b>チェリーピンク ❤</b></div>
-<div class="meta">키워드　청춘 / 아이돌 / 반짝임<br>한마디　반짝이는 순간을 함께 만들자!</div>
-<a class="member-btn" href="mariring.html" style="background:linear-gradient(135deg,#ff59a5,#ff8abc)">詳細を見る</a>
-</div></article><article class="member-card">
-<div class="ribbon" style="background:linear-gradient(135deg,#ffd9e8,#ffc0d7)">LULU</div>
-<div class="member-photo" style="background-image:url('lulu.jpg');"></div>
-<div class="member-body">
-<div class="color-line">メンバーカラー<br><b>ミルキーピンク ❤</b></div>
-<div class="meta">키워드　러블리 / 포근함<br>한마디　오늘도 다정한 하루가 되길!</div>
-<a class="member-btn" href="lulu.html" style="background:linear-gradient(135deg,#ffd9e8,#ffc0d7)">詳細を見る</a>
-</div></article><article class="member-card">
-<div class="ribbon" style="background:linear-gradient(135deg,#b2deff,#8fd0ff)">IRO</div>
-<div class="member-photo" style="background-image:url('iro.jpg');"></div>
-<div class="member-body">
-<div class="color-line">メンバーカラー<br><b>エンジェルブルー ❤</b></div>
-<div class="meta">키워드　청량 / 에너지<br>한마디　제일 즐거운 무대를 같이 만들자!</div>
-<a class="member-btn" href="iro.html" style="background:linear-gradient(135deg,#b2deff,#8fd0ff)">詳細を見る</a>
-</div></article><article class="member-card">
-<div class="ribbon" style="background:linear-gradient(135deg,#ba8ce7,#d3b3f5)">LUNA</div>
-<div class="member-photo" style="background-image:url('luna.jpg');"></div>
-<div class="member-body">
-<div class="color-line">メンバーカラー<br><b>ムーンパープル ❤</b></div>
-<div class="meta">키워드　신비로움 / 달빛<br>한마디　조용히 스며드는 반짝임이 될게.</div>
-<a class="member-btn" href="luna.html" style="background:linear-gradient(135deg,#ba8ce7,#d3b3f5)">詳細を見る</a>
-</div></article>
-</div></div></section>
-
-<section><div class="wrap split">
-<div class="box" id="news"><div class="box-head"><h3>NEWS</h3><p>お知らせ</p></div>
-<div class="row news-row"><div>2024.05.12</div><div><span class="tag new">NEW</span></div><div>5/25(土) 新宿BLAZEにてワンマンライブ開催決定！</div><div class="arrow">›</div></div>
-<div class="row news-row"><div>2024.05.01</div><div><span class="tag info">INFO</span></div><div>新グッズ「魔法のステッキ」販売開始しました！</div><div class="arrow">›</div></div>
-<div class="row news-row"><div>2024.04.20</div><div><span class="tag media">MEDIA</span></div><div>ラジオ出演情報を更新しました！</div><div class="arrow">›</div></div>
-<div class="row news-row"><div>2024.04.10</div><div><span class="tag live">LIVE</span></div><div>4/28(日) 池袋SPACEでライブ出演します！</div><div class="arrow">›</div></div>
-<div class="box-footer"><a class="more-btn" href="news.html">お知らせ一覧へ</a></div></div>
-
-<div class="box" id="schedule"><div class="box-head"><h3>SCHEDULE</h3><p>スケジュール</p></div>
-<div class="row schedule-row"><div>05.18(土)</div><div>秋葉原ZEST</div><div>Lumi Magic Vol.3</div><a class="ticket" href="schedule.html">TICKET</a></div>
-<div class="row schedule-row"><div>05.25(土)</div><div>新宿BLAZE</div><div>Lumibelle 1st ONEMAN LIVE</div><a class="ticket" href="schedule.html">TICKET</a></div>
-<div class="row schedule-row"><div>06.02(日)</div><div>池袋SPACE</div><div>アイドルフェスティバル</div><a class="ticket" href="schedule.html">TICKET</a></div>
-<div class="row schedule-row"><div>06.09(日)</div><div>渋谷DESEO</div><div>Magic Stage</div><a class="ticket" href="schedule.html">TICKET</a></div>
-<div class="box-footer"><a class="more-btn" href="schedule.html">スケジュール一覧へ</a></div></div>
-</div></section>
-
-<section><div class="wrap bottom">
-<div class="bottom-box" id="fanname">
-<h3>FANNAME</h3><p class="sub">ファンネーム</p>
-<div style="margin-top:14px; display:flex; flex-direction:column; align-items:center; gap:12px;">
-  <img src="fanname.png" alt="Lumina" style="max-width:100%; border-radius:18px; border:1px solid #efd4e1; box-shadow:0 12px 22px rgba(255,120,178,.12);">
-  <div style="text-align:center; margin-top:6px;">
-    <div style="font-size:26px; font-weight:900; color:#ff59a5; letter-spacing:-.02em;">Lumina (루미나)</div>
-    <div style="margin-top:6px; font-size:15px; color:#946f84; line-height:1.8;">
-      ‘빛나는 존재’라는 의미를 담은 Lumibelle의 팬네임입니다.<br>
-      Lumibelle과 함께 반짝이는 존재라는 뜻을 가지고 있어요…♡
+  <header>
+    <div class="wrap">
+      <div class="header-box">
+        <div class="top-bow">🎀</div>
+        <div class="logo">
+          <img src="logo-main.png" alt="루미벨 로고" />
+        </div>
+        <nav>
+          <a href="#top"><b>HOME</b><span>홈</span></a>
+          <a href="#news"><b>NEWS</b><span>공지사항</span></a>
+          <a href="#member"><b>MEMBER</b><span>멤버 소개</span></a>
+          <a href="#schedule"><b>SCHEDULE</b><span>스케줄</span></a>
+          <a href="#fanname"><b>FANNAME</b><span>팬네임</span></a>
+          <a href="#follow"><b>FOLLOW</b><span>SNS</span></a>
+        </nav>
+      </div>
     </div>
-  </div>
-</div>
-</div>
+  </header>
 
-<div class="bottom-box" id="blog">
-<h3>FOLLOW US</h3><p class="sub">SNS</p>
-<div class="sns">
-  <a href="#">X</a><a href="#">IG</a><a href="#">TT</a><a href="#">YT</a>
-</div>
-</div></div></section>
-</main>
-<footer>© 2024 Lumibelle All Rights Reserved.</footer>
-</body></html>
+  <main>
+    <section class="hero" id="top">
+      <div class="wrap">
+        <div class="hero-card">
+          <div class="curtain-left"></div>
+          <div class="curtain-right"></div>
+          <div class="hero-inner">
+            <div class="hero-copy">
+              <div class="castle">🏰</div>
+              <div class="subline">오늘을 조금 더 반짝이게 만드는 아이돌</div>
+              <h2 class="brand-name">Lumibelle</h2>
+              <div class="jp">✦ 루미벨 ✦</div>
+              <p class="lead">한국에서 활동하는 4인조 왕도 아이돌 그룹 Lumibelle (루미벨)입니다.</p>
+              <p class="desc">루미벨만의 사랑스럽고 반짝이는 무드로 무대와 일상 모두 특별하게 물들일게요…♡</p>
+            </div>
+            <div class="hero-visual"></div>
+          </div>
+          <div class="hero-bottom-bow">🎀</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="member">
+      <div class="wrap">
+        <div class="section-title">
+          <h2>MEMBER</h2>
+          <p>멤버 소개</p>
+        </div>
+        <div class="member-grid">
+          <article class="member-card">
+            <div class="ribbon" style="background:linear-gradient(135deg,#ff59a5,#ff8abc)">MARIRING</div>
+            <div class="member-photo" style="background-image:url('mariring.png');"></div>
+            <div class="member-body">
+              <div class="color-line">멤버 컬러<br /><b style="color:#ff59a5;">체리핑크 ❤</b></div>
+              <div class="meta">키워드　청춘 / 아이돌 / 반짝임<br />한마디　반짝이는 순간을 함께 만들자!</div>
+              <a class="member-btn" href="mariring.html" style="background:linear-gradient(135deg,#ff59a5,#ff8abc)">자세히 보기</a>
+            </div>
+          </article>
+
+          <article class="member-card">
+            <div class="ribbon" style="background:linear-gradient(135deg,#ffd9e8,#ffc0d7)">LULU</div>
+            <div class="member-photo" style="background-image:url('lulu.png');"></div>
+            <div class="member-body">
+              <div class="color-line">멤버 컬러<br /><b style="color:#ff9cc1;">밀키핑크 ❤</b></div>
+              <div class="meta">키워드　러블리 / 포근함<br />한마디　오늘도 다정한 하루가 되길!</div>
+              <a class="member-btn" href="lulu.html" style="background:linear-gradient(135deg,#ffd9e8,#ffc0d7)">자세히 보기</a>
+            </div>
+          </article>
+
+          <article class="member-card">
+            <div class="ribbon" style="background:linear-gradient(135deg,#b2deff,#8fd0ff)">IRO</div>
+            <div class="member-photo" style="background-image:url('iro.png');"></div>
+            <div class="member-body">
+              <div class="color-line">멤버 컬러<br /><b style="color:#7ec8ff;">엔젤블루 ❤</b></div>
+              <div class="meta">키워드　청량 / 에너지<br />한마디　제일 즐거운 무대를 같이 만들자!</div>
+              <a class="member-btn" href="iro.html" style="background:linear-gradient(135deg,#b2deff,#8fd0ff)">자세히 보기</a>
+            </div>
+          </article>
+
+          <article class="member-card">
+            <div class="ribbon" style="background:linear-gradient(135deg,#ba8ce7,#d3b3f5)">LUNA</div>
+            <div class="member-photo" style="background-image:url('luna.png');"></div>
+            <div class="member-body">
+              <div class="color-line">멤버 컬러<br /><b style="color:#a475d4;">달빛퍼플 ❤</b></div>
+              <div class="meta">키워드　신비로움 / 달빛<br />한마디　조용히 스며드는 반짝임이 될게.</div>
+              <a class="member-btn" href="luna.html" style="background:linear-gradient(135deg,#ba8ce7,#d3b3f5)">자세히 보기</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap split">
+        <div class="box" id="news">
+          <div class="box-head">
+            <h3>NEWS</h3>
+            <p>공지사항</p>
+          </div>
+          <div class="row news-row"><div>2026.07.12</div><div><span class="tag new">NEW</span></div><div>Lumibelle 데뷔</div><div class="arrow">›</div></div>
+          <div class="row news-row"><div>2026.08.17</div><div><span class="tag info">INFO</span></div><div>루루 생일</div><div class="arrow">›</div></div>
+          <div class="row news-row"><div>2026.09.21</div><div><span class="tag info">INFO</span></div><div>마리링 생일</div><div class="arrow">›</div></div>
+          <div class="row news-row"><div>2026.10.18</div><div><span class="tag live">LIVE</span></div><div>빅 이벤트</div><div class="arrow">›</div></div>
+          <div class="box-footer"><a class="more-btn" href="#">공지사항 더보기</a></div>
+        </div>
+
+        <div class="box" id="schedule">
+          <div class="box-head">
+            <h3>SCHEDULE</h3>
+            <p>스케줄</p>
+          </div>
+          <div class="row schedule-row"><div>07.12 (일)</div><div>-</div><div>Lumibelle 데뷔</div><a class="ticket" href="#">예매하기</a></div>
+          <div class="row schedule-row"><div>08.17 (월)</div><div>-</div><div>루루 생일</div><a class="ticket" href="#">예매하기</a></div>
+          <div class="row schedule-row"><div>09.21 (월)</div><div>-</div><div>마리링 생일</div><a class="ticket" href="#">예매하기</a></div>
+          <div class="row schedule-row"><div>10.18 (일)</div><div>-</div><div>빅 이벤트</div><a class="ticket" href="#">예매하기</a></div>
+          <div class="box-footer"><a class="more-btn" href="#">스케줄 더보기</a></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap bottom">
+        <div class="bottom-box" id="fanname">
+          <h3>FANNAME</h3>
+          <p class="sub">팬네임</p>
+          <div style="margin-top:14px; display:flex; flex-direction:column; align-items:center; gap:12px;">
+            <img src="fanname.png" alt="루미나" style="max-width:100%; border-radius:18px; border:1px solid #efd4e1; box-shadow:0 12px 22px rgba(255,120,178,.12);" />
+            <div style="text-align:center; margin-top:6px;">
+              <div style="font-size:26px; font-weight:900; color:#ff59a5; letter-spacing:-.02em;">Lumina (루미나)</div>
+              <div style="margin-top:6px; font-size:15px; color:#946f84; line-height:1.8;">
+                ‘빛나는 존재’라는 의미를 담은 Lumibelle의 팬네임입니다.<br />
+                Lumibelle과 함께 반짝이는 존재라는 뜻을 가지고 있어요…♡
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-box" id="follow">
+          <h3>FOLLOW US</h3>
+          <p class="sub">공식 SNS 바로가기</p>
+          <p style="margin:0 0 12px; font-size:14px; color:#b98ea4;">루미벨의 최신 소식과 사진, 영상은 아래 채널에서 확인할 수 있어요.</p>
+          <div class="sns">
+            <a href="https://x.com/Lumibelle_love" target="_blank" rel="noopener noreferrer">X</a>
+            <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">IG</a>
+            <a href="https://www.tiktok.com/@lumibelle_official" target="_blank" rel="noopener noreferrer">TT</a>
+            <a href="https://www.youtube.com/@Lumibelle_Official" target="_blank" rel="noopener noreferrer">YT</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    © 2026 Lumibelle All Rights Reserved.
+  </footer>
+</body>
+</html>
