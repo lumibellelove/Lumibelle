@@ -7,392 +7,17 @@
   <link rel="stylesheet" href="style.css" />
 
   <style>
-    .schedule-extra-wrap {
-      margin-top: 22px;
-      text-align: center;
-    }
-
-    .more-schedule-btn {
-      appearance: none;
-      border: 0;
-      background: #f6d8e6;
-      color: #c46d98;
-      padding: 14px 30px;
-      border-radius: 999px;
-      font-size: 17px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      cursor: pointer;
-      transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
-      box-shadow: 0 6px 18px rgba(228, 163, 193, 0.22);
-    }
-
-    .more-schedule-btn:hover {
-      background: #f3cddd;
-      transform: translateY(-1px);
-    }
-
-    .calendar-section {
-      margin-top: 24px;
-      padding: 28px;
-      background: #fff5fb;
-      border: 1px solid #f2d8e7;
-      border-radius: 26px;
-      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
-    }
-
-    .calendar-section.hidden {
-      display: none;
-    }
-
-    .calendar-header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      margin-bottom: 22px;
-    }
-
-    .calendar-nav-btn {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      border: 1px solid #ebc4d8;
-      background: #ffffff;
-      color: #cc7ca3;
-      font-size: 24px;
-      line-height: 1;
-      cursor: pointer;
-      transition: background 0.18s ease, transform 0.18s ease;
-    }
-
-    .calendar-nav-btn:hover {
-      background: #fff0f7;
-      transform: translateY(-1px);
-    }
-
-    .calendar-month {
-      min-width: 160px;
-      margin: 0;
-      text-align: center;
-      font-size: 24px;
-      font-weight: 800;
-      color: #d77ca7;
-      letter-spacing: 0.03em;
-    }
-
-    .calendar-weekdays {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .calendar-weekdays div {
-      text-align: center;
-      font-size: 13px;
-      font-weight: 700;
-      color: #c99ab2;
-      padding: 6px 0;
-    }
-
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 10px;
-    }
-
-    .calendar-day {
-      position: relative;
-      min-height: 108px;
-      border: 1px solid #f1dfe9;
-      border-radius: 18px;
-      background: #ffffff;
-      padding: 10px 10px 14px;
-      cursor: pointer;
-      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
-      overflow: hidden;
-    }
-
-    .calendar-day:hover {
-      background: #fff1f7;
-      transform: translateY(-1px);
-    }
-
-    .calendar-day.empty {
-      background: transparent;
-      border: none;
-      cursor: default;
-      pointer-events: none;
-    }
-
-    .calendar-day.selected {
-      background: #ffeef6;
-      border-color: #e7aac7;
-      box-shadow: 0 4px 14px rgba(228, 163, 193, 0.18);
-    }
-
-    .calendar-day.is-important {
-      min-height: 118px;
-      border-width: 1.5px;
-      border-color: #e6aac7;
-      box-shadow: 0 6px 18px rgba(228, 163, 193, 0.16);
-      background: linear-gradient(180deg, #fff7fb 0%, #fff 100%);
-    }
-
-    .calendar-day-number {
-      font-size: 16px;
-      font-weight: 700;
-      color: #9f7d90;
-      margin-bottom: 8px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .calendar-day.has-event::after {
-      content: "";
-      position: absolute;
-      left: 10px;
-      bottom: 10px;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #ef88b5;
-      box-shadow: 0 0 0 4px rgba(239, 136, 181, 0.12);
-    }
-
-    .calendar-preview {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .calendar-preview-top {
-      display: flex;
-      gap: 5px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .calendar-badge {
-      display: inline-flex;
-      width: fit-content;
-      align-items: center;
-      justify-content: center;
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 0.01em;
-      border: 1px solid transparent;
-    }
-
-    .badge-live {
-      background: #ffe7f1;
-      color: #de77a7;
-      border-color: #f3bfd5;
-    }
-
-    .badge-event {
-      background: #eef7ff;
-      color: #6f9bcf;
-      border-color: #c9dff9;
+    .calendar-day.has-event:hover {
+      background: #ffeaf4;
+      box-shadow: 0 6px 18px rgba(255, 120, 180, 0.25);
     }
 
     .badge-debut {
-      background: #f4ebff;
-      color: #9f74d1;
-      border-color: #dcc8fa;
-    }
-
-    .badge-oneman {
-      background: #fff0f1;
-      color: #de6c88;
-      border-color: #f5c1cc;
-    }
-
-    .badge-new {
-      background: #ff4fa3;
-      color: #fff;
-      border-color: #ff4fa3;
-    }
-
-    .calendar-preview-title {
-      font-size: 11px;
-      line-height: 1.35;
-      color: #b1849c;
-      word-break: keep-all;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .calendar-preview-title.is-important-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: #9d6f87;
-    }
-
-    .schedule-detail {
-      margin-top: 24px;
-      padding: 22px;
-      border-radius: 22px;
-      background: #ffffff;
-      border: 1px solid #f2dbe7;
-    }
-
-    .detail-empty {
-      margin: 0;
-      text-align: center;
-      font-size: 15px;
-      color: #b291a4;
-    }
-
-    .detail-date {
-      margin-bottom: 16px;
-      font-size: 20px;
-      font-weight: 800;
-      color: #d77ca7;
-      letter-spacing: 0.02em;
-    }
-
-    .detail-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      padding: 14px 0;
-      border-bottom: 1px solid #f6e7ef;
-    }
-
-    .detail-item:last-child {
-      border-bottom: none;
-      padding-bottom: 0;
-    }
-
-    .detail-left {
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-    }
-
-    .detail-topline {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .detail-place {
-      font-size: 14px;
-      color: #b28ea2;
-    }
-
-    .detail-event {
-      font-size: 18px;
-      font-weight: 700;
-      color: #8f7183;
-    }
-
-    .detail-buttons {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .detail-ticket {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 96px;
-      padding: 10px 16px;
-      border-radius: 999px;
-      border: 1px solid #efbfd4;
-      background: #fff8fc;
-      color: #e27aa9;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 700;
-      transition: background 0.18s ease, transform 0.18s ease;
-    }
-
-    .detail-ticket:hover {
-      background: #fff0f7;
-      transform: translateY(-1px);
-    }
-
-    .detail-button-muted {
-      opacity: 0.65;
-      cursor: default;
-      pointer-events: none;
-    }
-
-    .detail-button-detail {
-      background: #f4f0ff;
-      color: #8d70d5;
-      border-color: #d7caf6;
-    }
-
-    .detail-button-detail:hover {
-      background: #eee8ff;
-    }
-
-    @media (max-width: 900px) {
-      .calendar-section {
-        padding: 18px;
-      }
-
-      .calendar-month {
-        min-width: 120px;
-        font-size: 20px;
-      }
-
-      .calendar-grid,
-      .calendar-weekdays {
-        gap: 6px;
-      }
-
-      .calendar-day {
-        min-height: 92px;
-        border-radius: 14px;
-        padding: 8px 8px 12px;
-      }
-
-      .calendar-day.is-important {
-        min-height: 98px;
-      }
-
-      .calendar-day-number {
-        font-size: 14px;
-      }
-
-      .calendar-preview-title {
-        font-size: 10px;
-      }
-
-      .calendar-preview-title.is-important-title {
-        font-size: 11px;
-      }
-
-      .calendar-badge {
-        font-size: 10px;
-        padding: 3px 7px;
-      }
-
-      .detail-item {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .detail-ticket {
-        min-width: 0;
-      }
+      box-shadow: 0 0 10px rgba(160, 120, 255, 0.4);
     }
   </style>
 </head>
+
 <body>
   <header>
     <div class="wrap">
@@ -403,12 +28,12 @@
           <p>ルミベル</p>
         </div>
         <nav>
-          <a href="index.html"><b>TOP</b><span>トップ</span></a>
-          <a href="news.html"><b>NEWS</b><span>お知らせ</span></a>
-          <a href="member.html"><b>MEMBER</b><span>メンバー紹介</span></a>
-          <a href="schedule.html" class="current"><b>SCHEDULE</b><span>スケジュール</span></a>
-          <a href="fanname.html"><b>FANNAME</b><span>ファンネーム</span></a>
-          <a href="info.html"><b>INFO</b><span>インフォメーション</span></a>
+          <a href="index.html">TOP</a>
+          <a href="news.html">NEWS</a>
+          <a href="member.html">MEMBER</a>
+          <a href="schedule.html" class="current">SCHEDULE</a>
+          <a href="fanname.html">FANNAME</a>
+          <a href="info.html">INFO</a>
         </nav>
       </div>
     </div>
@@ -421,233 +46,127 @@
         <p>スケジュール</p>
       </div>
 
+      <!-- 리스트 -->
       <div class="box schedule-list-page">
         <div class="row schedule-row">
           <div>07.12(土)</div>
           <div>상상마당@홍대</div>
           <div>루미벨 데뷔라이브</div>
-          <a class="ticket" href="https://forms.gle/DrYqVV6GCUrzB4wm7" target="_blank" rel="noopener noreferrer">TICKET</a>
-        </div>
-        <div class="row schedule-row">
-          <div>10.18(日)</div>
-          <div>빅 이벤트</div>
-          <div>라이브 예정</div>
-          <a class="ticket" href="news-big-event.html">DETAIL</a>
+          <a class="ticket" href="https://forms.gle/DrYqVV6GCUrzB4wm7" target="_blank">TICKET</a>
         </div>
       </div>
 
-      <div class="schedule-extra-wrap">
-        <button id="toggleCalendar" class="more-schedule-btn">MORE SCHEDULE</button>
+      <!-- 버튼 -->
+      <div style="text-align:center; margin-top:20px;">
+        <button id="toggleCalendar" style="padding:14px 30px; border-radius:999px; background:#f6d8e6; border:none; cursor:pointer;">
+          MORE SCHEDULE
+        </button>
       </div>
 
-      <div id="calendarSection" class="calendar-section hidden">
-        <div class="calendar-header">
-          <button id="prevMonth" class="calendar-nav-btn" type="button">‹</button>
-          <h3 id="calendarMonth" class="calendar-month"></h3>
-          <button id="nextMonth" class="calendar-nav-btn" type="button">›</button>
+      <!-- 캘린더 -->
+      <div id="calendarSection" style="display:none; margin-top:30px;">
+        <div style="display:flex; justify-content:center; gap:10px; align-items:center;">
+          <button id="prevMonth">‹</button>
+          <h3 id="calendarMonth"></h3>
+          <button id="nextMonth">›</button>
         </div>
 
-        <div class="calendar-weekdays">
-          <div>SUN</div>
-          <div>MON</div>
-          <div>TUE</div>
-          <div>WED</div>
-          <div>THU</div>
-          <div>FRI</div>
-          <div>SAT</div>
-        </div>
+        <div id="calendarGrid" style="display:grid; grid-template-columns:repeat(7,1fr); gap:10px; margin-top:20px;"></div>
 
-        <div id="calendarGrid" class="calendar-grid"></div>
-
-        <div id="scheduleDetail" class="schedule-detail">
-          <p class="detail-empty">날짜를 선택하면 상세 일정이 보여집니다.</p>
-        </div>
+        <div id="scheduleDetail" style="margin-top:20px;"></div>
       </div>
     </div>
   </main>
 
   <footer>© 2026 Lumibelle All Rights Reserved.</footer>
 
-  <script>
-    const events = {
-      "2026-07-12": [
-        {
-          type: "DEBUT",
-          place: "상상마당@홍대",
-          event: "루미벨 데뷔라이브",
-          ticket: "https://forms.gle/DrYqVV6GCUrzB4wm7",
-          detail: "news-debut.html",
-          isNew: true
-        }
-      ],
-      "2026-10-18": [
-        {
-          type: "LIVE",
-          place: "빅 이벤트",
-          event: "라이브 예정",
-          ticket: "",
-          detail: "news-big-event.html",
-          isNew: false
-        }
-      ]
-    };
+<script>
+const events = {
+  "2026-07-12": [
+    {
+      type: "DEBUT",
+      place: "상상마당@홍대",
+      event: "루미벨 데뷔라이브",
+      ticket: "https://forms.gle/DrYqVV6GCUrzB4wm7",
+      detail: "news-debut.html",
+      isNew: true
+    }
+  ]
+};
 
-    const toggleBtn = document.getElementById("toggleCalendar");
-    const calendarSection = document.getElementById("calendarSection");
-    const calendarGrid = document.getElementById("calendarGrid");
-    const calendarMonth = document.getElementById("calendarMonth");
-    const scheduleDetail = document.getElementById("scheduleDetail");
-    const prevMonthBtn = document.getElementById("prevMonth");
-    const nextMonthBtn = document.getElementById("nextMonth");
+const toggleBtn = document.getElementById("toggleCalendar");
+const calendarSection = document.getElementById("calendarSection");
+const calendarGrid = document.getElementById("calendarGrid");
+const calendarMonth = document.getElementById("calendarMonth");
+const scheduleDetail = document.getElementById("scheduleDetail");
+const prevMonthBtn = document.getElementById("prevMonth");
+const nextMonthBtn = document.getElementById("nextMonth");
 
-    let currentDate = new Date(2026, 3, 1);
+let currentDate = new Date(2026, 3, 1);
 
-    toggleBtn.addEventListener("click", () => {
-      calendarSection.classList.toggle("hidden");
+toggleBtn.onclick = () => {
+  calendarSection.style.display = calendarSection.style.display === "none" ? "block" : "none";
+  renderCalendar();
+};
 
-      if (!calendarSection.classList.contains("hidden")) {
-        toggleBtn.textContent = "CLOSE";
-        renderCalendar();
-      } else {
-        toggleBtn.textContent = "MORE SCHEDULE";
-        scheduleDetail.innerHTML = '<p class="detail-empty">날짜를 선택하면 상세 일정이 보여집니다.</p>';
-      }
-    });
+prevMonthBtn.onclick = () => {
+  currentDate.setMonth(currentDate.getMonth() - 1);
+  renderCalendar();
+};
 
-    prevMonthBtn.addEventListener("click", () => {
-      currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
-      renderCalendar();
-    });
+nextMonthBtn.onclick = () => {
+  currentDate.setMonth(currentDate.getMonth() + 1);
+  renderCalendar();
+};
 
-    nextMonthBtn.addEventListener("click", () => {
-      currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
-      renderCalendar();
-    });
+function renderCalendar() {
+  calendarGrid.innerHTML = "";
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
 
-    function getBadgeInfo(type) {
-      switch (type) {
-        case "ONEMAN":
-          return { label: "ONEMAN", className: "badge-oneman", important: true };
-        case "DEBUT":
-          return { label: "DEBUT", className: "badge-debut", important: true };
-        case "EVENT":
-          return { label: "EVENT", className: "badge-event", important: false };
-        default:
-          return { label: "LIVE", className: "badge-live", important: false };
-      }
+  calendarMonth.textContent = year + "." + (month + 1);
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const lastDate = new Date(year, month + 1, 0).getDate();
+
+  for (let i = 0; i < firstDay; i++) {
+    calendarGrid.innerHTML += "<div></div>";
+  }
+
+  for (let day = 1; day <= lastDate; day++) {
+    const key = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const event = events[key]?.[0];
+
+    let html = `<div style="border:1px solid #ddd; padding:10px; border-radius:10px;">${day}`;
+
+    if (event) {
+      html += `<br><small>${event.type}</small>`;
+      if (event.isNew) html += `<span style="color:#ff4fa3;"> NEW</span>`;
     }
 
-    function renderCalendar() {
-      calendarGrid.innerHTML = "";
-      scheduleDetail.innerHTML = '<p class="detail-empty">날짜를 선택하면 상세 일정이 보여집니다.</p>';
+    html += "</div>";
 
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth();
+    const el = document.createElement("div");
+    el.innerHTML = html;
 
-      calendarMonth.textContent = `${year}.${String(month + 1).padStart(2, "0")}`;
-
-      const firstDay = new Date(year, month, 1).getDay();
-      const lastDate = new Date(year, month + 1, 0).getDate();
-
-      for (let i = 0; i < firstDay; i++) {
-        const emptyCell = document.createElement("div");
-        emptyCell.className = "calendar-day empty";
-        calendarGrid.appendChild(emptyCell);
-      }
-
-      for (let day = 1; day <= lastDate; day++) {
-        const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-        const dayCell = document.createElement("div");
-        dayCell.className = "calendar-day";
-
-        const eventList = events[dateKey];
-        let previewHTML = "";
-
-        if (eventList && eventList.length > 0) {
-          dayCell.classList.add("has-event");
-
-          const firstEvent = eventList[0];
-          const badgeInfo = getBadgeInfo(firstEvent.type);
-
-          if (badgeInfo.important) {
-            dayCell.classList.add("is-important");
-          }
-
-          previewHTML = `
-            <div class="calendar-preview">
-              <div class="calendar-preview-top">
-                <span class="calendar-badge ${badgeInfo.className}">${badgeInfo.label}</span>
-                ${firstEvent.isNew ? `<span class="calendar-badge badge-new">NEW</span>` : ``}
-              </div>
-              <div class="calendar-preview-title ${badgeInfo.important ? "is-important-title" : ""}">
-                ${firstEvent.event}
-              </div>
-            </div>
-          `;
-        }
-
-        dayCell.innerHTML = `
-          <div class="calendar-day-number">${day}</div>
-          ${previewHTML}
-        `;
-
-        dayCell.addEventListener("click", () => {
-          document.querySelectorAll(".calendar-day").forEach(cell => {
-            cell.classList.remove("selected");
-          });
-
-          dayCell.classList.add("selected");
-          renderDetail(dateKey);
-        });
-
-        calendarGrid.appendChild(dayCell);
-      }
-    }
-
-    function renderDetail(dateKey) {
-      const eventList = events[dateKey];
-
-      if (!eventList) {
-        scheduleDetail.innerHTML = '<p class="detail-empty">해당 날짜에는 등록된 일정이 없습니다.</p>';
+    el.onclick = () => {
+      if (!event) {
+        scheduleDetail.innerHTML = "일정 없음";
         return;
       }
 
-      const [year, month, day] = dateKey.split("-");
-      const formattedDate = `${year}.${month}.${day}`;
-
       scheduleDetail.innerHTML = `
-        <div class="detail-date">${formattedDate}</div>
-        ${eventList.map(item => {
-          const badgeInfo = getBadgeInfo(item.type);
-
-          return `
-            <div class="detail-item">
-              <div class="detail-left">
-                <div class="detail-topline">
-                  <span class="calendar-badge ${badgeInfo.className}">${badgeInfo.label}</span>
-                  ${item.isNew ? `<span class="calendar-badge badge-new">NEW</span>` : ``}
-                  <span class="detail-place">${item.place}</span>
-                </div>
-                <span class="detail-event">${item.event}</span>
-              </div>
-
-              <div class="detail-buttons">
-                ${
-                  item.ticket
-                    ? `<a href="${item.ticket}" class="detail-ticket" target="_blank" rel="noopener noreferrer">TICKET</a>`
-                    : `<span class="detail-ticket detail-button-muted">COMING SOON</span>`
-                }
-                ${
-                  item.detail
-                    ? `<a href="${item.detail}" class="detail-ticket detail-button-detail">DETAIL</a>`
-                    : ``
-                }
-              </div>
-            </div>
-          `;
-        }).join("")}
+        <h3>${key}</h3>
+        <p>${event.event}</p>
+        <a href="${event.ticket}" target="_blank">TICKET</a>
+        <a href="${event.detail}">DETAIL</a>
       `;
-    }
-  </script>
+    };
+
+    calendarGrid.appendChild(el);
+  }
+}
+</script>
+
 </body>
 </html>
