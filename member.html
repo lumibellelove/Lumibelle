@@ -1,114 +1,293 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Member | Lumibelle</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Member | Lumibelle</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #fffafc;
+    }
+
+    main.page-shell {
+      flex: 1;
+    }
+
+    .page-title {
+      text-align: center;
+      margin: 34px 0 22px;
+    }
+
+    .page-title h2 {
+      margin: 0;
+      color: #d77ca7;
+      font-size: 62px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .page-title p {
+      margin: 10px 0 0;
+      color: #c99ab2;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .member-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+      margin-bottom: 46px;
+    }
+
+    .member-card {
+      background: #fff5fb;
+      border: 1px solid #f2d8e7;
+      border-radius: 28px;
+      padding: 10px 10px 16px;
+      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .member-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 14px 32px rgba(0,0,0,0.12);
+    }
+
+    .member-card.mariring {
+      background: #fff0f6;
+    }
+
+    .member-card.lulu {
+      background: #fff6f9;
+    }
+
+    .member-card.iro {
+      background: #f4faff;
+    }
+
+    .member-card.luna {
+      background: #f7f2ff;
+    }
+
+    .member-name-bar {
+      border-radius: 0 0 999px 999px;
+      color: #fff;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 900;
+      padding: 14px 10px;
+      margin-bottom: 12px;
+      letter-spacing: 0.08em;
+    }
+
+    .member-card.mariring .member-name-bar {
+      background: #ff59a5;
+      box-shadow: 0 6px 16px rgba(255, 89, 165, 0.25);
+    }
+
+    .member-card.lulu .member-name-bar {
+      background: linear-gradient(180deg, #FFB8D3 0%, #FFD9E8 100%);
+      box-shadow: 0 6px 16px rgba(255, 184, 211, 0.30);
+    }
+
+    .member-card.iro .member-name-bar {
+      background: #8ECDF2;
+      box-shadow: 0 6px 16px rgba(142, 205, 242, 0.30);
+    }
+
+    .member-card.luna .member-name-bar {
+      background: #9F6DE0;
+      box-shadow: 0 6px 16px rgba(159, 109, 224, 0.30);
+    }
+
+    .member-photo {
+      width: 100%;
+      height: 360px;
+      background: #fff;
+      border: 1px solid #f0dde8;
+      border-radius: 22px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .member-color-text {
+      text-align: center;
+      color: #b28ea2;
+      line-height: 1.7;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .member-meta {
+      color: #8f7183;
+      font-size: 14px;
+      line-height: 1.8;
+      margin-bottom: 18px;
+    }
+
+    .member-meta strong {
+      color: #b28ea2;
+      margin-right: 6px;
+    }
+
+    .member-btn {
+      display: inline-flex;
+      width: 100%;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 18px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 900;
+      color: #fff;
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+    }
+
+    .member-btn.mariring { background: #f35aa0; }
+    .member-btn.lulu { background: linear-gradient(180deg, #FFC0D7 0%, #FFD9E8 100%); }
+    .member-btn.iro { background: #B2DEFF; }
+    .member-btn.luna { background: #ba8ce7; }
+
+    .member-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+    }
+
+    footer {
+      text-align: center;
+      padding: 28px 16px 40px;
+      color: #c6a2b4;
+      font-size: 14px;
+    }
+
+    @media (max-width: 1200px) {
+      .member-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 780px) {
+      .member-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page-title h2 {
+        font-size: 40px;
+      }
+
+      .page-title p {
+        font-size: 16px;
+      }
+    }
+  </style>
 </head>
 
 <body>
-
-<header>
-  <div class="wrap">
-    <div class="header-box">
-      <div class="top-bow">🎀</div>
-      <div class="logo">
-        <h1>Lumibelle</h1>
-        <p>루미벨</p>
+  <header>
+    <div class="wrap">
+      <div class="header-box">
+        <div class="top-bow">🎀</div>
+        <div class="logo">
+          <h1>Lumibelle</h1>
+          <p>루미벨</p>
+        </div>
+        <nav>
+          <a href="index.html"><b>TOP</b><span>탑</span></a>
+          <a href="news.html"><b>NEWS</b><span>공지사항</span></a>
+          <a href="member.html" class="current"><b>MEMBER</b><span>멤버 소개</span></a>
+          <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
+          <a href="fanname.html"><b>FANNAME</b><span>팬네임</span></a>
+          <a href="info.html"><b>INFO</b><span>안내</span></a>
+        </nav>
       </div>
-      <nav>
-        <a href="index.html"><b>TOP</b><span>탑</span></a>
-        <a href="news.html"><b>NEWS</b><span>공지사항</span></a>
-        <a href="member.html" class="current"><b>MEMBER</b><span>멤버 소개</span></a>
-        <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
-        <a href="fanname.html"><b>FANNAME</b><span>팬네임</span></a>
-        <a href="info.html"><b>INFO</b><span>안내</span></a>
-      </nav>
     </div>
-  </div>
-</header>
+  </header>
 
-<main class="page-shell">
-  <div class="wrap">
+  <main class="page-shell">
+    <div class="wrap">
+      <div class="page-title">
+        <h2>MEMBER</h2>
+        <p>멤버 소개</p>
+      </div>
 
-    <div class="page-title">
-      <h2>MEMBER</h2>
-      <p>멤버 소개</p>
+      <div class="member-grid">
+        <article class="member-card mariring">
+          <div class="member-name-bar">MARIRING</div>
+          <div class="member-photo" style="background-image:url('mariring.jpg');"></div>
+          <div class="member-color-text">
+            멤버 컬러<br />
+            체리핑크 ♥
+          </div>
+          <div class="member-meta">
+            <div><strong>키워드</strong> 청춘 / 아이돌 / 반짝임</div>
+            <div><strong>한마디</strong> 반짝이는 순간을 함께 만들자!</div>
+          </div>
+          <a href="mariring.html" class="member-btn mariring">자세히 보기</a>
+        </article>
+
+        <article class="member-card lulu">
+          <div class="member-name-bar">LULU</div>
+          <div class="member-photo" style="background-image:url('lulu.jpg');"></div>
+          <div class="member-color-text">
+            멤버 컬러<br />
+            밀키핑크 ♥
+          </div>
+          <div class="member-meta">
+            <div><strong>키워드</strong> 러블리 / 포근함</div>
+            <div><strong>한마디</strong> 오늘도 다정한 하루가 되길!</div>
+          </div>
+          <a href="lulu.html" class="member-btn lulu">자세히 보기</a>
+        </article>
+
+        <article class="member-card iro">
+          <div class="member-name-bar">IRO</div>
+          <div class="member-photo" style="background-image:url('iro.jpg');"></div>
+          <div class="member-color-text">
+            멤버 컬러<br />
+            엔젤블루 ♥
+          </div>
+          <div class="member-meta">
+            <div><strong>키워드</strong> 청량 / 에너지</div>
+            <div><strong>한마디</strong> 제일 즐거운 무대를 같이 만들자!</div>
+          </div>
+          <a href="iro.html" class="member-btn iro">자세히 보기</a>
+        </article>
+
+        <article class="member-card luna">
+          <div class="member-name-bar">LUNA</div>
+          <div class="member-photo" style="background-image:url('luna.jpg');"></div>
+          <div class="member-color-text">
+            멤버 컬러<br />
+            문퍼플 ♥
+          </div>
+          <div class="member-meta">
+            <div><strong>키워드</strong> 신비로움 / 달빛</div>
+            <div><strong>한마디</strong> 조용히 스며드는 반짝임이 될게.</div>
+          </div>
+          <a href="luna.html" class="member-btn luna">자세히 보기</a>
+        </article>
+      </div>
     </div>
+  </main>
 
-    <div class="member-grid">
-
-      <!-- 마리링 -->
-      <article class="member-card">
-        <div class="ribbon" style="background:linear-gradient(135deg,#ff59a5,#ff8abc)">MARIRING</div>
-        <div class="member-photo" style="background-image:url('mariring.jpg');"></div>
-        <div class="member-body">
-          <div class="color-line">멤버 컬러<br><b>체리핑크 ❤</b></div>
-          <div class="meta">
-            키워드　청춘 / 아이돌 / 반짝임<br>
-            한마디　반짝이는 순간을 함께 만들자!
-          </div>
-          <a class="member-btn" href="mariring.html" style="background:linear-gradient(135deg,#ff59a5,#ff8abc)">
-            자세히 보기
-          </a>
-        </div>
-      </article>
-
-      <!-- 루루 -->
-      <article class="member-card">
-        <div class="ribbon" style="background:linear-gradient(135deg,#ffd9e8,#ffc0d7)">LULU</div>
-        <div class="member-photo" style="background-image:url('lulu.jpg');"></div>
-        <div class="member-body">
-          <div class="color-line">멤버 컬러<br><b>밀키핑크 ❤</b></div>
-          <div class="meta">
-            키워드　러블리 / 포근함<br>
-            한마디　오늘도 다정한 하루가 되길!
-          </div>
-          <a class="member-btn" href="lulu.html" style="background:linear-gradient(135deg,#ffd9e8,#ffc0d7)">
-            자세히 보기
-          </a>
-        </div>
-      </article>
-
-      <!-- 이로 -->
-      <article class="member-card">
-        <div class="ribbon" style="background:linear-gradient(135deg,#b2deff,#8fd0ff)">IRO</div>
-        <div class="member-photo" style="background-image:url('iro.jpg');"></div>
-        <div class="member-body">
-          <div class="color-line">멤버 컬러<br><b>엔젤블루 ❤</b></div>
-          <div class="meta">
-            키워드　청량 / 에너지<br>
-            한마디　제일 즐거운 무대를 같이 만들자!
-          </div>
-          <a class="member-btn" href="iro.html" style="background:linear-gradient(135deg,#b2deff,#8fd0ff)">
-            자세히 보기
-          </a>
-        </div>
-      </article>
-
-      <!-- 루나 -->
-      <article class="member-card">
-        <div class="ribbon" style="background:linear-gradient(135deg,#ba8ce7,#d3b3f5)">LUNA</div>
-        <div class="member-photo" style="background-image:url('luna.jpg');"></div>
-        <div class="member-body">
-          <div class="color-line">멤버 컬러<br><b>문퍼플 ❤</b></div>
-          <div class="meta">
-            키워드　신비로움 / 달빛<br>
-            한마디　조용히 스며드는 반짝임이 될게.
-          </div>
-          <a class="member-btn" href="luna.html" style="background:linear-gradient(135deg,#ba8ce7,#d3b3f5)">
-            자세히 보기
-          </a>
-        </div>
-      </article>
-
-    </div>
-
-  </div>
-</main>
-
-<footer>© 2026 Lumibelle All Rights Reserved.</footer>
-
+  <footer>© 2026 Lumibelle All Rights Reserved.</footer>
 </body>
 </html>
