@@ -1,107 +1,574 @@
 <!DOCTYPE html>
-<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Lumibelle Official</title><link rel="stylesheet" href="style.css"></head>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lumibelle</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #fffafc;
+    }
+
+    main.page-shell {
+      flex: 1;
+    }
+
+    .home-grid-top {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      margin-top: 18px;
+    }
+
+    .home-grid-bottom {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      margin-top: 22px;
+      align-items: stretch;
+    }
+
+    .home-card {
+      background: #fff5fb;
+      border: 1px solid #f2d8e7;
+      border-radius: 28px;
+      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
+      overflow: hidden;
+    }
+
+    .home-card-head {
+      padding: 30px 28px 18px;
+      text-align: center;
+    }
+
+    .home-card-head h3 {
+      margin: 0;
+      color: #d77ca7;
+      font-size: 44px;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .home-card-head p {
+      margin: 8px 0 0;
+      color: #c99ab2;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .news-list {
+      border-top: 1px solid #f2d8e7;
+    }
+
+    .news-item {
+      display: grid;
+      grid-template-columns: 120px 110px 1fr 20px;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 22px;
+      border-bottom: 1px solid #f2d8e7;
+      text-decoration: none;
+      background: #fff5fb;
+      transition: background 0.18s ease;
+    }
+
+    .news-item:hover {
+      background: #fff0f7;
+    }
+
+    .news-date {
+      font-size: 16px;
+      color: #9b7d90;
+      font-weight: 700;
+    }
+
+    .news-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .news-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid transparent;
+      line-height: 1;
+    }
+
+    .badge-new {
+      background: #ff4fa3;
+      color: #fff;
+      border-color: #ff4fa3;
+    }
+
+    .badge-info {
+      background: #fbe8f4;
+      color: #c97ca8;
+      border-color: #efc6dc;
+    }
+
+    .badge-media {
+      background: #eaf4ff;
+      color: #73a1da;
+      border-color: #c7def8;
+    }
+
+    .badge-live {
+      background: #eaf4ff;
+      color: #73a1da;
+      border-color: #c7def8;
+    }
+
+    .news-title {
+      font-size: 16px;
+      line-height: 1.5;
+      color: #846f81;
+      font-weight: 700;
+    }
+
+    .news-arrow {
+      color: #d8a0bc;
+      font-size: 20px;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .schedule-list {
+      border-top: 1px solid #f2d8e7;
+    }
+
+    .schedule-item {
+      display: grid;
+      grid-template-columns: 105px 1fr 1.3fr auto;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 22px;
+      border-bottom: 1px solid #f2d8e7;
+      color: #846f81;
+    }
+
+    .schedule-date {
+      font-size: 16px;
+      font-weight: 700;
+      color: #9b7d90;
+    }
+
+    .schedule-place {
+      font-size: 16px;
+      color: #9b7d90;
+      min-width: 0;
+    }
+
+    .schedule-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #846f81;
+      min-width: 0;
+    }
+
+    .ticket-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 92px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid #efbfd4;
+      background: #fff8fc;
+      color: #e27aa9;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 800;
+      transition: background 0.18s ease, transform 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .ticket-btn:hover {
+      background: #fff0f7;
+      transform: translateY(-1px);
+    }
+
+    .home-card-foot {
+      padding: 20px 24px 24px;
+      text-align: center;
+    }
+
+    .more-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 210px;
+      padding: 14px 22px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 800;
+      background: linear-gradient(180deg, #f38abd 0%, #ed7fb5 100%);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(237, 127, 181, 0.20);
+    }
+
+    .fanname-card {
+      padding: 28px 18px 26px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    .fanname-card .card-title {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .fanname-card .card-title h3 {
+      margin: 0;
+      color: #d77ca7;
+      font-size: 44px;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .fanname-card .card-title p {
+      margin: 8px 0 0;
+      color: #c99ab2;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .fanname-image-box {
+      background: #fff;
+      border: 1px solid #f2d8e7;
+      border-radius: 24px;
+      padding: 16px;
+    }
+
+    .fanname-image-box img {
+      width: 100%;
+      display: block;
+      border-radius: 18px;
+    }
+
+    .fanname-name {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: 900;
+      color: #ef67a8;
+    }
+
+    .fanname-desc {
+      margin-top: 10px;
+      text-align: center;
+      color: #8f7183;
+      line-height: 1.85;
+      font-size: 15px;
+    }
+
+    .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      height: 100%;
+    }
+
+    .info-card,
+    .follow-card {
+      background: #fff5fb;
+      border: 1px solid #f2d8e7;
+      border-radius: 28px;
+      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
+      padding: 28px 24px;
+      box-sizing: border-box;
+    }
+
+    .info-card {
+      flex: 1.1;
+    }
+
+    .follow-card {
+      flex: 0.9;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .section-title h3 {
+      margin: 0;
+      color: #d77ca7;
+      font-size: 44px;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .section-title p {
+      margin: 8px 0 0;
+      color: #c99ab2;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .info-links {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 14px;
+    }
+
+    .info-link-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid #f0dde8;
+      color: #d27ca8;
+      text-decoration: none;
+      font-weight: 800;
+      transition: background 0.18s ease, transform 0.18s ease;
+      text-align: center;
+    }
+
+    .info-link-btn:hover {
+      background: #fff0f7;
+      transform: translateY(-1px);
+    }
+
+    .sns-icons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .sns-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-weight: 900;
+      color: #fff;
+      background: linear-gradient(180deg, #d9b7ef 0%, #cba0e8 100%);
+      box-shadow: 0 8px 18px rgba(203, 160, 232, 0.25);
+      transition: transform 0.18s ease, opacity 0.18s ease;
+    }
+
+    .sns-icon:hover {
+      transform: translateY(-2px);
+      opacity: 0.95;
+    }
+
+    footer {
+      text-align: center;
+      padding: 28px 16px 40px;
+      color: #c6a2b4;
+      font-size: 14px;
+    }
+
+    @media (max-width: 1100px) {
+      .home-grid-top,
+      .home-grid-bottom {
+        grid-template-columns: 1fr;
+      }
+
+      .right-column {
+        height: auto;
+      }
+    }
+
+    @media (max-width: 780px) {
+      .news-item,
+      .schedule-item {
+        grid-template-columns: 1fr;
+        align-items: flex-start;
+      }
+
+      .news-arrow {
+        display: none;
+      }
+
+      .info-links {
+        grid-template-columns: 1fr;
+      }
+
+      .home-card-head h3,
+      .section-title h3,
+      .fanname-card .card-title h3 {
+        font-size: 34px;
+      }
+    }
+  </style>
+</head>
+
 <body>
-<header><div class="wrap"><div class="header-box"><div class="top-bow">🎀</div><div class="logo"><h1>Lumibelle</h1><p>ルミベル</p></div><nav><a href="index.html" class="current"><b>TOP</b><span>トップ</span></a><a href="news.html"><b>NEWS</b><span>お知らせ</span></a><a href="member.html"><b>MEMBER</b><span>メンバー紹介</span></a><a href="schedule.html"><b>SCHEDULE</b><span>スケジュール</span></a><a href="fanname.html"><b>FANNAME</b><span>ファンネーム</span></a><a href="info.html"><b>INFO</b><span>インフォメーション</span></a></nav></div></div></header>
-<main>
-<section class="hero" id="top"><div class="wrap"><div class="hero-card">
-<div class="curtain-left"></div><div class="curtain-right"></div>
-<div class="hero-inner">
-  <div class="hero-copy">
-    <div class="castle">🏰</div>
-    <div class="subline">빛나는 미소의 소녀들</div>
-    <h2 class="brand-name">Lumibelle</h2>
-    <div class="jp">✦ ルミベル ✦</div>
-    <p class="lead">한국에서 활동하고 있는 왕도 아이돌 그룹 Lumibelle (루미벨)입니다.</p>
-    <p class="desc">여러분의 일상으로 더 반짝반짝해져…♡</p>
-  </div>
-  <div class="hero-visual"></div>
-</div>
-<div class="hero-bottom-bow">🎀</div>
-</div></div></section>
-
-<section id="member"><div class="wrap"><div class="section-title"><h2>MEMBER</h2><p>メンバー紹介</p></div><div class="member-grid">
-<article class="member-card">
-<div class="ribbon" style="background:linear-gradient(135deg,#ff59a5,#ff8abc)">MARIRING</div>
-<div class="member-photo" style="background-image:url('mariring.jpg');"></div>
-<div class="member-body">
-<div class="color-line">メンバーカラー<br><b>チェリーピンク ❤</b></div>
-<div class="meta">키워드　청춘 / 아이돌 / 반짝임<br>한마디　반짝이는 순간을 함께 만들자!</div>
-<a class="member-btn" href="mariring.html" style="background:linear-gradient(135deg,#ff59a5,#ff8abc)">자세히 보기</a>
-</div></article><article class="member-card">
-<div class="ribbon" style="background:linear-gradient(135deg,#ffd9e8,#ffc0d7)">LULU</div>
-<div class="member-photo" style="background-image:url('lulu.jpg');"></div>
-<div class="member-body">
-<div class="color-line">メンバーカラー<br><b>ミルキーピンク ❤</b></div>
-<div class="meta">키워드　러블리 / 포근함<br>한마디　오늘도 다정한 하루가 되길!</div>
-<a class="member-btn" href="lulu.html" style="background:linear-gradient(135deg,#ffd9e8,#ffc0d7)">자세히 보기</a>
-</div></article><article class="member-card">
-<div class="ribbon" style="background:linear-gradient(135deg,#b2deff,#8fd0ff)">IRO</div>
-<div class="member-photo" style="background-image:url('iro.jpg');"></div>
-<div class="member-body">
-<div class="color-line">メンバーカラー<br><b>エンジェルブルー ❤</b></div>
-<div class="meta">키워드　청량 / 에너지<br>한마디　제일 즐거운 무대를 같이 만들자!</div>
-<a class="member-btn" href="iro.html" style="background:linear-gradient(135deg,#b2deff,#8fd0ff)">자세히 보기</a>
-</div></article><article class="member-card">
-<div class="ribbon" style="background:linear-gradient(135deg,#ba8ce7,#d3b3f5)">LUNA</div>
-<div class="member-photo" style="background-image:url('luna.jpg');"></div>
-<div class="member-body">
-<div class="color-line">メンバーカラー<br><b>ムーンパープル ❤</b></div>
-<div class="meta">키워드　신비로움 / 달빛<br>한마디　조용히 스며드는 반짝임이 될게.</div>
-<a class="member-btn" href="luna.html" style="background:linear-gradient(135deg,#ba8ce7,#d3b3f5)">자세히 보기</a>
-</div></article>
-</div></div></section>
-
-<section><div class="wrap split">
-<div class="box" id="news"><div class="box-head"><h3>NEWS</h3><p>お知らせ</p></div>
-<div class="row news-row"><div>2024.05.12</div><div><span class="tag new">NEW</span></div><div>5/25(土) 新宿BLAZEにてワンマンライブ開催決定！</div><div class="arrow">›</div></div>
-<div class="row news-row"><div>2024.05.01</div><div><span class="tag info">INFO</span></div><div>新グッズ「魔法のステッキ」販売開始しました！</div><div class="arrow">›</div></div>
-<div class="row news-row"><div>2024.04.20</div><div><span class="tag media">MEDIA</span></div><div>ラジオ出演情報を更新しました！</div><div class="arrow">›</div></div>
-<div class="row news-row"><div>2024.04.10</div><div><span class="tag live">LIVE</span></div><div>4/28(日) 池袋SPACEでライブ出演します！</div><div class="arrow">›</div></div>
-<div class="box-footer"><a class="more-btn" href="news.html">공지사항 더보기</a></div></div>
-
-<div class="box" id="schedule"><div class="box-head"><h3>SCHEDULE</h3><p>スケジュール</p></div>
-<div class="row schedule-row"><div>05.18(土)</div><div>秋葉原ZEST</div><div>Lumi Magic Vol.3</div><a class="ticket" href="schedule.html">TICKET</a></div>
-<div class="row schedule-row"><div>05.25(土)</div><div>新宿BLAZE</div><div>Lumibelle 1st ONEMAN LIVE</div><a class="ticket" href="schedule.html">TICKET</a></div>
-<div class="row schedule-row"><div>06.02(日)</div><div>池袋SPACE</div><div>アイドルフェスティバル</div><a class="ticket" href="schedule.html">TICKET</a></div>
-<div class="row schedule-row"><div>06.09(日)</div><div>渋谷DESEO</div><div>Magic Stage</div><a class="ticket" href="schedule.html">TICKET</a></div>
-<div class="box-footer"><a class="more-btn" href="schedule.html">스케쥴 더보기</a></div></div>
-</div></section>
-
-<section><div class="wrap bottom">
-<div class="bottom-box" id="fanname">
-<h3>FANNAME</h3><p class="sub">팬네임</p>
-<div style="margin-top:14px; display:flex; flex-direction:column; align-items:center; gap:12px;">
-  <img src="fanname.png" alt="Lumina" style="max-width:100%; border-radius:18px; border:1px solid #efd4e1; box-shadow:0 12px 22px rgba(255,120,178,.12);">
-  <div style="text-align:center; margin-top:6px;">
-    <div style="font-size:26px; font-weight:900; color:#ff59a5; letter-spacing:-.02em;">Lumina (루미나)</div>
-    <div style="margin-top:6px; font-size:15px; color:#946f84; line-height:1.8;">
-      ‘빛나는 존재’라는 의미를 담은 Lumibelle의 팬네임입니다.<br>
-      Lumibelle과 함께 반짝이는 존재라는 뜻을 가지고 있어요…♡
+  <header>
+    <div class="wrap">
+      <div class="header-box">
+        <div class="top-bow">🎀</div>
+        <div class="logo">
+          <h1>Lumibelle</h1>
+          <p>ルミベル</p>
+        </div>
+        <nav>
+          <a href="index.html" class="current"><b>TOP</b><span>トップ</span></a>
+          <a href="news.html"><b>NEWS</b><span>お知らせ</span></a>
+          <a href="member.html"><b>MEMBER</b><span>メンバー紹介</span></a>
+          <a href="schedule.html"><b>SCHEDULE</b><span>スケジュール</span></a>
+          <a href="fanname.html"><b>FANNAME</b><span>ファンネーム</span></a>
+          <a href="info.html"><b>INFO</b><span>インフォメーション</span></a>
+        </nav>
+      </div>
     </div>
-  </div>
-</div>
-</div>
+  </header>
 
-<div class="main-container">
+  <main class="page-shell">
+    <div class="wrap">
 
+      <section class="home-grid-top">
+        <div class="home-card">
+          <div class="home-card-head">
+            <h3>NEWS</h3>
+            <p>お知らせ</p>
+          </div>
 
-  <div class="right-column">
-    
-<div class="info-section">
-    <h2>INFO</h2>
-    <p>안내</p>
-    <div class="button-grid"> <button>처음 오신 분</button>
-        <button>티켓 안내</button>
-        <button>FAQ</button>
-        <button>문의하기</button>
+          <div class="news-list">
+            <a href="news-debut.html" class="news-item">
+              <div class="news-date">2026.07.12</div>
+              <div class="news-tags">
+                <span class="news-badge badge-new">NEW</span>
+              </div>
+              <div class="news-title">루미벨 데뷔라이브 안내</div>
+              <div class="news-arrow">›</div>
+            </a>
+
+            <a href="news-big-event.html" class="news-item">
+              <div class="news-date">2026.10.18</div>
+              <div class="news-tags">
+                <span class="news-badge badge-live">LIVE</span>
+              </div>
+              <div class="news-title">빅 이벤트 라이브 예정 안내</div>
+              <div class="news-arrow">›</div>
+            </a>
+
+            <a href="#" class="news-item">
+              <div class="news-date">2026.05.01</div>
+              <div class="news-tags">
+                <span class="news-badge badge-info">INFO</span>
+              </div>
+              <div class="news-title">굿즈 관련 안내 예정</div>
+              <div class="news-arrow">›</div>
+            </a>
+          </div>
+
+          <div class="home-card-foot">
+            <a href="news.html" class="more-btn">공지사항 더보기</a>
+          </div>
+        </div>
+
+        <div class="home-card">
+          <div class="home-card-head">
+            <h3>SCHEDULE</h3>
+            <p>スケジュール</p>
+          </div>
+
+          <div class="schedule-list">
+            <div class="schedule-item">
+              <div class="schedule-date">07.12(土)</div>
+              <div class="schedule-place">상상마당@홍대</div>
+              <div class="schedule-title">루미벨 데뷔라이브</div>
+              <a class="ticket-btn" href="https://forms.gle/DrYqVV6GCUrzB4wm7" target="_blank" rel="noopener noreferrer">TICKET</a>
+            </div>
+
+            <div class="schedule-item">
+              <div class="schedule-date">10.18(日)</div>
+              <div class="schedule-place">빅 이벤트</div>
+              <div class="schedule-title">라이브 예정</div>
+              <a class="ticket-btn" href="schedule.html">DETAIL</a>
+            </div>
+          </div>
+
+          <div class="home-card-foot">
+            <a href="schedule.html" class="more-btn">스케쥴 더보기</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="home-grid-bottom">
+        <div class="home-card fanname-card">
+          <div class="card-title">
+            <h3>FANNAME</h3>
+            <p>팬네임</p>
+          </div>
+
+          <div class="fanname-image-box">
+            <img src="fanname-lumina.png" alt="Lumina 팬네임 이미지" />
+          </div>
+
+          <div class="fanname-name">Lumina (루미나)</div>
+          <div class="fanname-desc">
+            ‘빛나는 존재’라는 의미를 담은 Lumibelle의 팬네임입니다.<br />
+            Lumibelle과 함께 반짝이는 존재라는 뜻을 가지고 있어요…♡
+          </div>
+        </div>
+
+        <div class="right-column">
+          <div class="info-card">
+            <div class="section-title">
+              <h3>INFO</h3>
+              <p>안내</p>
+            </div>
+
+            <div class="info-links">
+              <a href="info.html" class="info-link-btn">처음 오신 분</a>
+              <a href="schedule.html" class="info-link-btn">티켓 안내</a>
+              <a href="info.html" class="info-link-btn">FAQ</a>
+              <a href="mailto:lumibelle.love@gmail.com" class="info-link-btn">문의하기</a>
+            </div>
+          </div>
+
+          <div class="follow-card">
+            <div class="section-title">
+              <h3>FOLLOW US</h3>
+              <p>SNS</p>
+            </div>
+
+            <div class="sns-icons">
+              <a href="https://x.com/Lumibelle_love" target="_blank" rel="noopener noreferrer" class="sns-icon">X</a>
+              <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" class="sns-icon">IG</a>
+              <a href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer" class="sns-icon">TT</a>
+              <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" class="sns-icon">YT</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
-</div>
-<div class="follow-section">
-    <h2>FOLLOW US</h2>
-    <p>SNS</p>
-    <div class="sns-icons"> <span>X</span>
-        <span>IG</span>
-        <span>TT</span>
-        <span>YT</span>
-    </div>
-</div>
+  </main>
+
+  <footer>© 2026 Lumibelle All Rights Reserved.</footer>
+</body>
+</html>
