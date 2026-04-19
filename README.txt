@@ -1,4 +1,4 @@
-Lumibelle 멀티페이지 사이트 파일입니다.
+Lumibelle 오피셜 페이지 사이트 파일입니다.
 
 이미지 교체:
 - hero-group.jpg : 메인 단체 사진
