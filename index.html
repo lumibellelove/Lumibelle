@@ -23,81 +23,42 @@
       flex: 1;
     }
 
-    /* ===== 상단 메인 비주얼 ===== */
-    .hero-banner {
-      position: relative;
-      margin-top: 18px;
-      border: 1px solid #f2d8e7;
-      border-radius: 32px;
-      overflow: hidden;
-      background:
-        linear-gradient(90deg, rgba(255,255,255,0.4) 0 2%, transparent 2% 14%, rgba(255,255,255,0.4) 14% 16%, transparent 16% 84%, rgba(255,255,255,0.4) 84% 86%, transparent 86% 98%, rgba(255,255,255,0.4) 98% 100%),
-        linear-gradient(180deg, #e9e1f8 0%, #dfe7fb 100%);
-      min-height: 560px;
-      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
-    }
+    /* ===== 상단 메인 비주얼 (최종 통합본) ===== */
+.hero-banner {
+  position: relative;
+  margin-top: 18px;
+  border: 1px solid #f2d8e7;
+  border-radius: 32px;
+  overflow: hidden;
+  min-height: 560px;
+  box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
+  /* background 속성은 여기서 삭제! 슬라이드가 배경 역할을 대신합니다. */
+  background: #fdf2f7; 
+}
 
-    .hero-banner::before,
-    /* ===== 상단 메인 비주얼 (수정본) ===== */
-    .hero-banner {
-      position: relative;
-      margin-top: 18px;
-      border: 1px solid #f2d8e7;
-      border-radius: 32px;
-      overflow: hidden;
-      /* 여기에 사진을 넣었습니다! */
-      background: 
-        linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)), 
-        url('hero.png') center / cover no-repeat !important;
-      min-height: 560px;
-      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
-    }
+/* 슬라이드 사진들이 들어갈 자리 */
+.slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out;
+  z-index: 1;
+}
 
-    .hero-inner {
-      position: relative;
-      z-index: 2;
-      padding: 86px 56px 96px;
-      max-width: 720px;
-    }
+.slide.active {
+  opacity: 1;
+  z-index: 1;
+}
 
-    .hero-kor {
-      color: #e08fb4;
-      font-size: 18px;
-      font-weight: 800;
-      margin-bottom: 10px;
-    }
-
-    .hero-logo {
-      font-size: 110px;
-      line-height: 0.95;
-      font-weight: 900;
-      letter-spacing: -0.05em;
-      color: #f5539f;
-      margin: 0;
-      text-shadow: 0 4px 0 rgba(255,255,255,0.65);
-    }
-
-    .hero-sub {
-      margin-top: 8px;
-      color: #de8fb6;
-      font-size: 28px;
-      font-weight: 800;
-    }
-
-    .hero-desc {
-      margin-top: 28px;
-      color: #8f7183;
-      font-size: 17px;
-      line-height: 2;
-    }
-
-    .hero-bow {
-      position: absolute;
-      left: 50%;
-      bottom: 10px;
-      transform: translateX(-50%);
-      font-size: 34px;
-    }
+/* 글자 레이어 (사진보다 위에 오도록 z-index 설정) */
+.hero-inner {
+  position: relative;
+  z-index: 2; 
+  padding: 86px 56px 96px;
+  max-width: 720px;
+}
 
     /* ===== 섹션 공통 ===== */
     .section-heading {
@@ -826,17 +787,16 @@
     <div class="wrap">
 
       <section class="hero-banner">
-        <div class="hero-inner">
-          <div class="hero-kor">빛나는 미소의 소녀들</div>
-          <h1 class="hero-logo">Lumibelle</h1>
-          <div class="hero-sub">✦ 루미벨 ✦</div>
-          <div class="hero-desc">
-            한국에서 활동하고 있는 왕도 아이돌 그룹 Lumibelle (루미벨)입니다.<br />
-            여러분의 일상으로 더 반짝반짝해져…♡
-          </div>
-        </div>
-        <div class="hero-bow">🎀</div>
-      </section>
+  <div class="slide active" style="background-image: url('hero1.png');"></div>
+  <div class="slide" style="background-image: url('hero2.png');"></div>
+  <div class="slide" style="background-image: url('hero3.png');"></div>
+
+  <div class="hero-inner">
+    <div class="hero-kor">빛나는 미소의 소녀들</div>
+    <h1 class="hero-logo">Lumibelle</h1>
+    ...
+  </div>
+</section>
 
       <section class="section-heading">
         <h2>MEMBER</h2>
@@ -1022,5 +982,23 @@
   </main>
 
   <footer>© 2026 Lumibelle All Rights Reserved.</footer>
+  <script>
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.slide');
+
+  function nextSlide() {
+    // 1. 현재 사진 숨기기
+    slides[currentSlide].classList.remove('active');
+    
+    // 2. 다음 사진 인덱스 계산 (마지막 사진이면 다시 0번으로)
+    currentSlide = (currentSlide + 1) % slides.length;
+    
+    // 3. 다음 사진 보여주기
+    slides[currentSlide].classList.add('active');
+  }
+
+  // 5000ms(5초)마다 nextSlide 함수 실행
+  setInterval(nextSlide, 5000);
+</script>
 </body>
 </html>
