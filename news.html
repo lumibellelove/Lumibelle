@@ -3,138 +3,150 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>루미벨 데뷔라이브 | Lumibelle</title>
+  <title>News | Lumibelle</title>
   <link rel="stylesheet" href="style.css" />
 
   <style>
-    .news-detail-wrap {
-      max-width: 900px;
+    .news-list-wrap {
+      max-width: 1100px;
       margin: 0 auto;
     }
 
-    .news-detail-box {
+    .news-list-box {
       background: #fff5fb;
       border: 1px solid #f2d8e7;
       border-radius: 28px;
-      padding: 32px;
+      overflow: hidden;
       box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
     }
 
-    .news-detail-date {
-      font-size: 14px;
-      color: #c091aa;
-      margin-bottom: 10px;
-    }
-
-    .news-detail-title {
-      font-size: 34px;
-      line-height: 1.3;
-      color: #d77ca7;
-      font-weight: 800;
-      margin-bottom: 24px;
-    }
-
-    .news-detail-poster {
-      width: 100%;
-      border-radius: 22px;
-      display: block;
-      margin-bottom: 28px;
-      border: 1px solid #f0d8e5;
-    }
-
-    .news-info-list {
+    .news-row {
       display: grid;
-      gap: 12px;
-      margin-bottom: 28px;
+      grid-template-columns: 170px 140px 1fr 40px;
+      align-items: center;
+      gap: 20px;
+      padding: 26px 30px;
+      border-bottom: 1px solid #f2d8e7;
+      text-decoration: none;
+      background: #fff5fb;
+      transition: background 0.18s ease;
     }
 
-    .news-info-item {
-      display: flex;
-      gap: 14px;
-      padding: 14px 18px;
-      border-radius: 18px;
-      background: #fff;
-      border: 1px solid #f3dfe9;
-      color: #8e7082;
-      line-height: 1.6;
+    .news-row:last-child {
+      border-bottom: none;
     }
 
-    .news-info-label {
-      min-width: 70px;
-      font-weight: 800;
-      color: #cf7ea6;
+    .news-row:hover {
+      background: #fff0f7;
     }
 
-    .news-detail-content {
-      padding: 24px;
-      border-radius: 22px;
-      background: #fff;
-      border: 1px solid #f3dfe9;
-      color: #8e7082;
-      line-height: 1.9;
-      font-size: 16px;
-      margin-bottom: 24px;
+    .news-date {
+      font-size: 18px;
+      color: #9b7d90;
+      font-weight: 500;
     }
 
-    .news-detail-content p {
-      margin: 0 0 14px;
-    }
-
-    .news-detail-content p:last-child {
-      margin-bottom: 0;
-    }
-
-    .news-button-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .news-action-btn {
+    .news-badge {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 120px;
-      padding: 12px 18px;
+      width: fit-content;
+      min-width: 88px;
+      padding: 10px 16px;
       border-radius: 999px;
-      text-decoration: none;
       font-size: 14px;
       font-weight: 800;
-      transition: transform 0.18s ease, background 0.18s ease;
+      border: 1px solid transparent;
     }
 
-    .news-action-btn:hover {
-      transform: translateY(-1px);
-    }
-
-    .news-ticket-btn {
+    .badge-new {
       background: #ffe7f1;
-      color: #df79a8;
-      border: 1px solid #f1bfd4;
+      color: #de77a7;
+      border-color: #f3bfd5;
     }
 
-    .news-back-btn {
-      background: #f4f0ff;
-      color: #8d70d5;
-      border: 1px solid #d8cbf8;
+    .badge-info {
+      background: #fbe8f4;
+      color: #c97ca8;
+      border-color: #efc6dc;
     }
 
-    @media (max-width: 768px) {
-      .news-detail-box {
-        padding: 20px;
+    .badge-media {
+      background: #eaf4ff;
+      color: #73a1da;
+      border-color: #c7def8;
+    }
+
+    .badge-live {
+      background: #eaf4ff;
+      color: #73a1da;
+      border-color: #c7def8;
+    }
+
+    .badge-debut {
+      background: #f4ebff;
+      color: #9f74d1;
+      border-color: #dcc8fa;
+    }
+
+    .news-title-text {
+      font-size: 22px;
+      line-height: 1.5;
+      color: #846f81;
+      font-weight: 500;
+    }
+
+    .news-arrow {
+      font-size: 24px;
+      color: #d8a0bc;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .news-more-wrap {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .news-more-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 320px;
+      padding: 20px 32px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #f38abd 0%, #ed7fb5 100%);
+      color: #fff;
+      font-size: 20px;
+      font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 10px 24px rgba(237, 127, 181, 0.22);
+      transition: transform 0.18s ease, opacity 0.18s ease;
+    }
+
+    .news-more-btn:hover {
+      transform: translateY(-1px);
+      opacity: 0.95;
+    }
+
+    @media (max-width: 900px) {
+      .news-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 22px 20px;
       }
 
-      .news-detail-title {
-        font-size: 26px;
+      .news-title-text {
+        font-size: 18px;
       }
 
-      .news-info-item {
-        flex-direction: column;
-        gap: 6px;
+      .news-arrow {
+        display: none;
       }
 
-      .news-info-label {
+      .news-more-btn {
         min-width: 0;
+        width: 100%;
       }
     }
   </style>
@@ -167,44 +179,44 @@
         <p>お知らせ</p>
       </div>
 
-      <div class="news-detail-wrap">
-        <div class="news-detail-box">
-          <div class="news-detail-date">2026.07.12</div>
-          <h3 class="news-detail-title">루미벨 데뷔라이브 안내</h3>
+      <div class="news-list-wrap">
+        <div class="news-list-box">
+          <a href="news-debut.html" class="news-row">
+            <div class="news-date">2026.07.12</div>
+            <div><span class="news-badge badge-debut">DEBUT</span></div>
+            <div class="news-title-text">루미벨 데뷔라이브 안내</div>
+            <div class="news-arrow">›</div>
+          </a>
 
-          <img src="poster-debut.jpg" alt="루미벨 데뷔라이브 포스터" class="news-detail-poster" />
+          <a href="news-big-event.html" class="news-row">
+            <div class="news-date">2026.10.18</div>
+            <div><span class="news-badge badge-live">LIVE</span></div>
+            <div class="news-title-text">빅 이벤트 라이브 예정 안내</div>
+            <div class="news-arrow">›</div>
+          </a>
 
-          <div class="news-info-list">
-            <div class="news-info-item">
-              <div class="news-info-label">DATE</div>
-              <div>2026.07.12 (토)</div>
-            </div>
-            <div class="news-info-item">
-              <div class="news-info-label">PLACE</div>
-              <div>상상마당@홍대</div>
-            </div>
-            <div class="news-info-item">
-              <div class="news-info-label">TICKET</div>
-              <div>구글폼 예약 진행</div>
-            </div>
-          </div>
+          <a href="#" class="news-row">
+            <div class="news-date">2026.05.01</div>
+            <div><span class="news-badge badge-info">INFO</span></div>
+            <div class="news-title-text">새 굿즈 관련 안내 예정</div>
+            <div class="news-arrow">›</div>
+          </a>
 
-          <div class="news-detail-content">
-            <p>안녕하세요. 루미벨입니다.</p>
-            <p>루미벨의 데뷔라이브가 2026년 7월 12일 상상마당@홍대에서 진행됩니다.</p>
-            <p>상세 안내와 예약 관련 내용은 아래 티켓 버튼을 통해 확인 부탁드립니다.</p>
-            <p>많은 관심과 응원 부탁드립니다. 감사합니다.</p>
-          </div>
+          <a href="#" class="news-row">
+            <div class="news-date">2026.04.20</div>
+            <div><span class="news-badge badge-media">MEDIA</span></div>
+            <div class="news-title-text">미디어 출연 정보 업데이트 예정</div>
+            <div class="news-arrow">›</div>
+          </a>
+        </div>
 
-          <div class="news-button-row">
-            <a href="https://forms.gle/DrYqVV6GCUrzB4wm7" class="news-action-btn news-ticket-btn">TICKET</a>
-            <a href="news.html" class="news-action-btn news-back-btn">BACK TO NEWS</a>
-          </div>
+        <div class="news-more-wrap">
+          <a href="news.html" class="news-more-btn">공지사항 더보기</a>
         </div>
       </div>
     </div>
   </main>
 
-  <footer>© 2024 Lumibelle All Rights Reserved.</footer>
+  <footer>© 2026 Lumibelle All Rights Reserved.</footer>
 </body>
 </html>
