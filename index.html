@@ -1,128 +1,875 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lumibelle</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lumibelle</title>
+  <link rel="stylesheet" href="style.css" />
 
-<style>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
 
-/* ===== 여기 위는 건드리지 않아도 됨 ===== */
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #fffafc;
+    }
 
+    main.page-shell {
+      flex: 1;
+    }
 
-/* ===== 🔥 여기부터 덮어쓰기 (맨 아래에 있어야 함) ===== */
+    /* ===== 상단 메인 비주얼 ===== */
+    .hero-banner {
+      position: relative;
+      margin-top: 18px;
+      border: 1px solid #f2d8e7;
+      border-radius: 32px;
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.4) 0 2%, transparent 2% 14%, rgba(255,255,255,0.4) 14% 16%, transparent 16% 84%, rgba(255,255,255,0.4) 84% 86%, transparent 86% 98%, rgba(255,255,255,0.4) 98% 100%),
+        linear-gradient(180deg, #e9e1f8 0%, #dfe7fb 100%);
+      min-height: 560px;
+      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
+    }
 
-/* 날짜 강조 */
-.schedule-date{
-  font-size:26px !important;
-  font-weight:900 !important;
-  color:#ff5fa5 !important;
+    .hero-banner::before,
+    .hero-banner::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .hero-banner::before {
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.8) 0 2px, transparent 3px),
+        radial-gradient(circle at 40% 35%, rgba(255,255,255,0.8) 0 2px, transparent 3px),
+        radial-gradient(circle at 65% 18%, rgba(255,255,255,0.8) 0 2px, transparent 3px),
+        radial-gradient(circle at 80% 40%, rgba(255,255,255,0.8) 0 2px, transparent 3px),
+        radial-gradient(circle at 55% 55%, rgba(255,255,255,0.8) 0 2px, transparent 3px);
+      opacity: 0.8;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      padding: 86px 56px 96px;
+      max-width: 720px;
+    }
+
+    .hero-kor {
+      color: #e08fb4;
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .hero-logo {
+      font-size: 110px;
+      line-height: 0.95;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      color: #f5539f;
+      margin: 0;
+      text-shadow: 0 4px 0 rgba(255,255,255,0.65);
+    }
+
+    .hero-sub {
+      margin-top: 8px;
+      color: #de8fb6;
+      font-size: 28px;
+      font-weight: 800;
+    }
+
+    .hero-desc {
+      margin-top: 28px;
+      color: #8f7183;
+      font-size: 17px;
+      line-height: 2;
+    }
+
+    .hero-bow {
+      position: absolute;
+      left: 50%;
+      bottom: 10px;
+      transform: translateX(-50%);
+      font-size: 34px;
+    }
+
+    /* ===== 섹션 공통 ===== */
+    .section-heading {
+      text-align: center;
+      margin: 38px 0 20px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      color: #d77ca7;
+      font-size: 62px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .section-heading p {
+      margin: 10px 0 0;
+      color: #c99ab2;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    /* ===== 멤버 ===== */
+    .member-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .member-card {
+      background: #fff5fb;
+      border: 1px solid #f2d8e7;
+      border-radius: 28px;
+      padding: 10px 10px 16px;
+      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
+    }
+
+    .member-name-bar {
+      border-radius: 0 0 999px 999px;
+      color: #fff;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 900;
+      padding: 14px 10px;
+      margin-bottom: 12px;
+      letter-spacing: 0.08em;
+    }
+
+    .mariring { background: #f35aa0; }
+    .lulu { background: linear-gradient(180deg, #FFC0D7 0%, #FFD9E8 100%); }
+    .iro { background: #B2DEFF; }
+    .luna { background: #ba8ce7; }
+
+    .member-photo {
+      width: 100%;
+      height: 360px;
+      background: #fff;
+      border: 1px solid #f0dde8;
+      border-radius: 22px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .member-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .member-color-text {
+      text-align: center;
+      color: #b28ea2;
+      line-height: 1.7;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .member-meta {
+      color: #8f7183;
+      font-size: 14px;
+      line-height: 1.8;
+      margin-bottom: 18px;
+    }
+
+    .member-meta strong {
+      color: #b28ea2;
+      margin-right: 6px;
+    }
+
+    .member-btn {
+      display: inline-flex;
+      width: 100%;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 18px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 900;
+      color: #fff;
+      box-sizing: border-box;
+    }
+
+    .member-btn.mariring { background: #f35aa0; }
+    .member-btn.lulu { background: linear-gradient(180deg, #FFC0D7 0%, #FFD9E8 100%); }
+    .member-btn.iro { background: #B2DEFF; }
+    .member-btn.luna { background: #ba8ce7; }
+
+    /* ===== 중간 박스들 ===== */
+    .home-grid-top {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      margin-top: 34px;
+    }
+
+    .home-grid-bottom {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      margin-top: 22px;
+      align-items: stretch;
+    }
+
+    .home-card {
+      background: #fff5fb;
+      border: 1px solid #f2d8e7;
+      border-radius: 28px;
+      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
+      overflow: hidden;
+    }
+
+    .home-card-head {
+      padding: 30px 28px 18px;
+      text-align: center;
+    }
+
+    .home-card-head h3 {
+      margin: 0;
+      color: #d77ca7;
+      font-size: 44px;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .home-card-head p {
+      margin: 8px 0 0;
+      color: #c99ab2;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    /* ===== 뉴스 ===== */
+    .news-list {
+      border-top: 1px solid #f2d8e7;
+    }
+
+    .news-item {
+      display: grid;
+      grid-template-columns: 120px 110px 1fr 20px;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 22px;
+      border-bottom: 1px solid #f2d8e7;
+      text-decoration: none;
+      background: #fff5fb;
+      transition: background 0.18s ease;
+    }
+
+    .news-item:hover {
+      background: #fff0f7;
+    }
+
+    .news-date {
+      font-size: 18px;
+      color: #9b7d90;
+      font-weight: 900;
+      letter-spacing: 0.01em;
+    }
+
+    .news-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .news-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      border: 1px solid transparent;
+      line-height: 1;
+    }
+
+    .badge-new {
+      background: #ff4fa3;
+      color: #fff;
+      border-color: #ff4fa3;
+    }
+
+    .badge-info {
+      background: #fbe8f4;
+      color: #c97ca8;
+      border-color: #efc6dc;
+    }
+
+    .badge-media {
+      background: #eaf4ff;
+      color: #73a1da;
+      border-color: #c7def8;
+    }
+
+    .badge-live {
+      background: #eaf4ff;
+      color: #73a1da;
+      border-color: #c7def8;
+    }
+
+    .news-title {
+      font-size: 18px;
+      line-height: 1.5;
+      color: #846f81;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+    }
+
+    .news-arrow {
+      color: #d8a0bc;
+      font-size: 20px;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    /* ===== 스케줄 ===== */
+    .schedule-list {
+      border-top: 1px solid #f2d8e7;
+    }
+
+    .schedule-item {
+  display: grid;
+  grid-template-columns: 125px 165px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 22px;
+  border-bottom: 1px solid #f2d8e7;
+  color: #846f81;
 }
 
-/* 텍스트 강조 (크기는 유지, 굵기만) */
-.schedule-place,
-.schedule-title{
-  font-size:18px !important;
-  font-weight:800 !important;
-  color:#7e6b78 !important;
+.schedule-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: #846f81;
+  min-width: 0;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* 티켓 버튼 - 흰 타원 */
-.ticket-btn{
-  background:#fff !important;
-  color:#e27aa9 !important;
-  border:1.5px solid #f0bfd4 !important;
-  border-radius:999px;
-  padding:10px 16px;
-  font-weight:800;
+.ticket-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 82px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid #efbfd4;
+  background: #fff8fc;
+  color: #e27aa9;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 800;
+  transition: background 0.18s ease, transform 0.18s ease;
+  white-space: nowrap;
 }
 
-/* 더보기 버튼 - 쨍한 핑크 */
-.more-btn{
-  background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%) !important;
-  color:#fff !important;
-  font-weight:900;
-  border-radius:999px;
-  padding:16px 26px;
-  box-shadow:0 8px 18px rgba(255,95,165,0.25);
-}
+    .ticket-btn:hover {
+      background: #fff0f7;
+      transform: translateY(-1px);
+    }
 
-</style>
+    .home-card-foot {
+      padding: 20px 24px 24px;
+      text-align: center;
+    }
 
+    .more-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 210px;
+      padding: 14px 22px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 800;
+      background: linear-gradient(180deg, #f38abd 0%, #ed7fb5 100%);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(237, 127, 181, 0.20);
+    }
+
+    /* ===== 팬네임/인포/팔로우 ===== */
+    .fanname-card {
+      padding: 28px 18px 26px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    .fanname-card .card-title {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .fanname-card .card-title h3 {
+      margin: 0;
+      color: #d77ca7;
+      font-size: 44px;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .fanname-card .card-title p {
+      margin: 8px 0 0;
+      color: #c99ab2;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .fanname-image-box {
+      background: #fff;
+      border: 1px solid #f2d8e7;
+      border-radius: 24px;
+      padding: 16px;
+    }
+
+    .fanname-image-box img {
+      width: 100%;
+      display: block;
+      border-radius: 18px;
+    }
+
+    .fanname-name {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: 900;
+      color: #ef67a8;
+    }
+
+    .fanname-desc {
+      margin-top: 10px;
+      text-align: center;
+      color: #8f7183;
+      line-height: 1.85;
+      font-size: 15px;
+    }
+
+    .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      height: 100%;
+    }
+
+    .info-card,
+    .follow-card {
+      background: #fff5fb;
+      border: 1px solid #f2d8e7;
+      border-radius: 28px;
+      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
+      padding: 28px 24px;
+      box-sizing: border-box;
+    }
+
+    .info-card {
+      flex: 1.1;
+    }
+
+    .follow-card {
+      flex: 0.9;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .section-title h3 {
+      margin: 0;
+      color: #d77ca7;
+      font-size: 44px;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .section-title p {
+      margin: 8px 0 0;
+      color: #c99ab2;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .info-links {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 14px;
+    }
+
+    .info-link-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid #f0dde8;
+      color: #d27ca8;
+      text-decoration: none;
+      font-weight: 800;
+      transition: background 0.18s ease, transform 0.18s ease;
+      text-align: center;
+    }
+
+    .info-link-btn:hover {
+      background: #fff0f7;
+      transform: translateY(-1px);
+    }
+
+    .sns-icons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .sns-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-weight: 900;
+      color: #fff;
+      background: linear-gradient(180deg, #d9b7ef 0%, #cba0e8 100%);
+      box-shadow: 0 8px 18px rgba(203, 160, 232, 0.25);
+      transition: transform 0.18s ease, opacity 0.18s ease;
+    }
+
+    .sns-icon:hover {
+      transform: translateY(-2px);
+      opacity: 0.95;
+    }
+
+    footer {
+      text-align: center;
+      padding: 28px 16px 40px;
+      color: #c6a2b4;
+      font-size: 14px;
+    }
+
+    @media (max-width: 1200px) {
+      .member-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .home-grid-top,
+      .home-grid-bottom {
+        grid-template-columns: 1fr;
+      }
+
+      .right-column {
+        height: auto;
+      }
+    }
+
+    @media (max-width: 780px) {
+      .hero-inner {
+        padding: 50px 24px 80px;
+      }
+
+      .hero-logo {
+        font-size: 68px;
+      }
+
+      .hero-sub {
+        font-size: 22px;
+      }
+
+      .member-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .news-item,
+      .schedule-item {
+        grid-template-columns: 1fr;
+        align-items: flex-start;
+      }
+
+      .news-arrow {
+        display: none;
+      }
+
+      .info-links {
+        grid-template-columns: 1fr;
+      }
+
+      .home-card-head h3,
+      .section-title h3,
+      .fanname-card .card-title h3,
+      .section-heading h2 {
+        font-size: 34px;
+      }
+
+      .news-date,
+      .news-title,
+      .schedule-place,
+      .schedule-title {
+        font-size: 16px;
+      }
+
+      .schedule-date {
+        font-size: 20px;
+      }
+
+      .schedule-place,
+      .schedule-title {
+        white-space: normal;
+      }
+    }
+  </style>
 </head>
 
 <body>
-
-<header>
-  <div class="wrap">
-    <div class="header-box">
-      <div class="top-bow">🎀</div>
-      <div class="logo">
-        <h1>Lumibelle</h1>
-        <p>루미벨</p>
+  <header>
+    <div class="wrap">
+      <div class="header-box">
+        <div class="top-bow">🎀</div>
+        <div class="logo">
+          <h1>Lumibelle</h1>
+          <p>루미벨</p>
+        </div>
+        <nav>
+          <a href="index.html" class="current"><b>TOP</b><span>탑</span></a>
+          <a href="news.html"><b>NEWS</b><span>공지사항</span></a>
+          <a href="member.html"><b>MEMBER</b><span>멤버 소개</span></a>
+          <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
+          <a href="fanname.html"><b>FANNAME</b><span>팬네임</span></a>
+          <a href="info.html"><b>INFO</b><span>안내</span></a>
+        </nav>
       </div>
+    </div>
+  </header>
 
-```
-  <nav>
-    <a href="index.html" class="current"><b>TOP</b><span>탑</span></a>
-    <a href="news.html"><b>NEWS</b><span>공지사항</span></a>
-    <a href="member.html"><b>MEMBER</b><span>멤버 소개</span></a>
-    <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
-    <a href="fanname.html"><b>FANNAME</b><span>팬네임</span></a>
-    <a href="info.html"><b>INFO</b><span>안내</span></a>
-  </nav>
-</div>
-```
+  <main class="page-shell">
+    <div class="wrap">
 
-  </div>
-</header>
+      <section class="hero-banner">
+        <div class="hero-inner">
+          <div class="hero-kor">빛나는 미소의 소녀들</div>
+          <h1 class="hero-logo">Lumibelle</h1>
+          <div class="hero-sub">✦ 루미벨 ✦</div>
+          <div class="hero-desc">
+            한국에서 활동하고 있는 왕도 아이돌 그룹 Lumibelle (루미벨)입니다.<br />
+            여러분의 일상으로 더 반짝반짝해져…♡
+          </div>
+        </div>
+        <div class="hero-bow">🎀</div>
+      </section>
 
-<main class="page-shell">
-<div class="wrap">
+      <section class="section-heading">
+        <h2>MEMBER</h2>
+        <p>멤버 소개</p>
+      </section>
 
-<!-- ===== SCHEDULE ===== -->
+      <section class="member-grid">
+        <div class="member-card">
+          <div class="member-name-bar mariring">MARIRING</div>
+          <div class="member-photo"></div>
+          <div class="member-color-text">
+            멤버 컬러<br />
+            체리핑크 ♥
+          </div>
+          <div class="member-meta">
+            <div><strong>키워드</strong> 청춘 / 아이돌 / 반짝임</div>
+            <div><strong>한마디</strong> 반짝이는 순간을 함께 만들자!</div>
+          </div>
+          <a href="member.html" class="member-btn mariring">자세히 보기</a>
+        </div>
 
-<section class="home-card">
+        <div class="member-card">
+          <div class="member-name-bar lulu">LULU</div>
+          <div class="member-photo"></div>
+          <div class="member-color-text">
+            멤버 컬러<br />
+            밀키핑크 ♥
+          </div>
+          <div class="member-meta">
+            <div><strong>키워드</strong> 러블리 / 포근함</div>
+            <div><strong>한마디</strong> 오늘도 다정한 하루가 되길!</div>
+          </div>
+          <a href="member.html" class="member-btn lulu">자세히 보기</a>
+        </div>
 
-  <div class="home-card-head">
-    <h3>SCHEDULE</h3>
-    <p>스케줄</p>
-  </div>
+        <div class="member-card">
+          <div class="member-name-bar iro">IRO</div>
+          <div class="member-photo"></div>
+          <div class="member-color-text">
+            멤버 컬러<br />
+            엔젤블루 ♥
+          </div>
+          <div class="member-meta">
+            <div><strong>키워드</strong> 청량 / 에너지</div>
+            <div><strong>한마디</strong> 제일 즐거운 무대를 같이 만들자!</div>
+          </div>
+          <a href="member.html" class="member-btn iro">자세히 보기</a>
+        </div>
 
-  <div class="schedule-list">
+        <div class="member-card">
+          <div class="member-name-bar luna">LUNA</div>
+          <div class="member-photo"></div>
+          <div class="member-color-text">
+            멤버 컬러<br />
+            문퍼플 ♥
+          </div>
+          <div class="member-meta">
+            <div><strong>키워드</strong> 신비로움 / 달빛</div>
+            <div><strong>한마디</strong> 조용히 스며드는 반짝임이 될게.</div>
+          </div>
+          <a href="member.html" class="member-btn luna">자세히 보기</a>
+        </div>
+      </section>
 
-```
-<div class="schedule-item">
-  <div class="schedule-date">07.12(土)</div>
-  <div class="schedule-place">상상마당@홍대</div>
-  <div class="schedule-title">루미벨 데뷔라이브</div>
-  <a class="ticket-btn" href="schedule.html">TICKET</a>
-</div>
+      <section class="home-grid-top">
+        <div class="home-card">
+          <div class="home-card-head">
+            <h3>NEWS</h3>
+            <p>공지사항</p>
+          </div>
 
-<div class="schedule-item">
-  <div class="schedule-date">10.18(日)</div>
-  <div class="schedule-place">빅 이벤트</div>
-  <div class="schedule-title">라이브 예정</div>
-  <a class="ticket-btn" href="schedule.html">DETAIL</a>
-</div>
-```
+          <div class="news-list">
+            <a href="news-debut.html" class="news-item">
+              <div class="news-date">2026.07.12</div>
+              <div class="news-tags">
+                <span class="news-badge badge-new">NEW</span>
+              </div>
+              <div class="news-title">루미벨 데뷔라이브 안내</div>
+              <div class="news-arrow">›</div>
+            </a>
 
-  </div>
+            <a href="news-big-event.html" class="news-item">
+              <div class="news-date">2026.10.18</div>
+              <div class="news-tags">
+                <span class="news-badge badge-live">LIVE</span>
+              </div>
+              <div class="news-title">빅 이벤트 라이브 예정 안내</div>
+              <div class="news-arrow">›</div>
+            </a>
 
-  <div class="home-card-foot">
-    <a href="schedule.html" class="more-btn">스케줄 더보기</a>
-  </div>
+            <a href="#" class="news-item">
+              <div class="news-date">2026.05.01</div>
+              <div class="news-tags">
+                <span class="news-badge badge-info">INFO</span>
+              </div>
+              <div class="news-title">굿즈 관련 안내 예정</div>
+              <div class="news-arrow">›</div>
+            </a>
+          </div>
 
-</section>
+          <div class="home-card-foot">
+            <a href="news.html" class="more-btn">공지사항 더보기</a>
+          </div>
+        </div>
 
-</div>
-</main>
+        <div class="home-card">
+          <div class="home-card-head">
+            <h3>SCHEDULE</h3>
+            <p>스케줄</p>
+          </div>
 
-<footer>
-  © 2026 Lumibelle All Rights Reserved.
-</footer>
+          <div class="schedule-list">
+            <div class="schedule-item">
+              <div class="schedule-date">07.12(土)</div>
+              <div class="schedule-place">상상마당@홍대</div>
+              <div class="schedule-title">루미벨 데뷔라이브</div>
+              <a class="ticket-btn" href="schedule.html">TICKET</a>
+            </div>
 
+            <div class="schedule-item">
+              <div class="schedule-date">10.18(日)</div>
+              <div class="schedule-place">빅 이벤트</div>
+              <div class="schedule-title">라이브 예정</div>
+              <a class="ticket-btn" href="schedule.html">DETAIL</a>
+            </div>
+          </div>
+
+          <div class="home-card-foot">
+            <a href="schedule.html" class="more-btn">스케줄 더보기</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="home-grid-bottom">
+        <div class="home-card fanname-card">
+          <div class="card-title">
+            <h3>FANNAME</h3>
+            <p>팬네임</p>
+          </div>
+
+          <div class="fanname-image-box">
+            <img src="fanname.png" alt="fanname" />
+          </div>
+
+          <div class="fanname-name">Lumina (루미나)</div>
+          <div class="fanname-desc">
+            ‘빛나는 존재’라는 의미를 담은 Lumibelle의 팬네임입니다.<br />
+            Lumibelle과 함께 반짝이는 존재라는 뜻을 가지고 있어요…♡
+          </div>
+        </div>
+
+        <div class="right-column">
+          <div class="info-card">
+            <div class="section-title">
+              <h3>INFO</h3>
+              <p>안내</p>
+            </div>
+
+            <div class="info-links">
+              <a href="info.html" class="info-link-btn">처음 오신 분</a>
+              <a href="schedule.html" class="info-link-btn">티켓 안내</a>
+              <a href="info.html" class="info-link-btn">FAQ</a>
+              <a href="mailto:lumibelle.love@gmail.com" class="info-link-btn">문의하기</a>
+            </div>
+          </div>
+
+          <div class="follow-card">
+            <div class="section-title">
+              <h3>FOLLOW US</h3>
+              <p>SNS</p>
+            </div>
+
+            <div class="sns-icons">
+              <a href="https://x.com/Lumibelle_love" target="_blank" rel="noopener noreferrer" class="sns-icon">X</a>
+              <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" class="sns-icon">IG</a>
+              <a href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer" class="sns-icon">TT</a>
+              <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" class="sns-icon">YT</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer>© 2026 Lumibelle All Rights Reserved.</footer>
 </body>
 </html>
