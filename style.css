@@ -1,121 +1,28 @@
 :root {
   --bg: #fff8fb;
-  --panel: rgba(255, 246, 251, .92);
   --line: #f1d4e3;
-  --pink: #ff78b2;
   --pink-deep: #ff59a5;
   --text: #8a6b7c;
   --soft: #c79bb2;
   --shadow: 0 16px 30px rgba(255, 120, 178, .10);
+  --box-bg: #FFF4F8; /* 이미지의 핑크색 배경 */
 }
 
+/* 기본 설정 */
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+body { margin: 0; background: #fffafd; color: var(--text); font-family: "Noto Sans KR", sans-serif; line-height: 1.6; }
+a { text-decoration: none; color: inherit; }
+.wrap { width: min(1200px, calc(100% - 40px)); margin: 0 auto; }
 
-body {
-  margin: 0;
-  background: 
-    radial-gradient(circle at 0% 0%, rgba(255, 230, 241, .95), transparent 20%),
-    radial-gradient(circle at 100% 0%, rgba(232, 223, 255, .85), transparent 26%),
-    linear-gradient(180deg, #fffafd 0%, #fff7fb 100%);
-  color: var(--text);
-  font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-}
+/* 헤더/히어로/멤버/뉴스/스케줄 등 상단 디자인 유지용 생략 (기존 스타일이 있다면 이 위에 붙여넣으셔도 됩니다) */
 
-a { color: inherit; text-decoration: none; }
-img { max-width: 100%; display: block; }
-.wrap { width: min(1220px, calc(100% - 28px)); margin: 0 auto; }
-
-/* --- Header --- */
-header {
-  position: sticky; top: 0; z-index: 50;
-  background: rgba(255, 248, 252, .93);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(241, 212, 227, .85);
-  box-shadow: 0 8px 20px rgba(255, 120, 178, .06);
-}
-
-.header-box {
-  margin: 18px auto 14px; padding: 20px 24px;
-  border: 1px solid var(--line); border-radius: 22px;
-  background: linear-gradient(180deg, rgba(255, 252, 254, .97), rgba(255, 246, 251, .95));
-  box-shadow: var(--shadow);
-  display: grid; grid-template-columns: 220px 1fr; align-items: center; gap: 18px; position: relative;
-}
-
-.top-bow { position: absolute; left: 50%; top: -10px; transform: translateX(-50%); font-size: 34px; }
-.logo h1 { margin: 0; font-size: 38px; line-height: 1; color: var(--pink-deep); letter-spacing: -.05em; font-weight: 800; }
-.logo p { margin: 6px 0 0; font-size: 11px; letter-spacing: .28em; color: var(--soft); font-weight: 800; }
-
-nav { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; text-align: center; }
-nav a { padding: 8px 4px; border-radius: 14px; transition: .18s ease; }
-nav a:hover, nav a.current { background: rgba(255, 239, 247, .8); }
-nav b { display: block; color: #d06f9f; font-size: 15px; margin-bottom: 4px; }
-nav span { display: block; color: var(--soft); font-size: 11px; font-weight: 700; letter-spacing: .06em; }
-
-/* --- Hero --- */
-.hero { padding: 10px 0 16px; }
-.hero-card {
-  position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 0 0 24px 24px;
-  background: linear-gradient(135deg, #fce5f0 0%, #ece4ff 48%, #eef7ff 100%);
-  min-height: 560px; box-shadow: var(--shadow);
-}
-.curtain-left, .curtain-right {
-  position: absolute; top: 0; width: 190px; height: 100%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, .58), rgba(255, 255, 255, .10)), repeating-linear-gradient(90deg, rgba(255, 255, 255, .22) 0 14px, rgba(255, 215, 235, .22) 14px 28px);
-  opacity: .9; z-index: 1;
-}
-.curtain-left { left: 0; border-right: 1px solid rgba(255, 255, 255, .35); clip-path: polygon(0 0, 100% 0, 82% 100%, 0 100%); }
-.curtain-right { right: 0; border-left: 1px solid rgba(255, 255, 255, .35); clip-path: polygon(18% 0, 100% 0, 100% 100%, 0 100%); }
-.hero-inner { position: relative; z-index: 2; display: grid; grid-template-columns: .95fr 1.05fr; align-items: stretch; min-height: 560px; }
-.hero-copy { padding: 78px 40px 42px 56px; display: flex; flex-direction: column; justify-content: center; }
-.hero-copy .subline { color: #cc7ea6; font-size: 17px; font-weight: 700; margin-bottom: 14px; }
-.hero-copy .brand-name { font-size: 72px; line-height: .9; letter-spacing: -.06em; margin: 0 0 10px; color: var(--pink-deep); font-weight: 800; }
-.hero-copy .jp { color: #d985ad; font-weight: 800; font-size: 15px; letter-spacing: .24em; margin-bottom: 22px; }
-.hero-copy .lead, .hero-copy .desc { margin: 0; line-height: 2; font-size: 16px; color: #8f7082; }
-.hero-visual { position: relative; min-height: 560px; background: url('hero-group.jpg') center/cover no-repeat; }
-.hero-bottom-bow { position: absolute; left: 50%; bottom: -8px; transform: translateX(-50%); font-size: 34px; z-index: 3; }
-
-/* --- Section Title --- */
-section { padding: 30px 0; }
-.section-title { text-align: center; color: #d977a4; margin-bottom: 24px; }
-.section-title h2 { margin: 0; font-size: 42px; letter-spacing: -.04em; }
-.section-title p { margin: 4px 0 0; color: var(--soft); font-size: 12px; font-weight: 800; letter-spacing: .18em; }
-
-/* --- Members --- */
-.member-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-.member-card {
-  background: #fff; border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); overflow: hidden; padding: 10px;
-}
-.ribbon { height: 44px; border-radius: 14px 14px 999px 999px; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 10px; }
-.member-photo { aspect-ratio: 4/5; border-radius: 16px; border: 1px solid #efd8e4; background-size: cover; background-position: center; margin-bottom: 12px; }
-.member-body { padding: 2px 8px 8px; text-align: center; }
-.member-body .color-line { font-size: 13px; color: #b98ea4; font-weight: 700; margin-bottom: 8px; }
-.member-body .meta { text-align: left; font-size: 12px; line-height: 1.8; color: #9b7d8d; margin-bottom: 12px; }
-.member-btn { display: inline-flex; width: 100%; justify-content: center; padding: 11px 12px; border-radius: 999px; color: white; font-size: 13px; font-weight: 800; }
-
-/* --- News & Schedule --- */
-.split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.box { border: 1px solid var(--line); border-radius: 22px; background: #fff; box-shadow: var(--shadow); overflow: hidden; }
-.box-head { text-align: center; padding: 24px 18px 12px; color: #d878a5; }
-.box-head h3 { margin: 0; font-size: 36px; color: #d878a5; }
-.box-head p { margin: 4px 0 0; font-size: 11px; color: var(--soft); font-weight: 800; letter-spacing: .16em; }
-.row { display: grid; gap: 14px; align-items: center; padding: 16px 20px; border-top: 1px solid #f5dce7; font-size: 14px; color: #8f7484; }
-.news-row { grid-template-columns: 100px 70px 1fr 20px; }
-.schedule-row { grid-template-columns: 100px 70px 1fr 80px; }
-.tag { display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; padding: 5px 10px; color: white; font-size: 10px; font-weight: 800; }
-.new { background: #ff8db9; } .info { background: #ebb1d1; } .media { background: #95c9ff; } .live { background: #84bfff; }
-.arrow { color: #d8a1bc; text-align: right; }
-.ticket { display: inline-flex; align-items: center; justify-content: center; padding: 6px 10px; border-radius: 999px; border: 1px solid #f0bfd6; color: #dc75a3; font-size: 11px; font-weight: 900; }
-.box-footer { padding: 20px; text-align: center; }
-.more-btn { display: inline-flex; align-items: center; justify-content: center; min-width: 180px; padding: 12px; border-radius: 999px; color: white; background: linear-gradient(135deg, #ff7eb3, #ff95c3); font-size: 13px; font-weight: 800; }
-
-/* --- 하단 레이아웃 (FANNAME 높이에 맞춰 정렬) --- */
+/* --- 하단 레이아웃 (FANNAME, INFO, FOLLOW 전용) --- */
 .bottom-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr; /* 가로로 두 기둥 배치 */
   gap: 20px;
-  align-items: stretch; /* 왼쪽 높이에 오른쪽을 맞춤 */
+  margin: 40px 0;
+  align-items: stretch; /* 왼쪽 높이에 오른쪽을 강제로 맞춤 */
 }
 
 .right-column {
@@ -124,41 +31,67 @@ section { padding: 30px 0; }
   gap: 20px;
 }
 
+/* ★ 모든 박스 공통 디자인 (흰색 박스 안 나오게 강제 고정) ★ */
+.bottom-layout .box {
+  background: var(--box-bg) !important; /* 강제로 핑크색 적용 */
+  border: 2px solid #F5DBE7 !important;
+  border-radius: 24px !important;
+  box-shadow: var(--shadow);
+  padding: 30px 20px;
+  text-align: center;
+  margin: 0 !important; /* 여백 꼬임 방지 */
+}
+
+/* 왼쪽 팬네임 박스 */
 .fanname-box {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 40px 20px;
 }
 
+/* 오른쪽 인포/팔로우 박스 */
 .info-box, .follow-box {
-  flex: 1; /* 오른쪽 박스 두 개가 높이를 똑같이 나눠가짐 */
+  flex: 1; /* 높이 5:5 배분 */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
-.fanname-img { width: 100%; max-width: 320px; margin: 20px auto; border-radius: 20px; }
+/* 텍스트 스타일 */
 h3 { font-size: 32px; color: #d878a5; margin: 0; }
-.sub { font-size: 12px; color: var(--soft); margin-bottom: 15px; }
+
+/* ★ 안내, 팬네임, SNS (굵기 900 적용) ★ */
+.sub { 
+  font-size: 14px !important; 
+  color: #b388a0 !important;
+  font-weight: 900 !important; /* 가장 굵게 */
+  margin: 5px 0 15px !important; 
+  display: block;
+}
+
+/* 버튼 및 이미지 */
+.fanname-img { width: 100%; max-width: 320px; margin: 15px auto; border-radius: 15px; }
 
 .info-links {
   display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 360px;
 }
 .info-links a {
-  display: flex; align-items: center; justify-content: center; height: 42px;
-  border: 1px solid #edd0df; border-radius: 12px; font-size: 13px; font-weight: 800; color: #d073a1;
+  display: flex; align-items: center; justify-content: center;
+  height: 40px; border: 1px solid #edd0df; border-radius: 12px;
+  font-size: 13px; font-weight: 800; color: #d073a1; background: #fff;
 }
 
-.sns { display: flex; gap: 14px; margin-top: 10px; }
+.sns { display: flex; gap: 12px; margin-top: 10px; }
 .sns a {
-  width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #ff8fbc, #dca7ff);
+  width: 50px; height: 50px; border-radius: 50%;
+  background: linear-gradient(135deg, #ff8fbc, #dca7ff);
   color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 900;
 }
 
 .footer-copy { text-align: center; padding: 40px 0; color: var(--soft); font-size: 13px; }
 
+/* 모바일 화면 */
 @media (max-width: 800px) {
-  .member-grid, .split, .bottom-layout { grid-template-columns: 1fr; }
+  .bottom-layout { grid-template-columns: 1fr; }
 }
