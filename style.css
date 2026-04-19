@@ -1,3 +1,4 @@
+/* 1. 기본 설정 및 변수 */
 :root {
   --bg: #fff8fb;
   --line: #f1d4e3;
@@ -7,11 +8,10 @@
   --shadow: 0 16px 30px rgba(255, 120, 178, .10);
 }
 
-/* 기본 설정 - 보라색 제거 버전 */
 * { box-sizing: border-box; }
 body { 
   margin: 0; 
-  background: #fffafd; /* 보라색 없는 깔끔한 배경 */
+  background: #fffafd; 
   color: var(--text); 
   font-family: "Noto Sans KR", sans-serif; 
   line-height: 1.6; 
@@ -19,78 +19,83 @@ body {
 a { text-decoration: none; color: inherit; }
 .wrap { width: min(1200px, calc(100% - 40px)); margin: 0 auto; }
 
-/* --- 하단 레이아웃 (FANNAME, INFO, FOLLOW) --- */
+/* 2. 헤더 (Header) */
+header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.header-box {
+  display: flex; justify-content: space-between; align-items: center; padding: 15px 0;
+}
+.logo h1 { font-size: 32px; color: var(--pink-deep); margin: 0; line-height: 1; }
+.logo p { font-size: 10px; color: var(--soft); margin: 5px 0 0; letter-spacing: 2px; }
+nav { display: flex; gap: 20px; }
+nav b { display: block; font-size: 14px; color: #d06f9f; }
+nav span { font-size: 10px; color: var(--soft); }
+
+/* 3. 메인 비주얼 (Hero) */
+.hero { padding: 30px 0; }
+.hero-card {
+  position: relative; background: #fff; border: 1px solid var(--line); border-radius: 24px;
+  min-height: 500px; overflow: hidden; box-shadow: var(--shadow);
+}
+.hero-inner { display: grid; grid-template-columns: 1fr 1fr; min-height: 500px; }
+.hero-copy { padding: 60px; display: flex; flex-direction: column; justify-content: center; }
+.brand-name { font-size: 60px; color: var(--pink-deep); margin: 10px 0; }
+.hero-visual { background: #fceef5 url('hero-group.jpg') center/cover; }
+
+/* 4. 멤버 섹션 (Member) */
+.section-title { text-align: center; margin: 50px 0 30px; }
+.section-title h2 { font-size: 36px; color: #d878a5; margin: 0; }
+.member-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.member-card { background: #fff; border: 1px solid var(--line); border-radius: 20px; overflow: hidden; box-shadow: var(--shadow); padding: 10px; }
+.member-photo { aspect-ratio: 4/5; background-size: cover; background-position: center; border-radius: 15px; }
+.member-body { padding: 15px 5px; text-align: center; }
+.member-btn { display: block; padding: 10px; border-radius: 999px; color: #fff; font-weight: bold; margin-top: 10px; }
+
+/* 5. 뉴스 & 스케줄 (News & Schedule) */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 40px 0; }
+.box { background: #fff; border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); }
+.row { display: grid; grid-template-columns: 100px 70px 1fr 30px; padding: 15px 20px; border-top: 1px solid #f9ebf2; font-size: 14px; align-items: center; }
+.tag { padding: 3px 8px; border-radius: 5px; color: #fff; font-size: 11px; font-weight: bold; text-align: center; }
+.tag.new { background: #ff8db9; }
+.tag.live { background: #84bfff; }
+
+/* 6. 하단 레이아웃 (FANNAME, INFO, FOLLOW) - 깨짐 방지 핵심 */
 .bottom-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
   margin: 40px 0;
-  align-items: stretch;
+  align-items: stretch; /* 높이 통일 */
 }
+.right-column { display: flex; flex-direction: column; gap: 20px; }
 
-.right-column {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* 박스 공통 디자인 - 다시 하얀색으로 원상복구 */
-.bottom-layout .box {
+.fanname-box, .info-box, .follow-box {
   background: #ffffff !important; 
   border: 1px solid var(--line) !important;
   border-radius: 24px !important;
-  box-shadow: var(--shadow);
   padding: 30px 20px;
   text-align: center;
+  box-shadow: var(--shadow);
 }
+.info-box, .follow-box { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
 
-/* 왼쪽 팬네임 박스 */
-.fanname-box {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-/* 오른쪽 박스들 높이 맞춤 */
-.info-box, .follow-box {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-/* 텍스트 스타일 */
 h3 { font-size: 32px; color: #d878a5; margin: 0; }
-.sub { 
-  font-size: 13px !important; 
-  color: var(--soft) !important;
-  font-weight: 800 !important; /* 적당히 굵게 */
-  margin: 5px 0 15px !important; 
-  display: block;
-}
+.sub { font-size: 13px !important; color: var(--soft) !important; font-weight: 800 !important; margin: 5px 0 15px !important; display: block; }
 
-/* 이미지 및 링크 */
 .fanname-img { width: 100%; max-width: 320px; margin: 15px auto; border-radius: 15px; }
-
-.info-links {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 360px;
-}
-.info-links a {
-  display: flex; align-items: center; justify-content: center;
-  height: 40px; border: 1px solid #edd0df; border-radius: 12px;
-  font-size: 13px; font-weight: 800; color: #d073a1; background: #fff;
-}
+.info-links { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+.info-links a { display: flex; align-items: center; justify-content: center; height: 40px; border: 1px solid #edd0df; border-radius: 12px; font-size: 13px; font-weight: 800; color: #d073a1; }
 
 .sns { display: flex; gap: 12px; margin-top: 10px; }
-.sns a {
-  width: 50px; height: 50px; border-radius: 50%;
-  background: linear-gradient(135deg, #ff8fbc, #dca7ff);
-  color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 900;
-}
+.sns a { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #ff8fbc, #dca7ff); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 900; }
 
 .footer-copy { text-align: center; padding: 40px 0; color: var(--soft); font-size: 13px; }
 
+/* 모바일 대응 */
 @media (max-width: 800px) {
-  .bottom-layout { grid-template-columns: 1fr; }
+  .hero-inner, .member-grid, .split, .bottom-layout { grid-template-columns: 1fr; }
 }
