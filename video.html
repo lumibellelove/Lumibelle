@@ -201,13 +201,18 @@
       border: 1px solid #f0dde8;
       border-radius: 22px;
       overflow: hidden;
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
       cursor: pointer;
     }
 
     .video-card-item:hover {
       transform: translateY(-4px);
       box-shadow: 0 12px 24px rgba(232, 191, 211, 0.18);
+    }
+
+    .video-card-item.featured-card {
+      border: 2px solid #ff90be;
+      box-shadow: 0 12px 26px rgba(255, 95, 165, 0.16);
     }
 
     .video-thumb {
@@ -225,6 +230,11 @@
       height: 100%;
       object-fit: cover;
       display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .video-card-item:hover .video-thumb img {
+      transform: scale(1.05);
     }
 
     .video-thumb::after {
@@ -233,14 +243,15 @@
       width: 64px;
       height: 64px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.92);
+      background: rgba(255,255,255,0.94);
       color: #ef67a8;
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 900;
       display: flex;
       align-items: center;
       justify-content: center;
       box-shadow: 0 8px 18px rgba(239, 103, 168, 0.18);
+      pointer-events: none;
     }
 
     .video-badge {
@@ -259,7 +270,7 @@
 
     .badge-featured {
       left: 12px;
-      background: rgba(255,255,255,0.95);
+      background: rgba(255,255,255,0.96);
       color: #ef67a8;
     }
 
@@ -669,19 +680,35 @@
       {
         id: 1,
         member: "MARIRING",
-        title: "추성훈 채널 출연 (QWER 마젠타 / 히나)",
+        title: "추성훈 채널 출연",
+        date: "2026-01-01",
+        tag: "YOUTUBE",
+        event: "SPECIAL",
+        views: 0,
+        youtubeId: "op3L_ed8-24",
+        start: 964,
+        thumb: "img/video/mariring/mariring-01.png",
+        desc: "16:04 ~ 19:25 구간 출연",
+        featured: true,
+        isNew: true
+      },
+      {
+        id: 2,
+        member: "MARIRING",
+        title: "QWER 마젠타 / 히나 치코코 방문",
         date: "2026-01-01",
         tag: "YOUTUBE",
         event: "SPECIAL",
         views: 0,
         youtubeId: "op3L_ed8-24",
         start: 1489,
+        thumb: "img/video/mariring/mariring-02.png",
         desc: "24:49 ~ 25:38 구간 출연",
-        featured: true,
+        featured: false,
         isNew: true
       },
       {
-        id: 2,
+        id: 3,
         member: "MARIRING",
         title: "타임레스 버튜버 팀 합방",
         date: "2025-01-01",
@@ -689,12 +716,13 @@
         event: "SPECIAL",
         views: 0,
         youtubeId: "PGxpbUYMGgg",
+        thumb: "img/video/mariring/mariring-03.png",
         desc: "버튜버 팀 합방",
         featured: false,
         isNew: false
       },
       {
-        id: 3,
+        id: 4,
         member: "MARIRING",
         title: "버튜버 팀 합방 영상",
         date: "2025-01-01",
@@ -702,12 +730,13 @@
         event: "SPECIAL",
         views: 0,
         youtubeId: "fsSeDm4RmNE",
+        thumb: "img/video/mariring/mariring-04.png",
         desc: "버튜버 합방",
         featured: false,
         isNew: false
       },
       {
-        id: 4,
+        id: 5,
         member: "MARIRING",
         title: "시스티나 합방",
         date: "2025-01-01",
@@ -715,6 +744,7 @@
         event: "SPECIAL",
         views: 0,
         youtubeId: "0M6k8GNeL24",
+        thumb: "img/video/mariring/mariring-05.png",
         desc: "버튜버 합방",
         featured: false,
         isNew: false
@@ -821,13 +851,14 @@
 
     function createCard(item) {
       const article = document.createElement("article");
-      article.className = "video-card-item";
+      article.className = "video-card-item" + (item.featured ? " featured-card" : "");
 
-      const thumbUrl = buildThumbUrl(item.youtubeId);
+      const thumbUrl = item.thumb ? item.thumb : buildThumbUrl(item.youtubeId);
+      const fallbackThumb = buildThumbUrl(item.youtubeId);
 
       article.innerHTML = `
         <div class="video-thumb">
-          <img src="${thumbUrl}" alt="${item.title}">
+          <img src="${thumbUrl}" alt="${item.title}" onerror="this.onerror=null;this.src='${fallbackThumb}'">
           ${item.featured ? `<span class="video-badge badge-featured">PICK</span>` : ""}
           ${item.isNew ? `<span class="video-badge badge-new">NEW</span>` : ""}
         </div>
@@ -875,8 +906,8 @@
 
       if (currentPage > totalPages) currentPage = 1;
 
-      const start = (currentPage - 1) * ITEMS_PER_PAGE;
-      const visibleItems = filtered.slice(start, start + ITEMS_PER_PAGE);
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+      const visibleItems = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
       videoGrid.innerHTML = "";
       videoSectionTitle.textContent = getSectionTitle();
