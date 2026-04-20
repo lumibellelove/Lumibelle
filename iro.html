@@ -1,429 +1,731 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MORE VIDEO | Lumibelle</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>이로 | Lumibelle</title>
+  <link rel="stylesheet" href="style.css">
 
   <style>
-    html, body {
+    .iro-page-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .iro-title {
+      text-align: center;
+      margin: 28px 0 22px;
+    }
+
+    .iro-title h2 {
       margin: 0;
-      padding: 0;
-      scroll-behavior: smooth;
+      color: #d77ca7;
+      font-size: 56px;
+      font-weight: 900;
+      line-height: 1;
     }
 
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      background: #fffafc;
+    .iro-title p {
+      margin: 10px 0 0;
+      color: #c99ab2;
+      font-size: 16px;
+      font-weight: 700;
+      transform: translateX(-12px);
     }
 
-    main.page-shell {
-      flex: 1;
-    }
-
-    .video-page-shell {
-      padding-top: 18px;
-      padding-bottom: 46px;
-    }
-
-    .video-hero {
-      background: linear-gradient(180deg, #fff1f8 0%, #fff8fc 100%);
+    /* profile */
+    .iro-card {
+      background: #fff8fb;
       border: 1px solid #f2d8e7;
       border-radius: 32px;
-      padding: 42px 28px 34px;
-      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
-      text-align: center;
-    }
-
-    .video-hero h2 {
-      margin: 0;
-      color: #d77ca7;
-      font-size: 58px;
-      line-height: 1;
-      font-weight: 900;
-    }
-
-    .video-hero p {
-      margin: 12px 0 0;
-      color: #c99ab2;
-      font-size: 17px;
-      font-weight: 700;
-      line-height: 1.7;
-    }
-
-    .video-toolbar-wrap {
-      position: sticky;
-      top: 14px;
-      z-index: 60;
-      margin-top: 22px;
-    }
-
-    .video-toolbar {
-      background: rgba(255, 245, 251, 0.95);
-      backdrop-filter: blur(10px);
-      border: 1px solid #f2d8e7;
-      border-radius: 28px;
-      box-shadow: 0 10px 24px rgba(232, 191, 211, 0.16);
-      padding: 18px;
-    }
-
-    .video-filter-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-
-    .video-filter-row:last-child {
-      margin-bottom: 0;
-    }
-
-    .filter-chip {
-      border: 1px solid #f0d5e4;
-      background: #fff;
-      color: #b57e9d;
-      border-radius: 999px;
-      padding: 11px 16px;
-      font-size: 14px;
-      font-weight: 900;
-      cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-    }
-
-    .filter-chip:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(232, 191, 211, 0.14);
-    }
-
-    .filter-chip.active {
-      color: #fff;
-      border-color: transparent;
-      box-shadow: 0 8px 18px rgba(232, 191, 211, 0.18);
-    }
-
-    .chip-all.active {
-      background: linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%);
-    }
-
-    .chip-mariring.active {
-      background: #ff59a5;
-    }
-
-    .chip-lulu.active {
-      background: linear-gradient(180deg, #FFB8D3 0%, #FFD9E8 100%);
-      color: #9b5a77;
-    }
-
-    .chip-iro.active {
-      background: #B2DEFF;
-      color: #5d7f9a;
-    }
-
-    .chip-lunar.active {
-      background: #ba8ce7;
-    }
-
-    .chip-hotclip.active {
-      background: linear-gradient(180deg, #ff8fc1 0%, #ff6cab 100%);
-    }
-
-    .control-row {
-      display: grid;
-      grid-template-columns: 1.4fr 0.8fr 1fr;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .search-box,
-    .sort-select,
-    .event-select {
-      width: 100%;
+      padding: 48px;
       box-sizing: border-box;
-      border: 1px solid #efd4e2;
-      background: #fff;
-      border-radius: 18px;
-      padding: 14px 16px;
-      font-size: 14px;
-      font-weight: 700;
-      color: #8d7082;
-      outline: none;
+      margin-bottom: 34px;
     }
 
-    .search-box:focus,
-    .sort-select:focus,
-    .event-select:focus {
-      border-color: #e6aeca;
-      box-shadow: 0 0 0 4px rgba(255, 171, 211, 0.16);
-    }
-
-    .video-list-wrap {
-      margin-top: 24px;
-      background: #fff5fb;
-      border: 1px solid #f2d8e7;
-      border-radius: 28px;
-      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
-      padding: 22px;
-    }
-
-    .video-list-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 18px;
-      flex-wrap: wrap;
-    }
-
-    .video-list-head h3 {
-      margin: 0;
-      color: #d77ca7;
-      font-size: 30px;
-      font-weight: 900;
-    }
-
-    .video-count {
-      color: #b688a2;
-      font-size: 14px;
-      font-weight: 800;
-    }
-
-    .video-grid {
+    .iro-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
+      grid-template-columns: 460px minmax(0, 1fr);
+      gap: 42px;
+      align-items: stretch;
     }
 
-    .video-card-item {
-      background: #fff;
-      border: 1px solid #f0dde8;
-      border-radius: 22px;
-      overflow: hidden;
-      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-      cursor: pointer;
-    }
-
-    .video-card-item:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 24px rgba(232, 191, 211, 0.18);
-    }
-
-    .video-card-item:active {
-      transform: scale(0.98);
-    }
-
-    .video-card-item.featured-card {
-      border: 2px solid #ff90be;
-      box-shadow: 0 12px 26px rgba(255, 95, 165, 0.16);
-    }
-
-    .video-thumb {
-      position: relative;
-      aspect-ratio: 16 / 9;
-      background: linear-gradient(180deg, #ffe3ef 0%, #ffd2e5 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-
-    .video-thumb img {
+    .iro-photo {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.3s ease;
+      max-width: 460px;
+      aspect-ratio: 2 / 3;
+      border-radius: 28px;
+      background-image: url('img/member/iro/iro.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border: 1px solid #f0dde8;
+      background-color: #fff;
+      box-sizing: border-box;
     }
 
-    .video-card-item:hover .video-thumb img {
-      transform: scale(1.05);
-    }
-
-    .video-thumb::after {
-      content: "▶";
-      position: absolute;
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.94);
-      color: #ef67a8;
-      font-size: 32px;
-      font-weight: 900;
+    .iro-info-section {
+      min-width: 0;
       display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      height: 100%;
+      padding-top: 8px;
+    }
+
+    .iro-name-section {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .iro-name {
+      font-size: 82px;
+      font-weight: 900;
+      color: #d77ca7;
+      margin: 0;
+      line-height: 0.95;
+      text-align: center;
+      transform: translateX(-12px);
+      transition: color 0.3s ease, text-shadow 0.3s ease;
+    }
+
+    .iro-name.voice-active {
+      color: #B2DEFF;
+      text-shadow:
+        0 0 16px rgba(255,255,255,0.22),
+        0 6px 10px rgba(178, 222, 255, 0.22),
+        0 0 12px rgba(178, 222, 255, 0.32),
+        0 0 22px rgba(178, 222, 255, 0.15);
+      transform: translateX(-12px);
+    }
+
+    .iro-en {
+      font-size: 20px;
+      letter-spacing: 0.24em;
+      color: #c99ab2;
+      margin-top: 12px;
+      font-weight: 800;
+      text-align: center;
+      transform: translateX(-4px);
+    }
+
+    /* voice */
+    .iro-voice-area {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .iro-voice {
+      position: relative;
+      min-width: 168px;
+      min-height: 52px;
+      padding: 12px 26px;
+      border-radius: 999px;
+      border: 2px solid #B2DEFF;
+      background: #fff;
+      color: #B2DEFF;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 8px 18px rgba(239, 103, 168, 0.18);
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .iro-voice:hover {
+      transform: translateY(-2px);
+    }
+
+    .iro-voice.playing {
+      background: linear-gradient(135deg, #B2DEFF, #8fd0ff);
+      color: #fff;
+      animation: iroVoicePulse 1.2s infinite;
+    }
+
+    .iro-voice-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 64px;
+      line-height: 1;
+    }
+
+    .iro-sound-bars {
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 3px;
+      height: 16px;
+    }
+
+    .iro-sound-bars span {
+      width: 3px;
+      height: 100%;
+      border-radius: 999px;
+      background: currentColor;
+      transform-origin: bottom center;
+      animation: iroBars 0.9s infinite ease-in-out;
+    }
+
+    .iro-sound-bars span:nth-child(1) { animation-delay: 0s; }
+    .iro-sound-bars span:nth-child(2) { animation-delay: 0.15s; }
+    .iro-sound-bars span:nth-child(3) { animation-delay: 0.3s; }
+
+    .iro-voice.playing .iro-sound-bars {
+      display: inline-flex;
+    }
+
+    @keyframes iroBars {
+      0%, 100% {
+        transform: scaleY(0.35);
+        opacity: 0.65;
+      }
+      50% {
+        transform: scaleY(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes iroVoicePulse {
+      0% { box-shadow: 0 0 0 0 rgba(178,222,255,0.5); }
+      70% { box-shadow: 0 0 0 12px rgba(178,222,255,0); }
+      100% { box-shadow: 0 0 0 0 rgba(178,222,255,0); }
+    }
+
+    .iro-voice-effect {
+      position: absolute;
+      left: 50%;
+      bottom: 6px;
+      transform: translateX(-50%);
+      opacity: 0;
+      font-size: 14px;
       pointer-events: none;
     }
 
-    .video-badge {
-      position: absolute;
-      top: 12px;
+    .iro-voice.playing .iro-voice-effect {
+      animation: iroPopEffect 0.8s ease;
+    }
+
+    @keyframes iroPopEffect {
+      0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(0) scale(0.5);
+      }
+      40% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-25px) scale(1.3);
+      }
+    }
+
+    .iro-voice-text {
+      margin: 0;
+      min-height: 1.6em;
+      font-size: 14px;
+      font-weight: 700;
+      color: #c99ab2;
+      text-align: center;
+      transition: opacity 0.25s ease, transform 0.25s ease, color 0.25s ease;
+    }
+
+    .iro-voice-text.text-change {
+      color: #B2DEFF;
+      transform: translateY(-1px);
+    }
+
+    /* copy */
+    .iro-copy {
+      width: 100%;
+      max-width: 720px;
+      color: #8f7183;
+    }
+
+    .iro-keywords {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .iro-keyword {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 7px 10px;
+      height: 38px;
+      padding: 0 16px;
       border-radius: 999px;
-      font-size: 11px;
-      font-weight: 900;
-      line-height: 1;
-      z-index: 2;
-    }
-
-    .badge-featured {
-      left: 12px;
-      background: rgba(255,255,255,0.96);
-      color: #ef67a8;
-    }
-
-    .badge-new {
-      right: 12px;
-      background: #ff4fa3;
-      color: #fff;
-    }
-
-    .badge-trending {
-      left: 12px;
-      top: 46px;
-      background: #ff8a3d;
-      color: #fff;
-    }
-
-    .video-card-body {
-      padding: 16px 16px 18px;
-    }
-
-    .video-meta-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-
-    .video-date {
-      font-size: 13px;
-      color: #c99ab2;
+      background: #fff;
+      border: 1px solid #f0dde8;
+      color: #c97ca8;
+      font-size: 14px;
       font-weight: 800;
     }
 
-    .video-tag {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 900;
-      line-height: 1;
-      background: #fbe8f4;
-      color: #c97ca8;
-      border: 1px solid #efc6dc;
-    }
-
-    .video-title {
-      font-size: 17px;
-      line-height: 1.5;
-      color: #846f81;
-      font-weight: 900;
-      letter-spacing: -0.01em;
-      margin-bottom: 10px;
-    }
-
-    .video-subinfo {
-      font-size: 13px;
-      color: #ab869c;
-      font-weight: 700;
-      line-height: 1.6;
-    }
-
-    .empty-state {
-      display: none;
+    .iro-message-block {
       text-align: center;
-      padding: 64px 20px;
-      color: #c08aa8;
+      margin-bottom: 28px;
     }
 
-    .empty-state.show {
-      display: block;
+    .iro-line-main {
+      margin: 0 0 14px;
+      color: #b86d92;
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1.7;
     }
 
-    .empty-state h4 {
-      margin: 0 0 8px;
-      font-size: 28px;
-      color: #d77ca7;
+    .iro-highlight {
+      color: #B2DEFF;
       font-weight: 900;
     }
 
-    .empty-state p {
-      margin: 0;
-      font-size: 15px;
-      font-weight: 700;
-      line-height: 1.8;
+    .iro-color-point {
+      color: #B2DEFF;
+      font-weight: 900;
     }
 
-    .pagination {
+    .iro-line-sub {
+      margin: 0;
+      color: #8f7183;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.9;
+    }
+
+    .iro-detail-block {
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid #f3dbe7;
+      border-radius: 22px;
+      padding: 16px 18px;
+      max-width: 520px;
+      width: 100%;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+
+    .iro-detail-row {
+      display: grid;
+      grid-template-columns: 84px 1fr;
+      gap: 10px;
+      align-items: start;
+      font-size: 15px;
+      line-height: 1.75;
+      color: #8f7183;
+    }
+
+    .iro-detail-row + .iro-detail-row {
+      margin-top: 4px;
+    }
+
+    .iro-detail-label {
+      color: #c97ca8;
+      font-weight: 900;
+    }
+
+    .iro-detail-value {
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+
+    .iro-bottom {
+      width: 100%;
+      margin-top: auto;
+    }
+
+    /* sns */
+    .iro-sns-row {
       display: flex;
       justify-content: center;
       gap: 10px;
+      margin-top: 18px;
+      margin-bottom: 12px;
+      padding-left: 0;
+    }
+
+    .iro-sns-item {
+      position: relative;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 0;
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease, background-color 0.25s ease;
+      background: #f4fbff;
+      border: 1px solid #d8efff;
+      overflow: visible;
+    }
+
+    .iro-sns-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(178, 222, 255, 0.24);
+      opacity: 0.98;
+      background: #B2DEFF;
+    }
+
+    .iro-sns-item img {
+      width: 58px;
+      height: 58px;
+      display: block;
+      position: relative;
+      z-index: 2;
+      transition: all 0.3s ease;
+    }
+
+    .iro-sns-item:hover img {
+      transform: scale(1.1);
+    }
+
+    .iro-sns-item::before {
+      content: "✨";
+      position: absolute;
+      top: -10px;
+      right: -4px;
+      font-size: 18px;
+      line-height: 1;
+      opacity: 0;
+      transform: scale(0.4) translateY(6px);
+      pointer-events: none;
+      z-index: 10;
+      text-shadow:
+        0 0 6px rgba(255,255,255,0.9),
+        0 0 12px rgba(178, 222, 255, 0.55);
+    }
+
+    .iro-sns-item:hover::before {
+      animation: iroSparklePop 0.75s ease forwards;
+    }
+
+    @keyframes iroSparklePop {
+      0% {
+        opacity: 0;
+        transform: scale(0.35) translateY(8px);
+      }
+      35% {
+        opacity: 1;
+        transform: scale(1.15) translateY(-2px);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.9) translateY(-14px);
+      }
+    }
+
+    .iro-sns-item::after {
+      content: "";
+      position: absolute;
+      inset: 50%;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.55);
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .iro-sns-item:active::after {
+      animation: iroRipple 0.55s ease-out;
+    }
+
+    @keyframes iroRipple {
+      0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.75;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(9);
+        opacity: 0;
+      }
+    }
+
+    /* buttons */
+    .iro-actions {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      justify-content: center;
       flex-wrap: wrap;
       margin-top: 28px;
     }
 
-    .page-btn {
-      min-width: 46px;
-      height: 46px;
+    .iro-btn {
+      min-width: 156px;
+      height: 68px;
+      padding: 0 28px;
       border-radius: 999px;
-      border: 1px solid #efd4e2;
-      background: #fff;
-      color: #bf88a6;
-      font-size: 14px;
-      font-weight: 900;
-      cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-    }
-
-    .page-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(232, 191, 211, 0.14);
-    }
-
-    .page-btn.active {
-      background: linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%);
-      color: #fff;
-      border-color: transparent;
-    }
-
-    .video-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(40, 22, 34, 0.72);
-      display: none;
+      font-weight: 800;
+      font-size: 15px;
+      text-decoration: none;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 24px;
-      z-index: 999;
+      text-align: center;
+      line-height: 1;
+      box-sizing: border-box;
+      background: rgba(255, 255, 255, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
     }
 
-    .video-modal.show {
-      display: flex;
+    .iro-btn.pink {
+      border: 2px solid #ff6fa5;
+      color: #ff6fa5;
     }
 
-    .video-modal-panel {
-      width: min(920px, 100%);
-      background: #fffafc;
+    .iro-btn.purple {
+      border: 2px solid #a892f0;
+      color: #a892f0;
+    }
+
+    .iro-btn.pink:hover {
+      transform: translateY(-2px);
+      background: #ff6fa5;
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(255, 111, 165, 0.22);
+    }
+
+    .iro-btn.purple:hover {
+      transform: translateY(-2px);
+      background: #a892f0;
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(168, 146, 240, 0.22);
+    }
+
+    /* movie */
+    .iro-movie-section {
+      background: #fff8fb;
       border: 1px solid #f2d8e7;
-      border-radius: 28px;
-      box-shadow: 0 18px 42px rgba(36, 16, 29, 0.24);
+      border-radius: 32px;
+      padding: 38px 36px 34px;
+      box-sizing: border-box;
+      margin-bottom: 56px;
+    }
+
+    .iro-movie-head {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .iro-movie-head h3 {
+      margin: 0;
+      color: #d77ca7;
+      font-size: 40px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .iro-movie-head p {
+      margin: 10px 0 0;
+      color: #c99ab2;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .iro-movie-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .iro-movie-feature,
+    .iro-movie-sub {
+      display: block;
+      text-decoration: none;
+      background: #fff;
+      border: 1px solid #f0dde8;
+      border-radius: 24px;
+      overflow: hidden;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+      color: inherit;
+    }
+
+    .iro-movie-feature {
+      cursor: pointer;
+    }
+
+    .iro-movie-feature-thumb,
+    .iro-movie-sub-thumb {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #fdf1f7;
       overflow: hidden;
     }
 
-    .video-player-wrap {
+    .iro-movie-feature-thumb img,
+    .iro-movie-sub-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .iro-movie-feature-play,
+    .iro-movie-sub-play {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff6fa5, #ff8ec7);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 900;
+      box-shadow: 0 8px 18px rgba(255, 111, 165, 0.25);
+      transition: all 0.25s ease;
+    }
+
+    .iro-movie-feature-info {
+      padding: 18px 20px 20px;
+      text-align: center;
+    }
+
+    .iro-movie-sub-info {
+      padding: 16px 18px 18px;
+      text-align: center;
+    }
+
+    .iro-movie-feature-info strong,
+    .iro-movie-sub-info strong {
+      display: block;
+      color: #c97ca8;
+      font-weight: 900;
+      margin-bottom: 6px;
+      transition: all 0.25s ease;
+      text-align: center;
+    }
+
+    .iro-movie-feature-info strong {
+      font-size: 24px;
+    }
+
+    .iro-movie-sub-info strong {
+      font-size: 20px;
+    }
+
+    .iro-movie-feature-info span,
+    .iro-movie-sub-info span {
+      display: block;
+      color: #8f7183;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .iro-movie-more-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 22px;
+    }
+
+    .iro-movie-more {
+      min-width: 240px;
+      height: 62px;
+      padding: 0 30px;
+      border-radius: 999px;
+      background: #f8dce9;
+      color: #c97ca8;
+      font-size: 15px;
+      font-weight: 900;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .iro-movie-more:hover {
+      transform: translateY(-2px);
+      background: #f4d0e1;
+      box-shadow: 0 12px 24px rgba(215, 124, 167, 0.12);
+    }
+
+    .iro-movie-feature:hover,
+    .iro-movie-sub:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(255, 111, 165, 0.18);
+      border-color: #edbfd5;
+    }
+
+    .iro-movie-feature:hover .iro-movie-feature-thumb img,
+    .iro-movie-sub:hover .iro-movie-sub-thumb img {
+      transform: scale(1.06);
+    }
+
+    .iro-movie-feature:hover .iro-movie-feature-play,
+    .iro-movie-sub:hover .iro-movie-sub-play {
+      transform: scale(1.15);
+      background: #ff6fa5;
+    }
+
+    .iro-movie-feature:hover strong,
+    .iro-movie-sub:hover strong {
+      color: #ff6fa5;
+      letter-spacing: 0.02em;
+    }
+
+    /* modal */
+    .video-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    .video-modal-inner {
+      width: min(960px, 100%);
       background: #111;
+      border-radius: 22px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+    }
+
+    .video-close {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      width: 42px;
+      height: 42px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      font-size: 28px;
+      line-height: 1;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .video-close:hover {
+      background: rgba(255,255,255,0.24);
+    }
+
+    .video-player-wrap {
       aspect-ratio: 16 / 9;
+      background: #000;
     }
 
     .video-player-wrap iframe {
@@ -433,148 +735,178 @@
       display: block;
     }
 
-    .video-modal-body {
-      padding: 22px 22px 24px;
-    }
-
-    .video-modal-title {
-      margin: 0 0 8px;
-      color: #d77ca7;
-      font-size: 26px;
-      font-weight: 900;
-      line-height: 1.4;
-    }
-
-    .video-modal-meta {
-      color: #ae88a0;
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 18px;
-      line-height: 1.7;
-    }
-
     .video-modal-actions {
       display: flex;
+      justify-content: center;
       gap: 12px;
-      flex-wrap: wrap;
+      padding: 18px 18px 22px;
+      background: #fff8fb;
     }
 
-    .modal-btn {
+    .video-modal-link {
+      min-width: 180px;
+      height: 56px;
+      padding: 0 24px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 900;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 170px;
-      padding: 14px 20px;
-      border-radius: 999px;
-      font-size: 14px;
-      font-weight: 900;
-      text-decoration: none;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: transform 0.15s ease;
+      box-sizing: border-box;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
     }
 
-    .modal-btn:hover {
-      transform: translateY(-1px);
-    }
-
-    .modal-btn-primary {
-      background: linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%);
+    .video-modal-link.youtube {
+      background: #ff6fa5;
       color: #fff;
     }
 
-    .modal-btn-secondary {
+    .video-modal-link.back {
+      border: 2px solid #a892f0;
+      color: #a892f0;
       background: #fff;
-      color: #c97ca8;
-      border-color: #efc6dc;
-    }
-
-    .scroll-top-btn {
-      position: fixed;
-      right: 22px;
-      bottom: 24px;
-      width: 58px;
-      height: 58px;
-      border-radius: 50%;
-      border: 0;
-      background: linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%);
-      color: #fff;
-      font-size: 22px;
-      font-weight: 900;
-      box-shadow: 0 12px 24px rgba(255, 95, 165, 0.26);
       cursor: pointer;
-      display: none;
-      z-index: 200;
     }
 
-    .scroll-top-btn.show {
-      display: block;
+    .video-modal-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.12);
     }
 
-    footer {
-      text-align: center;
-      padding: 28px 16px 40px;
-      color: #c6a2b4;
-      font-size: 14px;
-    }
-
-    @media (max-width: 1100px) {
-      .video-grid {
-        grid-template-columns: repeat(2, 1fr);
+    @media (max-width: 900px) {
+      .iro-card {
+        padding: 36px 28px;
       }
 
-      .control-row {
+      .iro-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        text-align: center;
+      }
+
+      .iro-photo {
+        max-width: 430px;
+        margin: 0 auto;
+      }
+
+      .iro-info-section {
+        align-items: center;
+        padding-top: 0;
+      }
+
+      .iro-name-section,
+      .iro-name,
+      .iro-en,
+      .iro-copy {
+        text-align: center;
+      }
+
+      .iro-keywords {
+        justify-content: center;
+      }
+
+      .iro-detail-block {
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .iro-sns-row,
+      .iro-actions {
+        justify-content: center;
+      }
+
+      .iro-movie-grid {
         grid-template-columns: 1fr;
       }
+
+      .iro-movie-section {
+        padding: 28px 22px 26px;
+      }
+
+      .iro-movie-head h3 {
+        font-size: 34px;
+      }
+
+      .iro-movie-more {
+        width: 100%;
+        min-width: 0;
+      }
     }
 
-    @media (max-width: 780px) {
-      .video-hero {
-        padding: 34px 18px 28px;
+    @media (max-width: 640px) {
+      .iro-title h2 {
+        font-size: 44px;
       }
 
-      .video-hero h2 {
-        font-size: 42px;
-      }
-
-      .video-toolbar {
-        padding: 14px;
+      .iro-card,
+      .iro-movie-section {
+        padding: 24px;
         border-radius: 24px;
       }
 
-      .video-grid {
-        grid-template-columns: 1fr;
+      .iro-photo {
+        max-width: 100%;
+        border-radius: 22px;
       }
 
-      .video-list-wrap {
-        padding: 16px;
+      .iro-name {
+        font-size: 46px;
       }
 
-      .video-list-head h3 {
-        font-size: 24px;
+      .iro-en {
+        font-size: 18px;
+        letter-spacing: 0.2em;
       }
 
-      .video-title {
+      .iro-line-main {
+        font-size: 20px;
+      }
+
+      .iro-line-sub {
         font-size: 16px;
       }
 
-      .video-modal {
-        padding: 14px;
+      .iro-detail-block {
+        padding: 16px;
+        max-width: 100%;
       }
 
-      .video-modal-title {
-        font-size: 22px;
+      .iro-detail-row {
+        grid-template-columns: 1fr;
+        gap: 2px;
+        font-size: 15px;
       }
 
-      .modal-btn {
+      .iro-sns-item,
+      .iro-sns-item img {
+        width: 52px;
+        height: 52px;
+      }
+
+      .iro-actions {
+        flex-direction: column;
+        gap: 10px;
         width: 100%;
       }
 
-      .scroll-top-btn {
-        width: 52px;
-        height: 52px;
-        right: 16px;
-        bottom: 18px;
+      .iro-btn {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .video-modal {
+        padding: 16px;
+      }
+
+      .video-modal-actions {
+        flex-direction: column;
+      }
+
+      .video-modal-link {
+        width: 100%;
+        min-width: 0;
       }
     }
   </style>
@@ -590,9 +922,9 @@
           <p>루미벨</p>
         </div>
         <nav>
-          <a href="index.html"><b>HOME</b><span>홈</span></a>
+          <a href="index.html"><b>TOP</b><span>탑</span></a>
           <a href="news.html"><b>NEWS</b><span>공지사항</span></a>
-          <a href="member.html"><b>MEMBER</b><span>멤버 소개</span></a>
+          <a href="member.html" class="current"><b>MEMBER</b><span>멤버 소개</span></a>
           <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
           <a href="fanname.html"><b>FANNAME</b><span>팬네임</span></a>
           <a href="info.html"><b>INFO</b><span>안내</span></a>
@@ -602,586 +934,275 @@
   </header>
 
   <main class="page-shell">
-    <div class="wrap video-page-shell">
-      <section class="video-hero">
-        <h2>MORE VIDEO</h2>
-        <p>
-          루미벨의 단체 영상, 멤버별 직캠, 핫클립을 한 번에 모아보는 공간입니다.<br />
-          원하는 멤버와 영상들을 편하게 확인해보세요…♡
-        </p>
+    <div class="wrap iro-page-wrap">
+      <div class="iro-title">
+        <h2>IRO</h2>
+        <p>이로</p>
+      </div>
+
+      <section class="iro-card">
+        <div class="iro-grid">
+          <div class="iro-photo"></div>
+
+          <div class="iro-info-section">
+            <div class="iro-name-section">
+              <h3 class="iro-name">이로</h3>
+              <div class="iro-en">IRO</div>
+
+              <div class="iro-voice-area">
+                <button class="iro-voice" type="button" onclick="playRandomVoice(this)">
+                  <span class="iro-voice-label">▶ VOICE</span>
+                  <span class="iro-sound-bars" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </span>
+                  <span class="iro-voice-effect"></span>
+                </button>
+
+                <p id="iroVoiceText" class="iro-voice-text">
+                  버튼을 눌러 이로의 보이스를 들어보세요 ✨
+                </p>
+
+                <audio class="iro-audio" src="voice/IroVoice1.mp3"></audio>
+                <audio class="iro-audio" src="voice/IroVoice2.mp3"></audio>
+                <audio class="iro-audio" src="voice/IroVoice3.mp3"></audio>
+              </div>
+            </div>
+
+            <div class="iro-copy">
+              <div class="iro-keywords">
+                <span class="iro-keyword">#4차원</span>
+                <span class="iro-keyword">#맑눈광</span>
+                <span class="iro-keyword">#천사같은악마</span>
+              </div>
+
+              <div class="iro-message-block">
+                <p class="iro-line-main">“네 세상의 색(色)을 완전히 바꿔 줄게!”</p>
+                <p class="iro-line-sub">いろんな色の中で、イロチがいちばんでしょ？εෆ৩</p>
+              </div>
+
+              <div class="iro-detail-block">
+                 <div class="iro-detail-label">나마콜</div>
+                <div class="iro-detail-value">이로치 👼💎</div
+                <div class="iro-detail-row">
+                  <div class="iro-detail-label">담당 컬러</div>
+                  <div class="iro-detail-value iro-color-point">Angel Blue</div>
+                </div>
+                <div class="iro-detail-row">
+                  <div class="iro-detail-label">생일</div>
+                  <div class="iro-detail-value">04.25</div>
+                </div>
+                <div class="iro-detail-row">
+                  <div class="iro-detail-label">호출 태그</div>
+                  <div class="iro-detail-value">#이로이로안노요</div>
+                </div>
+                <div class="iro-detail-row">
+                  <div class="iro-detail-label">체키 메시</div>
+                  <div class="iro-detail-value">#이로케맛있다니</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="iro-bottom">
+              <div class="iro-sns-row">
+                <a href="#" class="iro-sns-item" target="_blank" rel="noopener noreferrer">
+                  <img src="img/iro-x.png" alt="X">
+                </a>
+                <a href="https://www.instagram.com/0w0.irochi/" class="iro-sns-item" target="_blank" rel="noopener noreferrer">
+                  <img src="img/iro-instagram.png" alt="Instagram">
+                </a>
+                <a href="#" class="iro-sns-item" target="_blank" rel="noopener noreferrer">
+                  <img src="img/iro-tiktok.png" alt="TikTok">
+                </a>
+              </div>
+
+              <div class="iro-actions">
+                <a href="member.html" class="iro-btn pink">멤버 목록</a>
+                <a href="index.html#member" class="iro-btn purple">메인으로</a>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <section class="video-toolbar-wrap">
-        <div class="video-toolbar">
-          <div class="video-filter-row" id="memberFilterRow">
-            <button class="filter-chip chip-all active" data-member="ALL">ALL</button>
-            <button class="filter-chip chip-mariring" data-member="MARIRING">MARIRING</button>
-            <button class="filter-chip chip-lulu" data-member="LULU">LULU</button>
-            <button class="filter-chip chip-iro" data-member="IRO">IRO</button>
-            <button class="filter-chip chip-lunar" data-member="LUNAR">LUNAR</button>
-            <button class="filter-chip chip-hotclip" data-member="HOT CLIP">HOT CLIP</button>
+      <section class="iro-movie-section">
+        <div class="iro-movie-head">
+          <h3>MOVIE</h3>
+          <p>영상</p>
+        </div>
+
+        <div class="iro-movie-grid">
+          <div class="iro-movie-feature" onclick="openVideo('sEHQNzj_cmc')">
+            <div class="iro-movie-feature-thumb">
+              <img src="img/member/iro/iro-youtube.png" alt="이로 대표 직캠">
+              <div class="iro-movie-feature-play">▶</div>
+            </div>
+            <div class="iro-movie-feature-info">
+              <strong>대표 직캠</strong>
+              <span>Click to Play</span>
+            </div>
           </div>
 
-          <div class="control-row">
-            <input
-              type="text"
-              id="searchInput"
-              class="search-box"
-              placeholder="영상 제목 검색"
-            />
-
-            <select id="sortSelect" class="sort-select">
-              <option value="latest">최신순</option>
-              <option value="popular">인기순</option>
-            </select>
-
-            <select id="eventSelect" class="event-select">
-              <option value="ALL">전체</option>
-              <option value="아이돌 라이브">아이돌 라이브</option>
-              <option value="방송/출연">방송/출연</option>
-              <option value="직캠">직캠</option>
-              <option value="클립">클립</option>
-              <option value="합방">합방</option>
-              <option value="쇼츠">쇼츠</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      <section class="video-list-wrap">
-        <div class="video-list-head">
-          <h3 id="videoSectionTitle">ALL VIDEO</h3>
-          <div class="video-count" id="videoCountText">총 0개</div>
+          <a href="https://www.youtube.com/watch?v=sEHQNzj_cmc" target="_blank" rel="noopener noreferrer" class="iro-movie-sub">
+            <div class="iro-movie-sub-thumb">
+              <img src="img/member/iro/iro-sub.png" alt="이로 유튜브 이동">
+              <div class="iro-movie-sub-play">▶</div>
+            </div>
+            <div class="iro-movie-sub-info">
+              <strong>YouTube 이동</strong>
+              <span>Watch on YouTube</span>
+            </div>
+          </a>
         </div>
 
-        <div class="video-grid" id="videoGrid"></div>
-
-        <div class="empty-state" id="emptyState">
-          <h4>COMING SOON</h4>
-          <p>등록된 영상이 아직 없습니다.<br />조금만 기다려주세요…♡</p>
+        <div class="iro-movie-more-wrap">
+          <a href="video.html" class="iro-movie-more">MORE VIDEO</a>
         </div>
-
-        <div class="pagination" id="pagination"></div>
       </section>
     </div>
   </main>
 
-  <footer>© 2026 Lumibelle All Rights Reserved.</footer>
-
-  <div class="video-modal" id="videoModal">
-    <div class="video-modal-panel">
-      <div class="video-player-wrap" id="videoPlayerWrap"></div>
-      <div class="video-modal-body">
-        <h3 class="video-modal-title" id="modalTitle">영상 제목</h3>
-        <div class="video-modal-meta" id="modalMeta">날짜 / 태그 / 멤버</div>
-        <div class="video-modal-actions">
-          <a href="#" target="_blank" rel="noopener noreferrer" class="modal-btn modal-btn-primary" id="youtubeLink">
-            YOUTUBE에서 보기
-          </a>
-
-          <a href="#" target="_blank" rel="noopener noreferrer" class="modal-btn modal-btn-secondary" id="tiktokLink" style="display:none;">
-            TIKTOK에서 보기
-          </a>
-
-          <button class="modal-btn modal-btn-secondary" id="closeModalBtn" type="button">
-            닫기
-          </button>
-        </div>
+  <div id="videoModal" class="video-modal">
+    <div class="video-modal-inner">
+      <button class="video-close" type="button" onclick="closeVideo()">×</button>
+      <div class="video-player-wrap">
+        <iframe
+          id="videoFrame"
+          src=""
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
+      </div>
+      <div class="video-modal-actions">
+        <a id="videoYoutubeLink"
+           class="video-modal-link youtube"
+           href="https://www.youtube.com/watch?v=sEHQNzj_cmc"
+           target="_blank"
+           rel="noopener noreferrer">
+          YOUTUBE에서 보기
+        </a>
+        <button class="video-modal-link back" type="button" onclick="closeVideo()">닫기</button>
       </div>
     </div>
   </div>
 
-  <button class="scroll-top-btn" id="scrollTopBtn" aria-label="맨 위로 이동">↑</button>
+  <footer>© 2026 Lumibelle All Rights Reserved.</footer>
 
   <script>
-    const videoData = [
-      {
-        id: 1,
-        member: "MARIRING",
-        title: "추성훈 채널 출연",
-        date: "2026-01-01",
-        tag: "YOUTUBE",
-        event: "SPECIAL",
-        category: "방송/출연",
-        views: 0,
-        youtubeId: "op3L_ed8-24",
-        start: 964,
-        thumb: "",
-        desc: "16:04 ~ 19:25 구간 출연",
-        featured: true,
-        isTrending: true
-      },
-      {
-        id: 2,
-        member: "MARIRING",
-        title: "QWER 마젠타 / 히나 치코코 방문",
-        date: "2026-04-20",
-        tag: "YOUTUBE",
-        event: "SPECIAL",
-        category: "방송/출연",
-        views: 0,
-        youtubeId: "op3L_ed8-24",
-        start: 1489,
-        thumb: "",
-        desc: "24:49 ~ 25:38 구간 출연",
-        featured: false
-      },
-      {
-        id: 3,
-        member: "MARIRING",
-        title: "타임레스 버튜버 팀 합방",
-        date: "2025-01-01",
-        tag: "합방",
-        event: "SPECIAL",
-        category: "합방",
-        views: 0,
-        youtubeId: "PGxpbUYMGgg",
-        thumb: "img/video/mariring/mariring-01.png",
-        desc: "버튜버 팀 합방",
-        featured: false
-      },
-      {
-        id: 4,
-        member: "MARIRING",
-        title: "버튜버 팀 합방 영상",
-        date: "2025-01-01",
-        tag: "합방",
-        event: "SPECIAL",
-        category: "합방",
-        views: 0,
-        youtubeId: "fsSeDm4RmNE",
-        thumb: "img/video/mariring/mariring-02.png",
-        desc: "버튜버 합방",
-        featured: false
-      },
-      {
-        id: 5,
-        member: "MARIRING",
-        title: "시스티나 합방",
-        date: "2025-01-01",
-        tag: "합방",
-        event: "SPECIAL",
-        category: "합방",
-        views: 0,
-        youtubeId: "0M6k8GNeL24",
-        thumb: "img/video/mariring/mariring-05.png",
-        desc: "버튜버 합방",
-        featured: false
-      },
-      {
-        id: 6,
-        member: "IRO",
-        title: "이로 직캠 01",
-        date: "2024-01-01",
-        tag: "YOUTUBE",
-        event: "LIVE",
-        category: "직캠",
-        views: 0,
-        youtubeId: "sEHQNzj_cmc",
-        thumb: "img/video/iro/iro-01.png",
-        desc: "아이돌 직캠",
-        featured: true
-      },
-      {
-        id: 7,
-        member: "IRO",
-        title: "이로 직캠 02",
-        date: "2024-01-01",
-        tag: "YOUTUBE",
-        event: "LIVE",
-        category: "직캠",
-        views: 0,
-        youtubeId: "ECLL0rO_YM4",
-        thumb: "img/video/iro/iro-02.png",
-        desc: "아이돌 직캠",
-        featured: false
-      },
-      {
-        id: 8,
-        member: "IRO",
-        title: "이로 직캠 03",
-        date: "2024-01-01",
-        tag: "YOUTUBE",
-        event: "LIVE",
-        category: "직캠",
-        views: 0,
-        youtubeId: "H4fzfVPWh60",
-        thumb: "img/video/iro/iro-03.png",
-        desc: "아이돌 직캠",
-        featured: false
-      },
-      {
-        id: 9,
-        member: "LULU",
-        title: "루루 영상 01",
-        date: "2026-04-20",
-        tag: "YOUTUBE",
-        event: "SPECIAL",
-        category: "클립",
-        views: 0,
-        youtubeId: "5U3SPXMLjSY",
-        thumb: "img/video/lulu/lulu-01.png",
-        desc: "루루 영상",
-        featured: true
-      },
-      {
-        id: 10,
-        member: "LULU",
-        title: "루루 SHORT MESSAGE",
-        date: "2026-04-16",
-        tag: "SHORTS",
-        event: "SPECIAL",
-        category: "쇼츠",
-        views: 0,
-        youtubeId: "5U3SPXMLjSY",
-        thumb: "img/video/lulu/lulu-02.png",
-        desc: "루루 짧은 메시지 영상",
-        featured: false
-      },
-      {
-        id: 11,
-        member: "LULU",
-        title: "루루 SELF CAM",
-        date: "2026-04-17",
-        tag: "MESSAGE",
-        event: "SPECIAL",
-        category: "클립",
-        views: 0,
-        youtubeId: "5U3SPXMLjSY",
-        thumb: "img/video/lulu/lulu-03.png",
-        desc: "루루 셀프캠 분위기 영상",
-        featured: false
-      },
-      {
-        id: 12,
-        member: "LUNAR",
-        title: "LUNAR CLIP 01",
-        date: "2026-04-18",
-        tag: "YOUTUBE",
-        event: "SPECIAL",
-        category: "클립",
-        views: 0,
-        youtubeId: "6e7rXzRpjQg",
-        thumb: "img/video/lunar/lunar-01.png",
-        desc: "LUNAR 영상",
-        featured: false
-      },
-      {
-        id: 13,
-        member: "LUNAR",
-        title: "LUNAR SHORT MESSAGE",
-        date: "2026-04-19",
-        tag: "SHORTS",
-        event: "SPECIAL",
-        category: "쇼츠",
-        views: 0,
-        youtubeId: "6e7rXzRpjQg",
-        thumb: "img/video/lunar/lunar-02.png",
-        desc: "LUNAR 짧은 메시지 영상",
-        featured: false
-      },
-      {
-        id: 14,
-        member: "LUNAR",
-        title: "LUNAR SELF CAM",
-        date: "2026-04-20",
-        tag: "MESSAGE",
-        event: "SPECIAL",
-        category: "클립",
-        views: 0,
-        youtubeId: "6e7rXzRpjQg",
-        thumb: "img/video/lunar/lunar-03.png",
-        desc: "LUNAR 셀프캠 분위기 영상",
-        featured: false
-      }
-    ];
+    function openVideo(videoId) {
+      const modal = document.getElementById("videoModal");
+      const frame = document.getElementById("videoFrame");
+      const youtubeLink = document.getElementById("videoYoutubeLink");
 
-    const ITEMS_PER_PAGE = 6;
-
-    let currentMember = "ALL";
-    let currentEvent = "ALL";
-    let currentSort = "latest";
-    let currentSearch = "";
-    let currentPage = 1;
-
-    const memberButtons = document.querySelectorAll(".filter-chip[data-member]");
-    const videoGrid = document.getElementById("videoGrid");
-    const pagination = document.getElementById("pagination");
-    const videoCountText = document.getElementById("videoCountText");
-    const videoSectionTitle = document.getElementById("videoSectionTitle");
-    const searchInput = document.getElementById("searchInput");
-    const sortSelect = document.getElementById("sortSelect");
-    const eventSelect = document.getElementById("eventSelect");
-    const emptyState = document.getElementById("emptyState");
-
-    const videoModal = document.getElementById("videoModal");
-    const videoPlayerWrap = document.getElementById("videoPlayerWrap");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalMeta = document.getElementById("modalMeta");
-    const youtubeLink = document.getElementById("youtubeLink");
-    const tiktokLink = document.getElementById("tiktokLink");
-    const closeModalBtn = document.getElementById("closeModalBtn");
-    const scrollTopBtn = document.getElementById("scrollTopBtn");
-
-    function buildYoutubeUrl(youtubeId) {
-      return `https://www.youtube.com/watch?v=${youtubeId}`;
-    }
-
-    function buildEmbedUrl(youtubeId) {
-  return `https://www.youtube.com/embed/${youtubeId}?autoplay=1&playsinline=1`;
-}
-
-    function buildThumbUrl(youtubeId) {
-      return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
-    }
-
-    function formatDate(dateStr) {
-      const d = new Date(dateStr);
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
-      return `${y}.${m}.${day}`;
-    }
-
-    function formatViews(views) {
-      if (!views || views <= 0) return "비공개";
-      if (views >= 10000) return `${(views / 10000).toFixed(1)}만회`;
-      return `${views.toLocaleString()}회`;
-    }
-
-    function isRecent(dateStr) {
-      const now = new Date();
-      const upload = new Date(dateStr);
-      const diff = (now - upload) / (1000 * 60 * 60 * 24);
-      return diff <= 7;
-    }
-
-    function getSectionTitle() {
-      if (currentMember === "ALL") return "ALL VIDEO";
-      return `${currentMember} VIDEO`;
-    }
-
-    function applyFilters() {
-      let filtered = [...videoData];
-
-      if (currentMember !== "ALL") {
-        filtered = filtered.filter(item => item.member === currentMember);
-      }
-
-      if (currentEvent !== "ALL") {
-        filtered = filtered.filter(item => item.category === currentEvent);
-      }
-
-      if (currentSearch.trim()) {
-        const keyword = currentSearch.trim().toLowerCase();
-        filtered = filtered.filter(item =>
-          item.title.toLowerCase().includes(keyword) ||
-          item.tag.toLowerCase().includes(keyword) ||
-          item.desc.toLowerCase().includes(keyword) ||
-          item.event.toLowerCase().includes(keyword) ||
-          item.member.toLowerCase().includes(keyword) ||
-          (item.category || "").toLowerCase().includes(keyword)
-        );
-      }
-
-      filtered.sort((a, b) => {
-        if (currentSort === "latest") {
-          return new Date(b.date) - new Date(a.date);
-        }
-
-        if (currentSort === "popular") {
-          if ((a.featured || false) !== (b.featured || false)) {
-            return (b.featured || false) - (a.featured || false);
-          }
-
-          if ((a.isTrending || false) !== (b.isTrending || false)) {
-            return (b.isTrending || false) - (a.isTrending || false);
-          }
-
-          return new Date(b.date) - new Date(a.date);
-        }
-
-        return 0;
-      });
-
-      return filtered;
-    }
-
-    function createCard(item) {
-      const article = document.createElement("article");
-      article.className = "video-card-item" + (item.featured ? " featured-card" : "");
-
-      const thumbUrl = item.thumb ? item.thumb : buildThumbUrl(item.youtubeId);
-      const fallbackThumb = buildThumbUrl(item.youtubeId);
-
-      article.innerHTML = `
-        <div class="video-thumb">
-          <img src="${thumbUrl}" alt="${item.title}" onerror="this.onerror=null;this.src='${fallbackThumb}'">
-          ${item.featured ? `<span class="video-badge badge-featured">PICK</span>` : ""}
-          ${isRecent(item.date) ? `<span class="video-badge badge-new">NEW</span>` : ""}
-          ${item.isTrending ? `<span class="video-badge badge-trending">TRENDING</span>` : ""}
-        </div>
-        <div class="video-card-body">
-          <div class="video-meta-top">
-            <div class="video-date">${formatDate(item.date)}</div>
-            <div class="video-tag">${item.tag}</div>
-          </div>
-          <div class="video-title">${item.title}</div>
-          <div class="video-subinfo">${item.member} · ${item.event}</div>
-          <div class="video-subinfo">${item.category}</div>
-        </div>
-      `;
-
-      article.addEventListener("click", () => openModal(item));
-      return article;
-    }
-
-    function renderPagination(totalItems) {
-      pagination.innerHTML = "";
-
-      const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-      if (totalPages <= 1) return;
-
-      for (let i = 1; i <= totalPages; i++) {
-        const btn = document.createElement("button");
-        btn.className = "page-btn" + (i === currentPage ? " active" : "");
-        btn.textContent = i;
-        btn.type = "button";
-
-        btn.addEventListener("click", () => {
-          currentPage = i;
-          renderVideos();
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        });
-
-        pagination.appendChild(btn);
-      }
-    }
-
-    function renderVideos() {
-      const filtered = applyFilters();
-      const totalItems = filtered.length;
-      const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
-
-      if (currentPage > totalPages) currentPage = 1;
-
-      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-      const visibleItems = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-      videoGrid.innerHTML = "";
-      videoSectionTitle.textContent = getSectionTitle();
-      videoCountText.textContent = `총 ${totalItems}개`;
-
-      if (visibleItems.length === 0) {
-        emptyState.classList.add("show");
-      } else {
-        emptyState.classList.remove("show");
-        visibleItems.forEach(item => {
-          videoGrid.appendChild(createCard(item));
-        });
-      }
-
-      renderPagination(totalItems);
-    }
-
-    function openModal(item) {
-      const youtubeUrl = buildYoutubeUrl(item.youtubeId);
-      let embedUrl = buildEmbedUrl(item.youtubeId);
-
-      if (item.start) {
-  embedUrl += `&start=${item.start}`;
-}
-
-      modalTitle.textContent = item.title;
-      modalMeta.textContent = `${formatDate(item.date)} · ${item.tag} · ${item.member} · ${item.category}`;
-      youtubeLink.href = youtubeUrl;
-
-      if (item.tiktokUrl) {
-        tiktokLink.href = item.tiktokUrl;
-        tiktokLink.style.display = "inline-flex";
-      } else {
-        tiktokLink.href = "#";
-        tiktokLink.style.display = "none";
-      }
-
-      videoPlayerWrap.innerHTML = `
-        <iframe
-          src="${embedUrl}"
-          title="${item.title}"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen>
-        </iframe>
-      `;
-
-      videoModal.classList.add("show");
+      frame.src = "https://www.youtube.com/embed/" + videoId + "?autoplay=1&rel=0";
+      youtubeLink.href = "https://www.youtube.com/watch?v=" + videoId;
+      modal.style.display = "flex";
       document.body.style.overflow = "hidden";
     }
 
-    function closeModal() {
-      videoModal.classList.remove("show");
-      videoPlayerWrap.innerHTML = "";
+    function closeVideo() {
+      const modal = document.getElementById("videoModal");
+      const frame = document.getElementById("videoFrame");
+
+      modal.style.display = "none";
+      frame.src = "";
       document.body.style.overflow = "";
     }
 
-    memberButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        memberButtons.forEach(btn => btn.classList.remove("active"));
-        button.classList.add("active");
-        currentMember = button.dataset.member;
-        currentPage = 1;
-        renderVideos();
-      });
-    });
-
-    searchInput.addEventListener("input", (e) => {
-      currentSearch = e.target.value;
-      currentPage = 1;
-      renderVideos();
-    });
-
-    sortSelect.addEventListener("change", (e) => {
-      currentSort = e.target.value;
-      currentPage = 1;
-      renderVideos();
-    });
-
-    eventSelect.addEventListener("change", (e) => {
-      currentEvent = e.target.value;
-      currentPage = 1;
-      renderVideos();
-    });
-
-    closeModalBtn.addEventListener("click", closeModal);
-
-    videoModal.addEventListener("click", (e) => {
-      if (e.target === videoModal) {
-        closeModal();
+    document.addEventListener("click", function (e) {
+      const modal = document.getElementById("videoModal");
+      if (e.target === modal) {
+        closeVideo();
       }
     });
 
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && videoModal.classList.contains("show")) {
-        closeModal();
-      }
-    });
+    let lastIndex = -1;
+    let currentAudio = null;
+    let isPlaying = false;
 
-    window.addEventListener("scroll", () => {
-      if (window.scrollY > 300) {
-        scrollTopBtn.classList.add("show");
+    const iroVoiceLines = [
+      "이로의 목소리가 반짝하고 닿았어 ✨",
+      "오늘도 네 세상을 색으로 채워줄게 💎",
+      "이로치가 제일이잖아? ꒰ঌ ໒꒱"
+    ];
+
+    const iroEffects = ["💗", "👼", "💎"];
+
+    function setVoiceButtonState(btn, state) {
+      const nameEl = document.querySelector(".iro-name");
+      const textEl = document.getElementById("iroVoiceText");
+      const labelEl = btn.querySelector(".iro-voice-label");
+
+      if (state === "playing") {
+        btn.classList.add("playing");
+        nameEl.classList.add("voice-active");
+        labelEl.textContent = "⏸ PAUSE";
       } else {
-        scrollTopBtn.classList.remove("show");
+        btn.classList.remove("playing");
+        nameEl.classList.remove("voice-active");
+        labelEl.textContent = "▶ VOICE";
+
+        if (state === "reset") {
+          textEl.classList.remove("text-change");
+          textEl.textContent = "버튼을 눌러 이로의 보이스를 들어보세요 ✨";
+        }
       }
-    });
+    }
 
-    scrollTopBtn.addEventListener("click", () => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
+    function getRandomIndex(length) {
+      if (length === 1) return 0;
 
-    window.onload = () => {
-      window.scrollTo(0, 0);
-    };
+      let newIndex;
+      do {
+        newIndex = Math.floor(Math.random() * length);
+      } while (newIndex === lastIndex);
 
-    renderVideos();
+      return newIndex;
+    }
+
+    function playRandomVoice(btn) {
+      const audios = document.querySelectorAll(".iro-audio");
+      const textEl = document.getElementById("iroVoiceText");
+      const effectEl = btn.querySelector(".iro-voice-effect");
+
+      if (!audios.length) return;
+
+      if (isPlaying && currentAudio) {
+        currentAudio.pause();
+        isPlaying = false;
+        setVoiceButtonState(btn, "paused");
+        return;
+      }
+
+      if (currentAudio && currentAudio.currentTime > 0 && !currentAudio.ended) {
+        currentAudio.play();
+        isPlaying = true;
+        setVoiceButtonState(btn, "playing");
+        return;
+      }
+
+      const randomIndex = getRandomIndex(audios.length);
+      lastIndex = randomIndex;
+      currentAudio = audios[randomIndex];
+
+      const randomEffect = iroEffects[Math.floor(Math.random() * iroEffects.length)];
+      effectEl.textContent = randomEffect;
+
+      currentAudio.currentTime = 0;
+      currentAudio.play();
+      isPlaying = true;
+
+      setVoiceButtonState(btn, "playing");
+
+      textEl.textContent = iroVoiceLines[randomIndex % iroVoiceLines.length];
+      textEl.classList.add("text-change");
+
+      currentAudio.onended = () => {
+        isPlaying = false;
+        setVoiceButtonState(btn, "reset");
+      };
+    }
   </script>
 </body>
 </html>
