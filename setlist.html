@@ -1,286 +1,1327 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lumibel | Setlist</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lumibel | Setlist</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800;900&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
 
-<style>
-body{
-  margin:0;
-  font-family:"Noto Sans KR",sans-serif;
-  background:#fff8fb;
-  color:#7f6877;
-}
+  <style>
+    :root{
+      --bg:#fff8fb;
+      --bg-soft:#fffafd;
+      --panel:#fffdfd;
+      --panel-2:#fff5fb;
+      --line:#f2d9e5;
+      --line-strong:#eabfd3;
+      --text:#7f6877;
+      --text-deep:#6f5667;
+      --soft:#b792a6;
+      --pink:#ff78b2;
+      --pink-deep:#ff59a5;
+      --pink-soft:#ffd7e8;
+      --gold:#e2b95e;
+      --gold-bg:#fff8df;
+      --blue:#8dbbf0;
+      --blue-bg:#eef6ff;
+      --purple:#b7a2f5;
+      --purple-bg:#f3eeff;
+      --shadow:0 18px 40px rgba(255,120,178,.10);
+    }
 
-/* 헤더 */
-header{
-  position:sticky;
-  top:0;
-  background:rgba(255,248,251,.9);
-  backdrop-filter:blur(10px);
-  padding:16px 20px;
-  border-bottom:1px solid #f2d9e5;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:"Noto Sans KR",sans-serif;
+      background:linear-gradient(180deg,#fffafd 0%,#fff7fb 42%,#fff9fc 100%);
+      color:var(--text);
+    }
 
-.logo{
-  font-weight:900;
-  color:#ff59a5;
-  font-size:20px;
-}
+    a{text-decoration:none;color:inherit}
+    button{font:inherit}
+    img{display:block;max-width:100%}
 
-nav a{
-  margin-left:12px;
-  text-decoration:none;
-  font-size:13px;
-  font-weight:800;
-  color:#a07c90;
-}
+    .wrap{
+      width:min(1180px, calc(100% - 32px));
+      margin:0 auto;
+    }
 
-/* 카드 */
-.song-list{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-  padding:20px;
-}
+    /* header */
+    .site-header{
+      position:sticky;
+      top:0;
+      z-index:100;
+      background:rgba(255,248,251,.88);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(234,191,211,.5);
+    }
 
-.song{
-  background:#fff;
-  padding:16px;
-  border-radius:20px;
-  border:1px solid #f2d9e5;
-  cursor:pointer;
-  transition:.25s;
-}
+    .header-inner{
+      width:min(1180px, calc(100% - 32px));
+      margin:0 auto;
+      min-height:78px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+    }
 
-.song.active{
-  border:2px solid #ff59a5;
-  transform:translateY(-4px);
-}
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
 
-.song:hover{
-  transform:translateY(-4px);
-}
+    .brand-mark{
+      width:44px;
+      height:44px;
+      border-radius:50%;
+      background:linear-gradient(135deg,#ffd7e8,#ff59a5);
+      box-shadow:0 10px 22px rgba(255,89,165,.18);
+      flex:0 0 auto;
+    }
 
-.song strong{
-  display:block;
-  font-size:18px;
-}
+    .brand-text{
+      font-family:"Zen Maru Gothic",sans-serif;
+      font-weight:900;
+      font-size:24px;
+      color:var(--pink-deep);
+      letter-spacing:-.03em;
+      white-space:nowrap;
+    }
 
-/* 콘텐츠 */
-.content{
-  padding:20px;
-  max-width:1200px;
-  margin:0 auto;
-}
+    .gnb{
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      gap:8px;
+    }
 
-.video{
-  position:relative;
-  width:100%;
-  max-width:1100px;
-  aspect-ratio:16 / 9;
-  border-radius:24px;
-  overflow:hidden;
-  margin:0 auto 20px;
-  background:#000;
-  box-shadow:0 16px 34px rgba(0,0,0,.08);
-}
+    .gnb a{
+      padding:10px 14px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:800;
+      color:#9a7c90;
+      transition:.22s ease;
+    }
 
-.video iframe{
-  width:100%;
-  height:100%;
-  border:0;
-  display:block;
-}
-.box{
-  background:#fff;
-  padding:16px;
-  border-radius:16px;
-  border:1px solid #f2d9e5;
-  margin-bottom:12px;
-}
+    .gnb a:hover,
+    .gnb a.active{
+      background:#fff;
+      color:var(--pink-deep);
+      box-shadow:0 8px 18px rgba(255,89,165,.08);
+    }
 
-.title{
-  font-weight:900;
-  margin-bottom:6px;
-}
+    /* hero */
+    .hero{
+      padding:34px 0 18px;
+    }
 
-small{
-  display:block;
-  margin-top:4px;
-  color:#b792a6;
-}
+    .hero-card{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:36px;
+      background:
+        radial-gradient(circle at top right, rgba(255,215,232,.78), transparent 34%),
+        linear-gradient(135deg,#fffdfd 0%,#fff4fa 100%);
+      box-shadow:var(--shadow);
+      padding:38px 38px 34px;
+    }
 
-/* 위로 버튼 */
-.top-btn{
-  position:fixed;
-  right:20px;
-  bottom:20px;
-  width:50px;
-  height:50px;
-  border-radius:50%;
-  border:none;
-  background:#ff59a5;
-  color:#fff;
-  font-size:20px;
-  display:none;
-}
+    .hero-kicker{
+      display:inline-flex;
+      align-items:center;
+      padding:8px 14px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid var(--line);
+      color:#c88daa;
+      font-size:13px;
+      font-weight:800;
+      margin-bottom:16px;
+    }
 
-/* 반응형 */
-@media(max-width:768px){
-  .song-list{
-    grid-template-columns:1fr;
-  }
-}
-</style>
+    .hero-title{
+      margin:0;
+      font-size:clamp(42px,8vw,84px);
+      line-height:.92;
+      letter-spacing:-.05em;
+      font-weight:900;
+      color:var(--pink-deep);
+      text-shadow:0 2px 0 rgba(255,255,255,.95);
+    }
+
+    .hero-desc{
+      margin:16px 0 0;
+      max-width:760px;
+      font-size:16px;
+      line-height:1.8;
+      color:#8e7384;
+      font-weight:700;
+    }
+
+    /* song cards */
+    .section{
+      padding:18px 0;
+    }
+
+    .song-nav{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+    }
+
+    .song-btn{
+      position:relative;
+      border:1px solid var(--line);
+      background:var(--panel);
+      border-radius:26px;
+      padding:18px 20px;
+      box-shadow:var(--shadow);
+      cursor:pointer;
+      transition:.25s ease;
+      text-align:left;
+    }
+
+    .song-btn:hover{
+      transform:translateY(-4px);
+      box-shadow:0 18px 36px rgba(255,89,165,.12);
+    }
+
+    .song-btn.active{
+      background:linear-gradient(135deg,#fff,#ffeef7);
+      border:2px solid var(--pink-deep);
+      box-shadow:0 20px 40px rgba(255,89,165,.18);
+      transform:translateY(-6px) scale(1.01);
+    }
+
+    .song-btn.active::after{
+      content:"NOW";
+      position:absolute;
+      top:12px;
+      right:16px;
+      font-size:11px;
+      font-weight:900;
+      color:var(--pink-deep);
+    }
+
+    .song-btn .mini{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#fff;
+      color:var(--pink-deep);
+      border:1px solid #ffd0e5;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:10px;
+    }
+
+    .song-btn strong{
+      display:block;
+      font-size:22px;
+      color:var(--text-deep);
+      line-height:1.2;
+      letter-spacing:-.03em;
+    }
+
+    .song-btn.active strong{
+      color:var(--pink-deep);
+    }
+
+    .song-btn span{
+      display:block;
+      margin-top:8px;
+      color:#b0899d;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    /* main card */
+    .guide-card{
+      background:var(--panel-2);
+      border:1px solid var(--line);
+      border-radius:34px;
+      box-shadow:var(--shadow);
+      padding:28px;
+    }
+
+    .song-panel{display:none}
+    .song-panel.active{display:block}
+
+    .panel-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:20px;
+      flex-wrap:wrap;
+      margin-bottom:22px;
+    }
+
+    .panel-title-wrap h2{
+      margin:0;
+      font-size:38px;
+      color:var(--pink-deep);
+      letter-spacing:-.04em;
+      line-height:1.02;
+      font-weight:900;
+    }
+
+    .panel-title-wrap p{
+      margin:10px 0 0;
+      font-size:15px;
+      color:#9b7e90;
+      font-weight:700;
+    }
+
+    .level-tabs{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .level-tab{
+      border:none;
+      border-radius:999px;
+      padding:13px 22px;
+      font-weight:900;
+      cursor:pointer;
+      transition:.2s ease;
+      background:#f1e8ee;
+      color:#b07e97;
+    }
+
+    .level-tab.active{
+      background:linear-gradient(135deg,#ff85ba,#ff59a5);
+      color:#fff;
+      box-shadow:0 10px 22px rgba(255,89,165,.18);
+    }
+
+    /* video */
+    .video{
+      position:relative;
+      width:100%;
+      max-width:1100px;
+      aspect-ratio:16 / 9;
+      border-radius:28px;
+      overflow:hidden;
+      margin:0 auto 24px;
+      background:#000;
+      box-shadow:0 18px 38px rgba(0,0,0,.10);
+    }
+
+    .video iframe{
+      width:100%;
+      height:100%;
+      border:0;
+      display:block;
+    }
+
+    .video::after{
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:0;
+      height:56%;
+      background:linear-gradient(to top, rgba(0,0,0,.62), transparent);
+      pointer-events:none;
+    }
+
+    .video-overlay{
+      position:absolute;
+      left:22px;
+      bottom:18px;
+      z-index:2;
+      color:#fff;
+      pointer-events:none;
+    }
+
+    .video-overlay h3{
+      margin:0;
+      font-size:30px;
+      font-weight:900;
+      letter-spacing:-.03em;
+      line-height:1.05;
+    }
+
+    .video-overlay p{
+      margin:6px 0 0;
+      font-size:13px;
+      font-weight:800;
+      opacity:.9;
+      letter-spacing:.08em;
+    }
+
+    .empty-video{
+      background:#fff;
+      border:1px dashed #e7bfd1;
+      border-radius:26px;
+      padding:28px;
+      margin-bottom:24px;
+      color:#9b7f90;
+      line-height:1.8;
+      font-weight:700;
+    }
+
+    /* notes / boxes */
+    .guide-note{
+      background:#fff;
+      border:1px dashed #e7bfd1;
+      border-radius:22px;
+      padding:18px 20px;
+      margin-bottom:22px;
+      color:#8f7385;
+      font-size:14px;
+      line-height:1.8;
+      font-weight:700;
+    }
+
+    .level-content{display:none}
+    .level-content.active{display:block}
+
+    .guide-list{
+      display:grid;
+      gap:14px;
+    }
+
+    .guide-block{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:20px;
+    }
+
+    .guide-block-header{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .line-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:88px;
+      padding:10px 16px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:.03em;
+      border:1px solid transparent;
+      flex:0 0 auto;
+    }
+
+    .badge-call{
+      color:#ff5c9d;
+      background:#fff0f6;
+      border-color:#f4cadc;
+    }
+
+    .badge-mix{
+      color:#d59b21;
+      background:var(--gold-bg);
+      border-color:#efd28d;
+    }
+
+    .badge-lyric{
+      color:#b989b1;
+      background:#fbf3fa;
+      border-color:#ead3e6;
+    }
+
+    .badge-cheer{
+      color:#6d9ed6;
+      background:var(--blue-bg);
+      border-color:#cfe0f7;
+    }
+
+    .badge-lift{
+      color:#8b78dd;
+      background:var(--purple-bg);
+      border-color:#d9cff8;
+    }
+
+    .block-title{
+      font-size:18px;
+      font-weight:900;
+      color:var(--text-deep);
+      letter-spacing:-.02em;
+    }
+
+    .lyrics-box{
+      display:grid;
+      gap:8px;
+    }
+
+    .jp{
+      font-size:18px;
+      line-height:1.8;
+      font-weight:900;
+      color:#6f5667;
+      letter-spacing:-.02em;
+    }
+
+    .reading{
+      font-size:14px;
+      line-height:1.7;
+      color:#aa8d9e;
+      font-weight:700;
+    }
+
+    .kr{
+      font-size:14px;
+      line-height:1.7;
+      color:#8f7385;
+      font-weight:700;
+    }
+
+    .point-grid{
+      display:grid;
+      gap:12px;
+      margin-top:16px;
+    }
+
+    .point-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+      flex-wrap:wrap;
+      padding-top:14px;
+      border-top:1px dashed #efd7e3;
+    }
+
+    .point-text{
+      flex:1 1 0;
+      min-width:240px;
+      font-size:16px;
+      line-height:1.75;
+      color:#7e6575;
+      font-weight:800;
+    }
+
+    .point-text small{
+      display:block;
+      margin-top:4px;
+      font-size:13px;
+      color:#b18a9f;
+      font-weight:700;
+    }
+
+    .summary-box{
+      margin-top:24px;
+      padding:22px;
+      border-radius:24px;
+      background:linear-gradient(180deg,#fff,#fff7fb);
+      border:1px solid var(--line);
+    }
+
+    .summary-box h3{
+      margin:0 0 12px;
+      font-size:22px;
+      color:var(--pink-deep);
+      letter-spacing:-.03em;
+      font-weight:900;
+    }
+
+    .summary-box ul{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:grid;
+      gap:10px;
+    }
+
+    .summary-box li{
+      position:relative;
+      padding-left:16px;
+      font-size:15px;
+      line-height:1.75;
+      color:#856b7b;
+      font-weight:700;
+    }
+
+    .summary-box li::before{
+      content:"✦";
+      position:absolute;
+      left:0;
+      top:0;
+      color:#ff7fb8;
+    }
+
+    footer{
+      padding:28px 0 54px;
+      color:#b392a5;
+      font-size:13px;
+      font-weight:700;
+      text-align:center;
+    }
+
+    .back-to-top{
+      position:fixed;
+      right:20px;
+      bottom:20px;
+      width:56px;
+      height:56px;
+      border:none;
+      border-radius:50%;
+      background:linear-gradient(135deg,#ff85ba,#ff59a5);
+      color:#fff;
+      font-size:24px;
+      font-weight:900;
+      cursor:pointer;
+      box-shadow:0 14px 30px rgba(255,89,165,.24);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:200;
+      opacity:0;
+      visibility:hidden;
+      transform:translateY(12px);
+      transition:.25s ease;
+    }
+
+    .back-to-top.show{
+      opacity:1;
+      visibility:visible;
+      transform:translateY(0);
+    }
+
+    .back-to-top:hover{
+      transform:translateY(-4px);
+    }
+
+    @media (max-width:980px){
+      .song-nav{
+        grid-template-columns:1fr;
+      }
+
+      .panel-head{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+    }
+
+    @media (max-width:768px){
+      .header-inner{
+        padding:14px 0;
+        align-items:flex-start;
+        flex-direction:column;
+      }
+
+      .gnb{
+        width:100%;
+        justify-content:flex-start;
+        gap:6px;
+      }
+
+      .gnb a{
+        font-size:12px;
+        padding:9px 12px;
+      }
+
+      .hero-card{
+        padding:28px 22px 24px;
+        border-radius:28px;
+      }
+
+      .guide-card{
+        padding:18px;
+        border-radius:26px;
+      }
+
+      .panel-title-wrap h2{
+        font-size:30px;
+      }
+
+      .video{
+        border-radius:22px;
+      }
+
+      .video-overlay{
+        left:16px;
+        bottom:14px;
+      }
+
+      .video-overlay h3{
+        font-size:24px;
+      }
+
+      .jp{
+        font-size:16px;
+      }
+
+      .point-text{
+        font-size:15px;
+      }
+
+      .back-to-top{
+        right:16px;
+        bottom:16px;
+        width:50px;
+        height:50px;
+        font-size:22px;
+      }
+    }
+  </style>
 </head>
-
 <body>
 
-<header>
-  <div class="logo">Lumibel</div>
-  <nav>
-    <a href="index.html">HOME</a>
-    <a href="setlist.html">SETLIST</a>
-  </nav>
-</header>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="brand">
+        <div class="brand-mark"></div>
+        <div class="brand-text">Lumibel</div>
+      </a>
 
-<!-- 곡 선택 -->
-<div class="song-list">
-  <div class="song active" onclick="showSong('sukipi',this)">
-    <strong>슈키피!</strong>
-    <span>귀여운 콜 중심</span>
-  </div>
+      <nav class="gnb">
+        <a href="index.html">HOME</a>
+        <a href="news.html">NEWS</a>
+        <a href="member.html">MEMBER</a>
+        <a href="schedule.html">SCHEDULE</a>
+        <a href="music.html">MUSIC</a>
+        <a href="setlist.html" class="active">SETLIST</a>
+        <a href="fanname.html">FANNAME</a>
+        <a href="info.html">INFO</a>
+      </nav>
+    </div>
+  </header>
 
-  <div class="song" onclick="showSong('canaria',this)">
-    <strong>카나리아</strong>
-    <span>믹스 + 콜</span>
-  </div>
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-card">
+          <div class="hero-kicker">LUMIBEL CHEER GUIDE</div>
+          <h1 class="hero-title">SETLIST</h1>
+          <p class="hero-desc">
+            루미벨의 공연 곡을 더 즐겁게 즐기기 위한 응원가이드 페이지예요.
+            <br>
+            초보용은 따라가기 쉽게, 고급용은 콜 / 믹스 / 리프트 포인트까지 정리해두었어요.
+          </p>
+        </div>
+      </div>
+    </section>
 
-  <div class="song" onclick="showSong('star',this)">
-    <strong>Stardust Magical</strong>
-    <span>현장 가이드</span>
-  </div>
-</div>
+    <section class="section">
+      <div class="wrap">
+        <div class="song-nav">
+          <button class="song-btn active" data-song="sukipi" type="button">
+            <span class="mini">01</span>
+            <strong>슈키피!</strong>
+            <span>초보자도 따라가기 쉬운 왕도 콜 중심</span>
+          </button>
 
-<div class="content">
+          <button class="song-btn" data-song="canaria" type="button">
+            <span class="mini">02</span>
+            <strong>카나리아</strong>
+            <span>가사 흐름 따라가는 콜 + 믹스 포인트형</span>
+          </button>
 
-<!-- 슈키피 -->
-<div id="sukipi" class="song-content">
+          <button class="song-btn" data-song="stardust" type="button">
+            <span class="mini">03</span>
+            <strong>Stardust Magical</strong>
+            <span>영상 없음 / 현장형 응원가이드 우선 정리</span>
+          </button>
+        </div>
+      </div>
+    </section>
 
-<div class="video">
-<iframe src="https://www.youtube.com/embed/YOUR_SUKIPI_VIDEO_ID"></iframe>
-</div>
+    <section class="section">
+      <div class="wrap">
+        <div class="guide-card">
 
-<div class="box">
-<div class="title">기본 설명</div>
-밝고 귀여운 곡으로 누구나 쉽게 따라할 수 있는 응원이 중심이에요.
-</div>
+          <!-- 슈키피 -->
+          <article class="song-panel active" id="panel-sukipi">
+            <div class="panel-head">
+              <div class="panel-title-wrap">
+                <h2>슈키피!</h2>
+                <p>귀엽고 반응 많은 타입 / 초보용과 고급용 둘 다 가능</p>
+              </div>
 
-<div class="box">
-<div class="title">CALL</div>
-스키피! 스키피!
-<small>후렴에서 같이 외치기</small>
-</div>
+              <div class="level-tabs">
+                <button class="level-tab active" data-level="beginner" data-songtab="sukipi" type="button">초보용</button>
+                <button class="level-tab" data-level="advanced" data-songtab="sukipi" type="button">고급용</button>
+              </div>
+            </div>
 
-<div class="box">
-<div class="title">멤버 콜</div>
-마리링! 루루! / 이로! 루나!
-</div>
+            <div class="video">
+              <iframe
+                src="https://www.youtube.com/embed/YOUR_SUKIPI_VIDEO_ID"
+                title="슈키피!"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+              </iframe>
+              <div class="video-overlay">
+                <h3>슈키피!</h3>
+                <p>CHEER GUIDE</p>
+              </div>
+            </div>
 
-<div class="box">
-<div class="title">반응</div>
-네에~! / 와아!
-</div>
+            <div class="guide-note">
+              이 페이지는 공연 중 함께 외치는 응원 방법을 정리한 가이드예요.
+              <br><br>
+              <strong>CALL</strong> : 같이 외치는 구호<br>
+              <strong>MIX</strong> : 아이돌 공연에서 자주 쓰는 응원 구호 세트<br>
+              <strong>CHEER</strong> : 환호, 반응, 박수<br>
+              <strong>LIFT</strong> : 리프트 포인트
+              <br><br>
+              처음이라면 초보용만 따라와도 충분해요.
+            </div>
 
-</div>
+            <div class="level-content active" data-songcontent="sukipi" data-levelcontent="beginner">
+              <div class="guide-list">
 
-<!-- 카나리아 -->
-<div id="canaria" class="song-content" style="display:none;">
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-call">CALL</span>
+                    <div class="block-title">기본 콜</div>
+                  </div>
 
-<div class="video">
-<iframe src="https://www.youtube.com/embed/YOUR_CANARIA_VIDEO_ID"></iframe>
-</div>
+                  <div class="point-grid">
+                    <div class="point-row" style="border-top:none;padding-top:0;">
+                      <div class="point-text">
+                        스키피! 스키피!
+                        <small>후렴에서 제일 쉽게 따라할 수 있는 기본 콜</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-<div class="box">
-<div class="title">설명</div>
-가사 흐름 따라 콜 + 믹스를 넣는 곡이에요.
-</div>
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-call">CALL</span>
+                    <div class="block-title">멤버명 콜</div>
+                  </div>
 
-<div class="box">
-<div class="title">CALL</div>
-We are Sweetie pie!
-</div>
+                  <div class="point-grid">
+                    <div class="point-row" style="border-top:none;padding-top:0;">
+                      <div class="point-text">
+                        마리링! 루루! / 이로! 루나!
+                        <small>이름이 나오거나 소개 느낌의 구간에서 외치기</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-<div class="box">
-<div class="title">MIX</div>
-타이가 파이어 사이버 파이버 다이버 바이버 저저
-<small>초반 벌스 구간</small>
-</div>
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-cheer">CHEER</span>
+                    <div class="block-title">반응 포인트</div>
+                  </div>
 
-<div class="box">
-<div class="title">후렴</div>
-짝짝 👏👏 / 짝짝 👏👏
-</div>
+                  <div class="point-grid">
+                    <div class="point-row" style="border-top:none;padding-top:0;">
+                      <div class="point-text">
+                        네에~! / 모~! / 와아!
+                        <small>귀여운 포즈나 표정, 손짓 직후 가볍게 반응</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-</div>
+              </div>
+            </div>
 
-<!-- 스타더스트 -->
-<div id="star" class="song-content" style="display:none;">
+            <div class="level-content" data-songcontent="sukipi" data-levelcontent="advanced">
+              <div class="guide-list">
 
-<div class="box">
-<div class="title">설명</div>
-영상 없음. 현장 반응형 곡.
-</div>
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-mix">MIX</span>
+                    <div class="block-title">A메로 / 기본 믹스</div>
+                  </div>
 
-<div class="box">
-<div class="title">응원</div>
-후렴에서 큰 환호
-</div>
+                  <div class="point-grid">
+                    <div class="point-row" style="border-top:none;padding-top:0;">
+                      <div class="point-text">
+                        타이가 파이어 사이버 파이버 다이버 바이버 저저
+                        <small>기본 믹스 (현장 상황에 따라 생략 가능)</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-<div class="box">
-<div class="title">리프트</div>
-추후 확정
-</div>
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-call">CALL</span>
+                    <div class="block-title">후렴 콜</div>
+                  </div>
 
-</div>
+                  <div class="point-grid">
+                    <div class="point-row" style="border-top:none;padding-top:0;">
+                      <div class="point-text">
+                        스키피! 스키피!
+                        <small>후렴에서는 가사 콜 중심으로 가는 게 가장 자연스러움</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-</div>
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-cheer">CHEER</span>
+                    <div class="block-title">박수 / 반응</div>
+                  </div>
 
-<button class="top-btn" id="topBtn">↑</button>
+                  <div class="point-grid">
+                    <div class="point-row" style="border-top:none;padding-top:0;">
+                      <div class="point-text">
+                        짝짝 👏👏 / 짝짝 👏👏
+                        <small>후렴 4박 유지, 너무 과하지 않게</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-<script>
-function showSong(id,el){
-  document.querySelectorAll('.song-content').forEach(s=>s.style.display='none');
-  document.getElementById(id).style.display='block';
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-lift">LIFT</span>
+                    <div class="block-title">리프트</div>
+                  </div>
 
-  document.querySelectorAll('.song').forEach(s=>s.classList.remove('active'));
-  el.classList.add('active');
+                  <div class="point-grid">
+                    <div class="point-row" style="border-top:none;padding-top:0;">
+                      <div class="point-text">
+                        추후 확정
+                        <small>무대 동선과 실제 공연 흐름에 따라 변경될 수 있음</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-  window.scrollTo({top:0,behavior:'smooth'});
-}
+              </div>
+            </div>
 
-/* 위로 버튼 */
-const btn=document.getElementById("topBtn");
+            <div class="summary-box">
+              <h3>슈키피! 정리</h3>
+              <ul>
+                <li>초보용은 “스키피! 스키피!” / 멤버명 콜 / 귀여운 반응만 기억하면 충분해요.</li>
+                <li>고급용은 A메로 기본 믹스 + 후렴 콜 + 박수 조합으로 가면 안정적이에요.</li>
+                <li>리프트는 아직 확정하지 않고 추후 공연 동선 보고 정리하는 편이 좋아요.</li>
+              </ul>
+            </div>
+          </article>
 
-window.onscroll=function(){
-  if(window.scrollY>300){
-    btn.style.display="block";
-  }else{
-    btn.style.display="none";
-  }
-};
+          <!-- 카나리아 -->
+          <article class="song-panel" id="panel-canaria">
+            <div class="panel-head">
+              <div class="panel-title-wrap">
+                <h2>카나리아</h2>
+                <p>가사 흐름 따라가는 형태 / 블록별로 콜과 믹스 배치</p>
+              </div>
 
-btn.onclick=function(){
-  window.scrollTo({top:0,behavior:'smooth'});
-};
-</script>
+              <div class="level-tabs">
+                <button class="level-tab active" data-level="beginner" data-songtab="canaria" type="button">초보용</button>
+                <button class="level-tab" data-level="advanced" data-songtab="canaria" type="button">고급용</button>
+              </div>
+            </div>
 
+            <div class="video">
+              <iframe
+                src="https://www.youtube.com/embed/YOUR_CANARIA_VIDEO_ID"
+                title="카나리아"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+              </iframe>
+              <div class="video-overlay">
+                <h3>카나리아</h3>
+                <p>CHEER GUIDE</p>
+              </div>
+            </div>
+
+            <div class="guide-note">
+              카나리아는 자동 싱크형으로 억지로 만들기보다 가사 블록별 수동 정리형으로 가는 게 훨씬 예쁘고 관리도 쉬워요.
+              <br><br>
+              이 곡은 가사 흐름을 따라 콜과 믹스를 넣는 스타일이라, 어려운 부분은 무조건 외우기보다 대표 포인트만 먼저 익히는 걸 추천해요.
+            </div>
+
+            <div class="level-content active" data-songcontent="canaria" data-levelcontent="beginner">
+              <div class="guide-list">
+
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-call">CALL</span>
+                    <div class="block-title">대표 콜</div>
+                  </div>
+
+                  <div class="point-grid">
+                    <div class="point-row" style="border-top:none;padding-top:0;">
+                      <div class="point-text">
+                        We are Sweetie pie!
+                        <small>가장 대표적인 영어 콜, 초보도 따라가기 쉬움</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-call">CALL</span>
+                    <div class="block-title">후렴 콜</div>
+                  </div>
+
+                  <div class="lyrics-box">
+                    <div class="jp">すきなの　すきなの　すきすきすきぴ</div>
+                    <div class="reading">스키나노 스키나노 스키스키스키피</div>
+                    <div class="kr">좋아해 좋아해 너무너무 좋아해</div>
+                  </div>
+
+                  <div class="point-grid">
+                    <div class="point-row">
+                      <span class="line-badge badge-call">CALL</span>
+                      <div class="point-text">
+                        스키피! 스키피!
+                        <small>후렴 핵심만 따라가도 충분한 포인트</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-cheer">CHEER</span>
+                    <div class="block-title">반응</div>
+                  </div>
+
+                  <div class="point-grid">
+                    <div class="point-row" style="border-top:none;padding-top:0;">
+                      <div class="point-text">
+                        “ねえー！” / “もぉー！” 뒤 귀엽게 반응 + 환호
+                        <small>박자보다 분위기 있게 반응하는 쪽이 자연스러움</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="level-content" data-songcontent="canaria" data-levelcontent="advanced">
+              <div class="guide-list">
+
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-lyric">LYRIC</span>
+                    <div class="block-title">블록 1</div>
+                  </div>
+
+                  <div class="lyrics-box">
+                    <div class="jp">We are Sweetie pie!</div>
+                    <div class="reading">위 아 스위티 파이!</div>
+                    <div class="kr">우리는 스위티 파이!</div>
+                  </div>
+
+                  <div class="point-grid">
+                    <div class="point-row">
+                      <span class="line-badge badge-call">CALL</span>
+                      <div class="point-text">
+                        “We are Sweetie pie!” 전원 콜
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-mix">MIX</span>
+                    <div class="block-title">A메로 / 기본 믹스</div>
+                  </div>
+
+                  <div class="point-grid">
+                    <div class="point-row" style="border-top:none;padding-top:0;">
+                      <div class="point-text">
+                        타이가 파이어 사이버 파이버 다이버 바이버 저저
+                        <small>기본 믹스 (현장 상황에 따라 생략 가능)</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-call">CALL</span>
+                    <div class="block-title">나마콜 / 멤버명 콜</div>
+                  </div>
+
+                  <div class="point-grid">
+                    <div class="point-row" style="border-top:none;padding-top:0;">
+                      <div class="point-text">
+                        마리링! 마리링! 오~레노! 마리링!
+                        <small>A메로 시작이나 간주처럼 비트가 비는 구간에서 사용</small>
+                      </div>
+                    </div>
+
+                    <div class="point-row">
+                      <div class="point-text">
+                        마리링! 루루!
+                        <small>짧게 들어가는 멤버명 콜</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-cheer">CHEER</span>
+                    <div class="block-title">우라오이 / 박수</div>
+                  </div>
+
+                  <div class="point-grid">
+                    <div class="point-row" style="border-top:none;padding-top:0;">
+                      <div class="point-text">
+                        우라오이 X4
+                        <small>후렴 전 고조 구간</small>
+                      </div>
+                    </div>
+
+                    <div class="point-row">
+                      <div class="point-text">
+                        짝짝 👏👏 / 짝짝 👏👏
+                        <small>후렴 4박 유지</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-lift">LIFT</span>
+                    <div class="block-title">리프트</div>
+                  </div>
+
+                  <div class="point-grid">
+                    <div class="point-row" style="border-top:none;padding-top:0;">
+                      <div class="point-text">
+                        후렴 하이라이트 파트 추후 확정
+                        <small>무대 동선에 따라 변경될 수 있음</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="summary-box">
+              <h3>카나리아 정리</h3>
+              <ul>
+                <li>카나리아는 자동 시간 연동보다 블록형 가이드가 더 깔끔하고 관리가 쉬워요.</li>
+                <li>초보용은 대표 콜 / 쉬운 후렴 콜 / 반응 위주로 따라가면 돼요.</li>
+                <li>고급용은 A메로 기본 믹스 + 나마콜 + 우라오이 + 후렴 박수 구조로 가면 자연스러워요.</li>
+              </ul>
+            </div>
+          </article>
+
+          <!-- 스타더스트 -->
+          <article class="song-panel" id="panel-stardust">
+            <div class="panel-head">
+              <div class="panel-title-wrap">
+                <h2>Stardust Magical</h2>
+                <p>영상 없음 / 현장 응원가이드 우선 제작 버전</p>
+              </div>
+
+              <div class="level-tabs">
+                <button class="level-tab active" data-level="beginner" data-songtab="stardust" type="button">초보용</button>
+                <button class="level-tab" data-level="advanced" data-songtab="stardust" type="button">고급용</button>
+              </div>
+            </div>
+
+            <div class="empty-video">
+              현재 공개된 영상이 없어 영상 대신 응원 포인트 중심으로 먼저 정리해두는 페이지예요.
+              <br>
+              추후 라이브 영상 또는 가이드 음원이 생기면 바로 추가할 수 있게 구조는 맞춰두었습니다.
+            </div>
+
+            <div class="guide-note">
+              Stardust Magical은 마법소녀 감성과 하이라이트 고조감이 중요한 곡이라,
+              아직 영상이 없는 지금은 너무 촘촘한 타이밍보다 현장에서 바로 쓸 수 있는 범용형 가이드로 잡는 편이 좋아요.
+            </div>
+
+            <div class="level-content active" data-songcontent="stardust" data-levelcontent="beginner">
+              <div class="guide-list">
+
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-call">CALL</span>
+                    <div class="block-title">초보용 핵심</div>
+                  </div>
+
+                  <div class="point-grid">
+                    <div class="point-row" style="border-top:none;padding-top:0;">
+                      <div class="point-text">
+                        곡 제목 / 마법 / 반짝임 계열 키워드가 나오면 크게 환호
+                        <small>곡 분위기 살리는 방향으로 반응</small>
+                      </div>
+                    </div>
+
+                    <div class="point-row">
+                      <div class="point-text">
+                        후렴 들어갈 때 전체 환호 중심
+                        <small>멤버명 콜보다 곡 분위기 따라가기</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="level-content" data-songcontent="stardust" data-levelcontent="advanced">
+              <div class="guide-list">
+
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-mix">MIX</span>
+                    <div class="block-title">도입부</div>
+                  </div>
+
+                  <div class="point-grid">
+                    <div class="point-row" style="border-top:none;padding-top:0;">
+                      <div class="point-text">
+                        도입부는 무리하게 믹스 넣기보다 곡 분위기 듣고 들어가는 쪽 추천
+                        <small>첫 공개곡 느낌이면 과한 믹스보다 집중도 유지</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-call">CALL</span>
+                    <div class="block-title">후렴 전</div>
+                  </div>
+
+                  <div class="point-grid">
+                    <div class="point-row" style="border-top:none;padding-top:0;">
+                      <div class="point-text">
+                        후렴 직전 고조되는 파트에서 짧은 환호 + 콜
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-cheer">CHEER</span>
+                    <div class="block-title">후렴</div>
+                  </div>
+
+                  <div class="point-grid">
+                    <div class="point-row" style="border-top:none;padding-top:0;">
+                      <div class="point-text">
+                        별 / 마법 / 반짝임 / 날아오름 느낌의 포인트에서 크게 환호
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="guide-block">
+                  <div class="guide-block-header">
+                    <span class="line-badge badge-lift">LIFT</span>
+                    <div class="block-title">리프트 후보</div>
+                  </div>
+
+                  <div class="point-grid">
+                    <div class="point-row" style="border-top:none;padding-top:0;">
+                      <div class="point-text">
+                        마지막 대후렴, 브리지 직후, 엔딩 포즈 직전
+                        <small>실제 안무 확인 후 고정 추천</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="summary-box">
+              <h3>Stardust Magical 정리</h3>
+              <ul>
+                <li>영상이 없어 지금은 현장 대응형 가이드로 두는 게 가장 자연스러워요.</li>
+                <li>마법소녀 서사 느낌을 살려 환호와 하이라이트 반응을 크게 가져가는 방향이 잘 어울려요.</li>
+                <li>정확한 믹스 / 리프트 위치는 영상이나 라이브 동선 확보 후 확정하는 걸 추천해요.</li>
+              </ul>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    © 2026 Lumibel All Rights Reserved.
+  </footer>
+
+  <button class="back-to-top" id="backToTop" type="button" aria-label="맨 위로 이동">↑</button>
+
+  <script>
+    const songButtons = document.querySelectorAll('.song-btn');
+    const songPanels = document.querySelectorAll('.song-panel');
+
+    songButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.song;
+
+        songButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        songPanels.forEach(panel => panel.classList.remove('active'));
+        document.getElementById(`panel-${target}`).classList.add('active');
+
+        const guideCard = document.querySelector('.guide-card');
+        window.scrollTo({
+          top: guideCard.getBoundingClientRect().top + window.scrollY - 110,
+          behavior: 'smooth'
+        });
+      });
+    });
+
+    const levelTabs = document.querySelectorAll('.level-tab');
+
+    levelTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const song = tab.dataset.songtab;
+        const level = tab.dataset.level;
+        const panel = document.getElementById(`panel-${song}`);
+
+        panel.querySelectorAll('.level-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        panel.querySelectorAll('.level-content').forEach(content => {
+          content.classList.remove('active');
+        });
+
+        panel.querySelector(`.level-content[data-songcontent="${song}"][data-levelcontent="${level}"]`).classList.add('active');
+      });
+    });
+
+    const backToTop = document.getElementById('backToTop');
+
+    window.addEventListener('scroll', () => {
+      if(window.scrollY > 300){
+        backToTop.classList.add('show');
+      }else{
+        backToTop.classList.remove('show');
+      }
+    });
+
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({
+        top:0,
+        behavior:'smooth'
+      });
+    });
+  </script>
 </body>
 </html>
