@@ -32,24 +32,33 @@
   font-weight: 700;
 }
 
-/* 1. 카드의 전체 높이를 키웁니다 */
+/* 1. 카드의 전체 높이를 키우고, 내부 요소를 정중앙에 배치 */
 .iro-card {
   background: #fff8fb;
   border: 1px solid #f2d8e7;
   border-radius: 32px;
-  padding: 40px; 
-  min-height: 750px; /* 카드를 2번처럼 길게 만듭니다 */
+  padding: 50px; 
+  min-height: 800px; /* 카드를 시원하게 길게 만듭니다 */
   display: flex;
-  align-items: center; /* 내부 요소들을 세로 중앙으로 */
+  align-items: center; /* [핵심] 사진과 글자를 세로 중앙으로 정렬 */
   box-sizing: border-box;
 }
 
-/* 2. 사진 영역: 높이를 확실히 지정하고 경로 확인 */
+/* 2. 전체 그리드 설정 */
+.iro-grid {
+  display: grid;
+  grid-template-columns: 500px 1fr; /* 사진 500px 고정, 나머지는 글자 */
+  gap: 50px; /* 사진과 글자 사이의 넉넉한 간격 */
+  width: 100%;
+  align-items: center; /* 내부 요소들끼리 높이를 맞춤 */
+}
+
+/* 3. 사진 영역 */
 .iro-photo {
-  width: 500px; /* 가로 고정 */
-  height: 650px; /* 높이를 직접 지정해서 영역을 확보합니다 */
+  width: 500px;
+  height: 700px; /* 사진을 아래로 길게 쭉 뻗게 만듭니다 */
   border-radius: 28px;
-  background-image: url('iro.png'); /* 파일이 iro.png가 맞는지 다시 확인! */
+  background-image: url('iro.png'); 
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -57,38 +66,51 @@
   background-color: #fff;
 }
 
-/* 3. 정보 영역: 중앙으로 몰아넣기 */
+/* 4. 정보 영역: 고정 높이를 빼고 자동 정렬로 변경 */
 .iro-info {
   display: flex;
   flex-direction: column;
-  justify-content: center; /* [중요] 이름과 정보들을 세로 중앙으로 모아줍니다 */
-  height: 650px; /* 사진 높이와 맞춰줍니다 */
-  padding-left: 20px; /* 사진과의 간격 */
+  justify-content: center; /* 글자들을 뭉쳐서 세로 중앙에 배치 */
+  text-align: left;
 }
 
-/* 4. 인스타 아이콘 크기 (100px) */
-.iro-sns img {
-  width: 100px;
-  height: 100px;
-  display: block;
+.iro-name {
+  font-size: 78px;
+  font-weight: 900;
+  color: #d77ca7;
+  margin: 0;
+  line-height: 1;
 }
 
-/* 5. 버튼 간격 조정 */
+.iro-en {
+  font-size: 24px;
+  letter-spacing: 0.15em;
+  color: #c99ab2;
+  margin: 10px 0 30px; /* 이름 아래 영어와 정보 사이의 간격 */
+  font-weight: 800;
+}
+
+.iro-meta {
+  font-size: 17px;
+  line-height: 2.3; /* 줄 간격을 더 벌려 가독성을 높임 */
+  color: #8f7183;
+}
+
+/* 5. 하단 인스타 및 버튼 */
 .iro-bottom {
-  margin-top: auto; /* 내용이 많아도 하단에 배치되도록 돕습니다 */
-  padding-top: 30px;
+  margin-top: 40px; /* 정보 뭉치와 아이콘 사이의 거리 */
 }
 
 .iro-sns img {
-  width: 100px;  /* 100으로 변경 */
-  height: 100px; /* 여기도 100으로 변경 */
+  width: 100px; /* 원하셨던 큼직한 100px 아이콘 */
+  height: 100px;
   display: block;
 }
 
 .iro-actions {
   display: flex;
-  gap: 12px;
-  margin-top: 20px; /* 아이콘과 버튼 사이 간격 */
+  gap: 15px;
+  margin-top: 25px;
 }
 
 .iro-btn {
