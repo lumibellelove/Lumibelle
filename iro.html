@@ -69,7 +69,7 @@
       flex-direction: column;
       align-items: flex-start;
       height: 100%;
-      padding-top: 10px;
+      padding-top: 8px;
     }
 
     .iro-name-section {
@@ -85,6 +85,16 @@
       margin: 0;
       line-height: 0.95;
       text-align: center;
+      transform: translateX(-4px);
+      transition: color 0.3s ease, text-shadow 0.3s ease, transform 0.3s ease;
+    }
+
+    .iro-name.voice-active {
+      color: #ff8fc5;
+      text-shadow:
+        0 0 10px rgba(255, 143, 197, 0.45),
+        0 0 22px rgba(178, 222, 255, 0.35);
+      transform: translateX(-4px) translateY(-1px);
     }
 
     .iro-en {
@@ -94,72 +104,90 @@
       margin-top: 12px;
       font-weight: 800;
       text-align: center;
+      transform: translateX(-4px);
     }
 
     /* voice */
-    .iro-voice-wrap {
-      display: flex;
-      justify-content: center;
+    .iro-voice-area {
       margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
     }
 
     .iro-voice {
       position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 10px 18px;
+      padding: 12px 26px;
       border-radius: 999px;
-      border: 1.5px solid #ffc2da;
+      border: 2px solid #B2DEFF;
       background: #fff;
-      color: #ff5ea0;
-      font-size: 14px;
-      font-weight: 900;
+      color: #B2DEFF;
+      font-weight: 800;
       cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+      transition: all 0.25s ease;
     }
 
     .iro-voice:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(255, 111, 165, 0.14);
     }
 
     .iro-voice.playing {
-      color: #ff2f8f;
-      border-color: #ff89bb;
-      box-shadow: 0 10px 20px rgba(255, 111, 165, 0.18);
+      background: linear-gradient(135deg, #B2DEFF, #8fd0ff);
+      color: #fff;
+      animation: iroVoicePulse 1.2s infinite;
     }
 
-    .iro-voice-heart {
+    @keyframes iroVoicePulse {
+      0% { box-shadow: 0 0 0 0 rgba(178,222,255,0.5); }
+      70% { box-shadow: 0 0 0 12px rgba(178,222,255,0); }
+      100% { box-shadow: 0 0 0 0 rgba(178,222,255,0); }
+    }
+
+    .iro-voice-effect {
       position: absolute;
       left: 50%;
-      bottom: 10px;
+      bottom: 6px;
       transform: translateX(-50%);
       opacity: 0;
+      font-size: 14px;
       pointer-events: none;
-      font-size: 16px;
     }
 
-    .iro-voice.playing .iro-voice-heart {
-      animation: iroHeartPop 0.8s ease forwards;
+    .iro-voice.playing .iro-voice-effect {
+      animation: iroPopEffect 0.8s ease;
     }
 
-    @keyframes iroHeartPop {
+    @keyframes iroPopEffect {
       0% {
-        transform: translateX(-50%) translateY(0) scale(0.6);
         opacity: 0;
+        transform: translateX(-50%) translateY(0) scale(0.5);
       }
-      35% {
+      40% {
         opacity: 1;
       }
       100% {
-        transform: translateX(-50%) translateY(-26px) scale(1.18);
         opacity: 0;
+        transform: translateX(-50%) translateY(-25px) scale(1.3);
       }
     }
 
-    /* structured text */
+    .iro-voice-text {
+      margin: 0;
+      min-height: 1.6em;
+      font-size: 14px;
+      font-weight: 700;
+      color: #c99ab2;
+      text-align: center;
+      transition: opacity 0.25s ease, transform 0.25s ease, color 0.25s ease;
+    }
+
+    .iro-voice-text.text-change {
+      color: #B2DEFF;
+      transform: translateY(-1px);
+    }
+
+    /* copy */
     .iro-copy {
       width: 100%;
       max-width: 720px;
@@ -201,6 +229,11 @@
       line-height: 1.7;
     }
 
+    .iro-highlight {
+      color: #B2DEFF;
+      font-weight: 900;
+    }
+
     .iro-line-sub {
       margin: 0;
       color: #8f7183;
@@ -218,7 +251,7 @@
 
     .iro-detail-row {
       display: grid;
-      grid-template-columns: 118px 1fr;
+      grid-template-columns: 108px 1fr;
       gap: 12px;
       align-items: start;
       font-size: 16px;
@@ -485,7 +518,7 @@
       box-shadow: 0 12px 24px rgba(215, 124, 167, 0.12);
     }
 
-    /* hover upgrade */
+    /* movie hover */
     .iro-movie-feature:hover,
     .iro-movie-sub:hover {
       transform: translateY(-6px) scale(1.02);
@@ -636,10 +669,9 @@
         justify-content: center;
       }
 
-      .iro-meta,
-      .iro-detail-row,
-      .iro-detail-value {
-        text-align: left;
+      .iro-detail-block {
+        width: 100%;
+        box-sizing: border-box;
       }
 
       .iro-sns-row,
@@ -778,13 +810,20 @@
               <h3 class="iro-name">이로</h3>
               <div class="iro-en">IRO</div>
 
-              <div class="iro-voice-wrap">
-                <button class="iro-voice" type="button" onclick="playVoice(this)">
+              <div class="iro-voice-area">
+                <button class="iro-voice" type="button" onclick="playRandomVoice(this)">
                   ▶ VOICE
-                  <span class="iro-voice-heart">💗</span>
+                  <span class="iro-voice-effect"></span>
                 </button>
+
+                <p id="iroVoiceText" class="iro-voice-text">
+                  버튼을 눌러 이로의 보이스를 들어보세요 ✨
+                </p>
+
+                <audio class="iro-audio" src="IroVoice1.mp3"></audio>
+                <audio class="iro-audio" src="IroVoice2.mp3"></audio>
+                <audio class="iro-audio" src="IroVoice3.mp3"></audio>
               </div>
-              <audio id="voiceAudio" src="voice.mp3"></audio>
             </div>
 
             <div class="iro-copy">
@@ -794,7 +833,7 @@
               </div>
 
               <div class="iro-message-block">
-                <p class="iro-line-main">“네 세상의 색(色)을 완전히 바꿔 줄게!”</p>
+                <p class="iro-line-main">“네 세상의 <span class="iro-highlight">색</span>(色)을 완전히 바꿔 줄게!”</p>
                 <p class="iro-line-sub">いろんな色の中で、イロチがいちばんでしょ？꒰ঌ ໒꒱</p>
               </div>
 
@@ -805,14 +844,14 @@
                 </div>
                 <div class="iro-detail-row">
                   <div class="iro-detail-label">나마콜</div>
-                  <div class="iro-detail-value">이로치</div>
+                  <div class="iro-detail-value">이로치 👼💎</div>
                 </div>
                 <div class="iro-detail-row">
                   <div class="iro-detail-label">호출 태그</div>
                   <div class="iro-detail-value">#이로이로안노요</div>
                 </div>
                 <div class="iro-detail-row">
-                  <div class="iro-detail-label">체키 태그</div>
+                  <div class="iro-detail-label">체키 메시</div>
                   <div class="iro-detail-value">#이로케맛있다니</div>
                 </div>
               </div>
@@ -931,15 +970,61 @@
       }
     });
 
-    function playVoice(el) {
-      const audio = document.getElementById("voiceAudio");
-      audio.currentTime = 0;
-      audio.play();
-      el.classList.remove("playing");
-      void el.offsetWidth;
-      el.classList.add("playing");
-      audio.onended = () => {
-        el.classList.remove("playing");
+    let lastIndex = -1;
+
+    const iroVoiceLines = [
+      "이로의 목소리가 반짝하고 닿았어 ✨",
+      "오늘도 네 세상을 색으로 채워줄게 💎",
+      "이로치가 제일이잖아? ꒰ঌ ໒꒱"
+    ];
+
+    const iroEffects = ["💗", "👼", "💎"];
+
+    function playRandomVoice(btn) {
+      const audios = document.querySelectorAll(".iro-audio");
+      const nameEl = document.querySelector(".iro-name");
+      const textEl = document.getElementById("iroVoiceText");
+      const effectEl = btn.querySelector(".iro-voice-effect");
+
+      let randomIndex;
+
+      if (audios.length === 1) {
+        randomIndex = 0;
+      } else {
+        do {
+          randomIndex = Math.floor(Math.random() * audios.length);
+        } while (randomIndex === lastIndex);
+      }
+
+      lastIndex = randomIndex;
+
+      const selected = audios[randomIndex];
+      const randomEffect = iroEffects[Math.floor(Math.random() * iroEffects.length)];
+      effectEl.textContent = randomEffect;
+
+      audios.forEach(a => {
+        a.pause();
+        a.currentTime = 0;
+      });
+
+      selected.play();
+
+      btn.classList.remove("playing");
+      nameEl.classList.remove("voice-active");
+      textEl.classList.remove("text-change");
+
+      void btn.offsetWidth;
+
+      btn.classList.add("playing");
+      nameEl.classList.add("voice-active");
+      textEl.textContent = iroVoiceLines[randomIndex % iroVoiceLines.length];
+      textEl.classList.add("text-change");
+
+      selected.onended = () => {
+        btn.classList.remove("playing");
+        nameEl.classList.remove("voice-active");
+        textEl.classList.remove("text-change");
+        textEl.textContent = "버튼을 눌러 이로의 보이스를 들어보세요 ✨";
       };
     }
   </script>
