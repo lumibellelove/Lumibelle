@@ -279,7 +279,12 @@
       background: #ff4fa3;
       color: #fff;
     }
-
+.badge-trending {
+  left: 12px;
+  top: 46px;
+  background: #ff8a3d;
+  color: #fff;
+}
     .video-card-body {
       padding: 16px 16px 18px;
     }
@@ -690,7 +695,7 @@
         thumb: "img/video/mariring/mariring-01.png",
         desc: "16:04 ~ 19:25 구간 출연",
         featured: true,
-        isNew: true
+        isTrending: true   // 👈 이거 추가
       },
       {
         id: 2,
@@ -802,7 +807,12 @@
       if (views >= 10000) return `${(views / 10000).toFixed(1)}만회`;
       return `${views.toLocaleString()}회`;
     }
-
+function isRecent(dateStr) {
+  const now = new Date();
+  const upload = new Date(dateStr);
+  const diff = (now - upload) / (1000 * 60 * 60 * 24);
+  return diff <= 7;
+}
     function getSectionTitle() {
       if (currentMember === "ALL") return "ALL VIDEO";
       return `${currentMember} VIDEO`;
@@ -840,8 +850,16 @@
         }
 
         if (currentSort === "popular") {
-          return b.views - a.views;
-        }
+  if ((a.featured || false) !== (b.featured || false)) {
+    return (b.featured || false) - (a.featured || false);
+  }
+
+  if ((a.isTrending || false) !== (b.isTrending || false)) {
+    return (b.isTrending || false) - (a.isTrending || false);
+  }
+
+  return new Date(b.date) - new Date(a.date);
+}
 
         return 0;
       });
@@ -860,7 +878,8 @@
         <div class="video-thumb">
           <img src="${thumbUrl}" alt="${item.title}" onerror="this.onerror=null;this.src='${fallbackThumb}'">
           ${item.featured ? `<span class="video-badge badge-featured">PICK</span>` : ""}
-          ${item.isNew ? `<span class="video-badge badge-new">NEW</span>` : ""}
+${isRecent(item.date) ? `<span class="video-badge badge-new">NEW</span>` : ""}
+${item.isTrending ? `<span class="video-badge badge-trending">TRENDING</span>` : ""}
         </div>
         <div class="video-card-body">
           <div class="video-meta-top">
