@@ -243,6 +243,32 @@
       box-shadow: 0 8px 18px rgba(239, 103, 168, 0.18);
     }
 
+    .video-badge {
+      position: absolute;
+      top: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1;
+      z-index: 2;
+    }
+
+    .badge-featured {
+      left: 12px;
+      background: rgba(255,255,255,0.95);
+      color: #ef67a8;
+    }
+
+    .badge-new {
+      right: 12px;
+      background: #ff4fa3;
+      color: #fff;
+    }
+
     .video-card-body {
       padding: 16px 16px 18px;
     }
@@ -559,7 +585,7 @@
         <h2>MORE VIDEO</h2>
         <p>
           루미벨의 단체 영상, 멤버별 직캠, 핫클립을 한 번에 모아보는 공간입니다.<br />
-          원하는 멤버와 공연별 영상들을 편하게 확인해보세요…♡
+          원하는 멤버와 영상들을 편하게 확인해보세요…♡
         </p>
       </section>
 
@@ -588,11 +614,11 @@
             </select>
 
             <select id="eventSelect" class="event-select">
-              <option value="ALL">공연 전체</option>
+              <option value="ALL">분류 전체</option>
+              <option value="SPECIAL">SPECIAL</option>
+              <option value="FANMEETING">FANMEETING</option>
               <option value="DEBUT LIVE">DEBUT LIVE</option>
               <option value="BIG EVENT">BIG EVENT</option>
-              <option value="FANMEETING">FANMEETING</option>
-              <option value="SPECIAL">SPECIAL</option>
             </select>
           </div>
         </div>
@@ -623,7 +649,7 @@
       <div class="video-player-wrap" id="videoPlayerWrap"></div>
       <div class="video-modal-body">
         <h3 class="video-modal-title" id="modalTitle">영상 제목</h3>
-        <div class="video-modal-meta" id="modalMeta">날짜 / 태그 / 멤버 / 공연</div>
+        <div class="video-modal-meta" id="modalMeta">날짜 / 태그 / 멤버</div>
         <div class="video-modal-actions">
           <a href="#" target="_blank" rel="noopener noreferrer" class="modal-btn modal-btn-primary" id="youtubeLink">
             YOUTUBE에서 보기
@@ -642,198 +668,56 @@
     const videoData = [
       {
         id: 1,
-        member: "ALL",
-        title: "루미벨 데뷔라이브 TEASER",
-        date: "2026-07-12",
-        tag: "TEASER",
-        event: "DEBUT LIVE",
-        views: 9210,
-        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
-        thumb: "",
-        desc: "단체 티저"
+        member: "MARIRING",
+        title: "추성훈 채널 출연 (QWER 마젠타 / 히나)",
+        date: "2026-01-01",
+        tag: "YOUTUBE",
+        event: "SPECIAL",
+        views: 0,
+        youtubeId: "op3L_ed8-24",
+        start: 1489,
+        desc: "24:49 ~ 25:38 구간 출연",
+        featured: true,
+        isNew: true
       },
       {
         id: 2,
         member: "MARIRING",
-        title: "MARIRING 직캠 - 데뷔라이브",
-        date: "2026-07-12",
-        tag: "직캠",
-        event: "DEBUT LIVE",
-        views: 11200,
-        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
-        thumb: "",
-        desc: "마리링 개인 직캠"
+        title: "타임레스 버튜버 팀 합방",
+        date: "2025-01-01",
+        tag: "합방",
+        event: "SPECIAL",
+        views: 0,
+        youtubeId: "PGxpbUYMGgg",
+        desc: "버튜버 팀 합방",
+        featured: false,
+        isNew: false
       },
       {
         id: 3,
-        member: "LULU",
-        title: "LULU 직캠 - 데뷔라이브",
-        date: "2026-07-12",
-        tag: "직캠",
-        event: "DEBUT LIVE",
-        views: 8430,
-        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
-        thumb: "",
-        desc: "루루 개인 직캠"
+        member: "MARIRING",
+        title: "버튜버 팀 합방 영상",
+        date: "2025-01-01",
+        tag: "합방",
+        event: "SPECIAL",
+        views: 0,
+        youtubeId: "fsSeDm4RmNE",
+        desc: "버튜버 합방",
+        featured: false,
+        isNew: false
       },
       {
         id: 4,
-        member: "IRO",
-        title: "IRO 직캠 - 데뷔라이브",
-        date: "2026-07-12",
-        tag: "직캠",
-        event: "DEBUT LIVE",
-        views: 15700,
-        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
-        thumb: "",
-        desc: "이로 개인 직캠"
-      },
-      {
-        id: 5,
-        member: "LUNAR",
-        title: "LUNAR 직캠 - 데뷔라이브",
-        date: "2026-07-12",
-        tag: "직캠",
-        event: "DEBUT LIVE",
-        views: 9680,
-        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
-        thumb: "",
-        desc: "루나 개인 직캠"
-      },
-      {
-        id: 6,
-        member: "ALL",
-        title: "루미벨 SELF INTRODUCTION MOVIE",
-        date: "2026-07-20",
-        tag: "INTRO",
-        event: "SPECIAL",
-        views: 12600,
-        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
-        thumb: "",
-        desc: "단체 소개 영상"
-      },
-      {
-        id: 7,
-        member: "HOT CLIP",
-        title: "핫클립 - 데뷔라이브 하이라이트",
-        date: "2026-07-22",
-        tag: "HOT CLIP",
-        event: "DEBUT LIVE",
-        views: 18500,
-        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
-        thumb: "",
-        desc: "레전드 순간 모음"
-      },
-      {
-        id: 8,
         member: "MARIRING",
-        title: "MARIRING 핫클립 - 엔딩요정",
-        date: "2026-07-24",
-        tag: "HOT CLIP",
+        title: "시스티나 합방",
+        date: "2025-01-01",
+        tag: "합방",
         event: "SPECIAL",
-        views: 13880,
-        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
-        thumb: "",
-        desc: "짧은 하이라이트 영상"
-      },
-      {
-        id: 9,
-        member: "IRO",
-        title: "IRO PRACTICE VIDEO",
-        date: "2026-08-01",
-        tag: "연습",
-        event: "SPECIAL",
-        views: 10120,
-        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
-        thumb: "",
-        desc: "연습 영상"
-      },
-      {
-        id: 10,
-        member: "ALL",
-        title: "빅 이벤트 예고 영상",
-        date: "2026-10-05",
-        tag: "TEASER",
-        event: "BIG EVENT",
-        views: 15440,
-        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
-        thumb: "",
-        desc: "빅 이벤트 티저"
-      },
-      {
-        id: 11,
-        member: "LUNAR",
-        title: "LUNAR 직캠 - 빅 이벤트",
-        date: "2026-10-18",
-        tag: "직캠",
-        event: "BIG EVENT",
-        views: 17620,
-        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
-        thumb: "",
-        desc: "빅 이벤트 개인 직캠"
-      },
-      {
-        id: 12,
-        member: "HOT CLIP",
-        title: "핫클립 - 빅 이벤트 레전드 포인트",
-        date: "2026-10-19",
-        tag: "HOT CLIP",
-        event: "BIG EVENT",
-        views: 22300,
-        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
-        thumb: "",
-        desc: "하이라이트 클립"
-      },
-      {
-        id: 13,
-        member: "ALL",
-        title: "루미벨 FANMEETING SPECIAL MESSAGE",
-        date: "2026-11-01",
-        tag: "MESSAGE",
-        event: "FANMEETING",
-        views: 7520,
-        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
-        thumb: "",
-        desc: "팬미팅 스페셜 영상"
-      },
-      {
-        id: 14,
-        member: "LULU",
-        title: "LULU 팬미팅 직캠",
-        date: "2026-11-03",
-        tag: "직캠",
-        event: "FANMEETING",
-        views: 8240,
-        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
-        thumb: "",
-        desc: "팬미팅 개인 직캠"
-      },
-      {
-        id: 15,
-        member: "MARIRING",
-        title: "MARIRING 쇼츠 클립",
-        date: "2026-11-05",
-        tag: "쇼츠",
-        event: "SPECIAL",
-        views: 16500,
-        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
-        thumb: "",
-        desc: "짧은 클립 영상"
+        views: 0,
+        youtubeId: "0M6k8GNeL24",
+        desc: "버튜버 합방",
+        featured: false,
+        isNew: false
       }
     ];
 
@@ -863,6 +747,18 @@
     const closeModalBtn = document.getElementById("closeModalBtn");
     const scrollTopBtn = document.getElementById("scrollTopBtn");
 
+    function buildYoutubeUrl(youtubeId) {
+      return `https://www.youtube.com/watch?v=${youtubeId}`;
+    }
+
+    function buildEmbedUrl(youtubeId) {
+      return `https://www.youtube.com/embed/${youtubeId}?autoplay=1`;
+    }
+
+    function buildThumbUrl(youtubeId) {
+      return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
+    }
+
     function formatDate(dateStr) {
       const d = new Date(dateStr);
       const y = d.getFullYear();
@@ -871,13 +767,22 @@
       return `${y}.${m}.${day}`;
     }
 
+    function formatViews(views) {
+      if (!views || views <= 0) return "비공개";
+      if (views >= 10000) return `${(views / 10000).toFixed(1)}만회`;
+      return `${views.toLocaleString()}회`;
+    }
+
+    function getSectionTitle() {
+      if (currentMember === "ALL") return "ALL VIDEO";
+      return `${currentMember} VIDEO`;
+    }
+
     function applyFilters() {
       let filtered = [...videoData];
 
       if (currentMember !== "ALL") {
         filtered = filtered.filter(item => item.member === currentMember);
-      } else {
-        filtered = filtered.filter(item => item.member === "ALL");
       }
 
       if (currentEvent !== "ALL") {
@@ -890,31 +795,41 @@
           item.title.toLowerCase().includes(keyword) ||
           item.tag.toLowerCase().includes(keyword) ||
           item.desc.toLowerCase().includes(keyword) ||
-          item.event.toLowerCase().includes(keyword)
+          item.event.toLowerCase().includes(keyword) ||
+          item.member.toLowerCase().includes(keyword)
         );
       }
 
-      if (currentSort === "latest") {
-        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-      } else if (currentSort === "popular") {
-        filtered.sort((a, b) => b.views - a.views);
-      }
+      filtered.sort((a, b) => {
+        if (a.featured !== b.featured) {
+          return a.featured ? -1 : 1;
+        }
+
+        if (currentSort === "latest") {
+          return new Date(b.date) - new Date(a.date);
+        }
+
+        if (currentSort === "popular") {
+          return b.views - a.views;
+        }
+
+        return 0;
+      });
 
       return filtered;
-    }
-
-    function getSectionTitle() {
-      if (currentMember === "ALL") return "LUMIBELLE TEAM VIDEO";
-      return `${currentMember} VIDEO`;
     }
 
     function createCard(item) {
       const article = document.createElement("article");
       article.className = "video-card-item";
 
+      const thumbUrl = buildThumbUrl(item.youtubeId);
+
       article.innerHTML = `
         <div class="video-thumb">
-          ${item.thumb ? `<img src="${item.thumb}" alt="${item.title}">` : ""}
+          <img src="${thumbUrl}" alt="${item.title}">
+          ${item.featured ? `<span class="video-badge badge-featured">PICK</span>` : ""}
+          ${item.isNew ? `<span class="video-badge badge-new">NEW</span>` : ""}
         </div>
         <div class="video-card-body">
           <div class="video-meta-top">
@@ -923,6 +838,7 @@
           </div>
           <div class="video-title">${item.title}</div>
           <div class="video-subinfo">${item.member} · ${item.event}</div>
+          <div class="video-subinfo">조회수 ${formatViews(item.views)}</div>
         </div>
       `;
 
@@ -979,13 +895,20 @@
     }
 
     function openModal(item) {
+      const youtubeUrl = buildYoutubeUrl(item.youtubeId);
+      let embedUrl = buildEmbedUrl(item.youtubeId);
+
+      if (item.start) {
+        embedUrl += `&start=${item.start}`;
+      }
+
       modalTitle.textContent = item.title;
-      modalMeta.textContent = `${formatDate(item.date)} · ${item.tag} · ${item.member} · ${item.event}`;
-      youtubeLink.href = item.youtubeUrl;
+      modalMeta.textContent = `${formatDate(item.date)} · ${item.tag} · ${item.member} · 조회수 ${formatViews(item.views)}`;
+      youtubeLink.href = youtubeUrl;
 
       videoPlayerWrap.innerHTML = `
         <iframe
-          src="${item.embedUrl}"
+          src="${embedUrl}"
           title="${item.title}"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowfullscreen>
