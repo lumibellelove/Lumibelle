@@ -1,304 +1,674 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>이로 | Lumibelle</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>이로 | Lumibelle</title>
+  <link rel="stylesheet" href="style.css">
 
-<style>
+  <style>
+    .iro-page-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
 
-/* 전체 */
-body {
-  margin: 0;
-  font-family: sans-serif;
-  background: #fff8fb;
-}
+    .iro-title {
+      text-align: center;
+      margin: 28px 0 22px;
+    }
 
-.wrap {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px 20px;
-}
+    .iro-title h2 {
+      margin: 0;
+      color: #d77ca7;
+      font-size: 56px;
+      font-weight: 900;
+      line-height: 1;
+    }
 
-/* 카드 */
-.iro-card {
-  background: #fff;
-  border-radius: 32px;
-  border: 1px solid #f2d8e7;
-  padding: 50px;
-}
+    .iro-title p {
+      margin: 10px 0 0;
+      color: #c99ab2;
+      font-size: 16px;
+      font-weight: 700;
+    }
 
-/* 레이아웃 */
-.iro-grid {
-  display: grid;
-  grid-template-columns: 420px 1fr;
-  gap: 60px;
-  align-items: center;
-}
+    .iro-card {
+      background: #fff8fb;
+      border: 1px solid #f2d8e7;
+      border-radius: 32px;
+      padding: 48px;
+      box-sizing: border-box;
+      margin-bottom: 50px;
+    }
 
-/* 사진 */
-.iro-photo {
-  width: 100%;
-  aspect-ratio: 3 / 4;
-  background: url('iro.png') center/cover;
-  border-radius: 28px;
-}
+    .iro-grid {
+      display: grid;
+      grid-template-columns: 460px minmax(0, 1fr);
+      gap: 42px;
+      align-items: flex-start;
+    }
 
-/* 텍스트 */
-.iro-name {
-  font-size: 72px;
-  color: #d77ca7;
-  font-weight: 900;
-  margin: 0;
-}
+    .iro-photo {
+      width: 100%;
+      max-width: 460px;
+      aspect-ratio: 2 / 3;
+      border-radius: 28px;
+      background-image: url('iro.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border: 1px solid #f0dde8;
+      background-color: #fff;
+      box-sizing: border-box;
+    }
 
-.iro-en {
-  font-size: 20px;
-  letter-spacing: 0.24em;
-  color: #c99ab2;
-  margin-top: 12px;
-  font-weight: 800;
-}
+    .iro-info-section {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding-top: 18px;
+    }
 
-.iro-meta {
-  margin-top: 20px;
-  line-height: 2.2;
-  color: #8f7183;
-}
+    .iro-name-section {
+      margin-bottom: 24px;
+      width: 100%;
+    }
 
-.iro-meta strong {
-  color: #c97ca8;
-}
+    .iro-name {
+      font-size: 82px;
+      font-weight: 900;
+      color: #d77ca7;
+      margin: 0;
+      line-height: 0.95;
+      text-align: left;
+    }
 
-/* SNS */
-.iro-sns-row {
-  display: flex;
-  gap: 14px;
-  margin-top: 20px;
-}
+    .iro-en {
+      font-size: 20px;
+      letter-spacing: 0.24em;
+      color: #c99ab2;
+      margin-top: 12px;
+      font-weight: 800;
+      width: 100%;
+      text-align: center;
+    }
 
-.iro-sns-item img {
-  width: 64px;
-  height: 64px;
-}
+    .iro-meta {
+      width: 100%;
+      max-width: 720px;
+      font-size: 17px;
+      line-height: 2.15;
+      color: #8f7183;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
 
-/* 영상 */
-.iro-movie {
-  margin-top: 30px;
-}
+    .iro-meta strong {
+      color: #c97ca8;
+      font-weight: 900;
+    }
 
-.iro-movie-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-}
+    .iro-bottom {
+      width: 100%;
+      margin-top: 30px;
+    }
 
-.iro-movie-card {
-  border-radius: 22px;
-  overflow: hidden;
-  background: #fff;
-  border: 1px solid #f0dde8;
-  cursor: pointer;
-}
+    .iro-sns-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
 
-.iro-movie-thumb {
-  position: relative;
-  aspect-ratio: 16/9;
-}
+    .iro-sns-item {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 0;
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    }
 
-.iro-movie-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+    .iro-sns-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(255, 111, 165, 0.16);
+      opacity: 0.94;
+    }
 
-.iro-play {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-  background: #ff6fa5;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    .iro-sns-item img {
+      width: 72px;
+      height: 72px;
+      display: block;
+    }
 
-.iro-movie-info {
-  padding: 12px;
-}
+    .iro-movie-mini {
+      width: 100%;
+      margin-bottom: 28px;
+    }
 
-.iro-movie-info strong {
-  color: #c97ca8;
-}
+    .iro-movie-mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
 
-/* MORE */
-.iro-more {
-  text-align: center;
-  margin-top: 20px;
-}
+    .iro-movie-mini-card {
+      display: block;
+      text-decoration: none;
+      background: #fff;
+      border: 1px solid #f0dde8;
+      border-radius: 22px;
+      overflow: hidden;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+      color: inherit;
+      cursor: pointer;
+    }
 
-.iro-more a {
-  background: #f8dce9;
-  padding: 14px 40px;
-  border-radius: 999px;
-  text-decoration: none;
-  color: #c97ca8;
-  font-weight: 900;
-}
+    .iro-movie-mini-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 28px rgba(215, 124, 167, 0.12);
+      border-color: #edbfd5;
+    }
 
-/* 버튼 */
-.iro-actions {
-  margin-top: 30px;
-  display: flex;
-  gap: 20px;
-}
+    .iro-movie-mini-thumb {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #fdf1f7;
+      overflow: hidden;
+    }
 
-.iro-btn {
-  padding: 14px 30px;
-  border-radius: 999px;
-  text-decoration: none;
-  font-weight: 800;
-}
+    .iro-movie-mini-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
 
-.pink { border: 2px solid #ff6fa5; color: #ff6fa5; }
-.purple { border: 2px solid #a892f0; color: #a892f0; }
+    .iro-movie-mini-play {
+      position: absolute;
+      right: 14px;
+      bottom: 14px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(255, 111, 165, 0.92);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 900;
+      box-shadow: 0 8px 18px rgba(255, 111, 165, 0.2);
+    }
 
-/* 모달 */
-#videoModal {
-  display: none;
-  position: fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  background: rgba(0,0,0,0.6);
-  justify-content:center;
-  align-items:center;
-}
+    .iro-movie-mini-info {
+      padding: 14px 16px 16px;
+    }
 
-#videoModal iframe {
-  width: 80%;
-  height: 60%;
-}
+    .iro-movie-mini-info strong {
+      display: block;
+      color: #c97ca8;
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
 
-.close {
-  position:absolute;
-  top:20px;
-  right:20px;
-  color:#fff;
-  font-size:30px;
-  cursor:pointer;
-}
+    .iro-movie-mini-info span {
+      display: block;
+      color: #8f7183;
+      font-size: 14px;
+      font-weight: 700;
+    }
 
-/* 모바일 */
-@media (max-width:900px){
-  .iro-grid{
-    grid-template-columns:1fr;
-  }
-  .iro-movie-grid{
-    grid-template-columns:1fr;
-  }
-}
+    .iro-movie-more-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 18px;
+    }
 
-</style>
+    .iro-movie-more {
+      min-width: 240px;
+      height: 62px;
+      padding: 0 30px;
+      border-radius: 999px;
+      background: #f8dce9;
+      color: #c97ca8;
+      font-size: 15px;
+      font-weight: 900;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .iro-movie-more:hover {
+      transform: translateY(-2px);
+      background: #f4d0e1;
+      box-shadow: 0 12px 24px rgba(215, 124, 167, 0.12);
+    }
+
+    .iro-actions {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .iro-btn {
+      min-width: 156px;
+      height: 68px;
+      padding: 0 28px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 15px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1;
+      box-sizing: border-box;
+      background: rgba(255, 255, 255, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .iro-btn.pink {
+      border: 2px solid #ff6fa5;
+      color: #ff6fa5;
+    }
+
+    .iro-btn.purple {
+      border: 2px solid #a892f0;
+      color: #a892f0;
+    }
+
+    .iro-btn.pink:hover {
+      transform: translateY(-2px);
+      background: #ff6fa5;
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(255, 111, 165, 0.22);
+    }
+
+    .iro-btn.purple:hover {
+      transform: translateY(-2px);
+      background: #a892f0;
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(168, 146, 240, 0.22);
+    }
+
+    /* modal */
+    .video-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    .video-modal-inner {
+      width: min(960px, 100%);
+      background: #111;
+      border-radius: 22px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+    }
+
+    .video-close {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      width: 42px;
+      height: 42px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      font-size: 28px;
+      line-height: 1;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .video-close:hover {
+      background: rgba(255,255,255,0.24);
+    }
+
+    .video-player-wrap {
+      aspect-ratio: 16 / 9;
+      background: #000;
+    }
+
+    .video-player-wrap iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    .video-modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      padding: 18px 18px 22px;
+      background: #fff8fb;
+    }
+
+    .video-modal-link {
+      min-width: 180px;
+      height: 56px;
+      padding: 0 24px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .video-modal-link.youtube {
+      background: #ff6fa5;
+      color: #fff;
+    }
+
+    .video-modal-link.back {
+      border: 2px solid #a892f0;
+      color: #a892f0;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .video-modal-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+    }
+
+    @media (max-width: 900px) {
+      .iro-card {
+        padding: 36px 28px;
+      }
+
+      .iro-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        text-align: center;
+      }
+
+      .iro-photo {
+        max-width: 430px;
+        margin: 0 auto;
+      }
+
+      .iro-info-section {
+        align-items: center;
+        padding-top: 0;
+      }
+
+      .iro-name-section {
+        text-align: center;
+      }
+
+      .iro-name {
+        font-size: 58px;
+        text-align: center;
+      }
+
+      .iro-en {
+        margin-top: 10px;
+      }
+
+      .iro-meta {
+        text-align: center;
+      }
+
+      .iro-sns-row {
+        justify-content: center;
+      }
+
+      .iro-movie-mini-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .iro-movie-more {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .iro-actions {
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .iro-title h2 {
+        font-size: 44px;
+      }
+
+      .iro-card {
+        padding: 24px;
+        border-radius: 24px;
+      }
+
+      .iro-photo {
+        max-width: 100%;
+        border-radius: 22px;
+      }
+
+      .iro-name {
+        font-size: 46px;
+      }
+
+      .iro-en {
+        font-size: 18px;
+        letter-spacing: 0.2em;
+      }
+
+      .iro-meta {
+        font-size: 15px;
+        line-height: 2;
+      }
+
+      .iro-sns-item,
+      .iro-sns-item img {
+        width: 64px;
+        height: 64px;
+      }
+
+      .iro-actions {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .iro-btn {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .video-modal {
+        padding: 16px;
+      }
+
+      .video-modal-actions {
+        flex-direction: column;
+      }
+
+      .video-modal-link {
+        width: 100%;
+        min-width: 0;
+      }
+    }
+  </style>
 </head>
 
 <body>
-
-<div class="wrap">
-  <div class="iro-card">
-
-    <div class="iro-grid">
-
-      <div class="iro-photo"></div>
-
-      <div>
-
-        <h1 class="iro-name">이로</h1>
-        <div class="iro-en">IRO</div>
-
-        <div class="iro-meta">
-          <div><strong>나마콜</strong> · 이로치</div>
-          <div><strong>담당 컬러</strong> · Angel Blue</div>
-          <div><strong>키워드</strong> · 청량 / 에너지</div>
-          <div><strong>캐치프라이즈</strong> · いろんな色の中で、イロチがいちばんでしょ？꒰ঌ ໒꒱</div>
-          <div><strong>한마디</strong> · “네 세상의 색(色)을 완전히 바꿔 줄게!”</div>
+  <header>
+    <div class="wrap">
+      <div class="header-box">
+        <div class="top-bow">🎀</div>
+        <div class="logo">
+          <h1>Lumibelle</h1>
+          <p>루미벨</p>
         </div>
+        <nav>
+          <a href="index.html"><b>TOP</b><span>탑</span></a>
+          <a href="news.html"><b>NEWS</b><span>공지사항</span></a>
+          <a href="member.html" class="current"><b>MEMBER</b><span>멤버 소개</span></a>
+          <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
+          <a href="fanname.html"><b>FANNAME</b><span>팬네임</span></a>
+          <a href="info.html"><b>INFO</b><span>안내</span></a>
+        </nav>
+      </div>
+    </div>
+  </header>
 
-        <!-- SNS -->
-        <div class="iro-sns-row">
-          <a href="https://www.instagram.com/0w0.irochi/" target="_blank">
-            <img src="img/instagram.png">
-          </a>
-          <img src="img/instagram.png">
-          <img src="img/instagram.png">
-        </div>
-
-        <!-- 영상 -->
-        <div class="iro-movie">
-
-          <div class="iro-movie-grid">
-
-            <div class="iro-movie-card" onclick="openVideo('sEHQNzj_cmc')">
-              <div class="iro-movie-thumb">
-                <img src="iro.png">
-                <div class="iro-play">▶</div>
-              </div>
-              <div class="iro-movie-info">
-                <strong>대표 직캠</strong>
-                <div>Click to Play</div>
-              </div>
-            </div>
-
-            <a href="https://youtu.be/sEHQNzj_cmc" target="_blank" class="iro-movie-card">
-              <div class="iro-movie-thumb">
-                <img src="iro.png">
-                <div class="iro-play">▶</div>
-              </div>
-              <div class="iro-movie-info">
-                <strong>YouTube 이동</strong>
-                <div>Watch on YouTube</div>
-              </div>
-            </a>
-
-          </div>
-
-          <div class="iro-more">
-            <a href="iro-video.html">MORE VIDEO</a>
-          </div>
-
-        </div>
-
-        <!-- 버튼 -->
-        <div class="iro-actions">
-          <a href="member.html" class="iro-btn pink">멤버 목록</a>
-          <a href="index.html#member" class="iro-btn purple">메인으로</a>
-        </div>
-
+  <main class="page-shell">
+    <div class="wrap iro-page-wrap">
+      <div class="iro-title">
+        <h2>IRO</h2>
+        <p>이로</p>
       </div>
 
+      <section class="iro-card">
+        <div class="iro-grid">
+          <div class="iro-photo"></div>
+
+          <div class="iro-info-section">
+            <div class="iro-name-section">
+              <h3 class="iro-name">이로</h3>
+              <div class="iro-en">IRO</div>
+            </div>
+
+            <div class="iro-meta">
+              <div><strong>나마콜</strong> · 이로치</div>
+              <div><strong>담당 컬러</strong> · Angel Blue</div>
+              <div><strong>키워드</strong> · 청량 / 에너지</div>
+              <div><strong>캐치프라이즈</strong> · いろんな色の中で、イロチがいちばんでしょ？꒰ঌ ໒꒱</div>
+              <div><strong>한마디</strong> · “네 세상의 색(色)을 완전히 바꿔 줄게!”</div>
+              <div><strong>호출 태그</strong> · #이로이로안노요</div>
+              <div><strong>체키메시 태그</strong> · #이로케맛있다니</div>
+            </div>
+
+            <div class="iro-bottom">
+              <div class="iro-sns-row">
+                <a href="https://www.instagram.com/0w0.irochi/" target="_blank" rel="noopener noreferrer" class="iro-sns-item">
+                  <img src="img/instagram.png" alt="Instagram">
+                </a>
+                <a href="#" class="iro-sns-item">
+                  <img src="img/instagram.png" alt="TikTok">
+                </a>
+                <a href="#" class="iro-sns-item">
+                  <img src="img/instagram.png" alt="X">
+                </a>
+              </div>
+
+              <div class="iro-movie-mini">
+                <div class="iro-movie-mini-grid">
+                  <div class="iro-movie-mini-card" onclick="openVideo('sEHQNzj_cmc')">
+                    <div class="iro-movie-mini-thumb">
+                      <img src="iro.png" alt="이로 대표 직캠">
+                      <div class="iro-movie-mini-play">▶</div>
+                    </div>
+                    <div class="iro-movie-mini-info">
+                      <strong>대표 직캠</strong>
+                      <span>Click to Play</span>
+                    </div>
+                  </div>
+
+                  <a href="https://www.youtube.com/watch?v=sEHQNzj_cmc" target="_blank" rel="noopener noreferrer" class="iro-movie-mini-card">
+                    <div class="iro-movie-mini-thumb">
+                      <img src="iro.png" alt="이로 유튜브 이동">
+                      <div class="iro-movie-mini-play">▶</div>
+                    </div>
+                    <div class="iro-movie-mini-info">
+                      <strong>YouTube 이동</strong>
+                      <span>Watch on YouTube</span>
+                    </div>
+                  </a>
+                </div>
+
+                <div class="iro-movie-more-wrap">
+                  <a href="iro-video.html" class="iro-movie-more">MORE VIDEO</a>
+                </div>
+              </div>
+
+              <div class="iro-actions">
+                <a href="member.html" class="iro-btn pink">멤버 목록</a>
+                <a href="index.html#member" class="iro-btn purple">메인으로</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
+  </main>
 
+  <div id="videoModal" class="video-modal">
+    <div class="video-modal-inner">
+      <button class="video-close" type="button" onclick="closeVideo()">×</button>
+      <div class="video-player-wrap">
+        <iframe
+          id="videoFrame"
+          src=""
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
+      </div>
+      <div class="video-modal-actions">
+        <a id="videoYoutubeLink"
+           class="video-modal-link youtube"
+           href="https://www.youtube.com/watch?v=sEHQNzj_cmc"
+           target="_blank"
+           rel="noopener noreferrer">
+          YOUTUBE에서 보기
+        </a>
+        <button class="video-modal-link back" type="button" onclick="closeVideo()">닫기</button>
+      </div>
+    </div>
   </div>
-</div>
 
-<!-- 모달 -->
-<div id="videoModal">
-  <div class="close" onclick="closeVideo()">×</div>
-  <iframe id="videoFrame" src="" frameborder="0" allowfullscreen></iframe>
-</div>
+  <footer>© 2026 Lumibelle All Rights Reserved.</footer>
 
-<script>
-function openVideo(id){
-  document.getElementById("videoModal").style.display="flex";
-  document.getElementById("videoFrame").src="https://www.youtube.com/embed/"+id+"?autoplay=1";
-}
-function closeVideo(){
-  document.getElementById("videoModal").style.display="none";
-  document.getElementById("videoFrame").src="";
-}
-</script>
+  <script>
+    function openVideo(videoId) {
+      const modal = document.getElementById("videoModal");
+      const frame = document.getElementById("videoFrame");
+      const youtubeLink = document.getElementById("videoYoutubeLink");
 
+      frame.src = "https://www.youtube.com/embed/" + videoId + "?autoplay=1&rel=0";
+      youtubeLink.href = "https://www.youtube.com/watch?v=" + videoId;
+      modal.style.display = "flex";
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeVideo() {
+      const modal = document.getElementById("videoModal");
+      const frame = document.getElementById("videoFrame");
+
+      modal.style.display = "none";
+      frame.src = "";
+      document.body.style.overflow = "";
+    }
+
+    document.addEventListener("click", function (e) {
+      const modal = document.getElementById("videoModal");
+      if (e.target === modal) {
+        closeVideo();
+      }
+    });
+  </script>
 </body>
 </html>
