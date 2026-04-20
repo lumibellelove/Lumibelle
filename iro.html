@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="style.css">
 
 <style>
+/* 기본 레이아웃 하단 유지 */
 .iro-page-wrap {
   max-width: 1280px;
   margin: 0 auto;
@@ -32,34 +33,133 @@
   font-weight: 700;
 }
 
-/* 1. 카드의 전체 높이 및 오른쪽 여백 확보 */
+/* --- 여기서부터 절대 깨지지 않는 핵심 카드 스타일 --- */
+
 .iro-card {
+  background: #fff8fb;
+  border: 1px solid #f2d8e7;
+  border-radius: 32px;
+  padding: 60px 120px 60px 60px; /* 오른쪽 여백을 크게 확보 */
+  min-height: 850px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  margin-bottom: 50px;
+}
+
+.iro-grid {
+  display: grid;
+  /* 사진 고정(500px) / 이름(200px) / 정보(1fr) 로 공간을 명확히 분리 */
+  grid-template-columns: 500px 200px 1fr;
+  gap: 40px;
+  width: 100%;
+  align-items: center;
+}
+
+.iro-photo {
+  width: 500px;
+  height: 750px;
+  border-radius: 28px;
+  background-image: url('iro.png'); /* 파일명이 맞는지 확인하세요! */
+  background-size: cover;
+  background-position: center;
+  border: 1px solid #f0dde8;
+  background-color: #fff;
+}
+
+/* 이름 정렬 섹션 */
+.iro-name-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 이름과 IRO를 수직 중앙 정렬 */
+  justify-content: center;
+  text-align: center;
+}
+
+.iro-name {
+  font-size: 82px;
+  font-weight: 900;
+  color: #d77ca7;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.iro-en {
+  font-size: 26px;
+  letter-spacing: 0.3em;
+  color: #c99ab2;
+  margin-top: 15px;
+  font-weight: 800;
+}
+
+/* 상세 정보 섹션 */
+.iro-info-section {
+  padding-left: 20px;
+}
+
+.iro-meta {
+  font-size: 17px;
+  line-height: 2.5;
+  color: #8f7183;
+}
+
+.iro-meta strong {
+  color: #C97CA8; /* 형광펜 강조 대신 글자색만 변경 */
+  font-weight: 900;
+}
+
+/* 인스타 및 버튼 아이콘 */
+.iro-bottom {
+  margin-top: 40px;
+}
+
+.iro-sns img {
+  width: 100px !important; /* 아이콘 크기 강제 고정 */
+  height: 100px !important;
+  display: block;
+}
+
+.iro-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.iro-btn {
+  padding: 13px 26px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 14px;
+  text-decoration: none;
+  transition: 0.2s;
+  display: inline-block;
+}
+
+.iro-btn.pink { border: 2px solid #ff6fa5; color: #ff6fa5; }
+.iro-btn.purple { border: 2px solid #a892f0; color: #a892f0; }
 
 .iro-btn:hover {
   transform: translateY(-2px);
 }
 
-@media (max-width: 900px) {
+/* 모바일 반응형 */
+@media (max-width: 1100px) {
   .iro-grid {
-    grid-template-columns: 1fr;
-    gap: 24px;
+    grid-template-columns: 1fr; /* 모바일에서는 세로로 배치 */
+    text-align: center;
   }
-
   .iro-photo {
-    min-height: 420px;
+    width: 100%;
+    max-width: 400px;
+    height: 500px;
+    margin: 0 auto;
   }
-
-  .iro-name {
-    font-size: 56px;
+  .iro-card {
+    padding: 40px;
   }
-
-  .iro-en {
-    font-size: 18px;
-  }
-
-  .iro-sns img {
-    width: 76px;
-    height: 76px;
+  .iro-name-section, .iro-info-section {
+    padding: 0;
+    align-items: center;
   }
 }
 </style>
