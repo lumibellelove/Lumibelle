@@ -118,6 +118,8 @@
 
     .iro-voice {
       position: relative;
+      min-width: 158px;
+      min-height: 52px;
       padding: 12px 26px;
       border-radius: 999px;
       border: 2px solid #B2DEFF;
@@ -126,6 +128,11 @@
       font-weight: 800;
       cursor: pointer;
       transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      overflow: hidden;
     }
 
     .iro-voice:hover {
@@ -136,6 +143,58 @@
       background: linear-gradient(135deg, #B2DEFF, #8fd0ff);
       color: #fff;
       animation: iroVoicePulse 1.2s infinite;
+    }
+
+    .iro-voice-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 54px;
+      line-height: 1;
+    }
+
+    .iro-sound-bars {
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 3px;
+      height: 16px;
+    }
+
+    .iro-sound-bars span {
+      width: 3px;
+      height: 100%;
+      border-radius: 999px;
+      background: currentColor;
+      transform-origin: bottom center;
+      animation: iroBars 0.9s infinite ease-in-out;
+    }
+
+    .iro-sound-bars span:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    .iro-sound-bars span:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    .iro-sound-bars span:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    .iro-voice.playing .iro-sound-bars {
+      display: inline-flex;
+    }
+
+    @keyframes iroBars {
+      0%, 100% {
+        transform: scaleY(0.35);
+        opacity: 0.65;
+      }
+      50% {
+        transform: scaleY(1);
+        opacity: 1;
+      }
     }
 
     @keyframes iroVoicePulse {
@@ -230,6 +289,11 @@
     }
 
     .iro-highlight {
+      color: #B2DEFF;
+      font-weight: 900;
+    }
+
+    .iro-color-point {
       color: #B2DEFF;
       font-weight: 900;
     }
@@ -812,7 +876,12 @@
 
               <div class="iro-voice-area">
                 <button class="iro-voice" type="button" onclick="playRandomVoice(this)">
-                  ▶ VOICE
+                  <span class="iro-voice-label">▶ VOICE</span>
+                  <span class="iro-sound-bars" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </span>
                   <span class="iro-voice-effect"></span>
                 </button>
 
@@ -833,14 +902,14 @@
               </div>
 
               <div class="iro-message-block">
-                <p class="iro-line-main">“네 세상의 <span class="iro-highlight">색</span>(色)을 완전히 바꿔 줄게!”</p>
+                <p class="iro-line-main">“네 세상의 색(色)을 완전히 바꿔 줄게!”</p>
                 <p class="iro-line-sub">いろんな色の中で、イロチがいちばんでしょ？꒰ঌ ໒꒱</p>
               </div>
 
               <div class="iro-detail-block">
                 <div class="iro-detail-row">
                   <div class="iro-detail-label">담당 컬러</div>
-                  <div class="iro-detail-value">Angel Blue</div>
+                  <div class="iro-detail-value iro-color-point">Angel Blue</div>
                 </div>
                 <div class="iro-detail-row">
                   <div class="iro-detail-label">나마콜</div>
@@ -971,6 +1040,8 @@
     });
 
     let lastIndex = -1;
+    let currentAudio = null;
+    let isPlaying = false;
 
     const iroVoiceLines = [
       "이로의 목소리가 반짝하고 닿았어 ✨",
@@ -980,51 +1051,78 @@
 
     const iroEffects = ["💗", "👼", "💎"];
 
+    function setVoiceButtonState(btn, state) {
+      const nameEl = document.querySelector(".iro-name");
+      const textEl = document.getElementById("iroVoiceText");
+      const labelEl = btn.querySelector(".iro-voice-label");
+
+      if (state === "playing") {
+        btn.classList.add("playing");
+        nameEl.classList.add("voice-active");
+        labelEl.textContent = "⏸ PAUSE";
+      } else {
+        btn.classList.remove("playing");
+        nameEl.classList.remove("voice-active");
+        labelEl.textContent = "▶ VOICE";
+
+        if (state === "reset") {
+          textEl.classList.remove("text-change");
+          textEl.textContent = "버튼을 눌러 이로의 보이스를 들어보세요 ✨";
+        }
+      }
+    }
+
+    function getRandomIndex(length) {
+      if (length === 1) return 0;
+
+      let newIndex;
+      do {
+        newIndex = Math.floor(Math.random() * length);
+      } while (newIndex === lastIndex);
+
+      return newIndex;
+    }
+
     function playRandomVoice(btn) {
       const audios = document.querySelectorAll(".iro-audio");
-      const nameEl = document.querySelector(".iro-name");
       const textEl = document.getElementById("iroVoiceText");
       const effectEl = btn.querySelector(".iro-voice-effect");
 
-      let randomIndex;
+      if (!audios.length) return;
 
-      if (audios.length === 1) {
-        randomIndex = 0;
-      } else {
-        do {
-          randomIndex = Math.floor(Math.random() * audios.length);
-        } while (randomIndex === lastIndex);
+      if (isPlaying && currentAudio) {
+        currentAudio.pause();
+        isPlaying = false;
+        setVoiceButtonState(btn, "paused");
+        return;
       }
 
-      lastIndex = randomIndex;
+      if (currentAudio && currentAudio.currentTime > 0 && !currentAudio.ended) {
+        currentAudio.play();
+        isPlaying = true;
+        setVoiceButtonState(btn, "playing");
+        return;
+      }
 
-      const selected = audios[randomIndex];
+      const randomIndex = getRandomIndex(audios.length);
+      lastIndex = randomIndex;
+      currentAudio = audios[randomIndex];
+
       const randomEffect = iroEffects[Math.floor(Math.random() * iroEffects.length)];
       effectEl.textContent = randomEffect;
 
-      audios.forEach(a => {
-        a.pause();
-        a.currentTime = 0;
-      });
+      currentAudio.currentTime = 0;
+      currentAudio.play();
+      isPlaying = true;
 
-      selected.play();
+      setVoiceButtonState(btn, "playing");
 
-      btn.classList.remove("playing");
-      nameEl.classList.remove("voice-active");
-      textEl.classList.remove("text-change");
-
-      void btn.offsetWidth;
-
-      btn.classList.add("playing");
-      nameEl.classList.add("voice-active");
       textEl.textContent = iroVoiceLines[randomIndex % iroVoiceLines.length];
       textEl.classList.add("text-change");
 
-      selected.onended = () => {
-        btn.classList.remove("playing");
-        nameEl.classList.remove("voice-active");
-        textEl.classList.remove("text-change");
-        textEl.textContent = "버튼을 눌러 이로의 보이스를 들어보세요 ✨";
+      currentAudio.onended = () => {
+        isPlaying = false;
+        setVoiceButtonState(btn, "reset");
       };
     }
   </script>
