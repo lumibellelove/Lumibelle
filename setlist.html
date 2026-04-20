@@ -11,9 +11,12 @@
 :root{
   --pink:#ff59a5;
   --bg:#fff8fb;
+  --panel:#fff;
   --line:#f2d9e5;
   --text:#7f6877;
 }
+
+*{box-sizing:border-box}
 
 body{
   margin:0;
@@ -22,11 +25,12 @@ body{
   color:var(--text);
 }
 
-/* HEADER */
+/* ===== HEADER (홈이랑 맞춤) ===== */
 .site-header{
   position:sticky;
   top:0;
-  background:#fff;
+  background:rgba(255,248,251,.95);
+  backdrop-filter:blur(10px);
   border-bottom:1px solid var(--line);
   z-index:100;
 }
@@ -34,7 +38,7 @@ body{
 .header-inner{
   max-width:1100px;
   margin:auto;
-  padding:12px 20px;
+  padding:14px 20px;
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -47,39 +51,56 @@ body{
 }
 
 .brand-logo{
-  width:48px;
+  width:52px;
 }
 
 .brand-text{
   font-weight:900;
   color:var(--pink);
+  font-size:18px;
 }
 
 .gnb a{
-  margin-left:12px;
+  margin-left:14px;
   font-size:13px;
   font-weight:800;
   color:#a07c90;
   text-decoration:none;
 }
 
-/* TITLE */
-.page-title{
-  padding:30px 20px 10px;
-  font-size:26px;
-  font-weight:900;
+/* ===== HERO ===== */
+.hero{
+  max-width:1100px;
+  margin:30px auto;
+  padding:28px;
+  border-radius:28px;
+  background:linear-gradient(135deg,#ffeaf3,#fff5fb);
+  border:1px solid var(--line);
 }
 
-/* SONG CARD */
+.hero h1{
+  margin:0;
+  font-size:44px;
+  color:var(--pink);
+}
+
+.hero p{
+  margin-top:10px;
+  font-size:14px;
+}
+
+/* ===== SONG CARD ===== */
 .song-nav{
+  max-width:1100px;
+  margin:auto;
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
   gap:16px;
-  padding:20px;
+  padding:0 20px;
 }
 
 .song-btn{
-  background:#fff;
+  background:var(--panel);
   padding:18px;
   border-radius:20px;
   border:1px solid var(--line);
@@ -99,18 +120,18 @@ body{
 
 .song-btn.active{
   border:2px solid var(--pink);
-  box-shadow:0 10px 25px rgba(255,89,165,.15);
+  box-shadow:0 12px 28px rgba(255,89,165,.15);
 }
 
 .song-btn:active{
   transform:scale(0.97);
 }
 
-/* CONTENT */
+/* ===== CONTENT ===== */
 .content{
-  padding:20px;
   max-width:900px;
-  margin:auto;
+  margin:30px auto;
+  padding:0 20px;
 }
 
 .song-content{display:none;}
@@ -119,9 +140,10 @@ body{
 .video{
   width:100%;
   aspect-ratio:16/9;
-  border-radius:18px;
+  border-radius:20px;
   overflow:hidden;
   margin-bottom:20px;
+  background:#000;
 }
 
 .video iframe{
@@ -131,7 +153,7 @@ body{
 }
 
 .box{
-  background:#fff;
+  background:var(--panel);
   border:1px solid var(--line);
   border-radius:16px;
   padding:16px;
@@ -143,18 +165,16 @@ body{
   margin-bottom:6px;
 }
 
-/* AUDIO */
 audio{
   width:100%;
   margin-bottom:20px;
 }
 
-/* EXTRA */
 .extra-area{
   margin-top:20px;
 }
 
-/* TOP BTN */
+/* ===== TOP BUTTON ===== */
 .top-btn{
   position:fixed;
   bottom:20px;
@@ -169,7 +189,7 @@ audio{
   display:none;
 }
 
-/* MOBILE */
+/* ===== MOBILE ===== */
 @media(max-width:768px){
   .song-nav{
     grid-template-columns:1fr;
@@ -186,16 +206,27 @@ audio{
       <img src="img/logo.png" class="brand-logo">
       <div class="brand-text">Lumibel</div>
     </div>
+
     <nav class="gnb">
       <a href="index.html">HOME</a>
-      <a href="setlist.html">SETLIST</a>
+      <a href="news.html">NEWS</a>
+      <a href="member.html">MEMBER</a>
+      <a href="schedule.html">SCHEDULE</a>
+      <a href="music.html">MUSIC</a>
+      <a href="setlist.html" style="color:var(--pink)">SETLIST</a>
+      <a href="fanname.html">FANNAME</a>
+      <a href="info.html">INFO</a>
     </nav>
   </div>
 </header>
 
-<div class="page-title">SETLIST</div>
+<!-- HERO -->
+<div class="hero">
+  <h1>SETLIST</h1>
+  <p>루미벨 공연을 더 즐기기 위한 응원 가이드 페이지입니다.</p>
+</div>
 
-<!-- SONG LIST -->
+<!-- SONG CARD -->
 <div class="song-nav">
   <div class="song-btn active" onclick="showSong('star',this)">
     <strong>Stardust Magical</strong>
@@ -204,7 +235,7 @@ audio{
 
   <div class="song-btn" onclick="showSong('story',this)">
     <strong>스토리베리러브</strong>
-    <span>가사 기반</span>
+    <span>오리지널곡</span>
   </div>
 
   <div class="song-btn" onclick="showSong('sukipi',this)">
@@ -303,7 +334,7 @@ function showSong(id,el){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-/* top btn */
+/* top button */
 const btn=document.getElementById("topBtn");
 window.onscroll=()=>{
   btn.style.display=window.scrollY>200?"block":"none";
