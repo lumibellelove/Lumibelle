@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MORE VIDEO | Lumibelle</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #fffafc;
+    }
+
+    main.page-shell {
+      flex: 1;
+    }
+
+    .video-page-shell {
+      padding-top: 18px;
+      padding-bottom: 46px;
+    }
+
+    .video-hero {
+      background: linear-gradient(180deg, #fff1f8 0%, #fff8fc 100%);
+      border: 1px solid #f2d8e7;
+      border-radius: 32px;
+      padding: 42px 28px 34px;
+      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
+      text-align: center;
+    }
+
+    .video-hero h2 {
+      margin: 0;
+      color: #d77ca7;
+      font-size: 58px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .video-hero p {
+      margin: 12px 0 0;
+      color: #c99ab2;
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.7;
+    }
+
+    .video-toolbar-wrap {
+      position: sticky;
+      top: 14px;
+      z-index: 60;
+      margin-top: 22px;
+    }
+
+    .video-toolbar {
+      background: rgba(255, 245, 251, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid #f2d8e7;
+      border-radius: 28px;
+      box-shadow: 0 10px 24px rgba(232, 191, 211, 0.16);
+      padding: 18px;
+    }
+
+    .video-filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .video-filter-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .filter-chip {
+      border: 1px solid #f0d5e4;
+      background: #fff;
+      color: #b57e9d;
+      border-radius: 999px;
+      padding: 11px 16px;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+
+    .filter-chip:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(232, 191, 211, 0.14);
+    }
+
+    .filter-chip.active {
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 8px 18px rgba(232, 191, 211, 0.18);
+    }
+
+    .chip-all.active {
+      background: linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%);
+    }
+
+    .chip-mariring.active {
+      background: #ff59a5;
+    }
+
+    .chip-lulu.active {
+      background: linear-gradient(180deg, #FFB8D3 0%, #FFD9E8 100%);
+      color: #9b5a77;
+    }
+
+    .chip-iro.active {
+      background: #B2DEFF;
+      color: #5d7f9a;
+    }
+
+    .chip-lunar.active {
+      background: #ba8ce7;
+    }
+
+    .chip-hotclip.active {
+      background: linear-gradient(180deg, #ff8fc1 0%, #ff6cab 100%);
+    }
+
+    .control-row {
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .search-box,
+    .sort-select,
+    .event-select {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #efd4e2;
+      background: #fff;
+      border-radius: 18px;
+      padding: 14px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #8d7082;
+      outline: none;
+    }
+
+    .search-box:focus,
+    .sort-select:focus,
+    .event-select:focus {
+      border-color: #e6aeca;
+      box-shadow: 0 0 0 4px rgba(255, 171, 211, 0.16);
+    }
+
+    .video-list-wrap {
+      margin-top: 24px;
+      background: #fff5fb;
+      border: 1px solid #f2d8e7;
+      border-radius: 28px;
+      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
+      padding: 22px;
+    }
+
+    .video-list-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .video-list-head h3 {
+      margin: 0;
+      color: #d77ca7;
+      font-size: 30px;
+      font-weight: 900;
+    }
+
+    .video-count {
+      color: #b688a2;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .video-card-item {
+      background: #fff;
+      border: 1px solid #f0dde8;
+      border-radius: 22px;
+      overflow: hidden;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      cursor: pointer;
+    }
+
+    .video-card-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(232, 191, 211, 0.18);
+    }
+
+    .video-thumb {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(180deg, #ffe3ef 0%, #ffd2e5 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .video-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .video-thumb::after {
+      content: "▶";
+      position: absolute;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.92);
+      color: #ef67a8;
+      font-size: 28px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 18px rgba(239, 103, 168, 0.18);
+    }
+
+    .video-card-body {
+      padding: 16px 16px 18px;
+    }
+
+    .video-meta-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .video-date {
+      font-size: 13px;
+      color: #c99ab2;
+      font-weight: 800;
+    }
+
+    .video-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1;
+      background: #fbe8f4;
+      color: #c97ca8;
+      border: 1px solid #efc6dc;
+    }
+
+    .video-title {
+      font-size: 17px;
+      line-height: 1.5;
+      color: #846f81;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      margin-bottom: 10px;
+    }
+
+    .video-subinfo {
+      font-size: 13px;
+      color: #ab869c;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .empty-state {
+      display: none;
+      text-align: center;
+      padding: 64px 20px;
+      color: #c08aa8;
+    }
+
+    .empty-state.show {
+      display: block;
+    }
+
+    .empty-state h4 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      color: #d77ca7;
+      font-weight: 900;
+    }
+
+    .empty-state p {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.8;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .page-btn {
+      min-width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid #efd4e2;
+      background: #fff;
+      color: #bf88a6;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .page-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(232, 191, 211, 0.14);
+    }
+
+    .page-btn.active {
+      background: linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .video-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(40, 22, 34, 0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 999;
+    }
+
+    .video-modal.show {
+      display: flex;
+    }
+
+    .video-modal-panel {
+      width: min(920px, 100%);
+      background: #fffafc;
+      border: 1px solid #f2d8e7;
+      border-radius: 28px;
+      box-shadow: 0 18px 42px rgba(36, 16, 29, 0.24);
+      overflow: hidden;
+    }
+
+    .video-player-wrap {
+      background: #111;
+      aspect-ratio: 16 / 9;
+    }
+
+    .video-player-wrap iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    .video-modal-body {
+      padding: 22px 22px 24px;
+    }
+
+    .video-modal-title {
+      margin: 0 0 8px;
+      color: #d77ca7;
+      font-size: 26px;
+      font-weight: 900;
+      line-height: 1.4;
+    }
+
+    .video-modal-meta {
+      color: #ae88a0;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      line-height: 1.7;
+    }
+
+    .video-modal-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .modal-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 170px;
+      padding: 14px 20px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 900;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: transform 0.15s ease;
+    }
+
+    .modal-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .modal-btn-primary {
+      background: linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%);
+      color: #fff;
+    }
+
+    .modal-btn-secondary {
+      background: #fff;
+      color: #c97ca8;
+      border-color: #efc6dc;
+    }
+
+    .scroll-top-btn {
+      position: fixed;
+      right: 22px;
+      bottom: 24px;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      border: 0;
+      background: linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%);
+      color: #fff;
+      font-size: 22px;
+      font-weight: 900;
+      box-shadow: 0 12px 24px rgba(255, 95, 165, 0.26);
+      cursor: pointer;
+      display: none;
+      z-index: 200;
+    }
+
+    .scroll-top-btn.show {
+      display: block;
+    }
+
+    footer {
+      text-align: center;
+      padding: 28px 16px 40px;
+      color: #c6a2b4;
+      font-size: 14px;
+    }
+
+    @media (max-width: 1100px) {
+      .video-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .control-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 780px) {
+      .video-hero {
+        padding: 34px 18px 28px;
+      }
+
+      .video-hero h2 {
+        font-size: 42px;
+      }
+
+      .video-toolbar {
+        padding: 14px;
+        border-radius: 24px;
+      }
+
+      .video-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .video-list-wrap {
+        padding: 16px;
+      }
+
+      .video-list-head h3 {
+        font-size: 24px;
+      }
+
+      .video-title {
+        font-size: 16px;
+      }
+
+      .video-modal {
+        padding: 14px;
+      }
+
+      .video-modal-title {
+        font-size: 22px;
+      }
+
+      .modal-btn {
+        width: 100%;
+      }
+
+      .scroll-top-btn {
+        width: 52px;
+        height: 52px;
+        right: 16px;
+        bottom: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="wrap">
+      <div class="header-box">
+        <div class="top-bow">🎀</div>
+        <div class="logo">
+          <h1>Lumibelle</h1>
+          <p>루미벨</p>
+        </div>
+        <nav>
+          <a href="index.html"><b>HOME</b><span>홈</span></a>
+          <a href="news.html"><b>NEWS</b><span>공지사항</span></a>
+          <a href="member.html"><b>MEMBER</b><span>멤버 소개</span></a>
+          <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
+          <a href="fanname.html"><b>FANNAME</b><span>팬네임</span></a>
+          <a href="info.html"><b>INFO</b><span>안내</span></a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <div class="wrap video-page-shell">
+      <section class="video-hero">
+        <h2>MORE VIDEO</h2>
+        <p>
+          루미벨의 단체 영상, 멤버별 직캠, 핫클립을 한 번에 모아보는 공간입니다.<br />
+          원하는 멤버와 공연별 영상들을 편하게 확인해보세요…♡
+        </p>
+      </section>
+
+      <section class="video-toolbar-wrap">
+        <div class="video-toolbar">
+          <div class="video-filter-row" id="memberFilterRow">
+            <button class="filter-chip chip-all active" data-member="ALL">ALL</button>
+            <button class="filter-chip chip-mariring" data-member="MARIRING">MARIRING</button>
+            <button class="filter-chip chip-lulu" data-member="LULU">LULU</button>
+            <button class="filter-chip chip-iro" data-member="IRO">IRO</button>
+            <button class="filter-chip chip-lunar" data-member="LUNAR">LUNAR</button>
+            <button class="filter-chip chip-hotclip" data-member="HOT CLIP">HOT CLIP</button>
+          </div>
+
+          <div class="control-row">
+            <input
+              type="text"
+              id="searchInput"
+              class="search-box"
+              placeholder="영상 제목 검색"
+            />
+
+            <select id="sortSelect" class="sort-select">
+              <option value="latest">최신순</option>
+              <option value="popular">인기순</option>
+            </select>
+
+            <select id="eventSelect" class="event-select">
+              <option value="ALL">공연 전체</option>
+              <option value="DEBUT LIVE">DEBUT LIVE</option>
+              <option value="BIG EVENT">BIG EVENT</option>
+              <option value="FANMEETING">FANMEETING</option>
+              <option value="SPECIAL">SPECIAL</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="video-list-wrap">
+        <div class="video-list-head">
+          <h3 id="videoSectionTitle">ALL VIDEO</h3>
+          <div class="video-count" id="videoCountText">총 0개</div>
+        </div>
+
+        <div class="video-grid" id="videoGrid"></div>
+
+        <div class="empty-state" id="emptyState">
+          <h4>COMING SOON</h4>
+          <p>등록된 영상이 아직 없습니다.<br />조금만 기다려주세요…♡</p>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer>© 2026 Lumibelle All Rights Reserved.</footer>
+
+  <div class="video-modal" id="videoModal">
+    <div class="video-modal-panel">
+      <div class="video-player-wrap" id="videoPlayerWrap"></div>
+      <div class="video-modal-body">
+        <h3 class="video-modal-title" id="modalTitle">영상 제목</h3>
+        <div class="video-modal-meta" id="modalMeta">날짜 / 태그 / 멤버 / 공연</div>
+        <div class="video-modal-actions">
+          <a href="#" target="_blank" rel="noopener noreferrer" class="modal-btn modal-btn-primary" id="youtubeLink">
+            YOUTUBE에서 보기
+          </a>
+          <button class="modal-btn modal-btn-secondary" id="closeModalBtn" type="button">
+            닫기
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="scroll-top-btn" id="scrollTopBtn" aria-label="맨 위로 이동">↑</button>
+
+  <script>
+    const videoData = [
+      {
+        id: 1,
+        member: "ALL",
+        title: "루미벨 데뷔라이브 TEASER",
+        date: "2026-07-12",
+        tag: "TEASER",
+        event: "DEBUT LIVE",
+        views: 9210,
+        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
+        thumb: "",
+        desc: "단체 티저"
+      },
+      {
+        id: 2,
+        member: "MARIRING",
+        title: "MARIRING 직캠 - 데뷔라이브",
+        date: "2026-07-12",
+        tag: "직캠",
+        event: "DEBUT LIVE",
+        views: 11200,
+        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
+        thumb: "",
+        desc: "마리링 개인 직캠"
+      },
+      {
+        id: 3,
+        member: "LULU",
+        title: "LULU 직캠 - 데뷔라이브",
+        date: "2026-07-12",
+        tag: "직캠",
+        event: "DEBUT LIVE",
+        views: 8430,
+        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
+        thumb: "",
+        desc: "루루 개인 직캠"
+      },
+      {
+        id: 4,
+        member: "IRO",
+        title: "IRO 직캠 - 데뷔라이브",
+        date: "2026-07-12",
+        tag: "직캠",
+        event: "DEBUT LIVE",
+        views: 15700,
+        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
+        thumb: "",
+        desc: "이로 개인 직캠"
+      },
+      {
+        id: 5,
+        member: "LUNAR",
+        title: "LUNAR 직캠 - 데뷔라이브",
+        date: "2026-07-12",
+        tag: "직캠",
+        event: "DEBUT LIVE",
+        views: 9680,
+        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
+        thumb: "",
+        desc: "루나 개인 직캠"
+      },
+      {
+        id: 6,
+        member: "ALL",
+        title: "루미벨 SELF INTRODUCTION MOVIE",
+        date: "2026-07-20",
+        tag: "INTRO",
+        event: "SPECIAL",
+        views: 12600,
+        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
+        thumb: "",
+        desc: "단체 소개 영상"
+      },
+      {
+        id: 7,
+        member: "HOT CLIP",
+        title: "핫클립 - 데뷔라이브 하이라이트",
+        date: "2026-07-22",
+        tag: "HOT CLIP",
+        event: "DEBUT LIVE",
+        views: 18500,
+        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
+        thumb: "",
+        desc: "레전드 순간 모음"
+      },
+      {
+        id: 8,
+        member: "MARIRING",
+        title: "MARIRING 핫클립 - 엔딩요정",
+        date: "2026-07-24",
+        tag: "HOT CLIP",
+        event: "SPECIAL",
+        views: 13880,
+        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
+        thumb: "",
+        desc: "짧은 하이라이트 영상"
+      },
+      {
+        id: 9,
+        member: "IRO",
+        title: "IRO PRACTICE VIDEO",
+        date: "2026-08-01",
+        tag: "연습",
+        event: "SPECIAL",
+        views: 10120,
+        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
+        thumb: "",
+        desc: "연습 영상"
+      },
+      {
+        id: 10,
+        member: "ALL",
+        title: "빅 이벤트 예고 영상",
+        date: "2026-10-05",
+        tag: "TEASER",
+        event: "BIG EVENT",
+        views: 15440,
+        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
+        thumb: "",
+        desc: "빅 이벤트 티저"
+      },
+      {
+        id: 11,
+        member: "LUNAR",
+        title: "LUNAR 직캠 - 빅 이벤트",
+        date: "2026-10-18",
+        tag: "직캠",
+        event: "BIG EVENT",
+        views: 17620,
+        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
+        thumb: "",
+        desc: "빅 이벤트 개인 직캠"
+      },
+      {
+        id: 12,
+        member: "HOT CLIP",
+        title: "핫클립 - 빅 이벤트 레전드 포인트",
+        date: "2026-10-19",
+        tag: "HOT CLIP",
+        event: "BIG EVENT",
+        views: 22300,
+        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
+        thumb: "",
+        desc: "하이라이트 클립"
+      },
+      {
+        id: 13,
+        member: "ALL",
+        title: "루미벨 FANMEETING SPECIAL MESSAGE",
+        date: "2026-11-01",
+        tag: "MESSAGE",
+        event: "FANMEETING",
+        views: 7520,
+        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
+        thumb: "",
+        desc: "팬미팅 스페셜 영상"
+      },
+      {
+        id: 14,
+        member: "LULU",
+        title: "LULU 팬미팅 직캠",
+        date: "2026-11-03",
+        tag: "직캠",
+        event: "FANMEETING",
+        views: 8240,
+        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
+        thumb: "",
+        desc: "팬미팅 개인 직캠"
+      },
+      {
+        id: 15,
+        member: "MARIRING",
+        title: "MARIRING 쇼츠 클립",
+        date: "2026-11-05",
+        tag: "쇼츠",
+        event: "SPECIAL",
+        views: 16500,
+        youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1",
+        thumb: "",
+        desc: "짧은 클립 영상"
+      }
+    ];
+
+    const ITEMS_PER_PAGE = 6;
+
+    let currentMember = "ALL";
+    let currentEvent = "ALL";
+    let currentSort = "latest";
+    let currentSearch = "";
+    let currentPage = 1;
+
+    const memberButtons = document.querySelectorAll(".filter-chip[data-member]");
+    const videoGrid = document.getElementById("videoGrid");
+    const pagination = document.getElementById("pagination");
+    const videoCountText = document.getElementById("videoCountText");
+    const videoSectionTitle = document.getElementById("videoSectionTitle");
+    const searchInput = document.getElementById("searchInput");
+    const sortSelect = document.getElementById("sortSelect");
+    const eventSelect = document.getElementById("eventSelect");
+    const emptyState = document.getElementById("emptyState");
+
+    const videoModal = document.getElementById("videoModal");
+    const videoPlayerWrap = document.getElementById("videoPlayerWrap");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalMeta = document.getElementById("modalMeta");
+    const youtubeLink = document.getElementById("youtubeLink");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const scrollTopBtn = document.getElementById("scrollTopBtn");
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}.${m}.${day}`;
+    }
+
+    function applyFilters() {
+      let filtered = [...videoData];
+
+      if (currentMember !== "ALL") {
+        filtered = filtered.filter(item => item.member === currentMember);
+      } else {
+        filtered = filtered.filter(item => item.member === "ALL");
+      }
+
+      if (currentEvent !== "ALL") {
+        filtered = filtered.filter(item => item.event === currentEvent);
+      }
+
+      if (currentSearch.trim()) {
+        const keyword = currentSearch.trim().toLowerCase();
+        filtered = filtered.filter(item =>
+          item.title.toLowerCase().includes(keyword) ||
+          item.tag.toLowerCase().includes(keyword) ||
+          item.desc.toLowerCase().includes(keyword) ||
+          item.event.toLowerCase().includes(keyword)
+        );
+      }
+
+      if (currentSort === "latest") {
+        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+      } else if (currentSort === "popular") {
+        filtered.sort((a, b) => b.views - a.views);
+      }
+
+      return filtered;
+    }
+
+    function getSectionTitle() {
+      if (currentMember === "ALL") return "LUMIBELLE TEAM VIDEO";
+      return `${currentMember} VIDEO`;
+    }
+
+    function createCard(item) {
+      const article = document.createElement("article");
+      article.className = "video-card-item";
+
+      article.innerHTML = `
+        <div class="video-thumb">
+          ${item.thumb ? `<img src="${item.thumb}" alt="${item.title}">` : ""}
+        </div>
+        <div class="video-card-body">
+          <div class="video-meta-top">
+            <div class="video-date">${formatDate(item.date)}</div>
+            <div class="video-tag">${item.tag}</div>
+          </div>
+          <div class="video-title">${item.title}</div>
+          <div class="video-subinfo">${item.member} · ${item.event}</div>
+        </div>
+      `;
+
+      article.addEventListener("click", () => openModal(item));
+      return article;
+    }
+
+    function renderPagination(totalItems) {
+      pagination.innerHTML = "";
+
+      const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+      if (totalPages <= 1) return;
+
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement("button");
+        btn.className = "page-btn" + (i === currentPage ? " active" : "");
+        btn.textContent = i;
+        btn.type = "button";
+
+        btn.addEventListener("click", () => {
+          currentPage = i;
+          renderVideos();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        pagination.appendChild(btn);
+      }
+    }
+
+    function renderVideos() {
+      const filtered = applyFilters();
+      const totalItems = filtered.length;
+      const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+
+      if (currentPage > totalPages) currentPage = 1;
+
+      const start = (currentPage - 1) * ITEMS_PER_PAGE;
+      const visibleItems = filtered.slice(start, start + ITEMS_PER_PAGE);
+
+      videoGrid.innerHTML = "";
+      videoSectionTitle.textContent = getSectionTitle();
+      videoCountText.textContent = `총 ${totalItems}개`;
+
+      if (visibleItems.length === 0) {
+        emptyState.classList.add("show");
+      } else {
+        emptyState.classList.remove("show");
+        visibleItems.forEach(item => {
+          videoGrid.appendChild(createCard(item));
+        });
+      }
+
+      renderPagination(totalItems);
+    }
+
+    function openModal(item) {
+      modalTitle.textContent = item.title;
+      modalMeta.textContent = `${formatDate(item.date)} · ${item.tag} · ${item.member} · ${item.event}`;
+      youtubeLink.href = item.youtubeUrl;
+
+      videoPlayerWrap.innerHTML = `
+        <iframe
+          src="${item.embedUrl}"
+          title="${item.title}"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
+      `;
+
+      videoModal.classList.add("show");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeModal() {
+      videoModal.classList.remove("show");
+      videoPlayerWrap.innerHTML = "";
+      document.body.style.overflow = "";
+    }
+
+    memberButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        memberButtons.forEach(btn => btn.classList.remove("active"));
+        button.classList.add("active");
+        currentMember = button.dataset.member;
+        currentPage = 1;
+        renderVideos();
+      });
+    });
+
+    searchInput.addEventListener("input", (e) => {
+      currentSearch = e.target.value;
+      currentPage = 1;
+      renderVideos();
+    });
+
+    sortSelect.addEventListener("change", (e) => {
+      currentSort = e.target.value;
+      currentPage = 1;
+      renderVideos();
+    });
+
+    eventSelect.addEventListener("change", (e) => {
+      currentEvent = e.target.value;
+      currentPage = 1;
+      renderVideos();
+    });
+
+    closeModalBtn.addEventListener("click", closeModal);
+
+    videoModal.addEventListener("click", (e) => {
+      if (e.target === videoModal) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && videoModal.classList.contains("show")) {
+        closeModal();
+      }
+    });
+
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 300) {
+        scrollTopBtn.classList.add("show");
+      } else {
+        scrollTopBtn.classList.remove("show");
+      }
+    });
+
+    scrollTopBtn.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    renderVideos();
+  </script>
+</body>
+</html>
