@@ -1,18 +1,13 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>이로 | Lumibelle</title>
-<link rel="stylesheet" href="style.css">
+/* ============================= */
+/* IRO PAGE - FINAL SAFE VERSION */
+/* ============================= */
 
-<style>
-/* 기본 페이지 설정 */
 .iro-page-wrap {
   max-width: 1280px;
   margin: 0 auto;
 }
 
+/* 타이틀 */
 .iro-title {
   text-align: center;
   margin: 28px 0 22px;
@@ -33,42 +28,42 @@
   font-weight: 700;
 }
 
-/* --- 절대 깨지지 않는 카드 레이아웃 --- */
-
+/* 카드 */
 .iro-card {
   background: #fff8fb;
   border: 1px solid #f2d8e7;
   border-radius: 32px;
-  /* 오른쪽 패딩을 150px로 대폭 늘려 시원한 여백 확보 */
-  padding: 60px 150px 60px 60px; 
-  min-height: 850px;
+  padding: 60px 80px 60px 60px;
+  min-height: 700px;
   display: flex;
   align-items: center;
   box-sizing: border-box;
   margin-bottom: 50px;
 }
 
+/* 그리드 (핵심 안정화) */
 .iro-grid {
   display: grid;
-  /* 사진(500px) / 이름 구역(220px) / 정보 구역(1fr) 으로 명확히 칸막이 설정 */
-  grid-template-columns: 500px 220px 1fr;
-  gap: 40px;
+  grid-template-columns: minmax(320px, 420px) 180px 1fr;
+  gap: 30px;
   width: 100%;
   align-items: center;
 }
 
+/* 사진 */
 .iro-photo {
-  width: 500px;
-  height: 750px;
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 2 / 3;
   border-radius: 28px;
-  background-image: url('iro.png'); 
+  background-image: url('iro.png');
   background-size: cover;
   background-position: center;
   border: 1px solid #f0dde8;
   background-color: #fff;
 }
 
-/* [중요] 이름 섹션: 세로 중앙 정렬 고정 */
+/* 이름 */
 .iro-name-section {
   display: flex;
   flex-direction: column;
@@ -78,155 +73,112 @@
 }
 
 .iro-name {
-  font-size: 82px;
+  font-size: 72px;
   font-weight: 900;
   color: #d77ca7;
   margin: 0;
-  line-height: 1.1;
+  line-height: 1.05;
 }
 
 .iro-en {
-  font-size: 26px;
-  letter-spacing: 0.3em;
+  font-size: 24px;
+  letter-spacing: 0.25em;
   color: #c99ab2;
-  margin-top: 15px; /* 이름과의 간격 */
+  margin-top: 12px;
   font-weight: 800;
-  width: 100%;
 }
 
-/* 상세 정보 섹션 */
+/* 정보 */
 .iro-info-section {
-  padding-left: 30px;
+  padding-left: 10px;
+  min-width: 0;
 }
 
 .iro-meta {
-  font-size: 17px;
-  line-height: 2.5;
+  font-size: 16px;
+  line-height: 2.2;
   color: #8f7183;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .iro-meta strong {
-  color: #C97CA8; /* 나마콜 등 강조 텍스트 색상 */
+  color: #C97CA8;
   font-weight: 900;
 }
 
-/* 하단 요소 고정 */
+/* 하단 */
 .iro-bottom {
-  margin-top: 40px;
+  margin-top: 30px;
 }
 
 .iro-sns img {
-  width: 100px !important; /* 아이콘이 커지지 않게 고정 */
-  height: 100px !important;
+  width: 80px;
+  height: 80px;
   display: block;
 }
 
 .iro-actions {
   display: flex;
-  gap: 15px;
-  margin-top: 25px;
+  gap: 12px;
+  margin-top: 20px;
 }
 
 .iro-btn {
-  padding: 13px 26px;
+  padding: 12px 22px;
   border-radius: 999px;
   font-weight: 800;
   font-size: 14px;
   text-decoration: none;
-  display: inline-block;
 }
 
-.iro-btn.pink { border: 2px solid #ff6fa5; color: #ff6fa5; }
-.iro-btn.purple { border: 2px solid #a892f0; color: #a892f0; }
+.iro-btn.pink {
+  border: 2px solid #ff6fa5;
+  color: #ff6fa5;
+}
 
-/* 모바일 대응 */
+.iro-btn.purple {
+  border: 2px solid #a892f0;
+  color: #a892f0;
+}
+
+/* ============================= */
+/* 모바일 */
+/* ============================= */
+
 @media (max-width: 1100px) {
+
+  .iro-card {
+    padding: 40px;
+  }
+
   .iro-grid {
     grid-template-columns: 1fr;
     text-align: center;
   }
+
   .iro-photo {
-    width: 100%;
-    max-width: 400px;
-    height: 500px;
+    margin: 0 auto;
+    max-width: 320px;
+  }
+
+  .iro-name {
+    font-size: 48px;
+  }
+
+  .iro-en {
+    font-size: 18px;
+  }
+
+  .iro-info-section {
+    padding-left: 0;
+  }
+
+  .iro-actions {
+    justify-content: center;
+  }
+
+  .iro-sns img {
     margin: 0 auto;
   }
-  .iro-card {
-    padding: 40px;
-  }
 }
-</style>
-</head>
-
-<body>
-
-<header>
-  <div class="wrap">
-    <div class="header-box">
-      <div class="top-bow">🎀</div>
-      <div class="logo">
-        <h1>Lumibelle</h1>
-        <p>루미벨</p>
-      </div>
-      <nav>
-        <a href="index.html"><b>TOP</b><span>탑</span></a>
-        <a href="news.html"><b>NEWS</b><span>공지사항</span></a>
-        <a href="member.html" class="current"><b>MEMBER</b><span>멤버 소개</span></a>
-        <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
-        <a href="fanname.html"><b>FANNAME</b><span>팬네임</span></a>
-        <a href="info.html"><b>INFO</b><span>안내</span></a>
-      </nav>
-    </div>
-  </div>
-</header>
-
-<main class="page-shell">
-  <div class="wrap iro-page-wrap">
-
-    <div class="iro-title">
-      <h2>IRO</h2>
-      <p>이로</p>
-    </div>
-
-    <section class="iro-card">
-  <div class="iro-grid">
-    <div class="iro-photo"></div>
-
-    <div class="iro-name-section">
-      <h3 class="iro-name">이로</h3>
-      <div class="iro-en">IRO</div>
-    </div>
-
-    <div class="iro-info-section">
-      <div class="iro-meta">
-        <div><strong>나마콜</strong> · 이로치</div>
-        <div><strong>담당 컬러</strong> · Angel Blue</div>
-        <div><strong>키워드</strong> · 청량 / 에너지</div>
-        <div><strong>캐치프라이즈</strong> · いろんな色の中で、イ로치<br>がいちばんでしょ？꒰ঌ ໒꒱</div>
-        <div><strong>한마디</strong> · “네 세상의 색(色)을 완전히 바꿔 줄게!”</div>
-        <div><strong>호출 태그</strong> · #이로이로안노요</div>
-        <div><strong>체키메시 태그</strong> · #이로케맛있다니</div>
-      </div>
-
-      <div class="iro-bottom">
-        <div class="iro-sns">
-          <a href="https://www.instagram.com/0w0.irochi/" target="_blank">
-            <img src="img/instagram.png" alt="Instagram">
-          </a>
-        </div>
-        <div class="iro-actions">
-          <a href="member.html" class="iro-btn pink">멤버 목록</a>
-          <a href="index.html#member" class="iro-btn purple">메인으로</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-  </div>
-</main>
-
-<footer>© 2026 Lumibelle All Rights Reserved.</footer>
-
-</body>
-</html>
