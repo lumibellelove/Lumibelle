@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Music | Lumibelle</title>
+  <meta name="description" content="Lumibelle MUSIC 페이지" />
+
+  <style>
+    :root {
+      --bg: #fffafc;
+      --panel: #fff5fb;
+      --panel-strong: #ffffff;
+      --line: #f3dbe8;
+      --text: #5f4b57;
+      --text-soft: #9d7f8f;
+      --pink: #ff59a5;
+      --pink-soft: #ffd9ea;
+      --lavender: #ba8ce7;
+      --blue: #b2deff;
+      --shadow: 0 10px 30px rgba(255, 89, 165, 0.08);
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --max: 1280px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Pretendard", "Noto Sans KR", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255, 217, 234, 0.7), transparent 32%),
+        radial-gradient(circle at top right, rgba(178, 222, 255, 0.45), transparent 28%),
+        linear-gradient(180deg, #fffdfd 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(14px);
+      background: rgba(255, 250, 252, 0.78);
+      border-bottom: 1px solid rgba(243, 219, 232, 0.9);
+    }
+
+    .header-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .logo {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--pink);
+      white-space: nowrap;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .nav a {
+      padding: 10px 14px;
+      border-radius: 999px;
+      color: var(--text-soft);
+      font-size: 14px;
+      font-weight: 700;
+      transition: 0.25s ease;
+    }
+
+    .nav a:hover,
+    .nav a.active {
+      background: var(--panel);
+      color: var(--pink);
+    }
+
+    .page-wrap {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 36px 24px 100px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,245,251,0.96));
+      border: 1px solid var(--line);
+      border-radius: 36px;
+      box-shadow: var(--shadow);
+      padding: 54px 48px;
+      margin-bottom: 28px;
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(8px);
+      pointer-events: none;
+    }
+
+    .hero::before {
+      width: 220px;
+      height: 220px;
+      background: rgba(255, 89, 165, 0.10);
+      right: -30px;
+      top: -40px;
+    }
+
+    .hero::after {
+      width: 180px;
+      height: 180px;
+      background: rgba(178, 222, 255, 0.18);
+      left: -30px;
+      bottom: -30px;
+    }
+
+    .hero-kicker {
+      display: inline-block;
+      margin-bottom: 16px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--pink);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(42px, 7vw, 78px);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      color: var(--pink);
+      text-shadow: 0 2px 0 rgba(255,255,255,0.9);
+    }
+
+    .hero p {
+      max-width: 720px;
+      margin: 18px 0 0;
+      font-size: 17px;
+      line-height: 1.8;
+      color: var(--text-soft);
+      font-weight: 500;
+    }
+
+    .control-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin: 10px 0 28px;
+      padding: 18px 20px;
+      background: rgba(255,255,255,0.78);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text-soft);
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.25s ease;
+    }
+
+    .tab-btn:hover {
+      transform: translateY(-1px);
+      color: var(--pink);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #ffedf5, #fff);
+      color: var(--pink);
+      border-color: #f6bfd9;
+      box-shadow: 0 8px 20px rgba(255, 89, 165, 0.08);
+    }
+
+    .music-count {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-soft);
+      white-space: nowrap;
+    }
+
+    .music-section {
+      display: none;
+    }
+
+    .music-section.active {
+      display: block;
+      animation: fadeUp 0.35s ease;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .music-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+    }
+
+    .music-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      background: linear-gradient(180deg, #ffffff 0%, #fffafc 100%);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: 0.28s ease;
+    }
+
+    .music-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 34px rgba(255, 89, 165, 0.12);
+    }
+
+    .music-cover {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      background:
+        linear-gradient(135deg, rgba(255, 217, 234, 0.9), rgba(255,255,255,0.9)),
+        #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .music-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .music-cover-fallback {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      padding: 20px;
+      text-align: center;
+      color: #c986a8;
+      background:
+        radial-gradient(circle at top, rgba(255,255,255,0.95), transparent 55%),
+        linear-gradient(135deg, rgba(255,217,234,0.75), rgba(178,222,255,0.45));
+    }
+
+    .music-cover-fallback strong {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .music-cover-fallback span {
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #b47d97;
+    }
+
+    .music-badge {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 70px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--pink);
+      box-shadow: 0 8px 20px rgba(255, 89, 165, 0.1);
+    }
+
+    .music-body {
+      padding: 22px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .music-title {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1.18;
+      letter-spacing: -0.03em;
+      color: #cf5f94;
+      font-weight: 900;
+    }
+
+    .music-sub {
+      margin: 9px 0 0;
+      color: var(--text-soft);
+      font-size: 14px;
+      line-height: 1.65;
+      font-weight: 600;
+    }
+
+    .music-meta {
+      display: grid;
+      grid-template-columns: 78px 1fr;
+      gap: 8px 10px;
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 18px;
+      background: var(--panel);
+      border: 1px solid #f8deea;
+    }
+
+    .music-meta dt {
+      margin: 0;
+      color: #cb7ea6;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .music-meta dd {
+      margin: 0;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .music-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .music-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 11px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text-soft);
+      font-size: 13px;
+      font-weight: 900;
+      transition: 0.25s ease;
+    }
+
+    .music-link:hover {
+      color: var(--pink);
+      border-color: #f5bfd7;
+      transform: translateY(-1px);
+    }
+
+    .coming-box {
+      padding: 42px 24px;
+      text-align: center;
+      border-radius: 28px;
+      background: linear-gradient(180deg, #fff 0%, #fff7fb 100%);
+      border: 1px dashed #efc8db;
+      color: var(--text-soft);
+      box-shadow: var(--shadow);
+    }
+
+    .coming-box h3 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      color: var(--pink);
+      letter-spacing: -0.03em;
+    }
+
+    .coming-box p {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.8;
+      font-weight: 600;
+    }
+
+    .footer {
+      margin-top: 80px;
+      padding-top: 28px;
+      border-top: 1px solid var(--line);
+      text-align: center;
+      color: var(--text-soft);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 1100px) {
+      .music-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 780px) {
+      .header-inner {
+        padding: 12px 16px;
+      }
+
+      .logo {
+        font-size: 22px;
+      }
+
+      .nav {
+        gap: 6px;
+      }
+
+      .nav a {
+        padding: 8px 10px;
+        font-size: 12px;
+      }
+
+      .page-wrap {
+        padding: 22px 16px 80px;
+      }
+
+      .hero {
+        padding: 34px 22px;
+        border-radius: 28px;
+      }
+
+      .hero p {
+        font-size: 15px;
+      }
+
+      .control-bar {
+        padding: 14px;
+      }
+
+      .music-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .music-title {
+        font-size: 22px;
+      }
+
+      .music-meta {
+        grid-template-columns: 68px 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Lumibelle</a>
+
+      <nav class="nav">
+        <a href="index.html">HOME</a>
+        <a href="profile.html">PROFILE</a>
+        <a href="schedule.html">SCHEDULE</a>
+        <a href="video.html">VIDEO</a>
+        <a href="music.html" class="active">MUSIC</a>
+        <a href="news.html">NEWS</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-wrap">
+    <section class="hero">
+      <span class="hero-kicker">LUMIBELLE SOUND ARCHIVE</span>
+      <h1>MUSIC</h1>
+      <p>
+        루미벨의 오리지널 곡, 커버곡, 무대 음원, 발매 예정 트랙을 정리하는 페이지야.
+        지금은 구조를 먼저 완성해두고, 실제 곡 데이터는 아래 배열만 수정하면 바로 반영되게 만들어놨어.
+      </p>
+    </section>
+
+    <section class="control-bar">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="all">ALL</button>
+        <button class="tab-btn" data-tab="original">ORIGINAL</button>
+        <button class="tab-btn" data-tab="cover">COVER</button>
+        <button class="tab-btn" data-tab="coming">COMING SOON</button>
+      </div>
+      <div class="music-count" id="musicCount">총 0곡</div>
+    </section>
+
+    <section class="music-section active" id="tab-all">
+      <div class="music-grid" id="allGrid"></div>
+    </section>
+
+    <section class="music-section" id="tab-original">
+      <div class="music-grid" id="originalGrid"></div>
+    </section>
+
+    <section class="music-section" id="tab-cover">
+      <div class="music-grid" id="coverGrid"></div>
+    </section>
+
+    <section class="music-section" id="tab-coming">
+      <div id="comingWrap"></div>
+    </section>
+
+    <footer class="footer">
+      © 2026 Lumibelle All Rights Reserved.
+    </footer>
+  </main>
+
+  <script>
+    const musicData = [
+      {
+        type: "original",
+        badge: "ORIGINAL",
+        title: "Shining Magic",
+        subtitle: "루미벨 대표 오리지널 곡 소개 문구를 여기에 넣으면 돼.",
+        release: "2026.00.00",
+        unit: "Lumibelle",
+        credit: "Lyrics / Compose / Arrange 추후 입력",
+        cover: "img/music/shining-magic.jpg",
+        youtube: "#",
+        spotify: "#",
+        melon: "#"
+      },
+      {
+        type: "original",
+        badge: "ORIGINAL",
+        title: "Blooming Stage",
+        subtitle: "데뷔 공연 혹은 대표 무대곡 설명 문구.",
+        release: "2026.00.00",
+        unit: "Lumibelle",
+        credit: "추후 입력",
+        cover: "",
+        youtube: "#",
+        spotify: "#",
+        melon: "#"
+      },
+      {
+        type: "cover",
+        badge: "COVER",
+        title: "Twinkle Cover",
+        subtitle: "유튜브 / 라이브에서 공개한 커버곡 설명.",
+        release: "2026.00.00",
+        unit: "MARIRING / LULU / IRO / LUNAR",
+        credit: "Original Artist 추후 입력",
+        cover: "",
+        youtube: "#",
+        spotify: "",
+        melon: ""
+      },
+      {
+        type: "cover",
+        badge: "COVER",
+        title: "Dreamy Ribbon",
+        subtitle: "멤버별 솔로 커버곡이나 유닛 커버 정리용.",
+        release: "2026.00.00",
+        unit: "IRO",
+        credit: "Original Artist 추후 입력",
+        cover: "",
+        youtube: "#",
+        spotify: "",
+        melon: ""
+      }
+    ];
+
+    const comingSoonData = [
+      {
+        title: "Next Original Song",
+        text: "차기 오리지널 곡 정보 공개 예정"
+      },
+      {
+        title: "Member Solo Cover",
+        text: "멤버별 솔로 커버 업로드 예정"
+      }
+    ];
+
+    const grids = {
+      all: document.getElementById("allGrid"),
+      original: document.getElementById("originalGrid"),
+      cover: document.getElementById("coverGrid")
+    };
+
+    const musicCount = document.getElementById("musicCount");
+    const comingWrap = document.getElementById("comingWrap");
+
+    function createMusicCard(item) {
+      const coverHTML = item.cover
+        ? `<img src="${item.cover}" alt="${item.title} 커버 이미지">`
+        : `
+          <div class="music-cover-fallback">
+            <strong>${item.title}</strong>
+            <span>LUMIBELLE MUSIC</span>
+          </div>
+        `;
+
+      const links = [
+        item.youtube ? `<a class="music-link" href="${item.youtube}" target="_blank" rel="noopener noreferrer">YOUTUBE</a>` : "",
+        item.spotify ? `<a class="music-link" href="${item.spotify}" target="_blank" rel="noopener noreferrer">SPOTIFY</a>` : "",
+        item.melon ? `<a class="music-link" href="${item.melon}" target="_blank" rel="noopener noreferrer">MELON</a>` : ""
+      ].filter(Boolean).join("");
+
+      return `
+        <article class="music-card">
+          <div class="music-cover">
+            <span class="music-badge">${item.badge}</span>
+            ${coverHTML}
+          </div>
+
+          <div class="music-body">
+            <h3 class="music-title">${item.title}</h3>
+            <p class="music-sub">${item.subtitle}</p>
+
+            <dl class="music-meta">
+              <dt>RELEASE</dt>
+              <dd>${item.release || "-"}</dd>
+
+              <dt>UNIT</dt>
+              <dd>${item.unit || "-"}</dd>
+
+              <dt>CREDIT</dt>
+              <dd>${item.credit || "-"}</dd>
+            </dl>
+
+            ${links ? `<div class="music-links">${links}</div>` : ""}
+          </div>
+        </article>
+      `;
+    }
+
+    function renderMusic() {
+      const original = musicData.filter(item => item.type === "original");
+      const cover = musicData.filter(item => item.type === "cover");
+
+      grids.all.innerHTML = musicData.map(createMusicCard).join("");
+      grids.original.innerHTML = original.length
+        ? original.map(createMusicCard).join("")
+        : emptyMessage("아직 등록된 오리지널 곡이 없어.");
+      grids.cover.innerHTML = cover.length
+        ? cover.map(createMusicCard).join("")
+        : emptyMessage("아직 등록된 커버곡이 없어.");
+
+      musicCount.textContent = `총 ${musicData.length}곡`;
+
+      if (comingSoonData.length) {
+        comingWrap.innerHTML = `
+          <div class="music-grid">
+            ${comingSoonData.map(item => `
+              <div class="coming-box">
+                <h3>${item.title}</h3>
+                <p>${item.text}</p>
+              </div>
+            `).join("")}
+          </div>
+        `;
+      } else {
+        comingWrap.innerHTML = `
+          <div class="coming-box">
+            <h3>COMING SOON</h3>
+            <p>추가 예정인 곡 정보가 아직 없어.</p>
+          </div>
+        `;
+      }
+    }
+
+    function emptyMessage(text) {
+      return `
+        <div class="coming-box" style="grid-column: 1 / -1;">
+          <h3>EMPTY</h3>
+          <p>${text}</p>
+        </div>
+      `;
+    }
+
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const sections = document.querySelectorAll(".music-section");
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const target = btn.dataset.tab;
+
+        tabButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        sections.forEach(section => section.classList.remove("active"));
+        document.getElementById(`tab-${target}`).classList.add("active");
+      });
+    });
+
+    renderMusic();
+  </script>
+</body>
+</html>
