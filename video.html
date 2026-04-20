@@ -630,12 +630,14 @@
             </select>
 
             <select id="eventSelect" class="event-select">
-              <option value="ALL">분류 전체</option>
-              <option value="SPECIAL">SPECIAL</option>
-              <option value="FANMEETING">FANMEETING</option>
-              <option value="DEBUT LIVE">DEBUT LIVE</option>
-              <option value="BIG EVENT">BIG EVENT</option>
-            </select>
+  <option value="ALL">전체</option>
+  <option value="아이돌 라이브">아이돌 라이브</option>
+  <option value="방송/출연">방송/출연</option>
+  <option value="직캠">직캠</option>
+  <option value="클립">클립</option>
+  <option value="합방">합방</option>
+  <option value="쇼츠">쇼츠</option>
+</select>
           </div>
         </div>
       </section>
@@ -682,78 +684,85 @@
 
   <script>
     const videoData = [
+        {
+  id: 1,
+  member: "MARIRING",
+  title: "추성훈 채널 출연",
+  date: "2026-01-01",
+  tag: "YOUTUBE",
+  event: "SPECIAL",
+  category: "방송/출연",   // 👈 이거 추가
+  views: 0,
+  youtubeId: "op3L_ed8-24",
+  start: 964,
+  thumb: "img/video/mariring/mariring-01.png",
+  desc: "16:04 ~ 19:25 구간 출연",
+  featured: true,
+  isTrending: true
+},
       {
-        id: 1,
-        member: "MARIRING",
-        title: "추성훈 채널 출연",
-        date: "2026-01-01",
-        tag: "YOUTUBE",
-        event: "SPECIAL",
-        views: 0,
-        youtubeId: "op3L_ed8-24",
-        start: 964,
-        thumb: "img/video/mariring/mariring-01.png",
-        desc: "16:04 ~ 19:25 구간 출연",
-        featured: true,
-        isTrending: true   // 👈 이거 추가
-      },
+  id: 2,
+  member: "MARIRING",
+  title: "QWER 마젠타 / 히나 치코코 방문",
+  date: "2026-01-01",
+  tag: "YOUTUBE",
+  event: "SPECIAL",
+  category: "방송/출연",   // 👈 여기 추가
+  views: 0,
+  youtubeId: "op3L_ed8-24",
+  start: 1489,
+  thumb: "img/video/mariring/mariring-02.png",
+  desc: "24:49 ~ 25:38 구간 출연",
+  featured: false
+},
+     {
+  id: 3,
+  member: "MARIRING",
+  title: "타임레스 버튜버 팀 합방",
+  date: "2025-01-01",
+  tag: "합방",
+  event: "SPECIAL",
+
+  category: "합방",   // 👈 여기 딱 넣어
+
+  views: 0,
+  youtubeId: "PGxpbUYMGgg",
+  thumb: "img/video/mariring/mariring-03.png",
+  desc: "버튜버 팀 합방",
+  featured: false
+},
       {
-        id: 2,
-        member: "MARIRING",
-        title: "QWER 마젠타 / 히나 치코코 방문",
-        date: "2026-01-01",
-        tag: "YOUTUBE",
-        event: "SPECIAL",
-        views: 0,
-        youtubeId: "op3L_ed8-24",
-        start: 1489,
-        thumb: "img/video/mariring/mariring-02.png",
-        desc: "24:49 ~ 25:38 구간 출연",
-        featured: false,
-        isNew: true
-      },
-      {
-        id: 3,
-        member: "MARIRING",
-        title: "타임레스 버튜버 팀 합방",
-        date: "2025-01-01",
-        tag: "합방",
-        event: "SPECIAL",
-        views: 0,
-        youtubeId: "PGxpbUYMGgg",
-        thumb: "img/video/mariring/mariring-03.png",
-        desc: "버튜버 팀 합방",
-        featured: false,
-        isNew: false
-      },
-      {
-        id: 4,
-        member: "MARIRING",
-        title: "버튜버 팀 합방 영상",
-        date: "2025-01-01",
-        tag: "합방",
-        event: "SPECIAL",
-        views: 0,
-        youtubeId: "fsSeDm4RmNE",
-        thumb: "img/video/mariring/mariring-04.png",
-        desc: "버튜버 합방",
-        featured: false,
-        isNew: false
-      },
-      {
-        id: 5,
-        member: "MARIRING",
-        title: "시스티나 합방",
-        date: "2025-01-01",
-        tag: "합방",
-        event: "SPECIAL",
-        views: 0,
-        youtubeId: "0M6k8GNeL24",
-        thumb: "img/video/mariring/mariring-05.png",
-        desc: "버튜버 합방",
-        featured: false,
-        isNew: false
-      }
+  id: 4,
+  member: "MARIRING",
+  title: "버튜버 팀 합방 영상",
+  date: "2025-01-01",
+  tag: "합방",
+  event: "SPECIAL",
+
+  category: "합방",   // 👈 이거 추가
+
+  views: 0,
+  youtubeId: "fsSeDm4RmNE",
+  thumb: "img/video/mariring/mariring-04.png",
+  desc: "버튜버 합방",
+  featured: false
+},
+     {
+  id: 5,
+  member: "MARIRING",
+  title: "시스티나 합방",
+  date: "2025-01-01",
+  tag: "합방",
+  event: "SPECIAL",
+
+  category: "합방",   // 👈 이거 추가
+
+  views: 0,
+  youtubeId: "0M6k8GNeL24",
+  thumb: "img/video/mariring/mariring-05.png",
+  desc: "버튜버 합방",
+  featured: false
+},
     ];
 
     const ITEMS_PER_PAGE = 6;
@@ -826,7 +835,7 @@ function isRecent(dateStr) {
       }
 
       if (currentEvent !== "ALL") {
-        filtered = filtered.filter(item => item.event === currentEvent);
+        filtered = filtered.filter(item => item.category === currentEvent);
       }
 
       if (currentSearch.trim()) {
