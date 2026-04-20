@@ -219,6 +219,11 @@
       box-shadow: 0 12px 26px rgba(255, 95, 165, 0.16);
     }
 
+    .video-card-item.tiktok-card .video-thumb::after {
+      content: "↗";
+      color: #111;
+    }
+
     .video-thumb {
       position: relative;
       aspect-ratio: 16 / 9;
@@ -643,6 +648,7 @@
               <option value="클립">클립</option>
               <option value="합방">합방</option>
               <option value="쇼츠">쇼츠</option>
+              <option value="틱톡">틱톡</option>
             </select>
           </div>
         </div>
@@ -697,6 +703,7 @@
     const videoData = [
       {
         id: 1,
+        platform: "youtube",
         member: "MARIRING",
         title: "추성훈 채널 출연",
         date: "2026-01-01",
@@ -713,6 +720,7 @@
       },
       {
         id: 2,
+        platform: "youtube",
         member: "MARIRING",
         title: "QWER 마젠타 / 히나 치코코 방문",
         date: "2026-04-20",
@@ -728,6 +736,7 @@
       },
       {
         id: 3,
+        platform: "youtube",
         member: "MARIRING",
         title: "타임레스 버튜버 팀 합방",
         date: "2025-01-01",
@@ -742,6 +751,7 @@
       },
       {
         id: 4,
+        platform: "youtube",
         member: "MARIRING",
         title: "버튜버 팀 합방 영상",
         date: "2025-01-01",
@@ -756,6 +766,7 @@
       },
       {
         id: 5,
+        platform: "youtube",
         member: "MARIRING",
         title: "시스티나 합방",
         date: "2025-01-01",
@@ -770,6 +781,7 @@
       },
       {
         id: 6,
+        platform: "youtube",
         member: "IRO",
         title: "이로 직캠 01",
         date: "2024-01-01",
@@ -784,6 +796,7 @@
       },
       {
         id: 7,
+        platform: "youtube",
         member: "IRO",
         title: "이로 직캠 02",
         date: "2024-01-01",
@@ -798,6 +811,7 @@
       },
       {
         id: 8,
+        platform: "youtube",
         member: "IRO",
         title: "이로 직캠 03",
         date: "2024-01-01",
@@ -812,6 +826,7 @@
       },
       {
         id: 9,
+        platform: "youtube",
         member: "LULU",
         title: "루루 영상 01",
         date: "2026-04-20",
@@ -826,6 +841,7 @@
       },
       {
         id: 10,
+        platform: "youtube",
         member: "LULU",
         title: "루루 SHORT MESSAGE",
         date: "2026-04-16",
@@ -840,6 +856,7 @@
       },
       {
         id: 11,
+        platform: "youtube",
         member: "LULU",
         title: "루루 SELF CAM",
         date: "2026-04-17",
@@ -854,6 +871,7 @@
       },
       {
         id: 12,
+        platform: "youtube",
         member: "LUNAR",
         title: "LUNAR CLIP 01",
         date: "2026-04-18",
@@ -868,6 +886,7 @@
       },
       {
         id: 13,
+        platform: "youtube",
         member: "LUNAR",
         title: "LUNAR SHORT MESSAGE",
         date: "2026-04-19",
@@ -882,6 +901,7 @@
       },
       {
         id: 14,
+        platform: "youtube",
         member: "LUNAR",
         title: "LUNAR SELF CAM",
         date: "2026-04-20",
@@ -893,6 +913,68 @@
         thumb: "img/video/lunar/lunar-03.png",
         desc: "LUNAR 셀프캠 분위기 영상",
         featured: false
+      },
+
+      {
+        id: 15,
+        platform: "tiktok",
+        member: "MARIRING",
+        title: "MARIRING TIKTOK CLIP 01",
+        date: "2026-04-20",
+        tag: "TIKTOK",
+        event: "SPECIAL",
+        category: "틱톡",
+        views: 0,
+        tiktokUrl: "https://www.tiktok.com/@mariring_love/video/7610577968146058513",
+        thumb: "",
+        desc: "마리링 틱톡 클립",
+        featured: true
+      },
+      {
+        id: 16,
+        platform: "tiktok",
+        member: "LULU",
+        title: "LULU TIKTOK CLIP 01",
+        date: "2026-04-19",
+        tag: "TIKTOK",
+        event: "SPECIAL",
+        category: "틱톡",
+        views: 0,
+        tiktokUrl: "https://www.tiktok.com/@mariring_love/video/7611383226531089681",
+        thumb: "",
+        desc: "마리링 틱톡 클립",
+        featured: false
+      },
+      {
+        id: 17,
+        platform: "tiktok",
+        member: "IRO",
+        title: "IRO TIKTOK CLIP 01",
+        date: "2026-04-18",
+        tag: "TIKTOK",
+        event: "SPECIAL",
+        category: "틱톡",
+        views: 0,
+        tiktokUrl: "https://www.tiktok.com/@lumibelle/video/3333333333333333333",
+        thumb: "",
+        desc: "이로 틱톡 클립",
+        featured: false
+      },
+      {
+        id: 18,
+        platform: "tiktok",
+        member: "루나",
+        title: "LUNAR TIKTOK CLIP 01",
+        date: "2026-04-20",
+        tag: "TIKTOK",
+        event: "SPECIAL",
+        category: "틱톡",
+        views: 0,
+        tiktokUrl: "https://www.tiktok.com/@lumibelle/video/4444444444444444444",
+        thumb: "",
+        desc: "LUNAR 틱톡 클립",
+        featured: true,
+        isTrending: true
       }
     ];
 
@@ -928,11 +1010,15 @@
     }
 
     function buildEmbedUrl(youtubeId) {
-  return `https://www.youtube.com/embed/${youtubeId}?autoplay=1&playsinline=1`;
-}
+      return `https://www.youtube.com/embed/${youtubeId}?autoplay=1&playsinline=1&rel=0`;
+    }
 
     function buildThumbUrl(youtubeId) {
       return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
+    }
+
+    function getTikTokFallbackThumb() {
+      return "img/video/tiktok/tiktok-fallback.jpg";
     }
 
     function formatDate(dateStr) {
@@ -941,12 +1027,6 @@
       const m = String(d.getMonth() + 1).padStart(2, "0");
       const day = String(d.getDate()).padStart(2, "0");
       return `${y}.${m}.${day}`;
-    }
-
-    function formatViews(views) {
-      if (!views || views <= 0) return "비공개";
-      if (views >= 10000) return `${(views / 10000).toFixed(1)}만회`;
-      return `${views.toLocaleString()}회`;
     }
 
     function isRecent(dateStr) {
@@ -958,13 +1038,16 @@
 
     function getSectionTitle() {
       if (currentMember === "ALL") return "ALL VIDEO";
+      if (currentMember === "HOT CLIP") return "HOT CLIP";
       return `${currentMember} VIDEO`;
     }
 
     function applyFilters() {
       let filtered = [...videoData];
 
-      if (currentMember !== "ALL") {
+      if (currentMember === "HOT CLIP") {
+        filtered = filtered.filter(item => item.featured || item.isTrending);
+      } else if (currentMember !== "ALL") {
         filtered = filtered.filter(item => item.member === currentMember);
       }
 
@@ -980,7 +1063,8 @@
           item.desc.toLowerCase().includes(keyword) ||
           item.event.toLowerCase().includes(keyword) ||
           item.member.toLowerCase().includes(keyword) ||
-          (item.category || "").toLowerCase().includes(keyword)
+          (item.category || "").toLowerCase().includes(keyword) ||
+          (item.platform || "").toLowerCase().includes(keyword)
         );
       }
 
@@ -1007,17 +1091,38 @@
       return filtered;
     }
 
+    function getItemThumb(item) {
+      if (item.platform === "tiktok") {
+        return item.thumb || getTikTokFallbackThumb();
+      }
+
+      if (item.thumb) return item.thumb;
+      return buildThumbUrl(item.youtubeId);
+    }
+
+    function getFallbackThumb(item) {
+      if (item.platform === "tiktok") {
+        return getTikTokFallbackThumb();
+      }
+      return buildThumbUrl(item.youtubeId);
+    }
+
     function createCard(item) {
       const article = document.createElement("article");
-      article.className = "video-card-item" + (item.featured ? " featured-card" : "");
+      article.className =
+        "video-card-item" +
+        (item.featured ? " featured-card" : "") +
+        (item.platform === "tiktok" ? " tiktok-card" : "");
 
-      const thumbUrl = item.thumb ? item.thumb : buildThumbUrl(item.youtubeId);
-      const fallbackThumb = buildThumbUrl(item.youtubeId);
+      const thumbUrl = getItemThumb(item);
+      const fallbackThumb = getFallbackThumb(item);
+
+      const badgeLabel = item.platform === "tiktok" ? "TIKTOK" : (item.featured ? "PICK" : "");
 
       article.innerHTML = `
         <div class="video-thumb">
           <img src="${thumbUrl}" alt="${item.title}" onerror="this.onerror=null;this.src='${fallbackThumb}'">
-          ${item.featured ? `<span class="video-badge badge-featured">PICK</span>` : ""}
+          ${badgeLabel ? `<span class="video-badge badge-featured">${badgeLabel}</span>` : ""}
           ${isRecent(item.date) ? `<span class="video-badge badge-new">NEW</span>` : ""}
           ${item.isTrending ? `<span class="video-badge badge-trending">TRENDING</span>` : ""}
         </div>
@@ -1032,7 +1137,16 @@
         </div>
       `;
 
-      article.addEventListener("click", () => openModal(item));
+      if (item.platform === "tiktok") {
+        article.addEventListener("click", () => {
+          if (item.tiktokUrl) {
+            window.open(item.tiktokUrl, "_blank", "noopener,noreferrer");
+          }
+        });
+      } else {
+        article.addEventListener("click", () => openModal(item));
+      }
+
       return article;
     }
 
@@ -1082,19 +1196,23 @@
       }
 
       renderPagination(totalItems);
+      loadTikTokThumbs();
     }
 
     function openModal(item) {
+      if (!item.youtubeId) return;
+
       const youtubeUrl = buildYoutubeUrl(item.youtubeId);
       let embedUrl = buildEmbedUrl(item.youtubeId);
 
       if (item.start) {
-  embedUrl += `&start=${item.start}`;
-}
+        embedUrl += `&start=${item.start}`;
+      }
 
       modalTitle.textContent = item.title;
       modalMeta.textContent = `${formatDate(item.date)} · ${item.tag} · ${item.member} · ${item.category}`;
       youtubeLink.href = youtubeUrl;
+      youtubeLink.style.display = "inline-flex";
 
       if (item.tiktokUrl) {
         tiktokLink.href = item.tiktokUrl;
@@ -1121,6 +1239,33 @@
       videoModal.classList.remove("show");
       videoPlayerWrap.innerHTML = "";
       document.body.style.overflow = "";
+    }
+
+    async function loadTikTokThumbs() {
+      const tiktokItems = videoData.filter(item => item.platform === "tiktok");
+
+      for (const item of tiktokItems) {
+        if (item.thumb) continue;
+        if (!item.tiktokUrl) continue;
+
+        try {
+          const oembedUrl = `https://www.tiktok.com/oembed?url=${encodeURIComponent(item.tiktokUrl)}`;
+          const res = await fetch(oembedUrl);
+          if (!res.ok) throw new Error("oEmbed fetch failed");
+
+          const data = await res.json();
+          if (data && data.thumbnail_url) {
+            item.thumb = data.thumbnail_url;
+
+            const images = document.querySelectorAll(`img[alt="${CSS.escape(item.title)}"]`);
+            images.forEach(img => {
+              img.src = data.thumbnail_url;
+            });
+          }
+        } catch (error) {
+          item.thumb = getTikTokFallbackThumb();
+        }
+      }
     }
 
     memberButtons.forEach(button => {
@@ -1179,9 +1324,8 @@
 
     window.onload = () => {
       window.scrollTo(0, 0);
+      renderVideos();
     };
-
-    renderVideos();
   </script>
 </body>
 </html>
