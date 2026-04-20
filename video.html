@@ -210,6 +210,10 @@
       box-shadow: 0 12px 24px rgba(232, 191, 211, 0.18);
     }
 
+    .video-card-item:active {
+      transform: scale(0.98);
+    }
+
     .video-card-item.featured-card {
       border: 2px solid #ff90be;
       box-shadow: 0 12px 26px rgba(255, 95, 165, 0.16);
@@ -279,12 +283,14 @@
       background: #ff4fa3;
       color: #fff;
     }
-.badge-trending {
-  left: 12px;
-  top: 46px;
-  background: #ff8a3d;
-  color: #fff;
-}
+
+    .badge-trending {
+      left: 12px;
+      top: 46px;
+      background: #ff8a3d;
+      color: #fff;
+    }
+
     .video-card-body {
       padding: 16px 16px 18px;
     }
@@ -630,14 +636,14 @@
             </select>
 
             <select id="eventSelect" class="event-select">
-  <option value="ALL">전체</option>
-  <option value="아이돌 라이브">아이돌 라이브</option>
-  <option value="방송/출연">방송/출연</option>
-  <option value="직캠">직캠</option>
-  <option value="클립">클립</option>
-  <option value="합방">합방</option>
-  <option value="쇼츠">쇼츠</option>
-</select>
+              <option value="ALL">전체</option>
+              <option value="아이돌 라이브">아이돌 라이브</option>
+              <option value="방송/출연">방송/출연</option>
+              <option value="직캠">직캠</option>
+              <option value="클립">클립</option>
+              <option value="합방">합방</option>
+              <option value="쇼츠">쇼츠</option>
+            </select>
           </div>
         </div>
       </section>
@@ -672,6 +678,11 @@
           <a href="#" target="_blank" rel="noopener noreferrer" class="modal-btn modal-btn-primary" id="youtubeLink">
             YOUTUBE에서 보기
           </a>
+
+          <a href="#" target="_blank" rel="noopener noreferrer" class="modal-btn modal-btn-secondary" id="tiktokLink" style="display:none;">
+            TIKTOK에서 보기
+          </a>
+
           <button class="modal-btn modal-btn-secondary" id="closeModalBtn" type="button">
             닫기
           </button>
@@ -684,219 +695,205 @@
 
   <script>
     const videoData = [
-        {
-  id: 1,
-  member: "MARIRING",
-  title: "추성훈 채널 출연",
-  date: "2026-01-01",
-  tag: "YOUTUBE",
-  event: "SPECIAL",
-  category: "방송/출연",   // 👈 이거 추가
-  views: 0,
-  youtubeId: "op3L_ed8-24",
-  start: 964,
-  thumb: "img/video/mariring/-",
-  desc: "16:04 ~ 19:25 구간 출연",
-  featured: true,
-  isTrending: true
-},
       {
-  id: 2,
-  member: "MARIRING",
-  title: "QWER 마젠타 / 히나 치코코 방문",
-  date: "2025-12-24",
-  tag: "YOUTUBE",
-  event: "SPECIAL",
-  category: "방송/출연",   // 👈 여기 추가
-  views: 0,
-  youtubeId: "op3L_ed8-24",
-  start: 1489,
-  thumb: "img/video/mariring/-",
-  desc: "24:49 ~ 25:38 구간 출연",
-  featured: false
-},
-     {
-  id: 3,
-  member: "MARIRING",
-  title: "타임레스 버튜버 팀 합방",
-  date: "2025-01-01",
-  tag: "합방",
-  event: "SPECIAL",
-
-  category: "합방",   // 👈 여기 딱 넣어
-
-  views: 0,
-  youtubeId: "PGxpbUYMGgg",
-  thumb: "img/video/mariring/mariring-01.png",
-  desc: "버튜버 팀 합방",
-  featured: false
-},
+        id: 1,
+        member: "MARIRING",
+        title: "추성훈 채널 출연",
+        date: "2026-01-01",
+        tag: "YOUTUBE",
+        event: "SPECIAL",
+        category: "방송/출연",
+        views: 0,
+        youtubeId: "op3L_ed8-24",
+        start: 964,
+        thumb: "",
+        desc: "16:04 ~ 19:25 구간 출연",
+        featured: true,
+        isTrending: true
+      },
       {
-  id: 4,
-  member: "MARIRING",
-  title: "버튜버 팀 합방 영상",
-  date: "2025-01-01",
-  tag: "합방",
-  event: "SPECIAL",
-
-  category: "합방",   // 👈 이거 추가
-
-  views: 0,
-  youtubeId: "fsSeDm4RmNE",
-  thumb: "img/video/mariring/mariring-02.png",
-  desc: "버튜버 합방",
-  featured: false
-},
-     {
-  id: 5,
-  member: "MARIRING",
-  title: "시스티나 합방",
-  date: "2025-01-01",
-  tag: "합방",
-  event: "SPECIAL",
-
-  category: "합방",   // 👈 이거 추가
-
-  views: 0,
-  youtubeId: "0M6k8GNeL24",
-  thumb: "img/video/mariring/mariring-05.png",
-  desc: "버튜버 합방",
-  featured: false
-},
+        id: 2,
+        member: "MARIRING",
+        title: "QWER 마젠타 / 히나 치코코 방문",
+        date: "2026-04-20",
+        tag: "YOUTUBE",
+        event: "SPECIAL",
+        category: "방송/출연",
+        views: 0,
+        youtubeId: "op3L_ed8-24",
+        start: 1489,
+        thumb: "",
+        desc: "24:49 ~ 25:38 구간 출연",
+        featured: false
+      },
       {
-  id: 6,
-  member: "IRO",
-  title: "이로 직캠 01",
-  date: "2024-01-01",
-  tag: "YOUTUBE",
-  event: "LIVE",
-
-  category: "직캠",   // 👈 중요
-
-  views: 0,
-  youtubeId: "sEHQNzj_cmc",
-  thumb: "img/video/iro/iro-01.png",
-  desc: "아이돌 직캠",
-  featured: false
-},
-{
-  id: 7,
-  member: "IRO",
-  title: "이로 직캠 02",
-  date: "2024-01-01",
-  tag: "YOUTUBE",
-  event: "LIVE",
-
-  category: "직캠",
-
-  views: 0,
-  youtubeId: "ECLL0rO_YM4",
-  thumb: "img/video/iro/iro-02.png",
-  desc: "아이돌 직캠",
-  featured: false
-},
-{
-  id: 8,
-  member: "IRO",
-  title: "이로 직캠 03",
-  date: "2024-01-01",
-  tag: "YOUTUBE",
-  event: "LIVE",
-
-  category: "직캠",
-
-  views: 0,
-  youtubeId: "H4fzfVPWh60",
-  thumb: "img/video/iro/iro-03.png",
-  desc: "아이돌 직캠",
-  featured: false
-},
+        id: 3,
+        member: "MARIRING",
+        title: "타임레스 버튜버 팀 합방",
+        date: "2025-01-01",
+        tag: "합방",
+        event: "SPECIAL",
+        category: "합방",
+        views: 0,
+        youtubeId: "PGxpbUYMGgg",
+        thumb: "img/video/mariring/mariring-01.png",
+        desc: "버튜버 팀 합방",
+        featured: false
+      },
       {
-  id: 9,
-  member: "LULU",
-  title: "루루 INTRO CLIP",
-  date: "2026-04-15",
-  tag: "CLIP",
-  event: "SPECIAL",
-  category: "클립",
-  views: 0,
-  youtubeId: "op3L_ed8-24",
-  start: 964,
-  thumb: "img/video/lulu/lulu-01.png",
-  desc: "루루 소개 클립",
-  featured: false
-},
-{
-  id: 10,
-  member: "LULU",
-  title: "루루 SHORT MESSAGE",
-  date: "2026-04-16",
-  tag: "SHORTS",
-  event: "SPECIAL",
-  category: "쇼츠",
-  views: 0,
-  youtubeId: "op3L_ed8-24",
-  start: 1489,
-  thumb: "img/video/lulu/lulu-02.png",
-  desc: "루루 짧은 메시지 영상",
-  featured: false
-},
-{
-  id: 11,
-  member: "LULU",
-  title: "루루 SELF CAM",
-  date: "2026-04-17",
-  tag: "MESSAGE",
-  event: "SPECIAL",
-  category: "클립",
-  views: 0,
-  youtubeId: "PGxpbUYMGgg",
-  thumb: "img/video/lulu/lulu-03.png",
-  desc: "루루 셀프캠 분위기 영상",
-  featured: false
-},
-{
-  id: 12,
-  member: "LUNAR",
-  title: "LUNAR INTRO CLIP",
-  date: "2026-04-15",
-  tag: "CLIP",
-  event: "SPECIAL",
-  category: "클립",
-  views: 0,
-  youtubeId: "fsSeDm4RmNE",
-  thumb: "img/video/lunar/lunar-01.png",
-  desc: "LUNAR 소개 클립",
-  featured: false
-},
-{
-  id: 13,
-  member: "LUNAR",
-  title: "LUNAR SHORT MESSAGE",
-  date: "2026-04-16",
-  tag: "SHORTS",
-  event: "SPECIAL",
-  category: "쇼츠",
-  views: 0,
-  youtubeId: "0M6k8GNeL24",
-  thumb: "img/video/lunar/lunar-02.png",
-  desc: "LUNAR 짧은 메시지 영상",
-  featured: false
-},
-{
-  id: 14,
-  member: "LUNAR",
-  title: "LUNAR SELF CAM",
-  date: "2026-04-17",
-  tag: "MESSAGE",
-  event: "SPECIAL",
-  category: "클립",
-  views: 0,
-  youtubeId: "PGxpbUYMGgg",
-  thumb: "img/video/lunar/lunar-03.png",
-  desc: "LUNAR 셀프캠 분위기 영상",
-  featured: false
-}
+        id: 4,
+        member: "MARIRING",
+        title: "버튜버 팀 합방 영상",
+        date: "2025-01-01",
+        tag: "합방",
+        event: "SPECIAL",
+        category: "합방",
+        views: 0,
+        youtubeId: "fsSeDm4RmNE",
+        thumb: "img/video/mariring/mariring-02.png",
+        desc: "버튜버 합방",
+        featured: false
+      },
+      {
+        id: 5,
+        member: "MARIRING",
+        title: "시스티나 합방",
+        date: "2025-01-01",
+        tag: "합방",
+        event: "SPECIAL",
+        category: "합방",
+        views: 0,
+        youtubeId: "0M6k8GNeL24",
+        thumb: "img/video/mariring/mariring-05.png",
+        desc: "버튜버 합방",
+        featured: false
+      },
+      {
+        id: 6,
+        member: "IRO",
+        title: "이로 직캠 01",
+        date: "2024-01-01",
+        tag: "YOUTUBE",
+        event: "LIVE",
+        category: "직캠",
+        views: 0,
+        youtubeId: "sEHQNzj_cmc",
+        thumb: "img/video/iro/iro-01.png",
+        desc: "아이돌 직캠",
+        featured: true
+      },
+      {
+        id: 7,
+        member: "IRO",
+        title: "이로 직캠 02",
+        date: "2024-01-01",
+        tag: "YOUTUBE",
+        event: "LIVE",
+        category: "직캠",
+        views: 0,
+        youtubeId: "ECLL0rO_YM4",
+        thumb: "img/video/iro/iro-02.png",
+        desc: "아이돌 직캠",
+        featured: false
+      },
+      {
+        id: 8,
+        member: "IRO",
+        title: "이로 직캠 03",
+        date: "2024-01-01",
+        tag: "YOUTUBE",
+        event: "LIVE",
+        category: "직캠",
+        views: 0,
+        youtubeId: "H4fzfVPWh60",
+        thumb: "img/video/iro/iro-03.png",
+        desc: "아이돌 직캠",
+        featured: false
+      },
+      {
+        id: 9,
+        member: "LULU",
+        title: "루루 영상 01",
+        date: "2026-04-20",
+        tag: "YOUTUBE",
+        event: "SPECIAL",
+        category: "클립",
+        views: 0,
+        youtubeId: "5U3SPXMLjSY",
+        thumb: "img/video/lulu/lulu-01.png",
+        desc: "루루 영상",
+        featured: true
+      },
+      {
+        id: 10,
+        member: "LULU",
+        title: "루루 SHORT MESSAGE",
+        date: "2026-04-16",
+        tag: "SHORTS",
+        event: "SPECIAL",
+        category: "쇼츠",
+        views: 0,
+        youtubeId: "5U3SPXMLjSY",
+        thumb: "img/video/lulu/lulu-02.png",
+        desc: "루루 짧은 메시지 영상",
+        featured: false
+      },
+      {
+        id: 11,
+        member: "LULU",
+        title: "루루 SELF CAM",
+        date: "2026-04-17",
+        tag: "MESSAGE",
+        event: "SPECIAL",
+        category: "클립",
+        views: 0,
+        youtubeId: "5U3SPXMLjSY",
+        thumb: "img/video/lulu/lulu-03.png",
+        desc: "루루 셀프캠 분위기 영상",
+        featured: false
+      },
+      {
+        id: 12,
+        member: "LUNAR",
+        title: "LUNAR CLIP 01",
+        date: "2026-04-18",
+        tag: "YOUTUBE",
+        event: "SPECIAL",
+        category: "클립",
+        views: 0,
+        youtubeId: "6e7rXzRpjQg",
+        thumb: "img/video/lunar/lunar-01.png",
+        desc: "LUNAR 영상",
+        featured: false
+      },
+      {
+        id: 13,
+        member: "LUNAR",
+        title: "LUNAR SHORT MESSAGE",
+        date: "2026-04-19",
+        tag: "SHORTS",
+        event: "SPECIAL",
+        category: "쇼츠",
+        views: 0,
+        youtubeId: "6e7rXzRpjQg",
+        thumb: "img/video/lunar/lunar-02.png",
+        desc: "LUNAR 짧은 메시지 영상",
+        featured: false
+      },
+      {
+        id: 14,
+        member: "LUNAR",
+        title: "LUNAR SELF CAM",
+        date: "2026-04-20",
+        tag: "MESSAGE",
+        event: "SPECIAL",
+        category: "클립",
+        views: 0,
+        youtubeId: "6e7rXzRpjQg",
+        thumb: "img/video/lunar/lunar-03.png",
+        desc: "LUNAR 셀프캠 분위기 영상",
+        featured: false
+      }
     ];
 
     const ITEMS_PER_PAGE = 6;
@@ -922,6 +919,7 @@
     const modalTitle = document.getElementById("modalTitle");
     const modalMeta = document.getElementById("modalMeta");
     const youtubeLink = document.getElementById("youtubeLink");
+    const tiktokLink = document.getElementById("tiktokLink");
     const closeModalBtn = document.getElementById("closeModalBtn");
     const scrollTopBtn = document.getElementById("scrollTopBtn");
 
@@ -930,8 +928,8 @@
     }
 
     function buildEmbedUrl(youtubeId) {
-      return `https://www.youtube.com/embed/${youtubeId}?autoplay=1`;
-    }
+  return `https://www.youtube.com/embed/${youtubeId}?autoplay=1&playsinline=1`;
+}
 
     function buildThumbUrl(youtubeId) {
       return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
@@ -950,62 +948,64 @@
       if (views >= 10000) return `${(views / 10000).toFixed(1)}만회`;
       return `${views.toLocaleString()}회`;
     }
-function isRecent(dateStr) {
-  const now = new Date();
-  const upload = new Date(dateStr);
-  const diff = (now - upload) / (1000 * 60 * 60 * 24);
-  return diff <= 7;
-}
+
+    function isRecent(dateStr) {
+      const now = new Date();
+      const upload = new Date(dateStr);
+      const diff = (now - upload) / (1000 * 60 * 60 * 24);
+      return diff <= 7;
+    }
+
     function getSectionTitle() {
       if (currentMember === "ALL") return "ALL VIDEO";
       return `${currentMember} VIDEO`;
     }
 
     function applyFilters() {
-  let filtered = [...videoData];
+      let filtered = [...videoData];
 
-  if (currentMember !== "ALL") {
-    filtered = filtered.filter(item => item.member === currentMember);
-  }
-
-  if (currentEvent !== "ALL") {
-    filtered = filtered.filter(item => item.category === currentEvent);
-  }
-
-  if (currentSearch.trim()) {
-    const keyword = currentSearch.trim().toLowerCase();
-    filtered = filtered.filter(item =>
-      item.title.toLowerCase().includes(keyword) ||
-      item.tag.toLowerCase().includes(keyword) ||
-      item.desc.toLowerCase().includes(keyword) ||
-      item.event.toLowerCase().includes(keyword) ||
-      item.member.toLowerCase().includes(keyword) ||
-      (item.category || "").toLowerCase().includes(keyword)
-    );
-  }
-
-  filtered.sort((a, b) => {
-    if (currentSort === "latest") {
-      return new Date(b.date) - new Date(a.date);
-    }
-
-    if (currentSort === "popular") {
-      if ((a.featured || false) !== (b.featured || false)) {
-        return (b.featured || false) - (a.featured || false);
+      if (currentMember !== "ALL") {
+        filtered = filtered.filter(item => item.member === currentMember);
       }
 
-      if ((a.isTrending || false) !== (b.isTrending || false)) {
-        return (b.isTrending || false) - (a.isTrending || false);
+      if (currentEvent !== "ALL") {
+        filtered = filtered.filter(item => item.category === currentEvent);
       }
 
-      return new Date(b.date) - new Date(a.date);
+      if (currentSearch.trim()) {
+        const keyword = currentSearch.trim().toLowerCase();
+        filtered = filtered.filter(item =>
+          item.title.toLowerCase().includes(keyword) ||
+          item.tag.toLowerCase().includes(keyword) ||
+          item.desc.toLowerCase().includes(keyword) ||
+          item.event.toLowerCase().includes(keyword) ||
+          item.member.toLowerCase().includes(keyword) ||
+          (item.category || "").toLowerCase().includes(keyword)
+        );
+      }
+
+      filtered.sort((a, b) => {
+        if (currentSort === "latest") {
+          return new Date(b.date) - new Date(a.date);
+        }
+
+        if (currentSort === "popular") {
+          if ((a.featured || false) !== (b.featured || false)) {
+            return (b.featured || false) - (a.featured || false);
+          }
+
+          if ((a.isTrending || false) !== (b.isTrending || false)) {
+            return (b.isTrending || false) - (a.isTrending || false);
+          }
+
+          return new Date(b.date) - new Date(a.date);
+        }
+
+        return 0;
+      });
+
+      return filtered;
     }
-
-    return 0;
-  });
-
-  return filtered;
-}
 
     function createCard(item) {
       const article = document.createElement("article");
@@ -1018,8 +1018,8 @@ function isRecent(dateStr) {
         <div class="video-thumb">
           <img src="${thumbUrl}" alt="${item.title}" onerror="this.onerror=null;this.src='${fallbackThumb}'">
           ${item.featured ? `<span class="video-badge badge-featured">PICK</span>` : ""}
-${isRecent(item.date) ? `<span class="video-badge badge-new">NEW</span>` : ""}
-${item.isTrending ? `<span class="video-badge badge-trending">TRENDING</span>` : ""}
+          ${isRecent(item.date) ? `<span class="video-badge badge-new">NEW</span>` : ""}
+          ${item.isTrending ? `<span class="video-badge badge-trending">TRENDING</span>` : ""}
         </div>
         <div class="video-card-body">
           <div class="video-meta-top">
@@ -1028,7 +1028,7 @@ ${item.isTrending ? `<span class="video-badge badge-trending">TRENDING</span>` :
           </div>
           <div class="video-title">${item.title}</div>
           <div class="video-subinfo">${item.member} · ${item.event}</div>
-          <div class="video-subinfo">조회수 ${formatViews(item.views)}</div>
+          <div class="video-subinfo">${item.category}</div>
         </div>
       `;
 
@@ -1089,18 +1089,26 @@ ${item.isTrending ? `<span class="video-badge badge-trending">TRENDING</span>` :
       let embedUrl = buildEmbedUrl(item.youtubeId);
 
       if (item.start) {
-        embedUrl += `&start=${item.start}`;
+        embedUrl += `?start=${item.start}`;
       }
 
       modalTitle.textContent = item.title;
-      modalMeta.textContent = `${formatDate(item.date)} · ${item.tag} · ${item.member} · 조회수 ${formatViews(item.views)}`;
+      modalMeta.textContent = `${formatDate(item.date)} · ${item.tag} · ${item.member} · ${item.category}`;
       youtubeLink.href = youtubeUrl;
+
+      if (item.tiktokUrl) {
+        tiktokLink.href = item.tiktokUrl;
+        tiktokLink.style.display = "inline-flex";
+      } else {
+        tiktokLink.href = "#";
+        tiktokLink.style.display = "none";
+      }
 
       videoPlayerWrap.innerHTML = `
         <iframe
           src="${embedUrl}"
           title="${item.title}"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowfullscreen>
         </iframe>
       `;
@@ -1168,6 +1176,10 @@ ${item.isTrending ? `<span class="video-badge badge-trending">TRENDING</span>` :
     scrollTopBtn.addEventListener("click", () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
+
+    window.onload = () => {
+      window.scrollTo(0, 0);
+    };
 
     renderVideos();
   </script>
