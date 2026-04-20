@@ -82,7 +82,7 @@
     nav{
       flex:1;
       display:grid;
-      grid-template-columns:repeat(7, minmax(80px,1fr));
+      grid-template-columns:repeat(8, minmax(80px,1fr));
       gap:10px;
       text-align:center;
       align-items:center;
@@ -220,7 +220,7 @@
       letter-spacing:.08em;
     }
 
-    /* NOTICE / GUIDE BOX */
+    /* GUIDE BOX */
     .guide-box{
       border:1px solid var(--line);
       background:rgba(255,250,253,.88);
@@ -356,6 +356,18 @@
       border-color:#ffd6e7;
     }
 
+    .badge-cover{
+      background:#eef5ff;
+      color:#73a1da;
+      border-color:#d8e8ff;
+    }
+
+    .badge-original{
+      background:#fff5e8;
+      color:#d39a37;
+      border-color:#ffe3b2;
+    }
+
     .badge-mc{
       background:#f5ecff;
       color:#b57ce8;
@@ -426,6 +438,138 @@
       box-shadow:0 10px 20px rgba(181,124,232,.22);
     }
 
+    .song-player-wrap{
+      margin-bottom:18px;
+    }
+
+    .guide-note{
+      font-size:13px;
+      color:#c79bb2;
+      font-weight:700;
+      margin-bottom:10px;
+    }
+
+    .song-player-video{
+      position:relative;
+      width:100%;
+      padding-top:56.25%;
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:0 8px 18px rgba(255,120,178,.10);
+      margin-bottom:12px;
+      background:#fff;
+    }
+
+    .song-player-video iframe{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      border:0;
+    }
+
+    .song-player-audio{
+      background:#fff;
+      border-radius:999px;
+      padding:8px 12px;
+      box-shadow:0 6px 12px rgba(255,120,178,.08);
+      border:1px solid #f2d8e7;
+    }
+
+    .song-player-audio audio{
+      width:100%;
+    }
+
+    .guide-tabs{
+      display:flex;
+      gap:10px;
+      margin-bottom:16px;
+      flex-wrap:wrap;
+    }
+
+    .guide-tab{
+      border:none;
+      background:#f8eaf3;
+      color:#c57ca2;
+      border:1px solid #efcfe0;
+      border-radius:999px;
+      padding:10px 18px;
+      font-size:14px;
+      font-weight:900;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+
+    .guide-tab.active{
+      background:linear-gradient(135deg,#ff8fc1 0%,#ff59a5 100%);
+      color:#fff;
+      border-color:#ff59a5;
+    }
+
+    .guide-tab-panel{
+      display:none;
+    }
+
+    .guide-tab-panel.active{
+      display:block;
+    }
+
+    .call-timing-box{
+      background:rgba(255,255,255,.82);
+      border:1px solid #efdbe7;
+      border-radius:20px;
+      padding:18px;
+    }
+
+    .call-timing-title{
+      font-size:16px;
+      font-weight:900;
+      color:#d977a4;
+      margin-bottom:14px;
+    }
+
+    .timing-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:12px;
+    }
+
+    .timing-row:last-child{
+      margin-bottom:0;
+    }
+
+    .timing-badge{
+      flex:0 0 auto;
+      min-width:58px;
+      height:28px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-size:12px;
+      font-weight:900;
+    }
+
+    .timing-badge.easy{
+      background:#ffeaf3;
+      color:#ff59a5;
+      border:1px solid #ffd3e5;
+    }
+
+    .timing-badge.pro{
+      background:#f1e9ff;
+      color:#9d72de;
+      border:1px solid #e3d5ff;
+    }
+
+    .timing-text{
+      font-size:15px;
+      line-height:1.8;
+      color:#8c6d7f;
+      font-weight:700;
+    }
+
     .guide-inner{
       display:grid;
       grid-template-columns:repeat(2,1fr);
@@ -464,14 +608,24 @@
       padding-left:18px;
     }
 
-    /* FOOT GUIDE */
+    .song-credit{
+      margin-top:10px;
+      font-size:13px;
+      font-weight:700;
+      color:#9a7389;
+    }
+
+    .song-credit strong{
+      color:#ff59a5;
+      font-weight:900;
+    }
+
     .bottom-guide{
       display:grid;
       grid-template-columns:repeat(2,1fr);
       gap:16px;
     }
 
-    /* reveal */
     .reveal{
       opacity:0;
       transform:translateY(28px);
@@ -483,7 +637,6 @@
       transform:translateY(0);
     }
 
-    /* MOBILE */
     @media (max-width:980px){
       nav{
         grid-template-columns:repeat(4,1fr);
@@ -576,6 +729,15 @@
       .set-guide{
         padding:16px;
       }
+
+      .timing-row{
+        flex-direction:column;
+        gap:8px;
+      }
+
+      .timing-text{
+        font-size:14px;
+      }
     }
   </style>
 </head>
@@ -584,17 +746,18 @@
   <header>
     <div class="wrap header-box">
       <a class="logo" href="index.html">
-        <img src="img/common/logo.png" alt="Lumibelle logo">
+        <img src="img/logo.png?v=3" alt="Lumibelle 로고">
       </a>
 
       <nav>
         <a href="index.html"><b>HOME</b><span>홈</span></a>
-        <a href="news.html"><b>NEWS</b><span>공지</span></a>
+        <a href="news.html"><b>NEWS</b><span>공지사항</span></a>
+        <a href="member.html"><b>MEMBER</b><span>멤버 소개</span></a>
         <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
-        <a href="music.html"><b>MUSIC</b><span>음악</span></a>
-        <a href="video.html"><b>VIDEO</b><span>영상</span></a>
-        <a href="profile.html"><b>PROFILE</b><span>프로필</span></a>
+        <a href="music.html"><b>MUSIC</b><span>음원</span></a>
         <a href="setlist.html" class="current"><b>SETLIST</b><span>응원가이드</span></a>
+        <a href="fanname.html"><b>FANNAME</b><span>팬네임</span></a>
+        <a href="info.html"><b>INFO</b><span>안내</span></a>
       </nav>
     </div>
   </header>
@@ -608,7 +771,7 @@
           <div class="setlist-sub">루미벨 공연용 세트리스트 & 응원가이드</div>
           <div class="setlist-desc">
             루미벨 라이브를 더 즐겁게 보기 위한 공연별 세트리스트 페이지입니다.
-            각 곡마다 응원 포인트, 믹스콜, 함께 외치면 좋은 파트를 정리해두었어요.
+            각 곡마다 응원 포인트, 간단한 콜 가이드, 그리고 연습용 플레이어를 함께 정리해두었어요.
             처음 보는 분도 부담 없이 따라올 수 있도록 쉽게 볼 수 있게 만들었어요.
           </div>
 
@@ -634,36 +797,38 @@
           <div class="guide-grid">
             <div class="guide-item">
               <strong>처음이면 무리 안 해도 괜찮아요</strong>
-              <p>박수만 쳐도 충분해요. 후렴이나 포인트 구간만 같이 따라와도 공연 분위기를 즐길 수 있어요.</p>
+              <p>박수만 쳐도 충분해요. 후렴이나 포인트 구간만 같이 따라와도 왕도 공연 분위기를 즐길 수 있어요.</p>
             </div>
             <div class="guide-item">
               <strong>콜은 천천히 익혀도 돼요</strong>
-              <p>모든 곡을 외울 필요 없어요. 자주 나오는 믹스콜이나 멤버 이름 콜부터 익히면 훨씬 편해요.</p>
+              <p>모든 곡을 외울 필요 없어요. 자주 나오는 이름 콜이나 후렴 포인트부터 익히면 훨씬 편해요.</p>
             </div>
             <div class="guide-item">
               <strong>현장 분위기 따라가면 쉬워요</strong>
-              <p>주변에서 나오는 콜을 듣고 자연스럽게 따라가면 돼요. 부담보단 즐기는 게 제일 중요해요.</p>
+              <p>주변에서 나오는 콜을 듣고 자연스럽게 따라가면 돼요. 완벽함보다 즐기는 게 제일 중요해요.</p>
             </div>
           </div>
         </div>
 
         <div class="setlist-list">
-          <!-- 01 -->
+
+          <!-- 01 Stardust Magical -->
           <article class="set-card reveal">
             <div class="set-main">
               <div class="set-no">
                 <div class="num">01</div>
-                <div class="mini">OPENING</div>
+                <div class="mini">DEBUT</div>
               </div>
 
               <div class="set-body">
                 <div class="set-top">
-                  <div class="set-title">Starlight Bloom</div>
-                  <span class="set-badge badge-live">LIVE</span>
+                  <div class="set-title">Stardust Magical</div>
+                  <span class="set-badge badge-original">ORIGINAL</span>
                 </div>
                 <div class="set-desc">
-                  오프닝 곡. 루미벨의 첫 인상을 보여주는 밝고 반짝이는 시작곡.
+                  루미벨 데뷔곡. 꿈과 시작, 그리고 함께 만들어갈 마법 같은 순간을 담은 왕도 오리지널곡.
                 </div>
+                <div class="song-credit">작사 · <strong>MARIRING</strong> / 작곡 참여 · <strong>MARIRING</strong></div>
               </div>
 
               <div class="set-action">
@@ -672,51 +837,87 @@
             </div>
 
             <div class="set-guide">
-              <div class="guide-inner">
-                <div class="guide-panel">
-                  <h4>응원 포인트</h4>
-                  <p>인트로에서는 박수로 분위기를 열고,
-후렴 들어가기 전 멤버 등장 타이밍에 환호를 넣어주면 좋아요.</p>
+              <div class="song-player-wrap">
+                <p class="guide-note">🎧 나중에 영상 / 음원 연결해서 들으면서 연습할 수 있어요</p>
+                <div class="song-player-video">
+                  <iframe src="https://www.youtube.com/embed/" title="Stardust Magical video" allowfullscreen></iframe>
                 </div>
-
-                <div class="guide-panel">
-                  <h4>믹스콜 가이드</h4>
-                  <p>타이거 파이어 사이버 파이버 다이버 바이버 저저</p>
+                <div class="song-player-audio">
+                  <audio controls>
+                    <source src="audio/stardust-magical.mp3" type="audio/mpeg">
+                  </audio>
                 </div>
+              </div>
 
-                <div class="guide-panel">
-                  <h4>포인트 콜</h4>
-                  <ul>
-                    <li>후렴 진입 전 “루미벨!”</li>
-                    <li>하이라이트 손동작 구간에서 박수</li>
-                    <li>마지막 포즈에서 큰 환호</li>
-                  </ul>
+              <div class="guide-tabs">
+                <button class="guide-tab active" data-tab="stardust-easy">초보용</button>
+                <button class="guide-tab" data-tab="stardust-pro">고급용</button>
+              </div>
+
+              <div class="guide-tab-panel active" id="stardust-easy">
+                <div class="call-timing-box">
+                  <div class="call-timing-title">초보용 응원</div>
+                  <div class="timing-row">
+                    <span class="timing-badge easy">박수</span>
+                    <div class="timing-text">인트로부터 가볍게 박수로 분위기를 맞추기</div>
+                  </div>
+                  <div class="timing-row">
+                    <span class="timing-badge easy">콜</span>
+                    <div class="timing-text">후렴 전에 <strong>루미벨!</strong> 한 번 외쳐도 충분해요</div>
+                  </div>
+                  <div class="timing-row">
+                    <span class="timing-badge easy">환호</span>
+                    <div class="timing-text">“마법이 시작된거야!” 같은 포인트 뒤에 크게 환호</div>
+                  </div>
                 </div>
+              </div>
 
-                <div class="guide-panel">
-                  <h4>초심자용 팁</h4>
-                  <p>이 곡은 굳이 콜을 다 외우지 않아도 돼요.
-후렴에서 박수와 환호만 잘 넣어도 충분히 예쁘게 즐길 수 있어요.</p>
+              <div class="guide-tab-panel" id="stardust-pro">
+                <div class="guide-inner">
+                  <div class="guide-panel">
+                    <h4>응원 포인트</h4>
+                    <p>인트로와 후렴 진입 전 박수와 환호로 열기.
+감정이 커지는 구간은 콜을 많이 넣기보다 무대에 집중하는 편이 예뻐요.</p>
+                  </div>
+
+                  <div class="guide-panel">
+                    <h4>믹스콜 가이드</h4>
+                    <p>타이거 파이어 사이버 파이버 다이버 바이버 저저</p>
+                  </div>
+
+                  <div class="guide-panel">
+                    <h4>포인트 콜</h4>
+                    <ul>
+                      <li>후렴 전 “루미벨!”</li>
+                      <li>마법이 시작되는 포인트 뒤 환호</li>
+                      <li>마지막 포즈에서 큰 박수</li>
+                    </ul>
+                  </div>
+
+                  <div class="guide-panel">
+                    <h4>초심자용 팁</h4>
+                    <p>이 곡은 서사와 감정이 중요해서 과한 콜보다 적절한 박수와 환호가 잘 어울려요.</p>
+                  </div>
                 </div>
               </div>
             </div>
           </article>
 
-          <!-- 02 -->
+          <!-- 02 SHUKIPI -->
           <article class="set-card reveal">
             <div class="set-main">
               <div class="set-no">
                 <div class="num">02</div>
-                <div class="mini">LIVE</div>
+                <div class="mini">COVER</div>
               </div>
 
               <div class="set-body">
                 <div class="set-top">
-                  <div class="set-title">Magic Hour</div>
-                  <span class="set-badge badge-live">LIVE</span>
+                  <div class="set-title">しゅきぴ (Shukipi)</div>
+                  <span class="set-badge badge-cover">COVER</span>
                 </div>
                 <div class="set-desc">
-                  마법소녀 무드가 강한 곡. 루미벨 특유의 소녀감성과 반짝이는 에너지가 잘 보이는 파트.
+                  마리링 × 루루 듀오 커버. 귀엽고 텐션 높은 왕도 아이돌 감성으로 보여주는 포인트 무대.
                 </div>
               </div>
 
@@ -726,52 +927,89 @@
             </div>
 
             <div class="set-guide">
-              <div class="guide-inner">
-                <div class="guide-panel">
-                  <h4>응원 포인트</h4>
-                  <p>전주에서 멤버 등장마다 이름 콜을 넣고,
-후렴에서 리듬에 맞춰 박수를 넣어주면 분위기가 확 살아나요.</p>
+              <div class="song-player-wrap">
+                <p class="guide-note">🎧 귀여운 콜 연습용으로 영상 / 음원을 나중에 연결해둘 수 있어요</p>
+                <div class="song-player-video">
+                  <iframe src="https://www.youtube.com/embed/" title="Shukipi video" allowfullscreen></iframe>
                 </div>
-
-                <div class="guide-panel">
-                  <h4>믹스콜 가이드</h4>
-                  <p>타이거 파이어 사이버 파이버 다이버 바이버 저저
-차페 아페 카라 키나 라라 투스케 먀호</p>
+                <div class="song-player-audio">
+                  <audio controls>
+                    <source src="audio/shukipi.mp3" type="audio/mpeg">
+                  </audio>
                 </div>
+              </div>
 
-                <div class="guide-panel">
-                  <h4>멤버 이름 콜</h4>
-                  <ul>
-                    <li>마리링! 루루! 이로! 루나!</li>
-                    <li>솔로 파트 직후 짧게 이름 콜</li>
-                    <li>마지막 합창 전 단체 환호</li>
-                  </ul>
+              <div class="guide-tabs">
+                <button class="guide-tab active" data-tab="shukipi-easy">초보용</button>
+                <button class="guide-tab" data-tab="shukipi-pro">고급용</button>
+              </div>
+
+              <div class="guide-tab-panel active" id="shukipi-easy">
+                <div class="call-timing-box">
+                  <div class="call-timing-title">초보용 응원</div>
+                  <div class="timing-row">
+                    <span class="timing-badge easy">같이</span>
+                    <div class="timing-text"><strong>We are Sweetie pie!</strong> 같이 외치기</div>
+                  </div>
+                  <div class="timing-row">
+                    <span class="timing-badge easy">이름콜</span>
+                    <div class="timing-text"><strong>마리링! 루루!</strong>만 외쳐도 충분해요</div>
+                  </div>
+                  <div class="timing-row">
+                    <span class="timing-badge easy">하이라이트</span>
+                    <div class="timing-text"><strong>스키피! 스키피!</strong> 구간만 따라와도 재밌어요</div>
+                  </div>
                 </div>
+              </div>
 
-                <div class="guide-panel">
-                  <h4>초심자용 팁</h4>
-                  <p>이 곡은 멜로디가 예뻐서 무리하게 콜을 다 넣기보다,
-포인트 구간만 정확하게 같이 외치는 게 더 예쁘게 들려요.</p>
+              <div class="guide-tab-panel" id="shukipi-pro">
+                <div class="guide-inner">
+                  <div class="guide-panel">
+                    <h4>응원 포인트</h4>
+                    <p>듀오 파트는 귀엽게 반응하고,
+하이라이트에서는 스키피 콜과 환호를 확실하게 넣어주면 좋아요.</p>
+                  </div>
+
+                  <div class="guide-panel">
+                    <h4>기본 콜</h4>
+                    <p>We are Sweetie pie!
+마리링! 루루!
+스키피! 스키피!</p>
+                  </div>
+
+                  <div class="guide-panel">
+                    <h4>포인트 콜</h4>
+                    <ul>
+                      <li>파이보 와이퍼</li>
+                      <li>“스키스키 스키피” 구간 반응</li>
+                      <li>엔딩 “루미베르 데스~” 후 큰 환호</li>
+                    </ul>
+                  </div>
+
+                  <div class="guide-panel">
+                    <h4>초심자용 팁</h4>
+                    <p>이 곡은 콜을 완벽하게 넣기보다 귀엽고 밝은 반응이 더 중요해요. 텐션만 맞춰도 충분히 잘 어울려요.</p>
+                  </div>
                 </div>
               </div>
             </div>
           </article>
 
-          <!-- 03 -->
+          <!-- 03 CANARIA -->
           <article class="set-card reveal">
             <div class="set-main">
               <div class="set-no">
                 <div class="num">03</div>
-                <div class="mini">MC</div>
+                <div class="mini">COVER</div>
               </div>
 
               <div class="set-body">
                 <div class="set-top">
-                  <div class="set-title">Opening MC</div>
-                  <span class="set-badge badge-mc">MC</span>
+                  <div class="set-title">カナリア (Canaria)</div>
+                  <span class="set-badge badge-cover">COVER</span>
                 </div>
                 <div class="set-desc">
-                  첫 인사와 멤버 소개가 들어가는 파트. 멤버들이 한 명씩 인사할 때 이름을 불러주면 좋아요.
+                  감성은 진하지만 발라드보다는 왕도 아이돌 댄스 감성이 살아있는 커버곡. 하모니와 무드가 중요한 파트.
                 </div>
               </div>
 
@@ -781,52 +1019,88 @@
             </div>
 
             <div class="set-guide">
-              <div class="guide-inner">
-                <div class="guide-panel">
-                  <h4>응원 포인트</h4>
-                  <p>멤버가 자기소개를 할 때 이름을 불러주거나,
-마지막 단체 인사 때 큰 박수를 보내주면 좋아요.</p>
+              <div class="song-player-wrap">
+                <p class="guide-note">🎧 들으면서 후렴 포인트를 익히기 좋아요</p>
+                <div class="song-player-video">
+                  <iframe src="https://www.youtube.com/embed/" title="Canaria video" allowfullscreen></iframe>
                 </div>
-
-                <div class="guide-panel">
-                  <h4>추천 콜</h4>
-                  <p>마리링! 루루! 이로! 루나!
-루미벨!</p>
+                <div class="song-player-audio">
+                  <audio controls>
+                    <source src="audio/canaria.mp3" type="audio/mpeg">
+                  </audio>
                 </div>
+              </div>
 
-                <div class="guide-panel">
-                  <h4>현장 팁</h4>
-                  <ul>
-                    <li>말하는 중간에는 너무 큰 콜보다 리액션 위주</li>
-                    <li>포즈나 애교 구간은 환호 크게</li>
-                    <li>마무리 멘트 뒤 박수 꼭</li>
-                  </ul>
+              <div class="guide-tabs">
+                <button class="guide-tab active" data-tab="canaria-easy">초보용</button>
+                <button class="guide-tab" data-tab="canaria-pro">고급용</button>
+              </div>
+
+              <div class="guide-tab-panel active" id="canaria-easy">
+                <div class="call-timing-box">
+                  <div class="call-timing-title">초보용 응원</div>
+                  <div class="timing-row">
+                    <span class="timing-badge easy">감상</span>
+                    <div class="timing-text">전체적으로 무드를 살리면서 보는 곡이에요</div>
+                  </div>
+                  <div class="timing-row">
+                    <span class="timing-badge easy">콜</span>
+                    <div class="timing-text">후렴 구간에서 <strong>루미벨!</strong> 정도만 넣어도 충분해요</div>
+                  </div>
+                  <div class="timing-row">
+                    <span class="timing-badge easy">환호</span>
+                    <div class="timing-text">브릿지 뒤와 마지막 후렴에서 환호를 크게 넣어주면 좋아요</div>
+                  </div>
                 </div>
+              </div>
 
-                <div class="guide-panel">
-                  <h4>초심자용 팁</h4>
-                  <p>MC는 말을 듣는 파트라서 콜보다 반응이 중요해요.
-웃기거나 귀여운 포인트에 자연스럽게 반응해주면 좋아요.</p>
+              <div class="guide-tab-panel" id="canaria-pro">
+                <div class="guide-inner">
+                  <div class="guide-panel">
+                    <h4>응원 포인트</h4>
+                    <p>인트로와 벌스는 감정 유지,
+후렴과 마지막 상승 구간에서 박수와 환호를 넣어주면 무드가 잘 살아나요.</p>
+                  </div>
+
+                  <div class="guide-panel">
+                    <h4>기본 콜</h4>
+                    <p>루미벨!
+오이! 오이!</p>
+                  </div>
+
+                  <div class="guide-panel">
+                    <h4>포인트 콜</h4>
+                    <ul>
+                      <li>후렴 진입 전 작은 환호</li>
+                      <li>브릿지 이후 감정 고조 구간 환호</li>
+                      <li>마지막 후렴 끝 큰 박수</li>
+                    </ul>
+                  </div>
+
+                  <div class="guide-panel">
+                    <h4>초심자용 팁</h4>
+                    <p>이 곡은 콜 난사보다 무드를 함께 살리는 게 중요해요. 과하지 않게 반응하는 편이 더 예뻐요.</p>
+                  </div>
                 </div>
               </div>
             </div>
           </article>
 
-          <!-- 04 -->
+          <!-- 04 ORIGINAL 2 -->
           <article class="set-card reveal">
             <div class="set-main">
               <div class="set-no">
                 <div class="num">04</div>
-                <div class="mini">VCR</div>
+                <div class="mini">NEW</div>
               </div>
 
               <div class="set-body">
                 <div class="set-top">
-                  <div class="set-title">Youth Story VCR</div>
-                  <span class="set-badge badge-vcr">VCR</span>
+                  <div class="set-title">Original Song 02</div>
+                  <span class="set-badge badge-original">ORIGINAL</span>
                 </div>
                 <div class="set-desc">
-                  청춘 무드가 담긴 전환 영상. 다음 파트 분위기를 만드는 연결 구간.
+                  두 번째 오리지널곡 자리. 곡명과 세부 가이드는 나중에 실제 내용으로 교체하면 돼요.
                 </div>
               </div>
 
@@ -838,144 +1112,18 @@
             <div class="set-guide">
               <div class="guide-inner">
                 <div class="guide-panel">
-                  <h4>관람 포인트</h4>
-                  <p>영상 파트는 콜 없이 집중해서 보면 좋아요.
-장면 전환이나 엔딩 포인트에서 작은 환호 정도가 잘 어울려요.</p>
+                  <h4>메모</h4>
+                  <p>여기는 나중에 두 번째 오리지널곡 정보로 교체.</p>
                 </div>
 
                 <div class="guide-panel">
-                  <h4>추천 반응</h4>
-                  <p>영상 마지막 로고 등장 타이밍에 박수
-다음 곡 시작 직전 환호</p>
-                </div>
-
-                <div class="guide-panel">
-                  <h4>현장 팁</h4>
-                  <ul>
-                    <li>영상 중에는 조용히 보기</li>
-                    <li>엔딩 컷에서 박수 넣기</li>
-                    <li>다음 곡 첫 등장 타이밍 환호 준비</li>
-                  </ul>
-                </div>
-
-                <div class="guide-panel">
-                  <h4>초심자용 팁</h4>
-                  <p>VCR은 흐름을 이어주는 파트라서 같이 즐기되,
-공연의 몰입을 깨지 않는 정도로 반응하는 게 좋아요.</p>
+                  <h4>응원 방향</h4>
+                  <p>현재는 자리만 만들어둔 상태. 곡 결정 후 포인트를 넣으면 돼요.</p>
                 </div>
               </div>
             </div>
           </article>
 
-          <!-- 05 -->
-          <article class="set-card reveal">
-            <div class="set-main">
-              <div class="set-no">
-                <div class="num">05</div>
-                <div class="mini">LIVE</div>
-              </div>
-
-              <div class="set-body">
-                <div class="set-top">
-                  <div class="set-title">Twinkle Promise</div>
-                  <span class="set-badge badge-live">LIVE</span>
-                </div>
-                <div class="set-desc">
-                  감정선이 더 진해지는 중반 곡. 후렴 응원 포인트가 확실해서 현장 반응이 예쁘게 모이는 타입.
-                </div>
-              </div>
-
-              <div class="set-action">
-                <button class="guide-toggle" type="button">CHEER GUIDE</button>
-              </div>
-            </div>
-
-            <div class="set-guide">
-              <div class="guide-inner">
-                <div class="guide-panel">
-                  <h4>응원 포인트</h4>
-                  <p>후렴에서 같은 문장이 반복될 때 함께 외치기 좋아요.
-브릿지 후 올라가는 구간에서 환호를 넣어주면 예뻐요.</p>
-                </div>
-
-                <div class="guide-panel">
-                  <h4>믹스콜 가이드</h4>
-                  <p>타이거 파이어 사이버 파이버 다이버 바이버 저저</p>
-                </div>
-
-                <div class="guide-panel">
-                  <h4>포인트 콜</h4>
-                  <ul>
-                    <li>후렴 첫 줄 끝부분 따라 외치기</li>
-                    <li>브릿지 끝 “오—!” 환호</li>
-                    <li>엔딩 포즈 전 박수</li>
-                  </ul>
-                </div>
-
-                <div class="guide-panel">
-                  <h4>초심자용 팁</h4>
-                  <p>이 곡은 감상 포인트도 중요한 편이라
-조용히 듣다가 큰 포인트만 콜을 넣어도 충분히 잘 어울려요.</p>
-                </div>
-              </div>
-            </div>
-          </article>
-
-          <!-- 06 -->
-          <article class="set-card reveal">
-            <div class="set-main">
-              <div class="set-no">
-                <div class="num">06</div>
-                <div class="mini">ENCORE</div>
-              </div>
-
-              <div class="set-body">
-                <div class="set-top">
-                  <div class="set-title">Dear My Light</div>
-                  <span class="set-badge badge-encore">ENCORE</span>
-                </div>
-                <div class="set-desc">
-                  앵콜 마무리곡. 따뜻하고 반짝이는 분위기로 공연의 여운을 길게 남기는 곡.
-                </div>
-              </div>
-
-              <div class="set-action">
-                <button class="guide-toggle" type="button">CHEER GUIDE</button>
-              </div>
-            </div>
-
-            <div class="set-guide">
-              <div class="guide-inner">
-                <div class="guide-panel">
-                  <h4>응원 포인트</h4>
-                  <p>멤버들이 객석을 둘러보는 구간에서 손을 흔들어주고,
-마지막 후렴은 박수와 환호 위주로 함께해주면 좋아요.</p>
-                </div>
-
-                <div class="guide-panel">
-                  <h4>추천 콜</h4>
-                  <p>루미벨!
-앙코르!
-고마워!</p>
-                </div>
-
-                <div class="guide-panel">
-                  <h4>마무리 포인트</h4>
-                  <ul>
-                    <li>엔딩 멘트 후 큰 박수</li>
-                    <li>단체 인사 때 환호</li>
-                    <li>퇴장 전까지 여운 있게 반응</li>
-                  </ul>
-                </div>
-
-                <div class="guide-panel">
-                  <h4>초심자용 팁</h4>
-                  <p>앵콜은 분위기를 함께 만드는 게 제일 중요해요.
-완벽한 콜보다 마지막까지 따뜻하게 응원해주는 느낌이 더 잘 어울려요.</p>
-                </div>
-              </div>
-            </div>
-          </article>
         </div>
       </div>
     </section>
@@ -1004,8 +1152,8 @@
             <div class="guide-item">
               <p>
                 처음에는 모든 콜을 외우기보다
-                멤버 이름 콜, 후렴 박수, 앵콜 환호 정도만 익혀도 충분해요.
-                루미벨 공연은 예쁘게 즐기고 함께 분위기를 만드는 감각이 중요해요.
+                멤버 이름 콜, 후렴 포인트, 큰 환호 타이밍 정도만 익혀도 충분해요.
+                루미벨 공연은 함께 분위기를 만드는 감각이 중요해요.
               </p>
             </div>
           </div>
@@ -1015,7 +1163,6 @@
   </main>
 
   <script>
-    // reveal
     const revealEls = document.querySelectorAll('.reveal');
 
     const revealObserver = new IntersectionObserver((entries) => {
@@ -1030,7 +1177,6 @@
 
     revealEls.forEach(el => revealObserver.observe(el));
 
-    // setlist toggle
     const toggleButtons = document.querySelectorAll('.guide-toggle');
 
     toggleButtons.forEach((button) => {
@@ -1043,6 +1189,24 @@
         }else{
           button.textContent = 'CHEER GUIDE';
         }
+      });
+    });
+
+    document.querySelectorAll('.guide-tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const parentGuide = tab.closest('.set-guide');
+        const targetId = tab.dataset.tab;
+
+        parentGuide.querySelectorAll('.guide-tab').forEach((btn) => {
+          btn.classList.remove('active');
+        });
+
+        parentGuide.querySelectorAll('.guide-tab-panel').forEach((panel) => {
+          panel.classList.remove('active');
+        });
+
+        tab.classList.add('active');
+        parentGuide.querySelector(`#${targetId}`).classList.add('active');
       });
     });
   </script>
