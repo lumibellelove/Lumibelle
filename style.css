@@ -1,3 +1,4 @@
+
 :root{
   --bg:#fff8fb;
   --panel:rgba(255,246,251,.92);
@@ -13,10 +14,8 @@
   --shadow:0 16px 30px rgba(255,120,178,.10);
   --radius:22px;
 }
-
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-
 body{
   margin:0;
   background:
@@ -26,26 +25,16 @@ body{
   color:var(--text);
   font-family:"Noto Sans KR","Hiragino Sans","Yu Gothic",sans-serif;
 }
-
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
-
-.wrap{
-  width:min(1220px,calc(100% - 28px));
-  margin:0 auto;
-}
-
-/* 🔥 HEADER 완성본 */
+.wrap{width:min(1220px,calc(100% - 28px));margin:0 auto}
 header{
-  position:sticky;
-  top:0;
-  z-index:50;
+  position:sticky;top:0;z-index:50;
   background:rgba(255,248,252,.93);
   backdrop-filter:blur(10px);
   border-bottom:1px solid rgba(241,212,227,.85);
   box-shadow:0 8px 20px rgba(255,120,178,.06);
 }
-
 .header-box{
   margin:18px auto 14px;
   padding:20px 24px;
@@ -56,8 +45,15 @@ header{
 
   display:flex;
   align-items:center;
-  gap:28px;
-  min-height:150px;
+  gap:24px;
+
+  min-height:150px; /* 👈 이거 추가 */
+}
+
+  display:flex;
+  align-items:center;
+  gap:24px;
+  min-height:120px;
 }
 
 .logo{
@@ -73,55 +69,141 @@ header{
 .logo img{
   height:110px;
   width:auto;
+  display:block;
 }
+.logo h1{
+  font-family: 'Daehan', sans-serif;  /* ⭐ 이 줄만 추가 */
 
-/* 🔥 NAV 크게 보이게 */
+  margin:0;
+  font-size:clamp(40px,4vw,72px);
+  font-weight:900;
+  letter-spacing:-0.05em;
+  line-height:1;
+
+  background: linear-gradient(180deg, #ff6fb5, #ff59a5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  text-shadow: 0 2px 0 rgba(255,255,255,0.8),
+               0 6px 12px rgba(255,105,165,0.2);
+}
 nav{
   flex:1;
   display:grid;
-  grid-template-columns:repeat(7, minmax(90px,1fr));
-  gap:12px;
+  grid-template-columns:repeat(7, minmax(80px,1fr));
+  gap:6px;
   text-align:center;
   align-items:center;
 }
-
-nav a{
-  padding:12px 8px;
-  border-radius:18px;
-  transition:.18s ease;
-}
-
-nav a:hover,
-nav a.current{
-  background:rgba(255,239,247,.8);
-}
-
+nav a{padding:8px 4px;border-radius:14px;transition:.18s ease}
+nav a:hover, nav a.current{background:rgba(255,239,247,.8)}
 nav b{
   display:block;
   color:#d06f9f;
-  font-size:19px;  /* 👈 크게 */
-  font-weight:900;
-  margin-bottom:6px;
+  font-size:17px;   /* 👈 여기만 수정 */
+  margin-bottom:4px;
 }
-
 nav span{
-  display:block;
-  font-size:13px;  /* 👈 같이 키움 */
-  font-weight:800;
-  color:var(--soft);
+  font-size:12px;   /* 👈 11 → 12 */
 }
 
-/* HERO */
 .hero{padding:10px 0 16px}
-
 .hero-card{
-  position:relative;
-  overflow:hidden;
-  border:1px solid var(--line);
-  border-radius:0 0 24px 24px;
+  position:relative;overflow:hidden;border:1px solid var(--line);border-radius:0 0 24px 24px;
   background:linear-gradient(135deg, #fce5f0 0%, #ece4ff 48%, #eef7ff 100%);
-  min-height:560px;
-  box-shadow:var(--shadow);
+  min-height:560px;box-shadow:var(--shadow);
+}
+.curtain-left,.curtain-right{
+  position:absolute;top:0;width:190px;height:100%;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.58), rgba(255,255,255,.10)),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.22) 0 14px, rgba(255,215,235,.22) 14px 28px);
+  opacity:.9;z-index:1;
+}
+.curtain-left{left:0;border-right:1px solid rgba(255,255,255,.35);clip-path:polygon(0 0,100% 0,82% 100%,0 100%)}
+.curtain-right{right:0;border-left:1px solid rgba(255,255,255,.35);clip-path:polygon(18% 0,100% 0,100% 100%,0 100%)}
+.hero-card::before{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255,255,255,.9) 0 2px, transparent 4px),
+    radial-gradient(circle at 30% 12%, rgba(255,255,255,.75) 0 2px, transparent 4px),
+    radial-gradient(circle at 62% 16%, rgba(255,255,255,.8) 0 2px, transparent 4px),
+    radial-gradient(circle at 74% 32%, rgba(255,255,255,.85) 0 2px, transparent 4px),
+    radial-gradient(circle at 40% 58%, rgba(255,255,255,.72) 0 2px, transparent 4px),
+    radial-gradient(circle at 84% 58%, rgba(255,255,255,.85) 0 2px, transparent 4px);
+}
+.hero-visual{
+  position: relative;
+  min-height: 620px;
+  background:
+    linear-gradient(rgba(255,255,255,.15), rgba(255,255,255,.15)),
+    url('hero.png') center / cover no-repeat;
+}
+
+.hero-copy{
+  position:relative;
+  padding:110px 50px 90px 70px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.hero-kor{
+  color:#e08fb4;
+  font-size:18px;
+  font-weight:900;
+  margin-bottom:14px;
+  letter-spacing:-0.02em;
+  text-shadow:0 0 10px rgba(255,255,255,0.55);
+}
+
+.hero-logo{
+  font-size:clamp(88px,9vw,150px);
+  line-height:0.92;
+  font-weight:900;
+  letter-spacing:-0.06em;
+  color:#ff5aa7;
+  margin:0 0 12px;
+  text-shadow:
+    0 0 0 #fff,
+    0 3px 0 rgba(255,255,255,0.95),
+    0 0 18px rgba(255,255,255,0.95),
+    0 0 36px rgba(255,157,208,0.25);
+}
+
+.hero-sub{
+  margin-top:2px;
+  color:#e48db5;
+  font-size:30px;
+  font-weight:800;
+  letter-spacing:0.08em;
+  text-shadow:0 0 10px rgba(255,255,255,0.7);
+}
+
+.hero-desc{
+  margin-top:30px;
+  color:#8f7183;
+  font-size:18px;
+  line-height:2;
+  font-weight:700;
+}
+
+.hero-moon{
+  position:absolute;
+  top:72px;
+  left:115px;
+  font-size:110px;
+  color:rgba(255,255,255,0.72);
+  filter:drop-shadow(0 0 12px rgba(255,255,255,0.5));
+}
+
+.hero-castle{
+  position:absolute;
+  top:135px;
+  left:88px;
+  font-size:92px;
+  color:rgba(255,255,255,0.48);
+  filter:drop-shadow(0 0 10px rgba(255,255,255,0.45));
 }
 
 .hero-visual{
@@ -132,73 +214,252 @@ nav span{
     url('hero.png') center / cover no-repeat;
 }
 
-.hero-copy{
-  padding:110px 50px 90px 70px;
+.hero-sparkles{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 18% 14%, rgba(255,255,255,0.95) 0 2px, transparent 4px),
+    radial-gradient(circle at 34% 27%, rgba(255,255,255,0.85) 0 2px, transparent 4px),
+    radial-gradient(circle at 63% 15%, rgba(255,255,255,0.95) 0 3px, transparent 5px),
+    radial-gradient(circle at 78% 31%, rgba(255,255,255,0.88) 0 2px, transparent 4px),
+    radial-gradient(circle at 86% 58%, rgba(255,255,255,0.88) 0 2px, transparent 4px),
+    radial-gradient(circle at 52% 65%, rgba(255,255,255,0.75) 0 2px, transparent 4px);
+  opacity:0.9;
 }
-
-.hero-kor{
-  color:#e08fb4;
-  font-size:18px;
-  font-weight:900;
-}
-
-.hero-logo{
-  font-size:clamp(88px,9vw,150px);
-  font-weight:900;
-  color:#ff5aa7;
-}
-
-.hero-sub{
-  color:#e48db5;
-  font-size:30px;
-  font-weight:800;
-}
-
-.hero-desc{
-  margin-top:20px;
-  font-size:18px;
-  line-height:2;
-}
-
-/* SECTION */
 section{padding:14px 0 18px}
 
-.section-title{
-  text-align:center;
-  color:#d977a4;
-}
+.section-title{text-align:center;color:#d977a4;margin-bottom:14px}
+.section-title h2{margin:0;font-size:clamp(34px,4vw,48px);letter-spacing:-.04em}
+.section-title p{margin:4px 0 0;color:var(--soft);font-size:12px;font-weight:800;letter-spacing:.18em}
 
-.section-title h2{
-  margin:0;
-  font-size:clamp(34px,4vw,48px);
-}
-
-.section-title p{
-  font-size:12px;
-  font-weight:800;
-  color:var(--soft);
-}
-
-/* MEMBER */
-.member-grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:14px;
-}
-
+.member-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
 .member-card{
   background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,249,252,.94));
-  border:1px solid var(--line);
-  border-radius:20px;
-  box-shadow:var(--shadow);
-  padding:10px;
+  border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;padding:10px;
 }
+.ribbon{
+  height:44px;border-radius:14px 14px 999px 999px;display:flex;align-items:center;justify-content:center;
+  color:white;font-size:14px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px;
+}
+.member-photo{aspect-ratio:4/5;border-radius:16px;border:1px solid #efd8e4;background-size:cover;background-position:center;margin-bottom:12px}
+.member-body{padding:2px 8px 8px;text-align:center}
+.member-body .color-line{font-size:13px;color:#b98ea4;font-weight:700;margin-bottom:8px;line-height:1.6}
+.member-body .meta{text-align:left;font-size:12px;line-height:1.8;min-height:76px;color:#9b7d8d;margin-bottom:12px}
+.member-btn{display:inline-flex;width:100%;justify-content:center;padding:11px 12px;border-radius:999px;color:white;font-size:13px;font-weight:800}
 
-/* MOBILE */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:10px}
+.box,.bottom-box,.profile-card{
+  border:1px solid var(--line);border-radius:22px;background:var(--panel);box-shadow:var(--shadow);
+}
+.box{overflow:hidden;min-height:100%}
+.box-head{text-align:center;padding:18px 18px 8px;color:#d878a5}
+.box-head h3,.bottom-box h3,.page-title h2{margin:0;font-size:40px;letter-spacing:-.04em;color:#d878a5}
+.box-head p,.bottom-box p.sub,.page-title p{margin:4px 0 0;font-size:12px;color:var(--soft);font-weight:800;letter-spacing:.16em}
+.row{display:grid;gap:14px;align-items:center;padding:16px 20px;border-top:1px solid #f5dce7;font-size:14px;color:#8f7484}
+.news-row{grid-template-columns:108px 76px 1fr 20px}
+.schedule-row{grid-template-columns:96px 110px 1fr 90px}
+.tag{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:7px 10px;color:white;font-size:11px;font-weight:800}
+.new{background:#ff8db9}.info{background:#ebb1d1}.media{background:#95c9ff}.live{background:#84bfff}
+.arrow{color:#d8a1bc;text-align:right;font-weight:900}
+.ticket{justify-self:end;display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:999px;border:1px solid #f0bfd6;background:white;color:#dc75a3;font-size:12px;font-weight:900}
+.box-footer{padding:16px 20px 22px;text-align:center}
+.more-btn{display:inline-flex;align-items:center;justify-content:center;min-width:210px;padding:13px 18px;border-radius:999px;color:white;background:linear-gradient(135deg,#ff7eb3,#ff95c3);font-size:14px;font-weight:800}
+
+.bottom{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.bottom-box{padding:22px 20px 24px;min-height:220px;text-align:center}
+.info-links{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:8px}
+.info-links a{display:grid;place-items:center;min-height:76px;border-radius:18px;border:1px solid #edd0df;background:white;color:#d073a1;font-size:13px;font-weight:800;padding:10px}
+.sns{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:12px}
+.sns a{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#ff8fbc,#dca7ff);color:white;font-size:15px;font-weight:900;box-shadow:0 14px 22px rgba(255,120,178,.16)}
+
+.page-shell{padding:28px 0 36px}
+.page-title{text-align:center;margin-bottom:18px}
+.content-panel{padding:26px}
+.news-list-page .row,.schedule-list-page .row{border-top:1px solid #f5dce7}
+.profile-card{padding:18px}
+.profile-grid{display:grid;grid-template-columns:360px 1fr;gap:20px}
+.profile-photo{aspect-ratio:4/5;border-radius:18px;border:1px solid #efd8e4;background-size:cover;background-position:center}
+.profile-name{font-size:44px;margin:0;color:#d878a5;letter-spacing:-.04em}
+.profile-en{font-size:13px;color:var(--soft);font-weight:800;letter-spacing:.2em;margin-top:6px}
+.profile-meta{display:grid;gap:12px;margin-top:22px;font-size:15px;line-height:1.9}
+.profile-meta strong{color:#b56f98}
+.back-home{display:inline-flex;margin-top:22px;padding:12px 18px;border-radius:999px;background:linear-gradient(135deg,#ff7eb3,#ff95c3);color:#fff;font-weight:800}
+
+footer{padding:18px 0 30px;text-align:center;color:#c298af;font-size:13px}
+
 @media (max-width:1180px){
-  .member-grid{grid-template-columns:repeat(2,1fr)}
+  .member-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .hero-inner,.profile-grid{grid-template-columns:1fr}
+  .hero-copy{padding-bottom:24px}
+  .hero-visual{min-height:460px}
+}
+@media (max-width:860px){
+  .member-grid,.split,.bottom,.profile-grid{grid-template-columns:1fr}
+  .info-links{grid-template-columns:repeat(2,1fr)}
+  .news-row,.schedule-row{grid-template-columns:1fr}
+  .ticket{justify-self:start}
+  .hero-copy{padding:46px 24px 24px}
+  .curtain-left,.curtain-right{width:110px}
+}
+@media (max-width:560px){
+  .hero-card,.header-box,.box,.bottom-box,.profile-card{border-radius:18px}
+  .hero-copy .brand-name{font-size:58px}
+  .info-links{grid-template-columns:1fr 1fr}
+}
+/* 1. 박스 전체 디자인 */
+.info-section, .follow-section {
+    background-color: #ffffff;
+    border-radius: 35px; /* 모서리를 아주 둥글게 */
+    padding: 40px 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.02); /* 아주 은은한 그림자 */
+    text-align: center;
+    border: 1px solid #fff0f5; /* 미세한 테두리 */
 }
 
-@media (max-width:860px){
-  .member-grid{grid-template-columns:1fr}
+/* 2. 대제목 (INFO, FOLLOW US) */
+.info-section h2, .follow-section h2 {
+    color: #d878a5; /* 톤다운된 핑크 */
+    font-size: 32px; /* 크게 */
+    font-weight: 900;
+    margin: 0;
+}
+
+/* 3. 소제목 (안내, SNS) */
+.info-section p, .follow-section p {
+    color: #bfa3ad;
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 8px;
+    margin-bottom: 25px;
+}
+
+/* 4. [중요] 버튼 2x2 그리드 */
+.button-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 정확히 반반 나누기 */
+    gap: 15px; /* 버튼 사이 간격 */
+    max-width: 450px; /* 너무 퍼지지 않게 조절 */
+    margin: 0 auto; /* 중앙 정렬 */
+}
+
+/* 5. 개별 버튼 디자인 */
+.button-grid button {
+    background-color: #ffffff;
+    border: 1px solid #fceef2;
+    border-radius: 15px;
+    padding: 15px 0;
+    color: #d689a3;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+    cursor: pointer;
+}
+
+/* 6. SNS 아이콘 정렬 및 디자인 */
+.sns-icons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.sns-icons span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #ffcfe1 0%, #d8b5ff 100%); /* 그라데이션 */
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 18px;
+    box-shadow: 0 6px 15px rgba(216, 181, 255, 0.4);
+}
+/* 모든 박스(FANNAME, INFO, FOLLOW US) 배경색 통일 */
+.fanname-section, .info-section, .follow-section {
+    background-color: #fff6fb; /* 말씀하신 색상으로 변경 */
+    border-radius: 35px;
+    padding: 40px 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.02);
+    text-align: center;
+    border: 1px solid #fff0f5; 
+}
+.fanname-section, .info-section, .follow-section {
+    background-color: #fff6fb; 
+    border-radius: 35px;
+    padding: 40px 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.02);
+    text-align: center;
+    
+    /* 테두리 선을 다시 살리는 코드 */
+    border: 1px solid #f8d7e0; /* 배경보다 살짝 진한 핑크색으로 변경 */
+}
+
+/* 버튼 테두리도 너무 안 보인다면 아래처럼 수정하세요 */
+.button-grid button {
+    background-color: #ffffff;
+    border: 1px solid #f8d7e0; /* 버튼 테두리도 박스 테두리와 통일 */
+    border-radius: 15px;
+    padding: 15px 0;
+    color: #d689a3;
+    font-size: 16px;
+    font-weight: bold;
+}
+/* FANNAME 밑의 '팬네임' 글자 스타일 */
+#fanname .sub {
+    font-size: 20px !important; /* !important를 붙이면 다른 설정보다 우선 적용됩니다 */
+    font-weight: bold;
+    color: #bfa3ad;
+    margin-top: 5px;
+    display: block; /* 한 줄을 다 차지하게 해서 아래로 내림 */
+}
+.calendar-preview-top {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.calendar-badge-new {
+  background: #ff4fa3;
+  color: #fff;
+  border-color: #ff4fa3;
+}
+
+.detail-badge-new {
+  background: #ff4fa3;
+  color: #fff;
+  border-color: #ff4fa3;
+}
+.video-section {
+  margin: 12px 0;
+}
+
+.video-card-head {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.video-card-head h3 {
+  margin: 0;
+  color: #d77ca7;
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.video-card-head p {
+  margin: 8px 0 0;
+  color: #c99ab2;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.video-card .home-card-foot {
+  padding: 0;
+  text-align: center;
 }
