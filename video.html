@@ -695,7 +695,7 @@
   views: 0,
   youtubeId: "op3L_ed8-24",
   start: 964,
-  thumb: "img/video/mariring/mariring-01.png",
+  thumb: "img/video/mariring/-",
   desc: "16:04 ~ 19:25 구간 출연",
   featured: true,
   isTrending: true
@@ -810,6 +810,92 @@
   thumb: "img/video/iro/iro-03.png",
   desc: "아이돌 직캠",
   featured: false
+},
+      {
+  id: 9,
+  member: "LULU",
+  title: "루루 INTRO CLIP",
+  date: "2026-04-15",
+  tag: "CLIP",
+  event: "SPECIAL",
+  category: "클립",
+  views: 0,
+  youtubeId: "op3L_ed8-24",
+  start: 964,
+  thumb: "img/video/lulu/lulu-01.png",
+  desc: "루루 소개 클립",
+  featured: false
+},
+{
+  id: 10,
+  member: "LULU",
+  title: "루루 SHORT MESSAGE",
+  date: "2026-04-16",
+  tag: "SHORTS",
+  event: "SPECIAL",
+  category: "쇼츠",
+  views: 0,
+  youtubeId: "op3L_ed8-24",
+  start: 1489,
+  thumb: "img/video/lulu/lulu-02.png",
+  desc: "루루 짧은 메시지 영상",
+  featured: false
+},
+{
+  id: 11,
+  member: "LULU",
+  title: "루루 SELF CAM",
+  date: "2026-04-17",
+  tag: "MESSAGE",
+  event: "SPECIAL",
+  category: "클립",
+  views: 0,
+  youtubeId: "PGxpbUYMGgg",
+  thumb: "img/video/lulu/lulu-03.png",
+  desc: "루루 셀프캠 분위기 영상",
+  featured: false
+},
+{
+  id: 12,
+  member: "LUNAR",
+  title: "LUNAR INTRO CLIP",
+  date: "2026-04-15",
+  tag: "CLIP",
+  event: "SPECIAL",
+  category: "클립",
+  views: 0,
+  youtubeId: "fsSeDm4RmNE",
+  thumb: "img/video/lunar/lunar-01.png",
+  desc: "LUNAR 소개 클립",
+  featured: false
+},
+{
+  id: 13,
+  member: "LUNAR",
+  title: "LUNAR SHORT MESSAGE",
+  date: "2026-04-16",
+  tag: "SHORTS",
+  event: "SPECIAL",
+  category: "쇼츠",
+  views: 0,
+  youtubeId: "0M6k8GNeL24",
+  thumb: "img/video/lunar/lunar-02.png",
+  desc: "LUNAR 짧은 메시지 영상",
+  featured: false
+},
+{
+  id: 14,
+  member: "LUNAR",
+  title: "LUNAR SELF CAM",
+  date: "2026-04-17",
+  tag: "MESSAGE",
+  event: "SPECIAL",
+  category: "클립",
+  views: 0,
+  youtubeId: "PGxpbUYMGgg",
+  thumb: "img/video/lunar/lunar-03.png",
+  desc: "LUNAR 셀프캠 분위기 영상",
+  featured: false
 }
     ];
 
@@ -876,53 +962,50 @@ function isRecent(dateStr) {
     }
 
     function applyFilters() {
-      let filtered = [...videoData];
+  let filtered = [...videoData];
 
-      if (currentMember !== "ALL") {
-        filtered = filtered.filter(item => item.member === currentMember);
-      }
-
-      if (currentEvent !== "ALL") {
-        filtered = filtered.filter(item => item.category === currentEvent);
-      }
-
-      if (currentSearch.trim()) {
-        const keyword = currentSearch.trim().toLowerCase();
-        filtered = filtered.filter(item =>
-          item.title.toLowerCase().includes(keyword) ||
-          item.tag.toLowerCase().includes(keyword) ||
-          item.desc.toLowerCase().includes(keyword) ||
-          item.event.toLowerCase().includes(keyword) ||
-          item.member.toLowerCase().includes(keyword)
-        );
-      }
-
-      filtered.sort((a, b) => {
-        if (a.featured !== b.featured) {
-          return a.featured ? -1 : 1;
-        }
-
-        if (currentSort === "latest") {
-          return new Date(b.date) - new Date(a.date);
-        }
-
-        if (currentSort === "popular") {
-  if ((a.featured || false) !== (b.featured || false)) {
-    return (b.featured || false) - (a.featured || false);
+  if (currentMember !== "ALL") {
+    filtered = filtered.filter(item => item.member === currentMember);
   }
 
-  if ((a.isTrending || false) !== (b.isTrending || false)) {
-    return (b.isTrending || false) - (a.isTrending || false);
+  if (currentEvent !== "ALL") {
+    filtered = filtered.filter(item => item.category === currentEvent);
   }
 
-  return new Date(b.date) - new Date(a.date);
-}
+  if (currentSearch.trim()) {
+    const keyword = currentSearch.trim().toLowerCase();
+    filtered = filtered.filter(item =>
+      item.title.toLowerCase().includes(keyword) ||
+      item.tag.toLowerCase().includes(keyword) ||
+      item.desc.toLowerCase().includes(keyword) ||
+      item.event.toLowerCase().includes(keyword) ||
+      item.member.toLowerCase().includes(keyword) ||
+      (item.category || "").toLowerCase().includes(keyword)
+    );
+  }
 
-        return 0;
-      });
-
-      return filtered;
+  filtered.sort((a, b) => {
+    if (currentSort === "latest") {
+      return new Date(b.date) - new Date(a.date);
     }
+
+    if (currentSort === "popular") {
+      if ((a.featured || false) !== (b.featured || false)) {
+        return (b.featured || false) - (a.featured || false);
+      }
+
+      if ((a.isTrending || false) !== (b.isTrending || false)) {
+        return (b.isTrending || false) - (a.isTrending || false);
+      }
+
+      return new Date(b.date) - new Date(a.date);
+    }
+
+    return 0;
+  });
+
+  return filtered;
+}
 
     function createCard(item) {
       const article = document.createElement("article");
