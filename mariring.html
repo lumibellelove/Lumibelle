@@ -1,169 +1,1209 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>마리링 | Lumibelle</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>마리링 | Lumibelle</title>
+  <link rel="stylesheet" href="style.css">
 
-<style>
+  <style>
+    .mariring-page-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
 
-/* SNS 동그라미 버튼 */
-.sns-buttons {
-  display: flex;
-  gap: 16px;
-  margin-top: 20px;
-  justify-content: center;
-}
+    .mariring-title {
+      text-align: center;
+      margin: 28px 0 22px;
+    }
 
-.sns-btn {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  font-weight: 900;
-  color: #fff;
-  font-size: 18px;
+    .mariring-title h2 {
+      margin: 0;
+      color: #ff59a5;
+      font-size: 56px;
+      font-weight: 900;
+      line-height: 1;
+    }
 
-  background: linear-gradient(180deg, #ff7eb3, #ff5fa5);
-  box-shadow: 0 8px 18px rgba(255, 95, 165, 0.25);
+    .mariring-title p {
+      margin: 10px 0 0;
+      color: #f08bb8;
+      font-size: 16px;
+      font-weight: 700;
+      transform: translateX(-12px);
+    }
 
-  transition: transform 0.18s ease, opacity 0.18s ease;
-}
+    /* profile */
+    .mariring-card {
+      background: #fff8fb;
+      border: 1px solid #f2d8e7;
+      border-radius: 32px;
+      padding: 48px;
+      box-sizing: border-box;
+      margin-bottom: 34px;
+    }
 
-.sns-btn:hover {
-  transform: translateY(-4px);
-  opacity: 0.95;
-}
+    .mariring-grid {
+      display: grid;
+      grid-template-columns: 460px minmax(0, 1fr);
+      gap: 42px;
+      align-items: stretch;
+    }
 
-.sns-btn img {
-  width: 28px;
-  height: 28px;
-}
+    .mariring-photo {
+      width: 100%;
+      max-width: 460px;
+      aspect-ratio: 2 / 3;
+      border-radius: 28px;
+      background-image: url('mariring.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border: 1px solid #f0dde8;
+      background-color: #fff;
+      box-sizing: border-box;
+    }
 
-/* 하단 버튼 */
-.back-group {
-  margin-top: 30px;
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-}
+    .mariring-info-section {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      height: 100%;
+      padding-top: 8px;
+    }
 
-.back-btn {
-  padding: 12px 26px;
-  border-radius: 999px;
-  text-decoration: none;
-  font-weight: 800;
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
+    .mariring-name-section {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 22px;
+    }
 
-/* 멤버 목록 (핑크) */
-.back-btn.pink {
-  border: 1.5px solid #f0bfd4;
-  color: #e27aa9;
-  background: #fff;
-}
+    .mariring-name {
+      font-size: 82px;
+      font-weight: 900;
+      color: #ff59a5;
+      margin: 0;
+      line-height: 0.95;
+      text-align: center;
+      transform: translateX(-12px);
+      transition: color 0.3s ease, text-shadow 0.3s ease;
+      text-shadow:
+        0 0 14px rgba(255, 89, 165, 0.18),
+        0 4px 10px rgba(255, 89, 165, 0.16);
+    }
 
-/* 메인으로 (보라) */
-.back-btn.purple {
-  border: 1.5px solid #d4c0f0;
-  color: #9f7ae2;
-  background: #fff;
-}
+    .mariring-name.voice-active {
+      color: #ff59a5;
+      text-shadow:
+        0 0 16px rgba(255,255,255,0.22),
+        0 6px 10px rgba(255, 89, 165, 0.24),
+        0 0 12px rgba(255, 89, 165, 0.34),
+        0 0 24px rgba(255, 89, 165, 0.20);
+      transform: translateX(-12px);
+    }
 
-.back-btn:hover {
-  transform: translateY(-2px);
-  background: #fff0f7;
-}
+    .mariring-en {
+      font-size: 20px;
+      letter-spacing: 0.24em;
+      color: #f08bb8;
+      margin-top: 12px;
+      font-weight: 800;
+      text-align: center;
+      transform: translateX(-4px);
+    }
 
-</style>
+    /* voice */
+    .mariring-voice-area {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mariring-voice {
+      position: relative;
+      min-width: 168px;
+      min-height: 52px;
+      padding: 12px 26px;
+      border-radius: 999px;
+      border: 2px solid #ff59a5;
+      background: #fff;
+      color: #ff59a5;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .mariring-voice:hover {
+      transform: translateY(-2px);
+    }
+
+    .mariring-voice.playing {
+      background: linear-gradient(135deg, #ff59a5, #ff8ec7);
+      color: #fff;
+      animation: mariringVoicePulse 1.2s infinite;
+    }
+
+    .mariring-voice-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 64px;
+      line-height: 1;
+    }
+
+    .mariring-sound-bars {
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 3px;
+      height: 16px;
+    }
+
+    .mariring-sound-bars span {
+      width: 3px;
+      height: 100%;
+      border-radius: 999px;
+      background: currentColor;
+      transform-origin: bottom center;
+      animation: mariringBars 0.9s infinite ease-in-out;
+    }
+
+    .mariring-sound-bars span:nth-child(1) { animation-delay: 0s; }
+    .mariring-sound-bars span:nth-child(2) { animation-delay: 0.15s; }
+    .mariring-sound-bars span:nth-child(3) { animation-delay: 0.3s; }
+
+    .mariring-voice.playing .mariring-sound-bars {
+      display: inline-flex;
+    }
+
+    @keyframes mariringBars {
+      0%, 100% {
+        transform: scaleY(0.35);
+        opacity: 0.65;
+      }
+      50% {
+        transform: scaleY(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes mariringVoicePulse {
+      0% { box-shadow: 0 0 0 0 rgba(255,89,165,0.45); }
+      70% { box-shadow: 0 0 0 12px rgba(255,89,165,0); }
+      100% { box-shadow: 0 0 0 0 rgba(255,89,165,0); }
+    }
+
+    .mariring-voice-effect {
+      position: absolute;
+      left: 50%;
+      bottom: 6px;
+      transform: translateX(-50%);
+      opacity: 0;
+      font-size: 14px;
+      pointer-events: none;
+    }
+
+    .mariring-voice.playing .mariring-voice-effect {
+      animation: mariringPopEffect 0.8s ease;
+    }
+
+    @keyframes mariringPopEffect {
+      0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(0) scale(0.5);
+      }
+      40% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-25px) scale(1.3);
+      }
+    }
+
+    .mariring-voice-text {
+      margin: 0;
+      min-height: 1.6em;
+      font-size: 14px;
+      font-weight: 700;
+      color: #f08bb8;
+      text-align: center;
+      transition: opacity 0.25s ease, transform 0.25s ease, color 0.25s ease;
+    }
+
+    .mariring-voice-text.text-change {
+      color: #ff59a5;
+      transform: translateY(-1px);
+    }
+
+    /* copy */
+    .mariring-copy {
+      width: 100%;
+      max-width: 720px;
+      color: #8f7183;
+    }
+
+    .mariring-keywords {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .mariring-keyword {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 38px;
+      padding: 0 16px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid #f0dde8;
+      color: #ff59a5;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .mariring-message-block {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .mariring-line-main {
+      margin: 0 0 14px;
+      color: #d94f97;
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1.7;
+    }
+
+    .mariring-highlight {
+      color: #ff59a5;
+      font-weight: 900;
+    }
+
+    .mariring-color-point {
+      color: #ff59a5;
+      font-weight: 900;
+    }
+
+    .mariring-line-sub {
+      margin: 0;
+      color: #8f7183;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.9;
+    }
+
+    .mariring-detail-block {
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid #f3dbe7;
+      border-radius: 22px;
+      padding: 16px 18px;
+      max-width: 520px;
+      width: 100%;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+
+    .mariring-detail-row {
+      display: grid;
+      grid-template-columns: 84px 1fr;
+      gap: 10px;
+      align-items: start;
+      font-size: 15px;
+      line-height: 1.75;
+      color: #8f7183;
+    }
+
+    .mariring-detail-row + .mariring-detail-row {
+      margin-top: 4px;
+    }
+
+    .mariring-detail-label {
+      color: #ff59a5;
+      font-weight: 900;
+    }
+
+    .mariring-detail-value {
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+
+    .mariring-bottom {
+      width: 100%;
+      margin-top: auto;
+    }
+
+    /* sns */
+    .mariring-sns-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 18px;
+      margin-bottom: 12px;
+      padding-left: 0;
+    }
+
+    .mariring-sns-item {
+      position: relative;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 0;
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease, background-color 0.25s ease;
+      background: #fff0f6;
+      border: 1px solid #ffd6e8;
+      overflow: visible;
+    }
+
+    .mariring-sns-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(255, 89, 165, 0.24);
+      opacity: 0.98;
+      background: #ff59a5;
+    }
+
+    .mariring-sns-item img {
+      width: 58px;
+      height: 58px;
+      display: block;
+      position: relative;
+      z-index: 2;
+      transition: all 0.3s ease;
+    }
+
+    .mariring-sns-item:hover img {
+      transform: scale(1.1);
+    }
+
+    .mariring-sns-item::before {
+      content: "✨";
+      position: absolute;
+      top: -10px;
+      right: -4px;
+      font-size: 18px;
+      line-height: 1;
+      opacity: 0;
+      transform: scale(0.4) translateY(6px);
+      pointer-events: none;
+      z-index: 10;
+      text-shadow:
+        0 0 6px rgba(255,255,255,0.9),
+        0 0 12px rgba(255, 89, 165, 0.55);
+    }
+
+    .mariring-sns-item:hover::before {
+      animation: mariringSparklePop 0.75s ease forwards;
+    }
+
+    @keyframes mariringSparklePop {
+      0% {
+        opacity: 0;
+        transform: scale(0.35) translateY(8px);
+      }
+      35% {
+        opacity: 1;
+        transform: scale(1.15) translateY(-2px);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.9) translateY(-14px);
+      }
+    }
+
+    .mariring-sns-item::after {
+      content: "";
+      position: absolute;
+      inset: 50%;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.55);
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .mariring-sns-item:active::after {
+      animation: mariringRipple 0.55s ease-out;
+    }
+
+    @keyframes mariringRipple {
+      0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.75;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(9);
+        opacity: 0;
+      }
+    }
+
+    /* buttons */
+    .mariring-actions {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .mariring-btn {
+      min-width: 156px;
+      height: 68px;
+      padding: 0 28px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 15px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1;
+      box-sizing: border-box;
+      background: rgba(255, 255, 255, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .mariring-btn.pink {
+      border: 2px solid #ff59a5;
+      color: #ff59a5;
+    }
+
+    .mariring-btn.purple {
+      border: 2px solid #a892f0;
+      color: #a892f0;
+    }
+
+    .mariring-btn.pink:hover {
+      transform: translateY(-2px);
+      background: #ff59a5;
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(255, 89, 165, 0.22);
+    }
+
+    .mariring-btn.purple:hover {
+      transform: translateY(-2px);
+      background: #a892f0;
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(168, 146, 240, 0.22);
+    }
+
+    /* movie */
+    .mariring-movie-section {
+      background: #fff8fb;
+      border: 1px solid #f2d8e7;
+      border-radius: 32px;
+      padding: 38px 36px 34px;
+      box-sizing: border-box;
+      margin-bottom: 56px;
+    }
+
+    .mariring-movie-head {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .mariring-movie-head h3 {
+      margin: 0;
+      color: #ff59a5;
+      font-size: 40px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .mariring-movie-head p {
+      margin: 10px 0 0;
+      color: #f08bb8;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .mariring-movie-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .mariring-movie-feature,
+    .mariring-movie-sub {
+      display: block;
+      text-decoration: none;
+      background: #fff;
+      border: 1px solid #f0dde8;
+      border-radius: 24px;
+      overflow: hidden;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+      color: inherit;
+    }
+
+    .mariring-movie-feature {
+      cursor: pointer;
+    }
+
+    .mariring-movie-feature-thumb,
+    .mariring-movie-sub-thumb {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #fdf1f7;
+      overflow: hidden;
+    }
+
+    .mariring-movie-feature-thumb img,
+    .mariring-movie-sub-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .mariring-movie-feature-play,
+    .mariring-movie-sub-play {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff59a5, #ff8ec7);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 900;
+      box-shadow: 0 8px 18px rgba(255, 89, 165, 0.25);
+      transition: all 0.25s ease;
+    }
+
+    .mariring-movie-feature-info {
+      padding: 18px 20px 20px;
+      text-align: center;
+    }
+
+    .mariring-movie-sub-info {
+      padding: 16px 18px 18px;
+      text-align: center;
+    }
+
+    .mariring-movie-feature-info strong,
+    .mariring-movie-sub-info strong {
+      display: block;
+      color: #ff59a5;
+      font-weight: 900;
+      margin-bottom: 6px;
+      transition: all 0.25s ease;
+      text-align: center;
+    }
+
+    .mariring-movie-feature-info strong {
+      font-size: 24px;
+    }
+
+    .mariring-movie-sub-info strong {
+      font-size: 20px;
+    }
+
+    .mariring-movie-feature-info span,
+    .mariring-movie-sub-info span {
+      display: block;
+      color: #8f7183;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .mariring-movie-more-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 22px;
+    }
+
+    .mariring-movie-more {
+      min-width: 240px;
+      height: 62px;
+      padding: 0 30px;
+      border-radius: 999px;
+      background: #ffd8e9;
+      color: #ff59a5;
+      font-size: 15px;
+      font-weight: 900;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .mariring-movie-more:hover {
+      transform: translateY(-2px);
+      background: #ffc7df;
+      box-shadow: 0 12px 24px rgba(255, 89, 165, 0.12);
+    }
+
+    .mariring-movie-feature:hover,
+    .mariring-movie-sub:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(255, 89, 165, 0.18);
+      border-color: #f3b5d1;
+    }
+
+    .mariring-movie-feature:hover .mariring-movie-feature-thumb img,
+    .mariring-movie-sub:hover .mariring-movie-sub-thumb img {
+      transform: scale(1.06);
+    }
+
+    .mariring-movie-feature:hover .mariring-movie-feature-play,
+    .mariring-movie-sub:hover .mariring-movie-sub-play {
+      transform: scale(1.15);
+      background: #ff59a5;
+    }
+
+    .mariring-movie-feature:hover strong,
+    .mariring-movie-sub:hover strong {
+      color: #ff59a5;
+      letter-spacing: 0.02em;
+    }
+
+    /* modal */
+    .video-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    .video-modal-inner {
+      width: min(960px, 100%);
+      background: #111;
+      border-radius: 22px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+    }
+
+    .video-close {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      width: 42px;
+      height: 42px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      font-size: 28px;
+      line-height: 1;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .video-close:hover {
+      background: rgba(255,255,255,0.24);
+    }
+
+    .video-player-wrap {
+      aspect-ratio: 16 / 9;
+      background: #000;
+    }
+
+    .video-player-wrap iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    .video-modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      padding: 18px 18px 22px;
+      background: #fff8fb;
+    }
+
+    .video-modal-link {
+      min-width: 180px;
+      height: 56px;
+      padding: 0 24px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .video-modal-link.youtube {
+      background: #ff59a5;
+      color: #fff;
+    }
+
+    .video-modal-link.back {
+      border: 2px solid #a892f0;
+      color: #a892f0;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .video-modal-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+    }
+
+    @media (max-width: 900px) {
+      .mariring-card {
+        padding: 36px 28px;
+      }
+
+      .mariring-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        text-align: center;
+      }
+
+      .mariring-photo {
+        max-width: 430px;
+        margin: 0 auto;
+      }
+
+      .mariring-info-section {
+        align-items: center;
+        padding-top: 0;
+      }
+
+      .mariring-name-section,
+      .mariring-name,
+      .mariring-en,
+      .mariring-copy {
+        text-align: center;
+      }
+
+      .mariring-keywords {
+        justify-content: center;
+      }
+
+      .mariring-detail-block {
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .mariring-sns-row,
+      .mariring-actions {
+        justify-content: center;
+      }
+
+      .mariring-movie-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .mariring-movie-section {
+        padding: 28px 22px 26px;
+      }
+
+      .mariring-movie-head h3 {
+        font-size: 34px;
+      }
+
+      .mariring-movie-more {
+        width: 100%;
+        min-width: 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .mariring-title h2 {
+        font-size: 44px;
+      }
+
+      .mariring-card,
+      .mariring-movie-section {
+        padding: 24px;
+        border-radius: 24px;
+      }
+
+      .mariring-photo {
+        max-width: 100%;
+        border-radius: 22px;
+      }
+
+      .mariring-name {
+        font-size: 46px;
+      }
+
+      .mariring-en {
+        font-size: 18px;
+        letter-spacing: 0.2em;
+      }
+
+      .mariring-line-main {
+        font-size: 20px;
+      }
+
+      .mariring-line-sub {
+        font-size: 16px;
+      }
+
+      .mariring-detail-block {
+        padding: 16px;
+        max-width: 100%;
+      }
+
+      .mariring-detail-row {
+        grid-template-columns: 1fr;
+        gap: 2px;
+        font-size: 15px;
+      }
+
+      .mariring-sns-item,
+      .mariring-sns-item img {
+        width: 52px;
+        height: 52px;
+      }
+
+      .mariring-actions {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .mariring-btn {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .video-modal {
+        padding: 16px;
+      }
+
+      .video-modal-actions {
+        flex-direction: column;
+      }
+
+      .video-modal-link {
+        width: 100%;
+        min-width: 0;
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <header>
+    <div class="wrap">
+      <div class="header-box">
+        <div class="top-bow">🎀</div>
+        <div class="logo">
+          <h1>Lumibelle</h1>
+          <p>루미벨</p>
+        </div>
+        <nav>
+          <a href="index.html"><b>TOP</b><span>탑</span></a>
+          <a href="news.html"><b>NEWS</b><span>공지사항</span></a>
+          <a href="member.html" class="current"><b>MEMBER</b><span>멤버 소개</span></a>
+          <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
+          <a href="fanname.html"><b>FANNAME</b><span>팬네임</span></a>
+          <a href="info.html"><b>INFO</b><span>안내</span></a>
+        </nav>
+      </div>
+    </div>
+  </header>
 
-<header>
-<div class="wrap">
-<div class="header-box">
-<div class="top-bow">🎀</div>
+  <main class="page-shell">
+    <div class="wrap mariring-page-wrap">
+      <div class="mariring-title">
+        <h2>MARIRING</h2>
+        <p>마리링</p>
+      </div>
 
-<div class="logo">
-<h1>Lumibelle</h1>
-<p>루미벨</p>
-</div>
+      <section class="mariring-card">
+        <div class="mariring-grid">
+          <div class="mariring-photo"></div>
 
-<nav>
-<a href="index.html"><b>TOP</b><span>탑</span></a>
-<a href="news.html"><b>NEWS</b><span>공지사항</span></a>
-<a href="member.html" class="current"><b>MEMBER</b><span>멤버 소개</span></a>
-<a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
-<a href="fanname.html"><b>FANNAME</b><span>팬네임</span></a>
-<a href="info.html"><b>INFO</b><span>안내</span></a>
-</nav>
+          <div class="mariring-info-section">
+            <div class="mariring-name-section">
+              <h3 class="mariring-name">마리링</h3>
+              <div class="mariring-en">MARIRING</div>
 
-</div>
-</div>
-</header>
+              <div class="mariring-voice-area">
+                <button class="mariring-voice" type="button" onclick="playRandomVoice(this)">
+                  <span class="mariring-voice-label">▶ VOICE</span>
+                  <span class="mariring-sound-bars" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </span>
+                  <span class="mariring-voice-effect"></span>
+                </button>
 
-<main class="page-shell">
-<div class="wrap">
+                <p id="mariringVoiceText" class="mariring-voice-text">
+                  버튼을 눌러 마리링의 보이스를 들어보세요 💖
+                </p>
 
-<div class="page-title">
-<h2>MARIRING</h2>
-<p>마리링</p>
-</div>
+                <audio class="mariring-audio" src="voice/MariringVoice1.mp3"></audio>
+                <audio class="mariring-audio" src="voice/MariringVoice2.mp3"></audio>
+                <audio class="mariring-audio" src="voice/MariringVoice3.mp3"></audio>
+              </div>
+            </div>
 
-<div class="profile-card">
-<div class="profile-grid">
+            <div class="mariring-copy">
+              <div class="mariring-keywords">
+                <span class="mariring-keyword">#청춘센터</span>
+                <span class="mariring-keyword">#체리핑크</span>
+                <span class="mariring-keyword">#아이돌정석</span>
+              </div>
 
-<div class="profile-photo" style="background-image:url('mariring.jpg');"></div>
+              <div class="mariring-message-block">
+                <p class="mariring-line-main">“너의 오늘을 반짝이게 해줄게!”</p>
+                <p class="mariring-line-sub">君の今日をキラキラにしてあげるね♡</p>
+              </div>
 
-<div>
+              <div class="mariring-detail-block">
+                <div class="mariring-detail-row">
+                  <div class="mariring-detail-label">담당 컬러</div>
+                  <div class="mariring-detail-value mariring-color-point">#FF59A5</div>
+                </div>
+                <div class="mariring-detail-row">
+                  <div class="mariring-detail-label">나마콜</div>
+                  <div class="mariring-detail-value">마리링 🍒🎀</div>
+                </div>
+                <div class="mariring-detail-row">
+                  <div class="mariring-detail-label">호출 태그</div>
+                  <div class="mariring-detail-value">#마리링왔다</div>
+                </div>
+                <div class="mariring-detail-row">
+                  <div class="mariring-detail-label">체키 메시</div>
+                  <div class="mariring-detail-value">#마리링과오늘도</div>
+                </div>
+              </div>
+            </div>
 
-<h3 class="profile-name">마리링</h3>
-<div class="profile-en">MARIRING</div>
+            <div class="mariring-bottom">
+              <div class="mariring-sns-row">
+                <a href="#" class="mariring-sns-item" target="_blank" rel="noopener noreferrer">
+                  <img src="img/mariring-x.png" alt="X">
+                </a>
+                <a href="#" class="mariring-sns-item" target="_blank" rel="noopener noreferrer">
+                  <img src="img/mariring-instagram.png" alt="Instagram">
+                </a>
+                <a href="#" class="mariring-sns-item" target="_blank" rel="noopener noreferrer">
+                  <img src="img/mariring-tiktok.png" alt="TikTok">
+                </a>
+              </div>
 
-<div class="profile-meta">
-  <div><strong>담당 컬러</strong> · 체리핑크</div>
-  <div><strong>일본어 표기</strong> · チェリーピンク</div>
-  <div><strong>키워드</strong> · 청춘 / 아이돌 / 반짝임</div>
-  <div><strong>한마디</strong> · 반짝이는 순간을 함께 만들자!</div>
-</div>
+              <div class="mariring-actions">
+                <a href="member.html" class="mariring-btn pink">멤버 목록</a>
+                <a href="index.html#member" class="mariring-btn purple">메인으로</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-<!-- SNS 버튼 (아이콘 이미지 필요) -->
-<div class="sns-buttons">
-  <a href="https://x.com/LMB_Mariring" target="_blank" class="sns-btn">
-    <img src="img/x.png">
-  </a>
-  <a href="https://www.instagram.com/mariring_love/" target="_blank" class="sns-btn">
-    <img src="img/instagram.png">
-  </a>
-  <a href="https://www.tiktok.com/@mariring_love" target="_blank" class="sns-btn">
-    <img src="img/tiktok.png">
-  </a>
-  <a href="https://www.youtube.com/@Mariring_love" target="_blank" class="sns-btn">
-    <img src="img/youtube.png">
-  </a>
-</div>
+      <section class="mariring-movie-section">
+        <div class="mariring-movie-head">
+          <h3>MOVIE</h3>
+          <p>영상</p>
+        </div>
 
-<!-- 이동 버튼 -->
-<div class="back-group">
-  <a href="member.html" class="back-btn pink">멤버 목록</a>
-  <a href="index.html#member" class="back-btn purple">메인으로</a>
-</div>
+        <div class="mariring-movie-grid">
+          <div class="mariring-movie-feature" onclick="openVideo('sEHQNzj_cmc')">
+            <div class="mariring-movie-feature-thumb">
+              <img src="mariring.png" alt="마리링 대표 직캠">
+              <div class="mariring-movie-feature-play">▶</div>
+            </div>
+            <div class="mariring-movie-feature-info">
+              <strong>대표 직캠</strong>
+              <span>Click to Play</span>
+            </div>
+          </div>
 
-</div>
+          <a href="https://www.youtube.com/watch?v=sEHQNzj_cmc" target="_blank" rel="noopener noreferrer" class="mariring-movie-sub">
+            <div class="mariring-movie-sub-thumb">
+              <img src="mariring.png" alt="마리링 유튜브 이동">
+              <div class="mariring-movie-sub-play">▶</div>
+            </div>
+            <div class="mariring-movie-sub-info">
+              <strong>YouTube 이동</strong>
+              <span>Watch on YouTube</span>
+            </div>
+          </a>
+        </div>
 
-</div>
-</div>
+        <div class="mariring-movie-more-wrap">
+          <a href="mariring-video.html" class="mariring-movie-more">MORE VIDEO</a>
+        </div>
+      </section>
+    </div>
+  </main>
 
-</div>
-</main>
+  <div id="videoModal" class="video-modal">
+    <div class="video-modal-inner">
+      <button class="video-close" type="button" onclick="closeVideo()">×</button>
+      <div class="video-player-wrap">
+        <iframe
+          id="videoFrame"
+          src=""
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
+      </div>
+      <div class="video-modal-actions">
+        <a id="videoYoutubeLink"
+           class="video-modal-link youtube"
+           href="https://www.youtube.com/watch?v=sEHQNzj_cmc"
+           target="_blank"
+           rel="noopener noreferrer">
+          YOUTUBE에서 보기
+        </a>
+        <button class="video-modal-link back" type="button" onclick="closeVideo()">닫기</button>
+      </div>
+    </div>
+  </div>
 
-<footer>© 2026 Lumibelle All Rights Reserved.</footer>
+  <footer>© 2026 Lumibelle All Rights Reserved.</footer>
 
+  <script>
+    function openVideo(videoId) {
+      const modal = document.getElementById("videoModal");
+      const frame = document.getElementById("videoFrame");
+      const youtubeLink = document.getElementById("videoYoutubeLink");
+
+      frame.src = "https://www.youtube.com/embed/" + videoId + "?autoplay=1&rel=0";
+      youtubeLink.href = "https://www.youtube.com/watch?v=" + videoId;
+      modal.style.display = "flex";
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeVideo() {
+      const modal = document.getElementById("videoModal");
+      const frame = document.getElementById("videoFrame");
+
+      modal.style.display = "none";
+      frame.src = "";
+      document.body.style.overflow = "";
+    }
+
+    document.addEventListener("click", function (e) {
+      const modal = document.getElementById("videoModal");
+      if (e.target === modal) {
+        closeVideo();
+      }
+    });
+
+    let lastIndex = -1;
+    let currentAudio = null;
+    let isPlaying = false;
+
+    const mariringVoiceLines = [
+      "마리링의 목소리가 반짝하고 닿았어 💖",
+      "오늘도 너의 하루를 체리핑크로 물들일게 🍒",
+      "마리링이 네 하루를 반짝이게 해줄게 ✨"
+    ];
+
+    const mariringEffects = ["💖", "🍒", "🎀"];
+
+    function setVoiceButtonState(btn, state) {
+      const nameEl = document.querySelector(".mariring-name");
+      const textEl = document.getElementById("mariringVoiceText");
+      const labelEl = btn.querySelector(".mariring-voice-label");
+
+      if (state === "playing") {
+        btn.classList.add("playing");
+        nameEl.classList.add("voice-active");
+        labelEl.textContent = "⏸ PAUSE";
+      } else {
+        btn.classList.remove("playing");
+        nameEl.classList.remove("voice-active");
+        labelEl.textContent = "▶ VOICE";
+
+        if (state === "reset") {
+          textEl.classList.remove("text-change");
+          textEl.textContent = "버튼을 눌러 마리링의 보이스를 들어보세요 💖";
+        }
+      }
+    }
+
+    function getRandomIndex(length) {
+      if (length === 1) return 0;
+
+      let newIndex;
+      do {
+        newIndex = Math.floor(Math.random() * length);
+      } while (newIndex === lastIndex);
+
+      return newIndex;
+    }
+
+    function playRandomVoice(btn) {
+      const audios = document.querySelectorAll(".mariring-audio");
+      const textEl = document.getElementById("mariringVoiceText");
+      const effectEl = btn.querySelector(".mariring-voice-effect");
+
+      if (!audios.length) return;
+
+      if (isPlaying && currentAudio) {
+        currentAudio.pause();
+        isPlaying = false;
+        setVoiceButtonState(btn, "paused");
+        return;
+      }
+
+      if (currentAudio && currentAudio.currentTime > 0 && !currentAudio.ended) {
+        currentAudio.play();
+        isPlaying = true;
+        setVoiceButtonState(btn, "playing");
+        return;
+      }
+
+      const randomIndex = getRandomIndex(audios.length);
+      lastIndex = randomIndex;
+      currentAudio = audios[randomIndex];
+
+      const randomEffect = mariringEffects[Math.floor(Math.random() * mariringEffects.length)];
+      effectEl.textContent = randomEffect;
+
+      currentAudio.currentTime = 0;
+      currentAudio.play();
+      isPlaying = true;
+
+      setVoiceButtonState(btn, "playing");
+
+      textEl.textContent = mariringVoiceLines[randomIndex % mariringVoiceLines.length];
+      textEl.classList.add("text-change");
+
+      currentAudio.onended = () => {
+        isPlaying = false;
+        setVoiceButtonState(btn, "reset");
+      };
+    }
+  </script>
 </body>
 </html>
