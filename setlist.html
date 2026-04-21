@@ -11,17 +11,19 @@
   <style>
     :root{
       --bg:#fff8fb;
-      --panel:#fff5fb;
-      --panel-2:#fffbfd;
+      --panel:#fffafc;
+      --panel-2:#fff4f9;
       --line:#f1d4e3;
       --pink:#ff78b2;
       --pink-deep:#ff59a5;
+      --pink-soft:#ffd9e8;
       --text:#8a6b7c;
-      --text-strong:#7b6172;
+      --text-strong:#75586b;
       --soft:#c79bb2;
-      --chip:#b3889f;
-      --shadow:0 14px 30px rgba(255,120,178,.10);
-      --shadow-strong:0 20px 42px rgba(255,120,178,.15);
+      --white:#fff;
+      --shadow:0 16px 30px rgba(255,120,178,.10);
+      --shadow-strong:0 22px 42px rgba(255,120,178,.16);
+      --radius:24px;
     }
 
     *{box-sizing:border-box}
@@ -29,77 +31,51 @@
     body{
       margin:0;
       background:
-        radial-gradient(circle at 0% 0%, rgba(255,232,243,.94), transparent 22%),
-        radial-gradient(circle at 100% 0%, rgba(255,242,248,.88), transparent 24%),
+        radial-gradient(circle at 0% 0%, rgba(255,230,241,.92), transparent 20%),
+        radial-gradient(circle at 100% 0%, rgba(255,240,247,.88), transparent 24%),
         linear-gradient(180deg,#fffafd 0%,#fff7fb 100%);
       color:var(--text);
       font-family:"Noto Sans KR","Hiragino Sans","Yu Gothic",sans-serif;
     }
-
     a{color:inherit;text-decoration:none}
     img{display:block;max-width:100%}
     button{font:inherit}
+    .wrap{width:min(1220px,calc(100% - 28px));margin:0 auto}
 
-    .wrap{
-      width:min(1220px,calc(100% - 28px));
-      margin:0 auto;
-    }
-
+    /* header */
     header{
       position:sticky;
       top:0;
-      z-index:90;
+      z-index:80;
       background:rgba(255,248,252,.93);
       backdrop-filter:blur(10px);
       border-bottom:1px solid rgba(241,212,227,.85);
-      box-shadow:0 8px 20px rgba(255,120,178,.05);
+      box-shadow:0 8px 20px rgba(255,120,178,.06);
     }
-
     .header-box{
       margin:18px auto 14px;
       padding:20px 24px;
       border:1px solid var(--line);
-      border-radius:24px;
+      border-radius:22px;
       background:linear-gradient(180deg,rgba(255,252,254,.97),rgba(255,246,251,.95));
       box-shadow:var(--shadow);
       display:flex;
       align-items:center;
       gap:28px;
-      min-height:148px;
+      min-height:150px;
     }
-
-    .logo{
-      flex:0 0 auto;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-
-    .logo img{
-      height:118px;
-      width:auto;
-    }
-
+    .logo{flex:0 0 auto;display:flex;align-items:center}
+    .logo img{height:120px;width:auto}
     nav{
       flex:1;
       display:grid;
-      grid-template-columns:repeat(8,minmax(80px,1fr));
+      grid-template-columns:repeat(8,minmax(84px,1fr));
       gap:10px;
       text-align:center;
       align-items:center;
     }
-
-    nav a{
-      padding:10px 6px;
-      border-radius:16px;
-      transition:.18s ease;
-    }
-
-    nav a:hover,
-    nav a.current{
-      background:rgba(255,239,247,.82);
-    }
-
+    nav a{padding:10px 6px;border-radius:16px;transition:.18s ease}
+    nav a:hover,nav a.current{background:rgba(255,239,247,.8)}
     nav b{
       display:block;
       color:#d06f9f;
@@ -107,7 +83,6 @@
       font-weight:900;
       margin-bottom:6px;
     }
-
     nav span{
       display:block;
       font-size:15px;
@@ -115,392 +90,314 @@
       color:#c288a6;
     }
 
-    .page{
-      padding:12px 0 42px;
-    }
-
-    .section{
-      background:var(--panel);
+    /* hero */
+    .setlist-page{padding:10px 0 36px}
+    .hero-card{
       border:1px solid var(--line);
-      border-radius:28px;
+      border-radius:30px;
+      background:
+        radial-gradient(circle at 85% 10%, rgba(255,214,233,.38), transparent 20%),
+        linear-gradient(135deg,rgba(255,244,249,.97) 0%,rgba(255,251,253,.98) 100%);
       box-shadow:var(--shadow);
-      margin-bottom:34px;
+      padding:44px 40px 38px;
+      margin-bottom:28px;
     }
-
-    .hero{
-      padding:46px 58px 48px;
-    }
-
     .hero-kicker{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      min-height:38px;
-      padding:9px 18px;
+      padding:10px 14px;
       border-radius:999px;
       background:rgba(255,89,165,.08);
       border:1px solid rgba(255,89,165,.10);
       color:var(--pink-deep);
       font-size:13px;
       font-weight:900;
-      margin-bottom:18px;
+      margin-bottom:16px;
     }
-
     .hero-title{
       margin:0;
-      font-size:clamp(74px,9vw,118px);
-      line-height:.9;
+      font-size:clamp(60px,8vw,108px);
+      line-height:.88;
       letter-spacing:-.06em;
       color:var(--pink-deep);
       font-weight:900;
     }
-
     .hero-sub{
-      margin-top:16px;
-      letter-spacing:.22em;
+      margin:14px 0 0;
+      color:#cf8eaf;
+      font-size:clamp(18px,2vw,24px);
+      line-height:1.2;
       font-weight:900;
-      font-size:22px;
-      color:#b98ea6;
-      line-height:1.35;
+      letter-spacing:.18em;
     }
-
     .hero-desc{
-      margin-top:22px;
-      line-height:1.9;
-      font-size:17px;
-      color:#8f7286;
+      margin:18px 0 0;
+      max-width:760px;
+      font-size:15px;
+      line-height:1.95;
+      color:#9b768b;
       font-weight:700;
-      max-width:860px;
     }
-
-    .hero-desc strong{
-      color:#7f6277;
-      font-weight:900;
-    }
-
-    .live-guide{
-      padding:40px 42px 34px;
-    }
-
-    .live-guide-title{
-      text-align:center;
-      font-size:52px;
-      line-height:1;
-      font-weight:900;
-      color:#d972a5;
-      letter-spacing:-0.03em;
-    }
-
-    .live-guide-sub{
-      text-align:center;
-      margin-top:10px;
-      font-size:14px;
-      font-weight:800;
-      color:#c79bb2;
-    }
-
-    .guide-box-title{
-      margin-top:34px;
-      font-weight:900;
-      font-size:18px;
-      color:#ff5ea8;
-    }
-
-    .guide-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:18px;
+    .hero-guide-points{
       margin-top:18px;
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
     }
-
-    .guide-card{
-      background:#fff;
-      padding:22px 20px;
+    .hero-guide-box{
+      border:1px solid var(--line);
       border-radius:18px;
-      border:1px solid #f0dde8;
+      background:rgba(255,255,255,.72);
+      padding:14px 14px 13px;
+    }
+    .hero-guide-box b{
+      display:block;
+      color:var(--text-strong);
       font-size:14px;
-      line-height:1.72;
-      color:#8e7287;
+      margin-bottom:5px;
+    }
+    .hero-guide-box span{
+      display:block;
+      font-size:13px;
+      line-height:1.7;
+      color:#aa8298;
       font-weight:700;
-      box-shadow:0 8px 18px rgba(255,120,178,.04);
     }
 
-    .songs{
-      padding:34px 28px 30px;
-    }
-
-    .section-title{
-      margin-bottom:18px;
-    }
-
+    .section-title{margin-bottom:16px}
     .section-title h2{
-      font-size:34px;
-      font-weight:900;
-      color:#7c6072;
       margin:0;
+      font-size:28px;
+      line-height:1.1;
+      color:var(--text-strong);
       letter-spacing:-.03em;
     }
-
     .section-title p{
-      margin-top:8px;
-      font-size:15px;
+      margin:6px 0 0;
+      font-size:14px;
+      color:#bc93aa;
       font-weight:700;
-      color:#c192ab;
     }
 
+    /* song cards */
     .song-grid{
       display:grid;
       grid-template-columns:repeat(4,1fr);
-      gap:24px;
-      margin-top:20px;
+      gap:16px;
+      margin-bottom:26px;
     }
-
     .song-card{
       position:relative;
-      border:1px solid var(--line);
-      border-radius:24px;
-      padding:22px;
-      background:#fff;
-      min-height:520px;
+      overflow:hidden;
       display:flex;
       flex-direction:column;
-      justify-content:flex-start;
-      transition:.22s ease;
+      min-height:100%;
+      background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(255,249,252,.94));
+      border:1px solid var(--line);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      padding:12px;
+      transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;
       cursor:pointer;
-      box-shadow:0 8px 18px rgba(255,120,178,.05);
     }
-
     .song-card:hover{
-      transform:translateY(-4px);
-      box-shadow:0 14px 28px rgba(255,120,178,.12);
+      transform:translateY(-6px);
+      box-shadow:0 20px 32px rgba(255,120,178,.12);
+      border-color:rgba(255,89,165,.22);
     }
-
     .song-card.active{
-      border-color:rgba(255,89,165,.30);
-      box-shadow:0 18px 34px rgba(255,89,165,.14);
+      transform:translateY(-4px);
+      border-color:rgba(255,89,165,.34);
+      box-shadow:0 20px 34px rgba(255,89,165,.14);
     }
-
-    .song-thumb{
-      width:100%;
-      height:290px;
-      border-radius:18px;
-      overflow:hidden;
-      border:1px solid #f0dde8;
-      background:#fff;
-      margin-bottom:18px;
-      position:relative;
-    }
-
-    .song-thumb img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-    }
-
-    .song-badge{
+    .song-card-badge{
       position:absolute;
-      top:12px;
-      left:12px;
+      top:14px;
+      left:14px;
       z-index:2;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
       padding:8px 12px;
       border-radius:999px;
-      font-size:12px;
-      font-weight:900;
-      line-height:1;
-      background:linear-gradient(135deg,#ff8fc2,#ff59a5);
+      background:linear-gradient(180deg,#ff86bb,#ff59a5);
       color:#fff;
-      box-shadow:0 8px 18px rgba(255,89,165,.22);
+      font-size:11px;
+      line-height:1;
+      font-weight:900;
+      letter-spacing:.12em;
+      box-shadow:0 10px 18px rgba(255,89,165,.22);
       opacity:0;
-      transform:translateY(3px);
+      transform:translateY(4px);
       transition:.22s ease;
     }
-
-    .song-card.active .song-badge{
+    .song-card.active .song-card-badge{
       opacity:1;
       transform:translateY(0);
     }
-
+    .song-thumb{
+      width:100%;
+      height:248px;
+      border:1px solid #f0dde8;
+      border-radius:20px;
+      overflow:hidden;
+      background:#fff;
+      margin-bottom:14px;
+      flex:0 0 auto;
+    }
+    .song-thumb img{width:100%;height:100%;object-fit:cover}
     .song-title{
-      font-size:24px;
+      font-size:20px;
       font-weight:900;
-      color:#7d6173;
-      margin-bottom:8px;
-      text-align:center;
       line-height:1.2;
+      color:var(--text-strong);
+      margin-bottom:6px;
       letter-spacing:-.03em;
     }
-
     .song-en{
-      font-size:14px;
-      letter-spacing:0.18em;
+      font-size:13px;
       font-weight:900;
-      color:#d58cab;
-      margin-bottom:16px;
-      text-align:center;
+      color:#d184a9;
+      letter-spacing:.12em;
+      margin-bottom:10px;
     }
-
     .song-desc{
-      font-size:15px;
+      font-size:14px;
       line-height:1.8;
-      color:#8e7387;
+      color:#9c798e;
       font-weight:700;
-      margin-bottom:18px;
+      margin-bottom:14px;
       flex:1;
-      text-align:left;
     }
-
     .song-status{
       display:flex;
-      gap:10px;
       flex-wrap:wrap;
+      gap:8px;
     }
-
     .chip{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      padding:9px 14px;
+      min-height:30px;
+      padding:7px 11px;
       border-radius:999px;
-      border:1px solid #f0dde8;
-      font-size:13px;
-      font-weight:800;
-      color:var(--chip);
       background:#fff;
-      line-height:1;
+      border:1px solid var(--line);
+      color:#b3839b;
+      font-size:11px;
+      font-weight:900;
       white-space:nowrap;
     }
 
-    .chip.now{
-      background:linear-gradient(135deg,#ff8fc2,#ff59a5);
-      color:#fff;
-      border:none;
-    }
-
-    .detail{
-      padding:28px;
-    }
-
-    .detail-top{
-      display:grid;
-      grid-template-columns:1.04fr .96fr;
-      gap:22px;
-      margin-bottom:22px;
-    }
-
-    .detail-card{
+    /* detail */
+    .guide-panel{
       border:1px solid var(--line);
-      border-radius:26px;
-      background:linear-gradient(180deg,#fff 0%,#fff8fb 100%);
-      box-shadow:var(--shadow-strong);
+      border-radius:28px;
+      background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(255,248,252,.94));
+      box-shadow:var(--shadow);
       overflow:hidden;
     }
-
-    .video-card-head{
-      padding:20px 22px 18px;
-      border-bottom:1px solid rgba(241,212,227,.9);
-      text-align:center;
-      background:linear-gradient(180deg,rgba(255,252,254,.99),rgba(255,246,250,.96));
+    .guide-head{
+      padding:28px;
+      border-bottom:1px solid rgba(241,212,227,.8);
+      display:grid;
+      grid-template-columns:1.08fr .92fr;
+      gap:20px;
+      align-items:start;
     }
 
-    .video-mini{
+    /* video card */
+    .video-card{
+      border:1px solid var(--line);
+      border-radius:26px;
+      background:linear-gradient(180deg,#fff 0%,#fff7fb 100%);
+      box-shadow:var(--shadow-strong);
+      overflow:hidden;
+      opacity:0;
+      transform:translateY(10px);
+      transition:opacity .28s ease, transform .28s ease;
+    }
+    .video-card.show{opacity:1;transform:translateY(0)}
+    .video-card-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      padding:18px 18px 16px;
+      background:linear-gradient(135deg,#ff8fc2 0%,#ff59a5 100%);
+    }
+    .video-title-wrap{min-width:0;display:flex;flex-direction:column;gap:4px}
+    .video-label{
       font-size:11px;
       font-weight:900;
-      letter-spacing:.16em;
-      color:#c88aa8;
-      margin-bottom:8px;
+      letter-spacing:.14em;
+      color:rgba(255,255,255,.78);
     }
-
     .video-title{
-      font-size:36px;
+      font-size:34px;
       line-height:1;
       font-weight:900;
-      color:var(--pink-deep);
+      color:#fff;
       letter-spacing:-.04em;
     }
-
     .video-eng{
-      margin-top:6px;
       font-size:13px;
       line-height:1.5;
-      color:#c183a2;
+      color:rgba(255,255,255,.92);
       font-weight:800;
-      letter-spacing:.18em;
+      letter-spacing:.14em;
       text-transform:uppercase;
     }
-
-    .video-desc{
-      margin-top:10px;
-      font-size:13px;
-      line-height:1.7;
-      color:#9d768b;
-      font-weight:700;
-    }
-
     .video-head-right{
-      margin-top:14px;
       display:flex;
-      justify-content:center;
       align-items:center;
       gap:10px;
-      flex-wrap:wrap;
+      flex:0 0 auto;
     }
-
     .video-youtube-badge{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      min-height:34px;
-      padding:7px 14px;
+      min-height:32px;
+      padding:7px 12px;
       border-radius:999px;
-      background:linear-gradient(180deg,#ff8bbe,#ff59a5);
+      background:rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.24);
       color:#fff;
       font-size:11px;
       font-weight:900;
       letter-spacing:.08em;
-      box-shadow:0 10px 18px rgba(255,89,165,.18);
+      backdrop-filter:blur(6px);
     }
-
     .video-cover-thumb{
-      width:76px;
-      height:76px;
-      border-radius:20px;
+      width:72px;
+      height:72px;
+      border-radius:18px;
       overflow:hidden;
-      border:1px solid var(--line);
+      border:1px solid rgba(255,255,255,.28);
       background:#fff;
-      box-shadow:0 8px 18px rgba(255,120,178,.08);
+      box-shadow:0 8px 18px rgba(0,0,0,.08);
     }
-
-    .video-cover-thumb img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-    }
-
+    .video-cover-thumb img{width:100%;height:100%;object-fit:cover}
     .video-frame-wrap{
       position:relative;
       aspect-ratio:16 / 9;
       background:#fff;
     }
-
     .video-frame-wrap iframe{
       width:100%;
       height:100%;
       border:0;
       display:block;
+      background:#fff;
     }
-
     .video-empty{
       display:none;
-      min-height:360px;
+      min-height:320px;
       border:1px dashed rgba(241,212,227,.95);
       border-radius:24px;
       background:rgba(255,255,255,.88);
       color:#b18a9f;
       padding:30px 22px;
-      font-size:15px;
+      font-size:14px;
       line-height:1.9;
       font-weight:800;
       align-items:center;
@@ -508,123 +405,99 @@
       text-align:center;
     }
 
-    .info-card{
-      padding:32px 26px;
-      text-align:center;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
+    /* info card */
+    .guide-info-box{
+      border:1px solid var(--line);
+      border-radius:26px;
+      background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(255,247,251,.92));
+      box-shadow:var(--shadow);
+      padding:22px 20px;
       min-height:100%;
+      opacity:0;
+      transform:translateY(10px);
+      transition:opacity .28s ease, transform .28s ease;
     }
-
-    .info-title{
-      color:var(--pink-deep);
-      font-size:40px;
-      font-weight:900;
+    .guide-info-box.show{opacity:1;transform:translateY(0)}
+    .guide-info-title{
+      font-size:38px;
       line-height:1.05;
-      letter-spacing:-.04em;
-      margin:0;
+      color:var(--pink-deep);
+      font-weight:900;
+      letter-spacing:-.05em;
+      margin:2px 0 8px;
     }
-
-    .info-sub{
+    .guide-info-desc{
       font-size:15px;
       line-height:1.9;
-      color:#977287;
+      color:#9c778d;
       font-weight:700;
-      margin:12px 0 0;
+      margin-bottom:16px;
     }
-
-    .meta-tags{
+    .meta-row{
       display:flex;
-      justify-content:center;
+      flex-wrap:wrap;
       gap:8px;
-      flex-wrap:wrap;
-      margin-top:16px;
+      margin-bottom:16px;
     }
-
-    .meta-tags span{
-      padding:7px 12px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:#fff;
-      font-size:12px;
-      font-weight:800;
-      color:#b17f99;
-    }
-
-    .btn-group{
-      margin-top:14px;
+    .toggle-group{
       display:flex;
-      justify-content:center;
-      gap:10px;
       flex-wrap:wrap;
+      gap:10px;
+      margin-bottom:10px;
     }
-
-    .btn{
-      min-height:44px;
-      padding:10px 18px;
+    .toggle-btn{
+      border:none;
       border-radius:999px;
-      border:1px solid var(--line);
+      padding:12px 18px;
+      min-height:44px;
       background:#fff;
+      border:1px solid var(--line);
       color:#aa7a93;
       font-size:13px;
       font-weight:900;
       cursor:pointer;
-      transition:all .25s ease;
+      transition:.18s ease, transform .12s ease;
     }
-
-    .btn:hover{
-      transform:translateY(-2px);
-      box-shadow:0 8px 16px rgba(255,120,178,.18);
-      border-color:rgba(255,89,165,.26);
-    }
-
-    .btn.active{
-      background:linear-gradient(135deg,var(--pink),var(--pink-deep));
+    .toggle-btn:hover{transform:translateY(-1px)}
+    .toggle-btn:active{transform:scale(.98)}
+    .toggle-btn.active{
+      background:linear-gradient(180deg,#ff8bbe,#ff59a5);
       color:#fff;
       border-color:transparent;
-      box-shadow:0 10px 20px rgba(255,89,165,.22);
+      box-shadow:0 12px 20px rgba(255,89,165,.18);
     }
 
-    .helper-text{
-      margin-top:12px;
-      font-size:13px;
-      line-height:1.75;
-      color:#b1889f;
-      font-weight:700;
-    }
-
-    .detail-bottom{
+    .guide-body{
+      padding:28px;
       display:grid;
-      grid-template-columns:1fr 1.08fr;
+      grid-template-columns:1fr 1.1fr;
       gap:20px;
       align-items:start;
     }
-
     .guide-block{
       border:1px solid var(--line);
       border-radius:24px;
-      background:rgba(255,248,252,.76);
-      padding:22px 20px;
+      background:rgba(255,248,252,.72);
+      padding:20px;
+      opacity:0;
+      transform:translateY(10px);
+      transition:opacity .28s ease, transform .28s ease;
     }
-
+    .guide-block.show{opacity:1;transform:translateY(0)}
     .guide-block h3{
       margin:0 0 10px;
-      font-size:21px;
+      font-size:19px;
       line-height:1.2;
       color:var(--text-strong);
       font-weight:900;
       letter-spacing:-.02em;
-      text-align:center;
     }
-
     .guide-mini{
       font-size:13px;
       line-height:1.8;
       color:#b0879c;
       font-weight:700;
       margin-bottom:14px;
-      text-align:center;
     }
 
     .audio-wrap audio{
@@ -633,13 +506,12 @@
       border-radius:14px;
       overflow:hidden;
     }
-
     .audio-empty{
       display:none;
-      min-height:64px;
+      min-height:58px;
       border:1px dashed rgba(241,212,227,.95);
       border-radius:16px;
-      background:rgba(255,255,255,.86);
+      background:rgba(255,255,255,.8);
       color:#b18da0;
       padding:14px 16px;
       font-size:13px;
@@ -649,42 +521,35 @@
       justify-content:center;
       text-align:center;
     }
-
     .link-row{
       display:flex;
       flex-wrap:wrap;
       gap:10px;
-      justify-content:center;
-      margin-top:16px;
+      margin-top:14px;
     }
-
     .link-btn{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      min-height:44px;
-      padding:10px 18px;
+      min-height:42px;
+      padding:10px 16px;
       border-radius:999px;
       background:#fff;
       border:1px solid var(--line);
       color:#aa7a93;
       font-size:13px;
       font-weight:900;
-      transition:all .25s ease;
+      transition:.18s ease;
       cursor:pointer;
     }
-
     .link-btn:hover{
-      transform:translateY(-2px);
+      transform:translateY(-1px);
       color:var(--pink-deep);
       border-color:rgba(255,89,165,.28);
-      box-shadow:0 8px 16px rgba(255,120,178,.16);
     }
-
     .link-btn.secondary{
       background:linear-gradient(180deg,#fffdfd,#fff5fb);
     }
-
     .link-btn.disabled{
       opacity:.55;
       pointer-events:none;
@@ -694,17 +559,14 @@
       display:grid;
       grid-template-columns:repeat(3,1fr);
       gap:10px;
-      margin-top:18px;
+      margin-top:16px;
     }
-
     .note-box{
       border:1px solid var(--line);
       border-radius:18px;
       background:#fff;
-      padding:15px 14px;
-      text-align:center;
+      padding:14px;
     }
-
     .note-label{
       font-size:11px;
       font-weight:900;
@@ -712,7 +574,6 @@
       color:#d08cab;
       margin-bottom:6px;
     }
-
     .note-value{
       font-size:14px;
       line-height:1.75;
@@ -724,15 +585,19 @@
       display:grid;
       gap:12px;
     }
-
     .guide-line{
       border:1px solid var(--line);
       border-radius:18px;
       background:#fff;
       padding:16px;
       box-shadow:0 6px 16px rgba(255,120,178,.05);
+      opacity:0;
+      transform:translateY(12px);
+      animation:lineFade .35s ease forwards;
     }
-
+    @keyframes lineFade{
+      to{opacity:1;transform:translateY(0)}
+    }
     .guide-line-top{
       display:flex;
       align-items:center;
@@ -740,7 +605,6 @@
       gap:12px;
       margin-bottom:10px;
     }
-
     .guide-time{
       font-size:12px;
       font-weight:900;
@@ -748,14 +612,12 @@
       color:#d088aa;
       white-space:nowrap;
     }
-
     .guide-stage{
       font-size:12px;
       font-weight:800;
       color:#b2899f;
       text-align:right;
     }
-
     .guide-lyric{
       font-size:15px;
       line-height:1.85;
@@ -764,14 +626,12 @@
       margin-bottom:10px;
       word-break:keep-all;
     }
-
     .tag-row{
       display:flex;
       flex-wrap:wrap;
       gap:8px;
       margin-bottom:10px;
     }
-
     .tag{
       display:inline-flex;
       align-items:center;
@@ -784,23 +644,18 @@
       font-weight:900;
       letter-spacing:.04em;
     }
-
     .guide-call{
       font-size:13px;
       line-height:1.8;
       color:#9a7489;
       font-weight:700;
     }
-
-    .guide-call strong{
-      color:#7a5b6f;
-    }
-
+    .guide-call strong{color:#7a5b6f}
     .empty-guide{
       display:none;
       border:1px dashed rgba(241,212,227,.95);
       border-radius:20px;
-      background:rgba(255,255,255,.88);
+      background:rgba(255,255,255,.85);
       padding:28px 18px;
       text-align:center;
       color:#b18a9f;
@@ -809,51 +664,47 @@
       font-weight:700;
     }
 
-    .modal{
-      display:none;
+    /* modal */
+    .modal-overlay{
       position:fixed;
-      top:0;
-      left:0;
-      width:100%;
-      height:100%;
-      background:rgba(0,0,0,0.5);
+      inset:0;
+      z-index:200;
+      background:rgba(100,55,80,.35);
       backdrop-filter:blur(6px);
-      justify-content:center;
+      display:none;
       align-items:center;
-      z-index:9999;
+      justify-content:center;
       padding:18px;
     }
-
-    .modal.open{
-      display:flex;
+    .modal-overlay.open{display:flex}
+    .modal-card{
+      width:min(860px,100%);
+      max-height:min(88vh,900px);
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:26px;
+      background:linear-gradient(180deg,#fffdfd,#fff6fa);
+      box-shadow:0 24px 50px rgba(80,40,60,.18);
     }
-
-    .modal-content{
-      background:#fff;
-      padding:28px 24px 24px;
-      border-radius:24px;
-      width:100%;
-      max-width:560px;
-      max-height:82vh;
-      overflow-y:auto;
-      box-shadow:0 20px 40px rgba(0,0,0,.22);
-    }
-
-    .modal-top{
+    .modal-head{
+      position:sticky;
+      top:0;
+      z-index:1;
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:14px;
-      margin-bottom:16px;
+      padding:18px 20px;
+      border-bottom:1px solid var(--line);
+      background:rgba(255,252,253,.96);
+      backdrop-filter:blur(8px);
     }
-
     .modal-title{
-      font-size:26px;
+      font-size:24px;
       font-weight:900;
       color:var(--pink-deep);
       letter-spacing:-.03em;
     }
-
     .modal-close{
       border:none;
       width:40px;
@@ -866,185 +717,219 @@
       font-size:18px;
       font-weight:900;
     }
-
-    .term-item,.lyric-item{
+    .modal-body{padding:18px 20px 20px}
+    .term-grid{
+      display:grid;
+      gap:12px;
+    }
+    .term-box{
       border:1px solid var(--line);
       border-radius:18px;
       background:#fff;
       padding:16px;
-      margin-bottom:12px;
     }
-
-    .term-item h4,.lyric-item h4{
+    .term-box h4{
       margin:0 0 8px;
       font-size:18px;
       color:var(--text-strong);
       letter-spacing:-.02em;
     }
-
-    .term-item p,.lyric-item p{
+    .term-box p{
       margin:0;
       font-size:14px;
       line-height:1.85;
       color:#8f6e81;
       font-weight:700;
-      white-space:pre-line;
     }
 
-    .top-btn{
+    /* top */
+    .scroll-top-btn{
       position:fixed;
-      bottom:22px;
-      right:22px;
-      width:58px;
-      height:58px;
+      right:20px;
+      bottom:24px;
+      z-index:120;
       border:none;
-      border-radius:50%;
-      background:linear-gradient(180deg,var(--pink),var(--pink-deep));
+      min-width:58px;
+      height:58px;
+      padding:0 14px;
+      border-radius:999px;
+      background:linear-gradient(180deg,#ff8fc2,#ff59a5);
       color:#fff;
-      font-size:14px;
+      font-size:12px;
       font-weight:900;
+      letter-spacing:.08em;
       box-shadow:0 14px 28px rgba(255,89,165,.24);
       cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       opacity:0;
       pointer-events:none;
       transform:translateY(10px);
-      transition:.2s ease;
-      z-index:120;
+      transition:opacity .2s ease, transform .2s ease;
     }
-
-    .top-btn.show{
+    .scroll-top-btn.show{
       opacity:1;
       pointer-events:auto;
       transform:translateY(0);
     }
+    .scroll-top-btn:hover{transform:translateY(-2px)}
+
+    /* footer */
+    .site-footer{padding:10px 0 34px}
+    .footer-box{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:linear-gradient(180deg,rgba(255,252,254,.97),rgba(255,246,251,.95));
+      box-shadow:var(--shadow);
+      padding:18px 20px;
+      text-align:center;
+    }
+    .footer-box p{
+      margin:0;
+      color:#c288a6;
+      font-size:13px;
+      font-weight:800;
+      letter-spacing:.05em;
+    }
 
     @media (max-width:1180px){
-      .detail-top,.detail-bottom{
-        grid-template-columns:1fr;
-      }
-      .song-grid{
-        grid-template-columns:repeat(2,1fr);
-      }
+      .song-grid{grid-template-columns:repeat(2,1fr)}
+      .guide-head,.guide-body{grid-template-columns:1fr}
     }
-
+    @media (max-width:1100px){
+      nav{grid-template-columns:repeat(4,minmax(0,1fr))}
+    }
     @media (max-width:860px){
-      .guide-grid{
-        grid-template-columns:1fr;
-      }
-      .note-grid{
-        grid-template-columns:1fr;
-      }
-      .guide-line-top{
-        flex-direction:column;
+      .song-grid{grid-template-columns:1fr}
+      .hero-guide-points{grid-template-columns:1fr}
+      .note-grid{grid-template-columns:1fr}
+      .guide-line-top{flex-direction:column;align-items:flex-start}
+      .guide-stage{text-align:left}
+      .video-card-head{
+        flex-direction:row;
         align-items:flex-start;
       }
-      .guide-stage{
-        text-align:left;
-      }
+      .video-title{font-size:28px}
+      .video-cover-thumb{width:60px;height:60px}
     }
-
-    @media (max-width:700px){
-      .song-grid{
-        grid-template-columns:1fr;
-      }
-      .section{
-        padding:24px;
-      }
-      .hero{
-        padding:34px 28px 36px;
-      }
-      .hero-title{
-        font-size:58px;
-      }
-      .hero-sub{
-        font-size:18px;
-        letter-spacing:.16em;
-      }
-      .song-card{
+    @media (max-width:720px){
+      .header-box{
         min-height:auto;
+        padding:16px 14px;
+        gap:16px;
+        flex-direction:column;
+        align-items:stretch;
       }
-      .song-thumb{
-        height:240px;
+      .logo{justify-content:center}
+      .logo img{height:88px}
+      nav{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:8px;
       }
-      .song-title{
-        font-size:22px;
+      nav b{font-size:16px;margin-bottom:4px}
+      nav span{font-size:13px}
+      .hero-card{
+        padding:26px 20px;
+        border-radius:24px;
       }
-      .song-en{
-        font-size:13px;
+      .guide-head,.guide-body{padding:18px}
+      .guide-info-title{font-size:30px}
+      .song-thumb{height:220px}
+      .toggle-btn{flex:1 1 calc(50% - 10px);min-width:0}
+      .scroll-top-btn{
+        right:14px;
+        bottom:18px;
+        min-width:52px;
+        height:52px;
+        font-size:11px;
       }
-      .song-desc{
-        font-size:14px;
-      }
-      .chip{
-        font-size:12px;
-        padding:8px 12px;
-      }
+      .modal-body,.modal-head{padding-left:16px;padding-right:16px}
     }
   </style>
 </head>
 <body>
-  <main class="page">
+
+  <header>
+    <div class="wrap header-box">
+      <a href="index.html" class="logo" aria-label="Lumibelle home">
+        <img src="img/logo.png" alt="Lumibelle">
+      </a>
+
+      <nav>
+        <a href="index.html"><b>HOME</b><span>홈</span></a>
+        <a href="news.html"><b>NEWS</b><span>공지</span></a>
+        <a href="member.html"><b>MEMBER</b><span>멤버</span></a>
+        <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
+        <a href="music.html"><b>MUSIC</b><span>음원</span></a>
+        <a href="setlist.html" class="current"><b>SETLIST</b><span>응원가이드</span></a>
+        <a href="fanname.html"><b>FANNAME</b><span>팬네임</span></a>
+        <a href="info.html"><b>INFO</b><span>안내</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="setlist-page">
     <div class="wrap">
-      <section class="section hero">
+      <section class="hero-card">
         <div class="hero-kicker">LUMIBELLE LIVE GUIDE</div>
         <h1 class="hero-title">SETLIST</h1>
         <div class="hero-sub">TEAM / SOLO / BEGINNER / ADVANCED</div>
-        <div class="hero-desc">
-          루미벨 공연에서 바로 사용할 수 있는 <strong>응원가이드 페이지</strong>입니다.
+        <p class="hero-desc">
+          루미벨 공연에서 바로 사용할 수 있는 응원가이드 페이지입니다.
           곡을 선택한 뒤 <strong>팀용 / 솔로용</strong> 응원 모드를 고르고,
-          다시 <strong>초보용 / 고급용</strong> 난이도를 선택하면 상황에 맞는 <strong>콜, 믹스, 리액션 포인트</strong>를 볼 수 있어요.
-        </div>
-      </section>
+          다시 <strong>초보용 / 고급용</strong> 난이도를 선택하면 상황에 맞는 콜, 믹스, 리액션 포인트를 볼 수 있어요.
+        </p>
 
-      <section class="section live-guide">
-        <div class="live-guide-title">LIVE GUIDE</div>
-        <div class="live-guide-sub">공연 전 가볍게 보고 가면 더 재미있어요</div>
-
-        <div class="guide-box-title">처음 오는 분들을 위한 간단 안내</div>
-
-        <div class="guide-grid">
-          <div class="guide-card">
-            처음이면 무리 안 해도 괜찮아요.<br>
-            박수만 쳐도 충분히 즐길 수 있어요.
+        <div class="hero-guide-points">
+          <div class="hero-guide-box">
+            <b>LIVE GUIDE</b>
+            <span>곡의 분위기에 맞는 응원 톤을 먼저 확인하고, 무리한 믹스보다 곡 결을 살리는 방향으로 응원해요.</span>
           </div>
-          <div class="guide-card">
-            모든 곡을 외울 필요 없어요.<br>
-            자주 나오는 콜부터 익혀도 충분해요.
+          <div class="hero-guide-box">
+            <b>BEGINNER</b>
+            <span>처음 보는 곡이라면 초보용부터 시작해도 충분해요. 박수, 기본 콜, 반응 포인트 위주로 정리했어요.</span>
           </div>
-          <div class="guide-card">
-            주변 분위기 따라가면 쉬워요.<br>
-            즐기는 게 제일 중요!
+          <div class="hero-guide-box">
+            <b>ADVANCED</b>
+            <span>고급용은 타이밍이 더 중요한 콜과 믹스가 포함돼요. 현장 분위기를 보면서 무리 없이 사용해요.</span>
           </div>
         </div>
       </section>
 
-      <section class="section songs">
-        <div class="section-title">
-          <h2>SETLIST SONGS</h2>
-          <p>곡 카드를 누르면 아래 상세 응원가이드가 해당 곡으로 바뀝니다.</p>
-        </div>
-        <div class="song-grid" id="songGrid"></div>
+      <section class="section-title">
+        <h2>SETLIST SONGS</h2>
+        <p>곡 카드를 누르면 아래 상세 응원가이드가 해당 곡으로 바뀝니다.</p>
       </section>
 
-      <section class="section detail">
-        <div class="detail-top">
-          <div class="detail-card" id="videoCard">
+      <section class="song-grid" id="songGrid"></section>
+
+      <section class="guide-panel" id="guidePanel">
+        <div class="guide-head">
+          <div class="video-card" id="videoCard">
             <div class="video-card-head">
-              <div class="video-mini">NOW PLAYING GUIDE</div>
-              <div class="video-title" id="videoTitle">슈키피!</div>
-              <div class="video-eng" id="videoEng">SHUKIPI</div>
-              <div class="video-desc" id="videoDesc">팀 응원 · 초보용 · 응원 연습용 영상</div>
+              <div class="video-title-wrap">
+                <div class="video-label">NOW PLAYING</div>
+                <div class="video-title" id="videoCardTitle">스타더스트 매지컬</div>
+                <div class="video-eng" id="videoCardEng">STARDUST MAGICAL</div>
+              </div>
 
               <div class="video-head-right">
                 <div class="video-youtube-badge">YOUTUBE</div>
-                <div class="video-cover-thumb">
-                  <img id="videoThumb" src="" alt="곡 썸네일">
+                <div class="video-cover-thumb" id="videoCoverThumbWrap">
+                  <img id="videoCoverThumb" src="" alt="곡 커버 이미지">
                 </div>
               </div>
             </div>
 
             <div class="video-frame-wrap">
-              <iframe id="videoFrame" src="" title="Lumibelle video" allowfullscreen></iframe>
+              <iframe
+                id="guideVideo"
+                src=""
+                title="Lumibelle video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen>
+              </iframe>
             </div>
           </div>
 
@@ -1053,26 +938,29 @@
             영상이 준비되면 이 영역에서 바로 볼 수 있게 표시됩니다.
           </div>
 
-          <div class="detail-card info-card">
-            <h2 class="info-title" id="infoTitle">슈키피!</h2>
-            <p class="info-sub" id="infoSub">참여형 리스폰스 중심 곡. 후렴에 같이 들어가는 재미가 큰 왕도 댄스곡.</p>
+          <div class="guide-info-box" id="guideInfoBox">
+            <div class="guide-info-title" id="guideTitle"></div>
+            <div class="guide-info-desc" id="guideDesc"></div>
 
-            <div class="meta-tags" id="metaTags"></div>
-            <div class="btn-group" id="modeButtons"></div>
-            <div class="btn-group" id="levelButtons"></div>
-            <div class="helper-text" id="helperText"></div>
+            <div class="meta-row" id="guideMeta"></div>
+
+            <div class="toggle-group" id="modeButtons"></div>
+            <div class="toggle-group" id="levelButtons"></div>
           </div>
         </div>
 
-        <div class="detail-bottom">
-          <div class="guide-block">
+        <div class="guide-body">
+          <div class="guide-block" id="trackBlock">
             <h3>TRACK / VIDEO</h3>
-            <div class="guide-mini">영상은 이해용, 오디오는 반복 연습용이에요.</div>
+            <div class="guide-mini">
+              영상은 이해용, 오디오는 반복 연습용으로 생각하면 좋아요. 용어 GUIDE에서는 콜, 믹스, 나마콜 같은 기본 용어를 확인할 수 있어요.
+            </div>
 
             <div class="audio-wrap">
-              <audio id="audioPlayer" controls></audio>
+              <audio id="guideAudio" controls></audio>
               <div class="audio-empty" id="audioEmpty">
-                이 곡은 아직 음원 파일이 연결되지 않았어요.
+                이 곡은 아직 음원 파일이 연결되지 않았어요.<br>
+                오디오가 준비되면 바로 재생 가능하게 바뀝니다.
               </div>
             </div>
 
@@ -1094,346 +982,737 @@
             </div>
           </div>
 
-          <div class="guide-block">
+          <div class="guide-block" id="cheerBlock">
             <h3>CHEER GUIDE</h3>
-            <div class="guide-mini">파트별 흐름, 리스폰스, 곡명콜, 믹스 포인트를 정리했어요.</div>
+            <div class="guide-mini">
+              파트별 흐름, 곡명콜, 리스폰스, 믹스, 감상 포인트를 순서대로 정리했습니다.
+            </div>
 
             <div class="guide-lines" id="guideLines"></div>
-            <div class="empty-guide" id="emptyGuide">이 조합의 가이드는 아직 준비중이에요.</div>
+            <div class="empty-guide" id="emptyGuide">
+              이 곡은 아직 선택한 모드 / 난이도 조합의 가이드가 준비되지 않았어요.<br>
+              준비중 문구가 뜨도록 설정해두었으니 레이아웃은 깨지지 않습니다.
+            </div>
           </div>
         </div>
       </section>
     </div>
   </main>
 
-  <button class="top-btn" id="topBtn" type="button">↑</button>
-
-  <div class="modal" id="termModal">
-    <div class="modal-content">
-      <div class="modal-top">
-        <div class="modal-title">용어 가이드</div>
-        <button class="modal-close" type="button" onclick="closeModal('termModal')">×</button>
-      </div>
-      <div class="term-item"><h4>CALL</h4><p>공연 중 팬들이 함께 외치는 구호예요.</p></div>
-      <div class="term-item"><h4>MIX</h4><p>특정 타이밍에 넣는 응원 구호 세트예요.</p></div>
-      <div class="term-item"><h4>나마콜</h4><p>멤버 이름을 직접 외치는 콜이에요.</p></div>
+  <footer class="site-footer">
+    <div class="wrap footer-box">
+      <p>© 2026 Lumibelle All Rights Reserved.</p>
     </div>
-  </div>
+  </footer>
 
-  <div class="modal" id="lyricsModal">
-    <div class="modal-content">
-      <div class="modal-top">
-        <div class="modal-title">가사지</div>
-        <button class="modal-close" type="button" onclick="closeModal('lyricsModal')">×</button>
+  <button class="scroll-top-btn" id="scrollTopBtn" type="button" aria-label="위로 올라가기">
+    ↑ TOP
+  </button>
+
+  <div class="modal-overlay" id="termModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div class="modal-title">용어 GUIDE</div>
+        <button class="modal-close" id="termModalClose" type="button" aria-label="닫기">×</button>
       </div>
-      <div id="lyricsContent"></div>
+      <div class="modal-body">
+        <div class="term-grid">
+          <div class="term-box">
+            <h4>CALL</h4>
+            <p>공연 중 팬들이 함께 외치는 구호예요. 곡명, 팀명, 특정 단어, 리스폰스 형태가 여기에 들어가요.</p>
+          </div>
+          <div class="term-box">
+            <h4>MIX</h4>
+            <p>아이돌 현장에서 특정 타이밍에 넣는 응원 구호 세트예요. 곡 분위기를 해치지 않는 타이밍에 짧고 정확하게 넣는 게 중요해요.</p>
+          </div>
+          <div class="term-box">
+            <h4>나마콜</h4>
+            <p>멤버 이름을 직접 외치거나, 멤버 파트에 맞춰 이름을 넣는 형태의 콜이에요. 너무 과하게 길게 끌지 않는 게 좋아요.</p>
+          </div>
+          <div class="term-box">
+            <h4>CHEER</h4>
+            <p>함성, 박수, 리액션, 짧은 호응 전체를 포함하는 말이에요. 곡 분위기에 따라 콜보다 이런 반응이 더 잘 어울릴 때도 있어요.</p>
+          </div>
+          <div class="term-box">
+            <h4>LIFT</h4>
+            <p>현장 분위기와 안전이 허락될 때 가능한 응원 요소예요. 공간과 상황을 보고 무리하지 않는 게 가장 중요해요.</p>
+          </div>
+          <div class="term-box">
+            <h4>리스폰스</h4>
+            <p>무대에서 먼저 부르면 관객이 받아치는 형태예요. 슈키피 같은 곡에서 특히 많이 쓰여요.</p>
+          </div>
+          <div class="term-box">
+            <h4>초보자 팁</h4>
+            <p>처음이면 초보용만 따라가도 충분해요. 박수, 곡명콜, 팀명콜, 리액션부터 익히고 나서 고급용 믹스로 넘어가면 돼요.</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
-    const songs = {
-      stardust: {
-        title: "스타더스트 매지컬",
-        subtitle: "STARDUST MAGICAL",
-        desc: "마법소녀 분위기가 강한 곡. 팀 응원 중심으로 보되, 솔로 파트 이름콜도 잘 어울리는 타입.",
-        thumb: "img/setlist/stardust-magical.jpg",
-        video: "",
-        audio: "",
-        meta: ["팀용 지원", "솔로용 지원", "음원 미연결"],
-        helper: "기본 팀 응원 위주로 먼저 정리해두면 좋아요.",
-        lyrics: "가사지 준비중",
-        modes: {
-          team: { beginner: { point:"반짝이는 포인트 동작", lines:[{ time:"인트로", stage:"도입", lyric:"손흔들기와 박수 위주", tags:["손흔들기"], call:"<strong>콜:</strong> 귀여운 호응 위주." }] }, advanced:null },
-          solo: { beginner:null, advanced:null }
-        }
-      },
-      story: {
-        title: "스토리베리 러브",
-        subtitle: "STORYBERRY LOVE",
-        desc: "밝고 러블리한 분위기의 곡. 기본 응원 구조는 단순하지만 감정 표현이 중요한 곡.",
-        thumb: "img/setlist/storyberrylove.jpg",
-        video: "",
-        audio: "",
-        meta: ["팀용 예정", "솔로용 예정"],
-        helper: "감정선이 살아야 귀여운 분위기가 잘 살아나요.",
-        lyrics: "가사지 준비중",
-        modes: { team:{ beginner:null, advanced:null }, solo:{ beginner:null, advanced:null } }
-      },
-      shukipi: {
-        title: "슈키피!",
-        subtitle: "SHUKIPI",
-        desc: "참여형 리스폰스 중심 곡. 후렴에 같이 들어가는 재미가 큰 왕도 댄스곡.",
-        thumb: "img/setlist/shukipi.jpg",
-        video: "https://www.youtube.com/embed/az9mkI9C2f4",
-        audio: "",
-        meta: ["리스폰스형", "팀용", "후렴 참여 쉬움"],
-        helper: "괄호 안 응답 파트와 후렴 리스폰스를 정확하게 넣는 쪽이 더 잘 어울려요.",
-        lyrics: "슈키피 가사지 준비중",
-        modes: {
+    const songs = [
+      {
+        id: 'stardust-magical',
+        title: '스타더스트 매지컬',
+        subtitle: 'STARDUST MAGICAL',
+        desc: '마법소녀 분위기가 강한 곡. 팀 응원 중심으로 보되, 솔로 파트 이름콜도 잘 어울리는 타입.',
+        thumb: 'img/setlist/stardust-magical.jpg',
+        status: ['응원가이드 일부', '영상 준비중'],
+        meta: ['팀용 지원', '솔로용 지원', '음원 미연결'],
+        audio: '',
+        video: '',
+        support: {
           team: {
             beginner: {
-              point:"후렴 리스폰스와 ‘슈키피’ 콜이 핵심",
-              lines:[
-                { time:"오프닝", stage:"시작 콜", lyric:"We are Sweetie pie!", tags:["오프닝"], call:"<strong>콜:</strong> 시작 구호 같이." },
-                { time:"후렴", stage:"리스폰스", lyric:"すきなの すきなの すきすきすきぴ", tags:["리스폰스","후렴"], call:"<strong>콜:</strong> ‘스키스키 스키피!’" }
+              point: '반짝이는 포인트 동작에 맞춰 손흔들기와 박수 위주로 가면 예쁨',
+              lines: [
+                {
+                  time: '인트로 - A멜로',
+                  stage: '도입',
+                  lyric: '큰 콜보다 분위기에 맞는 손흔들기와 박수 위주로 시작.',
+                  tags: ['손흔들기', '박수'],
+                  call: '<strong>콜:</strong> 과한 믹스보다 귀여운 호응이 더 잘 어울려요.'
+                },
+                {
+                  time: '후렴',
+                  stage: '메인 포인트',
+                  lyric: '별, 마법, 반짝임 계열 가사 포인트에서 짧은 함성으로 반응.',
+                  tags: ['후렴', '함성'],
+                  call: '<strong>포인트:</strong> 안무 포인트에 맞춰 우와- 느낌으로 반응.'
+                }
+              ]
+            },
+            advanced: null
+          },
+          solo: {
+            beginner: null,
+            advanced: null
+          }
+        }
+      },
+      {
+        id: 'storyberrylove',
+        title: '스토리베리 러브',
+        subtitle: 'STORYBERRY LOVE',
+        desc: '밝고 러블리한 분위기의 곡. 기본 응원 구조는 단순하지만 감정 표현이 중요한 곡.',
+        thumb: 'img/setlist/storyberrylove.jpg',
+        status: ['응원가이드 준비중'],
+        meta: ['팀용 예정', '솔로용 예정'],
+        audio: '',
+        video: '',
+        support: {
+          team: {
+            beginner: null,
+            advanced: null
+          },
+          solo: {
+            beginner: null,
+            advanced: null
+          }
+        }
+      },
+      {
+        id: 'shukipi',
+        title: '슈키피!',
+        subtitle: 'SHUKIPI',
+        desc: '참여형 리스폰스가 핵심인 왕도 댄스곡. 관객이 같이 만드는 텐션이 중요해요.',
+        thumb: 'img/setlist/shukipi.jpg',
+        status: ['응원가이드 작성', '영상 있음'],
+        meta: ['팀용', '솔로용 가능', '리스폰스형'],
+        audio: '',
+        video: 'https://youtu.be/az9mkI9C2f4',
+        support: {
+          team: {
+            beginner: {
+              point: '후렴 리스폰스와 “슈키피” 콜만 정확하게 해도 현장 참여감이 높아요.',
+              lines: [
+                {
+                  time: '오프닝',
+                  stage: '시작 콜',
+                  lyric: 'We are Sweetie pie!',
+                  tags: ['오프닝', '전원콜'],
+                  call: '<strong>콜:</strong> “We are Sweetie pie! / 루미벨 데스~” 같이.'
+                },
+                {
+                  time: '초반 도입',
+                  stage: '도입 반응',
+                  lyric: 'シャー 行かない / 파트 구간',
+                  tags: ['박수', '도입'],
+                  call: '<strong>포인트:</strong> 가볍게 박수, 과한 믹스는 아직 X.'
+                },
+                {
+                  time: '1절 후렴',
+                  stage: '리스폰스 핵심',
+                  lyric: 'すきなの すきなの すきすきすきぴ',
+                  tags: ['리스폰스', '후렴'],
+                  call: '<strong>콜:</strong> “스키스키 스키피!” / 괄호 속 “스키피” 같이.'
+                },
+                {
+                  time: '1절 후렴 중간',
+                  stage: '받아치기',
+                  lyric: 'アイスラテの出来上がり (どおぞ！)',
+                  tags: ['리액션', '포인트'],
+                  call: '<strong>콜:</strong> “도-조!” 같이 받아치기.'
+                },
+                {
+                  time: '2절 전환',
+                  stage: '반응',
+                  lyric: 'なんであの子に いいねするの？',
+                  tags: ['리액션'],
+                  call: '<strong>포인트:</strong> 대사/투정 느낌 파트는 과한 콜보다 리액션 위주.'
+                },
+                {
+                  time: '라스트 후렴',
+                  stage: '최종 폭발',
+                  lyric: 'しゅきなの しゅきなの しゅきしゅきしゅきぴ',
+                  tags: ['후렴', '풀응원'],
+                  call: '<strong>콜:</strong> “슈키피!”를 크게, 괄호 속 파트도 적극적으로.'
+                }
               ]
             },
             advanced: {
-              point:"리스폰스 유지가 더 중요해요.",
-              lines:[
-                { time:"2절 전", stage:"짧은 MIX", lyric:"후렴 들어가기 직전", tags:["MIX"], call:"<strong>MIX:</strong> 짧게 1회." }
+              point: '후렴 직전 짧은 믹스와 후렴 리스폰스를 섞되, 리스폰스가 중심이에요.',
+              lines: [
+                {
+                  time: 'ファイボーワイパー 직후',
+                  stage: '첫 포인트',
+                  lyric: 'ファイボーワイパー',
+                  tags: ['포인트', '호응'],
+                  call: '<strong>포인트:</strong> 손동작/호응 크게, 여기서 분위기 올리기.'
+                },
+                {
+                  time: '2절 후렴 직전',
+                  stage: '짧은 MIX',
+                  lyric: 'すきなの〜 들어가기 직전',
+                  tags: ['MIX', '짧게'],
+                  call: '<strong>MIX:</strong> 타이거! 파이어! 사이버!... 1회만 짧게.'
+                },
+                {
+                  time: '후렴',
+                  stage: '리스폰스 유지',
+                  lyric: 'すきなの すきなの すきすきすきぴ',
+                  tags: ['후렴', '리스폰스'],
+                  call: '<strong>콜:</strong> 믹스 후 바로 “스키스키 스키피!”로 복귀.'
+                },
+                {
+                  time: '“わかる！” / “らぶゆー” / “100%”',
+                  stage: '괄호 파트',
+                  lyric: '괄호로 표시된 응답 파트',
+                  tags: ['보조콜', '참여'],
+                  call: '<strong>콜:</strong> 괄호 파트는 놓치지 말고 같이 받아치기.'
+                },
+                {
+                  time: '라스트 블록',
+                  stage: '최대치',
+                  lyric: 'しゅきなの / しゅきぴ 반복',
+                  tags: ['최종', '리액션'],
+                  call: '<strong>포인트:</strong> 리스폰스 > 믹스. 끝까지 곡 텐션 유지가 핵심.'
+                }
               ]
             }
           },
           solo: {
-            beginner: { point:"이름콜은 짧게", lines:[{ time:"파트", stage:"개인 응원", lyric:"대사/감정 파트", tags:["이름콜"], call:"<strong>콜:</strong> 짧게." }] },
-            advanced: { point:"감정 반응 위주", lines:[{ time:"대사 파트", stage:"반응", lyric:"감정 파트", tags:["리액션"], call:"<strong>포인트:</strong> 감정 반응 살리기." }] }
+            beginner: {
+              point: '멤버 파트마다 이름콜을 짧고 귀엽게 넣는 정도면 충분해요.',
+              lines: [
+                {
+                  time: '마리링 파트',
+                  stage: '개인 응원',
+                  lyric: '대사/감정 파트',
+                  tags: ['이름콜', '마리링'],
+                  call: '<strong>콜:</strong> 마리링! 짧게.'
+                },
+                {
+                  time: '루루 파트',
+                  stage: '개인 응원',
+                  lyric: '화내는/투정 파트',
+                  tags: ['이름콜', '루루'],
+                  call: '<strong>콜:</strong> 루루! 짧게.'
+                },
+                {
+                  time: '공동 후렴',
+                  stage: '단체 합류',
+                  lyric: '슈키피 리스폰스 구간',
+                  tags: ['후렴'],
+                  call: '<strong>포인트:</strong> 이름콜보다 후렴 리스폰스에 합류.'
+                }
+              ]
+            },
+            advanced: {
+              point: '이름콜은 짧게, 괄호 파트와 리스폰스를 더 정확하게 넣는 쪽이 좋아요.',
+              lines: [
+                {
+                  time: '감정 파트',
+                  stage: '파트 포인트',
+                  lyric: '“ねえー！” / “もおー！” 등',
+                  tags: ['대사', '리액션'],
+                  call: '<strong>포인트:</strong> 이름콜보다 감정 반응을 살려주기.'
+                },
+                {
+                  time: '괄호 응답 파트',
+                  stage: '서브 리스폰스',
+                  lyric: '(すきぴ) / (わかる！) / (らぶゆー) / (100%)',
+                  tags: ['응답', '참여'],
+                  call: '<strong>콜:</strong> 괄호 파트는 정확하게 받아치기.'
+                },
+                {
+                  time: '마지막 후렴',
+                  stage: '최종 합류',
+                  lyric: 'しゅきなの / しゅきぴ 연속',
+                  tags: ['후렴', '하이라이트'],
+                  call: '<strong>포인트:</strong> 이름콜보다 곡 전체 리스폰스 참여가 우선.'
+                }
+              ]
+            }
           }
         }
       },
-      canaria: {
-        title: "카나리아",
-        subtitle: "CANARIA",
-        desc: "왕도 감성의 따뜻한 응원곡. 강하게 찢기보다 함께 부르는 느낌이 더 잘 어울려요.",
-        thumb: "img/setlist/canaria.jpg",
-        video: "https://www.youtube.com/embed/op3L_ed8-24",
-        audio: "audio/canaria.mp3",
-        meta: ["감성형", "팀용", "후렴 콜 중심"],
-        helper: "카나리아는 믹스보다 후렴 곡명콜과 박수 중심으로 가는 쪽이 더 잘 어울려요.",
-        lyrics: "카나리아 가사지 준비중",
-        modes: {
+      {
+        id: 'canaria',
+        title: '카나리아',
+        subtitle: 'CANARIA',
+        desc: '왕도 감성의 따뜻한 응원곡. 강하게 찢기보다 함께 부르는 느낌이 더 잘 어울려요.',
+        thumb: 'img/setlist/canaria.jpg',
+        status: ['응원가이드 작성', '영상 있음', '음원 있음'],
+        meta: ['팀용 지원', '솔로용 지원', '감성형'],
+        audio: 'audio/canaria.mp3',
+        video: 'https://youtu.be/op3L_ed8-24',
+        support: {
           team: {
-            beginner: { point:"박수와 곡명콜 중심", lines:[{ time:"인트로", stage:"도입", lyric:"카나리아, 너의 노래가", tags:["박수"], call:"<strong>포인트:</strong> 초반은 감상 위주." }] },
-            advanced: { point:"감성 응원곡", lines:[{ time:"브릿지", stage:"집중", lyric:"완전 감상 구간", tags:["집중"], call:"<strong>포인트:</strong> 응원을 줄여야 후반이 살아남." }] }
+            beginner: {
+              point: '카나리아는 강하게 외치기보다, 박수와 곡명콜로 따뜻하게 함께 가는 곡이에요.',
+              lines: [
+                {
+                  time: '인트로',
+                  stage: '도입',
+                  lyric: 'カナリア 君の歌が / 今日も響いているよ',
+                  tags: ['박수', '감상'],
+                  call: '<strong>포인트:</strong> 콜보다 박수와 감상 위주. 초반 분위기 깨지지 않게.'
+                },
+                {
+                  time: 'Verse 1',
+                  stage: '감상 구간',
+                  lyric: '루루 / 마리링 파트',
+                  tags: ['감상', '집중'],
+                  call: '<strong>콜:</strong> 이름콜은 넣지 않고 듣는 구간으로.'
+                },
+                {
+                  time: 'Pre-Chorus',
+                  stage: '상승 구간',
+                  lyric: '言葉じゃ上手く〜 / 目と目合わせて〜',
+                  tags: ['빌드업'],
+                  call: '<strong>포인트:</strong> 후렴 대비 구간. 과한 호응 없이 집중 유지.'
+                },
+                {
+                  time: 'Chorus 1',
+                  stage: '첫 후렴',
+                  lyric: 'カナリア 君の歌が 今日を彩っていく',
+                  tags: ['후렴', '곡명콜'],
+                  call: '<strong>콜:</strong> “카나리아 / 루미벨”을 부드럽게. 외침보다 함께 말해주는 느낌.'
+                },
+                {
+                  time: 'Post-Chorus',
+                  stage: '여운',
+                  lyric: 'もっとそばにいたいよ〜',
+                  tags: ['감상', '여운'],
+                  call: '<strong>포인트:</strong> 짧은 호응 또는 손 흔들기 정도.'
+                },
+                {
+                  time: 'Last Chorus',
+                  stage: '마지막 후렴',
+                  lyric: 'きっとずっと 二人なら叶えられる',
+                  tags: ['최종', '후렴'],
+                  call: '<strong>콜:</strong> 첫 후렴보다 조금 더 크게, 하지만 감성은 유지.'
+                }
+              ]
+            },
+            advanced: {
+              point: '카나리아는 믹스곡보다 감성 응원곡에 가까워요. 믹스는 마지막에 짧게 1회만 추천.',
+              lines: [
+                {
+                  time: '초반 전체',
+                  stage: '톤 유지',
+                  lyric: '인트로 ~ 1절',
+                  tags: ['감성', '절제'],
+                  call: '<strong>포인트:</strong> 초반 믹스 X. 박수와 후렴 곡명콜만으로도 충분.'
+                },
+                {
+                  time: 'Chorus 2 직전',
+                  stage: '선택 MIX',
+                  lyric: 'カナリア〜 들어가기 직전',
+                  tags: ['MIX', '선택'],
+                  call: '<strong>MIX:</strong> 넣더라도 아주 짧게 1회. 곡 결을 해치지 않게.'
+                },
+                {
+                  time: 'Bridge',
+                  stage: '감상 집중',
+                  lyric: 'この先何が起こっても〜',
+                  tags: ['브릿지', '집중'],
+                  call: '<strong>포인트:</strong> 완전 감상. 여기서 응원을 줄여야 후반이 살아남.'
+                },
+                {
+                  time: 'Post-Bridge',
+                  stage: '상승',
+                  lyric: 'カナリア 君の歌が 今日も響いている',
+                  tags: ['상승', '여운'],
+                  call: '<strong>포인트:</strong> 손 흔들기 / 라이트로 분위기 끌어올리기.'
+                },
+                {
+                  time: 'Last Chorus',
+                  stage: '최종 강조',
+                  lyric: 'カナリア 君の歌が 今日を彩っていく',
+                  tags: ['후렴', '하이라이트'],
+                  call: '<strong>콜:</strong> “카나리아 / 루미벨” 콜 중심. 믹스보다 후렴 콜이 메인.'
+                }
+              ]
+            }
           },
           solo: {
-            beginner: { point:"개인 파트 이름콜은 짧게", lines:[{ time:"개인 파트", stage:"이름콜", lyric:"솔로 파트 진입", tags:["이름콜"], call:"<strong>콜:</strong> 짧고 작게." }] },
-            advanced: { point:"감성 유지가 더 중요", lines:[{ time:"후렴", stage:"정리", lyric:"후렴 곡명콜", tags:["후렴"], call:"<strong>콜:</strong> 곡 전체 정서 유지." }] }
+            beginner: {
+              point: '개인 파트 이름콜은 짧게, 곡 전체 흐름을 해치지 않는 정도가 좋아요.',
+              lines: [
+                {
+                  time: '루루 파트',
+                  stage: '개인 응원',
+                  lyric: '秋風が通り抜け〜 / どんな気持ちで歩いてるの？',
+                  tags: ['루루', '이름콜'],
+                  call: '<strong>콜:</strong> 루루! 짧고 작게.'
+                },
+                {
+                  time: '마리링 파트',
+                  stage: '개인 응원',
+                  lyric: '何気なく〜 / この先何が起こっても〜',
+                  tags: ['마리링', '이름콜'],
+                  call: '<strong>콜:</strong> 마리링! 짧고 작게.'
+                },
+                {
+                  time: '후렴',
+                  stage: '단체 합류',
+                  lyric: 'カナリア 君の歌が〜',
+                  tags: ['후렴'],
+                  call: '<strong>포인트:</strong> 이름콜보다 카나리아/루미벨 콜로 합류.'
+                }
+              ]
+            },
+            advanced: {
+              point: '나마콜은 넣되, 감성곡 톤을 해치지 않게 짧고 정확하게만.',
+              lines: [
+                {
+                  time: '솔로 파트 시작',
+                  stage: '이름콜 타이밍',
+                  lyric: '개인 파트 진입 순간',
+                  tags: ['나마콜'],
+                  call: '<strong>포인트:</strong> 파트 시작 순간 짧게만 넣고 바로 감상 복귀.'
+                },
+                {
+                  time: 'Bridge',
+                  stage: '완전 감상',
+                  lyric: '추운 계절 속에서도〜',
+                  tags: ['감상'],
+                  call: '<strong>콜:</strong> 여기서는 이름콜 X.'
+                },
+                {
+                  time: '마지막 후렴',
+                  stage: '정리',
+                  lyric: 'きっとずっと〜',
+                  tags: ['최종'],
+                  call: '<strong>포인트:</strong> 개인 응원보다 곡 전체 정서 유지가 더 중요.'
+                }
+              ]
+            }
           }
         }
       }
+    ];
+
+    const state = {
+      songId: 'stardust-magical',
+      mode: 'team',
+      level: 'beginner'
     };
 
-    let currentSong = "shukipi";
-    let currentMode = "team";
-    let currentLevel = "beginner";
+    let currentVideoSongId = null;
 
-    const songGrid = document.getElementById("songGrid");
-    const videoCard = document.getElementById("videoCard");
-    const videoEmpty = document.getElementById("videoEmpty");
-    const videoTitle = document.getElementById("videoTitle");
-    const videoEng = document.getElementById("videoEng");
-    const videoDesc = document.getElementById("videoDesc");
-    const videoThumb = document.getElementById("videoThumb");
-    const videoFrame = document.getElementById("videoFrame");
-    const infoTitle = document.getElementById("infoTitle");
-    const infoSub = document.getElementById("infoSub");
-    const metaTags = document.getElementById("metaTags");
-    const modeButtons = document.getElementById("modeButtons");
-    const levelButtons = document.getElementById("levelButtons");
-    const helperText = document.getElementById("helperText");
-    const audioPlayer = document.getElementById("audioPlayer");
-    const audioEmpty = document.getElementById("audioEmpty");
-    const linkRow = document.getElementById("linkRow");
-    const noteMode = document.getElementById("noteMode");
-    const noteLevel = document.getElementById("noteLevel");
-    const notePoint = document.getElementById("notePoint");
-    const guideLines = document.getElementById("guideLines");
-    const emptyGuide = document.getElementById("emptyGuide");
-    const lyricsContent = document.getElementById("lyricsContent");
-    const topBtn = document.getElementById("topBtn");
+    const songGrid = document.getElementById('songGrid');
+    const guideTitle = document.getElementById('guideTitle');
+    const guideDesc = document.getElementById('guideDesc');
+    const guideMeta = document.getElementById('guideMeta');
+    const modeButtons = document.getElementById('modeButtons');
+    const levelButtons = document.getElementById('levelButtons');
+    const guideAudio = document.getElementById('guideAudio');
+    const audioEmpty = document.getElementById('audioEmpty');
+    const linkRow = document.getElementById('linkRow');
+    const noteMode = document.getElementById('noteMode');
+    const noteLevel = document.getElementById('noteLevel');
+    const notePoint = document.getElementById('notePoint');
+    const guideLines = document.getElementById('guideLines');
+    const emptyGuide = document.getElementById('emptyGuide');
+    const guidePanel = document.getElementById('guidePanel');
+
+    const videoCard = document.getElementById('videoCard');
+    const videoCardTitle = document.getElementById('videoCardTitle');
+    const videoCardEng = document.getElementById('videoCardEng');
+    const videoCoverThumbWrap = document.getElementById('videoCoverThumbWrap');
+    const videoCoverThumb = document.getElementById('videoCoverThumb');
+    const guideVideo = document.getElementById('guideVideo');
+    const videoEmpty = document.getElementById('videoEmpty');
+
+    const guideInfoBox = document.getElementById('guideInfoBox');
+    const trackBlock = document.getElementById('trackBlock');
+    const cheerBlock = document.getElementById('cheerBlock');
+
+    const scrollTopBtn = document.getElementById('scrollTopBtn');
+
+    const termModal = document.getElementById('termModal');
+    const termModalClose = document.getElementById('termModalClose');
+
+    function getSong(){
+      return songs.find(song => song.id === state.songId) || songs[0];
+    }
+
+    function modeLabel(mode){
+      return mode === 'team' ? '팀 응원' : '솔로 응원';
+    }
+
+    function levelLabel(level){
+      return level === 'beginner' ? '초보용' : '고급용';
+    }
+
+    function getYoutubeEmbedUrl(url){
+      if(!url) return '';
+      try{
+        const parsed = new URL(url);
+        if(parsed.hostname.includes('youtu.be')){
+          const id = parsed.pathname.replace('/','');
+          return id ? `https://www.youtube.com/embed/${id}` : '';
+        }
+        if(parsed.hostname.includes('youtube.com')){
+          const id = parsed.searchParams.get('v');
+          return id ? `https://www.youtube.com/embed/${id}` : '';
+        }
+        return '';
+      }catch(e){
+        return '';
+      }
+    }
+
+    function restartReveal(){
+      [videoCard, guideInfoBox, trackBlock, cheerBlock].forEach(el => {
+        el.classList.remove('show');
+        void el.offsetWidth;
+        if(el.style.display !== 'none') el.classList.add('show');
+      });
+    }
 
     function renderSongCards(){
-      const order = ["stardust","story","shukipi","canaria"];
-      songGrid.innerHTML = order.map(key => {
-        const song = songs[key];
-        const active = key === currentSong;
-        const status = [];
-        if(active) status.push('<span class="chip now">NOW</span>');
-        if(key === "stardust") status.push('<span class="chip">응원가이드 일부</span><span class="chip">영상 준비중</span>');
-        if(key === "story") status.push('<span class="chip">응원가이드 준비중</span>');
-        if(key === "shukipi") status.push('<span class="chip">응원가이드 작성</span><span class="chip">영상 있음</span>');
-        if(key === "canaria") status.push('<span class="chip">응원가이드 작성</span><span class="chip">영상 있음</span><span class="chip">음원 있음</span>');
-        return `
-          <div class="song-card ${active ? 'active' : ''}" onclick="selectSong('${key}')">
-            <div class="song-thumb">
-              <div class="song-badge">NOW</div>
-              <img src="${song.thumb}" alt="${song.title} 썸네일">
-            </div>
-            <div class="song-title">${song.title}</div>
-            <div class="song-en">${song.subtitle}</div>
-            <div class="song-desc">${song.desc}</div>
-            <div class="song-status">${status.join('')}</div>
+      songGrid.innerHTML = songs.map(song => `
+        <article class="song-card ${song.id === state.songId ? 'active' : ''}" data-song="${song.id}">
+          <div class="song-card-badge">NOW</div>
+          <div class="song-thumb">
+            <img src="${song.thumb}" alt="${song.title} 썸네일">
           </div>
-        `;
-      }).join("");
+          <div class="song-title">${song.title}</div>
+          <div class="song-en">${song.subtitle}</div>
+          <div class="song-desc">${song.desc}</div>
+          <div class="song-status">
+            ${song.status.map(item => `<span class="chip">${item}</span>`).join('')}
+          </div>
+        </article>
+      `).join('');
+
+      document.querySelectorAll('.song-card').forEach(card => {
+        card.addEventListener('click', () => {
+          state.songId = card.dataset.song;
+          state.mode = 'team';
+          state.level = 'beginner';
+          render(true);
+          guidePanel.scrollIntoView({ behavior:'smooth', block:'start' });
+        });
+      });
     }
 
-    function selectSong(key){
-      currentSong = key;
-      currentMode = "team";
-      currentLevel = "beginner";
-      renderAll();
-      document.querySelector('.detail').scrollIntoView({behavior:'smooth', block:'start'});
-    }
-
-    function renderModes(song){
-      const modes = ["team","solo"];
+    function renderModeButtons(song){
+      const modes = ['team','solo'];
       modeButtons.innerHTML = modes.map(mode => {
-        const label = mode === "team" ? "팀 응원" : "솔로 응원";
-        return `<button class="btn ${currentMode === mode ? 'active' : ''}" onclick="selectMode('${mode}')">${label}</button>`;
-      }).join("");
+        const hasAny = song.support?.[mode]?.beginner || song.support?.[mode]?.advanced;
+        return `
+          <button class="toggle-btn ${state.mode === mode ? 'active' : ''}" data-mode="${mode}">
+            ${modeLabel(mode)}${hasAny ? '' : ' · 준비중'}
+          </button>
+        `;
+      }).join('');
+
+      modeButtons.querySelectorAll('[data-mode]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.mode = btn.dataset.mode;
+          const currentGuide = getSong().support?.[state.mode]?.[state.level];
+          if(!currentGuide){
+            if(getSong().support?.[state.mode]?.beginner) state.level = 'beginner';
+            else if(getSong().support?.[state.mode]?.advanced) state.level = 'advanced';
+          }
+          render(false);
+        });
+      });
     }
 
-    function renderLevels(song){
-      const levels = ["beginner","advanced"];
+    function renderLevelButtons(song){
+      const levels = ['beginner','advanced'];
       levelButtons.innerHTML = levels.map(level => {
-        const label = level === "beginner" ? "초보용" : "고급용";
-        return `<button class="btn ${currentLevel === level ? 'active' : ''}" onclick="selectLevel('${level}')">${label}</button>`;
-      }).join("");
-    }
+        const hasGuide = !!song.support?.[state.mode]?.[level];
+        return `
+          <button class="toggle-btn ${state.level === level ? 'active' : ''}" data-level="${level}">
+            ${levelLabel(level)}${hasGuide ? '' : ' · 준비중'}
+          </button>
+        `;
+      }).join('');
 
-    function selectMode(mode){
-      currentMode = mode;
-      const song = songs[currentSong];
-      if(!song.modes[currentMode][currentLevel]){
-        currentLevel = song.modes[currentMode].beginner ? "beginner" : "advanced";
-      }
-      renderAll();
-    }
-
-    function selectLevel(level){
-      currentLevel = level;
-      renderAll();
-    }
-
-    function renderVideo(song){
-      videoTitle.textContent = song.title;
-      videoEng.textContent = song.subtitle;
-      videoDesc.textContent = `${currentMode === "team" ? "팀 응원" : "솔로 응원"} · ${currentLevel === "beginner" ? "초보용" : "고급용"} · 응원 연습용 영상`;
-      videoThumb.src = song.thumb || "";
-
-      if(song.video){
-        videoCard.style.display = "block";
-        videoEmpty.style.display = "none";
-        videoFrame.src = song.video;
-      }else{
-        videoCard.style.display = "none";
-        videoEmpty.style.display = "flex";
-        videoFrame.src = "";
-      }
-    }
-
-    function renderInfo(song){
-      infoTitle.textContent = song.title;
-      infoSub.textContent = song.desc;
-      helperText.textContent = song.helper;
-      metaTags.innerHTML = song.meta.map(item => `<span>${item}</span>`).join("");
+      levelButtons.querySelectorAll('[data-level]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.level = btn.dataset.level;
+          render(false);
+        });
+      });
     }
 
     function renderAudio(song){
       if(song.audio){
-        audioPlayer.style.display = "block";
-        audioEmpty.style.display = "none";
-        audioPlayer.src = song.audio;
+        guideAudio.style.display = 'block';
+        audioEmpty.style.display = 'none';
+        guideAudio.src = song.audio;
       }else{
-        audioPlayer.style.display = "none";
-        audioEmpty.style.display = "flex";
-        audioPlayer.removeAttribute("src");
-        audioPlayer.load();
+        guideAudio.pause();
+        guideAudio.removeAttribute('src');
+        guideAudio.load();
+        guideAudio.style.display = 'none';
+        audioEmpty.style.display = 'flex';
       }
     }
 
     function renderLinks(song){
       const videoBtn = song.video
-        ? `<a class="link-btn" href="${song.video.replace('/embed/','/watch?v=')}" target="_blank" rel="noopener noreferrer">영상 보러가기</a>`
+        ? `<a class="link-btn" href="${song.video}" target="_blank" rel="noopener noreferrer">영상 보러가기</a>`
         : `<span class="link-btn disabled">영상 준비중</span>`;
 
-      linkRow.innerHTML = `
-        ${videoBtn}
-        <button class="link-btn secondary" onclick="openModal('termModal')">용어 가이드</button>
-        <button class="link-btn secondary" onclick="openLyrics()">가사지</button>
-      `;
+      const termBtn = `<button class="link-btn secondary" type="button" id="openTermGuideBtn">용어 GUIDE</button>`;
+      linkRow.innerHTML = videoBtn + termBtn;
+
+      const openBtn = document.getElementById('openTermGuideBtn');
+      if(openBtn){
+        openBtn.addEventListener('click', () => {
+          termModal.classList.add('open');
+          document.body.style.overflow = 'hidden';
+        });
+      }
+    }
+
+    function renderMeta(song){
+      guideMeta.innerHTML = [song.subtitle, ...song.meta].map(item => `<span class="chip">${item}</span>`).join('');
+    }
+
+    function renderVideo(song, forceChange){
+      const embedUrl = getYoutubeEmbedUrl(song.video);
+
+      videoCardTitle.textContent = song.title;
+      videoCardEng.textContent = song.subtitle;
+
+      if(song.thumb){
+        videoCoverThumbWrap.style.display = 'block';
+        videoCoverThumb.src = song.thumb;
+        videoCoverThumb.alt = `${song.title} 커버`;
+      }else{
+        videoCoverThumbWrap.style.display = 'none';
+      }
+
+      if(embedUrl){
+        videoCard.style.display = 'block';
+        videoEmpty.style.display = 'none';
+
+        if(forceChange || currentVideoSongId !== song.id){
+          guideVideo.src = embedUrl;
+          currentVideoSongId = song.id;
+        }
+      }else{
+        videoCard.style.display = 'none';
+        videoEmpty.style.display = 'flex';
+        guideVideo.src = '';
+        currentVideoSongId = null;
+      }
     }
 
     function renderGuide(song){
-      const guide = song.modes[currentMode][currentLevel];
-      noteMode.textContent = currentMode === "team" ? "팀 응원" : "솔로 응원";
-      noteLevel.textContent = currentLevel === "beginner" ? "초보용" : "고급용";
-      notePoint.textContent = guide ? guide.point : "이 조합의 가이드는 아직 준비중";
+      const guide = song.support?.[state.mode]?.[state.level] || null;
+
+      noteMode.textContent = modeLabel(state.mode);
+      noteLevel.textContent = levelLabel(state.level);
+      notePoint.textContent = guide ? guide.point : '이 조합의 가이드는 아직 준비중';
 
       if(!guide){
-        guideLines.style.display = "none";
-        emptyGuide.style.display = "block";
-        guideLines.innerHTML = "";
+        guideLines.style.display = 'none';
+        emptyGuide.style.display = 'block';
+        guideLines.innerHTML = '';
         return;
       }
 
-      emptyGuide.style.display = "none";
-      guideLines.style.display = "grid";
-      guideLines.innerHTML = guide.lines.map(line => `
-        <div class="guide-line">
+      emptyGuide.style.display = 'none';
+      guideLines.style.display = 'grid';
+      guideLines.innerHTML = guide.lines.map((line, idx) => `
+        <article class="guide-line" style="animation-delay:${0.03 + idx * 0.04}s">
           <div class="guide-line-top">
             <div class="guide-time">${line.time}</div>
             <div class="guide-stage">${line.stage}</div>
           </div>
           <div class="guide-lyric">${line.lyric}</div>
-          <div class="tag-row">${line.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}</div>
+          <div class="tag-row">
+            ${line.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+          </div>
           <div class="guide-call">${line.call}</div>
-        </div>
-      `).join("");
+        </article>
+      `).join('');
     }
 
-    function openLyrics(){
-      const song = songs[currentSong];
-      lyricsContent.innerHTML = `<div class="lyric-item"><h4>${song.title}</h4><p>${song.lyrics}</p></div>`;
-      openModal("lyricsModal");
-    }
+    function render(forceVideoChange = true){
+      const song = getSong();
 
-    function openModal(id){
-      document.getElementById(id).classList.add("open");
-      document.body.style.overflow = "hidden";
-    }
-
-    function closeModal(id){
-      document.getElementById(id).classList.remove("open");
-      document.body.style.overflow = "";
-    }
-
-    function renderAll(){
-      const song = songs[currentSong];
       renderSongCards();
-      renderVideo(song);
-      renderInfo(song);
-      renderModes(song);
-      renderLevels(song);
+      renderModeButtons(song);
+      renderLevelButtons(song);
+
+      guideTitle.textContent = song.title;
+      guideDesc.textContent = song.desc;
+
+      renderMeta(song);
       renderAudio(song);
       renderLinks(song);
+      renderVideo(song, forceVideoChange);
       renderGuide(song);
+      restartReveal();
     }
 
-    window.addEventListener("scroll", () => {
-      if(window.scrollY > 400){
-        topBtn.classList.add("show");
-      }else{
-        topBtn.classList.remove("show");
-      }
+    // modal
+    function closeTermModal(){
+      termModal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    termModalClose.addEventListener('click', closeTermModal);
+    termModal.addEventListener('click', (e) => {
+      if(e.target === termModal) closeTermModal();
+    });
+    window.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape' && termModal.classList.contains('open')) closeTermModal();
     });
 
-    topBtn.addEventListener("click", () => {
-      window.scrollTo({top:0, behavior:'smooth'});
+    // top button
+    window.addEventListener('scroll', () => {
+      if(window.scrollY > 320) scrollTopBtn.classList.add('show');
+      else scrollTopBtn.classList.remove('show');
     });
 
-    document.querySelectorAll(".modal").forEach(modal => {
-      modal.addEventListener("click", (e) => {
-        if(e.target === modal){
-          modal.classList.remove("open");
-          document.body.style.overflow = "";
-        }
-      });
+    scrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    renderAll();
+    render(true);
   </script>
 </body>
 </html>
