@@ -3104,6 +3104,198 @@ audio::-webkit-media-controls-mute-button{
 }
 </style>
 
+
+<style>
+/* --- card UX patch only --- */
+.slider-shell{
+  padding-left:88px !important;
+}
+.slider-arrow.first{
+  left:0 !important;
+}
+.slider-arrow.left{
+  left:44px !important;
+}
+.song-card.active{
+  box-shadow:
+    0 0 0 2px rgba(255,89,165,.32),
+    0 18px 34px rgba(255,89,165,.18) !important;
+}
+.song-card.active::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:24px;
+  pointer-events:none;
+  background:radial-gradient(circle at 50% 36%, rgba(255,255,255,.45), rgba(255,255,255,0) 58%);
+  animation:cardGlow .55s ease;
+}
+@keyframes cardGlow{
+  0%{opacity:0;transform:scale(.96)}
+  45%{opacity:1}
+  100%{opacity:0;transform:scale(1.03)}
+}
+@media (max-width:980px){
+  .slider-shell{
+    padding-left:80px !important;
+  }
+  .slider-arrow.left{
+    left:40px !important;
+  }
+}
+@media (max-width:860px){
+  .slider-shell{
+    padding-left:72px !important;
+  }
+  .slider-arrow.left{
+    left:36px !important;
+  }
+}
+</style>
+
+
+<style>
+/* --- slider ux v2 --- */
+.slider-shell{
+  padding-left:88px !important;
+  padding-right:88px !important;
+}
+.slider-arrow.first{left:0 !important;}
+.slider-arrow.left{left:44px !important;}
+.slider-arrow.right{right:44px !important;}
+.slider-arrow.last{right:0 !important;}
+.song-card.active{
+  box-shadow:
+    0 0 0 2px rgba(255,89,165,.34),
+    0 18px 34px rgba(255,89,165,.22) !important;
+}
+.song-card.active::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:24px;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(255,255,255,.55), rgba(255,255,255,0) 56%);
+  animation:cardGlowV2 .75s ease;
+}
+@keyframes cardGlowV2{
+  0%{opacity:0;transform:scale(.96)}
+  35%{opacity:1}
+  100%{opacity:0;transform:scale(1.04)}
+}
+.coming-soon-card{
+  cursor:pointer !important;
+}
+.coming-soon-card .song-title,
+.coming-soon-card .song-en,
+.coming-soon-card .song-desc{
+  text-align:center !important;
+}
+.coming-soon-card .song-status{
+  justify-content:center !important;
+}
+@media (max-width:980px){
+  .slider-shell{
+    padding-left:80px !important;
+    padding-right:80px !important;
+  }
+  .slider-arrow.left{left:40px !important;}
+  .slider-arrow.right{right:40px !important;}
+}
+@media (max-width:860px){
+  .slider-shell{
+    padding-left:72px !important;
+    padding-right:72px !important;
+  }
+  .slider-arrow.left{left:36px !important;}
+  .slider-arrow.right{right:36px !important;}
+}
+</style>
+
+
+<style>
+.song-card.active{
+  box-shadow:
+    0 0 0 2px rgba(255,89,165,.42),
+    0 20px 36px rgba(255,89,165,.24) !important;
+}
+.song-card.active::after{
+  background:
+    radial-gradient(circle at 50% 35%, rgba(255,255,255,.72), rgba(255,255,255,0) 58%) !important;
+  animation:cardGlowV3 .95s ease !important;
+}
+@keyframes cardGlowV3{
+  0%{opacity:0;transform:scale(.95)}
+  30%{opacity:1}
+  100%{opacity:0;transform:scale(1.05)}
+}
+</style>
+
+
+<style>
+/* --- UX v4 polish --- */
+.song-card{
+  transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease !important;
+}
+.song-card.active{
+  border-color:rgba(255,89,165,.52) !important;
+  box-shadow:
+    0 0 0 2px rgba(255,89,165,.24),
+    0 14px 24px rgba(255,89,165,.16) !important;
+}
+.song-card.active::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:24px;
+  pointer-events:none;
+  background:radial-gradient(circle at 50% 32%, rgba(255,255,255,.78), rgba(255,255,255,0) 56%) !important;
+  animation:cardGlowV4 .55s ease !important;
+}
+@keyframes cardGlowV4{
+  0%{opacity:0;transform:scale(.97)}
+  40%{opacity:1}
+  100%{opacity:0;transform:scale(1.03)}
+}
+.coming-soon-card.active .song-thumb{
+  border-color:rgba(255,89,165,.36) !important;
+  background:linear-gradient(180deg,#fff9fc,#fff1f8) !important;
+}
+</style>
+
+
+<style>
+/* --- coming soon interaction patch --- */
+.coming-soon-notice{
+  display:none;
+  margin:0 0 12px;
+  padding:11px 14px;
+  border-radius:16px;
+  border:1px solid rgba(255,89,165,.18);
+  background:rgba(255,89,165,.07);
+  color:#ff59a5;
+  font-size:13px;
+  font-weight:900;
+  line-height:1.5;
+  text-align:center;
+}
+.coming-soon-notice.show{
+  display:block;
+  animation:comingSoonNoticePop .24s ease;
+}
+@keyframes comingSoonNoticePop{
+  0%{opacity:0;transform:translateY(4px)}
+  100%{opacity:1;transform:translateY(0)}
+}
+.coming-soon-card{
+  cursor:pointer !important;
+}
+.coming-soon-card:active{
+  transform:scale(.985);
+}
+</style>
+
 </head>
 <body>
 
@@ -3183,11 +3375,13 @@ audio::-webkit-media-controls-mute-button{
       </section>
 
       <section class="slider-shell" id="songSliderShell">
+        <button class="slider-arrow first" type="button" id="songFirstBtn" aria-label="처음으로">«</button>
         <button class="slider-arrow left" type="button" id="songPrevBtn" aria-label="이전 곡">‹</button>
         <div class="slider-viewport">
           <section class="song-grid" id="songGrid"></section>
         </div>
         <button class="slider-arrow right" type="button" id="songNextBtn" aria-label="다음 곡">›</button>
+        <button class="slider-arrow last" type="button" id="songLastBtn" aria-label="마지막으로">»</button>
       </section>
 
       <section class="guide-panel open" id="guidePanel">
@@ -3240,6 +3434,7 @@ audio::-webkit-media-controls-mute-button{
             </div>
 
             <div class="guide-info-mix">
+              <div class="coming-soon-notice" id="comingSoonNotice" aria-live="polite"></div>
               <div class="mix-practice-box">
                 <div class="mix-practice-title">🎧 MIX PRACTICE</div>
                 <div class="mix-practice-desc">타이밍에 맞춰 콜을 넣어보세요!</div>
@@ -4449,7 +4644,8 @@ We are Sweetie pie! 루미베르 데스~`,
     const state = {
       songId: 'stardust-magical',
       mode: 'team',
-      level: 'beginner'
+      level: 'beginner',
+      comingSoonIndex: null
     };
 
     let currentVideoSongId = null;
@@ -4469,6 +4665,7 @@ We are Sweetie pie! 루미베르 데스~`,
     const guideLines = document.getElementById('guideLines');
     const emptyGuide = document.getElementById('emptyGuide');
     const guidePanel = document.getElementById('guidePanel');
+    const comingSoonNotice = document.getElementById('comingSoonNotice');
 
     const videoCard = document.getElementById('videoCard');
     const videoCardTitle = document.getElementById('videoCardTitle');
@@ -4489,7 +4686,28 @@ We are Sweetie pie! 루미베르 데스~`,
     const lyricsModal = document.getElementById('lyricsModal');
     const lyricsModalClose = document.getElementById('lyricsModalClose');
 
+    function getComingSoonSong(){
+      const slotNumber = (state.comingSoonIndex ?? 0) + 1;
+      return {
+        id: `coming-soon-${slotNumber}`,
+        title: 'Coming Soon',
+        subtitle: `SETLIST SLOT ${slotNumber}`,
+        desc: '추가 셋리 / 이벤트곡 / 솔로곡이 들어올 자리예요.<br>세부 응원가이드는 준비되는 대로 업데이트됩니다.',
+        meta: ['준비중', '커밍순', `SLOT ${slotNumber}`],
+        audio: '',
+        video: '',
+        thumb: '',
+        lyrics: '가사지 준비중',
+        status: ['준비중'],
+        support: {
+          team: { beginner: null, advanced: null },
+          solo: { beginner: null, advanced: null }
+        }
+      };
+    }
+
     function getSong(){
+      if(state.comingSoonIndex !== null) return getComingSoonSong();
       return songs.find(song => song.id === state.songId) || songs[0];
     }
 
@@ -4529,10 +4747,41 @@ We are Sweetie pie! 루미베르 데스~`,
 
     
     let sliderIndex = 0;
+    let scrollRaf = null;
+
+    function showComingSoonNotice(message = '준비중입니다'){
+      if(!comingSoonNotice) return;
+      comingSoonNotice.textContent = message;
+      comingSoonNotice.classList.remove('show');
+      void comingSoonNotice.offsetWidth;
+      comingSoonNotice.classList.add('show');
+    }
+
+    function hideComingSoonNotice(){
+      if(!comingSoonNotice) return;
+      comingSoonNotice.classList.remove('show');
+      comingSoonNotice.textContent = '';
+    }
+
+    function scrollGuidePanel(){
+      if(scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = requestAnimationFrame(() => {
+        const stickyHeader = document.querySelector('header');
+        const headerHeight = stickyHeader ? stickyHeader.offsetHeight : 0;
+        const rect = guidePanel.getBoundingClientRect();
+        const targetTop = window.scrollY + rect.top - headerHeight - 6;
+
+        window.scrollTo({
+          top: Math.max(0, targetTop),
+          behavior: 'smooth'
+        });
+        scrollRaf = null;
+      });
+    }
 
     function buildComingSoonCards(){
       return Array.from({length:4}, (_, i) => `
-        <article class="song-card coming-soon-card" aria-disabled="true">
+        <article class="song-card coming-soon-card" data-coming-index="${i}">
           <div class="song-thumb">COMING<br>SOON</div>
           <div class="song-title">Coming Soon</div>
           <div class="song-en">SETLIST SLOT ${i + 1}</div>
@@ -4563,14 +4812,24 @@ We are Sweetie pie! 루미베르 데스~`,
       const step = first.getBoundingClientRect().width + gap;
       songGrid.style.transform = `translateX(-${sliderIndex * step}px)`;
 
+      const firstBtn = document.getElementById('songFirstBtn');
       const prevBtn = document.getElementById('songPrevBtn');
       const nextBtn = document.getElementById('songNextBtn');
-      if(prevBtn) prevBtn.disabled = sliderIndex <= 0;
-      if(nextBtn) nextBtn.disabled = sliderIndex >= maxIndex;
+      const lastBtn = document.getElementById('songLastBtn');
+      const isStatic = maxIndex <= 0;
+      if(firstBtn) firstBtn.disabled = isStatic;
+      if(prevBtn) prevBtn.disabled = isStatic;
+      if(nextBtn) nextBtn.disabled = isStatic;
+      if(lastBtn) lastBtn.disabled = isStatic;
     }
 
     function ensureActiveCardVisible(){
-      const activeIndex = songs.findIndex(song => song.id === state.songId);
+      let activeIndex = -1;
+      if(state.comingSoonIndex !== null){
+        activeIndex = songs.length + state.comingSoonIndex;
+      }else{
+        activeIndex = songs.findIndex(song => song.id === state.songId);
+      }
       if(activeIndex < 0) return;
       const visible = getVisibleCardCount();
       if(activeIndex < sliderIndex) sliderIndex = activeIndex;
@@ -4579,7 +4838,7 @@ We are Sweetie pie! 루미베르 데스~`,
 
     function renderSongCards(){
       songGrid.innerHTML = songs.map(song => `
-        <article class="song-card ${song.id === state.songId ? 'active' : ''}" data-song="${song.id}">
+        <article class="song-card ${state.comingSoonIndex === null && song.id === state.songId ? 'active' : ''}" data-song="${song.id}">
           <div class="song-card-badge">NOW</div>
           <div class="song-thumb">
             <img src="${song.thumb}" alt="${song.title} 썸네일" onerror="if(!this.dataset.try1){this.dataset.try1=1;this.src='./'+this.getAttribute('src').replace(/^\.\//,'');}else if(!this.dataset.try2){this.dataset.try2=1;this.src='../'+this.getAttribute('src').replace(/^\.\//,'').replace(/^\.\.\//,'');}else{this.style.display='none';this.parentElement.style.background='#fff7fb';}">
@@ -4595,12 +4854,45 @@ We are Sweetie pie! 루미베르 데스~`,
 
       document.querySelectorAll('#songGrid .song-card[data-song]').forEach(card => {
         card.addEventListener('click', () => {
+          const clickedIndex = songs.findIndex(song => song.id === card.dataset.song);
+
           state.songId = card.dataset.song;
           state.mode = 'team';
           state.level = 'beginner';
+          state.comingSoonIndex = null;
+          hideComingSoonNotice();
+
+          if(clickedIndex >= 0){
+            const visible = getVisibleCardCount();
+            const targetIndex = Math.max(0, clickedIndex - Math.floor((visible - 1) / 2));
+            sliderIndex = targetIndex;
+          }
+
           render(true);
           guidePanel.classList.add('open');
-          guidePanel.scrollIntoView({ behavior:'smooth', block:'nearest' });
+          scrollGuidePanel();
+        });
+      });
+
+      document.querySelectorAll('#songGrid .coming-soon-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const clickedIndex = Number(card.dataset.comingIndex || 0);
+          const allCards = Array.from(document.querySelectorAll('#songGrid .song-card'));
+          const absoluteIndex = allCards.indexOf(card);
+          const visible = getVisibleCardCount();
+
+          state.comingSoonIndex = clickedIndex;
+          state.mode = 'team';
+          state.level = 'beginner';
+
+          if(absoluteIndex >= 0){
+            sliderIndex = Math.max(0, Math.min(absoluteIndex - Math.floor((visible - 1) / 2), allCards.length - visible));
+          }
+
+          render(true);
+          guidePanel.classList.add('open');
+          showComingSoonNotice('준비중입니다');
+          scrollGuidePanel();
         });
       });
 
@@ -4768,6 +5060,9 @@ We are Sweetie pie! 루미베르 데스~`,
     function render(forceVideoChange = true){
       const song = getSong();
 
+      if(state.comingSoonIndex === null){
+        hideComingSoonNotice();
+      }
       renderSongCards();
       renderModeButtons(song);
       renderLevelButtons(song);
@@ -4846,9 +5141,17 @@ We are Sweetie pie! 루미베르 데스~`,
     window.addEventListener('load', syncGuideColumns);
     window.addEventListener('resize', syncGuideColumns);
 
+    const songFirstBtn = document.getElementById('songFirstBtn');
     const songPrevBtn = document.getElementById('songPrevBtn');
     const songNextBtn = document.getElementById('songNextBtn');
+    const songLastBtn = document.getElementById('songLastBtn');
 
+    if(songFirstBtn){
+      songFirstBtn.addEventListener('click', () => {
+        sliderIndex = 0;
+        updateSlider();
+      });
+    }
     if(songPrevBtn){
       songPrevBtn.addEventListener('click', () => {
         sliderIndex -= 1;
@@ -4858,6 +5161,13 @@ We are Sweetie pie! 루미베르 데스~`,
     if(songNextBtn){
       songNextBtn.addEventListener('click', () => {
         sliderIndex += 1;
+        updateSlider();
+      });
+    }
+    if(songLastBtn){
+      songLastBtn.addEventListener('click', () => {
+        const totalCards = document.querySelectorAll('#songGrid .song-card').length;
+        sliderIndex = Math.max(0, totalCards - getVisibleCardCount());
         updateSlider();
       });
     }
