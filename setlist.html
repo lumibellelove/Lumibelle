@@ -412,8 +412,8 @@
       letter-spacing:.08em;
       backdrop-filter:blur(6px);
     }
-    .video-cover-thumb{display:none !important}
-    .video-cover-thumb img{display:none}
+    .video-cover-thumb{display:none !important;}
+    .video-cover-thumb img{display:none !important;}
     .video-frame-wrap{
       position:relative;
       aspect-ratio:16 / 9;
@@ -426,6 +426,22 @@
       display:block;
       background:#fff;
     }
+
+    .video-inline-empty{
+      display:none;
+      position:absolute;
+      inset:0;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:28px;
+      background:#fff;
+      color:#b18a9f;
+      font-size:14px;
+      line-height:1.9;
+      font-weight:800;
+    }
+
     .video-empty{
       display:none;
       min-height:320px;
@@ -565,6 +581,10 @@
     }
     .link-row{
       display:flex;
+      max-width:640px !important;
+      margin-left:auto !important;
+      margin-right:auto !important;
+      justify-content:center !important;
       flex-wrap:wrap;
       gap:10px;
       margin-top:14px;
@@ -1127,6 +1147,8 @@
 
 /* --- cute audio area --- */
 .audio-wrap{
+  max-width:640px !important;
+  margin:0 auto !important;
   border:1px solid #f1d4e3;
   border-radius:20px;
   background:linear-gradient(180deg,#fff9fc,#fff0f7);
@@ -1554,20 +1576,9 @@ audio::-webkit-media-controls-mute-button{
 /* --- round 14 targeted polish --- */
 
 /* left title area */
-.video-title{
-  font-size:38px !important;
-  line-height:1.02 !important;
-  margin-bottom:14px !important;
-}
-.video-eng{
-  font-size:14px !important;
-  line-height:1.2 !important;
-  letter-spacing:.14em !important;
-  margin-top:2px !important;
-}
-.video-title-wrap{
-  gap:6px !important;
-}
+.video-title{font-size:38px !important;line-height:1.02 !important;margin-bottom:6px !important;}
+.video-eng{font-size:14px !important;line-height:1.15 !important;letter-spacing:.12em !important;margin-top:0 !important;}
+.video-title-wrap{gap:2px !important;}
 
 /* audio player slimmer with more breathing room */
 .audio-wrap{
@@ -1730,6 +1741,8 @@ audio::-webkit-media-controls-mute-button{
 
 /* --- cute audio area --- */
 .audio-wrap{
+  max-width:640px !important;
+  margin:0 auto !important;
   border:1px solid #f1d4e3;
   border-radius:20px;
   background:linear-gradient(180deg,#fff9fc,#fff0f7);
@@ -2157,20 +2170,9 @@ audio::-webkit-media-controls-mute-button{
 /* --- round 14 targeted polish --- */
 
 /* left title area */
-.video-title{
-  font-size:38px !important;
-  line-height:1.02 !important;
-  margin-bottom:14px !important;
-}
-.video-eng{
-  font-size:14px !important;
-  line-height:1.2 !important;
-  letter-spacing:.14em !important;
-  margin-top:2px !important;
-}
-.video-title-wrap{
-  gap:6px !important;
-}
+.video-title{font-size:38px !important;line-height:1.02 !important;margin-bottom:6px !important;}
+.video-eng{font-size:14px !important;line-height:1.15 !important;letter-spacing:.12em !important;margin-top:0 !important;}
+.video-title-wrap{gap:2px !important;}
 
 /* audio player slimmer with more breathing room */
 .audio-wrap{
@@ -2240,6 +2242,11 @@ audio::-webkit-media-controls-mute-button{
     align-self: start !important;
   }
 }
+
+
+/* patch: keep song thumbs stable */
+.song-grid{align-items:stretch !important;}
+.song-thumb img{display:block !important;width:100% !important;height:100% !important;object-fit:cover !important;}
 
 </style>
 
@@ -2349,6 +2356,10 @@ audio::-webkit-media-controls-mute-button{
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowfullscreen>
               </iframe>
+              <div class="video-inline-empty" id="videoInlineEmpty">
+                이 곡은 아직 연결된 영상이 없어요.<br>
+                영상이 준비되면 이 영역에서 바로 볼 수 있게 표시됩니다.
+              </div>
             </div>
           </div>
 
@@ -2499,7 +2510,7 @@ audio::-webkit-media-controls-mute-button{
         title: '스타더스트 매지컬',
         subtitle: 'STARDUST MAGICAL',
         desc: '마법소녀 분위기가 강한 곡. 팀 응원 중심으로 보되, 솔로 파트 이름콜도 잘 어울리는 타입.',
-        thumb: 'img/setlist/stardust-magical.jpg',
+        thumb: 'img/tmb/mariring-tmb.png',
         status: ['응원가이드 일부', '영상 준비중'],
         lyrics: '스타더스트 매지컬 가사지 준비중',
         meta: ['팀용 지원', '솔로용 지원', '음원 미연결'],
@@ -2539,7 +2550,7 @@ audio::-webkit-media-controls-mute-button{
         title: '스토리베리 러브',
         subtitle: 'STORYBERRY LOVE',
         desc: '밝고 러블리한 분위기의 곡. 기본 응원 구조는 단순하지만 감정 표현이 중요한 곡.',
-        thumb: 'img/setlist/storyberrylove.jpg',
+        thumb: 'img/tmb/mariring01-tmb.jpg',
         status: ['응원가이드 준비중'],
         lyrics: '스토리베리 러브 가사지 준비중',
         meta: ['팀용 예정', '솔로용 예정'],
@@ -2563,7 +2574,454 @@ audio::-webkit-media-controls-mute-button{
         desc: '참여형 리스폰스가 핵심인 왕도 댄스곡. 관객이 같이 만드는 텐션이 중요해요.',
         thumb: 'img/setlist/shukipi.jpg',
         status: ['응원가이드 작성', '영상 있음'],
-        lyrics: '슈키피 가사지 준비중',
+        lyrics: `같이 : We are Sweetie pie!
+
+シャー　行かない
+샤- 이카나이 
+샤- 가지 마
+
+
+마리링 
+“「だって行っちゃったら
+닷테 잇챳타라 
+"그게, 가버리면
+
+もう帰って来ないかもしれないよね？(T-T)
+모오 카엣테코나이카모 시레나이요네
+이제 안 돌아올 수도 있는거지? (T-T)
+
+あとちょっと一緒にいよ？(T-T)」”
+아토 춋토 잇쇼니 이요 
+좀 더 같이 있자? (T-T)"
+
+
+같이
+「量産型」言わないで
+료오산가타 이와나이데 
+“양산형”이라 말하지 말아줘
+
+わたしなりのカワイイを　そう
+와타시나리노 카와이이오 소오 
+내 나름의 귀여움을, 그래
+
+ずっと極めているんです
+즛토 키와메테이룬데스 
+계속 진짜 열심히 하고 있어요
+
+Keep out でしょ
+Keep out 데쇼 
+Keep out 이잖아
+
+
+루루
+(入っちゃダメ)
+하잇챠 다메 
+(들어가면 안 돼)
+
+같이
+(なのに　あなたに)
+나노니 아나타니 
+(그런데 당신에게)
+
+마리링
+乱されてる
+미다사레테루 
+어지럽혀지고 있어
+
+같이
+(だけど　あなたは)
+다케도 아나타와 
+(하지만 당신은)
+
+루루
+ドライなフルーツ
+도라이나 후루-츠 
+마른 과일
+
+같이
+(そんな　あなたに)
+손나 아나타니 
+(그런 당신에게)
+
+마리링
+惹かれてるの
+히카레테루노
+끌리고 있는 걸
+
+メルト CHU
+메루토 CHU 
+녹아(melt) CHU (녹는 중)
+
+루루
+(どろどろりん)
+도로도로린
+(흐물흐물)
+
+마리링
+アイスミルクちゃん　わたし
+아이스미루쿠챤 와타시 
+아이스밀크인 나
+
+少しのエスプレッソ(あなた)で
+스코시노 아나타데 
+조금의 에스프레소(당신)로
+
+ぐるぐる　色が変わって行く
+구루구루 이로가 카왓테유쿠
+빙글빙글 색깔이 변해가
+
+같이 
+ファイボーワイパー
+화이보-와이파-
+
+*
+
+루루 (화내는 파트인데 잘 살릴 수 있으면 맡기고싶음! 어차피 녹음으로만 넣고, 실제 공연에서는 할 수 있을지 모르겠음..) 
+ねえー！
+네에- 
+저기~!
+
+같이
+すきなの　すきなの　すきすきすきぴ　(すきぴ)
+스키나노 스키나노 스키스키 스키피 (스키피) 
+좋아해 좋아해 스키스키 스키피 (스키피)
+
+ねえ　すきぴ　すきぴ　2人合わせて　(すきぴ)
+네에 스키피 스키피 후타리 아와세테 (스키피) 
+있지, 스키피 스키피 2명 합쳐서 (스키피)
+
+アイスラテの出来上がり　(どおぞ！)
+아이스라테노 데키아가리 (도오조) 
+아이스라떼의 완성 (자, 받아줘!)
+
+루루 
+わがままじゃないよ　いい子プリンセスで
+와가마마쟈 나이요 이이코 푸린세스데 
+제멋대로 구는 거 아니야 착한 아이 공주로
+
+마리링
+(だからギューってしてよね)
+다카라 규우테 시테요네 
+(그러니까 꼭~하고 안아줘)
+
+루루
+こっち見て(＞_＜)
+콧치미테 
+여기 봐줘 (>_<)
+
+마리링
+会いに来て(＞_＜)
+아이니 키테 
+만나러 와줘 (>_<)
+
+같이
+言えない！言いたい！
+이에나이 이이타이 
+말할 수 없어! 말하고 싶어!
+
+루루
+ハァー…
+하아- 
+하아...
+
+「すき」
+스키 
+"좋아해"
+
+같이 
+We are Sweetie pie! 루미베르 데스~ 
+
+*
+
+마리링
+なんであの子に　いいねするの？
+난데 아노 코니 이이네스루노
+왜 쟤한테 좋아요 누르는 거야?
+
+言えないけれど　見ちゃってます
+이에나이케레도 미챳테마스 
+말할 수 없지만 보고 있어요
+
+루루
+もう見慣れた君のID
+모오 미나레타 키미노 ID 
+이미 익숙한 너의 ID
+
+名前＋誕生日
+나마에 탄죠오비 
+이름+생일
+
+마리링
+(かわいすぎる)
+카와이 스기루 
+(너무 귀여워)
+
+같이
+(ちょっと待ってよ)
+춋토 맛테요 
+(잠깐, 기다려봐)
+
+루루
+このモデルちゃん
+코노 모데루챤 
+이 모델
+
+같이
+(ちょっと知らない)
+춋토 시라나이
+(잠깐, 몰라)
+
+마리링
+いつフォローしたの？
+이츠 훠로-시타노 
+언제 팔로우 한거야?
+
+같이
+(ちょっとショックで)
+춋토 숏쿠데 
+(좀 놀라서)
+
+루루
+こんな人が
+콘나 히토가 
+이런 사람이
+
+마리링
+タイプなの？
+타이푸나노 
+취향이야?
+
+루루
+(ぴぴぴ　ぴえん)
+피피피 피엔 
+(힝힝힝 힝구)
+
+마리링
+わたしだって
+와타시닷테 
+나라도
+
+Ah　好きな服　好きな色で
+Ah 스키나 후쿠 스키나 이로데 
+Ah 좋아하는 옷, 좋아하는 색으로
+
+狙い撃ちしたかったな　バッキューン
+네라이우치 시타캇타나 밧큐-운
+저격하고 싶었지 빵야-
+
+같이
+ファイボーワイパー
+화이보-와이파-
+
+* 
+마리링
+もおー！
+모오- 
+정말~!
+
+같이
+すきなの　すきなの　すきすきすきぴ　(わかる！)
+스키나노 스키나노 스키스키 스키피 (와카루) 
+좋아해 좋아해 스키스키 스키피 (알아!)
+
+本当は　振り回したいよ　(らぶゆー)
+혼토오와 후리마와시타이요 (라부유-) 
+사실은 자랑하고 싶어 (love you)
+
+はぁ…たまらん　たまらん　たまらんすぎる(わかる！)
+하아 타마란 타마란 타마란스기루 (와카루) 
+하아... 못 참겠어 못 참겠어 정말 못참겠어 (알아!)
+
+
+純度も湿度も100%　(100%)
+쥰도모 시츠도모 햐쿠 파- (햐쿠 파-) 
+순도도 습도도 100% (100%)
+
+루루 
+お姫様として　扱ってよ　ダーリン
+오히메사마토 시테 아츠캇테요 다-린 
+공주님으로 대해줘 달링(darling)
+
+
+마리링
+(ドレス脱がせていいよ)
+도레스 누가세테 이이요 
+(드레스 벗겨도 좋아)
+
+루루
+何してる？(＞_＜)
+나니시테루 
+뭐하고 있어? (>_<)
+
+
+마리링
+電話して(＞_＜)
+덴와시테 
+전화해줘 (>_<)
+
+루루
+言えない！　言いたいけど
+이에나이 이이타이케도 
+말할 수 없어! 말하고 싶지만
+
+
+重いのは嫌！
+오모이노와 이야 
+무거운 건 싫어!
+
+마리링 
+「もしもし…今何してる？
+모시모시 이마 나니시테루 
+“여보세요… 지금 뭐해?
+
+あー…付き合いだもんね　わかった」
+아- 츠키아이다몬네 와캇타 
+아~… 어쩔 수 없이 어울리고 있는 거구나 알겠어”
+
+루루
+好きって言ってくれたら切るのにー！
+스키테 잇테쿠레타라 키루노니- 
+좋아해라고 말해주면 끊을텐데~!
+
+마리링
+お願い聞いてね
+오네가이 키이테네 
+소원 들어줘
+
+もしもわたし　永遠に
+모시모 와타시 토와니
+만약에 내가 영원히
+
+같이
+(永遠に)
+토와니 
+(영원히)
+
+루루
+目が覚めずに
+메가 사메즈니 
+잠에서 깨지 않고
+
+
+このまま眠ってたら
+코노 마마 네뭇테타라 
+이대로 잔다면
+
+같이
+(君は)
+키미와 
+(너는)
+
+마리링
+キスより先に
+키스요리 사키니
+키스보다 먼저
+
+루루
+優しい
+야사시이 
+다정한
+
+
+마리링
+言葉をかけて
+코토바오 카케테 
+말을 해줘
+
+루루
+このまま　ずっと
+코노 마마 즛토 
+이대로 계속
+
+마리링
+魔法はとかないで
+마호오와 토카나이데 
+마법은 풀지 말고
+
+루루
+しかばね超えずに
+시카바네 코에즈니 
+시체 지나치지 말고
+
+
+마리링
+「ずーっと見てて」
+즈-읏토 미테테 
+“쭉- 보고 있어줘”
+
+あ゛ー！
+아-!
+
+같이
+しゅきなの　しゅきなの　しゅきしゅきしゅきぴ　(しゅきぴ)
+슈키나노 슈키나노 슈키슈키 슈키피 (슈키피) 
+좋아해 좋아해 슈키슈키 슈키피 (슈키피)
+
+なんでこんなに興味ない？
+난데 콘나니 쿄오미나이
+왜 이렇게 관심 없어?
+
+ねぇ　しゅきぴ　しゅきぴ　しゅきしゅきしゅきぴ　(しゅきぴ)
+네에 슈키피 슈키피 슈키슈키 슈키피 (슈키피) 
+저기, 슈키피 슈키피 슈키슈키 슈키피 (슈키피)
+
+ライト級vs(たい)ヘビー級
+라이토큐우타이 헤비이큐우 
+라이트급 vs 헤비급
+
+もう　しゅきなの　しゅきなの　しゅきしゅきしゅきぴ　(しゅきぴ)
+모오 슈키나노 슈키나노 슈키슈키 슈키피 (슈키피) 
+정말 좋아해 좋아해 슈키슈키 슈키피 (슈키피)
+
+不安で今日も眠れない
+후안데 쿄오모 네무레나이 
+불안해서 오늘도 잠이 안 와
+
+ほら　しゅきぴ　しゅきぴ　しゅきしゅきしゅきぴ　(しゅきぴ)
+호라 슈키피 슈키피 슈키슈키 슈키피 (슈키피) 
+자, 슈키피 슈키피 슈키슈키 슈키피 (슈키피)
+
+
+気付けば　「めざまし」始まる
+키즈케바 메자마시 하지마루 
+어느새 “메자마시” 시작해
+
+루루 
+自立シンデレラ　このままじゃ終われない
+지리츠 신데레라 코노 마마쟈 오와레나이 
+자립 신데렐라 이대로는 끝낼 수 없어
+
+마리링 
+(早く探し出してよ)
+하야쿠 사가시다시테요 
+(빨리 찾아내줘)
+
+루루
+何してる？
+나니시테루 
+뭐하고 있어?
+
+마리링
+どこにいる？
+도코니 이루 
+어디야?
+
+
+電話出て！もうダメだよね　これ以上しつこく
+덴와데테 모오 다메다요네 코레이죠오 시츠코쿠 
+전화 받아! 이제 안 되겠어, 더이상 끈질기게
+
+같이
+あ゛ぁーっ！！！
+아아앗!!!
+
+
+같이 
+We are Sweetie pie! 루미베르 데스~ 
+
+
+같이 
+We are Sweetie pie! 루미베르 데스~`,
         meta: ['팀용 지원', '솔로용 가능', '리스폰스형'],
         audio: '',
         video: 'https://youtu.be/az9mkI9C2f4',
@@ -3352,24 +3810,30 @@ audio::-webkit-media-controls-mute-button{
 
     function renderVideo(song, forceChange){
       const embedUrl = getYoutubeEmbedUrl(song.video);
+      const videoInlineEmpty = document.getElementById('videoInlineEmpty');
 
       videoCardTitle.textContent = song.title;
       videoCardEng.textContent = song.subtitle;
 
+      videoCoverThumb.src = '';
+      videoCoverThumb.alt = '';
       videoCoverThumbWrap.style.display = 'none';
 
+      videoCard.style.display = 'block';
+      videoEmpty.style.display = 'none';
+
       if(embedUrl){
-        videoCard.style.display = 'block';
-        videoEmpty.style.display = 'none';
+        guideVideo.style.display = 'block';
+        if(videoInlineEmpty) videoInlineEmpty.style.display = 'none';
 
         if(forceChange || currentVideoSongId !== song.id){
           guideVideo.src = embedUrl;
           currentVideoSongId = song.id;
         }
       }else{
-        videoCard.style.display = 'none';
-        videoEmpty.style.display = 'flex';
         guideVideo.src = '';
+        guideVideo.style.display = 'none';
+        if(videoInlineEmpty) videoInlineEmpty.style.display = 'flex';
         currentVideoSongId = null;
       }
     }
