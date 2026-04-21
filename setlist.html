@@ -139,30 +139,71 @@
       color:#9b768b;
       font-weight:700;
     }
+    .live-guide-section{
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:linear-gradient(180deg,rgba(255,245,250,.96),rgba(255,250,252,.98));
+      box-shadow:var(--shadow);
+      padding:34px 34px 30px;
+      margin:0 0 28px;
+    }
+    .live-guide-head{
+      text-align:center;
+      margin-bottom:26px;
+    }
+    .live-guide-title{
+      margin:0;
+      font-size:clamp(42px,6vw,68px);
+      line-height:.95;
+      letter-spacing:-.05em;
+      color:var(--pink-deep);
+      font-weight:900;
+    }
+    .live-guide-sub{
+      margin:14px 0 0;
+      color:#c99ab2;
+      font-size:14px;
+      line-height:1.6;
+      font-weight:800;
+    }
+    .live-guide-box-title{
+      margin:0 0 22px;
+      font-size:18px;
+      line-height:1.35;
+      color:#ff5ea8;
+      font-weight:900;
+      letter-spacing:-.03em;
+    }
     .hero-guide-points{
-      margin-top:18px;
       display:grid;
       grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:12px;
+      gap:16px;
     }
     .hero-guide-box{
       border:1px solid var(--line);
-      border-radius:18px;
-      background:rgba(255,255,255,.72);
-      padding:14px 14px 13px;
+      border-radius:22px;
+      background:rgba(255,255,255,.88);
+      min-height:126px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:left;
+      padding:18px 26px;
     }
     .hero-guide-box b{
       display:block;
       color:var(--text-strong);
-      font-size:14px;
-      margin-bottom:5px;
+      font-size:16px;
+      line-height:1.5;
+      margin-bottom:8px;
+      font-weight:900;
     }
     .hero-guide-box span{
       display:block;
-      font-size:13px;
-      line-height:1.7;
-      color:#aa8298;
-      font-weight:700;
+      font-size:14px;
+      line-height:1.65;
+      color:#9c778d;
+      font-weight:800;
     }
 
     .section-title{margin-bottom:16px}
@@ -289,18 +330,22 @@
 
     /* detail */
     .guide-panel{
+      display:block;
       border:1px solid var(--line);
       border-radius:28px;
       background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(255,248,252,.94));
       box-shadow:var(--shadow);
       overflow:hidden;
+      margin-top:8px;
     }
+    .guide-panel.open{display:block;animation:panelFade .28s ease}
+    @keyframes panelFade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
     .guide-head{
-      padding:28px;
+      padding:22px;
       border-bottom:1px solid rgba(241,212,227,.8);
       display:grid;
       grid-template-columns:1.08fr .92fr;
-      gap:20px;
+      gap:18px;
       align-items:start;
     }
 
@@ -319,9 +364,9 @@
     .video-card-head{
       display:flex;
       align-items:flex-start;
-      justify-content:space-between;
+      justify-content:flex-start;
       gap:16px;
-      padding:18px 18px 16px;
+      padding:16px 18px 14px;
       background:linear-gradient(135deg,#ff8fc2 0%,#ff59a5 100%);
     }
     .video-title-wrap{min-width:0;display:flex;flex-direction:column;gap:4px}
@@ -367,16 +412,8 @@
       letter-spacing:.08em;
       backdrop-filter:blur(6px);
     }
-    .video-cover-thumb{
-      width:72px;
-      height:72px;
-      border-radius:18px;
-      overflow:hidden;
-      border:1px solid rgba(255,255,255,.28);
-      background:#fff;
-      box-shadow:0 8px 18px rgba(0,0,0,.08);
-    }
-    .video-cover-thumb img{width:100%;height:100%;object-fit:cover}
+    .video-cover-thumb{display:none !important}
+    .video-cover-thumb img{display:none}
     .video-frame-wrap{
       position:relative;
       aspect-ratio:16 / 9;
@@ -411,7 +448,7 @@
       border-radius:26px;
       background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(255,247,251,.92));
       box-shadow:var(--shadow);
-      padding:22px 20px;
+      padding:20px 20px 18px;
       min-height:100%;
       opacity:0;
       transform:translateY(10px);
@@ -465,6 +502,11 @@
       color:#fff;
       border-color:transparent;
       box-shadow:0 12px 20px rgba(255,89,165,.18);
+    }
+    .toggle-btn.disabled{
+      opacity:.45;
+      cursor:default;
+      pointer-events:none;
     }
 
     .guide-body{
@@ -643,6 +685,45 @@
       font-size:11px;
       font-weight:900;
       letter-spacing:.04em;
+    }
+    .mix-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:28px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:linear-gradient(135deg,#ff8fc2,#ff59a5);
+      color:#fff;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.05em;
+      box-shadow:0 8px 18px rgba(255,89,165,.18);
+    }
+    .guide-line.mix-focus{
+      border-color:rgba(255,89,165,.34);
+      box-shadow:0 12px 24px rgba(255,89,165,.10);
+      background:linear-gradient(180deg,#fff 0%,#fff7fb 100%);
+    }
+    .mix-box{
+      margin-top:12px;
+      padding:12px 13px;
+      border-radius:14px;
+      border:1px solid rgba(255,89,165,.18);
+      background:rgba(255,89,165,.06);
+    }
+    .mix-box strong{
+      display:block;
+      margin-bottom:6px;
+      color:var(--pink-deep);
+      font-size:13px;
+    }
+    .mix-box p{
+      margin:0;
+      font-size:13px;
+      line-height:1.8;
+      color:#926f84;
+      font-weight:800;
     }
     .guide-call{
       font-size:13px;
@@ -880,19 +961,34 @@
           곡을 선택한 뒤 <strong>팀용 / 솔로용</strong> 응원 모드를 고르고,
           다시 <strong>초보용 / 고급용</strong> 난이도를 선택하면 상황에 맞는 콜, 믹스, 리액션 포인트를 볼 수 있어요.
         </p>
+      </section>
+
+      <section class="live-guide-section">
+        <div class="live-guide-head">
+          <h2 class="live-guide-title">LIVE GUIDE</h2>
+          <p class="live-guide-sub">공연 전 가볍게 보고 가면 더 재미있어요</p>
+        </div>
+
+        <h3 class="live-guide-box-title">처음 오는 분들을 위한 간단 안내</h3>
 
         <div class="hero-guide-points">
           <div class="hero-guide-box">
-            <b>LIVE GUIDE</b>
-            <span>곡의 분위기에 맞는 응원 톤을 먼저 확인하고, 무리한 믹스보다 곡 결을 살리는 방향으로 응원해요.</span>
+            <div>
+              <b>처음이면 무리 안 해도 괜찮아요.</b>
+              <span>박수만 쳐도 충분히 즐길 수 있어요.</span>
+            </div>
           </div>
           <div class="hero-guide-box">
-            <b>BEGINNER</b>
-            <span>처음 보는 곡이라면 초보용부터 시작해도 충분해요. 박수, 기본 콜, 반응 포인트 위주로 정리했어요.</span>
+            <div>
+              <b>모든 곡을 외울 필요 없어요.</b>
+              <span>자주 나오는 콜부터 익혀도 충분해요.</span>
+            </div>
           </div>
           <div class="hero-guide-box">
-            <b>ADVANCED</b>
-            <span>고급용은 타이밍이 더 중요한 콜과 믹스가 포함돼요. 현장 분위기를 보면서 무리 없이 사용해요.</span>
+            <div>
+              <b>주변 분위기 따라가면 쉬워요.</b>
+              <span>즐기는 게 제일 중요!</span>
+            </div>
           </div>
         </div>
       </section>
@@ -904,7 +1000,7 @@
 
       <section class="song-grid" id="songGrid"></section>
 
-      <section class="guide-panel" id="guidePanel">
+      <section class="guide-panel open" id="guidePanel">
         <div class="guide-head">
           <div class="video-card" id="videoCard">
             <div class="video-card-head">
@@ -1012,7 +1108,7 @@
   <div class="modal-overlay" id="termModal">
     <div class="modal-card">
       <div class="modal-head">
-        <div class="modal-title">용어 GUIDE</div>
+        <div class="modal-title">용어 가이드</div>
         <button class="modal-close" id="termModalClose" type="button" aria-label="닫기">×</button>
       </div>
       <div class="modal-body">
@@ -1050,6 +1146,19 @@
     </div>
   </div>
 
+
+  <div class="modal-overlay" id="lyricsModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div class="modal-title">가사지</div>
+        <button class="modal-close" id="lyricsModalClose" type="button" aria-label="닫기">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="term-grid" id="lyricsContent"></div>
+      </div>
+    </div>
+  </div>
+
   <script>
     const songs = [
       {
@@ -1059,6 +1168,7 @@
         desc: '마법소녀 분위기가 강한 곡. 팀 응원 중심으로 보되, 솔로 파트 이름콜도 잘 어울리는 타입.',
         thumb: 'img/setlist/stardust-magical.jpg',
         status: ['응원가이드 일부', '영상 준비중'],
+        lyrics: '스타더스트 매지컬 가사지 준비중',
         meta: ['팀용 지원', '솔로용 지원', '음원 미연결'],
         audio: '',
         video: '',
@@ -1098,6 +1208,7 @@
         desc: '밝고 러블리한 분위기의 곡. 기본 응원 구조는 단순하지만 감정 표현이 중요한 곡.',
         thumb: 'img/setlist/storyberrylove.jpg',
         status: ['응원가이드 준비중'],
+        lyrics: '스토리베리 러브 가사지 준비중',
         meta: ['팀용 예정', '솔로용 예정'],
         audio: '',
         video: '',
@@ -1119,6 +1230,7 @@
         desc: '참여형 리스폰스가 핵심인 왕도 댄스곡. 관객이 같이 만드는 텐션이 중요해요.',
         thumb: 'img/setlist/shukipi.jpg',
         status: ['응원가이드 작성', '영상 있음'],
+        lyrics: '슈키피 가사지 준비중',
         meta: ['팀용', '솔로용 가능', '리스폰스형'],
         audio: '',
         video: 'https://youtu.be/az9mkI9C2f4',
@@ -1275,6 +1387,7 @@
         desc: '왕도 감성의 따뜻한 응원곡. 강하게 찢기보다 함께 부르는 느낌이 더 잘 어울려요.',
         thumb: 'img/setlist/canaria.jpg',
         status: ['응원가이드 작성', '영상 있음', '음원 있음'],
+        lyrics: '카나리아 가사지 준비중',
         meta: ['팀용 지원', '솔로용 지원', '감성형'],
         audio: 'audio/canaria.mp3',
         video: 'https://youtu.be/op3L_ed8-24',
@@ -1466,6 +1579,8 @@
 
     const termModal = document.getElementById('termModal');
     const termModalClose = document.getElementById('termModalClose');
+    const lyricsModal = document.getElementById('lyricsModal');
+    const lyricsModalClose = document.getElementById('lyricsModalClose');
 
     function getSong(){
       return songs.find(song => song.id === state.songId) || songs[0];
@@ -1527,7 +1642,8 @@
           state.mode = 'team';
           state.level = 'beginner';
           render(true);
-          guidePanel.scrollIntoView({ behavior:'smooth', block:'start' });
+          guidePanel.classList.add('open');
+          guidePanel.scrollIntoView({ behavior:'smooth', block:'nearest' });
         });
       });
     }
@@ -1535,9 +1651,9 @@
     function renderModeButtons(song){
       const modes = ['team','solo'];
       modeButtons.innerHTML = modes.map(mode => {
-        const hasAny = song.support?.[mode]?.beginner || song.support?.[mode]?.advanced;
+        const hasAny = !!(song.support?.[mode]?.beginner || song.support?.[mode]?.advanced);
         return `
-          <button class="toggle-btn ${state.mode === mode ? 'active' : ''}" data-mode="${mode}">
+          <button class="toggle-btn ${state.mode === mode ? 'active' : ''} ${hasAny ? '' : 'disabled'}" data-mode="${mode}">
             ${modeLabel(mode)}${hasAny ? '' : ' · 준비중'}
           </button>
         `;
@@ -1545,12 +1661,8 @@
 
       modeButtons.querySelectorAll('[data-mode]').forEach(btn => {
         btn.addEventListener('click', () => {
+          if(btn.classList.contains('disabled')) return;
           state.mode = btn.dataset.mode;
-          const currentGuide = getSong().support?.[state.mode]?.[state.level];
-          if(!currentGuide){
-            if(getSong().support?.[state.mode]?.beginner) state.level = 'beginner';
-            else if(getSong().support?.[state.mode]?.advanced) state.level = 'advanced';
-          }
           render(false);
         });
       });
@@ -1561,7 +1673,7 @@
       levelButtons.innerHTML = levels.map(level => {
         const hasGuide = !!song.support?.[state.mode]?.[level];
         return `
-          <button class="toggle-btn ${state.level === level ? 'active' : ''}" data-level="${level}">
+          <button class="toggle-btn ${state.level === level ? 'active' : ''} ${hasGuide ? '' : 'disabled'}" data-level="${level}">
             ${levelLabel(level)}${hasGuide ? '' : ' · 준비중'}
           </button>
         `;
@@ -1569,6 +1681,7 @@
 
       levelButtons.querySelectorAll('[data-level]').forEach(btn => {
         btn.addEventListener('click', () => {
+          if(btn.classList.contains('disabled')) return;
           state.level = btn.dataset.level;
           render(false);
         });
@@ -1594,14 +1707,21 @@
         ? `<a class="link-btn" href="${song.video}" target="_blank" rel="noopener noreferrer">영상 보러가기</a>`
         : `<span class="link-btn disabled">영상 준비중</span>`;
 
-      const termBtn = `<button class="link-btn secondary" type="button" id="openTermGuideBtn">용어 GUIDE</button>`;
-      linkRow.innerHTML = videoBtn + termBtn;
+      const termBtn = `<button class="link-btn secondary" type="button" id="openTermGuideBtn">용어 가이드</button>`;
+      const lyricBtn = `<button class="link-btn secondary" type="button" id="openLyricsBtn">가사지</button>`;
+      linkRow.innerHTML = videoBtn + termBtn + lyricBtn;
 
       const openBtn = document.getElementById('openTermGuideBtn');
       if(openBtn){
         openBtn.addEventListener('click', () => {
           termModal.classList.add('open');
           document.body.style.overflow = 'hidden';
+        });
+      }
+      const lyricOpenBtn = document.getElementById('openLyricsBtn');
+      if(lyricOpenBtn){
+        lyricOpenBtn.addEventListener('click', () => {
+          openLyricsModal(song);
         });
       }
     }
@@ -1616,13 +1736,7 @@
       videoCardTitle.textContent = song.title;
       videoCardEng.textContent = song.subtitle;
 
-      if(song.thumb){
-        videoCoverThumbWrap.style.display = 'block';
-        videoCoverThumb.src = song.thumb;
-        videoCoverThumb.alt = `${song.title} 커버`;
-      }else{
-        videoCoverThumbWrap.style.display = 'none';
-      }
+      videoCoverThumbWrap.style.display = 'none';
 
       if(embedUrl){
         videoCard.style.display = 'block';
@@ -1656,19 +1770,31 @@
 
       emptyGuide.style.display = 'none';
       guideLines.style.display = 'grid';
-      guideLines.innerHTML = guide.lines.map((line, idx) => `
-        <article class="guide-line" style="animation-delay:${0.03 + idx * 0.04}s">
+      guideLines.innerHTML = guide.lines.map((line, idx) => {
+        const isMix = (line.tags || []).includes('MIX') || /<strong>MIX:/i.test(line.call || '');
+        return `
+        <article class="guide-line ${isMix ? 'mix-focus' : ''}" style="animation-delay:${0.03 + idx * 0.04}s">
           <div class="guide-line-top">
             <div class="guide-time">${line.time}</div>
             <div class="guide-stage">${line.stage}</div>
           </div>
           <div class="guide-lyric">${line.lyric}</div>
           <div class="tag-row">
-            ${line.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+            ${(line.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('')}
+            ${isMix ? '<span class="mix-badge">MIX TIMING</span>' : ''}
           </div>
           <div class="guide-call">${line.call}</div>
-        </article>
-      `).join('');
+          ${isMix ? `<div class="mix-box"><strong>믹스 포인트</strong><p>짧고 정확하게 1회만 넣고 바로 곡 흐름으로 복귀하는 쪽이 더 예뻐요.</p></div>` : ''}
+        </article>`;
+      }).join('');
+    }
+
+    function openLyricsModal(song){
+      const lyricsModal = document.getElementById('lyricsModal');
+      const lyricsContent = document.getElementById('lyricsContent');
+      lyricsContent.innerHTML = `<div class="term-box"><h4>${song.title}</h4><p>${song.lyrics || `${song.title} 가사지 준비중`}</p></div>`;
+      lyricsModal.classList.add('open');
+      document.body.style.overflow = 'hidden';
     }
 
     function render(forceVideoChange = true){
@@ -1694,12 +1820,21 @@
       termModal.classList.remove('open');
       document.body.style.overflow = '';
     }
+    function closeLyricsModal(){
+      lyricsModal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
     termModalClose.addEventListener('click', closeTermModal);
+    lyricsModalClose.addEventListener('click', closeLyricsModal);
     termModal.addEventListener('click', (e) => {
       if(e.target === termModal) closeTermModal();
     });
+    lyricsModal.addEventListener('click', (e) => {
+      if(e.target === lyricsModal) closeLyricsModal();
+    });
     window.addEventListener('keydown', (e) => {
       if(e.key === 'Escape' && termModal.classList.contains('open')) closeTermModal();
+      if(e.key === 'Escape' && lyricsModal.classList.contains('open')) closeLyricsModal();
     });
 
     // top button
