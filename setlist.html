@@ -5559,5 +5559,44 @@ function triggerCardShineEffect(){
 })();
 </script>
 
+
+<style>
+/* --- hover sheen patch v8 --- */
+.song-thumb{
+  position:relative !important;
+  overflow:hidden !important;
+}
+.song-thumb::after{
+  content:"";
+  position:absolute;
+  top:-12%;
+  left:-88%;
+  width:38%;
+  height:128%;
+  opacity:0;
+  pointer-events:none;
+  z-index:3;
+  background:linear-gradient(112deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.04) 24%,
+    rgba(255,255,255,0.45) 46%,
+    rgba(255,255,255,0.95) 50%,
+    rgba(255,255,255,0.45) 54%,
+    rgba(255,255,255,0.06) 74%,
+    rgba(255,255,255,0) 100%);
+  transform:skewX(-18deg);
+  mix-blend-mode:screen;
+}
+.song-card:hover .song-thumb::after{
+  animation:hoverThumbSheen .72s cubic-bezier(.22,.61,.36,1) 1;
+}
+@keyframes hoverThumbSheen{
+  0%{left:-88%; opacity:0;}
+  16%{opacity:.18;}
+  44%{opacity:1;}
+  100%{left:138%; opacity:0;}
+}
+</style>
+
 </body>
 </html>
