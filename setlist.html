@@ -4210,55 +4210,5 @@ We are Sweetie pie! 루미베르 데스~`,
     render(true);
     syncGuideColumns();
   </script>
-
-<script>
-(function(){
-  function alignTrackBottomToVerse1(){
-    if (window.innerWidth < 861) return;
-
-    const trackBlock = document.getElementById('trackBlock');
-    const guideLines = document.getElementById('guideLines');
-    if (!trackBlock || !guideLines) return;
-
-    const verse1Card = guideLines.querySelector('.guide-line:nth-child(2)');
-    if (!verse1Card) return;
-
-    trackBlock.style.minHeight = '';
-    trackBlock.style.height = 'auto';
-
-    const trackRect = trackBlock.getBoundingClientRect();
-    const verseRect = verse1Card.getBoundingClientRect();
-
-    const targetHeight = Math.ceil(verseRect.bottom - trackRect.top);
-    if (targetHeight > 0) {
-      trackBlock.style.minHeight = targetHeight + 'px';
-    }
-  }
-
-  const originalRender = window.render;
-  if (typeof originalRender === 'function') {
-    window.render = function(forceVideoChange = true){
-      originalRender(forceVideoChange);
-      requestAnimationFrame(() => {
-        alignTrackBottomToVerse1();
-        setTimeout(alignTrackBottomToVerse1, 60);
-      });
-    };
-  }
-
-  window.addEventListener('load', () => {
-    alignTrackBottomToVerse1();
-    setTimeout(alignTrackBottomToVerse1, 120);
-  });
-  window.addEventListener('resize', alignTrackBottomToVerse1);
-
-  const observer = new MutationObserver(() => alignTrackBottomToVerse1());
-  window.addEventListener('load', () => {
-    const target = document.getElementById('guideLines');
-    if (target) observer.observe(target, { childList:true, subtree:true, characterData:true });
-  });
-})();
-</script>
-
 </body>
 </html>
