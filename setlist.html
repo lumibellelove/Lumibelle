@@ -407,6 +407,17 @@
       height:100%;
       object-fit:cover;
     }
+    .guide-cover.video-mode{
+  aspect-ratio:16 / 9;
+  padding:0;
+}
+
+.guide-cover.video-mode iframe{
+  width:100%;
+  height:100%;
+  border:0;
+  border-radius:24px;
+}
 
     .guide-info-title{
       font-size:40px;
@@ -1124,38 +1135,85 @@
         }
       },
       {
-        id: 'dreaming-parade',
-        title: '드리밍 퍼레이드',
-        subtitle: 'DREAMING PARADE',
-        desc: '청량하고 밝은 흐름의 곡. 팀 응원용으로 가장 무난하게 확장 가능한 구조.',
-        image: 'img/setlist/dreaming-parade.jpg',
-        thumb: 'img/setlist/dreaming-parade.jpg',
-        status: ['응원가이드 준비중', '영상 있음'],
-        meta: ['팀용 우선', '초보용 예정', '음원 미연결'],
-        audio: '',
-        video: 'https://www.youtube.com/',
-        heroDesc: '청량 계열 팀 응원곡<br>후렴 팀콜 중심으로 확장 예정',
-        support: {
-          team: {
-            beginner: {
-              point: '기본 박수 + 후렴 팀명 콜로만 가도 충분함',
-              lines: [
-                {
-                  time: '전체',
-                  stage: '임시 가이드',
-                  lyric: '정식 응원가이드 추가 전까지는 기본 박수와 후렴 팀명 콜 위주로 응원.',
-                  tags: ['임시', '기본'],
-                  call: '<strong>콜:</strong> 후렴에서 루미벨! 루미벨! 정도로 통일.'
-                }
-              ]
-            },
-            advanced: null
-          },
-          solo: {
-            beginner: null,
-            advanced: null
-          }
+  id: 'shukipi',
+  title: '슈키피',
+  subtitle: 'SHUKIPI',
+  desc: '귀여운 콜 앤 리스폰스 중심 곡. 믹스 + 후렴 콜 연습용으로 최적.',
+  image: 'img/setlist/shukipi.jpg',
+  thumb: 'img/setlist/shukipi.jpg',
+  status: ['응원가이드 작성', '영상 있음'],
+  meta: ['팀용', '솔로용 가능'],
+  audio: '',
+  video: 'https://youtu.be/az9mkI9C2f4',
+  heroDesc: '콜 앤 리스폰스 핵심 곡<br>현장 텐션 올리기 좋음',
+  support: {
+  team: {
+    beginner: {
+      point: '후렴 콜 + 기본 박수만 따라가도 현장 참여 가능',
+      lines: [
+        {
+          time: '인트로',
+          stage: '도입',
+          lyric: '박수로 분위기 맞추기',
+          tags: ['박수'],
+          call: '<strong>콜:</strong> 가볍게 박수'
+        },
+        {
+          time: '후렴',
+          stage: '핵심',
+          lyric: '슈키피 반복 구간',
+          tags: ['후렴'],
+          call: '<strong>콜:</strong> 슈! 키! 피!'
         }
+      ]
+    },
+    advanced: {
+      point: '후렴 직전 믹스 + 템포 유지',
+      lines: [
+        {
+          time: '후렴 직전',
+          stage: '믹스',
+          lyric: '진입 전 타이밍',
+          tags: ['믹스'],
+          call: '<strong>믹스:</strong> 짧게 1번'
+        },
+        {
+          time: '후렴',
+          stage: '핵심',
+          lyric: '반복 구간',
+          tags: ['후렴'],
+          call: '<strong>콜:</strong> 슈키피 정확하게'
+        }
+      ]
+    }
+  },
+  solo: {
+    beginner: {
+      point: '이름콜만 정확히',
+      lines: [
+        {
+          time: '파트 시작',
+          stage: '개인',
+          lyric: '멤버 파트',
+          tags: ['이름콜'],
+          call: '<strong>콜:</strong> 멤버 이름!'
+        }
+      ]
+    },
+    advanced: {
+      point: '이름콜 + 리액션 분리',
+      lines: [
+        {
+          time: '센터',
+          stage: '강조',
+          lyric: '포인트 구간',
+          tags: ['강조'],
+          call: '<strong>콜:</strong> 이름 → 박수 → 함성'
+        }
+      ]
+    }
+  }
+}
       },
       {
         id: 'memory-bell',
@@ -1193,7 +1251,8 @@
     const heroNowDesc = document.getElementById('heroNowDesc');
     const guideTitle = document.getElementById('guideTitle');
     const guideDesc = document.getElementById('guideDesc');
-    const guideImage = document.getElementById('guideImage');
+    const guideVideo = document.getElementById('guideVideo');
+const videoWrap = document.getElementById('videoWrap');
     const guideMeta = document.getElementById('guideMeta');
     const modeButtons = document.getElementById('modeButtons');
     const levelButtons = document.getElementById('levelButtons');
@@ -1362,15 +1421,43 @@
 
       guideTitle.textContent = song.title;
       guideDesc.textContent = song.desc;
-      guideImage.src = song.image;
-      guideImage.alt = `${song.title} 대표 이미지`;
+      
 
       renderMeta(song);
       renderAudio(song);
       renderLinks(song);
+      const embedUrl = getYoutubeEmbedUrl(song.video);
+
+if(embedUrl){
+  videoWrap.style.display = 'block';
+  guideVideo.src = embedUrl;
+}else{
+  videoWrap.style.display = 'none';
+  guideVideo.src = '';
+}
       renderGuide(song);
     }
+function getYoutubeEmbedUrl(url){
+  if(!url) return '';
 
+  try{
+    const parsed = new URL(url);
+
+    if(parsed.hostname.includes('youtu.be')){
+      const id = parsed.pathname.replace('/','');
+      return id ? `https://www.youtube.com/embed/${id}` : '';
+    }
+
+    if(parsed.hostname.includes('youtube.com')){
+      const id = parsed.searchParams.get('v');
+      return id ? `https://www.youtube.com/embed/${id}` : '';
+    }
+
+    return '';
+  }catch(e){
+    return '';
+  }
+}
     render();
   </script>
 </body>
