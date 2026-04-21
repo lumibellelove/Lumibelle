@@ -3400,63 +3400,44 @@ audio::-webkit-media-controls-mute-button{
 
 
 <style>
-/* --- preview polish: active card shine pack --- */
-.song-card{
-  position:relative;
-  overflow:hidden;
-  transition:transform .16s ease, box-shadow .2s ease, border-color .2s ease !important;
-}
-.song-card:active{
-  transform:scale(.982);
-}
-.song-card.active{
-  border-color:rgba(255,89,165,.48) !important;
-  box-shadow:0 18px 30px rgba(255,89,165,.18) !important;
-}
-.song-card.shine::before{
-  content:'';
+/* --- visible card effects patch --- */
+.song-card{position:relative;overflow:hidden}
+.song-card:active{transform:translateY(-2px) scale(.985) !important;}
+.song-card.active{box-shadow:0 22px 38px rgba(255,89,165,.20) !important;}
+.song-card.active::after{
+  content:"" !important;
+  display:block !important;
   position:absolute;
   top:-12%;
-  left:-110%;
-  width:46%;
+  left:-135%;
+  width:54%;
   height:124%;
-  border-radius:28px;
-  background:linear-gradient(115deg,
-    rgba(255,255,255,0) 0%,
-    rgba(255,255,255,.18) 26%,
-    rgba(255,255,255,.78) 48%,
-    rgba(255,228,240,.36) 58%,
-    rgba(255,255,255,0) 82%
-  );
-  transform:skewX(-18deg);
   pointer-events:none;
   opacity:0;
+  background:linear-gradient(120deg,
+    transparent 0%,
+    rgba(255,89,165,.10) 28%,
+    rgba(255,255,255,.88) 50%,
+    rgba(255,89,165,.18) 72%,
+    transparent 100%);
+  transform:skewX(-20deg);
+  mix-blend-mode:screen;
 }
-.song-card.active.shine::before{
-  animation:cardShineSweep .68s ease;
+.song-card.active.shine::after{
+  animation:cardShineVisible .72s ease-out 1;
 }
-@keyframes cardShineSweep{
-  0%{left:-110%;opacity:0;}
-  18%{opacity:.95;}
-  100%{left:125%;opacity:0;}
-}
-.song-card-badge{
-  transform-origin:center;
+@keyframes cardShineVisible{
+  0%{left:-135%;opacity:0;}
+  14%{opacity:.25;}
+  35%{opacity:.95;}
+  100%{left:145%;opacity:0;}
 }
 .song-card.active .song-card-badge{
-  animation:badgeFloatGlow 1.8s ease-in-out infinite alternate;
+  animation:badgeGlowPulse 1.4s ease-in-out infinite alternate !important;
 }
-@keyframes badgeFloatGlow{
-  0%{
-    box-shadow:0 10px 18px rgba(255,89,165,.18);
-    transform:translateY(0);
-    filter:saturate(1);
-  }
-  100%{
-    box-shadow:0 12px 22px rgba(255,89,165,.34), 0 0 0 4px rgba(255,89,165,.08);
-    transform:translateY(-1px);
-    filter:saturate(1.05);
-  }
+@keyframes badgeGlowPulse{
+  0%{box-shadow:0 0 0 rgba(255,89,165,0),0 10px 18px rgba(255,89,165,.18);transform:translateY(0) scale(1);}
+  100%{box-shadow:0 0 16px rgba(255,89,165,.38),0 12px 22px rgba(255,89,165,.28);transform:translateY(0) scale(1.03);}
 }
 </style>
 
@@ -5002,7 +4983,7 @@ We are Sweetie pie! 루미베르 데스~`,
 
     function renderSongCards(){
       songGrid.innerHTML = songs.map(song => `
-        <article class="song-card ${state.comingSoonIndex === null && song.id === state.songId ? 'active shine' : ''}" data-song="${song.id}">
+        <article class="song-card ${state.comingSoonIndex === null && song.id === state.songId ? 'active' : ''}" data-song="${song.id}">
           <div class="song-card-badge">NOW</div>
           <div class="song-thumb">
             <img src="${song.thumb}" alt="${song.title} 썸네일" onerror="if(!this.dataset.try1){this.dataset.try1=1;this.src='./'+this.getAttribute('src').replace(/^\.\//,'');}else if(!this.dataset.try2){this.dataset.try2=1;this.src='../'+this.getAttribute('src').replace(/^\.\//,'').replace(/^\.\.\//,'');}else{this.style.display='none';this.parentElement.style.background='#fff7fb';}">
@@ -5033,6 +5014,7 @@ We are Sweetie pie! 루미베르 데스~`,
           }
 
           render(true);
+          triggerCardShineEffect();
           guidePanel.classList.add('open');
           scrollGuidePanel();
         });
@@ -5054,6 +5036,7 @@ We are Sweetie pie! 루미베르 데스~`,
           }
 
           render(true);
+          triggerCardShineEffect();
           guidePanel.classList.add('open');
           showComingSoonNotice('준비중입니다');
           scrollGuidePanel();
@@ -5392,6 +5375,18 @@ We are Sweetie pie! 루미베르 데스~`,
   }
 }
 </style>
+
+
+<script>
+function triggerCardShineEffect(){
+  const activeCard=document.querySelector('#songGrid .song-card.active[data-song]');
+  if(!activeCard) return;
+  activeCard.classList.remove('shine');
+  void activeCard.offsetWidth;
+  activeCard.classList.add('shine');
+  window.setTimeout(()=>activeCard.classList.remove('shine'), 760);
+}
+</script>
 
 </body>
 </html>
