@@ -3441,74 +3441,6 @@ audio::-webkit-media-controls-mute-button{
 }
 </style>
 
-
-<style>
-/* --- final visible card effect override --- */
-.song-card{position:relative;overflow:hidden}
-.song-card:active{transform:translateY(-2px) scale(.985) !important;}
-.song-card.active{
-  border-color:rgba(255,89,165,.42) !important;
-  box-shadow:
-    0 0 0 2px rgba(255,89,165,.16),
-    0 18px 34px rgba(255,89,165,.18),
-    0 0 28px rgba(255,89,165,.10) !important;
-}
-.song-card.active::before{
-  content:"";
-  position:absolute;
-  inset:-1px;
-  border-radius:24px;
-  pointer-events:none;
-  background:linear-gradient(120deg,
-    transparent 0%,
-    rgba(255,255,255,0) 28%,
-    rgba(255,255,255,.58) 45%,
-    rgba(255,198,228,.55) 50%,
-    rgba(255,255,255,.18) 58%,
-    transparent 72%);
-  width:42%;
-  left:-52%;
-  top:0;
-  height:100%;
-  transform:skewX(-18deg);
-  opacity:.72;
-  mix-blend-mode:screen;
-  animation:cardSheenLoop 2.6s ease-in-out infinite;
-}
-.song-card.active::after{
-  content:"" !important;
-  position:absolute;
-  inset:0;
-  border-radius:24px;
-  pointer-events:none;
-  background:radial-gradient(circle at 50% 34%, rgba(255,255,255,.22), rgba(255,255,255,0) 58%);
-  opacity:0;
-}
-.song-card.active.shine::after{
-  animation:cardFlashBurst .9s ease-out 1 !important;
-}
-@keyframes cardSheenLoop{
-  0%,12%{left:-52%;opacity:0;}
-  18%{opacity:.88;}
-  34%{left:118%;opacity:.18;}
-  100%{left:118%;opacity:0;}
-}
-@keyframes cardFlashBurst{
-  0%{opacity:0;transform:scale(.98);}
-  20%{opacity:.95;}
-  100%{opacity:0;transform:scale(1.04);}
-}
-.song-card.active .song-card-badge{
-  opacity:1 !important;
-  transform:translateY(0) scale(1) !important;
-  animation:badgeGlowPulseStrong 1.35s ease-in-out infinite alternate !important;
-}
-@keyframes badgeGlowPulseStrong{
-  0%{box-shadow:0 8px 18px rgba(255,89,165,.22),0 0 0 rgba(255,89,165,0);transform:translateY(0) scale(1);}
-  100%{box-shadow:0 12px 22px rgba(255,89,165,.28),0 0 18px rgba(255,89,165,.42);transform:translateY(0) scale(1.06);}
-}
-</style>
-
 </head>
 <body>
 
@@ -5445,16 +5377,145 @@ We are Sweetie pie! 루미베르 데스~`,
 </style>
 
 
+
+<style>
+/* --- selected card sparkle patch v4 --- */
+.song-card{
+  position:relative;
+  overflow:hidden;
+}
+.song-thumb{
+  position:relative;
+  overflow:hidden;
+}
+.song-card.active{
+  box-shadow:0 24px 42px rgba(255,89,165,.24) !important;
+  border-color:rgba(255,89,165,.34) !important;
+}
+.song-card.active::after{
+  content:none !important;
+}
+.song-card.active .song-thumb::before,
+.song-card.active .song-thumb::after{
+  content:"";
+  position:absolute;
+  z-index:3;
+  width:22px;
+  height:22px;
+  opacity:.88;
+  pointer-events:none;
+  background:
+    linear-gradient(90deg, transparent 44%, rgba(255,255,255,.96) 44%, rgba(255,255,255,.96) 56%, transparent 56%),
+    linear-gradient(0deg, transparent 44%, rgba(255,255,255,.96) 44%, rgba(255,255,255,.96) 56%, transparent 56%);
+  filter:
+    drop-shadow(0 0 8px rgba(255,255,255,.95))
+    drop-shadow(0 0 12px rgba(255,89,165,.35));
+  transform-origin:center;
+}
+.song-card.active .song-thumb::before{
+  top:14%;
+  right:14%;
+  animation:cardTwinkleA 1.75s ease-in-out infinite;
+}
+.song-card.active .song-thumb::after{
+  bottom:18%;
+  left:12%;
+  width:16px;
+  height:16px;
+  animation:cardTwinkleB 2.1s ease-in-out infinite .35s;
+}
+
+@keyframes cardTwinkleA{
+  0%, 100%{opacity:.18; transform:scale(.6) rotate(0deg);}
+  22%{opacity:1; transform:scale(1.08) rotate(45deg);}
+  48%{opacity:.28; transform:scale(.72) rotate(90deg);}
+  70%{opacity:.92; transform:scale(.98) rotate(135deg);}
+}
+@keyframes cardTwinkleB{
+  0%, 100%{opacity:.12; transform:scale(.55) rotate(0deg);}
+  30%{opacity:.92; transform:scale(1.06) rotate(45deg);}
+  55%{opacity:.22; transform:scale(.7) rotate(90deg);}
+  78%{opacity:.88; transform:scale(.95) rotate(135deg);}
+}
+
+.song-card.active .song-card-badge{
+  animation:badgeGlowPulse 1.35s ease-in-out infinite alternate !important;
+}
+@keyframes badgeGlowPulse{
+  0%{
+    box-shadow:0 0 0 rgba(255,89,165,0),0 10px 18px rgba(255,89,165,.18);
+    transform:translateY(0) scale(1);
+  }
+  100%{
+    box-shadow:0 0 18px rgba(255,89,165,.42),0 12px 22px rgba(255,89,165,.28);
+    transform:translateY(0) scale(1.04);
+  }
+}
+
+.song-card.sparkle-burst .song-thumb{
+  animation:cardThumbFlash .58s ease-out 1;
+}
+@keyframes cardThumbFlash{
+  0%{filter:brightness(1) saturate(1);}
+  18%{filter:brightness(1.18) saturate(1.08);}
+  100%{filter:brightness(1) saturate(1);}
+}
+
+.card-click-sparkle{
+  position:absolute;
+  width:18px;
+  height:18px;
+  pointer-events:none;
+  z-index:4;
+  opacity:0;
+  background:
+    linear-gradient(90deg, transparent 44%, rgba(255,255,255,.98) 44%, rgba(255,255,255,.98) 56%, transparent 56%),
+    linear-gradient(0deg, transparent 44%, rgba(255,255,255,.98) 44%, rgba(255,255,255,.98) 56%, transparent 56%);
+  filter:
+    drop-shadow(0 0 7px rgba(255,255,255,.95))
+    drop-shadow(0 0 10px rgba(255,89,165,.35));
+  animation:clickSparklePop .72s ease-out forwards;
+}
+@keyframes clickSparklePop{
+  0%{opacity:0; transform:translate(-50%,-50%) scale(.35) rotate(0deg);}
+  18%{opacity:1; transform:translate(-50%,-50%) scale(1.12) rotate(45deg);}
+  100%{opacity:0; transform:translate(-50%,-50%) scale(.75) rotate(120deg);}
+}
+</style>
+
 <script>
 function triggerCardShineEffect(){
-  const activeCard=document.querySelector('#songGrid .song-card.active[data-song]');
+  const activeCard = document.querySelector('#songGrid .song-card.active[data-song]');
   if(!activeCard) return;
-  activeCard.classList.remove('shine');
+
+  activeCard.classList.remove('sparkle-burst');
   void activeCard.offsetWidth;
-  activeCard.classList.add('shine');
-  window.setTimeout(()=>activeCard.classList.remove('shine'), 760);
+  activeCard.classList.add('sparkle-burst');
+
+  activeCard.querySelectorAll('.card-click-sparkle').forEach(el => el.remove());
+
+  const points = [
+    { left: '24%', top: '26%', size: 26, delay: 0 },
+    { left: '70%', top: '20%', size: 18, delay: 80 },
+    { left: '36%', top: '58%', size: 14, delay: 150 }
+  ];
+
+  points.forEach((pt) => {
+    const sparkle = document.createElement('span');
+    sparkle.className = 'card-click-sparkle';
+    sparkle.style.left = pt.left;
+    sparkle.style.top = pt.top;
+    sparkle.style.width = pt.size + 'px';
+    sparkle.style.height = pt.size + 'px';
+    sparkle.style.animationDelay = pt.delay + 'ms';
+    activeCard.appendChild(sparkle);
+    window.setTimeout(() => sparkle.remove(), 900);
+  });
+
+  window.setTimeout(() => activeCard.classList.remove('sparkle-burst'), 620);
 }
 </script>
+
 
 </body>
 </html>
