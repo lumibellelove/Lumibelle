@@ -7,380 +7,399 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+
   <style>
     :root{
       --bg:#fff8fb;
-      --bg-2:#fffdfd;
-      --panel:rgba(255,245,251,.92);
-      --panel-strong:#fff5fb;
-      --line:#f3d9e8;
+      --panel:rgba(255,246,251,.92);
+      --line:#f1d4e3;
       --pink:#ff78b2;
       --pink-deep:#ff59a5;
-      --text:#8c6f7f;
-      --text-strong:#7a5b6f;
-      --muted:#b691a6;
-      --white:#ffffff;
-      --shadow:0 18px 38px rgba(255,120,178,.10);
-      --shadow-soft:0 10px 24px rgba(255,120,178,.07);
-      --radius-xl:30px;
-      --radius-lg:22px;
-      --radius-md:16px;
-      --max:1180px;
+      --text:#8a6b7c;
+      --soft:#c79bb2;
+      --lavender:#c399ef;
+      --blue:#9ed2ff;
+      --yellow:#ffd86b;
+      --milky:#ffd9e8;
+      --shadow:0 16px 30px rgba(255,120,178,.10);
+      --radius:22px;
     }
 
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
+
     body{
       margin:0;
-      font-family:"Noto Sans KR", sans-serif;
-      color:var(--text);
       background:
-        radial-gradient(circle at top left, rgba(255,202,228,.28), transparent 28%),
-        radial-gradient(circle at top right, rgba(255,236,244,.65), transparent 24%),
-        linear-gradient(180deg,#fffafd 0%, #fff7fb 46%, #fffdfd 100%);
+        radial-gradient(circle at 0% 0%, rgba(255,230,241,.95), transparent 20%),
+        radial-gradient(circle at 100% 0%, rgba(232,223,255,.85), transparent 26%),
+        linear-gradient(180deg, #fffafd 0%, #fff7fb 100%);
+      color:var(--text);
+      font-family:"Noto Sans KR","Hiragino Sans","Yu Gothic",sans-serif;
     }
 
-    a{text-decoration:none;color:inherit}
-    button{font:inherit}
+    a{color:inherit;text-decoration:none}
     img{max-width:100%;display:block}
+    button{font:inherit}
 
-    .container{
-      width:min(var(--max), calc(100% - 32px));
+    .wrap{
+      width:min(1220px,calc(100% - 28px));
       margin:0 auto;
     }
 
-    .site-header{
+    /* HEADER */
+    header{
       position:sticky;
       top:0;
-      z-index:100;
-      backdrop-filter:blur(14px);
-      background:rgba(255,250,253,.84);
-      border-bottom:1px solid rgba(243,217,232,.72);
+      z-index:50;
+      background:rgba(255,248,252,.93);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid rgba(241,212,227,.85);
+      box-shadow:0 8px 20px rgba(255,120,178,.06);
     }
 
-    .site-header-inner{
-      min-height:76px;
+    .header-box{
+      margin:18px auto 14px;
+      padding:20px 24px;
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:linear-gradient(180deg, rgba(255,252,254,.97), rgba(255,246,251,.95));
+      box-shadow:var(--shadow);
       display:flex;
       align-items:center;
-      justify-content:space-between;
-      gap:20px;
+      gap:28px;
+      min-height:150px;
     }
 
-    .brand{
-      font-weight:900;
-      letter-spacing:.06em;
-      color:var(--pink-deep);
-      font-size:22px;
-      white-space:nowrap;
-    }
-
-    .nav{
+    .logo{
+      flex:0 0 auto;
       display:flex;
-      flex-wrap:wrap;
-      gap:10px 14px;
-      justify-content:flex-end;
+      align-items:center;
     }
 
-    .nav a{
-      font-size:13px;
-      font-weight:800;
-      letter-spacing:.08em;
-      color:#b27d98;
-      padding:10px 12px;
-      border-radius:999px;
-      transition:.2s ease;
+    .logo img{
+      height:120px;
+      width:auto;
     }
 
-    .nav a.active,
-    .nav a:hover{
-      color:var(--pink-deep);
-      background:rgba(255,89,165,.08);
+    nav{
+      flex:1;
+      display:grid;
+      grid-template-columns:repeat(8, minmax(84px,1fr));
+      gap:10px;
+      text-align:center;
+      align-items:center;
     }
 
-    .hero{
-      padding:42px 0 26px;
+    nav a{
+      padding:10px 6px;
+      border-radius:16px;
+      transition:.18s ease;
     }
 
-    .hero-box{
+    nav a:hover,
+    nav a.current{
+      background:rgba(255,239,247,.8);
+    }
+
+    nav b{
+      display:block;
+      color:#d06f9f;
+      font-size:20px;
+      font-weight:900;
+      margin-bottom:6px;
+    }
+
+    nav span{
+      display:block;
+      font-size:15px;
+      font-weight:900;
+      color:#c288a6;
+    }
+
+    /* PAGE */
+    .setlist-page{
+      padding:10px 0 36px;
+    }
+
+    .hero-card{
       position:relative;
       overflow:hidden;
-      background:linear-gradient(135deg, rgba(255,246,251,.94), rgba(255,255,255,.98));
-      border:1px solid rgba(243,217,232,.9);
-      border-radius:36px;
+      border:1px solid var(--line);
+      border-radius:28px;
+      background:
+        radial-gradient(circle at 90% 10%, rgba(255,208,229,.44), transparent 16%),
+        linear-gradient(135deg, rgba(255,244,249,.95) 0%, rgba(250,241,248,.95) 48%, rgba(255,252,253,.96) 100%);
+      min-height:360px;
       box-shadow:var(--shadow);
-      padding:54px 50px 46px;
       display:grid;
       grid-template-columns:1.05fr .95fr;
       gap:28px;
-      align-items:center;
+      padding:46px 44px;
+      margin-bottom:28px;
     }
 
-    .hero-box::before{
-      content:"";
-      position:absolute;
-      right:-80px;
-      top:-80px;
-      width:260px;
-      height:260px;
-      border-radius:50%;
-      background:radial-gradient(circle, rgba(255,89,165,.16), rgba(255,89,165,0));
-      pointer-events:none;
+    .hero-copy{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
     }
-
-    .hero-copy{position:relative;z-index:1}
 
     .hero-kicker{
       display:inline-flex;
+      width:max-content;
       align-items:center;
-      gap:8px;
-      font-size:13px;
-      font-weight:800;
-      color:var(--pink-deep);
-      background:rgba(255,89,165,.09);
-      border:1px solid rgba(255,89,165,.10);
+      justify-content:center;
+      padding:10px 14px;
       border-radius:999px;
-      padding:9px 14px;
+      background:rgba(255,89,165,.08);
+      color:var(--pink-deep);
+      font-size:13px;
+      font-weight:900;
       margin-bottom:18px;
+      border:1px solid rgba(255,89,165,.10);
     }
 
     .hero-title{
       margin:0;
-      font-size:clamp(54px, 7vw, 94px);
-      line-height:.9;
+      font-size:clamp(62px,8vw,112px);
+      line-height:.88;
       letter-spacing:-.06em;
       color:var(--pink-deep);
       font-weight:900;
-      text-shadow:0 2px 0 rgba(255,255,255,.95), 0 0 18px rgba(255,255,255,.45);
     }
 
-    .hero-title small{
-      display:block;
+    .hero-sub{
+      margin:14px 0 0;
+      color:#cf8eaf;
       font-size:clamp(18px,2vw,24px);
-      letter-spacing:.22em;
-      color:#d490b6;
-      margin-top:14px;
-      font-weight:800;
+      line-height:1.1;
+      font-weight:900;
+      letter-spacing:.18em;
     }
 
     .hero-desc{
       margin:18px 0 0;
-      max-width:640px;
       font-size:16px;
-      line-height:1.9;
-      color:#9a7589;
+      line-height:2;
+      color:#9b768b;
+      max-width:620px;
+      font-weight:700;
     }
 
     .hero-side{
-      position:relative;
-      min-height:260px;
-      border-radius:28px;
-      background:
-        linear-gradient(145deg, rgba(255,255,255,.74), rgba(255,244,249,.95)),
-        url('img/setlist/setlist-main.jpg') center/cover no-repeat;
-      border:1px solid rgba(243,217,232,.95);
-      box-shadow:var(--shadow-soft);
-      overflow:hidden;
       display:flex;
-      align-items:flex-end;
-      padding:22px;
+      align-items:center;
+      justify-content:center;
     }
 
-    .hero-side-card{
+    .hero-side-box{
       width:100%;
-      background:rgba(255,255,255,.82);
-      border:1px solid rgba(243,217,232,.95);
-      border-radius:22px;
-      padding:16px 18px;
-      backdrop-filter:blur(10px);
+      min-height:230px;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,244,249,.85));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
     }
 
-    .hero-side-label{
+    .hero-now{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:rgba(255,255,255,.72);
+      padding:18px 18px 16px;
+    }
+
+    .hero-now-label{
       font-size:12px;
       font-weight:900;
-      letter-spacing:.12em;
-      color:#cc8bab;
-      margin-bottom:6px;
+      letter-spacing:.14em;
+      color:#cb8baa;
+      margin-bottom:8px;
     }
 
-    .hero-side-title{
-      font-size:19px;
+    .hero-now-title{
+      font-size:22px;
       font-weight:900;
-      color:var(--text-strong);
-      margin-bottom:6px;
+      color:#7d5d70;
+      margin-bottom:8px;
     }
 
-    .hero-side-meta{
-      font-size:13px;
-      line-height:1.7;
-      color:#ab8499;
-    }
-
-    .section-title-wrap{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:16px;
-      margin:22px 0 16px;
+    .hero-now-desc{
+      font-size:14px;
+      line-height:1.9;
+      color:#b08a9f;
+      font-weight:700;
     }
 
     .section-title{
+      margin-bottom:16px;
+    }
+
+    .section-title h2{
       margin:0;
-      font-size:26px;
-      color:var(--text-strong);
-      font-weight:900;
+      font-size:28px;
+      line-height:1.1;
+      color:#7d5d70;
       letter-spacing:-.03em;
     }
 
-    .section-sub{
-      margin:0;
+    .section-title p{
+      margin:6px 0 0;
       font-size:14px;
-      color:#bb93aa;
-      line-height:1.7;
+      color:#bc93aa;
+      font-weight:700;
     }
 
     .song-grid{
       display:grid;
-      grid-template-columns:repeat(4, minmax(0, 1fr));
-      gap:18px;
-      margin-bottom:28px;
+      grid-template-columns:repeat(4,1fr);
+      gap:16px;
+      margin-bottom:26px;
     }
 
     .song-card{
       position:relative;
-      border:none;
-      text-align:left;
-      cursor:pointer;
-      background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,246,251,.96));
-      border:1px solid rgba(243,217,232,.95);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height:100%;
+      background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,249,252,.94));
+      border:1px solid var(--line);
       border-radius:24px;
-      box-shadow:var(--shadow-soft);
-      padding:14px;
-      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      box-shadow:var(--shadow);
+      padding:12px;
+      transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+      cursor:pointer;
     }
 
     .song-card:hover{
-      transform:translateY(-4px);
-      box-shadow:0 16px 30px rgba(255,120,178,.14);
-      border-color:rgba(255,89,165,.24);
+      transform:translateY(-6px);
+      box-shadow:0 20px 32px rgba(255,120,178,.12);
     }
 
     .song-card.active{
-      border-color:rgba(255,89,165,.34);
-      box-shadow:0 20px 34px rgba(255,120,178,.17);
-      transform:translateY(-4px);
+      border-color:rgba(255,89,165,.35);
+      box-shadow:0 20px 34px rgba(255,89,165,.14);
     }
 
-    .song-card-thumb{
-      aspect-ratio:1/1.1;
-      border-radius:18px;
-      overflow:hidden;
-      background:linear-gradient(180deg,#fff7fb,#fff);
-      border:1px solid rgba(243,217,232,.95);
-      margin-bottom:12px;
-    }
-
-    .song-card-thumb img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-    }
-
-    .song-badge{
+    .song-card-badge{
       position:absolute;
-      top:22px;
-      left:22px;
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
+      top:14px;
+      left:14px;
+      z-index:2;
       padding:8px 12px;
       border-radius:999px;
-      background:rgba(255,89,165,.92);
+      background:linear-gradient(180deg, #ff86bb, #ff59a5);
       color:#fff;
       font-size:11px;
+      line-height:1;
       font-weight:900;
       letter-spacing:.12em;
-      box-shadow:0 10px 20px rgba(255,89,165,.24);
+      box-shadow:0 10px 18px rgba(255,89,165,.22);
       opacity:0;
       transform:translateY(4px);
-      transition:.18s ease;
-      pointer-events:none;
+      transition:.2s ease;
     }
 
-    .song-card.active .song-badge{
+    .song-card.active .song-card-badge{
       opacity:1;
       transform:translateY(0);
     }
 
-    .song-card-title{
+    .song-thumb{
+      width:100%;
+      height:250px;
+      background:#fff;
+      border:1px solid #f0dde8;
+      border-radius:20px;
+      overflow:hidden;
+      margin-bottom:14px;
+      flex:0 0 auto;
+    }
+
+    .song-thumb img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .song-title{
       font-size:20px;
       font-weight:900;
-      color:var(--text-strong);
-      margin:0 0 5px;
+      line-height:1.2;
+      color:#7e6073;
+      margin-bottom:6px;
       letter-spacing:-.03em;
     }
 
-    .song-card-meta{
-      font-size:12px;
-      font-weight:800;
-      color:#d08cab;
-      letter-spacing:.1em;
+    .song-en{
+      font-size:13px;
+      font-weight:900;
+      color:#d184a9;
+      letter-spacing:.12em;
       margin-bottom:10px;
     }
 
-    .song-card-desc{
-      margin:0;
-      font-size:13px;
-      line-height:1.75;
-      color:#a47d91;
-      min-height:46px;
+    .song-desc{
+      font-size:14px;
+      line-height:1.8;
+      color:#9c798e;
+      font-weight:700;
+      margin-bottom:14px;
+      flex:1;
     }
 
-    .song-card-status{
+    .song-status{
       display:flex;
       flex-wrap:wrap;
       gap:8px;
-      margin-top:12px;
     }
 
-    .status-chip{
+    .chip{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      min-height:32px;
+      min-height:30px;
       padding:7px 11px;
       border-radius:999px;
       background:#fff;
-      border:1px solid rgba(243,217,232,.95);
+      border:1px solid var(--line);
+      color:#b3839b;
       font-size:11px;
-      font-weight:800;
-      color:#b1819a;
+      font-weight:900;
       white-space:nowrap;
     }
 
+    /* GUIDE */
     .guide-panel{
-      margin:10px 0 70px;
-      background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,248,252,.96));
-      border:1px solid rgba(243,217,232,.95);
-      border-radius:32px;
+      border:1px solid var(--line);
+      border-radius:28px;
+      background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,248,252,.94));
       box-shadow:var(--shadow);
       overflow:hidden;
     }
 
-    .guide-top{
-      padding:28px 28px 18px;
-      border-bottom:1px solid rgba(243,217,232,.8);
+    .guide-head{
+      padding:28px;
+      border-bottom:1px solid rgba(241,212,227,.8);
       display:grid;
-      grid-template-columns:280px 1fr;
+      grid-template-columns:260px 1fr;
       gap:24px;
       align-items:start;
     }
 
     .guide-cover{
+      width:100%;
+      aspect-ratio:1 / 1.08;
       border-radius:24px;
       overflow:hidden;
-      border:1px solid rgba(243,217,232,.95);
-      background:linear-gradient(180deg,#fff6fb,#fff);
-      aspect-ratio:1/1.08;
+      border:1px solid #f0dde8;
+      background:#fff;
     }
 
     .guide-cover img{
@@ -389,94 +408,92 @@
       object-fit:cover;
     }
 
-    .guide-info h2{
-      margin:0 0 10px;
-      font-size:34px;
-      line-height:1.04;
-      letter-spacing:-.04em;
-      color:var(--text-strong);
+    .guide-info-title{
+      font-size:40px;
+      line-height:1.05;
+      color:var(--pink-deep);
+      font-weight:900;
+      letter-spacing:-.05em;
+      margin:4px 0 8px;
     }
 
-    .guide-info p{
-      margin:0;
+    .guide-info-desc{
       font-size:15px;
       line-height:1.9;
-      color:#9f798e;
+      color:#9c778d;
+      font-weight:700;
+      margin-bottom:16px;
     }
 
-    .guide-meta{
+    .meta-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:18px;
+    }
+
+    .toggle-group{
       display:flex;
       flex-wrap:wrap;
       gap:10px;
-      margin:16px 0 0;
+      margin-bottom:10px;
     }
 
-    .guide-meta .status-chip{
-      font-size:12px;
-      min-height:34px;
-      padding:8px 13px;
-    }
-
-    .switch-row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-top:18px;
-    }
-
-    .switch-btn{
+    .toggle-btn{
       border:none;
-      background:#fff;
-      border:1px solid rgba(243,217,232,.95);
       border-radius:999px;
-      padding:12px 16px;
+      padding:12px 18px;
       min-height:44px;
+      background:#fff;
+      border:1px solid var(--line);
+      color:#aa7a93;
       font-size:13px;
       font-weight:900;
-      color:#b07c96;
       cursor:pointer;
       transition:.18s ease;
     }
 
-    .switch-btn.active{
-      background:linear-gradient(180deg, #ff89bc, #ff59a5);
-      color:#fff;
-      border-color:transparent;
-      box-shadow:0 12px 20px rgba(255,89,165,.20);
+    .toggle-btn:hover{
+      transform:translateY(-1px);
     }
 
-    .guide-bottom{
-      padding:26px 28px 30px;
+    .toggle-btn.active{
+      background:linear-gradient(180deg, #ff8bbe, #ff59a5);
+      color:#fff;
+      border-color:transparent;
+      box-shadow:0 12px 20px rgba(255,89,165,.18);
+    }
+
+    .guide-body{
+      padding:28px;
       display:grid;
-      grid-template-columns:1.1fr .9fr;
-      gap:24px;
+      grid-template-columns:1fr 1.1fr;
+      gap:20px;
       align-items:start;
     }
 
     .guide-block{
-      background:rgba(255,248,252,.78);
-      border:1px solid rgba(243,217,232,.95);
+      border:1px solid var(--line);
       border-radius:24px;
+      background:rgba(255,248,252,.72);
       padding:20px;
     }
 
     .guide-block h3{
       margin:0 0 10px;
-      font-size:18px;
+      font-size:19px;
+      line-height:1.2;
+      color:#7d5d70;
       font-weight:900;
-      color:var(--text-strong);
       letter-spacing:-.02em;
     }
 
-    .guide-block .mini{
-      margin:0 0 16px;
+    .guide-mini{
       font-size:13px;
-      line-height:1.75;
-      color:#b0869b;
-    }
-
-    .audio-wrap{
-      margin-top:16px;
+      line-height:1.8;
+      color:#b0879c;
+      font-weight:700;
+      margin-bottom:14px;
     }
 
     .audio-wrap audio{
@@ -488,25 +505,25 @@
 
     .audio-empty{
       display:none;
-      min-height:54px;
+      min-height:58px;
+      border:1px dashed rgba(241,212,227,.95);
+      border-radius:16px;
+      background:rgba(255,255,255,.8);
+      color:#b18da0;
+      padding:14px 16px;
+      font-size:13px;
+      font-weight:700;
+      line-height:1.8;
       align-items:center;
       justify-content:center;
       text-align:center;
-      padding:14px 16px;
-      border-radius:16px;
-      border:1px dashed rgba(243,217,232,.95);
-      background:rgba(255,255,255,.85);
-      color:#b48ca1;
-      font-size:13px;
-      font-weight:700;
-      line-height:1.7;
     }
 
     .link-row{
       display:flex;
       flex-wrap:wrap;
       gap:10px;
-      margin-top:16px;
+      margin-top:14px;
     }
 
     .link-btn{
@@ -514,38 +531,38 @@
       align-items:center;
       justify-content:center;
       min-height:42px;
-      padding:10px 15px;
+      padding:10px 16px;
       border-radius:999px;
       background:#fff;
-      border:1px solid rgba(243,217,232,.95);
-      color:#aa7b93;
+      border:1px solid var(--line);
+      color:#aa7a93;
       font-size:13px;
       font-weight:900;
       transition:.18s ease;
     }
 
     .link-btn:hover{
-      border-color:rgba(255,89,165,.28);
-      color:var(--pink-deep);
       transform:translateY(-1px);
+      color:var(--pink-deep);
+      border-color:rgba(255,89,165,.28);
     }
 
     .link-btn.disabled{
-      opacity:.58;
+      opacity:.55;
       pointer-events:none;
     }
 
-    .guide-notes{
+    .note-grid{
       display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:12px;
-      margin-top:18px;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin-top:16px;
     }
 
     .note-box{
+      border:1px solid var(--line);
       border-radius:18px;
       background:#fff;
-      border:1px solid rgba(243,217,232,.95);
       padding:14px;
     }
 
@@ -559,9 +576,9 @@
 
     .note-value{
       font-size:14px;
+      line-height:1.75;
+      color:#8e697d;
       font-weight:800;
-      line-height:1.7;
-      color:#8f697d;
     }
 
     .guide-lines{
@@ -569,51 +586,51 @@
       gap:12px;
     }
 
-    .line-item{
-      padding:16px 16px 15px;
+    .guide-line{
+      border:1px solid var(--line);
       border-radius:18px;
       background:#fff;
-      border:1px solid rgba(243,217,232,.95);
-      box-shadow:0 6px 18px rgba(255,120,178,.05);
+      padding:16px;
+      box-shadow:0 6px 16px rgba(255,120,178,.05);
     }
 
-    .line-top{
+    .guide-line-top{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:12px;
-      margin-bottom:9px;
+      margin-bottom:10px;
     }
 
-    .line-time{
+    .guide-time{
       font-size:12px;
       font-weight:900;
       letter-spacing:.12em;
-      color:#d08cab;
+      color:#d088aa;
       white-space:nowrap;
     }
 
-    .line-stage{
+    .guide-stage{
       font-size:12px;
       font-weight:800;
-      color:#b18ba0;
+      color:#b2899f;
       text-align:right;
     }
 
-    .line-lyric{
+    .guide-lyric{
       font-size:15px;
-      line-height:1.86;
-      color:#7f6173;
+      line-height:1.85;
+      color:#7d6172;
       font-weight:700;
       margin-bottom:10px;
       word-break:keep-all;
     }
 
-    .line-tags{
+    .tag-row{
       display:flex;
       flex-wrap:wrap;
       gap:8px;
-      margin-bottom:9px;
+      margin-bottom:10px;
     }
 
     .tag{
@@ -629,22 +646,23 @@
       letter-spacing:.04em;
     }
 
-    .line-call{
+    .guide-call{
       font-size:13px;
-      line-height:1.75;
-      color:#9d7589;
+      line-height:1.8;
+      color:#9a7489;
+      font-weight:700;
     }
 
-    .line-call strong{
-      color:#7f5e70;
+    .guide-call strong{
+      color:#7a5b6f;
     }
 
-    .empty-mode{
+    .empty-guide{
       display:none;
-      border-radius:22px;
-      border:1px dashed rgba(243,217,232,.95);
+      border:1px dashed rgba(241,212,227,.95);
+      border-radius:20px;
       background:rgba(255,255,255,.85);
-      padding:28px 20px;
+      padding:28px 18px;
       text-align:center;
       color:#b18a9f;
       font-size:14px;
@@ -652,244 +670,250 @@
       font-weight:700;
     }
 
-    .footer{
-      padding:0 0 40px;
+    /* FOOTER */
+    .site-footer{
+      padding:10px 0 34px;
+    }
+
+    .footer-box{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:linear-gradient(180deg, rgba(255,252,254,.97), rgba(255,246,251,.95));
+      box-shadow:var(--shadow);
+      padding:18px 20px;
       text-align:center;
-      color:#bc94aa;
-      font-size:12px;
-      font-weight:700;
-      letter-spacing:.06em;
     }
 
-    @media (max-width: 1080px){
-      .hero-box,
-      .guide-top,
-      .guide-bottom{
+    .footer-box p{
+      margin:0;
+      color:#c288a6;
+      font-size:13px;
+      font-weight:800;
+      letter-spacing:.05em;
+    }
+
+    @media (max-width:1180px){
+      .song-grid{
+        grid-template-columns:repeat(2,1fr);
+      }
+
+      .guide-head,
+      .guide-body,
+      .hero-card{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:1100px){
+      nav{
+        grid-template-columns:repeat(4, minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:860px){
+      .song-grid{
+        grid-template-columns:1fr;
+      }
+
+      .note-grid{
         grid-template-columns:1fr;
       }
 
-      .song-grid{
-        grid-template-columns:repeat(2, minmax(0, 1fr));
+      .guide-line-top{
+        flex-direction:column;
+        align-items:flex-start;
       }
 
-      .guide-cover{
-        aspect-ratio:1.2/1;
+      .guide-stage{
+        text-align:left;
       }
     }
 
-    @media (max-width: 720px){
-      .container{width:min(var(--max), calc(100% - 20px));}
-
-      .site-header-inner{
-        padding:10px 0;
-        align-items:flex-start;
+    @media (max-width:720px){
+      .header-box{
+        min-height:auto;
+        padding:16px 14px;
+        gap:16px;
         flex-direction:column;
+        align-items:stretch;
       }
 
-      .nav{
-        justify-content:flex-start;
-        gap:6px 8px;
+      .logo{
+        justify-content:center;
       }
 
-      .nav a{
-        font-size:11px;
-        padding:8px 10px;
+      .logo img{
+        height:88px;
       }
 
-      .hero{
-        padding:20px 0 18px;
-      }
-
-      .hero-box{
-        padding:26px 20px 20px;
-        border-radius:24px;
-      }
-
-      .hero-title{
-        font-size:46px;
-      }
-
-      .hero-side{
-        min-height:196px;
-        padding:14px;
-        border-radius:20px;
-      }
-
-      .section-title-wrap{
-        align-items:flex-start;
-        flex-direction:column;
-      }
-
-      .song-grid{
-        grid-template-columns:1fr;
-        gap:14px;
-      }
-
-      .song-card{
-        padding:12px;
-        border-radius:20px;
-      }
-
-      .song-card-thumb{
-        aspect-ratio:1/0.82;
-      }
-
-      .guide-panel{
-        border-radius:24px;
-      }
-
-      .guide-top,
-      .guide-bottom{
-        padding:18px;
-      }
-
-      .guide-info h2{
-        font-size:28px;
-      }
-
-      .switch-row{
+      nav{
+        grid-template-columns:repeat(2, minmax(0,1fr));
         gap:8px;
       }
 
-      .switch-btn{
-        flex:1 1 calc(50% - 8px);
+      nav b{
+        font-size:16px;
+        margin-bottom:4px;
+      }
+
+      nav span{
+        font-size:13px;
+      }
+
+      .hero-card{
+        padding:26px 20px;
+        border-radius:24px;
+      }
+
+      .guide-head,
+      .guide-body{
+        padding:18px;
+      }
+
+      .guide-info-title{
+        font-size:30px;
+      }
+
+      .song-thumb{
+        height:220px;
+      }
+
+      .toggle-btn{
+        flex:1 1 calc(50% - 10px);
         min-width:0;
-        padding:11px 12px;
-        font-size:12px;
-      }
-
-      .guide-notes{
-        grid-template-columns:1fr;
-      }
-
-      .line-top{
-        align-items:flex-start;
-        flex-direction:column;
-      }
-
-      .line-stage{
-        text-align:left;
       }
     }
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="container site-header-inner">
-      <a href="index.html" class="brand">
-  <img src="img/logo.png" alt="Lumibelle 로고">
-</a>
-      <nav class="nav">
-        <a href="index.html">HOME</a>
-        <a href="news.html">NEWS</a>
-        <a href="member.html">MEMBER</a>
-        <a href="schedule.html">SCHEDULE</a>
-        <a href="music.html">MUSIC</a>
-        <a href="setlist.html" class="active">SETLIST</a>
-        <a href="fanname.html">FANNAME</a>
-        <a href="info.html">INFO</a>
+
+  <header>
+    <div class="wrap header-box">
+      <a href="index.html" class="logo" aria-label="Lumibelle home">
+        <img src="img/logo.png" alt="Lumibelle">
+      </a>
+
+      <nav>
+        <a href="index.html"><b>HOME</b><span>홈</span></a>
+        <a href="news.html"><b>NEWS</b><span>공지</span></a>
+        <a href="member.html"><b>MEMBER</b><span>멤버</span></a>
+        <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
+        <a href="music.html"><b>MUSIC</b><span>음원</span></a>
+        <a href="setlist.html" class="current"><b>SETLIST</b><span>응원가이드</span></a>
+        <a href="fanname.html"><b>FANNAME</b><span>팬네임</span></a>
+        <a href="info.html"><b>INFO</b><span>안내</span></a>
       </nav>
     </div>
   </header>
 
-  <main>
-    <section class="hero">
-      <div class="container">
-        <div class="hero-box">
-          <div class="hero-copy">
-            <div class="hero-kicker">LUMIBELLE CHEER GUIDE</div>
-            <h1 class="hero-title">SETLIST<small>TEAM / SOLO / BEGINNER / ADVANCED</small></h1>
-            <p class="hero-desc">
-              루미벨 공연에서 바로 사용할 수 있는 응원가이드 페이지입니다.
-              곡을 선택한 뒤 <strong>팀용 / 솔로용</strong> 응원 모드를 고르고,
-              다시 <strong>초보용 / 고급용</strong> 난이도를 선택하면 상황에 맞는 콜과 믹스 포인트를 볼 수 있어요.
-            </p>
-          </div>
+  <main class="setlist-page">
+    <div class="wrap">
 
-          <div class="hero-side">
-            <div class="hero-side-card">
-              <div class="hero-side-label">NOW SELECTED</div>
-              <div class="hero-side-title">카나리아</div>
-              <div class="hero-side-meta">
+      <section class="hero-card">
+        <div class="hero-copy">
+          <div class="hero-kicker">LUMIBELLE CHEER GUIDE</div>
+          <h1 class="hero-title">SETLIST</h1>
+          <div class="hero-sub">TEAM / SOLO / BEGINNER / ADVANCED</div>
+          <p class="hero-desc">
+            루미벨 공연에서 바로 사용할 수 있는 응원가이드 페이지입니다.
+            곡을 선택한 뒤 <strong>팀용 / 솔로용</strong> 응원 모드를 고르고,
+            다시 <strong>초보용 / 고급용</strong> 난이도를 선택하면 상황에 맞는 콜과 믹스 포인트를 볼 수 있어요.
+          </p>
+        </div>
+
+        <div class="hero-side">
+          <div class="hero-side-box">
+            <div class="hero-now">
+              <div class="hero-now-label">NOW SELECTED</div>
+              <div class="hero-now-title" id="heroNowTitle">카나리아</div>
+              <div class="hero-now-desc" id="heroNowDesc">
                 팀 응원 / 초보용부터 시작 가능<br>
                 솔로 파트 콜 구조까지 한 페이지에서 확인 가능
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section>
-      <div class="container">
-        <div class="section-title-wrap">
-          <div>
-            <h2 class="section-title">SETLIST SONGS</h2>
-            <p class="section-sub">곡 카드를 누르면 아래 상세 응원가이드가 해당 곡으로 바뀝니다.</p>
+      <section class="section-title">
+        <h2>SETLIST SONGS</h2>
+        <p>곡 카드를 누르면 아래 상세 응원가이드가 해당 곡으로 바뀝니다.</p>
+      </section>
+
+      <section class="song-grid" id="songGrid"></section>
+
+      <section class="guide-panel" id="guidePanel">
+        <div class="guide-head">
+          <div class="guide-cover">
+            <img id="guideImage" src="" alt="선택 곡 이미지">
+          </div>
+
+          <div class="guide-info">
+            <div class="guide-info-title" id="guideTitle"></div>
+            <div class="guide-info-desc" id="guideDesc"></div>
+
+            <div class="meta-row" id="guideMeta"></div>
+
+            <div class="toggle-group" id="modeButtons"></div>
+            <div class="toggle-group" id="levelButtons"></div>
           </div>
         </div>
 
-        <div class="song-grid" id="songGrid"></div>
-
-        <section class="guide-panel" id="guidePanel">
-          <div class="guide-top">
-            <div class="guide-cover">
-              <img id="guideImage" src="" alt="선택된 곡 이미지">
+        <div class="guide-body">
+          <div class="guide-block">
+            <h3>TRACK / VIDEO</h3>
+            <div class="guide-mini">
+              음원 파일이 있으면 바로 재생할 수 있고, 영상이 있으면 바로 이동할 수 있어요.
             </div>
 
-            <div class="guide-info">
-              <h2 id="guideTitle"></h2>
-              <p id="guideDesc"></p>
-
-              <div class="guide-meta" id="guideMeta"></div>
-
-              <div class="switch-row" id="modeButtons"></div>
-              <div class="switch-row" id="levelButtons"></div>
-            </div>
-          </div>
-
-          <div class="guide-bottom">
-            <div class="guide-block">
-              <h3>TRACK / VIDEO</h3>
-              <p class="mini">음원 또는 연습용 파일이 있으면 바로 재생할 수 있고, 영상이 있으면 바로 이동할 수 있어요.</p>
-
-              <div class="audio-wrap">
-                <audio id="guideAudio" controls></audio>
-                <div class="audio-empty" id="audioEmpty">이 곡은 아직 음원 파일이 연결되지 않았어요.<br>오디오가 준비되면 바로 재생 가능하게 바뀝니다.</div>
-              </div>
-
-              <div class="link-row" id="linkRow"></div>
-
-              <div class="guide-notes">
-                <div class="note-box">
-                  <div class="note-label">응원 모드</div>
-                  <div class="note-value" id="noteMode"></div>
-                </div>
-                <div class="note-box">
-                  <div class="note-label">난이도</div>
-                  <div class="note-value" id="noteLevel"></div>
-                </div>
-                <div class="note-box">
-                  <div class="note-label">핵심 포인트</div>
-                  <div class="note-value" id="notePoint"></div>
-                </div>
+            <div class="audio-wrap">
+              <audio id="guideAudio" controls></audio>
+              <div class="audio-empty" id="audioEmpty">
+                이 곡은 아직 음원 파일이 연결되지 않았어요.<br>
+                오디오가 준비되면 바로 재생 가능하게 바뀝니다.
               </div>
             </div>
 
-            <div class="guide-block">
-              <h3>CHEER GUIDE</h3>
-              <p class="mini">파트별 흐름, 이름 콜, 믹스, 리프트 가능 포인트를 순서대로 정리했습니다.</p>
-              <div class="guide-lines" id="guideLines"></div>
-              <div class="empty-mode" id="emptyMode">이 곡은 아직 선택한 모드 / 난이도 조합의 가이드가 준비되지 않았어요.<br>준비중 문구가 뜨도록 설정해두었으니 레이아웃은 깨지지 않습니다.</div>
+            <div class="link-row" id="linkRow"></div>
+
+            <div class="note-grid">
+              <div class="note-box">
+                <div class="note-label">응원 모드</div>
+                <div class="note-value" id="noteMode"></div>
+              </div>
+              <div class="note-box">
+                <div class="note-label">난이도</div>
+                <div class="note-value" id="noteLevel"></div>
+              </div>
+              <div class="note-box">
+                <div class="note-label">핵심 포인트</div>
+                <div class="note-value" id="notePoint"></div>
+              </div>
             </div>
           </div>
-        </section>
-      </div>
-    </section>
+
+          <div class="guide-block">
+            <h3>CHEER GUIDE</h3>
+            <div class="guide-mini">
+              파트별 흐름, 이름 콜, 믹스, 리프트 가능 포인트를 순서대로 정리했습니다.
+            </div>
+
+            <div class="guide-lines" id="guideLines"></div>
+            <div class="empty-guide" id="emptyGuide">
+              이 곡은 아직 선택한 모드 / 난이도 조합의 가이드가 준비되지 않았어요.<br>
+              준비중 문구가 뜨도록 설정해두었으니 레이아웃은 깨지지 않습니다.
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
   </main>
 
-  <footer class="footer">
-    © 2026 Lumibelle All Rights Reserved.
+  <footer class="site-footer">
+    <div class="wrap footer-box">
+      <p>© 2026 Lumibelle All Rights Reserved.</p>
+    </div>
   </footer>
 
   <script>
@@ -905,6 +929,7 @@
         meta: ['팀용 지원', '솔로용 지원', '초보/고급 있음'],
         audio: 'audio/canaria.mp3',
         video: 'https://youtu.be/op3L_ed8-24',
+        heroDesc: '팀 응원 / 초보용부터 시작 가능<br>솔로 파트 콜 구조까지 한 페이지에서 확인 가능',
         support: {
           team: {
             beginner: {
@@ -1004,7 +1029,7 @@
                   stage: '파트 응원',
                   lyric: '개인 파트가 시작되면 해당 멤버 이름을 짧게 불러줍니다.',
                   tags: ['이름콜', '솔로'],
-                  call: '<strong>예시:</strong> 마리링! / 루루! / 이로! / 루나!' 
+                  call: '<strong>예시:</strong> 마리링! / 루루! / 이로! / 루나!'
                 },
                 {
                   time: '파트 종료 직후',
@@ -1062,6 +1087,7 @@
         meta: ['팀용 지원', '솔로용 지원', '음원 미연결'],
         audio: '',
         video: '',
+        heroDesc: '마법소녀 무드 강한 곡<br>기본 팀 응원 위주로 먼저 정리',
         support: {
           team: {
             beginner: {
@@ -1102,6 +1128,7 @@
         meta: ['팀용 우선', '초보용 예정', '음원 미연결'],
         audio: '',
         video: 'https://www.youtube.com/',
+        heroDesc: '청량 계열 팀 응원곡<br>후렴 팀콜 중심으로 확장 예정',
         support: {
           team: {
             beginner: {
@@ -1135,6 +1162,7 @@
         meta: ['팀/솔로 구조만 생성', '내용 추후 업데이트'],
         audio: '',
         video: '',
+        heroDesc: '감정선 중심의 곡<br>추후 솔로 응원 구조 확장 예정',
         support: {
           team: {
             beginner: null,
@@ -1155,6 +1183,8 @@
     };
 
     const songGrid = document.getElementById('songGrid');
+    const heroNowTitle = document.getElementById('heroNowTitle');
+    const heroNowDesc = document.getElementById('heroNowDesc');
     const guideTitle = document.getElementById('guideTitle');
     const guideDesc = document.getElementById('guideDesc');
     const guideImage = document.getElementById('guideImage');
@@ -1164,11 +1194,11 @@
     const guideAudio = document.getElementById('guideAudio');
     const audioEmpty = document.getElementById('audioEmpty');
     const linkRow = document.getElementById('linkRow');
-    const guideLines = document.getElementById('guideLines');
-    const emptyMode = document.getElementById('emptyMode');
     const noteMode = document.getElementById('noteMode');
     const noteLevel = document.getElementById('noteLevel');
     const notePoint = document.getElementById('notePoint');
+    const guideLines = document.getElementById('guideLines');
+    const emptyGuide = document.getElementById('emptyGuide');
     const guidePanel = document.getElementById('guidePanel');
 
     function getSong(){
@@ -1183,23 +1213,23 @@
       return level === 'beginner' ? '초보용' : '고급용';
     }
 
-    function buildSongCards(){
+    function renderSongCards(){
       songGrid.innerHTML = songs.map(song => `
-        <button class="song-card ${song.id === state.songId ? 'active' : ''}" data-song="${song.id}">
-          <div class="song-badge">NOW</div>
-          <div class="song-card-thumb">
+        <article class="song-card ${song.id === state.songId ? 'active' : ''}" data-song="${song.id}">
+          <div class="song-card-badge">NOW</div>
+          <div class="song-thumb">
             <img src="${song.thumb}" alt="${song.title} 썸네일">
           </div>
-          <h3 class="song-card-title">${song.title}</h3>
-          <div class="song-card-meta">${song.subtitle}</div>
-          <p class="song-card-desc">${song.desc}</p>
-          <div class="song-card-status">
-            ${song.status.map(item => `<span class="status-chip">${item}</span>`).join('')}
+          <div class="song-title">${song.title}</div>
+          <div class="song-en">${song.subtitle}</div>
+          <div class="song-desc">${song.desc}</div>
+          <div class="song-status">
+            ${song.status.map(item => `<span class="chip">${item}</span>`).join('')}
           </div>
-        </button>
+        </article>
       `).join('');
 
-      [...document.querySelectorAll('.song-card')].forEach(card => {
+      document.querySelectorAll('.song-card').forEach(card => {
         card.addEventListener('click', () => {
           state.songId = card.dataset.song;
           state.mode = 'team';
@@ -1210,85 +1240,49 @@
       });
     }
 
-    function buildModeButtons(song){
-      const modes = ['team', 'solo'];
+    function renderModeButtons(song){
+      const modes = ['team','solo'];
       modeButtons.innerHTML = modes.map(mode => {
         const hasAny = song.support?.[mode]?.beginner || song.support?.[mode]?.advanced;
         return `
-          <button class="switch-btn ${state.mode === mode ? 'active' : ''}" data-mode="${mode}">
-            ${modeLabel(mode)} ${hasAny ? '' : '· 준비중'}
+          <button class="toggle-btn ${state.mode === mode ? 'active' : ''}" data-mode="${mode}">
+            ${modeLabel(mode)}${hasAny ? '' : ' · 준비중'}
           </button>
         `;
       }).join('');
 
-      [...modeButtons.querySelectorAll('[data-mode]')].forEach(btn => {
+      modeButtons.querySelectorAll('[data-mode]').forEach(btn => {
         btn.addEventListener('click', () => {
           state.mode = btn.dataset.mode;
-          const current = getSong().support?.[state.mode]?.[state.level];
-          if(!current){
+          const currentGuide = getSong().support?.[state.mode]?.[state.level];
+
+          if(!currentGuide){
             if(getSong().support?.[state.mode]?.beginner) state.level = 'beginner';
             else if(getSong().support?.[state.mode]?.advanced) state.level = 'advanced';
           }
+
           render();
         });
       });
     }
 
-    function buildLevelButtons(song){
-      const levels = ['beginner', 'advanced'];
+    function renderLevelButtons(song){
+      const levels = ['beginner','advanced'];
       levelButtons.innerHTML = levels.map(level => {
         const hasGuide = !!song.support?.[state.mode]?.[level];
         return `
-          <button class="switch-btn ${state.level === level ? 'active' : ''}" data-level="${level}">
-            ${levelLabel(level)} ${hasGuide ? '' : '· 준비중'}
+          <button class="toggle-btn ${state.level === level ? 'active' : ''}" data-level="${level}">
+            ${levelLabel(level)}${hasGuide ? '' : ' · 준비중'}
           </button>
         `;
       }).join('');
 
-      [...levelButtons.querySelectorAll('[data-level]')].forEach(btn => {
+      levelButtons.querySelectorAll('[data-level]').forEach(btn => {
         btn.addEventListener('click', () => {
           state.level = btn.dataset.level;
           render();
         });
       });
-    }
-
-    function renderGuide(song){
-      const guide = song.support?.[state.mode]?.[state.level] || null;
-
-      guideLines.innerHTML = '';
-      emptyMode.style.display = guide ? 'none' : 'block';
-      guideLines.style.display = guide ? 'grid' : 'none';
-
-      noteMode.textContent = modeLabel(state.mode);
-      noteLevel.textContent = levelLabel(state.level);
-      notePoint.textContent = guide ? guide.point : '이 조합의 가이드는 아직 준비중';
-
-      if(!guide) return;
-
-      guideLines.innerHTML = guide.lines.map(line => `
-        <article class="line-item">
-          <div class="line-top">
-            <div class="line-time">${line.time}</div>
-            <div class="line-stage">${line.stage}</div>
-          </div>
-          <div class="line-lyric">${line.lyric}</div>
-          <div class="line-tags">
-            ${line.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-          </div>
-          <div class="line-call">${line.call}</div>
-        </article>
-      `).join('');
-    }
-
-    function renderLinks(song){
-      const videoBtn = song.video
-        ? `<a class="link-btn" href="${song.video}" target="_blank" rel="noopener noreferrer">영상 보러가기</a>`
-        : `<span class="link-btn disabled">영상 준비중</span>`;
-
-      const guideBtn = `<a class="link-btn" href="#guidePanel">응원가이드 보기</a>`;
-
-      linkRow.innerHTML = videoBtn + guideBtn;
     }
 
     function renderAudio(song){
@@ -1305,16 +1299,60 @@
       }
     }
 
+    function renderLinks(song){
+      const videoBtn = song.video
+        ? `<a class="link-btn" href="${song.video}" target="_blank" rel="noopener noreferrer">영상 보러가기</a>`
+        : `<span class="link-btn disabled">영상 준비중</span>`;
+
+      const guideBtn = `<a class="link-btn" href="#guidePanel">응원가이드 보기</a>`;
+
+      linkRow.innerHTML = videoBtn + guideBtn;
+    }
+
+    function renderGuide(song){
+      const guide = song.support?.[state.mode]?.[state.level] || null;
+
+      noteMode.textContent = modeLabel(state.mode);
+      noteLevel.textContent = levelLabel(state.level);
+      notePoint.textContent = guide ? guide.point : '이 조합의 가이드는 아직 준비중';
+
+      if(!guide){
+        guideLines.style.display = 'none';
+        emptyGuide.style.display = 'block';
+        guideLines.innerHTML = '';
+        return;
+      }
+
+      emptyGuide.style.display = 'none';
+      guideLines.style.display = 'grid';
+      guideLines.innerHTML = guide.lines.map(line => `
+        <article class="guide-line">
+          <div class="guide-line-top">
+            <div class="guide-time">${line.time}</div>
+            <div class="guide-stage">${line.stage}</div>
+          </div>
+          <div class="guide-lyric">${line.lyric}</div>
+          <div class="tag-row">
+            ${line.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+          </div>
+          <div class="guide-call">${line.call}</div>
+        </article>
+      `).join('');
+    }
+
     function renderMeta(song){
-      guideMeta.innerHTML = [song.subtitle, ...song.meta].map(item => `<span class="status-chip">${item}</span>`).join('');
+      guideMeta.innerHTML = [song.subtitle, ...song.meta].map(item => `<span class="chip">${item}</span>`).join('');
     }
 
     function render(){
       const song = getSong();
 
-      buildSongCards();
-      buildModeButtons(song);
-      buildLevelButtons(song);
+      heroNowTitle.textContent = song.title;
+      heroNowDesc.innerHTML = song.heroDesc;
+
+      renderSongCards();
+      renderModeButtons(song);
+      renderLevelButtons(song);
 
       guideTitle.textContent = song.title;
       guideDesc.textContent = song.desc;
