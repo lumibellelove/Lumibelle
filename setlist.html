@@ -3301,6 +3301,103 @@ audio::-webkit-media-controls-mute-button{
 }
 </style>
 
+
+<style>
+/* --- final card width + arrow polish patch --- */
+.slider-shell{
+  padding-left:0 !important;
+  padding-right:0 !important;
+  margin-bottom:26px !important;
+}
+
+/* 카드 너비는 4장 기준 그대로 유지 */
+#songGrid.song-grid{
+  gap:16px !important;
+}
+#songGrid .song-card{
+  width:calc((100% - 48px)/4) !important;
+  min-width:calc((100% - 48px)/4) !important;
+  flex:0 0 calc((100% - 48px)/4) !important;
+}
+
+/* 클릭시 허옇게 뜨는 오버레이 제거 */
+.song-card.active::after{
+  content:none !important;
+  display:none !important;
+  animation:none !important;
+  background:none !important;
+}
+.song-card.active{
+  border-color:rgba(255,89,165,.44) !important;
+  box-shadow:0 14px 24px rgba(255,89,165,.14) !important;
+}
+
+/* 버튼은 카드 폭 안 잡아먹게 바깥으로 이동 */
+.slider-arrow{
+  width:50px !important;
+  min-width:50px !important;
+  height:50px !important;
+  padding:0 !important;
+  border-radius:50% !important;
+  background:rgba(255,255,255,.92) !important;
+  border:1px solid rgba(255,89,165,.16) !important;
+  color:#d48aac !important;
+  box-shadow:0 10px 22px rgba(255,120,178,.08) !important;
+  font-size:22px !important;
+  line-height:1 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  backdrop-filter:blur(6px);
+}
+.slider-arrow:hover{
+  transform:translateY(-50%) scale(1.04) !important;
+  color:#ff59a5 !important;
+  border-color:rgba(255,89,165,.28) !important;
+  box-shadow:0 14px 28px rgba(255,120,178,.14) !important;
+}
+.slider-arrow:active{
+  transform:translateY(-50%) scale(.98) !important;
+}
+.slider-arrow.first{left:-116px !important;}
+.slider-arrow.left{left:-58px !important;}
+.slider-arrow.right{right:-58px !important;}
+.slider-arrow.last{right:-116px !important;}
+
+@media (max-width: 1280px){
+  .slider-arrow.first{left:-104px !important;}
+  .slider-arrow.left{left:-52px !important;}
+  .slider-arrow.right{right:-52px !important;}
+  .slider-arrow.last{right:-104px !important;}
+}
+
+@media (max-width:980px){
+  #songGrid .song-card{
+    width:calc((100% - 16px)/2) !important;
+    min-width:calc((100% - 16px)/2) !important;
+    flex:0 0 calc((100% - 16px)/2) !important;
+  }
+  .slider-arrow{width:46px !important; min-width:46px !important; height:46px !important; font-size:20px !important;}
+  .slider-arrow.first{left:-96px !important;}
+  .slider-arrow.left{left:-48px !important;}
+  .slider-arrow.right{right:-48px !important;}
+  .slider-arrow.last{right:-96px !important;}
+}
+
+@media (max-width:860px){
+  #songGrid .song-card{
+    width:100% !important;
+    min-width:100% !important;
+    flex:0 0 100% !important;
+  }
+  .slider-arrow{width:42px !important; min-width:42px !important; height:42px !important; font-size:18px !important;}
+  .slider-arrow.first{left:-88px !important;}
+  .slider-arrow.left{left:-44px !important;}
+  .slider-arrow.right{right:-44px !important;}
+  .slider-arrow.last{right:-88px !important;}
+}
+</style>
+
 </head>
 <body>
 
@@ -3380,13 +3477,13 @@ audio::-webkit-media-controls-mute-button{
       </section>
 
       <section class="slider-shell" id="songSliderShell">
-        <button class="slider-arrow first" type="button" id="songFirstBtn" aria-label="처음으로">&lt;&lt;</button>
-        <button class="slider-arrow left" type="button" id="songPrevBtn" aria-label="이전 곡">&lt;</button>
+        <button class="slider-arrow first" type="button" id="songFirstBtn" aria-label="처음으로">«</button>
+        <button class="slider-arrow left" type="button" id="songPrevBtn" aria-label="이전 곡">‹</button>
         <div class="slider-viewport">
           <section class="song-grid" id="songGrid"></section>
         </div>
-        <button class="slider-arrow right" type="button" id="songNextBtn" aria-label="다음 곡">&gt;</button>
-        <button class="slider-arrow last" type="button" id="songLastBtn" aria-label="마지막으로">&gt;&gt;</button>
+        <button class="slider-arrow right" type="button" id="songNextBtn" aria-label="다음 곡">›</button>
+        <button class="slider-arrow last" type="button" id="songLastBtn" aria-label="마지막으로">»</button>
       </section>
 
       <section class="guide-panel open" id="guidePanel">
