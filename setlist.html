@@ -16,8 +16,11 @@
       --pink:#ff78b2;
       --pink-deep:#ff59a5;
       --text:#8a6b7c;
+      --text-strong:#7b5d70;
       --soft:#c79bb2;
+      --white:#ffffff;
       --shadow:0 16px 30px rgba(255,120,178,.10);
+      --shadow-strong:0 22px 40px rgba(255,120,178,.16);
       --radius:22px;
     }
 
@@ -220,7 +223,7 @@
     .hero-now-title{
       font-size:22px;
       font-weight:900;
-      color:#7d5d70;
+      color:var(--text-strong);
       margin-bottom:8px;
     }
 
@@ -239,7 +242,7 @@
       margin:0;
       font-size:28px;
       line-height:1.1;
-      color:#7d5d70;
+      color:var(--text-strong);
       letter-spacing:-.03em;
     }
 
@@ -250,6 +253,7 @@
       font-weight:700;
     }
 
+    /* SONG CARDS */
     .song-grid{
       display:grid;
       grid-template-columns:repeat(4,1fr);
@@ -268,18 +272,21 @@
       border-radius:24px;
       box-shadow:var(--shadow);
       padding:12px;
-      transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+      transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease, opacity .25s ease;
       cursor:pointer;
+      opacity:.98;
     }
 
     .song-card:hover{
       transform:translateY(-6px);
       box-shadow:0 20px 32px rgba(255,120,178,.12);
+      border-color:rgba(255,89,165,.22);
     }
 
     .song-card.active{
       border-color:rgba(255,89,165,.35);
       box-shadow:0 20px 34px rgba(255,89,165,.14);
+      transform:translateY(-4px);
     }
 
     .song-card-badge{
@@ -298,7 +305,7 @@
       box-shadow:0 10px 18px rgba(255,89,165,.22);
       opacity:0;
       transform:translateY(4px);
-      transition:.2s ease;
+      transition:.22s ease;
     }
 
     .song-card.active .song-card-badge{
@@ -371,7 +378,7 @@
       white-space:nowrap;
     }
 
-    /* GUIDE */
+    /* GUIDE PANEL */
     .guide-panel{
       border:1px solid var(--line);
       border-radius:28px;
@@ -384,32 +391,135 @@
       padding:28px;
       border-bottom:1px solid rgba(241,212,227,.8);
       display:grid;
-      grid-template-columns:420px 1fr;
+      grid-template-columns:1.15fr .85fr;
       gap:24px;
       align-items:start;
     }
 
-    .guide-cover{
-      width:100%;
-      aspect-ratio:1 / 1.08;
-      border-radius:24px;
+    .video-card{
+      border:1px solid var(--line);
+      border-radius:26px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,245,250,.92));
+      box-shadow:var(--shadow-strong);
       overflow:hidden;
-      border:1px solid #f0dde8;
+      transform:translateY(8px);
+      opacity:0;
+      transition:opacity .28s ease, transform .28s ease;
+    }
+
+    .video-card.show{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    .video-card-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding:16px 18px 14px;
+      border-bottom:1px solid rgba(241,212,227,.8);
+      background:linear-gradient(180deg, rgba(255,249,252,.96), rgba(255,244,249,.94));
+    }
+
+    .video-title-wrap{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+
+    .video-label{
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.14em;
+      color:#cf87a9;
+    }
+
+    .video-title{
+      font-size:22px;
+      line-height:1.1;
+      font-weight:900;
+      color:var(--pink-deep);
+      letter-spacing:-.03em;
+    }
+
+    .video-sub{
+      font-size:12px;
+      line-height:1.6;
+      color:#b5889d;
+      font-weight:700;
+    }
+
+    .video-cover-thumb{
+      width:78px;
+      height:78px;
+      flex:0 0 78px;
+      border-radius:18px;
+      overflow:hidden;
+      border:1px solid var(--line);
       background:#fff;
+      box-shadow:0 8px 16px rgba(255,120,178,.08);
     }
 
-    .guide-cover.video-mode{
+    .video-cover-thumb img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    .video-frame-wrap{
+      position:relative;
+      background:#fff;
       aspect-ratio:16 / 9;
-      padding:0;
     }
 
-    .guide-cover.video-mode iframe{
+    .video-frame-wrap iframe{
       width:100%;
       height:100%;
       border:0;
-      border-radius:24px;
       display:block;
       background:#fff;
+    }
+
+    .video-empty{
+      display:none;
+      min-height:320px;
+      border:1px dashed rgba(241,212,227,.95);
+      border-radius:24px;
+      background:rgba(255,255,255,.82);
+      color:#b18a9f;
+      padding:30px 22px;
+      font-size:14px;
+      line-height:1.9;
+      font-weight:800;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+    }
+
+    .guide-info{
+      display:flex;
+      flex-direction:column;
+      gap:0;
+    }
+
+    .guide-info-box{
+      border:1px solid var(--line);
+      border-radius:26px;
+      background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,247,251,.92));
+      box-shadow:var(--shadow);
+      padding:22px 20px;
+      min-height:100%;
+      opacity:0;
+      transform:translateY(10px);
+      transition:opacity .28s ease, transform .28s ease;
+    }
+
+    .guide-info-box.show{
+      opacity:1;
+      transform:translateY(0);
     }
 
     .guide-info-title{
@@ -454,11 +564,15 @@
       font-size:13px;
       font-weight:900;
       cursor:pointer;
-      transition:.18s ease;
+      transition:.18s ease, transform .12s ease;
     }
 
     .toggle-btn:hover{
       transform:translateY(-1px);
+    }
+
+    .toggle-btn:active{
+      transform:scale(.98);
     }
 
     .toggle-btn.active{
@@ -481,13 +595,21 @@
       border-radius:24px;
       background:rgba(255,248,252,.72);
       padding:20px;
+      opacity:0;
+      transform:translateY(10px);
+      transition:opacity .28s ease, transform .28s ease;
+    }
+
+    .guide-block.show{
+      opacity:1;
+      transform:translateY(0);
     }
 
     .guide-block h3{
       margin:0 0 10px;
       font-size:19px;
       line-height:1.2;
-      color:#7d5d70;
+      color:var(--text-strong);
       font-weight:900;
       letter-spacing:-.02em;
     }
@@ -596,6 +718,23 @@
       background:#fff;
       padding:16px;
       box-shadow:0 6px 16px rgba(255,120,178,.05);
+      opacity:0;
+      transform:translateY(12px);
+      animation:lineFade .35s ease forwards;
+    }
+
+    .guide-line:nth-child(1){animation-delay:.03s}
+    .guide-line:nth-child(2){animation-delay:.07s}
+    .guide-line:nth-child(3){animation-delay:.11s}
+    .guide-line:nth-child(4){animation-delay:.15s}
+    .guide-line:nth-child(5){animation-delay:.19s}
+    .guide-line:nth-child(6){animation-delay:.23s}
+
+    @keyframes lineFade{
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
     }
 
     .guide-line-top{
@@ -674,6 +813,43 @@
       font-weight:700;
     }
 
+    /* TOP BUTTON */
+    .scroll-top-btn{
+      position:fixed;
+      right:20px;
+      bottom:24px;
+      z-index:120;
+      border:none;
+      min-width:58px;
+      height:58px;
+      padding:0 14px;
+      border-radius:999px;
+      background:linear-gradient(180deg,#ff8fc2,#ff59a5);
+      color:#fff;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.08em;
+      box-shadow:0 14px 28px rgba(255,89,165,.24);
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      opacity:0;
+      pointer-events:none;
+      transform:translateY(10px);
+      transition:opacity .2s ease, transform .2s ease;
+    }
+
+    .scroll-top-btn.show{
+      opacity:1;
+      pointer-events:auto;
+      transform:translateY(0);
+    }
+
+    .scroll-top-btn:hover{
+      transform:translateY(-2px);
+    }
+
     /* FOOTER */
     .site-footer{
       padding:10px 0 34px;
@@ -731,6 +907,17 @@
       .guide-stage{
         text-align:left;
       }
+
+      .video-card-head{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .video-cover-thumb{
+        width:64px;
+        height:64px;
+        flex-basis:64px;
+      }
     }
 
     @media (max-width:720px){
@@ -786,6 +973,14 @@
         flex:1 1 calc(50% - 10px);
         min-width:0;
       }
+
+      .scroll-top-btn{
+        right:14px;
+        bottom:18px;
+        min-width:52px;
+        height:52px;
+        font-size:11px;
+      }
     }
   </style>
 </head>
@@ -829,10 +1024,10 @@
           <div class="hero-side-box">
             <div class="hero-now">
               <div class="hero-now-label">NOW SELECTED</div>
-              <div class="hero-now-title" id="heroNowTitle">카나리아</div>
+              <div class="hero-now-title" id="heroNowTitle">스타더스트 매지컬</div>
               <div class="hero-now-desc" id="heroNowDesc">
-                팀 응원 / 초보용부터 시작 가능<br>
-                솔로 파트 콜 구조까지 한 페이지에서 확인 가능
+                마법소녀 무드 강한 곡<br>
+                기본 팀 응원 위주로 먼저 정리
               </div>
             </div>
           </div>
@@ -848,32 +1043,53 @@
 
       <section class="guide-panel" id="guidePanel">
         <div class="guide-head">
-          <div class="guide-cover video-mode" id="videoWrap">
-            <iframe
-              id="guideVideo"
-              src=""
-              title="Lumibelle video"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowfullscreen>
-            </iframe>
+
+          <div class="video-card" id="videoCard">
+            <div class="video-card-head">
+              <div class="video-title-wrap">
+                <div class="video-label">NOW PLAYING GUIDE</div>
+                <div class="video-title" id="videoCardTitle">스타더스트 매지컬</div>
+                <div class="video-sub" id="videoCardSub">응원 연습용 영상 카드</div>
+              </div>
+              <div class="video-cover-thumb" id="videoCoverThumbWrap">
+                <img id="videoCoverThumb" src="" alt="곡 커버 이미지">
+              </div>
+            </div>
+
+            <div class="video-frame-wrap" id="videoFrameWrap">
+              <iframe
+                id="guideVideo"
+                src=""
+                title="Lumibelle video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen>
+              </iframe>
+            </div>
+          </div>
+
+          <div class="video-empty" id="videoEmpty">
+            이 곡은 아직 연결된 영상이 없어요.<br>
+            영상이 준비되면 이 영역에서 바로 볼 수 있게 표시됩니다.
           </div>
 
           <div class="guide-info">
-            <div class="guide-info-title" id="guideTitle"></div>
-            <div class="guide-info-desc" id="guideDesc"></div>
+            <div class="guide-info-box" id="guideInfoBox">
+              <div class="guide-info-title" id="guideTitle"></div>
+              <div class="guide-info-desc" id="guideDesc"></div>
 
-            <div class="meta-row" id="guideMeta"></div>
+              <div class="meta-row" id="guideMeta"></div>
 
-            <div class="toggle-group" id="modeButtons"></div>
-            <div class="toggle-group" id="levelButtons"></div>
+              <div class="toggle-group" id="modeButtons"></div>
+              <div class="toggle-group" id="levelButtons"></div>
+            </div>
           </div>
         </div>
 
         <div class="guide-body">
-          <div class="guide-block">
+          <div class="guide-block" id="trackBlock">
             <h3>TRACK / VIDEO</h3>
             <div class="guide-mini">
-              음원 파일이 있으면 바로 재생할 수 있고, 영상이 있으면 바로 이동할 수 있어요.
+              음원 파일이 있으면 반복 연습용으로 바로 재생할 수 있고, 원본 영상 링크도 바로 확인할 수 있어요.
             </div>
 
             <div class="audio-wrap">
@@ -902,7 +1118,7 @@
             </div>
           </div>
 
-          <div class="guide-block">
+          <div class="guide-block" id="cheerBlock">
             <h3>CHEER GUIDE</h3>
             <div class="guide-mini">
               파트별 흐름, 이름 콜, 믹스, 리프트 가능 포인트를 순서대로 정리했습니다.
@@ -926,8 +1142,154 @@
     </div>
   </footer>
 
+  <button class="scroll-top-btn" id="scrollTopBtn" type="button" aria-label="위로 올라가기">
+    ↑ TOP
+  </button>
+
   <script>
     const songs = [
+      {
+        id: 'stardust-magical',
+        title: '스타더스트 매지컬',
+        subtitle: 'STARDUST MAGICAL',
+        desc: '마법소녀 분위기가 강한 곡. 팀 응원 중심으로 보되, 솔로 파트 이름콜도 잘 어울리는 타입.',
+        thumb: 'img/setlist/stardust-magical.jpg',
+        status: ['응원가이드 일부', '영상 준비중'],
+        meta: ['팀용 지원', '솔로용 지원', '음원 미연결'],
+        audio: '',
+        video: '',
+        heroDesc: '마법소녀 무드 강한 곡<br>기본 팀 응원 위주로 먼저 정리',
+        support: {
+          team: {
+            beginner: {
+              point: '반짝이는 포인트 동작에 맞춰 손흔들기 위주로 가면 예쁨',
+              lines: [
+                {
+                  time: '인트로 - A멜로',
+                  stage: '도입',
+                  lyric: '큰 콜보다 분위기에 맞는 손흔들기와 박수 위주로 시작.',
+                  tags: ['손흔들기', '박수'],
+                  call: '<strong>콜:</strong> 과한 믹스보다 귀여운 호응이 잘 어울려요.'
+                },
+                {
+                  time: '후렴',
+                  stage: '메인 포인트',
+                  lyric: '별, 마법, 반짝임 계열 가사 포인트에서 짧은 함성을 넣어줍니다.',
+                  tags: ['후렴', '함성'],
+                  call: '<strong>포인트:</strong> 안무 포인트에 맞춰 우와- 느낌의 반응 추천.'
+                }
+              ]
+            },
+            advanced: null
+          },
+          solo: {
+            beginner: null,
+            advanced: null
+          }
+        }
+      },
+      {
+        id: 'storyberrylove',
+        title: '스토리베리 러브',
+        subtitle: 'STORYBERRY LOVE',
+        desc: '밝고 러블리한 분위기의 곡. 기본 응원 구조는 단순하지만 감정 표현이 중요한 곡.',
+        thumb: 'img/setlist/storyberrylove.jpg',
+        status: ['응원가이드 준비중'],
+        meta: ['팀용 예정', '솔로용 예정'],
+        audio: '',
+        video: '',
+        heroDesc: '러블리 감성 곡<br>추후 응원가이드 확장 예정',
+        support: {
+          team: {
+            beginner: null,
+            advanced: null
+          },
+          solo: {
+            beginner: null,
+            advanced: null
+          }
+        }
+      },
+      {
+        id: 'shukipi',
+        title: '슈키피',
+        subtitle: 'SHUKIPI',
+        desc: '귀여운 콜 앤 리스폰스 중심 곡. 믹스 + 후렴 콜 연습용으로 최적.',
+        thumb: 'img/setlist/shukipi.jpg',
+        status: ['응원가이드 작성', '영상 있음'],
+        meta: ['팀용', '솔로용 가능'],
+        audio: '',
+        video: 'https://youtu.be/az9mkI9C2f4',
+        heroDesc: '콜 앤 리스폰스 핵심 곡<br>현장 텐션 올리기 좋음',
+        support: {
+          team: {
+            beginner: {
+              point: '후렴 콜 + 기본 박수만 따라가도 현장 참여 가능',
+              lines: [
+                {
+                  time: '인트로',
+                  stage: '도입',
+                  lyric: '박수로 분위기 맞추기',
+                  tags: ['박수'],
+                  call: '<strong>콜:</strong> 가볍게 박수'
+                },
+                {
+                  time: '후렴',
+                  stage: '핵심',
+                  lyric: '슈키피 반복 구간',
+                  tags: ['후렴'],
+                  call: '<strong>콜:</strong> 슈! 키! 피!'
+                }
+              ]
+            },
+            advanced: {
+              point: '후렴 직전 믹스 + 템포 유지',
+              lines: [
+                {
+                  time: '후렴 직전',
+                  stage: '믹스',
+                  lyric: '진입 전 타이밍',
+                  tags: ['믹스'],
+                  call: '<strong>믹스:</strong> 짧게 1번'
+                },
+                {
+                  time: '후렴',
+                  stage: '핵심',
+                  lyric: '반복 구간',
+                  tags: ['후렴'],
+                  call: '<strong>콜:</strong> 슈키피 정확하게'
+                }
+              ]
+            }
+          },
+          solo: {
+            beginner: {
+              point: '이름콜만 정확히',
+              lines: [
+                {
+                  time: '파트 시작',
+                  stage: '개인',
+                  lyric: '멤버 파트',
+                  tags: ['이름콜'],
+                  call: '<strong>콜:</strong> 멤버 이름!'
+                }
+              ]
+            },
+            advanced: {
+              point: '이름콜 + 리액션 분리',
+              lines: [
+                {
+                  time: '센터',
+                  stage: '강조',
+                  lyric: '포인트 구간',
+                  tags: ['강조'],
+                  call: '<strong>콜:</strong> 이름 → 박수 → 함성'
+                }
+              ]
+            }
+          }
+        }
+      },
       {
         id: 'canaria',
         title: '카나리아',
@@ -1084,153 +1446,11 @@
             }
           }
         }
-      },
-      {
-        id: 'stardust-magical',
-        title: '스타더스트 매지컬',
-        subtitle: 'STARDUST MAGICAL',
-        desc: '마법소녀 분위기가 강한 곡. 팀 응원 중심으로 보되, 솔로 파트 이름콜도 잘 어울리는 타입.',
-        thumb: 'img/setlist/stardust-magical.jpg',
-        status: ['응원가이드 일부', '영상 준비중'],
-        meta: ['팀용 지원', '솔로용 지원', '음원 미연결'],
-        audio: '',
-        video: '',
-        heroDesc: '마법소녀 무드 강한 곡<br>기본 팀 응원 위주로 먼저 정리',
-        support: {
-          team: {
-            beginner: {
-              point: '반짝이는 포인트 동작에 맞춰 손흔들기 위주로 가면 예쁨',
-              lines: [
-                {
-                  time: '인트로 - A멜로',
-                  stage: '도입',
-                  lyric: '큰 콜보다 분위기에 맞는 손흔들기와 박수 위주로 시작.',
-                  tags: ['손흔들기', '박수'],
-                  call: '<strong>콜:</strong> 과한 믹스보다 귀여운 호응이 잘 어울려요.'
-                },
-                {
-                  time: '후렴',
-                  stage: '메인 포인트',
-                  lyric: '별, 마법, 반짝임 계열 가사 포인트에서 짧은 함성을 넣어줍니다.',
-                  tags: ['후렴', '함성'],
-                  call: '<strong>포인트:</strong> 안무 포인트에 맞춰 우와- 느낌의 반응 추천.'
-                }
-              ]
-            },
-            advanced: null
-          },
-          solo: {
-            beginner: null,
-            advanced: null
-          }
-        }
-      },
-      {
-        id: 'shukipi',
-        title: '슈키피',
-        subtitle: 'SHUKIPI',
-        desc: '귀여운 콜 앤 리스폰스 중심 곡. 믹스 + 후렴 콜 연습용으로 최적.',
-        thumb: 'img/setlist/shukipi.jpg',
-        status: ['응원가이드 작성', '영상 있음'],
-        meta: ['팀용', '솔로용 가능'],
-        audio: '',
-        video: 'https://youtu.be/az9mkI9C2f4',
-        heroDesc: '콜 앤 리스폰스 핵심 곡<br>현장 텐션 올리기 좋음',
-        support: {
-          team: {
-            beginner: {
-              point: '후렴 콜 + 기본 박수만 따라가도 현장 참여 가능',
-              lines: [
-                {
-                  time: '인트로',
-                  stage: '도입',
-                  lyric: '박수로 분위기 맞추기',
-                  tags: ['박수'],
-                  call: '<strong>콜:</strong> 가볍게 박수'
-                },
-                {
-                  time: '후렴',
-                  stage: '핵심',
-                  lyric: '슈키피 반복 구간',
-                  tags: ['후렴'],
-                  call: '<strong>콜:</strong> 슈! 키! 피!'
-                }
-              ]
-            },
-            advanced: {
-              point: '후렴 직전 믹스 + 템포 유지',
-              lines: [
-                {
-                  time: '후렴 직전',
-                  stage: '믹스',
-                  lyric: '진입 전 타이밍',
-                  tags: ['믹스'],
-                  call: '<strong>믹스:</strong> 짧게 1번'
-                },
-                {
-                  time: '후렴',
-                  stage: '핵심',
-                  lyric: '반복 구간',
-                  tags: ['후렴'],
-                  call: '<strong>콜:</strong> 슈키피 정확하게'
-                }
-              ]
-            }
-          },
-          solo: {
-            beginner: {
-              point: '이름콜만 정확히',
-              lines: [
-                {
-                  time: '파트 시작',
-                  stage: '개인',
-                  lyric: '멤버 파트',
-                  tags: ['이름콜'],
-                  call: '<strong>콜:</strong> 멤버 이름!'
-                }
-              ]
-            },
-            advanced: {
-              point: '이름콜 + 리액션 분리',
-              lines: [
-                {
-                  time: '센터',
-                  stage: '강조',
-                  lyric: '포인트 구간',
-                  tags: ['강조'],
-                  call: '<strong>콜:</strong> 이름 → 박수 → 함성'
-                }
-              ]
-            }
-          }
-        }
-      },
-      {
-        id: 'memory-bell',
-        title: '메모리 벨',
-        subtitle: 'MEMORY BELL',
-        desc: '감정선 중심의 곡으로, 솔로용 응원 분기까지 열어두기 좋은 곡. 아직 데이터는 준비중 상태.',
-        thumb: 'img/setlist/memory-bell.jpg',
-        status: ['데이터 준비중', '영상 없음'],
-        meta: ['팀/솔로 구조만 생성', '내용 추후 업데이트'],
-        audio: '',
-        video: '',
-        heroDesc: '감정선 중심의 곡<br>추후 솔로 응원 구조 확장 예정',
-        support: {
-          team: {
-            beginner: null,
-            advanced: null
-          },
-          solo: {
-            beginner: null,
-            advanced: null
-          }
-        }
       }
     ];
 
     const state = {
-      songId: 'canaria',
+      songId: 'stardust-magical',
       mode: 'team',
       level: 'beginner'
     };
@@ -1242,8 +1462,6 @@
     const heroNowDesc = document.getElementById('heroNowDesc');
     const guideTitle = document.getElementById('guideTitle');
     const guideDesc = document.getElementById('guideDesc');
-    const guideVideo = document.getElementById('guideVideo');
-    const videoWrap = document.getElementById('videoWrap');
     const guideMeta = document.getElementById('guideMeta');
     const modeButtons = document.getElementById('modeButtons');
     const levelButtons = document.getElementById('levelButtons');
@@ -1256,6 +1474,20 @@
     const guideLines = document.getElementById('guideLines');
     const emptyGuide = document.getElementById('emptyGuide');
     const guidePanel = document.getElementById('guidePanel');
+
+    const videoCard = document.getElementById('videoCard');
+    const videoCardTitle = document.getElementById('videoCardTitle');
+    const videoCardSub = document.getElementById('videoCardSub');
+    const videoCoverThumbWrap = document.getElementById('videoCoverThumbWrap');
+    const videoCoverThumb = document.getElementById('videoCoverThumb');
+    const videoFrameWrap = document.getElementById('videoFrameWrap');
+    const guideVideo = document.getElementById('guideVideo');
+    const videoEmpty = document.getElementById('videoEmpty');
+
+    const guideInfoBox = document.getElementById('guideInfoBox');
+    const trackBlock = document.getElementById('trackBlock');
+    const cheerBlock = document.getElementById('cheerBlock');
+    const scrollTopBtn = document.getElementById('scrollTopBtn');
 
     function getSong(){
       return songs.find(song => song.id === state.songId) || songs[0];
@@ -1289,6 +1521,14 @@
       }catch(e){
         return '';
       }
+    }
+
+    function restartReveal(){
+      [videoCard, guideInfoBox, trackBlock, cheerBlock].forEach(el => {
+        el.classList.remove('show');
+        void el.offsetWidth;
+        el.classList.add('show');
+      });
     }
 
     function renderSongCards(){
@@ -1339,7 +1579,7 @@
             else if(getSong().support?.[state.mode]?.advanced) state.level = 'advanced';
           }
 
-          render();
+          render(false);
         });
       });
     }
@@ -1358,7 +1598,7 @@
       levelButtons.querySelectorAll('[data-level]').forEach(btn => {
         btn.addEventListener('click', () => {
           state.level = btn.dataset.level;
-          render();
+          render(false);
         });
       });
     }
@@ -1389,18 +1629,32 @@
       guideMeta.innerHTML = [song.subtitle, ...song.meta].map(item => `<span class="chip">${item}</span>`).join('');
     }
 
-    function renderVideo(song){
+    function renderVideo(song, forceChange){
       const embedUrl = getYoutubeEmbedUrl(song.video);
 
-      if(embedUrl){
-        videoWrap.style.display = 'block';
+      videoCardTitle.textContent = song.title;
+      videoCardSub.textContent = `${modeLabel(state.mode)} · ${levelLabel(state.level)} · 응원 연습용 영상`;
 
-        if(currentVideoSongId !== song.id){
+      if(song.thumb){
+        videoCoverThumbWrap.style.display = 'block';
+        videoCoverThumb.src = song.thumb;
+        videoCoverThumb.alt = `${song.title} 커버`;
+      }else{
+        videoCoverThumbWrap.style.display = 'none';
+      }
+
+      if(embedUrl){
+        videoCard.style.display = 'block';
+        videoEmpty.style.display = 'none';
+        videoFrameWrap.style.display = 'block';
+
+        if(forceChange || currentVideoSongId !== song.id){
           guideVideo.src = embedUrl;
           currentVideoSongId = song.id;
         }
       }else{
-        videoWrap.style.display = 'none';
+        videoCard.style.display = 'none';
+        videoEmpty.style.display = 'flex';
         guideVideo.src = '';
         currentVideoSongId = null;
       }
@@ -1422,8 +1676,8 @@
 
       emptyGuide.style.display = 'none';
       guideLines.style.display = 'grid';
-      guideLines.innerHTML = guide.lines.map(line => `
-        <article class="guide-line">
+      guideLines.innerHTML = guide.lines.map((line, idx) => `
+        <article class="guide-line" style="animation-delay:${0.03 + idx * 0.04}s">
           <div class="guide-line-top">
             <div class="guide-time">${line.time}</div>
             <div class="guide-stage">${line.stage}</div>
@@ -1437,7 +1691,7 @@
       `).join('');
     }
 
-    function render(){
+    function render(forceVideoChange = true){
       const song = getSong();
 
       heroNowTitle.textContent = song.title;
@@ -1453,11 +1707,27 @@
       renderMeta(song);
       renderAudio(song);
       renderLinks(song);
-      renderVideo(song);
+      renderVideo(song, forceVideoChange);
       renderGuide(song);
+      restartReveal();
     }
 
-    render();
+    window.addEventListener('scroll', () => {
+      if(window.scrollY > 320){
+        scrollTopBtn.classList.add('show');
+      }else{
+        scrollTopBtn.classList.remove('show');
+      }
+    });
+
+    scrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+
+    render(true);
   </script>
 </body>
 </html>
