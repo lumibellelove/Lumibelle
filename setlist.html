@@ -2,323 +2,255 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>Lumibelle Setlist</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>LUMIBELLE SETLIST</title>
 
 <style>
 :root{
-  --pink:#ff59a5;
-  --soft:#fff5fb;
+  --pink:#ff78b2;
+  --pink-deep:#ff59a5;
+  --bg:#fff8fb;
   --text:#8a6b7c;
 }
 
 body{
   margin:0;
+  background:var(--bg);
   font-family:"Noto Sans KR",sans-serif;
-  background:#fffafd;
   color:var(--text);
 }
 
-/* 전체 여백 */
-.container{
-  max-width:1200px;
-  margin:auto;
-  padding:40px 20px 100px;
+/* 공통 */
+.section{
+  max-width:1100px;
+  margin:0 auto;
+  padding:40px 20px;
 }
 
-/* ===== 상단 ===== */
-.hero{
-  background:var(--soft);
-  padding:60px 40px;
-  border-radius:32px;
-  margin-bottom:60px;
-}
+h1,h2,h3{margin:0}
 
-.hero h1{
-  font-size:72px;
-  color:var(--pink);
-  margin:0;
-}
-
-.hero p{
-  margin-top:20px;
-  line-height:1.7;
-}
-
-/* ===== LIVE GUIDE ===== */
-.live-guide{
-  margin-bottom:60px;
-}
-
-.live-guide h2{
+/* LIVE GUIDE */
+.live-title{
   text-align:center;
-  color:var(--pink);
-  margin-bottom:20px;
+  margin-bottom:30px;
 }
 
-.live-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:20px;
+.live-title h1{
+  color:var(--pink-deep);
+  font-size:48px;
+  font-weight:900;
 }
 
-.live-card{
-  background:var(--soft);
-  padding:20px;
-  border-radius:20px;
+.live-title p{
+  margin-top:10px;
   font-size:14px;
 }
 
-/* ===== 곡 카드 ===== */
-.song-grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
+/* 안내 카드 */
+.guide-box{
+  display:flex;
   gap:20px;
-  margin-bottom:60px;
+  justify-content:center;
+  flex-wrap:wrap;
 }
 
-.song-card{
-  background:white;
-  border:1px solid #f1d4e3;
-  border-radius:24px;
+.guide-card{
+  background:#fff;
+  border-radius:20px;
   padding:20px;
+  width:300px;
+  border:1px solid #f0dde8;
+}
+
+/* 곡 탭 */
+.song-tabs{
+  display:flex;
+  justify-content:center;
+  gap:16px;
+  flex-wrap:wrap;
+  margin:50px 0;
+}
+
+.song-tab{
+  padding:16px 24px;
+  border-radius:20px;
+  border:1px solid #f0dde8;
   cursor:pointer;
-  transition:.2s;
+  font-weight:700;
 }
 
-.song-card:hover{
-  transform:translateY(-4px);
+.song-tab.active{
+  background:linear-gradient(135deg,var(--pink),var(--pink-deep));
+  color:#fff;
 }
 
-.song-title{
-  font-size:20px;
-  font-weight:800;
-}
-
-.song-sub{
-  font-size:12px;
-  color:#c79bb2;
-}
-
-/* ===== 상세 ===== */
-.detail{
-  margin-top:60px;
-}
-
-.detail-wrap{
+/* 영상 + 정보 */
+.song-area{
   display:grid;
-  grid-template-columns:1.2fr 1fr;
+  grid-template-columns:1fr 1fr;
   gap:30px;
 }
 
-/* 영상 */
+@media(max-width:900px){
+  .song-area{grid-template-columns:1fr;}
+}
+
 .video-box iframe{
   width:100%;
-  height:420px;
+  height:340px;
   border-radius:20px;
-  border:none;
 }
 
-/* 오른쪽 */
-.info{
-  background:white;
-  border:1px solid #f1d4e3;
+.info-box{
+  background:#fff;
   border-radius:24px;
   padding:30px;
-  text-align:center;
+  border:1px solid #f0dde8;
 }
 
-.info h2{
-  color:var(--pink);
-  margin:0 0 10px;
+.info-box h2{
+  color:var(--pink-deep);
+  font-size:32px;
 }
 
-.info p{
-  font-size:14px;
-  margin-bottom:20px;
+.info-box p{
+  margin-top:10px;
 }
 
 /* 버튼 */
-.btn-wrap{
+.btns{
+  margin-top:20px;
   display:flex;
   gap:10px;
-  justify-content:center;
   flex-wrap:wrap;
 }
 
 .btn{
   padding:10px 18px;
-  border-radius:999px;
-  border:1px solid #f1d4e3;
-  background:white;
+  border-radius:20px;
+  border:1px solid #f0dde8;
   cursor:pointer;
 }
 
 .btn.main{
   background:var(--pink);
-  color:white;
+  color:#fff;
   border:none;
 }
 
-/* ===== 팝업 ===== */
-.popup{
+/* 팝업 */
+.modal{
+  display:none;
   position:fixed;
-  top:0; left:0;
+  top:0;left:0;
   width:100%;
   height:100%;
-  background:rgba(0,0,0,0.6);
-  display:none;
-  align-items:center;
+  background:rgba(0,0,0,0.5);
   justify-content:center;
+  align-items:center;
+  z-index:999;
 }
 
-.popup-box{
-  background:white;
-  width:90%;
-  max-width:600px;
+.modal-content{
+  background:#fff;
   padding:30px;
   border-radius:20px;
-  max-height:80vh;
-  overflow:auto;
-}
-
-.popup h3{
-  color:var(--pink);
+  width:90%;
+  max-width:400px;
 }
 
 /* TOP 버튼 */
 .top-btn{
   position:fixed;
-  bottom:30px;
-  right:30px;
+  bottom:20px;
+  right:20px;
   background:var(--pink);
-  color:white;
+  color:#fff;
   padding:12px 16px;
   border-radius:50%;
   cursor:pointer;
 }
-
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="section">
 
-<!-- ===== HERO ===== -->
-<section class="hero">
-  <h1>SETLIST</h1>
-  <p>
-  루미벨 공연에서 바로 사용할 수 있는 응원 가이드입니다.<br>
-  곡을 선택하면 영상과 함께 응원 포인트를 확인할 수 있어요.
-  </p>
-</section>
-
-<!-- ===== LIVE GUIDE ===== -->
-<section class="live-guide">
-  <h2>LIVE GUIDE</h2>
-
-  <div class="live-grid">
-    <div class="live-card">
-      처음이면 무리 안 해도 괜찮아요.<br>
-      박수만 쳐도 충분히 즐길 수 있어요.
-    </div>
-    <div class="live-card">
-      모든 곡을 외울 필요 없어요.<br>
-      자주 나오는 콜부터 익혀도 좋아요.
-    </div>
-    <div class="live-card">
-      주변 분위기 따라가면 쉬워요.<br>
-      즐기는 게 제일 중요!
-    </div>
-  </div>
-</section>
-
-<!-- ===== 곡 목록 ===== -->
-<section class="song-grid">
-
-  <div class="song-card" onclick="selectSong('stardust')">
-    <div class="song-title">스타더스트 매지컬</div>
-    <div class="song-sub">STARDUST MAGICAL</div>
-  </div>
-
-  <div class="song-card" onclick="selectSong('story')">
-    <div class="song-title">스토리베리 러브</div>
-    <div class="song-sub">STORYBERRY LOVE</div>
-  </div>
-
-  <div class="song-card" onclick="selectSong('shukipi')">
-    <div class="song-title">슈키피!</div>
-    <div class="song-sub">SHUKIPI</div>
-  </div>
-
-  <div class="song-card" onclick="selectSong('canaria')">
-    <div class="song-title">카나리아</div>
-    <div class="song-sub">CANARIA</div>
-  </div>
-
-</section>
-
-<!-- ===== 상세 ===== -->
-<section class="detail">
-
-  <div class="detail-wrap">
-
-    <!-- 영상 -->
-    <div class="video-box" id="videoBox">
-      <iframe src="https://www.youtube.com/embed/az9mkI9C2f4"></iframe>
-    </div>
-
-    <!-- 정보 -->
-    <div class="info">
-      <h2 id="title">슈키피!</h2>
-      <p id="desc">참여형 리스폰스 중심 곡</p>
-
-      <div class="btn-wrap">
-        <div class="btn main">팀 응원</div>
-        <div class="btn">초보용</div>
-        <div class="btn" onclick="openPopup('term')">용어 가이드</div>
-        <div class="btn" onclick="openPopup('lyrics')">가사집</div>
-      </div>
-    </div>
-
-  </div>
-
-</section>
-
+<!-- LIVE GUIDE -->
+<div class="live-title">
+  <h1>LIVE GUIDE</h1>
+  <p>공연 전 가볍게 보고 가면 더 재미있어요</p>
 </div>
 
-<!-- ===== 용어 팝업 ===== -->
-<div class="popup" id="term">
-  <div class="popup-box">
+<div class="guide-box">
+  <div class="guide-card">처음이면 무리 안 해도 괜찮아요. 박수만 쳐도 충분히 즐길 수 있어요.</div>
+  <div class="guide-card">모든 곡을 외울 필요 없어요. 자주 나오는 콜부터 익혀도 좋아요.</div>
+  <div class="guide-card">주변 분위기 따라가면 쉬워요. 즐기는 게 제일 중요!</div>
+</div>
+
+<!-- 곡 선택 -->
+<div class="song-tabs">
+  <div class="song-tab active" onclick="changeSong('shukipi')">슈키피!</div>
+  <div class="song-tab" onclick="changeSong('canaria')">카나리아</div>
+</div>
+
+<!-- 곡 영역 -->
+<div class="song-area">
+
+  <!-- 영상 -->
+  <div class="video-box">
+    <iframe id="videoFrame"
+      src="https://www.youtube.com/embed/az9mkI9C2f4"
+      allowfullscreen></iframe>
+  </div>
+
+  <!-- 정보 -->
+  <div class="info-box">
+    <h2 id="songTitle">슈키피!</h2>
+    <p id="songDesc">참여형 리스폰스 중심 곡</p>
+
+    <div class="btns">
+      <div class="btn main">팀 응원</div>
+      <div class="btn">초보용</div>
+      <div class="btn" onclick="openGuide()">용어 가이드</div>
+      <div class="btn" onclick="openLyrics()">가사지</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- 용어 팝업 -->
+<div id="guideModal" class="modal">
+  <div class="modal-content">
     <h3>용어 가이드</h3>
     <p>CALL : 같이 외치는 구호</p>
     <p>MIX : 응원 구호 세트</p>
     <p>CHEER : 박수, 환호</p>
     <p>LIFT : 리프트 포인트</p>
-    <br>
-    <button onclick="closePopup('term')">닫기</button>
+    <button onclick="closeGuide()">닫기</button>
   </div>
 </div>
 
-<!-- ===== 가사 팝업 ===== -->
-<div class="popup" id="lyrics">
-  <div class="popup-box">
-    <h3>가사집</h3>
-    <p>여기에 가사 넣으면 됨</p>
-    <button onclick="closePopup('lyrics')">닫기</button>
+<!-- 가사 팝업 -->
+<div id="lyricsModal" class="modal">
+  <div class="modal-content">
+    <h3>가사</h3>
+    <p>가사는 여기에 넣으면 됨</p>
+    <button onclick="closeLyrics()">닫기</button>
   </div>
 </div>
 
-<!-- TOP 버튼 -->
+<!-- TOP -->
 <div class="top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</div>
 
 <script>
-function selectSong(type){
-
-  const video = document.querySelector("#videoBox iframe");
-  const title = document.getElementById("title");
-  const desc = document.getElementById("desc");
+function changeSong(type){
+  const video=document.getElementById("videoFrame");
+  const title=document.getElementById("songTitle");
+  const desc=document.getElementById("songDesc");
 
   if(type==="shukipi"){
     video.src="https://www.youtube.com/embed/az9mkI9C2f4";
@@ -327,31 +259,21 @@ function selectSong(type){
   }
 
   if(type==="canaria"){
-    video.src="";
+    video.src="https://www.youtube.com/embed/VIDEOID"; // 바꿔
     title.innerText="카나리아";
-    desc.innerText="왕도 감성 응원곡";
+    desc.innerText="따뜻한 감성 응원곡";
   }
 
-  if(type==="stardust"){
-    video.src="";
-    title.innerText="스타더스트 매지컬";
-    desc.innerText="마법소녀 테마";
-  }
-
-  if(type==="story"){
-    video.src="";
-    title.innerText="스토리베리 러브";
-    desc.innerText="감성 중심 곡";
-  }
+  document.querySelectorAll(".song-tab").forEach(el=>el.classList.remove("active"));
+  event.target.classList.add("active");
 }
 
-function openPopup(id){
-  document.getElementById(id).style.display="flex";
-}
+/* 팝업 */
+function openGuide(){document.getElementById("guideModal").style.display="flex";}
+function closeGuide(){document.getElementById("guideModal").style.display="none";}
 
-function closePopup(id){
-  document.getElementById(id).style.display="none";
-}
+function openLyrics(){document.getElementById("lyricsModal").style.display="flex";}
+function closeLyrics(){document.getElementById("lyricsModal").style.display="none";}
 </script>
 
 </body>
