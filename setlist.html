@@ -3424,20 +3424,32 @@ audio::-webkit-media-controls-mute-button{
   mix-blend-mode:screen;
 }
 .song-card.active.shine::after{
-  animation:cardShineVisible .72s ease-out 1;
+  animation:cardShineVisible 1.15s ease-out 1;
+}
+.song-card.active.glow-loop::after{
+  animation:cardShineLoop 3.2s ease-in-out infinite;
 }
 @keyframes cardShineVisible{
-  0%{left:-135%;opacity:0;}
-  14%{opacity:.25;}
-  35%{opacity:.95;}
-  100%{left:145%;opacity:0;}
+  0%{left:-140%;opacity:0;}
+  12%{opacity:.35;}
+  38%{opacity:1;}
+  100%{left:150%;opacity:0;}
+}
+@keyframes cardShineLoop{
+  0%,72%,100%{left:-145%;opacity:0;}
+  78%{opacity:.18;}
+  88%{opacity:.65;}
+  100%{left:150%;opacity:0;}
+}
+.song-card.active{
+  box-shadow:0 26px 44px rgba(255,89,165,.20), 0 0 0 1px rgba(255,89,165,.06) inset !important;
 }
 .song-card.active .song-card-badge{
-  animation:badgeGlowPulse 1.4s ease-in-out infinite alternate !important;
+  animation:badgeGlowPulse 1.2s ease-in-out infinite alternate !important;
 }
 @keyframes badgeGlowPulse{
-  0%{box-shadow:0 0 0 rgba(255,89,165,0),0 10px 18px rgba(255,89,165,.18);transform:translateY(0) scale(1);}
-  100%{box-shadow:0 0 16px rgba(255,89,165,.38),0 12px 22px rgba(255,89,165,.28);transform:translateY(0) scale(1.03);}
+  0%{box-shadow:0 0 0 rgba(255,89,165,0),0 10px 18px rgba(255,89,165,.18);transform:translateY(0) scale(1);filter:saturate(1);}
+  100%{box-shadow:0 0 18px rgba(255,89,165,.46),0 12px 24px rgba(255,89,165,.32);transform:translateY(0) scale(1.05);filter:saturate(1.08);}
 }
 </style>
 
@@ -5379,13 +5391,19 @@ We are Sweetie pie! 루미베르 데스~`,
 
 <script>
 function triggerCardShineEffect(){
+  const cards=document.querySelectorAll('#songGrid .song-card[data-song]');
+  cards.forEach(card=>card.classList.remove('glow-loop'));
   const activeCard=document.querySelector('#songGrid .song-card.active[data-song]');
   if(!activeCard) return;
   activeCard.classList.remove('shine');
   void activeCard.offsetWidth;
   activeCard.classList.add('shine');
-  window.setTimeout(()=>activeCard.classList.remove('shine'), 760);
+  window.setTimeout(()=>{
+    activeCard.classList.remove('shine');
+    activeCard.classList.add('glow-loop');
+  }, 900);
 }
+window.addEventListener('DOMContentLoaded',()=>{window.setTimeout(triggerCardShineEffect,220);});
 </script>
 
 </body>
