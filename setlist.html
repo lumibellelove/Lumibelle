@@ -3400,84 +3400,40 @@ audio::-webkit-media-controls-mute-button{
 
 
 <style>
-/* --- rhythm-game selected card effects patch --- */
-.song-card{
-  position:relative;
-  overflow:visible !important;
-  isolation:isolate;
-}
+/* --- visible card effects patch --- */
+.song-card{position:relative;overflow:hidden}
 .song-card:active{transform:translateY(-2px) scale(.985) !important;}
-.song-card.active{
-  box-shadow:0 22px 38px rgba(255,89,165,.20) !important;
-}
-.song-card.active::before{
-  content:"";
+.song-card.active{box-shadow:0 22px 38px rgba(255,89,165,.20) !important;}
+.song-card.active::after{
+  content:"" !important;
+  display:block !important;
   position:absolute;
-  inset:-12px;
-  z-index:-1;
-  border-radius:32px;
-  pointer-events:none;
-  opacity:.82;
-  background:
-    radial-gradient(circle at 18% 24%, rgba(255,236,245,.95) 0 2px, transparent 7px),
-    radial-gradient(circle at 84% 20%, rgba(255,205,226,.92) 0 2.2px, transparent 7px),
-    radial-gradient(circle at 78% 80%, rgba(255,226,237,.9) 0 2.4px, transparent 8px),
-    radial-gradient(circle at 28% 78%, rgba(255,196,223,.82) 0 1.8px, transparent 6px),
-    radial-gradient(circle at 50% 60%, rgba(255,120,178,.12) 0%, transparent 46%),
-    radial-gradient(circle at 30% 85%, rgba(255,180,215,.12) 0%, transparent 34%),
-    radial-gradient(circle at 80% 30%, rgba(255,190,220,.12) 0%, transparent 30%);
-  filter:drop-shadow(0 0 18px rgba(255,120,178,.16));
-  animation:selectedCardAura 2.8s ease-in-out infinite;
-}
-.song-card::after{
-  content:"";
-  position:absolute;
-  top:0;
-  left:-130%;
-  width:58%;
-  height:100%;
-  border-radius:24px;
-  z-index:2;
+  top:-12%;
+  left:-135%;
+  width:54%;
+  height:124%;
   pointer-events:none;
   opacity:0;
-  background:linear-gradient(115deg,
+  background:linear-gradient(120deg,
     transparent 0%,
-    rgba(255,255,255,0) 20%,
-    rgba(255,255,255,.10) 34%,
+    rgba(255,89,165,.10) 28%,
     rgba(255,255,255,.88) 50%,
-    rgba(255,195,223,.28) 66%,
-    transparent 84%);
-  transform:skewX(-18deg);
+    rgba(255,89,165,.18) 72%,
+    transparent 100%);
+  transform:skewX(-20deg);
   mix-blend-mode:screen;
 }
 .song-card.active.shine::after{
-  animation:cardShineVisible .68s ease-out 1;
+  animation:cardShineVisible .72s ease-out 1;
 }
 @keyframes cardShineVisible{
-  0%{left:-130%;opacity:0;}
-  18%{opacity:.35;}
-  42%{opacity:1;}
-  100%{left:142%;opacity:0;}
-}
-@keyframes selectedCardAura{
-  0%,100%{
-    opacity:.62;
-    transform:scale(.992);
-    filter:drop-shadow(0 0 12px rgba(255,120,178,.12));
-  }
-  35%{
-    opacity:.9;
-    transform:scale(1.006);
-    filter:drop-shadow(0 0 20px rgba(255,120,178,.18));
-  }
-  70%{
-    opacity:.72;
-    transform:scale(1);
-    filter:drop-shadow(0 0 16px rgba(255,150,195,.15));
-  }
+  0%{left:-135%;opacity:0;}
+  14%{opacity:.25;}
+  35%{opacity:.95;}
+  100%{left:145%;opacity:0;}
 }
 .song-card.active .song-card-badge{
-  animation:badgeGlowPulse 1.55s ease-in-out infinite alternate !important;
+  animation:badgeGlowPulse 1.4s ease-in-out infinite alternate !important;
 }
 @keyframes badgeGlowPulse{
   0%{box-shadow:0 0 0 rgba(255,89,165,0),0 10px 18px rgba(255,89,165,.18);transform:translateY(0) scale(1);}
@@ -5058,7 +5014,6 @@ We are Sweetie pie! 루미베르 데스~`,
           }
 
           render(true);
-    setTimeout(triggerCardShineEffect, 220);
           triggerCardShineEffect();
           guidePanel.classList.add('open');
           scrollGuidePanel();
@@ -5431,6 +5386,177 @@ function triggerCardShineEffect(){
   activeCard.classList.add('shine');
   window.setTimeout(()=>activeCard.classList.remove('shine'), 760);
 }
+</script>
+
+
+<style>
+/* --- rhythm UI final polish v7 --- */
+.song-card{
+  overflow: visible !important;
+  isolation: isolate;
+}
+.song-card > *{
+  position: relative;
+  z-index: 2;
+}
+.song-card:active{
+  transform: translateY(-3px) scale(.985) !important;
+}
+.song-card.active{
+  border-color: rgba(255,89,165,.42) !important;
+  box-shadow:
+    0 0 0 1px rgba(255,89,165,.14),
+    0 18px 34px rgba(255,89,165,.16),
+    0 0 32px rgba(255,126,185,.18) !important;
+}
+.song-card.active::before{
+  content: '';
+  position: absolute;
+  inset: -12px;
+  z-index: 0;
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 28% 28%, rgba(255,175,214,.22), transparent 38%),
+    radial-gradient(circle at 72% 78%, rgba(255,120,178,.18), transparent 36%),
+    radial-gradient(circle at 50% 100%, rgba(255,120,178,.14), transparent 44%);
+  filter: blur(18px);
+  opacity: .95;
+  animation: activeCardAura 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes activeCardAura{
+  0%,100%{transform:scale(.985); opacity:.72;}
+  50%{transform:scale(1.015); opacity:1;}
+}
+.song-card.shine::after{
+  content:'';
+  position:absolute;
+  top:-10%;
+  left:-78%;
+  width:42%;
+  height:128%;
+  z-index: 3;
+  pointer-events:none;
+  opacity:0;
+  background: linear-gradient(112deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.06) 24%,
+    rgba(255,255,255,0.52) 46%,
+    rgba(255,255,255,0.92) 50%,
+    rgba(255,255,255,0.46) 54%,
+    rgba(255,255,255,0.08) 74%,
+    rgba(255,255,255,0) 100%);
+  transform: skewX(-18deg);
+  mix-blend-mode: screen;
+  filter: blur(.25px);
+  animation: cardSheenSweep .72s cubic-bezier(.22,.61,.36,1) forwards;
+}
+@keyframes cardSheenSweep{
+  0%{left:-78%; opacity:0;}
+  14%{opacity:.2;}
+  45%{opacity:1;}
+  100%{left:132%; opacity:0;}
+}
+.song-card .sparkle-layer{
+  position:absolute;
+  inset:-14px;
+  z-index:1;
+  pointer-events:none;
+}
+.song-card .sparkle-layer i{
+  position:absolute;
+  display:block;
+  width:10px;
+  height:10px;
+  opacity:0;
+  filter: drop-shadow(0 0 8px rgba(255,154,205,.45));
+  transform: scale(.7);
+  animation: none;
+}
+.song-card .sparkle-layer i::before,
+.song-card .sparkle-layer i::after{
+  content:'';
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:2px;
+  height:10px;
+  background: linear-gradient(180deg, rgba(255,255,255,.18), #ffd3e7 40%, #ff8dc1 70%, rgba(255,255,255,.18));
+  border-radius:999px;
+  transform: translate(-50%,-50%);
+}
+.song-card .sparkle-layer i::after{
+  transform: translate(-50%,-50%) rotate(90deg);
+}
+.song-card.active .sparkle-layer i{
+  animation: sparkleBlink 2.6s ease-in-out infinite;
+}
+.song-card.active .sparkle-layer i:nth-child(1){ left:8%; top:74%; animation-delay:.15s; }
+.song-card.active .sparkle-layer i:nth-child(2){ right:10%; top:80%; animation-delay:1.05s; }
+.song-card.active .sparkle-layer i:nth-child(3){ left:72%; top:18%; animation-delay:1.7s; }
+.song-card.active .sparkle-layer i:nth-child(4){ left:20%; top:20%; animation-delay:2.15s; width:8px; height:8px; }
+@keyframes sparkleBlink{
+  0%,100%{opacity:0; transform: translateY(4px) scale(.72) rotate(0deg);}
+  20%{opacity:.18;}
+  38%{opacity:.88; transform: translateY(0) scale(1) rotate(18deg);}
+  52%{opacity:.42;}
+  70%{opacity:.96; transform: translateY(-2px) scale(1.08) rotate(-12deg);}
+  100%{opacity:0; transform: translateY(-5px) scale(.78) rotate(0deg);}
+}
+.song-card-badge{
+  box-shadow:0 10px 18px rgba(255,89,165,.22), 0 0 0 rgba(255,89,165,0) !important;
+}
+.song-card.active .song-card-badge{
+  animation: nowBadgePulse 1.8s ease-in-out infinite;
+}
+@keyframes nowBadgePulse{
+  0%,100%{transform:translateY(0) scale(1); box-shadow:0 10px 18px rgba(255,89,165,.20),0 0 0 rgba(255,89,165,0);}
+  50%{transform:translateY(0) scale(1.04); box-shadow:0 12px 22px rgba(255,89,165,.28),0 0 20px rgba(255,143,194,.26);}
+}
+</style>
+<script>
+(function(){
+  function ensureSparkles(){
+    document.querySelectorAll('#songGrid .song-card').forEach(card=>{
+      if(card.querySelector('.sparkle-layer')) return;
+      const layer=document.createElement('span');
+      layer.className='sparkle-layer';
+      layer.setAttribute('aria-hidden','true');
+      layer.innerHTML='<i></i><i></i><i></i><i></i>';
+      card.appendChild(layer);
+    });
+  }
+  const originalTrigger = window.triggerCardShineEffect;
+  window.triggerCardShineEffect = function(){
+    ensureSparkles();
+    const activeCard=document.querySelector('#songGrid .song-card.active[data-song]');
+    if(!activeCard) return;
+    activeCard.classList.remove('shine');
+    void activeCard.offsetWidth;
+    activeCard.classList.add('shine');
+    window.setTimeout(()=>activeCard.classList.remove('shine'), 760);
+    if(typeof originalTrigger === 'function' && originalTrigger !== window.triggerCardShineEffect) {
+      // no-op: prevent double class toggles from older overrides
+    }
+  };
+  const origRenderSongCards = window.renderSongCards;
+  if(typeof origRenderSongCards === 'function'){
+    window.renderSongCards = function(){
+      const r = origRenderSongCards.apply(this, arguments);
+      ensureSparkles();
+      return r;
+    };
+  }
+  if(document.readyState !== 'loading'){
+    ensureSparkles();
+    setTimeout(()=>window.triggerCardShineEffect && window.triggerCardShineEffect(), 120);
+  } else {
+    document.addEventListener('DOMContentLoaded', ()=>{
+      ensureSparkles();
+      setTimeout(()=>window.triggerCardShineEffect && window.triggerCardShineEffect(), 120);
+    });
+  }
+})();
 </script>
 
 </body>
