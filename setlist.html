@@ -3400,44 +3400,89 @@ audio::-webkit-media-controls-mute-button{
 
 
 <style>
-/* --- visible card effects patch --- */
-.song-card{position:relative;overflow:hidden}
-.song-card:active{transform:translateY(-2px) scale(.985) !important;}
-.song-card.active{box-shadow:0 22px 38px rgba(255,89,165,.20) !important;}
+/* --- rhythm game style selected-card effects --- */
+.song-card{
+  position:relative;
+  overflow:visible !important;
+  isolation:isolate;
+}
+.song-card:active{
+  transform:translateY(-2px) scale(.985) !important;
+}
+.song-card.active{
+  border-color:rgba(255,89,165,.38) !important;
+  box-shadow:0 24px 42px rgba(255,89,165,.20) !important;
+}
+.song-card.active::before{
+  content:"";
+  position:absolute;
+  inset:-14px;
+  z-index:-1;
+  pointer-events:none;
+  border-radius:30px;
+  opacity:.88;
+  background:
+    radial-gradient(circle at 16% 22%, rgba(255,255,255,.95) 0 2px, rgba(255,255,255,0) 8px),
+    radial-gradient(circle at 82% 18%, rgba(255,255,255,.90) 0 1.8px, rgba(255,255,255,0) 7px),
+    radial-gradient(circle at 86% 76%, rgba(255,255,255,.90) 0 2.4px, rgba(255,255,255,0) 9px),
+    radial-gradient(circle at 18% 82%, rgba(255,255,255,.82) 0 2.2px, rgba(255,255,255,0) 8px),
+    radial-gradient(circle at 50% 50%, rgba(255,89,165,.22), rgba(255,89,165,.10) 38%, transparent 68%);
+  filter:blur(.2px) drop-shadow(0 0 12px rgba(255,89,165,.18));
+  animation:cardBackTwinkle 2.2s ease-in-out infinite alternate;
+}
 .song-card.active::after{
-  content:"" !important;
-  display:block !important;
+  content:"";
   position:absolute;
   top:-12%;
-  left:-135%;
-  width:54%;
-  height:124%;
+  left:-138%;
+  width:58%;
+  height:126%;
+  z-index:2;
   pointer-events:none;
   opacity:0;
-  background:linear-gradient(120deg,
+  background:linear-gradient(118deg,
     transparent 0%,
-    rgba(255,89,165,.10) 28%,
-    rgba(255,255,255,.88) 50%,
-    rgba(255,89,165,.18) 72%,
+    rgba(255,89,165,.00) 26%,
+    rgba(255,255,255,.55) 39%,
+    rgba(255,255,255,.96) 50%,
+    rgba(255,160,210,.48) 61%,
+    rgba(255,89,165,.06) 72%,
     transparent 100%);
-  transform:skewX(-20deg);
+  transform:skewX(-18deg);
   mix-blend-mode:screen;
 }
 .song-card.active.shine::after{
-  animation:cardShineVisible .72s ease-out 1;
+  animation:cardFrontSheen .82s cubic-bezier(.22,.61,.36,1) 1;
 }
-@keyframes cardShineVisible{
-  0%{left:-135%;opacity:0;}
-  14%{opacity:.25;}
-  35%{opacity:.95;}
+@keyframes cardFrontSheen{
+  0%{left:-138%;opacity:0;}
+  10%{opacity:.15;}
+  35%{opacity:1;}
   100%{left:145%;opacity:0;}
 }
+@keyframes cardBackTwinkle{
+  0%{
+    opacity:.62;
+    transform:scale(.992);
+    filter:blur(.2px) drop-shadow(0 0 8px rgba(255,89,165,.12));
+  }
+  35%{
+    opacity:.94;
+    transform:scale(1.006);
+    filter:blur(.2px) drop-shadow(0 0 14px rgba(255,89,165,.20));
+  }
+  100%{
+    opacity:.72;
+    transform:scale(1.012);
+    filter:blur(.2px) drop-shadow(0 0 11px rgba(255,89,165,.14));
+  }
+}
 .song-card.active .song-card-badge{
-  animation:badgeGlowPulse 1.4s ease-in-out infinite alternate !important;
+  animation:badgeGlowPulse 1.35s ease-in-out infinite alternate !important;
 }
 @keyframes badgeGlowPulse{
   0%{box-shadow:0 0 0 rgba(255,89,165,0),0 10px 18px rgba(255,89,165,.18);transform:translateY(0) scale(1);}
-  100%{box-shadow:0 0 16px rgba(255,89,165,.38),0 12px 22px rgba(255,89,165,.28);transform:translateY(0) scale(1.03);}
+  100%{box-shadow:0 0 18px rgba(255,89,165,.42),0 12px 24px rgba(255,89,165,.28);transform:translateY(0) scale(1.04);}
 }
 </style>
 
@@ -5377,145 +5422,16 @@ We are Sweetie pie! 루미베르 데스~`,
 </style>
 
 
-
-<style>
-/* --- selected card sparkle patch v4 --- */
-.song-card{
-  position:relative;
-  overflow:hidden;
-}
-.song-thumb{
-  position:relative;
-  overflow:hidden;
-}
-.song-card.active{
-  box-shadow:0 24px 42px rgba(255,89,165,.24) !important;
-  border-color:rgba(255,89,165,.34) !important;
-}
-.song-card.active::after{
-  content:none !important;
-}
-.song-card.active .song-thumb::before,
-.song-card.active .song-thumb::after{
-  content:"";
-  position:absolute;
-  z-index:3;
-  width:22px;
-  height:22px;
-  opacity:.88;
-  pointer-events:none;
-  background:
-    linear-gradient(90deg, transparent 44%, rgba(255,255,255,.96) 44%, rgba(255,255,255,.96) 56%, transparent 56%),
-    linear-gradient(0deg, transparent 44%, rgba(255,255,255,.96) 44%, rgba(255,255,255,.96) 56%, transparent 56%);
-  filter:
-    drop-shadow(0 0 8px rgba(255,255,255,.95))
-    drop-shadow(0 0 12px rgba(255,89,165,.35));
-  transform-origin:center;
-}
-.song-card.active .song-thumb::before{
-  top:14%;
-  right:14%;
-  animation:cardTwinkleA 1.75s ease-in-out infinite;
-}
-.song-card.active .song-thumb::after{
-  bottom:18%;
-  left:12%;
-  width:16px;
-  height:16px;
-  animation:cardTwinkleB 2.1s ease-in-out infinite .35s;
-}
-
-@keyframes cardTwinkleA{
-  0%, 100%{opacity:.18; transform:scale(.6) rotate(0deg);}
-  22%{opacity:1; transform:scale(1.08) rotate(45deg);}
-  48%{opacity:.28; transform:scale(.72) rotate(90deg);}
-  70%{opacity:.92; transform:scale(.98) rotate(135deg);}
-}
-@keyframes cardTwinkleB{
-  0%, 100%{opacity:.12; transform:scale(.55) rotate(0deg);}
-  30%{opacity:.92; transform:scale(1.06) rotate(45deg);}
-  55%{opacity:.22; transform:scale(.7) rotate(90deg);}
-  78%{opacity:.88; transform:scale(.95) rotate(135deg);}
-}
-
-.song-card.active .song-card-badge{
-  animation:badgeGlowPulse 1.35s ease-in-out infinite alternate !important;
-}
-@keyframes badgeGlowPulse{
-  0%{
-    box-shadow:0 0 0 rgba(255,89,165,0),0 10px 18px rgba(255,89,165,.18);
-    transform:translateY(0) scale(1);
-  }
-  100%{
-    box-shadow:0 0 18px rgba(255,89,165,.42),0 12px 22px rgba(255,89,165,.28);
-    transform:translateY(0) scale(1.04);
-  }
-}
-
-.song-card.sparkle-burst .song-thumb{
-  animation:cardThumbFlash .58s ease-out 1;
-}
-@keyframes cardThumbFlash{
-  0%{filter:brightness(1) saturate(1);}
-  18%{filter:brightness(1.18) saturate(1.08);}
-  100%{filter:brightness(1) saturate(1);}
-}
-
-.card-click-sparkle{
-  position:absolute;
-  width:18px;
-  height:18px;
-  pointer-events:none;
-  z-index:4;
-  opacity:0;
-  background:
-    linear-gradient(90deg, transparent 44%, rgba(255,255,255,.98) 44%, rgba(255,255,255,.98) 56%, transparent 56%),
-    linear-gradient(0deg, transparent 44%, rgba(255,255,255,.98) 44%, rgba(255,255,255,.98) 56%, transparent 56%);
-  filter:
-    drop-shadow(0 0 7px rgba(255,255,255,.95))
-    drop-shadow(0 0 10px rgba(255,89,165,.35));
-  animation:clickSparklePop .72s ease-out forwards;
-}
-@keyframes clickSparklePop{
-  0%{opacity:0; transform:translate(-50%,-50%) scale(.35) rotate(0deg);}
-  18%{opacity:1; transform:translate(-50%,-50%) scale(1.12) rotate(45deg);}
-  100%{opacity:0; transform:translate(-50%,-50%) scale(.75) rotate(120deg);}
-}
-</style>
-
 <script>
 function triggerCardShineEffect(){
-  const activeCard = document.querySelector('#songGrid .song-card.active[data-song]');
+  const activeCard=document.querySelector('#songGrid .song-card.active[data-song]');
   if(!activeCard) return;
-
-  activeCard.classList.remove('sparkle-burst');
+  activeCard.classList.remove('shine');
   void activeCard.offsetWidth;
-  activeCard.classList.add('sparkle-burst');
-
-  activeCard.querySelectorAll('.card-click-sparkle').forEach(el => el.remove());
-
-  const points = [
-    { left: '24%', top: '26%', size: 26, delay: 0 },
-    { left: '70%', top: '20%', size: 18, delay: 80 },
-    { left: '36%', top: '58%', size: 14, delay: 150 }
-  ];
-
-  points.forEach((pt) => {
-    const sparkle = document.createElement('span');
-    sparkle.className = 'card-click-sparkle';
-    sparkle.style.left = pt.left;
-    sparkle.style.top = pt.top;
-    sparkle.style.width = pt.size + 'px';
-    sparkle.style.height = pt.size + 'px';
-    sparkle.style.animationDelay = pt.delay + 'ms';
-    activeCard.appendChild(sparkle);
-    window.setTimeout(() => sparkle.remove(), 900);
-  });
-
-  window.setTimeout(() => activeCard.classList.remove('sparkle-burst'), 620);
+  activeCard.classList.add('shine');
+  window.setTimeout(()=>activeCard.classList.remove('shine'), 760);
 }
 </script>
-
 
 </body>
 </html>
