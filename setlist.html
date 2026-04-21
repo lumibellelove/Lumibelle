@@ -3515,8 +3515,12 @@ audio::-webkit-media-controls-mute-button{
     rgba(255,255,255,0) 100%);
   transform:translateX(-145%) skewX(-18deg);
 }
-.song-card:hover::after{
+.song-card:not(.active):hover::after{
   animation:hoverCardSheen .98s ease-out 1;
+}
+.song-grid.shine-lock .song-card:not(.active):hover::after{
+  animation:none !important;
+  opacity:0 !important;
 }
 .song-card.shine::after{
   animation:selectCardSheen 1.08s cubic-bezier(.22,.8,.22,1) 1;
@@ -5483,12 +5487,21 @@ We are Sweetie pie! 루미베르 데스~`,
 
 <script>
 function triggerCardShineEffect(){
+  const grid = document.getElementById('songGrid');
   const activeCard = document.querySelector('#songGrid .song-card.active[data-song]');
   if(!activeCard) return;
+  if(grid){
+    grid.classList.remove('shine-lock');
+    void grid.offsetWidth;
+    grid.classList.add('shine-lock');
+  }
   activeCard.classList.remove('shine');
   void activeCard.offsetWidth;
   activeCard.classList.add('shine');
-  window.setTimeout(() => activeCard.classList.remove('shine'), 1120);
+  window.setTimeout(() => {
+    activeCard.classList.remove('shine');
+    if(grid) grid.classList.remove('shine-lock');
+  }, 980);
 }
 </script>
 
