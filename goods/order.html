@@ -31,7 +31,11 @@
     .field textarea{min-height:110px; resize:vertical}
     .address-row{display:grid; grid-template-columns:1fr auto; gap:10px}
     .address-search-btn{border:none; border-radius:16px; padding:0 18px; background:#fff; color:#d27ca8; font-weight:800; border:1px solid #f0bfd4; cursor:pointer; white-space:nowrap}
+    .check-field{display:flex; align-items:flex-start; gap:10px; margin-bottom:14px; color:#8f7183; font-size:14px; line-height:1.7}
+    .check-field input{margin-top:3px}
     .note{font-size:13px; color:#b28ea2; line-height:1.7; margin-top:8px}
+    .shipping-note{margin-top:10px; padding:12px 14px; background:#fff; border:1px solid var(--line); border-radius:16px; font-size:13px; color:#8f7183; line-height:1.7}
+    .shipping-note strong{color:var(--pink)}
     .submit-btn{width:100%; border:none; border-radius:999px; padding:16px 20px; background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%); color:#fff; font-size:16px; font-weight:800; cursor:pointer; box-shadow:0 8px 18px rgba(255,95,165,.25)}
     .help{font-size:13px; color:#b28ea2; line-height:1.7; margin-top:10px}
     @media (max-width:900px){.grid{grid-template-columns:1fr}.top h1{font-size:40px}}
@@ -42,7 +46,7 @@
   <div class="wrap">
     <div class="top">
       <h1>ORDER</h1>
-      <a href="index.html" class="back" id="backButton">← 굿즈로 돌아가기</a>
+      <a href="cart.html" class="back" id="backButton">← 장바구니로 돌아가기</a>
     </div>
 
     <div class="grid">
@@ -63,7 +67,11 @@
             <span>총 금액</span>
             <span id="grandTotal">₩ 0</span>
           </div>
-          <div class="note">※ 배송비는 주문 1건당 6,000원입니다. 우체국 배송 기준이에요.</div>
+          <div class="note">※ 배송비는 기본 6,000원입니다. 우체국 배송 기준이에요.</div>
+          <div class="shipping-note" id="shippingNote">
+            <strong>제주 / 도서산간 안내</strong><br>
+            제주 및 도서산간 지역은 추가 배송비가 발생할 수 있어요. 해당 지역 주문 건은 별도 안내 후 함께 입금해 주세요.
+          </div>
         </div>
 
         <div class="bank-box">
@@ -79,8 +87,12 @@
         <h2>주문자 정보</h2>
         <form id="orderForm">
           <div class="field">
-            <label for="buyerName">이름</label>
+            <label for="buyerName">주문자 이름</label>
             <input id="buyerName" name="buyerName" type="text" required>
+          </div>
+          <div class="field">
+            <label for="receiverName">수령인 이름</label>
+            <input id="receiverName" name="receiverName" type="text" required>
           </div>
           <div class="field">
             <label for="contact">연락처</label>
@@ -102,10 +114,6 @@
             <input id="detailAddress" name="detailAddress" type="text" placeholder="동, 호수 등 상세 주소를 입력해 주세요" required>
           </div>
           <div class="field">
-            <label for="recipientName">수령인 이름</label>
-            <input id="recipientName" name="recipientName" type="text" required>
-          </div>
-          <div class="field">
             <label for="depositor">입금자명</label>
             <input id="depositor" name="depositor" type="text" required>
           </div>
@@ -113,22 +121,21 @@
             <label for="memo">요청사항</label>
             <textarea id="memo" name="memo" placeholder="없으면 비워두셔도 돼요."></textarea>
           </div>
-          <div class="field" style="margin-top:22px;">
-            <label style="display:flex; align-items:flex-start; gap:10px; line-height:1.7; font-weight:700; color:#8f7183;">
-              <input id="privacyAgree" type="checkbox" required style="width:18px; height:18px; margin-top:2px; accent-color:#ff5aa6;">
-              <span>주문 확인 및 배송 진행을 위해 이름, 연락처, 주소 정보를 수집·이용하는 데 동의합니다.</span>
-            </label>
-          </div>
-          <div class="field" style="margin-top:-2px;">
-            <label style="display:flex; align-items:flex-start; gap:10px; line-height:1.7; font-weight:700; color:#8f7183;">
-              <input id="refundAgree" type="checkbox" required style="width:18px; height:18px; margin-top:2px; accent-color:#ff5aa6;">
-              <span>주문 후 단순 변심에 의한 교환 및 환불이 제한될 수 있음을 확인했습니다.</span>
-            </label>
-          </div>
+
+          <label class="check-field">
+            <input type="checkbox" id="privacyAgree" required>
+            <span>개인정보 수집 및 이용에 동의합니다.</span>
+          </label>
+
+          <label class="check-field">
+            <input type="checkbox" id="refundAgree" required>
+            <span>주문 제작 및 발송 후 교환 / 환불 안내를 확인했습니다.</span>
+          </label>
+
           <button type="submit" class="submit-btn">주문 제출하기</button>
           <div class="help">
-            주문 내용을 제출하면 완료 페이지로 이동합니다.<br>
-            나중에 구글폼 액션 URL과 entry 번호만 붙이면 시트 접수 방식으로 확장 가능해요.
+            지금 파일은 장바구니 흐름과 주문 화면을 먼저 볼 수 있게 만든 버전이야.<br>
+            나중에 구글폼 액션 URL과 entry 번호만 붙이면 시트 접수 방식으로 확장 가능해.
           </div>
         </form>
       </section>
@@ -140,26 +147,53 @@
     const CART_KEY = 'lumibelle_goods_cart';
     const ORDER_KEY = 'lumibelle_goods_last_order';
     const SHIPPING_FEE = 6000;
-    const GOODS_MAP = {
-      tshirt: { name: '루미벨 데뷔 티셔츠', price: 30000 },
-      acrylic: { name: '아크릴 스탠드', price: 12000 },
-      photocard: { name: '포토카드 세트', price: 8000 }
+
+    const goodsMap = {
+      tshirt: { id:'tshirt', name:'루미벨 데뷔 티셔츠', price:30000, quantity:1 },
+      acrylic: { id:'acrylic', name:'아크릴 스탠드', price:12000, quantity:1 },
+      photocard: { id:'photocard', name:'포토카드 세트', price:8000, quantity:1 }
     };
 
     function getCart(){ try{return JSON.parse(localStorage.getItem(CART_KEY))||[]}catch(e){return []} }
-    function money(v){ return `₩ ${v.toLocaleString('ko-KR')}`; }
-    function getParams(){ return new URLSearchParams(location.search); }
-    function getDirectCart(){
-      const params = getParams();
-      const mode = params.get('mode');
-      const itemKey = params.get('item');
-      if(mode !== 'direct' || !itemKey || !GOODS_MAP[itemKey]) return null;
-      return [{ key: itemKey, name: GOODS_MAP[itemKey].name, price: GOODS_MAP[itemKey].price, quantity: 1 }];
+    function money(v){ return `₩ ${Number(v).toLocaleString('ko-KR')}`; }
+
+    function getModeInfo(){
+      const params = new URLSearchParams(location.search);
+      return {
+        mode: params.get('mode') || '',
+        item: params.get('item') || ''
+      };
     }
+
     function getOrderItems(){
-      const direct = getDirectCart();
-      if (direct) return direct;
+      const info = getModeInfo();
+      if(info.mode === 'direct' && goodsMap[info.item]){
+        return [{...goodsMap[info.item]}];
+      }
       return getCart();
+    }
+
+    function updateBackButton(){
+      const info = getModeInfo();
+      const backButton = document.getElementById('backButton');
+      if(info.mode === 'direct'){
+        backButton.href = 'index.html';
+        backButton.textContent = '← 굿즈로 돌아가기';
+      } else {
+        backButton.href = 'cart.html';
+        backButton.textContent = '← 장바구니로 돌아가기';
+      }
+    }
+
+    function updateTotals(){
+      const items = getOrderItems();
+      const productTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const grandTotal = productTotal + SHIPPING_FEE;
+
+      document.getElementById('productTotal').textContent = money(productTotal);
+      document.getElementById('shippingFee').textContent = money(SHIPPING_FEE);
+      document.getElementById('grandTotal').textContent = money(grandTotal);
+      return { productTotal, shippingFee: SHIPPING_FEE, grandTotal };
     }
 
     function execDaumPostcode() {
@@ -174,49 +208,43 @@
 
     function renderSummary(){
       const items = getOrderItems();
-      const backButton = document.getElementById('backButton');
-      const params = getParams();
-      const isDirect = params.get('mode') === 'direct';
-      if (backButton) {
-        backButton.textContent = isDirect ? '← 굿즈로 돌아가기' : '← 장바구니로 돌아가기';
-        backButton.href = isDirect ? 'index.html' : 'cart.html';
-      }
+
       if (!items.length){
-        alert('장바구니가 비어 있어요. 굿즈 페이지로 이동할게요.');
+        alert('주문할 상품이 없어요. 굿즈 페이지로 이동할게요.');
         location.href = 'index.html';
         return;
       }
+
       document.getElementById('cartSummary').innerHTML = items.map(item => `
         <div class="cart-line">
           <div><strong>${item.name}</strong><span>${money(item.price)} × ${item.quantity}</span></div>
           <div>${money(item.price * item.quantity)}</div>
         </div>
       `).join('');
-      const productTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      const grandTotal = productTotal + SHIPPING_FEE;
-      document.getElementById('productTotal').textContent = money(productTotal);
-      document.getElementById('shippingFee').textContent = money(SHIPPING_FEE);
-      document.getElementById('grandTotal').textContent = money(grandTotal);
+
+      updateBackButton();
+      updateTotals();
     }
 
     document.getElementById('orderForm').addEventListener('submit', function(e){
       e.preventDefault();
       const items = getOrderItems();
-      const productTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const totals = updateTotals();
       const orderData = {
         buyerName: document.getElementById('buyerName').value.trim(),
+        receiverName: document.getElementById('receiverName').value.trim(),
         contact: document.getElementById('contact').value.trim(),
         postcode: document.getElementById('postcode').value.trim(),
         address: document.getElementById('address').value.trim(),
         detailAddress: document.getElementById('detailAddress').value.trim(),
         fullAddress: `${document.getElementById('address').value.trim()} ${document.getElementById('detailAddress').value.trim()}`.trim(),
-        recipientName: document.getElementById('recipientName').value.trim(),
         depositor: document.getElementById('depositor').value.trim(),
         memo: document.getElementById('memo').value.trim(),
         cart: items,
-        productTotal,
-        shippingFee: SHIPPING_FEE,
-        total: productTotal + SHIPPING_FEE
+        productTotal: totals.productTotal,
+        shippingFee: totals.shippingFee,
+        total: totals.grandTotal,
+        mode: getModeInfo().mode || 'cart'
       };
       localStorage.setItem(ORDER_KEY, JSON.stringify(orderData));
       location.href = 'complete.html';
