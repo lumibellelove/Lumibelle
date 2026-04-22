@@ -4,110 +4,371 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CART | Lumibelle</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css" />
   <style>
-    :root{--bg:#fffafc;--panel:#fff5fb;--line:#f2d8e7;--pink:#ff5aa6;--text:#7f6a77;--sub:#c697b1;--shadow:0 8px 24px rgba(232,191,211,0.12)}
-    *{box-sizing:border-box} html,body{margin:0;padding:0}
-    body{background:var(--bg);color:var(--text);font-family:"SUIT","Noto Sans KR",sans-serif}
-    .wrap{width:min(1100px, calc(100% - 32px)); margin:0 auto}
-    .top{padding:30px 0 20px; display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap}
-    .top h1{margin:0; font-size:48px; color:var(--pink)}
-    .back{display:inline-flex; padding:12px 18px; border-radius:999px; text-decoration:none; background:#fff; color:#d27ca8; border:1px solid #f0bfd4}
-    .panel{background:var(--panel); border:1px solid var(--line); border-radius:28px; box-shadow:var(--shadow); overflow:hidden}
-    .cart-item{display:grid; grid-template-columns:120px 1fr auto; gap:18px; padding:18px; align-items:center; border-bottom:1px solid var(--line)}
-    .cart-item:last-child{border-bottom:none}
-    .thumb{width:120px; height:120px; border-radius:18px; overflow:hidden; background:#fff}
-    .thumb img{width:100%; height:100%; object-fit:cover; display:block}
-    .name{font-size:20px; font-weight:900; color:#d77ca7; margin:0 0 8px}
-    .price{color:#8f7183; font-weight:800; margin:0 0 12px}
-    .qty-controls{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
-    .qty-controls button{width:36px; height:36px; border-radius:50%; border:1px solid #f0bfd4; background:#fff; color:#d27ca8; font-size:18px; font-weight:900; cursor:pointer}
-    .remove{margin-top:12px; background:none; border:none; color:#c697b1; text-decoration:underline; cursor:pointer; padding:0; font:inherit}
-    .item-total{font-size:18px; font-weight:900; color:#7e6b78}
-    .summary{margin-top:22px; background:var(--panel); border:1px solid var(--line); border-radius:28px; box-shadow:var(--shadow); padding:24px}
-    .summary-row{display:flex; justify-content:space-between; gap:12px; font-size:18px; font-weight:800; color:#7e6b78}
-    .actions{display:flex; gap:12px; justify-content:flex-end; flex-wrap:wrap; margin-top:18px}
-    .btn{display:inline-flex; align-items:center; justify-content:center; padding:14px 20px; border-radius:999px; text-decoration:none; font-weight:800; border:none; cursor:pointer}
-    .btn.primary{background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%); color:#fff; box-shadow:0 8px 18px rgba(255,95,165,.25)}
-    .btn.secondary{background:#fff; color:#d27ca8; border:1px solid #f0bfd4}
-    .empty{padding:70px 20px; text-align:center; color:#b28ea2}
-    @media (max-width:780px){.cart-item{grid-template-columns:1fr}.thumb{width:100%; height:auto; aspect-ratio:1/1}.item-total{text-align:left}.top h1{font-size:38px}}
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800&display=swap');
+    :root{
+      --bg:#fffafc; --panel:#fff5fb; --line:#f2d8e7; --pink:#ff5aa6; --text:#7f6a77;
+      --shadow:0 8px 24px rgba(232,191,211,0.12);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      min-height:100vh; display:flex; flex-direction:column;
+      background:var(--bg); color:var(--text);
+      font-family:"SUIT","Noto Sans KR",sans-serif; letter-spacing:-0.01em;
+    }
+    .wrap{width:min(1260px, calc(100% - 32px)); margin:0 auto;}
+    .top-lang-bar{
+      width:100%; max-width:1260px; margin:16px auto 0;
+      display:flex; justify-content:flex-end; padding:0 34px 0 18px; box-sizing:border-box;
+    }
+    .header-box{display:flex; align-items:center; gap:24px;}
+    .lang-switch{display:flex; align-items:center; gap:10px; flex:0 0 auto; padding-right:2px;}
+    .lang-switch a{
+      display:inline-flex; align-items:center; justify-content:center;
+      min-width:42px; height:36px; padding:0 10px; border-radius:999px;
+      background:#fff; border:1px solid #f0bfd4; color:#d27ca8; text-decoration:none;
+      font-size:12px; font-weight:900; box-shadow:0 4px 10px rgba(255,95,165,0.08);
+    }
+    nav{
+      display:grid; grid-template-columns:repeat(8, minmax(0, 1fr));
+      gap:18px; text-align:center; align-items:center; flex:1; margin:0 20px;
+    }
+    nav a{
+      width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      min-width:0; text-decoration:none; position:relative; border-radius:22px; color:inherit;
+    }
+    nav a b, nav a span{display:block; width:100%; text-align:center; white-space:nowrap;}
+    nav a b{font-size:1.2em; font-weight:700; color:#d97ca9;}
+    nav a span{margin-top:6px; font-size:.94em; font-weight:600; color:#c697b1;}
+    nav a.current::before, nav a:hover::before{
+      content:""; position:absolute; inset:0; border-radius:22px;
+      background:linear-gradient(90deg,
+        rgba(255,217,232,0.00) 0%, rgba(255,217,232,0.14) 16%, rgba(255,192,215,0.16) 36%,
+        rgba(255,192,215,0.20) 50%, rgba(255,192,215,0.16) 64%, rgba(255,217,232,0.14) 84%, rgba(255,217,232,0.00) 100%);
+      z-index:-1;
+    }
+    nav a.current b, nav a:hover b{color:#ff59a5;}
+    nav a.current span, nav a:hover span{color:#d88dad;}
+
+    main{flex:1}
+    .hero-mini{
+      position:relative; margin-top:18px; border:1px solid var(--line); border-radius:32px; overflow:hidden;
+      background:linear-gradient(135deg,#fff0f7 0%,#f7efff 100%);
+      box-shadow:var(--shadow); padding:62px 56px 56px;
+    }
+    .hero-mini::after{
+      content:""; position:absolute; right:-40px; top:-50px; width:260px; height:260px;
+      background:radial-gradient(circle, rgba(255,255,255,.75) 0%, rgba(255,255,255,0) 70%);
+      pointer-events:none;
+    }
+    .hero-mini .sub{color:var(--pink); font-size:18px; font-weight:800; margin-bottom:10px;}
+    .hero-mini h1{
+      margin:0; font-family:"Cormorant Garamond", serif; font-size:90px; line-height:.9; font-weight:600;
+      color:var(--pink);
+      text-shadow:0 1px 0 rgba(255,255,255,.98),0 0 10px rgba(255,120,178,.18),0 0 20px rgba(255,255,255,.28);
+    }
+    .hero-mini p{margin:16px 0 0; color:#8f7183; font-size:17px; font-weight:600; line-height:1.8;}
+
+    .cart-grid{display:grid; grid-template-columns:1.08fr .92fr; gap:22px; margin-top:28px;}
+    .panel{
+      background:var(--panel); border:1px solid var(--line); border-radius:28px; box-shadow:var(--shadow); padding:24px;
+    }
+    .panel h2{margin:0 0 16px; color:#d77ca7; font-size:28px; font-weight:900;}
+    .cart-item{
+      display:grid; grid-template-columns:110px 1fr auto; gap:16px; align-items:center;
+      padding:16px 0; border-bottom:1px solid var(--line);
+    }
+    .cart-thumb{
+      width:110px; aspect-ratio:1/1; border-radius:20px; overflow:hidden; border:1px solid var(--line); background:#fff;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .cart-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+    .thumb-placeholder{font-size:12px; color:#c79bb3; font-weight:800; text-align:center; padding:12px;}
+    .cart-name{font-size:20px; font-weight:900; color:#d77ca7; margin-bottom:6px;}
+    .cart-meta{font-size:14px; color:#8f7183; line-height:1.7;}
+    .qty-wrap{display:flex; align-items:center; gap:8px; margin-top:10px;}
+    .qty-btn{
+      width:34px; height:34px; border-radius:999px; border:1px solid #f0bfd4; background:#fff;
+      color:#d27ca8; font-weight:900; cursor:pointer;
+    }
+    .qty-num{min-width:24px; text-align:center; font-weight:800; color:#8f7183;}
+    .cart-side{text-align:right;}
+    .line-price{font-size:18px; font-weight:900; color:#7e6b78; margin-bottom:10px;}
+    .remove-btn{
+      border:none; background:none; color:#c99ab2; font-weight:800; cursor:pointer; padding:0;
+    }
+
+    .summary-line{
+      display:flex; justify-content:space-between; gap:12px; padding:14px 0; border-bottom:1px solid var(--line);
+      font-size:16px;
+    }
+    .summary-line.total{
+      font-size:22px; font-weight:900; color:#7e6b78; border-bottom:none;
+    }
+    .cta-box{display:flex; flex-direction:column; gap:12px; margin-top:20px;}
+    .cta-btn{
+      display:inline-flex; align-items:center; justify-content:center; min-height:52px; padding:14px 18px;
+      border-radius:999px; text-decoration:none; font-size:15px; font-weight:800; transition:transform .15s ease;
+    }
+    .cta-btn:hover{transform:translateY(-2px);}
+    .cta-btn.primary{
+      background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%); color:#fff; box-shadow:0 8px 18px rgba(255,95,165,.25);
+    }
+    .cta-btn.sub{
+      background:#fff; color:#d77ca7; border:1px solid #f0bfd4; box-shadow:0 4px 10px rgba(255,95,165,0.08);
+    }
+    .empty-box{
+      text-align:center; padding:44px 18px;
+    }
+    .empty-box h3{margin:0 0 10px; color:#d77ca7; font-size:30px;}
+    .empty-box p{margin:0 0 18px; color:#8f7183; line-height:1.8;}
+    .note{
+      margin-top:12px; font-size:13px; color:#b28ea2; line-height:1.8;
+    }
+    footer{text-align:center; padding:28px 16px 40px; color:#c6a2b4; font-size:14px;}
+
+    @media (max-width:1180px){
+      nav{grid-template-columns:repeat(4,1fr); gap:16px;}
+    }
+    @media (max-width:980px){
+      .header-box{flex-wrap:wrap; justify-content:center;}
+      nav{grid-template-columns:repeat(4,1fr); width:100%; margin:0;}
+      .top-lang-bar{justify-content:center; margin-top:14px;}
+      .hero-mini h1{font-size:74px;}
+      .cart-grid{grid-template-columns:1fr;}
+    }
+    @media (max-width:780px){
+      nav{grid-template-columns:repeat(2,1fr); gap:12px; margin:0;}
+      .hero-mini{padding:42px 24px 40px;}
+      .hero-mini h1{font-size:62px;}
+      .hero-mini p{font-size:15px;}
+      .cart-item{grid-template-columns:1fr; text-align:left;}
+      .cart-thumb{width:100%;}
+      .cart-side{text-align:left;}
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="top">
-      <h1>CART</h1>
-      <a href="goods_index.html" class="back">← 굿즈로 돌아가기</a>
+  <div class="top-lang-bar">
+    <div class="lang-switch">
+      <a href="../index.html" class="active">KR</a>
+      <a href="../en/index.html">EN</a>
+      <a href="../jp/index.html">JP</a>
+      <a href="../cn/index.html">CN</a>
     </div>
-
-    <section class="panel" id="cartPanel"></section>
-
-    <section class="summary" id="summaryBox" hidden>
-      <div class="summary-row">
-        <span>총 금액</span>
-        <span id="totalPrice">₩ 0</span>
-      </div>
-      <div class="actions">
-        <button type="button" class="btn secondary" id="clearCart">장바구니 비우기</button>
-        <a href="order.html" class="btn primary">주문서 작성하기</a>
-      </div>
-    </section>
   </div>
+
+  <header>
+    <div class="wrap header-box">
+      <div class="logo">
+        <a href="../index.html">
+          <picture>
+            <source srcset="../img/ui/logo.webp?v=3" type="image/webp">
+            <img src="../img/ui/logo.png?v=3" alt="Lumibelle 로고" loading="eager" decoding="async">
+          </picture>
+        </a>
+      </div>
+
+      <nav>
+        <a href="../index.html"><b>HOME</b><span>홈</span></a>
+        <a href="../news.html"><b>NEWS</b><span>공지사항</span></a>
+        <a href="../member.html"><b>MEMBER</b><span>멤버 소개</span></a>
+        <a href="../schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
+        <a href="../ticket/"><b>TICKET</b><span>예매</span></a>
+        <a href="index.html" class="current"><b>GOODS</b><span>굿즈</span></a>
+        <a href="../setlist.html"><b>SETLIST</b><span>응원 가이드</span></a>
+        <a href="../info.html"><b>INFO</b><span>안내</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <section class="hero-mini">
+        <div class="sub">한 번에 담고, 편하게 주문하기</div>
+        <h1>Cart</h1>
+        <p>
+          장바구니에 담은 굿즈를 확인한 뒤 주문 페이지로 이동할 수 있어요.<br>
+          여러 상품을 한 번에 정리해서 주문하기 좋은 구조로 준비했어요 ✦
+        </p>
+      </section>
+
+      <div class="cart-grid">
+        <section class="panel">
+          <h2>장바구니 상품</h2>
+          <div id="cartList"></div>
+        </section>
+
+        <aside class="panel">
+          <h2>주문 요약</h2>
+          <div class="summary-line">
+            <span>상품 금액</span>
+            <span id="productTotal">₩ 0</span>
+          </div>
+          <div class="summary-line">
+            <span>배송비</span>
+            <span id="shippingFee">₩ 6,000</span>
+          </div>
+          <div class="summary-line total">
+            <span>총 금액</span>
+            <span id="grandTotal">₩ 0</span>
+          </div>
+
+          <div class="cta-box">
+            <a href="order.html" class="cta-btn primary" id="orderBtn">주문하기</a>
+            <a href="index.html" class="cta-btn sub">굿즈로 돌아가기</a>
+          </div>
+
+          <div class="note">
+            ※ 배송비는 주문 1건당 6,000원입니다.<br>
+            ※ 굿즈 페이지에서 <strong>장바구니</strong> 버튼을 누르면 상품이 담겨요.
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer>© 2026 Lumibelle All Rights Reserved.</footer>
 
   <script>
     const CART_KEY = 'lumibelle_goods_cart';
-    function getCart(){ try{return JSON.parse(localStorage.getItem(CART_KEY))||[]}catch(e){return []} }
-    function saveCart(cart){ localStorage.setItem(CART_KEY, JSON.stringify(cart)); renderCart(); }
-    function money(v){ return `₩ ${v.toLocaleString('ko-KR')}`; }
-    function renderCart(){
-      const panel = document.getElementById('cartPanel');
-      const summary = document.getElementById('summaryBox');
-      const cart = getCart();
-      if (!cart.length){
-        panel.innerHTML = '<div class="empty">장바구니가 비어 있어요 ✦<br>굿즈 페이지에서 상품을 담아 주세요.</div>';
-        summary.hidden = true;
-        return;
-      }
-      panel.innerHTML = cart.map(item => `
-        <article class="cart-item">
-          <div class="thumb"><img src="${item.image}" alt="${item.name}"></div>
-          <div>
-            <h2 class="name">${item.name}</h2>
-            <div class="price">개당 ${money(item.price)}</div>
-            <div class="qty-controls">
-              <button type="button" data-action="minus" data-id="${item.id}">−</button>
-              <strong>${item.quantity}</strong>
-              <button type="button" data-action="plus" data-id="${item.id}">＋</button>
-            </div>
-            <button class="remove" type="button" data-action="remove" data-id="${item.id}">삭제하기</button>
-          </div>
-          <div class="item-total">${money(item.price * item.quantity)}</div>
-        </article>
-      `).join('');
-      summary.hidden = false;
-      document.getElementById('totalPrice').textContent = money(cart.reduce((sum, item) => sum + item.price * item.quantity, 0));
+    const SHIPPING_FEE = 6000;
 
-      panel.querySelectorAll('[data-action]').forEach(button => {
-        button.addEventListener('click', () => updateCart(button.dataset.id, button.dataset.action));
-      });
+    const goodsMap = {
+      tshirt: {
+        id: 'tshirt',
+        name: '루미벨 데뷔 티셔츠',
+        price: 30000,
+        image: '../img/goods/lumibelle-debut-tshirt.webp'
+      },
+      acrylic: {
+        id: 'acrylic',
+        name: '아크릴 스탠드',
+        price: 12000,
+        image: '../img/goods/lumibelle-acrylic-stand.webp'
+      },
+      photocard: {
+        id: 'photocard',
+        name: '포토카드 세트',
+        price: 8000,
+        image: '../img/goods/lumibelle-photocard-set.webp'
+      }
+    };
+
+    function money(v){
+      return `₩ ${Number(v).toLocaleString('ko-KR')}`;
     }
-    function updateCart(id, action){
+
+    function getCart(){
+      try{
+        return JSON.parse(localStorage.getItem(CART_KEY)) || [];
+      }catch(e){
+        return [];
+      }
+    }
+
+    function setCart(cart){
+      localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    }
+
+    function addItemFromQuery(){
+      const params = new URLSearchParams(window.location.search);
+      const add = params.get('add');
+      if(!add || !goodsMap[add]) return;
+
+      const cart = getCart();
+      const found = cart.find(item => item.id === add);
+
+      if(found){
+        found.quantity += 1;
+      }else{
+        cart.push({
+          id: goodsMap[add].id,
+          name: goodsMap[add].name,
+          price: goodsMap[add].price,
+          image: goodsMap[add].image,
+          quantity: 1
+        });
+      }
+
+      setCart(cart);
+
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, '', cleanUrl);
+    }
+
+    function updateQuantity(id, diff){
       const cart = getCart();
       const target = cart.find(item => item.id === id);
-      if (!target) return;
-      if (action === 'plus') target.quantity += 1;
-      if (action === 'minus') target.quantity -= 1;
-      let next = cart.filter(item => item.quantity > 0);
-      if (action === 'remove') next = cart.filter(item => item.id !== id);
-      saveCart(next);
-    }
-    document.getElementById('clearCart').addEventListener('click', () => {
-      localStorage.removeItem(CART_KEY);
+      if(!target) return;
+
+      target.quantity += diff;
+      const next = cart.filter(item => item.quantity > 0);
+      setCart(next);
       renderCart();
-    });
+    }
+
+    function removeItem(id){
+      const cart = getCart().filter(item => item.id !== id);
+      setCart(cart);
+      renderCart();
+    }
+
+    function renderCart(){
+      const cart = getCart();
+      const cartList = document.getElementById('cartList');
+
+      if(!cart.length){
+        cartList.innerHTML = `
+          <div class="empty-box">
+            <h3>장바구니가 비어 있어요</h3>
+            <p>원하는 굿즈를 담은 뒤 다시 와주세요.<br>바로 구매도 굿즈 페이지에서 시작할 수 있어요.</p>
+            <a href="index.html" class="cta-btn sub" style="display:inline-flex;">굿즈로 돌아가기</a>
+          </div>
+        `;
+        document.getElementById('productTotal').textContent = money(0);
+        document.getElementById('shippingFee').textContent = money(SHIPPING_FEE);
+        document.getElementById('grandTotal').textContent = money(0);
+        document.getElementById('orderBtn').style.pointerEvents = 'none';
+        document.getElementById('orderBtn').style.opacity = '.45';
+        return;
+      }
+
+      document.getElementById('orderBtn').style.pointerEvents = 'auto';
+      document.getElementById('orderBtn').style.opacity = '1';
+
+      cartList.innerHTML = cart.map(item => `
+        <div class="cart-item">
+          <div class="cart-thumb">
+            <img src="${item.image}" alt="${item.name}" onerror="this.parentNode.innerHTML='<div class=&quot;thumb-placeholder&quot;>GOODS IMAGE</div>'">
+          </div>
+          <div>
+            <div class="cart-name">${item.name}</div>
+            <div class="cart-meta">개당 ${money(item.price)}</div>
+            <div class="qty-wrap">
+              <button type="button" class="qty-btn" onclick="updateQuantity('${item.id}', -1)">−</button>
+              <div class="qty-num">${item.quantity}</div>
+              <button type="button" class="qty-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
+            </div>
+          </div>
+          <div class="cart-side">
+            <div class="line-price">${money(item.price * item.quantity)}</div>
+            <button type="button" class="remove-btn" onclick="removeItem('${item.id}')">삭제하기</button>
+          </div>
+        </div>
+      `).join('');
+
+      const productTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const grandTotal = productTotal + SHIPPING_FEE;
+
+      document.getElementById('productTotal').textContent = money(productTotal);
+      document.getElementById('shippingFee').textContent = money(SHIPPING_FEE);
+      document.getElementById('grandTotal').textContent = money(grandTotal);
+    }
+
+    addItemFromQuery();
     renderCart();
   </script>
 </body>
