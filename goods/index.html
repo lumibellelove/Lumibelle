@@ -5,20 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GOODS | Lumibelle</title>
   <link rel="stylesheet" href="../style.css" />
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-
-    html, body { margin: 0; padding: 0; }
-    body {
-      min-height: 100vh; display: flex; flex-direction: column;
-      background: #fffafc; font-family:"SUIT","Noto Sans KR",sans-serif;
+    html, body { margin:0; padding:0; }
+    body{
+      min-height:100vh; display:flex; flex-direction:column;
+      background:#fffafc; font-family:"SUIT","Noto Sans KR",sans-serif;
       letter-spacing:-0.01em; color:#7f6a77;
     }
-    main.page-shell { flex: 1; }
+    main.page-shell{ flex:1; }
     .wrap{ width:min(1260px, calc(100% - 32px)); margin:0 auto; }
 
     .top-lang-bar{
@@ -26,7 +23,6 @@
       justify-content:flex-end; padding:0 34px 0 18px; box-sizing:border-box;
     }
     .header-box{ display:flex; align-items:center; gap:24px; }
-
     .lang-switch{ display:flex; align-items:center; gap:10px; flex:0 0 auto; padding-right:2px; }
     .lang-switch a{
       display:inline-flex; align-items:center; justify-content:center;
@@ -72,11 +68,16 @@
 
     .hero-mini{
       position:relative; margin-top:18px; border:1px solid #f2d8e7; border-radius:32px; overflow:hidden;
-      background:linear-gradient(135deg, #fff0f7 0%, #f3ebff 100%);
+      background:linear-gradient(135deg, #fff0f7 0%, #f7efff 100%);
       box-shadow:0 8px 24px rgba(232,191,211,0.12); padding:62px 56px 56px;
     }
+    .hero-mini::before{
+      content:""; position:absolute; inset:auto auto -70px -70px; width:300px; height:300px;
+      background:radial-gradient(circle, rgba(255,255,255,.75) 0%, rgba(255,255,255,0) 72%);
+      pointer-events:none;
+    }
     .hero-mini::after{
-      content:""; position:absolute; top:-20%; left:-10%; width:260px; height:260px;
+      content:""; position:absolute; top:-20%; right:-5%; width:280px; height:280px;
       background:radial-gradient(circle, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 70%);
       pointer-events:none;
     }
@@ -91,8 +92,7 @@
       text-shadow:0 1px 0 rgba(255,255,255,.98), 0 0 10px rgba(255,120,178,.22), 0 0 20px rgba(255,255,255,.34) !important;
     }
     .hero-mini p{
-      display:inline-block !important; margin-top:18px !important; color:#8f7183; font-size:17px; line-height:1.9;
-      font-weight:700;
+      display:inline-block !important; margin-top:18px !important; color:#8f7183; font-size:17px; line-height:1.9; font-weight:700;
     }
 
     .section-heading { text-align:center; margin:38px 0 20px; }
@@ -101,9 +101,110 @@
       text-shadow:0 6px 18px rgba(255,120,178,.10) !important;
       font-family:"SUIT","Noto Sans KR",sans-serif !important;
     }
-    .section-heading p {
-      margin:10px 0 0; color:#c79bb3 !important; font-size:17px !important; font-weight:700;
+    .section-heading p { margin:10px 0 0; color:#c79bb3 !important; font-size:17px !important; font-weight:700; }
+
+    .goods-toolbar{ display:flex; gap:14px; justify-content:flex-end; align-items:center; margin:0 0 18px; }
+    .toolbar-btn{
+      display:inline-flex; align-items:center; justify-content:center; min-width:160px; padding:14px 20px; border-radius:999px;
+      background:linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%); color:#fff; text-decoration:none; font-size:15px; font-weight:800;
+      box-shadow:0 8px 18px rgba(255,95,165,0.25); transition:transform .15s ease;
     }
+    .toolbar-btn:hover{ transform:translateY(-2px); }
+    .toolbar-btn.sub{ background:#fff; color:#d77ca7; border:1px solid #f0bfd4; box-shadow:0 4px 10px rgba(255,95,165,0.08); }
+
+    .sales-panel{
+      margin:0 0 24px; padding:24px 24px 20px; border-radius:28px; background:#fff5fb; border:1px solid #f2d8e7;
+      box-shadow:0 8px 24px rgba(232,191,211,0.12);
+    }
+    .sales-panel h3{ margin:0 0 10px; font-size:28px; color:#d77ca7; }
+    .sales-panel p{ margin:0; color:#8f7183; line-height:1.85; }
+    .sales-grid{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:14px; margin-top:18px; }
+    .sales-chip{
+      padding:16px 18px; border-radius:22px; background:linear-gradient(180deg,#fff 0%,#fff9fc 100%);
+      border:1px solid #f3d6e6; box-shadow:0 6px 14px rgba(255,95,165,0.08);
+    }
+    .sales-chip strong{ display:block; margin-bottom:8px; color:#ff5aa6; font-size:15px; }
+    .sales-chip span{ color:#8f7183; font-size:14px; line-height:1.6; }
+
+    .category-filter{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:0 0 24px; }
+    .category-filter button{
+      padding:11px 20px; border-radius:999px; border:1px solid #f0bfd4; background:#fff; color:#d77ca7;
+      font-weight:800; font-size:13px; cursor:pointer; box-shadow:0 4px 10px rgba(255,95,165,0.08);
+      transition:transform .15s ease, background .18s ease, color .18s ease, border-color .18s ease;
+    }
+    .category-filter button:hover{ transform:translateY(-2px); background:#fff0f7; }
+    .category-filter button.active{ background:linear-gradient(180deg,#ff7eb3 0%, #ff5fa5 100%); color:#fff; border-color:transparent; }
+
+    .goods-grid{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:22px; }
+    .goods-card{
+      background:#fff5fb; border:1px solid #f2d8e7; border-radius:28px; box-shadow:0 8px 24px rgba(232,191,211,0.12);
+      overflow:hidden; transition:transform .2s ease, box-shadow .2s ease, opacity .2s ease; position:relative;
+    }
+    .goods-card:hover{ transform:translateY(-6px); box-shadow:0 14px 32px rgba(0,0,0,0.10); }
+    .goods-card.is-hidden{ display:none; }
+    .goods-card.preview-card{ opacity:.72; }
+    .goods-badge{
+      position:absolute; top:14px; right:14px; z-index:2; display:inline-flex; align-items:center; justify-content:center;
+      padding:7px 12px; border-radius:999px; font-size:11px; font-weight:900; letter-spacing:.04em; line-height:1;
+      box-shadow:0 6px 14px rgba(255,89,165,0.18);
+    }
+    .goods-badge.sale{ background:#ff59a5; color:#fff; }
+    .goods-badge.ready{ background:#fff; color:#d77ca7; border:1px solid #f0bfd4; }
+    .goods-badge.event{ background:#fff0f7; color:#ff5aa6; border:1px solid #ffc5dd; }
+    .goods-image{
+      width:100%; aspect-ratio:1/1; background:#fff; border-bottom:1px solid #f2d8e7;
+      display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative;
+    }
+    .goods-image img{ width:100%; height:100%; object-fit:cover; display:block; transition:transform .35s ease, filter .35s ease; }
+    .goods-card:hover .goods-image img{ transform:scale(1.05); filter:saturate(1.03); }
+    .image-ticket{
+      width:100%; height:100%; display:flex; align-items:center; justify-content:center; text-align:center; padding:24px;
+      background:linear-gradient(180deg,#fffafd 0%, #ffeef7 55%, #fff7fb 100%);
+    }
+    .ticket-face{ width:100%; border-radius:24px; padding:22px 18px; border:1px solid #f5d9e8; background:rgba(255,255,255,.95); box-shadow:0 16px 24px rgba(255,95,165,.10); }
+    .ticket-type{ color:#c58aa8; font-size:12px; font-weight:900; letter-spacing:.18em; }
+    .ticket-name{ margin-top:10px; color:#ff5aa6; font-size:28px; font-weight:900; line-height:1.15; }
+    .ticket-sub{ margin-top:8px; color:#8f7183; font-size:14px; font-weight:700; line-height:1.55; }
+    .member-mariring{ background:linear-gradient(135deg,#fffafd 0%, #ffe0ef 100%); }
+    .member-ruru{ background:linear-gradient(135deg,#fffafd 0%, #ffe8f1 100%); }
+    .member-iro{ background:linear-gradient(135deg,#fafdff 0%, #e7f5ff 100%); }
+    .member-lunar{ background:linear-gradient(135deg,#fbf9ff 0%, #efe4ff 100%); }
+    .digital-tone{ background:linear-gradient(135deg,#fffafd 0%, #ffeef8 50%, #f7efff 100%); }
+    .poster-thumb{ width:100%; height:100%; object-fit:cover; object-position:center top; }
+
+    .goods-body{ padding:22px 20px 20px; }
+    .goods-label{ display:inline-flex; align-items:center; gap:6px; margin:0 0 10px; padding:7px 12px; border-radius:999px; background:linear-gradient(180deg,#fff7fb 0%, #fff 100%); border:1px solid #f3d4e5; color:#d77ca7; font-size:12px; font-weight:900; letter-spacing:.02em; }
+    .goods-label.preview{ color:#b28ea2; }
+    .goods-name{ margin:0 0 8px; color:#d77ca7; font-size:23px; font-weight:900; line-height:1.2; }
+    .goods-desc{ margin:0 0 14px; color:#8f7183; font-size:14px; line-height:1.7; min-height:72px; }
+    .goods-meta{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-bottom:16px; }
+    .goods-price{ color:#ff5aa6; font-size:22px; font-weight:900; }
+    .goods-stock{ color:#b28ea2; font-size:13px; font-weight:700; text-align:right; }
+    .goods-actions{ display:flex; gap:10px; }
+    .goods-btn{
+      flex:1; display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:12px 14px; border-radius:999px; text-decoration:none;
+      font-size:14px; font-weight:800; transition:transform .15s ease;
+    }
+    .goods-btn:hover{ transform:translateY(-2px); }
+    .goods-btn.cart{ background:#fff; color:#d77ca7; border:1px solid #f0bfd4; }
+    .goods-btn.buy{ background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%); color:#fff; box-shadow:0 8px 18px rgba(255,95,165,.22); }
+    .goods-btn.disabled{ background:#f7eef3; color:#bda5b2; border:1px solid #ead7e1; box-shadow:none; cursor:default; pointer-events:none; }
+
+    .menu-preview-grid{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:22px; margin-top:24px; }
+    .menu-preview-card{
+      background:#fff5fb; border:1px solid #f2d8e7; border-radius:28px; box-shadow:0 8px 24px rgba(232,191,211,0.12); overflow:hidden;
+    }
+    .menu-preview-card img{ width:100%; display:block; }
+    .menu-preview-card .caption{ padding:16px 18px 18px; color:#8f7183; line-height:1.75; }
+    .menu-preview-card .caption strong{ display:block; margin-bottom:6px; color:#d77ca7; font-size:18px; }
+
+    .notice-card{
+      margin-top:24px; background:#fff5fb; border:1px solid #f2d8e7; border-radius:28px; box-shadow:0 8px 24px rgba(232,191,211,0.12); padding:28px 26px;
+    }
+    .notice-card h3{ margin:0 0 10px; color:#d77ca7; font-size:28px; font-weight:900; }
+    .notice-card p{ margin:0; color:#8f7183; line-height:1.9; font-size:15px; }
+    .notice-list{ margin:14px 0 0; padding-left:18px; color:#8f7183; }
+    .notice-list li{ margin:6px 0; line-height:1.8; font-size:14px; }
 
     .back-to-top{
       position:fixed; right:22px; bottom:22px; width:56px; height:56px; border:none; border-radius:50%;
@@ -117,66 +218,38 @@
     .reveal{ opacity:0; transform:translateY(30px); transition:opacity .85s ease, transform .85s ease; will-change:opacity, transform; }
     .reveal.show{ opacity:1; transform:translateY(0); }
 
-    nav a, .toolbar-btn, .goods-btn, .cta-btn, .back, .address-search-btn, .qty-btn, .remove-btn, .submit-btn{
+    nav a, .toolbar-btn, .goods-btn, .cta-btn, .back, .address-search-btn, .qty-btn, .remove-btn, .submit-btn, .category-filter button{
       position:relative; overflow:hidden; isolation:isolate;
     }
-    nav a::after, .toolbar-btn::after, .goods-btn::after, .cta-btn::after, .back::after, .address-search-btn::after, .submit-btn::after{
+    nav a::after, .toolbar-btn::after, .goods-btn::after, .cta-btn::after, .back::after, .address-search-btn::after, .submit-btn::after, .category-filter button::after{
       content:""; position:absolute; top:-35%; left:-42%; width:22%; height:170%;
       background:linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.12) 35%, rgba(255,255,255,.28) 50%, rgba(255,255,255,.12) 65%, rgba(255,255,255,0) 100%);
       transform:skewX(-22deg) translateX(0); opacity:0; pointer-events:none; z-index:2;
     }
-    nav a:hover::after, .toolbar-btn:hover::after, .goods-btn:hover::after, .cta-btn:hover::after, .back:hover::after, .address-search-btn:hover::after, .submit-btn:hover::after{
+    nav a:hover::after, .toolbar-btn:hover::after, .goods-btn:hover::after, .cta-btn:hover::after, .back:hover::after, .address-search-btn:hover::after, .submit-btn:hover::after, .category-filter button:hover::after{
       animation:sweepShine .9s ease forwards;
     }
     @keyframes sweepShine{
-      0%{opacity:0; transform:skewX(-22deg) translateX(0);}
-      15%{opacity:1;}
-      100%{opacity:0; transform:skewX(-22deg) translateX(560%);}
-    }
+      0%{opacity:0; transform:skewX(-22deg) translateX(0);} 15%{opacity:1;} 100%{opacity:0; transform:skewX(-22deg) translateX(560%);} }
     .click-shine::after{ animation:sweepShine .9s ease forwards; }
 
-    .ripple-effect{
-      position:absolute; border-radius:50%; transform:scale(0); animation:ripple .65s ease-out forwards;
-      background:rgba(255,255,255,.35); pointer-events:none; z-index:3;
-    }
+    .ripple-effect{ position:absolute; border-radius:50%; transform:scale(0); animation:ripple .65s ease-out forwards; background:rgba(255,255,255,.35); pointer-events:none; z-index:3; }
     @keyframes ripple{ to{ transform:scale(4.2); opacity:0; } }
-
-    .glitter-burst{
-      position:absolute; pointer-events:none; width:8px; height:8px;
-      background:radial-gradient(circle, #fff 0%, #ffc0d7 60%, transparent 100%);
-      border-radius:50%; opacity:0; animation:glitterPop 0.8s ease-out forwards;
-    }
-    @keyframes glitterPop{
-      0%{ transform:translate(0,0) scale(0.5); opacity:1; }
-      100%{ transform:translate(var(--x), var(--y)) scale(1.2); opacity:0; }
-    }
-    .burst-spark, .burst-petal{
-      position:fixed; pointer-events:none; left:0; top:0; z-index:5000; opacity:0;
-    }
+    .glitter-burst{ position:absolute; pointer-events:none; width:8px; height:8px; background:radial-gradient(circle, #fff 0%, #ffc0d7 60%, transparent 100%); border-radius:50%; opacity:0; animation:glitterPop 0.8s ease-out forwards; }
+    @keyframes glitterPop{ 0%{ transform:translate(0,0) scale(0.5); opacity:1; } 100%{ transform:translate(var(--x), var(--y)) scale(1.2); opacity:0; } }
+    .burst-spark, .burst-petal{ position:fixed; pointer-events:none; left:0; top:0; z-index:5000; opacity:0; }
     .burst-spark{ width:16px; height:16px; animation:burstSpark .72s ease-out forwards; }
-    .burst-spark::before, .burst-spark::after{
-      content:""; position:absolute; background:#fff; border-radius:999px;
-      box-shadow:0 0 10px rgba(255,255,255,.9), 0 0 18px rgba(255,192,215,.7);
-    }
+    .burst-spark::before, .burst-spark::after{ content:""; position:absolute; background:#fff; border-radius:999px; box-shadow:0 0 10px rgba(255,255,255,.9), 0 0 18px rgba(255,192,215,.7); }
     .burst-spark::before{ width:3px; height:16px; left:6.5px; top:0; }
     .burst-spark::after{ width:16px; height:3px; left:0; top:6.5px; }
-    .burst-petal{
-      width:14px; height:14px; border-radius:999px;
-      background:radial-gradient(circle at 35% 35%, #fff 0%, #ffd9e8 42%, #ffc0d7 78%, rgba(255,192,215,0) 100%);
-      box-shadow:0 0 10px rgba(255,192,215,.55); animation:burstPetal .78s ease-out forwards;
-    }
-    @keyframes burstSpark{
-      0%{ transform:translate(0,0) scale(.45) rotate(0deg); opacity:1; }
-      100%{ transform:translate(var(--x), var(--y)) scale(1.15) rotate(90deg); opacity:0; }
-    }
-    @keyframes burstPetal{
-      0%{ transform:translate(0,0) scale(.6); opacity:1; }
-      100%{ transform:translate(var(--x), var(--y)) scale(1.2); opacity:0; }
-    }
+    .burst-petal{ width:14px; height:14px; border-radius:999px; background:radial-gradient(circle at 35% 35%, #fff 0%, #ffd9e8 42%, #ffc0d7 78%, rgba(255,192,215,0) 100%); box-shadow:0 0 10px rgba(255,192,215,.55); animation:burstPetal .78s ease-out forwards; }
+    @keyframes burstSpark{ 0%{ transform:translate(0,0) scale(.45) rotate(0deg); opacity:1; } 100%{ transform:translate(var(--x), var(--y)) scale(1.15) rotate(90deg); opacity:0; } }
+    @keyframes burstPetal{ 0%{ transform:translate(0,0) scale(.6); opacity:1; } 100%{ transform:translate(var(--x), var(--y)) scale(1.2); opacity:0; } }
 
     @media (max-width: 1180px){
       nav{ grid-template-columns:repeat(4,1fr); gap:16px; }
       .top-lang-bar{ max-width:1260px; }
+      .goods-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); }
     }
     @media (max-width: 980px){
       .header-box{ flex-wrap:wrap; justify-content:center; }
@@ -184,6 +257,8 @@
       .top-lang-bar{ justify-content:center; margin-top:14px; }
       .hero-mini h1{ font-size:82px !important; }
       .section-heading h2{ font-size:54px !important; }
+      .sales-grid{ grid-template-columns:1fr; }
+      .menu-preview-grid{ grid-template-columns:1fr; }
     }
     @media (max-width: 780px){
       nav{ grid-template-columns:repeat(2,1fr); gap:12px; margin:0; }
@@ -192,69 +267,11 @@
       .hero-mini .sub{ font-size:17px !important; }
       .hero-mini p{ font-size:14px !important; }
       .section-heading h2{ font-size:42px !important; }
+      .goods-grid{ grid-template-columns:1fr; }
+      .goods-toolbar{ flex-direction:column; align-items:stretch; }
+      .toolbar-btn{ width:100%; }
+      .category-filter{ justify-content:flex-start; }
     }
-
-
-    .goods-toolbar{ display:flex; gap:14px; justify-content:flex-end; align-items:center; margin:0 0 18px; }
-    .toolbar-btn{
-      display:inline-flex; align-items:center; justify-content:center; min-width:160px; padding:14px 20px; border-radius:999px;
-      background:linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%); color:#fff; text-decoration:none; font-size:15px; font-weight:800;
-      box-shadow:0 8px 18px rgba(255,95,165,0.25); transition:transform .15s ease;
-    }
-    .toolbar-btn:hover{ transform:translateY(-2px); }
-    .toolbar-btn.sub{ background:#fff; color:#d77ca7; border:1px solid #f0bfd4; box-shadow:0 4px 10px rgba(255,95,165,0.08); }
-
-    .goods-grid{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:22px; }
-    .goods-card{
-      background:#fff5fb; border:1px solid #f2d8e7; border-radius:28px; box-shadow:0 8px 24px rgba(232,191,211,0.12);
-      overflow:hidden; transition:transform .2s ease, box-shadow .2s ease; position:relative;
-    }
-    .goods-card:hover{ transform:translateY(-6px); box-shadow:0 14px 32px rgba(0,0,0,0.10); }
-    .goods-badge{
-      position:absolute; top:14px; right:14px; z-index:2; display:inline-flex; align-items:center; justify-content:center;
-      padding:7px 12px; border-radius:999px; font-size:11px; font-weight:900; letter-spacing:.04em; line-height:1;
-      box-shadow:0 6px 14px rgba(255,89,165,0.18);
-    }
-    .goods-badge.sale{ background:#ff59a5; color:#fff; }
-    .goods-badge.ready{ background:#fff; color:#d77ca7; border:1px solid #f0bfd4; }
-    .goods-image{
-      width:100%; aspect-ratio:1/1; background:#fff; border-bottom:1px solid #f2d8e7;
-      display:flex; align-items:center; justify-content:center; overflow:hidden;
-    }
-    .goods-image img{ width:100%; height:100%; object-fit:cover; display:block; transition:transform .35s ease, filter .35s ease; }
-    .goods-card:hover .goods-image img{ transform:scale(1.05); filter:saturate(1.03); }
-    .goods-image .placeholder{
-      width:100%; height:100%; display:flex; align-items:center; justify-content:center; flex-direction:column;
-      color:#d6a2bc; background:linear-gradient(180deg,#fff 0%,#fff8fc 100%); font-weight:800; font-size:15px;
-    }
-    .goods-body{ padding:22px 20px 20px; }
-    .goods-label{ display:inline-flex; align-items:center; gap:6px; margin:0 0 10px; padding:7px 12px; border-radius:999px; background:linear-gradient(180deg,#fff7fb 0%, #fff 100%); border:1px solid #f3d4e5; color:#d77ca7; font-size:12px; font-weight:900; letter-spacing:.02em; }
-    .goods-label.preview{ color:#b28ea2; }
-    .goods-name{ margin:0 0 8px; color:#d77ca7; font-size:23px; font-weight:900; line-height:1.2; }
-    .goods-desc{ margin:0 0 14px; color:#8f7183; font-size:14px; line-height:1.7; min-height:48px; }
-    .goods-meta{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
-    .goods-price{ color:#ff5aa6; font-size:22px; font-weight:900; }
-    .goods-stock{ color:#b28ea2; font-size:13px; font-weight:700; }
-    .goods-actions{ display:flex; gap:10px; }
-    .goods-btn{
-      flex:1; display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:12px 14px; border-radius:999px; text-decoration:none;
-      font-size:14px; font-weight:800; transition:transform .15s ease;
-    }
-    .goods-btn:hover{ transform:translateY(-2px); }
-    .goods-btn.cart{ background:#fff; color:#d77ca7; border:1px solid #f0bfd4; }
-    .goods-btn.buy{ background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%); color:#fff; box-shadow:0 8px 18px rgba(255,95,165,.22); }
-    .goods-btn.disabled{ background:#f7eef3; color:#bda5b2; border:1px solid #ead7e1; box-shadow:none; cursor:default; pointer-events:none; }
-    .notice-card{
-      margin-top:24px; background:#fff5fb; border:1px solid #f2d8e7; border-radius:28px;
-      box-shadow:0 8px 24px rgba(232,191,211,0.12); padding:28px 26px;
-    }
-    .notice-card h3{ margin:0 0 10px; color:#d77ca7; font-size:28px; font-weight:900; }
-    .notice-card p{ margin:0; color:#8f7183; line-height:1.9; font-size:15px; }
-    .notice-list{ margin:14px 0 0; padding-left:18px; color:#8f7183; }
-    .notice-list li{ margin:6px 0; line-height:1.8; font-size:14px; }
-    @media (max-width:980px){ .goods-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
-    @media (max-width:780px){ .goods-grid{ grid-template-columns:1fr; } .goods-toolbar{ flex-direction:column; align-items:stretch; } .toolbar-btn{ width:100%; } }
-
   </style>
 </head>
 <body>
@@ -288,90 +305,286 @@
       </nav>
     </div>
   </header>
-  
-<main class="page-shell">
-  <div class="wrap">
-    <section class="hero-mini reveal">
-      <div class="sub">반짝이는 순간을 담은 공식 굿즈</div>
-      <h1>Goods</h1>
-      <p>루미벨의 공식 굿즈를 한곳에서 만나보세요.<br>장바구니에 담거나 바로 구매할 수 있어요 ✦</p>
-    </section>
 
-    <section class="section-heading reveal">
-      <h2>GOODS</h2>
-      <p>굿즈</p>
-    </section>
+  <main class="page-shell">
+    <div class="wrap">
+      <section class="hero-mini reveal">
+        <div class="sub">굿즈 + 현장 특전권을 한곳에서 확인하는 페이지</div>
+        <h1>Goods</h1>
+        <p>공식 굿즈와 특전회 메뉴를 함께 정리했어요.<br>현장 수령 상품은 주문 후 입금 확인이 완료된 내역만 유효하며, 현장 추가 구매도 같은 기준으로 확인해요 ✦</p>
+      </section>
 
-    <div class="goods-toolbar reveal">
-      <a href="cart.html" class="toolbar-btn">장바구니 보기</a>
-      <a href="archive/" class="toolbar-btn sub">지난 굿즈 보기</a>
+      <section class="section-heading reveal">
+        <h2>GOODS & EVENT MENU</h2>
+        <p>굿즈 / 체키 / 디지털 메뉴</p>
+      </section>
+
+      <div class="goods-toolbar reveal">
+        <a href="cart.html" class="toolbar-btn">장바구니 보기</a>
+        <a href="archive/" class="toolbar-btn sub">지난 굿즈 보기</a>
+      </div>
+
+      <section class="sales-panel reveal">
+        <h3>현장 판매 운영 안내</h3>
+        <p>현장에서도 홈페이지에서 상품을 보고 바로 주문할 수 있게 구성했어요. 주문 내역과 입금 내역을 대조한 뒤 상품 또는 특전권을 전달하는 방식이라 판매 기록을 남기기 쉽고, 멤버별 정산도 편하게 정리할 수 있어요.</p>
+        <div class="sales-grid">
+          <div class="sales-chip"><strong>1. 주문 등록</strong><span>팬이 페이지에서 상품 선택 후 주문서를 작성해요. 주문번호가 생성되도록 연결하면 가장 좋아요.</span></div>
+          <div class="sales-chip"><strong>2. 입금 확인</strong><span>입금 확인 전 상태는 미확정이에요. 장난 주문 방지를 위해 입금 완료 건만 유효 주문으로 처리해요.</span></div>
+          <div class="sales-chip"><strong>3. 현장 수령</strong><span>주문번호 또는 이름 + 입금자명으로 대조 후 티켓이나 상품을 전달하면 돼요.</span></div>
+        </div>
+      </section>
+
+      <div class="category-filter reveal" id="categoryFilter">
+        <button class="active" type="button" data-category="all">ALL</button>
+        <button type="button" data-category="goods">GOODS</button>
+        <button type="button" data-category="cheki">CHEKI</button>
+        <button type="button" data-category="digital">DIGITAL</button>
+      </div>
+
+      <section class="goods-grid reveal" id="goodsGrid">
+        <article class="goods-card goods" data-category="goods">
+          <span class="goods-badge sale">AVAILABLE</span>
+          <div class="goods-image">
+            <img src="../img/goods/lumibelle-debut-tshirt.webp" alt="루미벨 데뷔 티셔츠" onerror="this.closest('.goods-image').innerHTML='<div class=&quot;image-ticket&quot;><div class=&quot;ticket-face&quot;><div class=&quot;ticket-type&quot;>OFFICIAL GOODS</div><div class=&quot;ticket-name&quot;>DEBUT T-SHIRT</div><div class=&quot;ticket-sub&quot;>공식 티셔츠</div></div></div>'">
+          </div>
+          <div class="goods-body">
+            <div class="goods-label">✦ DEBUT LIMITED</div>
+            <h3 class="goods-name">루미벨 데뷔 티셔츠</h3>
+            <p class="goods-desc">루미벨의 데뷔 라이브를 기념한 첫 공식 티셔츠입니다. 현재 테스트용으로 구매 버튼 하나는 열어둔 상태예요.</p>
+            <div class="goods-meta"><div class="goods-price">₩30,000</div><div class="goods-stock">배송 상품</div></div>
+            <div class="goods-actions">
+              <a href="cart.html?add=tshirt" class="goods-btn cart">장바구니</a>
+              <a href="order.html?item=tshirt&mode=direct" class="goods-btn buy">구매하기</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="goods-card preview-card goods" data-category="goods">
+          <span class="goods-badge ready">PREVIEW</span>
+          <div class="goods-image">
+            <img src="../img/goods/lumibelle-acrylic-stand.webp" alt="아크릴 스탠드" onerror="this.closest('.goods-image').innerHTML='<div class=&quot;image-ticket&quot;><div class=&quot;ticket-face&quot;><div class=&quot;ticket-type&quot;>COMING SOON</div><div class=&quot;ticket-name&quot;>ACRYLIC STAND</div><div class=&quot;ticket-sub&quot;>준비 중</div></div></div>'">
+          </div>
+          <div class="goods-body">
+            <div class="goods-label preview">✦ COMING SOON</div>
+            <h3 class="goods-name">아크릴 스탠드</h3>
+            <p class="goods-desc">멤버별 아크릴 스탠드 굿즈입니다. 판매 전에는 상품 정보를 먼저 확인할 수 있도록 PREVIEW 상태로 두었어요.</p>
+            <div class="goods-meta"><div class="goods-price">₩12,000</div><div class="goods-stock">출시 준비 중</div></div>
+            <div class="goods-actions">
+              <span class="goods-btn cart disabled">준비 중</span>
+              <span class="goods-btn buy disabled">COMING SOON</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="goods-card preview-card goods" data-category="goods">
+          <span class="goods-badge ready">PREVIEW</span>
+          <div class="goods-image">
+            <img src="../img/goods/lumibelle-photocard-set.webp" alt="포토카드 세트" onerror="this.closest('.goods-image').innerHTML='<div class=&quot;image-ticket&quot;><div class=&quot;ticket-face&quot;><div class=&quot;ticket-type&quot;>COMING SOON</div><div class=&quot;ticket-name&quot;>PHOTO CARD SET</div><div class=&quot;ticket-sub&quot;>초회 굿즈</div></div></div>'">
+          </div>
+          <div class="goods-body">
+            <div class="goods-label preview">✦ COMING SOON</div>
+            <h3 class="goods-name">포토카드 세트</h3>
+            <p class="goods-desc">반짝이는 순간을 담은 포토카드 세트입니다. 초회 굿즈 라인으로 준비 중이라 현재는 상세만 먼저 열어둔 상태예요.</p>
+            <div class="goods-meta"><div class="goods-price">₩8,000</div><div class="goods-stock">초회 굿즈 준비 중</div></div>
+            <div class="goods-actions">
+              <span class="goods-btn cart disabled">준비 중</span>
+              <span class="goods-btn buy disabled">COMING SOON</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="goods-card cheki" data-category="cheki">
+          <span class="goods-badge event">CHEKI</span>
+          <div class="goods-image member-mariring">
+            <div class="image-ticket">
+              <div class="ticket-face">
+                <div class="ticket-type">EVENT MENU</div>
+                <div class="ticket-name">마리링 특전권</div>
+                <div class="ticket-sub">핀체키 / 혼자 · 90초 · 테코 포함</div>
+              </div>
+            </div>
+          </div>
+          <div class="goods-body">
+            <div class="goods-label">✦ MARIRING CHEKI</div>
+            <h3 class="goods-name">마리링 개별 특전권</h3>
+            <p class="goods-desc">마리링과 진행하는 개별 체키 메뉴입니다. 핀체키 기준 1매 7,000원이며, 현장 수령 전용으로 관리하면 정산하기 편해요.</p>
+            <div class="goods-meta"><div class="goods-price">₩7,000</div><div class="goods-stock">현장 수령 전용</div></div>
+            <div class="goods-actions">
+              <a href="cart.html?add=mariring-cheki" class="goods-btn cart">장바구니</a>
+              <span class="goods-btn buy disabled">준비 중</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="goods-card cheki" data-category="cheki">
+          <span class="goods-badge event">CHEKI</span>
+          <div class="goods-image member-ruru">
+            <div class="image-ticket">
+              <div class="ticket-face">
+                <div class="ticket-type">EVENT MENU</div>
+                <div class="ticket-name">루루 특전권</div>
+                <div class="ticket-sub">핀체키 / 혼자 · 90초 · 테코 포함</div>
+              </div>
+            </div>
+          </div>
+          <div class="goods-body">
+            <div class="goods-label">✦ LULU CHEKI</div>
+            <h3 class="goods-name">루루 개별 특전권</h3>
+            <p class="goods-desc">루루 전용 체키권입니다. 멤버별로 상품을 분리해두면 현장 대조도 쉽고 멤버 정산표 만들기도 편해져요.</p>
+            <div class="goods-meta"><div class="goods-price">₩7,000</div><div class="goods-stock">현장 수령 전용</div></div>
+            <div class="goods-actions">
+              <a href="cart.html?add=lulu-cheki" class="goods-btn cart">장바구니</a>
+              <span class="goods-btn buy disabled">준비 중</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="goods-card cheki" data-category="cheki">
+          <span class="goods-badge event">CHEKI</span>
+          <div class="goods-image member-iro">
+            <div class="image-ticket">
+              <div class="ticket-face">
+                <div class="ticket-type">EVENT MENU</div>
+                <div class="ticket-name">이로 특전권</div>
+                <div class="ticket-sub">핀체키 / 혼자 · 90초 · 테코 포함</div>
+              </div>
+            </div>
+          </div>
+          <div class="goods-body">
+            <div class="goods-label">✦ IRO CHEKI</div>
+            <h3 class="goods-name">이로 개별 특전권</h3>
+            <p class="goods-desc">이로 개별 특전권입니다. 주문이 들어오면 이름, 입금자명, 멤버 정보를 함께 남겨두는 식으로 연결하는 걸 추천해요.</p>
+            <div class="goods-meta"><div class="goods-price">₩7,000</div><div class="goods-stock">현장 수령 전용</div></div>
+            <div class="goods-actions">
+              <a href="cart.html?add=iro-cheki" class="goods-btn cart">장바구니</a>
+              <span class="goods-btn buy disabled">준비 중</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="goods-card cheki" data-category="cheki">
+          <span class="goods-badge event">CHEKI</span>
+          <div class="goods-image member-lunar">
+            <div class="image-ticket">
+              <div class="ticket-face">
+                <div class="ticket-type">EVENT MENU</div>
+                <div class="ticket-name">루나 특전권</div>
+                <div class="ticket-sub">핀체키 / 혼자 · 90초 · 테코 포함</div>
+              </div>
+            </div>
+          </div>
+          <div class="goods-body">
+            <div class="goods-label">✦ LUNAR CHEKI</div>
+            <h3 class="goods-name">루나 개별 특전권</h3>
+            <p class="goods-desc">루나 전용 특전권입니다. 실제 운영 때는 주문서에서 수량과 입금 시간까지 함께 확인할 수 있게 연결하면 좋아요.</p>
+            <div class="goods-meta"><div class="goods-price">₩7,000</div><div class="goods-stock">현장 수령 전용</div></div>
+            <div class="goods-actions">
+              <a href="cart.html?add=lunar-cheki" class="goods-btn cart">장바구니</a>
+              <span class="goods-btn buy disabled">준비 중</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="goods-card digital" data-category="digital">
+          <span class="goods-badge event">DIGITAL</span>
+          <div class="goods-image digital-tone">
+            <div class="image-ticket">
+              <div class="ticket-face">
+                <div class="ticket-type">DIGITAL MENU</div>
+                <div class="ticket-name">샤메권</div>
+                <div class="ticket-sub">솔로 / 투샷 중 택1 · 90초</div>
+              </div>
+            </div>
+          </div>
+          <div class="goods-body">
+            <div class="goods-label">✦ DIGITAL MENU</div>
+            <h3 class="goods-name">샤메권 1매</h3>
+            <p class="goods-desc">샤메권은 솔로 또는 투샷 중 하나를 선택해 진행하는 디지털 메뉴예요. 보정 앱 사용을 안내하는 문구를 주문폼에 넣으면 좋아요.</p>
+            <div class="goods-meta"><div class="goods-price">₩7,000</div><div class="goods-stock">교류 90초</div></div>
+            <div class="goods-actions">
+              <a href="cart.html?add=shame" class="goods-btn cart">장바구니</a>
+              <span class="goods-btn buy disabled">준비 중</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="goods-card digital" data-category="digital">
+          <span class="goods-badge event">DIGITAL</span>
+          <div class="goods-image digital-tone">
+            <div class="image-ticket">
+              <div class="ticket-face">
+                <div class="ticket-type">DIGITAL MENU</div>
+                <div class="ticket-name">영상권</div>
+                <div class="ticket-sub">SNS 업로드 가능 · 60초 + 촬영</div>
+              </div>
+            </div>
+          </div>
+          <div class="goods-body">
+            <div class="goods-label">✦ DIGITAL MENU</div>
+            <h3 class="goods-name">영상권 1매</h3>
+            <p class="goods-desc">틱톡 및 SNS 업로드 가능 영상권이에요. 교류시간 60초, 촬영시간 별도 20초 내외 같은 안내를 상품 설명에 함께 노출했어요.</p>
+            <div class="goods-meta"><div class="goods-price">₩10,000</div><div class="goods-stock">촬영 별도</div></div>
+            <div class="goods-actions">
+              <a href="cart.html?add=video" class="goods-btn cart">장바구니</a>
+              <span class="goods-btn buy disabled">준비 중</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="goods-card digital" data-category="digital">
+          <span class="goods-badge event">DIGITAL</span>
+          <div class="goods-image digital-tone">
+            <div class="image-ticket">
+              <div class="ticket-face">
+                <div class="ticket-type">DIGITAL MENU</div>
+                <div class="ticket-name">단체 촬영권</div>
+                <div class="ticket-sub">체키/샤메 중 1택 · 180초</div>
+              </div>
+            </div>
+          </div>
+          <div class="goods-body">
+            <div class="goods-label">✦ DIGITAL MENU</div>
+            <h3 class="goods-name">단체 촬영권 1매</h3>
+            <p class="goods-desc">체키 또는 샤메 중 하나를 선택하는 단체 촬영권입니다. 금액은 별도 문의 기준으로 비워두고, 스태프 안내형 문구를 유지했어요.</p>
+            <div class="goods-meta"><div class="goods-price">₩30,000</div><div class="goods-stock">스태프 문의형</div></div>
+            <div class="goods-actions">
+              <a href="cart.html?add=group-photo" class="goods-btn cart">장바구니</a>
+              <span class="goods-btn buy disabled">준비 중</span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="menu-preview-grid reveal">
+        <article class="menu-preview-card">
+          <img src="7baaa212-e124-49de-8ceb-b747b3ba65f9.png" alt="루미벨 체키 메뉴 이미지" />
+          <div class="caption">
+            <strong>CHEKI MENU REFERENCE</strong>
+            멤버별 개별 특전권 구조를 넣기 위해 참고한 체키 메뉴 이미지예요. 핀체키 / 투샷체키 / 숙제체키처럼 세부 구성을 상세 페이지나 주문폼으로 확장할 수 있어요.
+          </div>
+        </article>
+        <article class="menu-preview-card">
+          <img src="ded96875-844e-4a6d-b492-64ef42444bc5.png" alt="루미벨 디지털 메뉴 이미지" />
+          <div class="caption">
+            <strong>DIGITAL MENU REFERENCE</strong>
+            샤메권 / 영상권 / 단체 촬영권 정보가 정리된 디지털 메뉴 레퍼런스예요. 보정 앱 권장, 촬영 시간, 업로드 가능 여부 같은 안내를 상품 카드에 녹였어요.
+          </div>
+        </article>
+      </section>
+
+      <section class="notice-card reveal">
+        <h3>주문 및 현장 수령 안내</h3>
+        <p>특전권과 현장 수령 상품은 배송이 아닌 현장 전달 기준으로 운영하는 구조예요. 주문 내역과 입금 내역을 대조해 확인한 뒤 전달하면 장난 주문을 줄이고, 판매 기록을 그대로 정산표로 활용할 수 있어요.</p>
+        <ul class="notice-list">
+          <li>현장 수령 전용 상품은 입금 확인 완료 주문만 유효합니다.</li>
+          <li>주문 후 일정 시간 내 미입금 건은 취소 대상으로 정리하는 방식을 추천합니다.</li>
+          <li>입금자명 규칙을 주문서에 함께 안내하면 현장 확인 속도가 훨씬 빨라집니다.</li>
+          <li>멤버별 특전권은 상품을 분리해두면 판매량 집계와 멤버 정산이 쉬워집니다.</li>
+          <li>현장 직접 구매도 같은 주문 흐름을 사용하면 온라인 / 현장 기록을 한곳에 모을 수 있습니다.</li>
+        </ul>
+      </section>
     </div>
-
-    <section class="goods-grid reveal">
-      <article class="goods-card">
-        <span class="goods-badge sale">AVAILABLE</span>
-        <div class="goods-image">
-          <img src="../img/goods/lumibelle-debut-tshirt.webp" alt="루미벨 데뷔 티셔츠" onerror="this.closest('.goods-image').innerHTML='<div class=&quot;placeholder&quot;>GOODS IMAGE</div>'">
-        </div>
-        <div class="goods-body">
-          <div class="goods-label">✦ DEBUT LIMITED</div>
-          <h3 class="goods-name">루미벨 데뷔 티셔츠</h3>
-          <p class="goods-desc">루미벨의 데뷔 라이브를 기념한 첫 공식 티셔츠입니다. 부드러운 컬러감과 편하게 입기 좋은 핏으로 준비했어요.</p>
-          <div class="goods-meta"><div class="goods-price">₩30,000</div><div class="goods-stock">데뷔 한정 굿즈</div></div>
-          <div class="goods-actions">
-            <a href="cart.html?add=tshirt" class="goods-btn cart">장바구니</a>
-            <a href="order.html?item=tshirt&mode=direct" class="goods-btn buy">구매하기</a>
-          </div>
-        </div>
-      </article>
-
-      <article class="goods-card">
-        <span class="goods-badge ready">PREVIEW</span>
-        <div class="goods-image">
-          <img src="../img/goods/lumibelle-acrylic-stand.webp" alt="아크릴 스탠드" onerror="this.closest('.goods-image').innerHTML='<div class=&quot;placeholder&quot;>GOODS IMAGE</div>'">
-        </div>
-        <div class="goods-body">
-          <div class="goods-label preview">✦ COMING SOON</div>
-          <h3 class="goods-name">아크릴 스탠드</h3>
-          <p class="goods-desc">멤버의 분위기를 담은 아크릴 스탠드입니다. 책상이나 선반에 올려두기 좋은 사이즈로 준비 중이에요.</p>
-          <div class="goods-meta"><div class="goods-price">₩12,000</div><div class="goods-stock">출시 준비 중</div></div>
-          <div class="goods-actions">
-            <span class="goods-btn cart disabled">준비 중</span>
-            <span class="goods-btn buy disabled">COMING SOON</span>
-          </div>
-        </div>
-      </article>
-
-      <article class="goods-card">
-        <span class="goods-badge ready">PREVIEW</span>
-        <div class="goods-image">
-          <img src="../img/goods/lumibelle-photocard-set.webp" alt="포토카드 세트" onerror="this.closest('.goods-image').innerHTML='<div class=&quot;placeholder&quot;>GOODS IMAGE</div>'">
-        </div>
-        <div class="goods-body">
-          <div class="goods-label preview">✦ COMING SOON</div>
-          <h3 class="goods-name">포토카드 세트</h3>
-          <p class="goods-desc">루미벨의 반짝이는 순간들을 모은 포토카드 세트입니다. 소장용으로 가볍게 즐기기 좋은 초회 굿즈로 준비 중이에요.</p>
-          <div class="goods-meta"><div class="goods-price">₩8,000</div><div class="goods-stock">초회 굿즈 준비 중</div></div>
-          <div class="goods-actions">
-            <span class="goods-btn cart disabled">준비 중</span>
-            <span class="goods-btn buy disabled">COMING SOON</span>
-          </div>
-        </div>
-      </article>
-    </section>
-
-    <section class="notice-card reveal">
-      <h3>주문 안내</h3>
-      <p>1개만 구매해도 바로 주문 페이지로 이동할 수 있고, 여러 개는 장바구니에 담아 한 번에 주문할 수 있어요.<br>
-      배송비는 기본 6,000원이며 제주 및 도서산간 지역은 별도 안내 후 함께 입금해 주세요.</p>
-      <ul class="notice-list">
-        <li>판매 준비 전 상품은 COMING SOON 상태로 표시되며 주문이 열리지 않습니다.</li>
-        <li>입금 확인 후 순차적으로 발송되며, 자세한 일정은 공지사항에서 안내됩니다.</li>
-        <li>데뷔 한정 상품은 준비 수량 소진 시 조기 마감될 수 있습니다.</li>
-      </ul>
-    </section>
-  </div>
-</main>
+  </main>
 
   <footer>© 2026 Lumibelle All Rights Reserved.</footer>
   <button class="back-to-top" id="backToTop" aria-label="맨 위로 이동">↑</button>
@@ -394,7 +607,24 @@
       revealItems.forEach((el) => revealObserver.observe(el));
     }
 
-    document.querySelectorAll('nav a, .toolbar-btn, .goods-btn, .cta-btn, .back, .address-search-btn, .submit-btn').forEach((el) => {
+    const filterButtons = document.querySelectorAll('#categoryFilter button');
+    const goodsCards = document.querySelectorAll('#goodsGrid .goods-card');
+
+    function setCategory(category){
+      filterButtons.forEach((button) => {
+        button.classList.toggle('active', button.dataset.category === category);
+      });
+      goodsCards.forEach((card) => {
+        const show = category === 'all' || card.dataset.category === category;
+        card.classList.toggle('is-hidden', !show);
+      });
+    }
+
+    filterButtons.forEach((button) => {
+      button.addEventListener('click', () => setCategory(button.dataset.category));
+    });
+
+    document.querySelectorAll('nav a, .toolbar-btn, .goods-btn, .cta-btn, .back, .address-search-btn, .submit-btn, .category-filter button').forEach((el) => {
       el.addEventListener('click', function(){
         this.classList.remove('click-shine');
         void this.offsetWidth;
@@ -403,7 +633,7 @@
       });
     });
 
-    document.querySelectorAll('.toolbar-btn, .goods-btn, .cta-btn, .back, .address-search-btn, .submit-btn').forEach((btn) => {
+    document.querySelectorAll('.toolbar-btn, .goods-btn, .cta-btn, .back, .address-search-btn, .submit-btn, .category-filter button').forEach((btn) => {
       btn.addEventListener('click', function(e){
         const old = this.querySelector('.ripple-effect');
         if (old) old.remove();
@@ -424,48 +654,46 @@
         const petalCount = 8, sparkCount = 4;
         const makeBurst = (cls, count, minD, maxD) => {
           for(let i=0;i<count;i++){
-            const el = document.createElement("span");
+            const el = document.createElement('span');
             el.className = cls;
             const angle = (Math.PI * 2 / count) * i + (Math.random() * 0.35 - 0.175);
             const distance = minD + Math.random() * (maxD - minD);
-            el.style.setProperty("--x", Math.cos(angle) * distance + "px");
-            el.style.setProperty("--y", Math.sin(angle) * distance + "px");
-            el.style.left = x + "px";
-            el.style.top = y + "px";
+            el.style.setProperty('--x', Math.cos(angle) * distance + 'px');
+            el.style.setProperty('--y', Math.sin(angle) * distance + 'px');
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
             document.body.appendChild(el);
             setTimeout(() => el.remove(), 850);
           }
         };
-        makeBurst("burst-petal", petalCount, 18, 56);
-        makeBurst("burst-spark", sparkCount, 26, 70);
+        makeBurst('burst-petal', petalCount, 18, 56);
+        makeBurst('burst-spark', sparkCount, 26, 70);
       }
 
-      document.addEventListener("pointerdown", function(e){
-        const target = e.target.closest("nav a, button, .toolbar-btn, .goods-btn, .cta-btn, .back, .address-search-btn, .submit-btn");
+      document.addEventListener('pointerdown', function(e){
+        const target = e.target.closest('nav a, button, .toolbar-btn, .goods-btn, .cta-btn, .back, .address-search-btn, .submit-btn');
         if(!target) return;
         makeBurstAt(e.clientX, e.clientY);
       });
 
-      document.addEventListener("click", function(e){
-        const target = e.target.closest(".toolbar-btn, .goods-btn, .cta-btn, .back, .address-search-btn, .submit-btn");
+      document.addEventListener('click', function(e){
+        const target = e.target.closest('.toolbar-btn, .goods-btn, .cta-btn, .back, .address-search-btn, .submit-btn, .category-filter button');
         if(!target) return;
         const rect = target.getBoundingClientRect();
         for(let i=0;i<12;i++){
-          const dot = document.createElement("span");
-          dot.className = "glitter-burst";
+          const dot = document.createElement('span');
+          dot.className = 'glitter-burst';
           const angle = Math.random()*Math.PI*2;
           const distance = 40 + Math.random()*30;
-          dot.style.setProperty("--x", Math.cos(angle)*distance + "px");
-          dot.style.setProperty("--y", Math.sin(angle)*distance + "px");
-          dot.style.left = (e.clientX - rect.left) + "px";
-          dot.style.top = (e.clientY - rect.top) + "px";
+          dot.style.setProperty('--x', Math.cos(angle)*distance + 'px');
+          dot.style.setProperty('--y', Math.sin(angle)*distance + 'px');
+          dot.style.left = (e.clientX - rect.left) + 'px';
+          dot.style.top = (e.clientY - rect.top) + 'px';
           target.appendChild(dot);
           setTimeout(()=>dot.remove(), 900);
         }
       });
     })();
   </script>
-
-
 </body>
 </html>
