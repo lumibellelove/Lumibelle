@@ -23,13 +23,84 @@
       flex: 1;
     }
 
-    /* ===== nav 7칸 대응 (style.css 덮어쓰기용) ===== */
+    /* ===== nav 8칸 대응 (style.css 덮어쓰기용) ===== */
     nav{
       display:grid;
       grid-template-columns:repeat(7, minmax(100px,1fr));
       gap:10px;
       text-align:center;
       align-items:center;
+    }
+
+
+
+    /* ===== 홈 확장 허브 메뉴 ===== */
+    .home-hub-nav {
+      margin-top: 14px;
+      margin-bottom: 10px;
+      padding: 0 6px;
+    }
+
+    .home-hub-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .home-hub-card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 88px;
+      border-radius: 22px;
+      border: 1px solid #f2d8e7;
+      background: linear-gradient(180deg, #fff7fb 0%, #fff2f8 100%);
+      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.10);
+      text-decoration: none;
+      text-align: center;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+      padding: 16px 18px;
+      overflow: hidden;
+    }
+
+    .home-hub-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 28px rgba(232, 191, 211, 0.18);
+      background: linear-gradient(180deg, #fff3f9 0%, #ffeef7 100%);
+    }
+
+    .home-hub-card strong {
+      display: block;
+      color: #f35aa0;
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+    }
+
+    .home-hub-card span {
+      display: block;
+      color: #c99ab2;
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+
+    .home-hub-card.coming::after {
+      content: "COMING SOON";
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #ff73b4;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      box-shadow: 0 6px 12px rgba(255, 115, 180, 0.22);
     }
 
     /* ===== 상단 메인 비주얼 (최종 통합본) ===== */
@@ -726,6 +797,14 @@
       }
     }
 
+
+
+    @media (max-width: 980px) {
+      .home-hub-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
     @media (max-width: 980px){
       nav{
         grid-template-columns:repeat(4,1fr);
@@ -803,7 +882,11 @@
       }
 
       nav{
-        grid-template-columns:repeat(3,1fr);
+        grid-template-columns:repeat(2,1fr);
+      }
+
+      .home-hub-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -829,6 +912,27 @@
       </nav>
     </div>
   </header>
+
+
+
+  <section class="home-hub-nav">
+    <div class="wrap">
+      <div class="home-hub-grid">
+        <a href="content.html" class="home-hub-card reveal">
+          <div><strong>CONTENT</strong><span>콘텐츠</span></div>
+        </a>
+        <a href="game.html" class="home-hub-card coming reveal">
+          <div><strong>GAME</strong><span>게임존</span></div>
+        </a>
+        <a href="story.html" class="home-hub-card coming reveal">
+          <div><strong>STORY</strong><span>스토리</span></div>
+        </a>
+        <a href="event.html" class="home-hub-card coming reveal">
+          <div><strong>EVENT</strong><span>이벤트</span></div>
+        </a>
+      </div>
+    </div>
+  </section>
 
   <main class="page-shell">
     <div class="wrap">
