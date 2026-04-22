@@ -2241,18 +2241,26 @@ line-height:1.9 !important;
 
 <script>
 document.addEventListener("click", function(e){
-  const target = e.target.closest(".member-btn, .more-btn, .info-link-btn, .ticket-btn");
+  const target = e.target.closest(".member-btn, .more-btn, .info-link-btn, .ticket-btn, nav a");
   if(!target) return;
 
   const rect = target.getBoundingClientRect();
 
+  const isNavItem = !!target.closest("nav");
+  const glitterCount = isNavItem ? 8 : 12;
+  const starCount = isNavItem ? 2 : 4;
+  const glitterBase = isNavItem ? 28 : 40;
+  const glitterRange = isNavItem ? 18 : 30;
+  const starBase = isNavItem ? 36 : 50;
+  const starRange = isNavItem ? 22 : 40;
+
   // glitter
-  for(let i=0;i<12;i++){
+  for(let i=0;i<glitterCount;i++){
     const dot = document.createElement("span");
     dot.className = "glitter-burst";
 
     const angle = Math.random()*Math.PI*2;
-    const distance = 40 + Math.random()*30;
+    const distance = glitterBase + Math.random()*glitterRange;
 
     dot.style.setProperty("--x", Math.cos(angle)*distance + "px");
     dot.style.setProperty("--y", Math.sin(angle)*distance + "px");
@@ -2265,12 +2273,12 @@ document.addEventListener("click", function(e){
   }
 
   // stars
-  for(let i=0;i<4;i++){
+  for(let i=0;i<starCount;i++){
     const star = document.createElement("span");
     star.className = "star-burst";
 
     const angle = Math.random()*Math.PI*2;
-    const distance = 50 + Math.random()*40;
+    const distance = starBase + Math.random()*starRange;
 
     star.style.setProperty("--x", Math.cos(angle)*distance + "px");
     star.style.setProperty("--y", Math.sin(angle)*distance + "px");
