@@ -403,6 +403,10 @@
       box-shadow: 0 6px 16px rgba(159, 109, 224, 0.30);
     }
 
+    .mariring { background: #f35aa0; }
+    .lulu { background: linear-gradient(180deg, #FFC0D7 0%, #FFD9E8 100%); }
+    .iro { background: #B2DEFF; }
+
     .member-photo {
       width: 100%;
       height: 360px;
@@ -469,6 +473,7 @@
     /* ===== SETLIST 바로가기 카드 ===== */
     .live-guide-shortcut{
       margin-top: 52px;
+      margin-bottom: 28px;
       margin-bottom: 4px;
     }
 
@@ -635,6 +640,12 @@
       background: #fbe8f4;
       color: #c97ca8;
       border-color: #efc6dc;
+    }
+
+    .badge-media {
+      background: #eaf4ff;
+      color: #73a1da;
+      border-color: #c7def8;
     }
 
     .badge-live {
@@ -945,6 +956,10 @@
       .subnav-wrap{
         grid-template-columns:repeat(2, minmax(180px,1fr));
       }
+
+      .top-lang-bar{
+        max-width:1260px;
+      }
     }
 
     @media (max-width: 980px){
@@ -1059,55 +1074,187 @@
         font-size:14px;
       }
     }
+  
+    /* ===== reveal animation ===== */
+    .reveal{
+      opacity:0;
+      transform:translateY(22px);
+      transition:opacity .75s ease, transform .75s ease;
+      will-change:opacity, transform;
+    }
 
-    /* ===== 멤버 카드 shine 효과 수정 ===== */
-    .member-card{
+    .reveal.show{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    /* ===== menu shine hover ===== */
+    nav a,
+    .subnav-card,
+    .live-guide-card,
+    .home-card,
+    .info-link-btn,
+    .member-btn,
+    .more-btn{
       position:relative;
       overflow:hidden;
       isolation:isolate;
     }
 
-    .member-card::after{
+    nav a::after,
+    .subnav-card::after,
+    .live-guide-card::before,
+    .member-btn::after,
+    .more-btn::after,
+    .info-link-btn::after{
       content:"";
       position:absolute;
-      top:-20%;
-      left:-38%;
-      width:24%;
-      height:140%;
+      top:-35%;
+      left:-42%;
+      width:22%;
+      height:170%;
       background:linear-gradient(
         90deg,
         rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0.18) 35%,
-        rgba(255,255,255,0.42) 50%,
-        rgba(255,255,255,0.18) 65%,
+        rgba(255,255,255,.14) 35%,
+        rgba(255,255,255,.34) 50%,
+        rgba(255,255,255,.14) 65%,
         rgba(255,255,255,0) 100%
       );
-      transform:skewX(-24deg) translateX(0);
+      transform:skewX(-22deg) translateX(0);
       opacity:0;
       pointer-events:none;
       z-index:2;
-      will-change:transform, opacity;
     }
 
-    .member-card:hover::after{
-      animation:memberShine 0.95s ease forwards;
+    nav a:hover::after,
+    .subnav-card:hover::after,
+    .member-btn:hover::after,
+    .more-btn:hover::after,
+    .info-link-btn:hover::after{
+      animation:shineSweep .9s ease forwards;
     }
 
-    @keyframes memberShine{
-      0%{
+    .live-guide-card:hover::before{
+      animation:shineSweep 1s ease forwards;
+    }
+
+    @keyframes shineSweep{
+      0%{opacity:0; transform:skewX(-22deg) translateX(0);}
+      12%{opacity:1;}
+      100%{opacity:0; transform:skewX(-22deg) translateX(640%);}
+    }
+
+    /* ===== extra hover polish ===== */
+    .home-card:hover{
+      transform:translateY(-3px);
+      box-shadow:0 14px 28px rgba(232,191,211,.18);
+    }
+
+    .subnav-card:hover{
+      transform:translateY(-4px) scale(1.01);
+    }
+
+    .member-card:hover{
+      transform:translateY(-7px) scale(1.01);
+    }
+
+    /* ===== button ripple ===== */
+    .ripple-effect{
+      position:absolute;
+      border-radius:50%;
+      transform:scale(0);
+      animation:ripple .65s ease-out forwards;
+      background:rgba(255,255,255,.35);
+      pointer-events:none;
+      z-index:3;
+    }
+
+    @keyframes ripple{
+      to{
+        transform:scale(4.2);
         opacity:0;
-        transform:skewX(-24deg) translateX(0);
       }
-      10%{
-        opacity:1;
+    }
+
+    /* ===== hero sparkles ===== */
+    .hero-banner{
+      transform:translateZ(0);
+    }
+
+    .hero-banner .hero-particles{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      z-index:1;
+      overflow:hidden;
+    }
+
+    .hero-banner .hero-particles span{
+      position:absolute;
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:rgba(255,255,255,.72);
+      box-shadow:0 0 14px rgba(255,255,255,.55);
+      animation:particleFloat linear infinite;
+      opacity:.0;
+    }
+
+    .hero-banner .hero-particles span::before,
+    .hero-banner .hero-particles span::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      margin:auto;
+      background:rgba(255,255,255,.75);
+      border-radius:999px;
+    }
+
+    .hero-banner .hero-particles span::before{
+      width:2px;
+      height:14px;
+      left:3px;
+      top:-3px;
+    }
+
+    .hero-banner .hero-particles span::after{
+      width:14px;
+      height:2px;
+      left:-3px;
+      top:3px;
+    }
+
+    .hero-banner .hero-particles span:nth-child(1){left:8%; top:68%; animation-duration:11s; animation-delay:-1s; transform:scale(.9);}
+    .hero-banner .hero-particles span:nth-child(2){left:18%; top:28%; animation-duration:13s; animation-delay:-5s; transform:scale(1.1);}
+    .hero-banner .hero-particles span:nth-child(3){left:34%; top:18%; animation-duration:10s; animation-delay:-2s; transform:scale(.8);}
+    .hero-banner .hero-particles span:nth-child(4){left:56%; top:20%; animation-duration:14s; animation-delay:-7s; transform:scale(1);}
+    .hero-banner .hero-particles span:nth-child(5){left:70%; top:62%; animation-duration:12s; animation-delay:-4s; transform:scale(1.2);}
+    .hero-banner .hero-particles span:nth-child(6){left:84%; top:26%; animation-duration:15s; animation-delay:-6s; transform:scale(.85);}
+
+    @keyframes particleFloat{
+      0%{opacity:0; transform:translate3d(0,8px,0) scale(.7) rotate(0deg);}
+      15%{opacity:.85;}
+      50%{opacity:.95;}
+      85%{opacity:.35;}
+      100%{opacity:0; transform:translate3d(0,-18px,0) scale(1.12) rotate(28deg);}
+    }
+
+    /* ===== mobile soften ===== */
+    @media (prefers-reduced-motion: reduce){
+      .reveal,
+      .member-card::after,
+      nav a::after,
+      .subnav-card::after,
+      .member-btn::after,
+      .more-btn::after,
+      .info-link-btn::after,
+      .live-guide-card::before,
+      .hero-banner .hero-particles span{
+        animation:none !important;
+        transition:none !important;
       }
-      85%{
-        opacity:0.95;
-      }
-      100%{
-        opacity:0;
-        transform:skewX(-24deg) translateX(620%);
-      }
+      .reveal{opacity:1; transform:none;}
     }
 
   </style>
@@ -1174,7 +1321,10 @@
   <main class="page-shell">
     <div class="wrap">
 
-      <section class="hero-banner reveal">
+      <section class="hero-banner reveal" id="heroBanner">
+        <div class="hero-particles" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
         <div class="slide active" style="background-image: url('hero.png');"></div>
         <div class="slide" style="background-image: url('hero2.png');"></div>
         <div class="slide" style="background-image: url('hero3.png');"></div>
@@ -1470,5 +1620,41 @@
       }, 1200);
     });
   </script>
+
+  <script>
+    document.querySelectorAll('.member-btn, .more-btn, .info-link-btn, .ticket-btn').forEach((btn) => {
+      btn.addEventListener('click', function(e){
+        const old = this.querySelector('.ripple-effect');
+        if (old) old.remove();
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple-effect';
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height) * 0.9;
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+        ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+        this.appendChild(ripple);
+        ripple.addEventListener('animationend', () => ripple.remove());
+      });
+    });
+
+    const heroBanner = document.getElementById('heroBanner');
+    if (heroBanner) {
+      heroBanner.addEventListener('pointermove', (e) => {
+        const rect = heroBanner.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width - 0.5) * 10;
+        const y = ((e.clientY - rect.top) / rect.height - 0.5) * 8;
+        const inner = heroBanner.querySelector('.hero-inner');
+        if (inner) {
+          inner.style.transform = `translate(${x * -0.35}px, ${y * -0.28}px)`;
+        }
+      });
+      heroBanner.addEventListener('pointerleave', () => {
+        const inner = heroBanner.querySelector('.hero-inner');
+        if (inner) inner.style.transform = 'translate(0, 0)';
+      });
+    }
+  </script>
+
 </body>
 </html>
