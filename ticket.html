@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lumibelle | Ticket</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800&display=swap');
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      background:linear-gradient(180deg,#fffafd 0%,#fff7fb 100%);
+      color:#7f6a77;
+      font-family:"SUIT","Noto Sans KR",sans-serif;
+      letter-spacing:-0.01em;
+    }
+    a{text-decoration:none;color:inherit}
+    main.page-shell{flex:1}
+
+    .top-lang-bar{
+      width:100%;
+      max-width:1260px;
+      margin:16px auto 0;
+      display:flex;
+      justify-content:flex-end;
+      padding:0 34px 0 18px;
+    }
+    .lang-switch{display:flex;gap:10px}
+    .lang-switch a{
+      display:inline-flex;align-items:center;justify-content:center;
+      min-width:42px;height:36px;padding:0 10px;border-radius:999px;
+      background:#fff;border:1px solid #f0bfd4;color:#d27ca8;
+      font-size:12px;font-weight:900;
+      box-shadow:0 4px 10px rgba(255,95,165,0.08);
+      transition:.18s ease;
+    }
+    .lang-switch a:hover,.lang-switch a.active{background:#fff0f7;color:#ff59a5}
+
+    .header-box{display:flex;align-items:center;gap:24px}
+    nav{
+      display:grid;
+      grid-template-columns:1.02fr 1.02fr 1.06fr 1.08fr .92fr 1.08fr .88fr 1.06fr;
+      gap:18px;
+      text-align:center;
+      align-items:center;
+      flex:1;
+      margin:0 20px;
+    }
+    nav a{
+      position:relative;
+      width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      min-width:0;border-radius:22px;
+      padding:10px 6px;
+    }
+    nav a b, nav a span{display:block;width:100%;text-align:center;white-space:nowrap}
+    nav a b{font-size:1.2em;font-weight:700;color:#d97ca9}
+    nav a span{font-size:.94em;color:#c697b1;margin-top:6px}
+    nav a.current::before, nav a:hover::before, nav a:focus-visible::before{
+      content:"";position:absolute;inset:0;border-radius:22px;z-index:-1;
+      background:linear-gradient(90deg,
+        rgba(255,217,232,0.00) 0%,
+        rgba(255,217,232,0.14) 16%,
+        rgba(255,192,215,0.16) 36%,
+        rgba(255,192,215,0.20) 50%,
+        rgba(255,192,215,0.16) 64%,
+        rgba(255,217,232,0.14) 84%,
+        rgba(255,217,232,0.00) 100%);
+    }
+    nav a.current b, nav a:hover b{color:#ff59a5}
+    nav a.current span, nav a:hover span{color:#d88dad}
+
+    .ticket-hero{
+      margin-top:18px;
+      padding:58px 56px 54px;
+      border:1px solid #f2d8e7;
+      border-radius:32px;
+      background:
+        radial-gradient(circle at top right, rgba(255,216,232,.85), rgba(255,216,232,0) 34%),
+        linear-gradient(135deg,#fff3f9 0%,#fffafc 45%,#f8f1ff 100%);
+      box-shadow:0 10px 28px rgba(232,191,211,.12);
+      position:relative;
+      overflow:hidden;
+    }
+    .ticket-hero::after{
+      content:"";position:absolute;right:-40px;top:-50px;width:260px;height:260px;border-radius:50%;
+      background:radial-gradient(circle, rgba(255,255,255,.8) 0%, rgba(255,255,255,0) 70%);
+      pointer-events:none;
+    }
+    .eyebrow{
+      color:#ff5aa6;font-size:18px;font-weight:800;margin-bottom:12px;
+    }
+    .hero-title{
+      margin:0;
+      font-family:"Cormorant Garamond",serif;
+      font-size:82px;
+      line-height:.92;
+      font-weight:600;
+      color:#ff5aa6;
+      text-shadow:0 1px 0 rgba(255,255,255,.98),0 0 10px rgba(255,120,178,.22);
+    }
+    .hero-sub{
+      margin:14px 0 0;
+      color:#c792b0;
+      font-size:24px;
+      font-weight:700;
+    }
+    .hero-desc{
+      margin:20px 0 0;
+      max-width:760px;
+      color:#8f7183;
+      line-height:1.85;
+      font-size:17px;
+      font-weight:600;
+    }
+
+    .ticket-grid{
+      display:grid;
+      grid-template-columns:1.14fr .86fr;
+      gap:22px;
+      margin-top:22px;
+      align-items:start;
+    }
+    .panel{
+      background:#fff5fb;
+      border:1px solid #f2d8e7;
+      border-radius:28px;
+      box-shadow:0 8px 24px rgba(232,191,211,.12);
+      overflow:hidden;
+    }
+    .panel-head{
+      padding:28px 28px 20px;
+      text-align:center;
+      border-bottom:1px solid #f2d8e7;
+      background:linear-gradient(180deg,rgba(255,255,255,.45) 0%, rgba(255,255,255,0) 100%);
+    }
+    .panel-head h2{
+      margin:0;
+      color:#d67faa;
+      font-size:46px;
+      line-height:1;
+      font-weight:900;
+    }
+    .panel-head p{
+      margin:8px 0 0;
+      color:#c89fb5;
+      font-size:15px;
+      font-weight:700;
+    }
+    .panel-body{padding:26px 28px 30px}
+
+    .showcase{
+      display:grid;
+      grid-template-columns:260px 1fr;
+      gap:24px;
+      align-items:start;
+    }
+    .poster{
+      border-radius:24px;
+      overflow:hidden;
+      border:1px solid #f0dde8;
+      background:#fff;
+      aspect-ratio:3 / 4;
+      min-height:340px;
+      box-shadow:0 8px 18px rgba(255,95,165,.08);
+    }
+    .poster img{width:100%;height:100%;object-fit:cover;display:block}
+    .poster-fallback{
+      width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;
+      background:linear-gradient(135deg,#ffe7f2 0%,#f7efff 100%);
+      color:#d77ca7;text-align:center;padding:22px;
+    }
+    .poster-fallback strong{font-size:26px;font-weight:900;line-height:1.15}
+    .poster-fallback span{margin-top:10px;font-size:14px;font-weight:700;color:#b98ba5}
+
+    .show-info h3{
+      margin:0 0 14px;
+      color:#ff59a5;
+      font-size:32px;
+      line-height:1.2;
+      font-weight:900;
+    }
+    .show-info p{
+      margin:0 0 18px;
+      color:#8f7183;
+      font-size:15.5px;
+      line-height:1.85;
+      font-weight:600;
+    }
+    .ticket-meta{
+      display:grid;
+      grid-template-columns:140px 1fr;
+      gap:12px 16px;
+      margin-top:8px;
+      padding:20px 22px;
+      border-radius:22px;
+      background:#fff;
+      border:1px solid #f0dde8;
+    }
+    .ticket-meta dt{
+      margin:0;
+      color:#c792b0;
+      font-weight:800;
+      font-size:14px;
+    }
+    .ticket-meta dd{
+      margin:0;
+      color:#7f6a77;
+      font-size:14px;
+      font-weight:700;
+      line-height:1.7;
+    }
+
+    .badge-row{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 18px}
+    .pill{
+      display:inline-flex;align-items:center;justify-content:center;
+      padding:9px 14px;border-radius:999px;
+      font-size:12px;font-weight:900;line-height:1;
+      border:1px solid #f0bfd4;background:#fff;color:#d27ca8;
+    }
+    .pill.hot{background:#ff59a5;color:#fff;border-color:#ff59a5;box-shadow:0 8px 18px rgba(255,89,165,.22)}
+
+    .guide-list, .notice-list{
+      display:grid;
+      gap:14px;
+      margin:0;
+      padding:0;
+      list-style:none;
+    }
+    .guide-item, .notice-item{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      padding:16px 18px;
+      border-radius:20px;
+      background:#fff;
+      border:1px solid #f0dde8;
+    }
+    .guide-num, .notice-icon{
+      flex:0 0 auto;
+      width:28px;height:28px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:13px;font-weight:900;
+      background:linear-gradient(180deg,#ff8ac2 0%,#ff5fa8 100%);
+      color:#fff;
+      box-shadow:0 8px 16px rgba(255,95,165,.22);
+    }
+    .guide-text strong, .notice-text strong{
+      display:block;
+      color:#d77ca7;
+      font-size:15px;
+      font-weight:900;
+      margin-bottom:4px;
+    }
+    .guide-text span, .notice-text span{
+      display:block;
+      color:#8f7183;
+      font-size:14px;
+      line-height:1.7;
+      font-weight:600;
+    }
+
+    .cta-box{
+      margin-top:18px;
+      padding:24px 22px;
+      border-radius:24px;
+      background:linear-gradient(135deg,#fff0f7 0%,#f7efff 100%);
+      border:1px solid #f0d5e5;
+      text-align:center;
+    }
+    .cta-box h3{
+      margin:0;
+      color:#ff59a5;
+      font-size:30px;
+      line-height:1.1;
+      font-weight:900;
+    }
+    .cta-box p{
+      margin:12px auto 0;
+      max-width:480px;
+      color:#8f7183;
+      font-size:14.5px;
+      line-height:1.8;
+      font-weight:600;
+    }
+    .cta-actions{
+      margin-top:18px;
+      display:flex;
+      gap:12px;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+    .cta-btn{
+      display:inline-flex;align-items:center;justify-content:center;
+      min-width:220px;padding:15px 22px;border-radius:999px;
+      font-size:15px;font-weight:900;
+      transition:transform .18s ease, filter .18s ease, box-shadow .18s ease;
+    }
+    .cta-btn.primary{
+      color:#fff;
+      background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);
+      box-shadow:0 10px 22px rgba(255,95,165,.25);
+    }
+    .cta-btn.secondary{
+      color:#d27ca8;background:#fff;border:1px solid #f0bfd4;
+      box-shadow:0 8px 18px rgba(255,95,165,.08);
+    }
+    .cta-btn:hover{transform:translateY(-2px);filter:brightness(1.02)}
+
+    .faq-section{margin-top:22px}
+    .faq-card{padding:26px 28px 30px}
+    .faq-card h2{
+      margin:0 0 16px;
+      color:#d67faa;
+      font-size:38px;
+      line-height:1.05;
+      font-weight:900;
+      text-align:center;
+    }
+    .faq-card p.sub{
+      margin:0 0 22px;
+      text-align:center;color:#c89fb5;font-size:15px;font-weight:700;
+    }
+
+    .back-to-top{
+      position:fixed;right:22px;bottom:22px;width:56px;height:56px;border:none;border-radius:50%;
+      background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);color:#fff;font-size:22px;font-weight:900;
+      cursor:pointer;box-shadow:0 12px 22px rgba(255,95,165,.28);z-index:1200;opacity:0;visibility:hidden;
+      transform:translateY(8px);transition:all .2s ease;
+    }
+    .back-to-top.show{opacity:1;visibility:visible;transform:translateY(0)}
+
+    footer{text-align:center;padding:28px 16px 40px;color:#c6a2b4;font-size:14px}
+
+    @media (max-width:1180px){
+      nav{grid-template-columns:repeat(4,1fr)}
+      .ticket-grid{grid-template-columns:1fr}
+    }
+    @media (max-width:980px){
+      .header-box{flex-wrap:wrap;justify-content:center}
+      nav{grid-template-columns:repeat(4,1fr);width:100%;margin:0}
+      .top-lang-bar{justify-content:center}
+      .ticket-hero{padding:44px 26px 42px}
+      .hero-title{font-size:66px}
+      .showcase{grid-template-columns:1fr}
+      .poster{max-width:360px;margin:0 auto}
+    }
+    @media (max-width:780px){
+      nav{grid-template-columns:repeat(2,1fr);gap:12px}
+      .hero-title{font-size:56px}
+      .hero-sub{font-size:21px}
+      .hero-desc{font-size:15px}
+      .panel-head h2{font-size:34px}
+      .show-info h3{font-size:28px}
+      .ticket-meta{grid-template-columns:1fr}
+      .cta-btn{min-width:100%}
+    }
+  </style>
+</head>
+<body>
+  <div class="top-lang-bar">
+    <div class="lang-switch">
+      <a href="ticket.html" class="active">KR</a>
+      <a href="en/ticket.html">EN</a>
+      <a href="jp/ticket.html">JP</a>
+      <a href="cn/ticket.html">CN</a>
+    </div>
+  </div>
+
+  <header>
+    <div class="wrap header-box">
+      <div class="logo">
+        <a href="index.html">
+          <picture>
+            <source srcset="img/logo.webp?v=3" type="image/webp">
+            <img src="img/logo.png?v=3" alt="Lumibelle 로고" loading="eager" decoding="async">
+          </picture>
+        </a>
+      </div>
+
+      <nav>
+        <a href="index.html"><b>HOME</b><span>홈</span></a>
+        <a href="news.html"><b>NEWS</b><span>공지사항</span></a>
+        <a href="member.html"><b>MEMBER</b><span>멤버 소개</span></a>
+        <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
+        <a href="ticket.html" class="current"><b>TICKET</b><span>예매</span></a>
+        <a href="goods.html"><b>GOODS</b><span>굿즈</span></a>
+        <a href="setlist.html"><b>SETLIST</b><span>응원 가이드</span></a>
+        <a href="info.html"><b>INFO</b><span>안내</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <div class="wrap">
+      <section class="ticket-hero">
+        <div class="eyebrow">빛나는 순간으로 초대할게</div>
+        <h1 class="hero-title">Ticket</h1>
+        <div class="hero-sub">✦ 루미벨 공식 예매 ✦</div>
+        <div class="hero-desc">
+          루미벨 주최 공연 예매를 위한 공식 페이지입니다.<br>
+          현재 진행 중인 공연 정보와 예매 안내, 유의사항을 한 번에 확인할 수 있어요.
+        </div>
+      </section>
+
+      <section class="ticket-grid">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>NOW OPEN</h2>
+            <p>현재 예매 가능한 공연</p>
+          </div>
+          <div class="panel-body">
+            <div class="badge-row">
+              <span class="pill hot">TICKET OPEN</span>
+              <span class="pill">LUMIBEL HOST</span>
+              <span class="pill">선착순 입장</span>
+            </div>
+
+            <div class="showcase">
+              <div class="poster">
+                <div class="poster-fallback">
+                  <strong>LUMIBELLE<br>DEBUT LIVE</strong>
+                  <span>포스터 이미지 준비 중</span>
+                </div>
+              </div>
+
+              <div class="show-info">
+                <h3>루미벨 데뷔 라이브</h3>
+                <p>
+                  루미벨의 첫 시작을 함께하는 특별한 데뷔 라이브입니다.<br>
+                  반짝이는 무대와 첫 만남의 순간을 공식 예매 페이지에서 바로 확인해보세요.
+                </p>
+
+                <dl class="ticket-meta">
+                  <dt>공연 일시</dt>
+                  <dd>2026.07.12 (토) / 18:00 OPEN · 18:30 START</dd>
+
+                  <dt>공연 장소</dt>
+                  <dd>상상마당 @ 홍대</dd>
+
+                  <dt>티켓 가격</dt>
+                  <dd>현장 및 사전예매 기준 추후 확정 / 입금 안내와 함께 공지</dd>
+
+                  <dt>예매 방식</dt>
+                  <dd>신청 후 계좌 입금 확인 순으로 확정</dd>
+
+                  <dt>입장 방식</dt>
+                  <dd>좌석 지정 없음 / 선착순 입장</dd>
+                </dl>
+              </div>
+            </div>
+
+            <div class="cta-box">
+              <h3>예매 신청하기</h3>
+              <p>
+                현재 예매는 신청 폼을 통해 접수되고 있으며, 제출 후 안내에 따라 입금 확인이 완료되면 최종 확정됩니다.
+              </p>
+              <div class="cta-actions">
+                <a class="cta-btn primary" href="https://docs.google.com/forms/d/e/1FAIpQLSfcBlGLU9mV_ItCOpUrBmZ7F4JGtLyJdnEy51ROA8JrrcXKyA/viewform" target="_blank" rel="noopener noreferrer">예매 신청 바로가기</a>
+                <a class="cta-btn secondary" href="schedule.html">스케줄 다시 보기</a>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <aside class="panel">
+          <div class="panel-head">
+            <h2>GUIDE</h2>
+            <p>예매 안내</p>
+          </div>
+          <div class="panel-body">
+            <ul class="guide-list">
+              <li class="guide-item">
+                <div class="guide-num">1</div>
+                <div class="guide-text">
+                  <strong>신청서 작성</strong>
+                  <span>예매 폼에서 이름, 연락처, 매수, 입금자명 등 기본 정보를 입력해주세요.</span>
+                </div>
+              </li>
+              <li class="guide-item">
+                <div class="guide-num">2</div>
+                <div class="guide-text">
+                  <strong>입금 진행</strong>
+                  <span>안내된 계좌로 정해진 기한 내 입금이 완료되어야 예매가 확정됩니다.</span>
+                </div>
+              </li>
+              <li class="guide-item">
+                <div class="guide-num">3</div>
+                <div class="guide-text">
+                  <strong>확정 확인</strong>
+                  <span>주최 측 입금 확인 후 최종 확정 상태로 관리되며, 공연 당일 입장이 가능합니다.</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </aside>
+      </section>
+
+      <section class="faq-section">
+        <div class="panel faq-card">
+          <h2>NOTICE</h2>
+          <p class="sub">예매 전 꼭 확인해주세요</p>
+          <ul class="notice-list">
+            <li class="notice-item">
+              <div class="notice-icon">!</div>
+              <div class="notice-text">
+                <strong>미입금 시 자동 취소</strong>
+                <span>지정된 시간 내 입금이 완료되지 않을 경우 신청이 자동 취소될 수 있습니다.</span>
+              </div>
+            </li>
+            <li class="notice-item">
+              <div class="notice-icon">!</div>
+              <div class="notice-text">
+                <strong>중복 신청 주의</strong>
+                <span>같은 공연에 대해 중복 신청이 발생하지 않도록 신청 전 정보를 다시 확인해주세요.</span>
+              </div>
+            </li>
+            <li class="notice-item">
+              <div class="notice-icon">!</div>
+              <div class="notice-text">
+                <strong>외부 주최 공연 안내</strong>
+                <span>루미벨 주최가 아닌 공연은 각 주최 측 예매 페이지 또는 외부 링크를 통해 접수됩니다.</span>
+              </div>
+            </li>
+            <li class="notice-item">
+              <div class="notice-icon">!</div>
+              <div class="notice-text">
+                <strong>문의</strong>
+                <span>예매 관련 문의는 안내 페이지 또는 공식 메일을 통해 부탁드립니다.</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>© 2026 Lumibelle All Rights Reserved.</footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="맨 위로 이동">↑</button>
+  <script>
+    const backToTop = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 280) backToTop.classList.add('show');
+      else backToTop.classList.remove('show');
+    });
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>
