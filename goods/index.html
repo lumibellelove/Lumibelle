@@ -221,12 +221,15 @@
       width:100%; aspect-ratio:1/1; background:#fff; border-bottom:1px solid #f2d8e7;
       display:flex; align-items:center; justify-content:center; overflow:hidden;
     }
-    .goods-image img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .goods-image img{ width:100%; height:100%; object-fit:cover; display:block; transition:transform .35s ease, filter .35s ease; }
+    .goods-card:hover .goods-image img{ transform:scale(1.05); filter:saturate(1.03); }
     .goods-image .placeholder{
       width:100%; height:100%; display:flex; align-items:center; justify-content:center; flex-direction:column;
       color:#d6a2bc; background:linear-gradient(180deg,#fff 0%,#fff8fc 100%); font-weight:800; font-size:15px;
     }
     .goods-body{ padding:22px 20px 20px; }
+    .goods-label{ display:inline-flex; align-items:center; gap:6px; margin:0 0 10px; padding:7px 12px; border-radius:999px; background:linear-gradient(180deg,#fff7fb 0%, #fff 100%); border:1px solid #f3d4e5; color:#d77ca7; font-size:12px; font-weight:900; letter-spacing:.02em; }
+    .goods-label.preview{ color:#b28ea2; }
     .goods-name{ margin:0 0 8px; color:#d77ca7; font-size:23px; font-weight:900; line-height:1.2; }
     .goods-desc{ margin:0 0 14px; color:#8f7183; font-size:14px; line-height:1.7; min-height:48px; }
     .goods-meta{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
@@ -240,12 +243,15 @@
     .goods-btn:hover{ transform:translateY(-2px); }
     .goods-btn.cart{ background:#fff; color:#d77ca7; border:1px solid #f0bfd4; }
     .goods-btn.buy{ background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%); color:#fff; box-shadow:0 8px 18px rgba(255,95,165,.22); }
+    .goods-btn.disabled{ background:#f7eef3; color:#bda5b2; border:1px solid #ead7e1; box-shadow:none; cursor:default; pointer-events:none; }
     .notice-card{
       margin-top:24px; background:#fff5fb; border:1px solid #f2d8e7; border-radius:28px;
       box-shadow:0 8px 24px rgba(232,191,211,0.12); padding:28px 26px;
     }
     .notice-card h3{ margin:0 0 10px; color:#d77ca7; font-size:28px; font-weight:900; }
     .notice-card p{ margin:0; color:#8f7183; line-height:1.9; font-size:15px; }
+    .notice-list{ margin:14px 0 0; padding-left:18px; color:#8f7183; }
+    .notice-list li{ margin:6px 0; line-height:1.8; font-size:14px; }
     @media (max-width:980px){ .goods-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
     @media (max-width:780px){ .goods-grid{ grid-template-columns:1fr; } .goods-toolbar{ flex-direction:column; align-items:stretch; } .toolbar-btn{ width:100%; } }
 
@@ -308,9 +314,10 @@
           <img src="../img/goods/lumibelle-debut-tshirt.webp" alt="루미벨 데뷔 티셔츠" onerror="this.closest('.goods-image').innerHTML='<div class=&quot;placeholder&quot;>GOODS IMAGE</div>'">
         </div>
         <div class="goods-body">
+          <div class="goods-label">✦ DEBUT LIMITED</div>
           <h3 class="goods-name">루미벨 데뷔 티셔츠</h3>
-          <p class="goods-desc">데뷔 라이브를 기념한 공식 티셔츠입니다. 부드러운 컬러감과 편하게 입기 좋은 핏으로 준비했어요.</p>
-          <div class="goods-meta"><div class="goods-price">₩30,000</div><div class="goods-stock">배송비 별도</div></div>
+          <p class="goods-desc">루미벨의 데뷔 라이브를 기념한 첫 공식 티셔츠입니다. 부드러운 컬러감과 편하게 입기 좋은 핏으로 준비했어요.</p>
+          <div class="goods-meta"><div class="goods-price">₩30,000</div><div class="goods-stock">데뷔 한정 굿즈</div></div>
           <div class="goods-actions">
             <a href="cart.html?add=tshirt" class="goods-btn cart">장바구니</a>
             <a href="order.html?item=tshirt&mode=direct" class="goods-btn buy">구매하기</a>
@@ -324,12 +331,13 @@
           <img src="../img/goods/lumibelle-acrylic-stand.webp" alt="아크릴 스탠드" onerror="this.closest('.goods-image').innerHTML='<div class=&quot;placeholder&quot;>GOODS IMAGE</div>'">
         </div>
         <div class="goods-body">
+          <div class="goods-label preview">✦ COMING SOON</div>
           <h3 class="goods-name">아크릴 스탠드</h3>
           <p class="goods-desc">멤버의 분위기를 담은 아크릴 스탠드입니다. 책상이나 선반에 올려두기 좋은 사이즈로 준비 중이에요.</p>
-          <div class="goods-meta"><div class="goods-price">₩12,000</div><div class="goods-stock">준비 중</div></div>
+          <div class="goods-meta"><div class="goods-price">₩12,000</div><div class="goods-stock">출시 준비 중</div></div>
           <div class="goods-actions">
-            <a href="cart.html?add=acrylic" class="goods-btn cart">장바구니</a>
-            <a href="order.html?item=acrylic&mode=direct" class="goods-btn buy">구매하기</a>
+            <span class="goods-btn cart disabled">준비 중</span>
+            <span class="goods-btn buy disabled">COMING SOON</span>
           </div>
         </div>
       </article>
@@ -340,12 +348,13 @@
           <img src="../img/goods/lumibelle-photocard-set.webp" alt="포토카드 세트" onerror="this.closest('.goods-image').innerHTML='<div class=&quot;placeholder&quot;>GOODS IMAGE</div>'">
         </div>
         <div class="goods-body">
+          <div class="goods-label preview">✦ COMING SOON</div>
           <h3 class="goods-name">포토카드 세트</h3>
-          <p class="goods-desc">루미벨의 반짝이는 순간들을 모은 포토카드 세트입니다. 소장용으로 가볍게 즐기기 좋아요.</p>
-          <div class="goods-meta"><div class="goods-price">₩8,000</div><div class="goods-stock">준비 중</div></div>
+          <p class="goods-desc">루미벨의 반짝이는 순간들을 모은 포토카드 세트입니다. 소장용으로 가볍게 즐기기 좋은 초회 굿즈로 준비 중이에요.</p>
+          <div class="goods-meta"><div class="goods-price">₩8,000</div><div class="goods-stock">초회 굿즈 준비 중</div></div>
           <div class="goods-actions">
-            <a href="cart.html?add=photocard" class="goods-btn cart">장바구니</a>
-            <a href="order.html?item=photocard&mode=direct" class="goods-btn buy">구매하기</a>
+            <span class="goods-btn cart disabled">준비 중</span>
+            <span class="goods-btn buy disabled">COMING SOON</span>
           </div>
         </div>
       </article>
@@ -355,6 +364,11 @@
       <h3>주문 안내</h3>
       <p>1개만 구매해도 바로 주문 페이지로 이동할 수 있고, 여러 개는 장바구니에 담아 한 번에 주문할 수 있어요.<br>
       배송비는 기본 6,000원이며 제주 및 도서산간 지역은 별도 안내 후 함께 입금해 주세요.</p>
+      <ul class="notice-list">
+        <li>판매 준비 전 상품은 COMING SOON 상태로 표시되며 주문이 열리지 않습니다.</li>
+        <li>입금 확인 후 순차적으로 발송되며, 자세한 일정은 공지사항에서 안내됩니다.</li>
+        <li>데뷔 한정 상품은 준비 수량 소진 시 조기 마감될 수 있습니다.</li>
+      </ul>
     </section>
   </div>
 </main>
