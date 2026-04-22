@@ -457,6 +457,12 @@
       margin-bottom: 16px;
     }
 
+    .member-photo picture{
+      display:block;
+      width:100%;
+      height:100%;
+    }
+
     .member-photo img {
       width: 100%;
       height: 100%;
@@ -851,6 +857,11 @@
       padding: 16px;
     }
 
+    .fanname-image-box picture{
+      display:block;
+      width:100%;
+    }
+
     .fanname-image-box img {
       width: 100%;
       display: block;
@@ -1228,6 +1239,11 @@
         transform:skewX(-22deg) translateX(560%);
       }
     }
+
+    .click-shine::after{
+      animation:sweepShine .9s ease forwards;
+    }
+
 
     /* ===== 멤버 카드 hover 강화 + 하얀 선 1회만 ===== */
     .member-card{
@@ -1698,8 +1714,6 @@ line-height:1.9 !important;
       opacity:1 !important;
     }
 
-    nav a::after,
-    nav a:hover::after,
     nav a:focus::after,
     nav a:active::after{
       display:none !important;
@@ -1732,7 +1746,6 @@ line-height:1.9 !important;
       transform:none !important;
     }
 
-    nav a::after,
     .subnav-card::after{
       content:none !important;
       animation:none !important;
@@ -1790,7 +1803,10 @@ line-height:1.9 !important;
     <div class="wrap header-box">
       <div class="logo">
         <a href="index.html">
-          <img src="img/logo.png?v=3" alt="Lumibelle 로고">
+          <picture>
+            <source srcset="img/logo.webp?v=3" type="image/webp">
+            <img src="img/logo.png?v=3" alt="Lumibelle 로고" loading="eager" decoding="async">
+          </picture>
         </a>
       </div>
 
@@ -1862,7 +1878,10 @@ line-height:1.9 !important;
         <div class="member-card mariring reveal">
           <div class="member-name-bar">MARIRING</div>
           <div class="member-photo">
-            <img src="img/member/mariring/mariring.jpg" alt="마리링">
+            <picture>
+              <source srcset="img/member/mariring/mariring.webp" type="image/webp">
+              <img src="img/member/mariring/mariring.jpg" alt="마리링" loading="lazy" decoding="async">
+            </picture>
           </div>
           <div class="member-color-text">
             멤버컬러<br />
@@ -1878,7 +1897,10 @@ line-height:1.9 !important;
         <div class="member-card lulu reveal">
           <div class="member-name-bar">LULU</div>
           <div class="member-photo">
-            <img src="img/member/lulu/lulu.png" alt="루루">
+            <picture>
+              <source srcset="img/member/lulu/lulu.webp" type="image/webp">
+              <img src="img/member/lulu/lulu.png" alt="루루" loading="lazy" decoding="async">
+            </picture>
           </div>
           <div class="member-color-text">
             멤버컬러<br />
@@ -1894,7 +1916,10 @@ line-height:1.9 !important;
         <div class="member-card iro reveal">
           <div class="member-name-bar">IRO</div>
           <div class="member-photo">
-            <img src="img/member/iro/iro.png" alt="이로">
+            <picture>
+              <source srcset="img/member/iro/iro.webp" type="image/webp">
+              <img src="img/member/iro/iro.png" alt="이로" loading="lazy" decoding="async">
+            </picture>
           </div>
           <div class="member-color-text">
             멤버컬러<br />
@@ -1910,7 +1935,10 @@ line-height:1.9 !important;
         <div class="member-card lunar reveal">
           <div class="member-name-bar">LUNAR</div>
           <div class="member-photo">
-            <img src="img/member/lunar/lunar.png" alt="루나">
+            <picture>
+              <source srcset="img/member/lunar/lunar.webp" type="image/webp">
+              <img src="img/member/lunar/lunar.png" alt="루나" loading="lazy" decoding="async">
+            </picture>
           </div>
           <div class="member-color-text">
             멤버컬러<br />
@@ -2027,7 +2055,10 @@ line-height:1.9 !important;
           </div>
 
           <div class="fanname-image-box">
-            <img src="fanname.png" alt="fanname" />
+            <picture>
+              <source srcset="fanname.webp" type="image/webp">
+              <img src="fanname.png" alt="fanname" loading="lazy" decoding="async" />
+            </picture>
           </div>
 
           <div class="fanname-name">Lumina (루미나)</div>
@@ -2175,6 +2206,17 @@ line-height:1.9 !important;
   </script>
 
 
+  <script>
+    document.querySelectorAll('nav a, .member-btn, .more-btn, .info-link-btn, .ticket-btn').forEach((el) => {
+      el.addEventListener('click', function(){
+        this.classList.remove('click-shine');
+        void this.offsetWidth;
+        this.classList.add('click-shine');
+        setTimeout(() => this.classList.remove('click-shine'), 900);
+      });
+    });
+  </script>
+
 
 <script>
 (function(){
@@ -2209,10 +2251,10 @@ line-height:1.9 !important;
   }
 
   document.addEventListener("pointerdown", function(e){
-    const target = e.target.closest("button, .member-card, .subnav-card, .live-guide-card, .info-link-btn, .ticket-btn, .member-btn, .more-btn");
+    const target = e.target.closest("nav a, button, .member-card, .subnav-card, .live-guide-card, .info-link-btn, .ticket-btn, .member-btn, .more-btn");
     if(!target) return;
 
-    const level = target.closest("nav") || target.classList.contains("subnav-card") ? "big" : "normal";
+    const level = target.closest("nav") ? "normal" : (target.classList.contains("subnav-card") ? "big" : "normal");
     makeBurstAt(e.clientX, e.clientY, level);
   });
 
@@ -2230,9 +2272,6 @@ line-height:1.9 !important;
     const hasDownload = link.hasAttribute('download');
 
     if (!href || isHash || isJs || isMail || isTel || isBlank || hasDownload) return;
-
-    e.preventDefault();
-    window.location.href = href;
   });
 })();
 </script>
@@ -2241,26 +2280,18 @@ line-height:1.9 !important;
 
 <script>
 document.addEventListener("click", function(e){
-  const target = e.target.closest(".member-btn, .more-btn, .info-link-btn, .ticket-btn, nav a");
+  const target = e.target.closest(".member-btn, .more-btn, .info-link-btn, .ticket-btn");
   if(!target) return;
 
   const rect = target.getBoundingClientRect();
 
-  const isNavItem = !!target.closest("nav");
-  const glitterCount = isNavItem ? 8 : 12;
-  const starCount = isNavItem ? 2 : 4;
-  const glitterBase = isNavItem ? 28 : 40;
-  const glitterRange = isNavItem ? 18 : 30;
-  const starBase = isNavItem ? 36 : 50;
-  const starRange = isNavItem ? 22 : 40;
-
   // glitter
-  for(let i=0;i<glitterCount;i++){
+  for(let i=0;i<12;i++){
     const dot = document.createElement("span");
     dot.className = "glitter-burst";
 
     const angle = Math.random()*Math.PI*2;
-    const distance = glitterBase + Math.random()*glitterRange;
+    const distance = 40 + Math.random()*30;
 
     dot.style.setProperty("--x", Math.cos(angle)*distance + "px");
     dot.style.setProperty("--y", Math.sin(angle)*distance + "px");
@@ -2273,12 +2304,12 @@ document.addEventListener("click", function(e){
   }
 
   // stars
-  for(let i=0;i<starCount;i++){
+  for(let i=0;i<4;i++){
     const star = document.createElement("span");
     star.className = "star-burst";
 
     const angle = Math.random()*Math.PI*2;
-    const distance = starBase + Math.random()*starRange;
+    const distance = 50 + Math.random()*40;
 
     star.style.setProperty("--x", Math.cos(angle)*distance + "px");
     star.style.setProperty("--y", Math.sin(angle)*distance + "px");
