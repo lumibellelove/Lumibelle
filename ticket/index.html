@@ -3,21 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lumibelle Ticket</title>
+  <title>TICKET - Lumibelle</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800&display=swap');
+
+    :root{
+      --bg:#fffafc;
+      --panel:#fff5fb;
+      --panel-strong:#fff0f7;
+      --line:#f2d8e7;
+      --pink:#ff5fa5;
+      --pink-deep:#f5539f;
+      --text:#7f6a77;
+      --muted:#b990a7;
+      --shadow:0 10px 26px rgba(232,191,211,0.14);
+    }
 
     *{box-sizing:border-box}
     html,body{margin:0;padding:0}
     body{
       min-height:100vh;
-      background:linear-gradient(180deg,#fffafc 0%, #fff7fb 100%);
-      color:#7f6a77;
+      background:var(--bg);
+      color:var(--text);
       font-family:"SUIT","Noto Sans KR",sans-serif;
-      letter-spacing:-0.01em;
+      display:flex;
+      flex-direction:column;
     }
-    a{text-decoration:none;color:inherit}
-    .wrap{width:min(1260px, calc(100% - 32px));margin:0 auto}
+
+    .wrap{max-width:1260px;margin:0 auto;padding:0 20px}
 
     .top-lang-bar{
       width:100%;
@@ -25,164 +38,257 @@
       margin:16px auto 0;
       display:flex;
       justify-content:flex-end;
-      padding:0 8px;
+      padding:0 34px 0 18px;
     }
+
     .lang-switch{display:flex;gap:10px}
     .lang-switch a{
       display:inline-flex;align-items:center;justify-content:center;
       min-width:42px;height:36px;padding:0 10px;border-radius:999px;
-      background:#fff;border:1px solid #f0bfd4;color:#d27ca8;
-      font-size:12px;font-weight:900;box-shadow:0 4px 10px rgba(255,95,165,.08)
+      background:#fff;border:1px solid #f0bfd4;color:#d27ca8;text-decoration:none;
+      font-size:12px;font-weight:900;box-shadow:0 4px 10px rgba(255,95,165,0.08)
     }
-    .lang-switch a.active,.lang-switch a:hover{background:#fff0f7;color:#ff59a5}
+    .lang-switch a.active,.lang-switch a:hover{background:#fff0f7;color:var(--pink)}
 
-    header{padding:8px 0 0}
+    header{padding-bottom:8px}
     .header-box{display:flex;align-items:center;gap:24px}
-    .logo{
-      flex:0 0 auto;
-      width:128px;height:84px;border-radius:24px;
-      display:flex;align-items:center;justify-content:center;
-      background:rgba(255,255,255,.72);border:1px solid #f2d8e7;
-      box-shadow:0 8px 24px rgba(232,191,211,.1);
-      color:#d67faa;font-weight:800
-    }
+    .logo img{display:block;height:76px;width:auto}
+
     nav{
-      flex:1;display:grid;grid-template-columns:repeat(8, minmax(0,1fr));
-      gap:14px;align-items:center;text-align:center
+      display:grid;
+      grid-template-columns:repeat(8, minmax(0,1fr));
+      gap:18px;
+      text-align:center;
+      align-items:center;
+      flex:1;
+      margin:0 20px;
     }
     nav a{
-      position:relative;padding:12px 8px;border-radius:20px;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      min-width:0
+      width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      min-width:0;position:relative;text-decoration:none;border-radius:22px;color:inherit;
+      padding:10px 6px;
     }
-    nav a b, nav a span{display:block;width:100%;white-space:nowrap;text-align:center}
-    nav a b{font-size:1.08rem;font-weight:700;color:#d97ca9}
-    nav a span{font-size:.9rem;color:#c697b1;margin-top:6px}
+    nav a b, nav a span{display:block;width:100%;text-align:center;white-space:nowrap}
+    nav a b{font-size:1.18em;color:#d97ca9;font-weight:700}
+    nav a span{margin-top:6px;font-size:.94em;color:#c697b1;font-weight:600}
     nav a.current::before, nav a:hover::before{
-      content:"";position:absolute;inset:0;border-radius:20px;
-      background:linear-gradient(90deg, rgba(255,217,232,0) 0%, rgba(255,192,215,.18) 50%, rgba(255,217,232,0) 100%);
+      content:"";position:absolute;inset:0;border-radius:18px;
+      background:linear-gradient(90deg,rgba(255,217,232,0) 0%,rgba(255,217,232,.14) 16%,rgba(255,192,215,.20) 50%,rgba(255,217,232,.14) 84%,rgba(255,217,232,0) 100%);
     }
-    nav a>*{position:relative;z-index:1}
-    nav a.current b, nav a:hover b{color:#ff59a5}
+    nav a.current b, nav a:hover b{color:var(--pink)}
     nav a.current span, nav a:hover span{color:#d88dad}
 
-    .page-hero{
-      margin-top:18px;padding:52px 44px;border-radius:34px;
-      border:1px solid #f2d8e7;
-      background:
-        radial-gradient(circle at top right, rgba(255,214,233,.65) 0%, rgba(255,214,233,0) 34%),
-        linear-gradient(135deg,#fff3f8 0%,#fff9fc 48%,#fdf0f7 100%);
-      box-shadow:0 12px 28px rgba(232,191,211,.13);
-      overflow:hidden;position:relative
-    }
-    .page-hero::after{
-      content:"";position:absolute;right:-38px;bottom:-48px;width:210px;height:210px;border-radius:50%;
-      background:radial-gradient(circle, rgba(255,255,255,.8) 0%, rgba(255,255,255,0) 70%);
-      pointer-events:none
-    }
-    .eyebrow{font-size:18px;font-weight:800;color:#ff5aa6;margin-bottom:10px}
-    .page-title{
-      margin:0;font-family:"Cormorant Garamond", serif;font-size:92px;line-height:.88;
-      font-weight:600;color:#ff5aa6;text-shadow:0 1px 0 rgba(255,255,255,.95),0 0 18px rgba(255,120,178,.18)
-    }
-    .page-sub{margin:14px 0 0;color:#ff72b6;font-size:24px;font-weight:700}
-    .page-desc{margin:22px 0 0;max-width:720px;color:#8b7181;font-size:17px;line-height:1.9;font-weight:600}
+    .ticket-shell{padding:10px 0 54px}
 
-    .ticket-layout{
-      display:grid;grid-template-columns:1.02fr .98fr;gap:22px;margin-top:22px;align-items:start
+    .hero{
+      background:linear-gradient(135deg,#fff0f7 0%,#fff8fc 40%,#fdf1f7 100%);
+      border:1px solid var(--line);
+      border-radius:32px;
+      box-shadow:var(--shadow);
+      padding:24px;
+      overflow:hidden;
     }
-    .panel{
-      background:#fff5fb;border:1px solid #f2d8e7;border-radius:30px;
-      box-shadow:0 8px 24px rgba(232,191,211,.12)
-    }
-    .panel-head{padding:28px 28px 16px;text-align:center}
-    .panel-head h2{margin:0;color:#d67faa;font-size:46px;line-height:1;font-weight:900}
-    .panel-head p{margin:10px 0 0;color:#c99ab2;font-size:16px;font-weight:700}
 
-    .event-card{padding:0 24px 26px}
-    .event-inner{
-      background:#fff;border:1px solid #f0dde8;border-radius:24px;padding:24px;
-      box-shadow:0 8px 18px rgba(255,95,165,.06)
+    .poster-box{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:26px;
+      overflow:hidden;
+      box-shadow:0 8px 22px rgba(232,191,211,0.10);
     }
-    .event-badge{display:inline-flex;padding:8px 14px;border-radius:999px;background:#ffeaf4;color:#ff5aa6;font-size:12px;font-weight:900;margin-bottom:14px}
-    .event-title{margin:0;font-size:30px;font-weight:900;color:#7e6775;line-height:1.25}
-    .event-meta{margin-top:16px;display:grid;gap:10px}
-    .event-meta div{background:#fff7fb;border:1px solid #f4e2ec;border-radius:16px;padding:13px 16px;font-size:15px;color:#846f81;line-height:1.6}
-    .event-meta strong{color:#c07f9f;margin-right:8px}
-
-    .steps{display:grid;gap:12px;margin-top:18px}
-    .step{display:flex;gap:14px;align-items:flex-start;background:#fff7fb;border:1px solid #f4e2ec;border-radius:18px;padding:15px 16px}
-    .step-no{width:32px;height:32px;border-radius:50%;flex:0 0 32px;background:linear-gradient(180deg,#ff8ac2 0%, #ff5fa8 100%);color:#fff;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(255,95,165,.22)}
-    .step-text strong{display:block;color:#946f84;font-size:15px;margin-bottom:4px}
-    .step-text span{color:#8f7183;font-size:14px;line-height:1.65}
-
-    .form-wrap{padding:0 24px 26px}
-    form{
-      background:#fff;border:1px solid #f0dde8;border-radius:24px;padding:22px;
-      box-shadow:0 8px 18px rgba(255,95,165,.06)
+    .poster-box img{
+      width:100%;
+      display:block;
+      object-fit:cover;
+      max-height:720px;
+      background:#fff7fb;
     }
-    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .poster-fallback{
+      padding:86px 24px;
+      text-align:center;
+      color:#c798b2;
+      background:linear-gradient(180deg,#fff9fc 0%,#fff2f8 100%);
+    }
+    .poster-fallback strong{
+      display:block;
+      font-size:34px;
+      color:var(--pink);
+      margin-bottom:12px;
+    }
+    .poster-fallback span{font-size:16px;line-height:1.7}
+
+    .hero-copy{padding:26px 8px 4px;text-align:center}
+    .hero-copy .kicker{color:var(--pink);font-weight:800;font-size:18px;margin-bottom:10px}
+    .hero-copy h1{
+      margin:0;
+      font-size:68px;
+      line-height:.95;
+      color:var(--pink-deep);
+      font-family:"Cormorant Garamond",serif;
+      font-weight:600;
+      letter-spacing:-0.03em;
+      text-shadow:0 1px 0 rgba(255,255,255,.98),0 0 14px rgba(255,120,178,.14);
+    }
+    .hero-copy p{margin:14px auto 0;max-width:820px;font-size:17px;line-height:1.8;color:#8c7382}
+
+    .event-meta{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:14px;
+      margin-top:24px;
+    }
+    .meta-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:18px 16px;
+      text-align:center;
+    }
+    .meta-card b{display:block;color:var(--pink);font-size:14px;margin-bottom:7px}
+    .meta-card span{font-size:15px;line-height:1.6;color:#846f81;font-weight:700}
+
+    .section-head{text-align:center;margin:40px 0 18px}
+    .section-head h2{margin:0;color:#d67faa;font-size:50px;line-height:1;font-weight:900}
+    .section-head p{margin:9px 0 0;color:#c79bb3;font-size:16px;font-weight:700}
+
+    .ticket-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:18px;
+      margin-bottom:8px;
+    }
+    .ticket-card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:26px;
+      box-shadow:var(--shadow);
+      padding:22px 18px;
+      cursor:pointer;
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+      text-align:left;
+      position:relative;
+    }
+    .ticket-card:hover{transform:translateY(-4px);box-shadow:0 14px 28px rgba(232,191,211,0.18);background:#fff0f7}
+    .ticket-card.selected{border-color:#ff8fc1;background:#fff0f7;box-shadow:0 14px 28px rgba(255,95,165,0.14)}
+    .ticket-card .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px}
+    .ticket-card h3{margin:0;color:var(--pink);font-size:24px;line-height:1.1}
+    .ticket-card .price{font-size:28px;font-weight:900;color:#ff5aa6;white-space:nowrap}
+    .ticket-card ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+    .ticket-card li{font-size:15px;line-height:1.65;color:#846f81;font-weight:700}
+    .ticket-card .badge{
+      position:absolute;top:14px;right:14px;
+      display:inline-flex;align-items:center;justify-content:center;
+      padding:6px 10px;border-radius:999px;background:#fff;color:#d27ca8;border:1px solid #f0bfd4;
+      font-size:11px;font-weight:900;
+    }
+
+    .form-wrap{
+      margin-top:28px;
+      background:#fff5fb;
+      border:1px solid var(--line);
+      border-radius:30px;
+      box-shadow:var(--shadow);
+      padding:32px 26px 28px;
+    }
+    .form-title{margin-bottom:18px;text-align:center}
+    .form-title h3{margin:0;color:#d67faa;font-size:38px;line-height:1.05}
+    .form-title p{margin:9px 0 0;color:#8f7183;font-size:15px;line-height:1.7}
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:18px;
+    }
     .field{display:flex;flex-direction:column;gap:8px}
     .field.full{grid-column:1 / -1}
-    .field label{font-size:14px;font-weight:800;color:#a2728d}
-    .field input, .field select, .field textarea{
-      width:100%;padding:14px 16px;border-radius:16px;border:1px solid #eed8e6;background:#fffafc;
-      font:inherit;color:#745e6c;outline:none;transition:border-color .16s ease, box-shadow .16s ease, background .16s ease
+    .field label{font-size:15px;font-weight:800;color:#9a758a}
+    .field input,
+    .field select,
+    .field textarea{
+      width:100%;padding:15px 16px;border-radius:18px;border:1px solid #ecd2e2;background:#fff;
+      color:#7f6a77;font-size:15px;font-family:inherit;outline:none;
+      transition:border-color .18s ease, box-shadow .18s ease;
     }
-    .field input:focus, .field select:focus, .field textarea:focus{
-      border-color:#f3a8ca;background:#fff;box-shadow:0 0 0 4px rgba(255,95,165,.08)
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:#ff9dc7;box-shadow:0 0 0 4px rgba(255,95,165,0.08)}
+    .field textarea{min-height:110px;resize:vertical}
+    .hint{font-size:13px;color:#b28ea2;line-height:1.6}
+
+    .agreement-box{
+      margin-top:22px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
     }
-    .field textarea{min-height:118px;resize:vertical}
-    .helper{margin-top:-2px;color:#b08ca0;font-size:12.5px;line-height:1.5}
-    .price-box{
-      margin-top:16px;padding:16px 18px;border-radius:18px;background:linear-gradient(180deg,#fff3f8 0%, #fff9fc 100%);
-      border:1px solid #f2dce8;color:#8f7183;font-size:14px;line-height:1.75
+    .agreement{
+      background:#fff;
+      border:1px solid #efd8e5;
+      border-radius:20px;
+      padding:16px 16px 14px;
     }
-    .price-box strong{color:#ff5aa6}
-    .agree{
-      display:flex;gap:10px;align-items:flex-start;margin-top:18px;padding:14px 15px;border-radius:16px;background:#fff8fc;border:1px solid #f3e1eb
+    .agreement strong{display:block;color:#d67faa;font-size:15px;margin-bottom:8px}
+    .agreement p{margin:0 0 12px;color:#8b7281;font-size:14px;line-height:1.75}
+    .checkline{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#7f6a77;font-weight:700}
+    .checkline input{margin-top:3px;accent-color:#ff5fa5}
+
+    .submit-row{
+      margin-top:22px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:12px;
     }
-    .agree input{margin-top:2px;accent-color:#ff5fa8}
-    .agree label{font-size:13px;color:#8d7481;line-height:1.7}
     .submit-btn{
-      width:100%;margin-top:18px;border:none;border-radius:999px;padding:16px 20px;cursor:pointer;
-      background:linear-gradient(180deg,#ff89c1 0%, #ff5fa8 100%);color:#fff;font-size:16px;font-weight:900;
-      box-shadow:0 10px 20px rgba(255,95,165,.24);transition:transform .16s ease, filter .16s ease
+      min-width:260px;
+      border:none;
+      border-radius:999px;
+      padding:16px 26px;
+      font-size:16px;
+      font-weight:900;
+      color:#fff;
+      background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);
+      box-shadow:0 10px 20px rgba(255,95,165,0.25);
+      cursor:pointer;
+      transition:transform .16s ease, filter .16s ease;
     }
-    .submit-btn:hover{transform:translateY(-2px);filter:brightness(1.02)}
+    .submit-btn:hover{transform:translateY(-2px);filter:brightness(1.03)}
+    .submit-note{font-size:13px;color:#b28ea2;line-height:1.7;text-align:center}
 
-    .notice-list{display:grid;gap:10px;margin-top:18px}
-    .notice-item{padding:14px 16px;border-radius:16px;background:#fff7fb;border:1px solid #f3e1eb;color:#8d7481;font-size:14px;line-height:1.7}
-    .notice-item strong{color:#bf7a9b}
-
-    .result-box{
-      display:none;margin-top:18px;padding:16px 18px;border-radius:18px;
-      background:linear-gradient(180deg,#fff4f9 0%, #fffdfd 100%);
-      border:1px solid #f1cfe0;color:#855f73
+    .success-box{
+      display:none;
+      margin-top:24px;
+      background:#fff;
+      border:1px solid #f0d7e5;
+      border-radius:24px;
+      padding:22px 20px;
+      text-align:center;
+      box-shadow:0 8px 18px rgba(232,191,211,0.12);
     }
-    .result-box.show{display:block}
-    .result-box strong{display:block;margin-bottom:8px;color:#ff5aa6;font-size:16px}
-    .result-code{display:inline-flex;align-items:center;justify-content:center;margin-top:8px;padding:8px 12px;border-radius:999px;background:#fff;color:#d56c9f;border:1px solid #f0bfd4;font-size:13px;font-weight:900;letter-spacing:.04em}
+    .success-box.show{display:block}
+    .success-box h4{margin:0 0 10px;color:#ff5aa6;font-size:28px}
+    .success-box p{margin:0;color:#8b7281;line-height:1.8;font-size:15px}
+    .success-number{display:inline-block;margin-top:12px;padding:10px 14px;border-radius:999px;background:#fff0f7;color:#ff5aa6;font-weight:900}
 
-    .save-note{margin-top:16px;text-align:center;color:#b590a4;font-size:12.5px;line-height:1.7}
-    footer{text-align:center;padding:30px 16px 40px;color:#c6a2b4;font-size:14px}
+    footer{text-align:center;padding:30px 16px 40px;color:#c6a2b4;font-size:14px;margin-top:auto}
 
-    @media (max-width: 1180px){
-      nav{grid-template-columns:repeat(4, minmax(0,1fr))}
-      .ticket-layout{grid-template-columns:1fr}
+    @media (max-width:1080px){
+      .ticket-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .event-meta{grid-template-columns:repeat(2,minmax(0,1fr))}
     }
-    @media (max-width: 780px){
-      .wrap{width:min(100% - 20px, 1260px)}
-      .header-box{flex-direction:column;align-items:stretch}
-      .logo{width:100%;height:72px}
-      nav{grid-template-columns:repeat(2, minmax(0,1fr));gap:10px}
-      .page-hero{padding:40px 22px}
-      .page-title{font-size:64px}
-      .page-sub{font-size:20px}
-      .page-desc{font-size:15px}
-      .panel-head h2{font-size:34px}
+    @media (max-width:980px){
+      .header-box{flex-wrap:wrap;justify-content:center}
+      nav{grid-template-columns:repeat(4,1fr);width:100%;margin:0}
+      .top-lang-bar{justify-content:center;margin-top:14px}
+    }
+    @media (max-width:780px){
+      nav{grid-template-columns:repeat(2,1fr);gap:12px;margin:0}
+      .hero-copy h1{font-size:52px}
+      .hero-copy p{font-size:15px}
+      .event-meta{grid-template-columns:1fr}
+      .ticket-grid{grid-template-columns:1fr}
       .form-grid{grid-template-columns:1fr}
-      .event-title{font-size:25px}
+      .form-title h3{font-size:30px}
+      .section-head h2{font-size:38px}
+      .poster-box img{max-height:520px}
     }
   </style>
 </head>
@@ -198,188 +304,296 @@
 
   <header>
     <div class="wrap header-box">
-      <div class="logo">LUMIBELLE</div>
+      <div class="logo">
+        <a href="../index.html">
+          <img src="../img/logo.png?v=3" alt="Lumibelle 로고" loading="eager" decoding="async">
+        </a>
+      </div>
       <nav>
         <a href="../index.html"><b>HOME</b><span>홈</span></a>
         <a href="../news.html"><b>NEWS</b><span>공지사항</span></a>
         <a href="../member.html"><b>MEMBER</b><span>멤버 소개</span></a>
         <a href="../schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
         <a href="current.html" class="current"><b>TICKET</b><span>예매</span></a>
-        <a href="../goods.html"><b>GOODS</b><span>굿즈</span></a>
+        <a href="../goods/index.html"><b>GOODS</b><span>굿즈</span></a>
         <a href="../setlist.html"><b>SETLIST</b><span>응원 가이드</span></a>
         <a href="../info.html"><b>INFO</b><span>안내</span></a>
       </nav>
     </div>
   </header>
 
-  <main class="wrap">
-    <section class="page-hero">
-      <div class="eyebrow">빛나는 미소의 소녀들</div>
-      <h1 class="page-title">Ticket</h1>
-      <div class="page-sub">✦ 루미벨 공식 예매 페이지 ✦</div>
-      <div class="page-desc">
-        외부 페이지로 이동하지 않고 이 페이지 안에서 바로 예매 신청할 수 있도록 구성한 공식 예약 페이지입니다.<br>
-        현재 안내 기준은 기존 예약폼 내용을 반영해 정리했고, 다음 단계에서 구글 시트 저장 연결만 붙이면 실사용 구조로 바로 확장할 수 있어요.
-      </div>
-    </section>
-
-    <section class="ticket-layout">
-      <div class="panel">
-        <div class="panel-head">
-          <h2>NOW BOOKING</h2>
-          <p>현재 예매 진행 중인 공연</p>
-        </div>
-        <div class="event-card">
-          <div class="event-inner">
-            <span class="event-badge">OFFICIAL RESERVATION</span>
-            <h3 class="event-title">Shine Me UP : 루미벨 데뷔 라이브</h3>
-            <div class="event-meta">
-              <div><strong>일시</strong> 2026.07.12 (일) 14:20 공연 시작 / 13:50 입장</div>
-              <div><strong>장소</strong> KT&amp;G 상상마당 라이브홀 (서울 마포구 어울마당로 65 B2F)</div>
-              <div><strong>출연</strong> 시로나 · 옵시드 · 너에게 닿기를 · 스이타 · 이토리 · Lumibelle</div>
-              <div><strong>예매 방식</strong> 폼 제출 → 계좌이체 → 입금 확인 후 최종 확정</div>
-            </div>
-            <div class="steps">
-              <div class="step">
-                <div class="step-no">1</div>
-                <div class="step-text"><strong>예매 정보 입력</strong><span>이름, 연락처, 매수, 입금자명 등을 페이지 안에서 바로 입력해요.</span></div>
-              </div>
-              <div class="step">
-                <div class="step-no">2</div>
-                <div class="step-text"><strong>입금 진행</strong><span>폼 제출 후 계좌이체로 입금해 주세요. 폼 제출 없이 입금만 하면 확인이 누락될 수 있어요.</span></div>
-              </div>
-              <div class="step">
-                <div class="step-no">3</div>
-                <div class="step-text"><strong>입금 확인 및 입장</strong><span>입금 확인 후 최종 확정되며, 당일에는 닉네임 + 숫자 4자리 기준으로 본인 확인 후 입장해요.</span></div>
-              </div>
-            </div>
-            <div class="notice-list">
-              <div class="notice-item"><strong>패키지 A.</strong> 데뷔 기념 한정 굿즈 풀세트 A 80,000원 / 15명 한정 / 6월 15일 제작 마감 후 환불 불가</div>
-              <div class="notice-item"><strong>패키지 B.</strong> 데뷔 기념 한정 굿즈 패키지 B 50,000원 / 20명 한정 / 6월 15일 제작 마감 후 환불 불가</div>
-              <div class="notice-item"><strong>사전 예약.</strong> 10,000원 / 7월 11일 23:59 마감 / 7월 5일 23:59까지 취소 시 100% 환불 가능</div>
-              <div class="notice-item"><strong>현장 예약.</strong> 20,000원 / 현장 잔여석 기준 / 현장 메아테 지정 가능</div>
-            </div>
+  <main class="ticket-shell">
+    <div class="wrap">
+      <section class="hero">
+        <div class="poster-box">
+          <!-- 포스터 이미지 파일 경로만 나중에 바꿔주면 됨 -->
+          <!-- 예: <img src="poster/metaate-2026-07-12.jpg" alt="메아테 공연 포스터"> -->
+          <div class="poster-fallback">
+            <strong>POSTER</strong>
+            <span>여기에 공연 포스터 이미지를 넣어줘.<br>포스터 경로를 연결하면 이 박스 대신 이미지가 바로 보여.</span>
           </div>
         </div>
+
+        <div class="hero-copy">
+          <div class="kicker">LUMIBELLE OFFICIAL TICKET</div>
+          <h1>METAATE</h1>
+          <p>
+            루미벨 데뷔 라이브 예매 페이지야.<br>
+            아래 티켓 옵션을 먼저 확인한 뒤 원하는 항목을 선택하고 신청서를 작성해줘.
+          </p>
+        </div>
+
+        <div class="event-meta">
+          <div class="meta-card">
+            <b>DATE</b>
+            <span>2026.07.12 (일)<br>14:20 START / 13:50 OPEN</span>
+          </div>
+          <div class="meta-card">
+            <b>PLACE</b>
+            <span>KT&amp;G 상상마당 라이브홀</span>
+          </div>
+          <div class="meta-card">
+            <b>CAST</b>
+            <span>시로나 · 옵시드 · 너에게 닿기를<br>스이타 · 이토리 · Lumibelle</span>
+          </div>
+          <div class="meta-card">
+            <b>NOTICE</b>
+            <span>패키지 A/B 수량 한정<br>현장 예약은 잔여석 기준</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-head">
+        <h2>TICKET</h2>
+        <p>티켓 종류를 먼저 확인해줘</p>
       </div>
 
-      <div class="panel">
-        <div class="panel-head">
-          <h2>RESERVE</h2>
-          <p>예매 신청서</p>
+      <section class="ticket-grid" id="ticketCards">
+        <article class="ticket-card" data-ticket="패키지 A. 데뷔 기념 한정 굿즈 풀세트 A / 80,000원">
+          <span class="badge">15명 한정</span>
+          <div class="top">
+            <h3>패키지 A</h3>
+            <div class="price">80,000원</div>
+          </div>
+          <ul>
+            <li>데뷔 기념 한정 굿즈 풀세트 A</li>
+            <li>15명 한정</li>
+            <li>6월 15일 제작 마감 후 환불 불가</li>
+          </ul>
+        </article>
+
+        <article class="ticket-card" data-ticket="패키지 B. 데뷔 기념 한정 굿즈 패키지 B / 50,000원">
+          <span class="badge">20명 한정</span>
+          <div class="top">
+            <h3>패키지 B</h3>
+            <div class="price">50,000원</div>
+          </div>
+          <ul>
+            <li>데뷔 기념 한정 굿즈 패키지 B</li>
+            <li>20명 한정</li>
+            <li>6월 15일 제작 마감 후 환불 불가</li>
+          </ul>
+        </article>
+
+        <article class="ticket-card" data-ticket="사전 예약 / 10,000원">
+          <span class="badge">추천</span>
+          <div class="top">
+            <h3>사전 예약</h3>
+            <div class="price">10,000원</div>
+          </div>
+          <ul>
+            <li>7월 11일 23:59 마감</li>
+            <li>7월 5일 23:59까지 취소 시 100% 환불 가능</li>
+            <li>일반 사전 예약 티켓</li>
+          </ul>
+        </article>
+
+        <article class="ticket-card" data-ticket="현장 예약 / 20,000원">
+          <span class="badge">현장</span>
+          <div class="top">
+            <h3>현장 예약</h3>
+            <div class="price">20,000원</div>
+          </div>
+          <ul>
+            <li>현장 잔여석 기준</li>
+            <li>현장 메아테 지정 가능</li>
+            <li>잔여 좌석 발생 시 구매 가능</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="form-wrap">
+        <div class="form-title">
+          <h3>RESERVATION FORM</h3>
+          <p>
+            외부 페이지로 이동하지 않고 여기서 바로 신청할 수 있어.<br>
+            아래 항목을 작성하고 신청 버튼을 눌러줘.
+          </p>
         </div>
-        <div class="form-wrap">
-          <form id="reservationForm">
-            <div class="form-grid">
-              <div class="field">
-                <label for="name">이름 / 닉네임</label>
-                <input id="name" name="name" type="text" placeholder="예: 루미나" required>
-              </div>
-              <div class="field">
-                <label for="contact">연락처</label>
-                <input id="contact" name="contact" type="text" placeholder="예: 010-0000-0000" required>
-              </div>
-              <div class="field">
-                <label for="ticketType">티켓 종류 선택</label>
-                <select id="ticketType" name="ticketType" required>
-                  <option value="">선택해 주세요</option>
-                  <option>데뷔 기념 한정 굿즈 풀세트 A 패키지 80,000원</option>
-                  <option>데뷔 기념 한정 굿즈 패키지 B 50,000원</option>
-                  <option>사전 예약 10,000원</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="depositor">입금자명</label>
-                <input id="depositor" name="depositor" type="text" placeholder="예: 홍길동" required>
-              </div>
-              <div class="field full">
-                <label for="team">메아테</label>
-                <select id="team" name="team" required>
-                  <option value="">선택해 주세요</option>
-                  <option>시로나</option>
-                  <option>옵시드</option>
-                  <option>너에게 닿기를</option>
-                  <option>스이타</option>
-                  <option>이토리</option>
-                  <option>Lumibelle</option>
-                </select>
-                <div class="helper">메아테 정산 및 현장 확인용으로 사용하는 항목이야.</div>
-              </div>
-              <div class="field full">
-                <label for="memo">메모</label>
-                <textarea id="memo" name="memo" placeholder="추가 요청사항이나 전달할 내용을 적어주세요."></textarea>
-              </div>
+
+        <form id="ticketForm">
+          <div class="form-grid">
+            <div class="field">
+              <label for="name">이름 / 닉네임</label>
+              <input id="name" name="name" type="text" placeholder="예: 율안 / 루미나" required>
             </div>
 
-            <div class="price-box">
-              <strong>예매 안내</strong><br>
-              추가 구매 시 폼을 새로 작성한 뒤 별도로 입금해 주세요. 합산 입금 시 확인이 누락될 수 있어요.<br>
-              입금 확인은 <b>폼 제출 + 입금 완료</b> 순서대로 진행되며, 패키지 A/B는 6월 15일 제작 마감으로 조기 종료될 수 있어요.
+            <div class="field">
+              <label for="pin">숫자 4자리 (확인용)</label>
+              <input id="pin" name="pin" type="text" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="예: 0523" required>
+              <div class="hint">개인정보 부담을 줄이기 위해 연락처 대신 확인용 숫자 4자리를 사용해.</div>
             </div>
 
-            <div class="agree">
-              <input id="agree" name="agree" type="checkbox" required>
-              <label for="agree">폼 제출 후 계좌이체 입금 확인 기준으로 예약이 확정되며, 패키지 상품의 제작 마감/환불 규정을 확인했습니다.</label>
+            <div class="field">
+              <label for="email">이메일 주소</label>
+              <input id="email" name="email" type="email" placeholder="예: lumina@example.com" required>
             </div>
 
-            <button class="submit-btn" type="submit">예매 신청하기</button>
-
-            <div id="resultBox" class="result-box" aria-live="polite">
-              <strong>예매 신청이 접수되었어요.</strong>
-              같은 페이지 안에서 신청 완료 안내가 표시되도록 구성되어 있어요.<br>
-              <span class="result-code" id="resultCode">LMB-0000</span>
+            <div class="field">
+              <label for="metaate">메아테</label>
+              <select id="metaate" name="metaate" required>
+                <option value="">선택해줘</option>
+                <option>시로나</option>
+                <option>옵시드</option>
+                <option>너에게 닿기를</option>
+                <option>스이타</option>
+                <option>이토리</option>
+                <option>Lumibelle</option>
+              </select>
             </div>
 
-            <div class="save-note">
-              지금 버전은 외부 이동 없이 페이지 안에서 입력·제출되는 예약 화면이야.<br>구글 시트 저장 연결을 붙이면 실제 운영용으로 바로 사용할 수 있어.
+            <div class="field">
+              <label for="ticketType">티켓 종류</label>
+              <select id="ticketType" name="ticketType" required>
+                <option value="">위 카드에서 선택하거나 직접 골라줘</option>
+                <option>패키지 A. 데뷔 기념 한정 굿즈 풀세트 A / 80,000원</option>
+                <option>패키지 B. 데뷔 기념 한정 굿즈 패키지 B / 50,000원</option>
+                <option>사전 예약 / 10,000원</option>
+                <option>현장 예약 / 20,000원</option>
+              </select>
             </div>
-          </form>
+
+            <div class="field">
+              <label for="quantity">매수</label>
+              <select id="quantity" name="quantity" required>
+                <option value="">선택해줘</option>
+                <option>1매</option>
+                <option>2매</option>
+                <option>3매</option>
+                <option>4매</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="depositor">입금자명</label>
+              <input id="depositor" name="depositor" type="text" placeholder="실제 입금자명을 적어줘" required>
+            </div>
+
+            <div class="field full">
+              <label for="memo">메모</label>
+              <textarea id="memo" name="memo" placeholder="추가 전달사항이 있으면 적어줘. 없으면 비워도 괜찮아."></textarea>
+            </div>
+          </div>
+
+          <div class="agreement-box">
+            <div class="agreement">
+              <strong>୨୧ 개인정보 수집 및 이용 동의</strong>
+              <p>❤︎ 수집된 개인정보(이름, 숫자 4자리, 이메일 등)는 본 공연의 본인 확인 및 입장 안내 전송 외의 용도로는 절대 사용되지 않으며, 공연 종료 후 안전하게 파기됩니다.</p>
+              <label class="checkline">
+                <input type="checkbox" id="agreePrivacy" required>
+                <span>개인정보 수집 및 이용에 동의합니다.</span>
+              </label>
+            </div>
+
+            <div class="agreement">
+              <strong>୨୧ 반입 금지 물품 및 선물 전달 안내</strong>
+              <p>❤︎ 공연장 내 주류를 포함한 모든 식음료 및 알레르기를 유발할 수 있는 물품(꽃다발 등)은 반입이 금지됩니다. 전달이 필요한 물품은 해당 팀의 대기실 또는 로비에서 해당 팀의 스태프를 통해 아티스트에게 전달해 주세요.</p>
+              <label class="checkline">
+                <input type="checkbox" id="agreeBan" required>
+                <span>위 안내 사항을 확인하였으며, 반입 금지 수칙을 준수할 것에 동의합니다.</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="submit-row">
+            <button type="submit" class="submit-btn">신청하기</button>
+            <div class="submit-note">
+              지금 버전은 페이지 안에서 신청 완료 흐름까지 구현된 상태야.<br>
+              다음 단계에서 구글 시트 연결을 붙이면 실제 신청 데이터가 관리 시트로 들어가게 만들 수 있어.
+            </div>
+          </div>
+        </form>
+
+        <div class="success-box" id="successBox">
+          <h4>신청이 완료되었어 ✦</h4>
+          <p>
+            페이지 안에서 예매 신청이 정상적으로 접수되었어.<br>
+            아래 신청번호를 저장해두면 확인할 때 편해.
+          </p>
+          <div class="success-number" id="reservationNumber">LMB-0000</div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   </main>
 
   <footer>© 2026 Lumibelle All Rights Reserved.</footer>
 
   <script>
-    (function(){
-      const form = document.getElementById('reservationForm');
-      const resultBox = document.getElementById('resultBox');
-      const resultCode = document.getElementById('resultCode');
+    const ticketCards = document.querySelectorAll('.ticket-card');
+    const ticketType = document.getElementById('ticketType');
 
-      function makeCode(){
-        const now = new Date();
-        const y = now.getFullYear();
-        const m = String(now.getMonth()+1).padStart(2,'0');
-        const d = String(now.getDate()).padStart(2,'0');
-        const n = String(Math.floor(Math.random()*9000)+1000);
-        return `LMB-${y}${m}${d}-${n}`;
-      }
-
-      form.addEventListener('submit', function(e){
-        e.preventDefault();
-        if(!form.reportValidity()) return;
-
-        const payload = {
-          code: makeCode(),
-          name: form.name.value.trim(),
-          contact: form.contact.value.trim(),
-          ticketType: form.ticketType.value,
-          depositor: form.depositor.value.trim(),
-          metaate: form.team.value,
-          memo: form.memo.value.trim(),
-          createdAt: new Date().toISOString()
-        };
-
-        try{
-          localStorage.setItem('lumibelle_last_reservation', JSON.stringify(payload));
-        }catch(err){}
-
-        resultCode.textContent = payload.code;
-        resultBox.classList.add('show');
-        resultBox.scrollIntoView({behavior:'smooth', block:'nearest'});
+    ticketCards.forEach(card => {
+      card.addEventListener('click', () => {
+        ticketCards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        ticketType.value = card.dataset.ticket;
+        ticketType.dispatchEvent(new Event('change'));
+        ticketType.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
-    })();
+    });
+
+    ticketType.addEventListener('change', () => {
+      ticketCards.forEach(card => {
+        card.classList.toggle('selected', card.dataset.ticket === ticketType.value);
+      });
+    });
+
+    const ticketForm = document.getElementById('ticketForm');
+    const successBox = document.getElementById('successBox');
+    const reservationNumber = document.getElementById('reservationNumber');
+
+    function makeReservationNumber(){
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth()+1).padStart(2,'0');
+      const d = String(now.getDate()).padStart(2,'0');
+      const rand = Math.floor(Math.random()*9000)+1000;
+      return `LMB-${y}${m}${d}-${rand}`;
+    }
+
+    ticketForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      if (!ticketForm.reportValidity()) return;
+
+      const reservationId = makeReservationNumber();
+      const payload = {
+        reservationId,
+        name: document.getElementById('name').value.trim(),
+        pin: document.getElementById('pin').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        metaate: document.getElementById('metaate').value,
+        ticketType: ticketType.value,
+        quantity: document.getElementById('quantity').value,
+        depositor: document.getElementById('depositor').value.trim(),
+        memo: document.getElementById('memo').value.trim(),
+        createdAt: new Date().toISOString()
+      };
+
+      localStorage.setItem('lumibelle_ticket_current', JSON.stringify(payload));
+      reservationNumber.textContent = reservationId;
+      successBox.classList.add('show');
+      successBox.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
   </script>
 </body>
 </html>
