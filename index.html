@@ -1059,6 +1059,57 @@
         font-size:14px;
       }
     }
+
+    /* ===== 멤버 카드 shine 효과 수정 ===== */
+    .member-card{
+      position:relative;
+      overflow:hidden;
+      isolation:isolate;
+    }
+
+    .member-card::after{
+      content:"";
+      position:absolute;
+      top:-20%;
+      left:-38%;
+      width:24%;
+      height:140%;
+      background:linear-gradient(
+        90deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.18) 35%,
+        rgba(255,255,255,0.42) 50%,
+        rgba(255,255,255,0.18) 65%,
+        rgba(255,255,255,0) 100%
+      );
+      transform:skewX(-24deg) translateX(0);
+      opacity:0;
+      pointer-events:none;
+      z-index:2;
+      will-change:transform, opacity;
+    }
+
+    .member-card:hover::after{
+      animation:memberShine 0.95s ease forwards;
+    }
+
+    @keyframes memberShine{
+      0%{
+        opacity:0;
+        transform:skewX(-24deg) translateX(0);
+      }
+      10%{
+        opacity:1;
+      }
+      85%{
+        opacity:0.95;
+      }
+      100%{
+        opacity:0;
+        transform:skewX(-24deg) translateX(620%);
+      }
+    }
+
   </style>
 </head>
 
