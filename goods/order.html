@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORDER | Lumibelle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=SUIT:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#fffafc;--panel:#fff5fb;--line:#f2d8e7;--pink:#ff5aa6;--text:#7f6a77;--shadow:0 8px 24px rgba(232,191,211,0.12)}
+    *{box-sizing:border-box} html,body{margin:0;padding:0}
+    body{background:var(--bg); color:var(--text); font-family:"SUIT","Noto Sans KR",sans-serif}
+    .wrap{width:min(1100px, calc(100% - 32px)); margin:0 auto; padding:32px 0 48px}
+    .top{display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:22px}
+    .top h1{margin:0; font-size:48px; color:var(--pink)}
+    .back{display:inline-flex; padding:12px 18px; border-radius:999px; text-decoration:none; background:#fff; color:#d27ca8; border:1px solid #f0bfd4}
+    .grid{display:grid; grid-template-columns:1.05fr .95fr; gap:22px}
+    .panel{background:var(--panel); border:1px solid var(--line); border-radius:28px; box-shadow:var(--shadow); padding:24px}
+    .panel h2{margin:0 0 16px; color:#d77ca7; font-size:28px}
+    .cart-line{display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid var(--line)}
+    .cart-line:last-child{border-bottom:none}
+    .cart-line strong{display:block; margin-bottom:4px}
+    .total{display:flex; justify-content:space-between; gap:12px; font-size:20px; font-weight:900; margin-top:18px; color:#7e6b78}
+    .bank-box{margin-top:18px; padding:18px; border-radius:22px; background:#fff; border:1px solid var(--line)}
+    .bank-box strong{color:var(--pink)}
+    .field{margin-bottom:16px}
+    .field label{display:block; margin-bottom:8px; font-weight:800; color:#8f7183}
+    .field input,.field textarea{width:100%; border:1px solid #ebcadc; border-radius:16px; padding:14px 16px; font:inherit; color:inherit; background:#fff}
+    .field textarea{min-height:110px; resize:vertical}
+    .submit-btn{width:100%; border:none; border-radius:999px; padding:16px 20px; background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%); color:#fff; font-size:16px; font-weight:800; cursor:pointer; box-shadow:0 8px 18px rgba(255,95,165,.25)}
+    .help{font-size:13px; color:#b28ea2; line-height:1.7; margin-top:10px}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}.top h1{font-size:40px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <h1>ORDER</h1>
+      <a href="cart.html" class="back">← 장바구니로 돌아가기</a>
+    </div>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>주문 상품</h2>
+        <div id="cartSummary"></div>
+        <div class="total">
+          <span>총 금액</span>
+          <span id="grandTotal">₩ 0</span>
+        </div>
+
+        <div class="bank-box">
+          <strong>입금 계좌 안내</strong><br>
+          국민은행 000000-00-000000<br>
+          예금주 : 루미벨<br><br>
+          주문 제출 후 위 계좌로 입금해 주세요.<br>
+          입금자명은 주문서 이름과 동일하게 맞춰주시면 확인이 빨라져요.
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>주문자 정보</h2>
+        <form id="orderForm">
+          <div class="field">
+            <label for="buyerName">이름</label>
+            <input id="buyerName" name="buyerName" type="text" required>
+          </div>
+          <div class="field">
+            <label for="contact">연락처</label>
+            <input id="contact" name="contact" type="text" placeholder="010-0000-0000" required>
+          </div>
+          <div class="field">
+            <label for="address">배송지</label>
+            <textarea id="address" name="address" required></textarea>
+          </div>
+          <div class="field">
+            <label for="depositor">입금자명</label>
+            <input id="depositor" name="depositor" type="text" required>
+          </div>
+          <div class="field">
+            <label for="memo">요청사항</label>
+            <textarea id="memo" name="memo" placeholder="없으면 비워두셔도 돼요."></textarea>
+          </div>
+          <button type="submit" class="submit-btn">주문 제출하기</button>
+          <div class="help">
+            지금 파일은 장바구니 흐름과 주문 화면을 먼저 볼 수 있게 만든 버전이야.<br>
+            나중에 구글폼 액션 URL과 entry 번호만 붙이면 시트 접수 방식으로 확장 가능해.
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const CART_KEY = 'lumibelle_goods_cart';
+    const ORDER_KEY = 'lumibelle_goods_last_order';
+    function getCart(){ try{return JSON.parse(localStorage.getItem(CART_KEY))||[]}catch(e){return []} }
+    function money(v){ return `₩ ${v.toLocaleString('ko-KR')}`; }
+    function renderSummary(){
+      const cart = getCart();
+      if (!cart.length){
+        alert('장바구니가 비어 있어요. 굿즈 페이지로 이동할게요.');
+        location.href = 'goods_index.html';
+        return;
+      }
+      document.getElementById('cartSummary').innerHTML = cart.map(item => `
+        <div class="cart-line">
+          <div><strong>${item.name}</strong><span>${money(item.price)} × ${item.quantity}</span></div>
+          <div>${money(item.price * item.quantity)}</div>
+        </div>
+      `).join('');
+      const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      document.getElementById('grandTotal').textContent = money(total);
+    }
+
+    document.getElementById('orderForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const cart = getCart();
+      const orderData = {
+        buyerName: document.getElementById('buyerName').value.trim(),
+        contact: document.getElementById('contact').value.trim(),
+        address: document.getElementById('address').value.trim(),
+        depositor: document.getElementById('depositor').value.trim(),
+        memo: document.getElementById('memo').value.trim(),
+        cart,
+        total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+      };
+      localStorage.setItem(ORDER_KEY, JSON.stringify(orderData));
+      location.href = 'complete.html';
+    });
+
+    renderSummary();
+  </script>
+</body>
+</html>
