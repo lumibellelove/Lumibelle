@@ -36,12 +36,29 @@
     /* ===== 상단 1차 메뉴 ===== */
     nav{
       display:grid;
-      grid-template-columns:repeat(8, minmax(92px,1fr));
-      gap:28px;
+      grid-template-columns:repeat(8, minmax(0,1fr));
+      gap:20px;
       text-align:center;
       align-items:center;
       flex:1;
-      margin:0 26px;
+      margin:0 22px;
+    }
+
+    nav a{
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      min-width:0;
+    }
+
+    nav a b,
+    nav a span{
+      display:block;
+      width:100%;
+      text-align:center;
+      white-space:nowrap;
     }
 
     .header-box{
@@ -56,6 +73,7 @@
       align-items:center;
       gap:10px;
       flex:0 0 auto;
+      padding-right:2px;
     }
 
     .lang-switch a{
@@ -83,18 +101,45 @@
       transform:translateY(-1px);
     }
 
+    nav a.current{
+      position:relative;
+      background:transparent !important;
+      box-shadow:none !important;
+      z-index:1;
+      border-radius:22px;
+      overflow:visible;
+    }
+
+    nav a.current::before{
+      content:"";
+      position:absolute;
+      top:-10px;
+      bottom:-10px;
+      left:-18px;
+      right:-18px;
+      border-radius:24px;
+      background:linear-gradient(90deg,
+        rgba(255,89,165,0.00) 0%,
+        rgba(255,89,165,0.06) 16%,
+        rgba(255,89,165,0.11) 50%,
+        rgba(255,89,165,0.06) 84%,
+        rgba(255,89,165,0.00) 100%);
+      z-index:-1;
+      pointer-events:none;
+    }
+
     /* ===== 상단 2차 메뉴 ===== */
     .subnav-wrap{
       display:grid;
-      grid-template-columns:repeat(4, minmax(180px, 1fr));
+      grid-template-columns:repeat(4, minmax(0, 1fr));
       gap:18px;
-      margin:34px auto 8px;
-      max-width:1180px;
+      margin:18px auto 8px;
+      max-width:1260px;
     }
 
     .subnav-card{
       position:relative;
-      padding:22px 24px;
+      padding:24px 30px;
       border-radius:24px;
       background:#fff5fb;
       border:1px solid #f2d8e7;
@@ -182,7 +227,7 @@
     /* ===== 상단 메인 비주얼 (최종 통합본) ===== */
     .hero-banner {
       position: relative;
-      margin-top: 2px;
+      margin-top: 6px;
       border: 1px solid #f2d8e7;
       border-radius: 32px;
       overflow: hidden;
