@@ -1296,7 +1296,31 @@
       }
     }
 
-  </style>
+  
+/* ===== 기본 글리터 클릭 효과 ===== */
+.glitter-burst{
+  position:absolute;
+  pointer-events:none;
+  width:8px;
+  height:8px;
+  background:radial-gradient(circle, #fff 0%, #ffc0d7 60%, transparent 100%);
+  border-radius:50%;
+  opacity:0;
+  animation:glitterPop 0.8s ease-out forwards;
+}
+
+@keyframes glitterPop{
+  0%{
+    transform:translate(0,0) scale(0.5);
+    opacity:1;
+  }
+  100%{
+    transform:translate(var(--x), var(--y)) scale(1.2);
+    opacity:0;
+  }
+}
+
+</style>
 </head>
 
 <body>
@@ -1715,6 +1739,37 @@
       heroText.style.transition = 'transform .35s ease';
     }
   </script>
+
+
+<script>
+document.addEventListener("click", function(e){
+  const target = e.target.closest(".member-btn, .more-btn, .info-link-btn, .ticket-btn, nav a");
+  if(!target) return;
+
+  const rect = target.getBoundingClientRect();
+
+  for(let i=0;i<8;i++){
+    const dot = document.createElement("span");
+    dot.className = "glitter-burst";
+
+    const angle = Math.random()*Math.PI*2;
+    const distance = 30 + Math.random()*20;
+
+    const x = Math.cos(angle)*distance + "px";
+    const y = Math.sin(angle)*distance + "px";
+
+    dot.style.setProperty("--x", x);
+    dot.style.setProperty("--y", y);
+
+    dot.style.left = (e.clientX - rect.left) + "px";
+    dot.style.top = (e.clientY - rect.top) + "px";
+
+    target.appendChild(dot);
+
+    setTimeout(()=>dot.remove(), 800);
+  }
+});
+</script>
 
 </body>
 </html>
