@@ -42,7 +42,7 @@
   <div class="wrap">
     <div class="top">
       <h1>ORDER</h1>
-      <a href="cart.html" class="back">← 장바구니로 돌아가기</a>
+      <a href="index.html" class="back" id="backButton">← 굿즈로 돌아가기</a>
     </div>
 
     <div class="grid">
@@ -102,6 +102,10 @@
             <input id="detailAddress" name="detailAddress" type="text" placeholder="동, 호수 등 상세 주소를 입력해 주세요" required>
           </div>
           <div class="field">
+            <label for="recipientName">수령인 이름</label>
+            <input id="recipientName" name="recipientName" type="text" required>
+          </div>
+          <div class="field">
             <label for="depositor">입금자명</label>
             <input id="depositor" name="depositor" type="text" required>
           </div>
@@ -109,10 +113,22 @@
             <label for="memo">요청사항</label>
             <textarea id="memo" name="memo" placeholder="없으면 비워두셔도 돼요."></textarea>
           </div>
+          <div class="field" style="margin-top:22px;">
+            <label style="display:flex; align-items:flex-start; gap:10px; line-height:1.7; font-weight:700; color:#8f7183;">
+              <input id="privacyAgree" type="checkbox" required style="width:18px; height:18px; margin-top:2px; accent-color:#ff5aa6;">
+              <span>주문 확인 및 배송 진행을 위해 이름, 연락처, 주소 정보를 수집·이용하는 데 동의합니다.</span>
+            </label>
+          </div>
+          <div class="field" style="margin-top:-2px;">
+            <label style="display:flex; align-items:flex-start; gap:10px; line-height:1.7; font-weight:700; color:#8f7183;">
+              <input id="refundAgree" type="checkbox" required style="width:18px; height:18px; margin-top:2px; accent-color:#ff5aa6;">
+              <span>주문 후 단순 변심에 의한 교환 및 환불이 제한될 수 있음을 확인했습니다.</span>
+            </label>
+          </div>
           <button type="submit" class="submit-btn">주문 제출하기</button>
           <div class="help">
-            지금 파일은 장바구니 흐름과 주문 화면을 먼저 볼 수 있게 만든 버전이야.<br>
-            나중에 구글폼 액션 URL과 entry 번호만 붙이면 시트 접수 방식으로 확장 가능해.
+            주문 내용을 제출하면 완료 페이지로 이동합니다.<br>
+            나중에 구글폼 액션 URL과 entry 번호만 붙이면 시트 접수 방식으로 확장 가능해요.
           </div>
         </form>
       </section>
@@ -124,9 +140,27 @@
     const CART_KEY = 'lumibelle_goods_cart';
     const ORDER_KEY = 'lumibelle_goods_last_order';
     const SHIPPING_FEE = 6000;
+    const GOODS_MAP = {
+      tshirt: { name: '루미벨 데뷔 티셔츠', price: 30000 },
+      acrylic: { name: '아크릴 스탠드', price: 12000 },
+      photocard: { name: '포토카드 세트', price: 8000 }
+    };
 
     function getCart(){ try{return JSON.parse(localStorage.getItem(CART_KEY))||[]}catch(e){return []} }
     function money(v){ return `₩ ${v.toLocaleString('ko-KR')}`; }
+    function getParams(){ return new URLSearchParams(location.search); }
+    function getDirectCart(){
+      const params = getParams();
+      const mode = params.get('mode');
+      const itemKey = params.get('item');
+      if(mode !== 'direct' || !itemKey || !GOODS_MAP[itemKey]) return null;
+      return [{ key: itemKey, name: GOODS_MAP[itemKey].name, price: GOODS_MAP[itemKey].price, quantity: 1 }];
+    }
+    function getOrderItems(){
+      const direct = getDirectCart();
+      if (direct) return direct;
+      return getCart();
+    }
 
     function execDaumPostcode() {
       new daum.Postcode({
@@ -139,19 +173,26 @@
     }
 
     function renderSummary(){
-      const cart = getCart();
-      if (!cart.length){
+      const items = getOrderItems();
+      const backButton = document.getElementById('backButton');
+      const params = getParams();
+      const isDirect = params.get('mode') === 'direct';
+      if (backButton) {
+        backButton.textContent = isDirect ? '← 굿즈로 돌아가기' : '← 장바구니로 돌아가기';
+        backButton.href = isDirect ? 'index.html' : 'cart.html';
+      }
+      if (!items.length){
         alert('장바구니가 비어 있어요. 굿즈 페이지로 이동할게요.');
-        location.href = 'goods_index.html';
+        location.href = 'index.html';
         return;
       }
-      document.getElementById('cartSummary').innerHTML = cart.map(item => `
+      document.getElementById('cartSummary').innerHTML = items.map(item => `
         <div class="cart-line">
           <div><strong>${item.name}</strong><span>${money(item.price)} × ${item.quantity}</span></div>
           <div>${money(item.price * item.quantity)}</div>
         </div>
       `).join('');
-      const productTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const productTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
       const grandTotal = productTotal + SHIPPING_FEE;
       document.getElementById('productTotal').textContent = money(productTotal);
       document.getElementById('shippingFee').textContent = money(SHIPPING_FEE);
@@ -160,8 +201,8 @@
 
     document.getElementById('orderForm').addEventListener('submit', function(e){
       e.preventDefault();
-      const cart = getCart();
-      const productTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const items = getOrderItems();
+      const productTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
       const orderData = {
         buyerName: document.getElementById('buyerName').value.trim(),
         contact: document.getElementById('contact').value.trim(),
@@ -169,9 +210,10 @@
         address: document.getElementById('address').value.trim(),
         detailAddress: document.getElementById('detailAddress').value.trim(),
         fullAddress: `${document.getElementById('address').value.trim()} ${document.getElementById('detailAddress').value.trim()}`.trim(),
+        recipientName: document.getElementById('recipientName').value.trim(),
         depositor: document.getElementById('depositor').value.trim(),
         memo: document.getElementById('memo').value.trim(),
-        cart,
+        cart: items,
         productTotal,
         shippingFee: SHIPPING_FEE,
         total: productTotal + SHIPPING_FEE
