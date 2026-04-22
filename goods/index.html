@@ -1,340 +1,172 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>GOODS | Lumibelle</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+
   <style>
-    :root{
-      --bg:#fffafc;
-      --panel:#fff5fb;
-      --line:#f2d8e7;
-      --pink:#ff5aa6;
-      --pink-soft:#fff0f7;
-      --text:#7f6a77;
-      --sub:#c697b1;
-      --shadow:0 8px 24px rgba(232,191,211,0.12);
-      --shadow-strong:0 14px 30px rgba(232,191,211,0.18);
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0}
     body{
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      background:var(--bg);
-      color:var(--text);
+      margin:0;
+      background:#fff8fb;
       font-family:"SUIT","Noto Sans KR",sans-serif;
-      letter-spacing:-0.01em;
     }
-    .wrap{width:min(1260px, calc(100% - 32px)); margin:0 auto;}
-    .top-lang-bar{
-      width:min(1260px, calc(100% - 32px));
-      margin:16px auto 0;
-      display:flex;
-      justify-content:flex-end;
-    }
-    .lang-switch{display:flex; gap:10px;}
-    .lang-switch a{
-      display:inline-flex; align-items:center; justify-content:center;
-      min-width:42px; height:36px; padding:0 10px; border-radius:999px;
-      background:#fff; border:1px solid #f0bfd4; color:#d27ca8;
-      text-decoration:none; font-size:12px; font-weight:900;
-      box-shadow:0 4px 10px rgba(255,95,165,0.08);
-    }
-    .lang-switch a.active,.lang-switch a:hover{background:#fff0f7;color:var(--pink)}
-    header{margin-top:8px}
-    .header-box{display:flex; align-items:center; gap:24px;}
-    .logo img{display:block; height:72px; width:auto}
-    nav{
-      display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:18px;
-      text-align:center; align-items:center; flex:1; margin:0 20px;
-    }
-    nav a{
-      width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
-      text-decoration:none; color:inherit; position:relative; border-radius:22px; min-width:0;
-      padding:10px 6px;
-    }
-    nav a b, nav a span{display:block; width:100%; white-space:nowrap}
-    nav a b{font-size:1.2em; font-weight:700; color:#d97ca9}
-    nav a span{font-size:.94em; color:#c697b1; margin-top:6px}
-    nav a.current::before, nav a:hover::before{
-      content:""; position:absolute; inset:0; border-radius:22px;
-      background:linear-gradient(90deg, rgba(255,217,232,0) 0%, rgba(255,217,232,.14) 16%, rgba(255,192,215,.16) 36%, rgba(255,192,215,.20) 50%, rgba(255,192,215,.16) 64%, rgba(255,217,232,.14) 84%, rgba(255,217,232,0) 100%);
-      z-index:-1;
-    }
-    nav a.current b, nav a:hover b{color:var(--pink)}
-    nav a.current span, nav a:hover span{color:#d88dad}
 
-    main{flex:1}
-    .hero{
-      position:relative; overflow:hidden; margin-top:18px; padding:40px 34px;
-      border:1px solid var(--line); border-radius:32px; background:linear-gradient(135deg,#fff0f7 0%,#f5edff 100%);
-      box-shadow:var(--shadow);
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding:40px 20px;
     }
-    .hero::after{
-      content:""; position:absolute; right:-80px; top:-40px; width:220px; height:220px;
-      background:radial-gradient(circle, rgba(255,255,255,.8) 0%, rgba(255,255,255,0) 70%);
-      pointer-events:none;
-    }
-    .hero-kicker{color:var(--pink); font-weight:800; margin-bottom:8px}
-    .hero h1{
-      margin:0; font-family:"Cormorant Garamond",serif; font-size:72px; line-height:.92;
-      font-weight:600; color:var(--pink);
-      text-shadow:0 1px 0 rgba(255,255,255,.98),0 0 10px rgba(255,120,178,.22),0 0 20px rgba(255,255,255,.34);
-    }
-    .hero p{margin:12px 0 0; color:#8f7183; font-weight:600; line-height:1.8}
-    .hero-actions{display:flex; gap:12px; margin-top:22px; flex-wrap:wrap}
-    .pill-btn{
-      display:inline-flex; align-items:center; justify-content:center; min-width:150px;
-      padding:14px 20px; border-radius:999px; text-decoration:none; font-weight:800;
-      border:1px solid #f0bfd4; background:#fff; color:#d27ca8;
-      box-shadow:0 4px 10px rgba(255,95,165,0.08);
-    }
-    .pill-btn.primary{background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%); color:#fff; border:none; box-shadow:0 8px 18px rgba(255,95,165,.25)}
 
-    .section-heading{text-align:center; margin:42px 0 22px}
-    .section-heading h2{margin:0; font-size:56px; line-height:1; font-weight:900; color:#d67faa}
-    .section-heading p{margin:10px 0 0; color:#c79bb3; font-size:16px; font-weight:700}
-
-    .notice{
-      margin-top:18px; padding:18px 20px; border-radius:22px; background:#fff5fb;
-      border:1px solid var(--line); box-shadow:var(--shadow);
-      display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:center;
+    .title{
+      text-align:center;
+      margin-bottom:40px;
     }
-    .notice strong{color:var(--pink)}
 
-    .goods-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px; margin-top:22px}
+    .title h1{
+      font-size:56px;
+      color:#ff5aa6;
+      margin:0;
+    }
+
+    .goods-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:24px;
+    }
+
     .goods-card{
-      background:var(--panel); border:1px solid var(--line); border-radius:28px; overflow:hidden;
-      box-shadow:var(--shadow); transition:transform .18s ease, box-shadow .18s ease;
+      background:#fff5fb;
+      border-radius:24px;
+      overflow:hidden;
+      border:1px solid #f2d8e7;
+      transition:.2s;
     }
-    .goods-card:hover{transform:translateY(-4px); box-shadow:var(--shadow-strong)}
-    .goods-thumb{
-      position:relative; aspect-ratio:1/1; background:#fff; border-bottom:1px solid var(--line);
-      display:flex; align-items:center; justify-content:center; overflow:hidden;
+
+    .goods-card:hover{
+      transform:translateY(-5px);
     }
-    .goods-thumb img{width:100%; height:100%; object-fit:cover; display:block}
-    .goods-badge{
-      position:absolute; top:14px; right:14px; padding:7px 12px; border-radius:999px;
-      background:var(--pink); color:#fff; font-size:12px; font-weight:900;
-      box-shadow:0 6px 14px rgba(255,89,165,.22);
+
+    .goods-image{
+      height:240px;
+      background:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
-    .goods-body{padding:20px 18px 18px}
-    .goods-name{font-size:20px; font-weight:900; color:#d77ca7; margin:0 0 8px}
-    .goods-desc{font-size:14px; line-height:1.7; color:#8f7183; min-height:48px; margin:0 0 14px}
-    .goods-meta{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px}
-    .goods-price{font-size:18px; font-weight:900; color:#7e6b78}
-    .goods-stock{font-size:13px; font-weight:800; color:#c697b1}
-    .goods-actions{display:flex; gap:10px}
+
+    .goods-image img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    .goods-info{
+      padding:18px;
+      text-align:center;
+    }
+
+    .goods-name{
+      font-weight:900;
+      color:#d77ca7;
+    }
+
+    .goods-price{
+      margin:8px 0;
+      color:#8f7183;
+    }
+
     .goods-btn{
-      flex:1; display:inline-flex; align-items:center; justify-content:center; padding:13px 16px;
-      border-radius:999px; text-decoration:none; font-size:14px; font-weight:800; cursor:pointer;
-      border:none;
+      display:inline-block;
+      padding:10px 16px;
+      border-radius:999px;
+      background:#ff5aa6;
+      color:#fff;
+      text-decoration:none;
+      font-weight:800;
     }
-    .goods-btn.cart{background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%); color:#fff; box-shadow:0 8px 18px rgba(255,95,165,.25)}
-    .goods-btn.detail{background:#fff; color:#d27ca8; border:1px solid #f0bfd4}
 
-    .guide-box{
-      margin-top:34px; background:#fff5fb; border:1px solid var(--line); border-radius:28px;
-      box-shadow:var(--shadow); padding:24px 24px 22px;
+    .goods-btn:hover{
+      transform:translateY(-2px);
     }
-    .guide-box h3{margin:0 0 12px; font-size:28px; color:#d67faa}
-    .guide-box ul{margin:0; padding-left:18px; color:#8f7183; line-height:1.8}
 
-    footer{text-align:center; padding:28px 16px 40px; color:#c6a2b4; font-size:14px}
-
-    @media (max-width:1180px){nav{grid-template-columns:repeat(4,1fr)}}
-    @media (max-width:980px){.header-box{flex-wrap:wrap;justify-content:center} nav{grid-template-columns:repeat(4,1fr);width:100%;margin:0}}
-    @media (max-width:900px){.goods-grid{grid-template-columns:1fr 1fr}}
-    @media (max-width:780px){
-      .hero{padding:28px 20px}
-      .hero h1{font-size:58px}
-      .section-heading h2{font-size:42px}
-      nav{grid-template-columns:repeat(2,1fr);gap:12px}
-      .goods-grid{grid-template-columns:1fr}
-      .goods-actions{flex-direction:column}
-      .logo img{height:60px}
+    nav{
+      display:flex;
+      justify-content:center;
+      gap:20px;
+      margin-bottom:30px;
     }
+
+    nav a{
+      text-decoration:none;
+      color:#d77ca7;
+      font-weight:800;
+    }
+
   </style>
 </head>
+
 <body>
-  <div class="top-lang-bar">
-    <div class="lang-switch">
-      <a href="../index.html" class="active">KR</a>
-      <a href="../en/index.html">EN</a>
-      <a href="../jp/index.html">JP</a>
-      <a href="../cn/index.html">CN</a>
+
+  <!-- 🔥 상단 메뉴 (경로 수정 완료) -->
+  <nav>
+    <a href="../index.html">HOME</a>
+    <a href="../news.html">NEWS</a>
+    <a href="../member.html">MEMBER</a>
+    <a href="../schedule.html">SCHEDULE</a>
+    <a href="../ticket/current.html">TICKET</a>
+    <a href="../goods/index.html">GOODS</a>
+    <a href="../setlist.html">SETLIST</a>
+    <a href="../info.html">INFO</a>
+  </nav>
+
+  <div class="wrap">
+
+    <div class="title">
+      <h1>GOODS</h1>
     </div>
+
+    <div class="goods-grid">
+
+      <!-- 🔥 굿즈 1 -->
+      <div class="goods-card">
+        <div class="goods-image">
+          <img src="../img/goods/tshirt.webp">
+        </div>
+        <div class="goods-info">
+          <div class="goods-name">루미벨 데뷔 티셔츠</div>
+          <div class="goods-price">₩30,000</div>
+          <a href="cart.html?item=tshirt" class="goods-btn">구매하기</a>
+        </div>
+      </div>
+
+      <!-- 🔥 굿즈 2 -->
+      <div class="goods-card">
+        <div class="goods-image">
+          <img src="../img/goods/acrylic.webp">
+        </div>
+        <div class="goods-info">
+          <div class="goods-name">아크릴 스탠드</div>
+          <div class="goods-price">₩12,000</div>
+          <a href="cart.html?item=acrylic" class="goods-btn">구매하기</a>
+        </div>
+      </div>
+
+      <!-- 🔥 굿즈 3 -->
+      <div class="goods-card">
+        <div class="goods-image">
+          <img src="../img/goods/photocard.webp">
+        </div>
+        <div class="goods-info">
+          <div class="goods-name">포토카드 세트</div>
+          <div class="goods-price">₩8,000</div>
+          <a href="cart.html?item=photocard" class="goods-btn">구매하기</a>
+        </div>
+      </div>
+
+    </div>
+
   </div>
 
-  <header>
-    <div class="wrap header-box">
-      <div class="logo">
-        <a href="../index.html">
-          <picture>
-            <source srcset="../img/ui/logo.webp?v=3" type="image/webp">
-            <img src="../img/ui/logo.png?v=3" alt="Lumibelle 로고" loading="eager" decoding="async">
-          </picture>
-        </a>
-      </div>
-      <nav>
-        <a href="../index.html"><b>HOME</b><span>홈</span></a>
-        <a href="../news.html"><b>NEWS</b><span>공지사항</span></a>
-        <a href="../member.html"><b>MEMBER</b><span>멤버 소개</span></a>
-        <a href="../schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
-        <a href="../ticket/current.html"><b>TICKET</b><span>예매</span></a>
-        <a href="index.html" class="current"><b>GOODS</b><span>굿즈</span></a>
-        <a href="../setlist.html"><b>SETLIST</b><span>응원 가이드</span></a>
-        <a href="../info.html"><b>INFO</b><span>안내</span></a>
-      </nav>
-    </div>
-  </header>
-
-  <main>
-    <div class="wrap">
-      <section class="hero">
-        <div class="hero-kicker">루미벨 공식 굿즈</div>
-        <h1>Goods Shop</h1>
-        <p>장바구니에 담은 뒤 한 번에 주문서를 작성할 수 있어요.<br>계좌이체 방식으로 접수되며, 주문 제출 후 안내된 계좌로 입금해 주세요.</p>
-        <div class="hero-actions">
-          <a href="cart.html" class="pill-btn primary">장바구니 보기</a>
-          <a href="archive/index.html" class="pill-btn">지난 굿즈 보기</a>
-        </div>
-      </section>
-
-      <div class="notice">
-        <div><strong>안내</strong> 현재는 계좌이체 주문 방식입니다. 주문 제출 후 입금 확인 순서대로 접수됩니다.</div>
-        <a href="cart.html" class="pill-btn">CART <span id="cartCount">0</span></a>
-      </div>
-
-      <section class="section-heading">
-        <h2>GOODS</h2>
-        <p>판매 중인 굿즈</p>
-      </section>
-
-      <section class="goods-grid" id="goodsGrid"></section>
-
-      <section class="guide-box">
-        <h3>ORDER GUIDE</h3>
-        <ul>
-          <li>원하시는 상품을 장바구니에 담은 뒤 주문서를 작성해 주세요.</li>
-          <li>주문 제출 후 표시되는 안내에 따라 계좌이체를 진행해 주세요.</li>
-          <li>입금자명은 주문서에 작성한 이름과 동일하게 맞춰주시면 확인이 빨라져요.</li>
-          <li>재고 수량은 예시입니다. 실제 판매 시 숫자만 바꿔 쓰면 돼요.</li>
-        </ul>
-      </section>
-    </div>
-  </main>
-
-  <footer>© 2026 Lumibelle All Rights Reserved.</footer>
-
-  <script>
-    const GOODS = [
-      {
-        id: 'debut-tshirt',
-        name: '루미벨 데뷔 티셔츠',
-        price: 30000,
-        stock: 18,
-        badge: 'NEW',
-        description: '데뷔 라이브 기념 반팔 티셔츠입니다.',
-        image: '../img/goods/debut-tshirt.webp'
-      },
-      {
-        id: 'acrylic-stand',
-        name: '아크릴 스탠드',
-        price: 12000,
-        stock: 26,
-        badge: 'POPULAR',
-        description: '멤버별 일러스트 또는 실사 아크릴 스탠드용 예시 카드입니다.',
-        image: '../img/goods/acrylic-stand.webp'
-      },
-      {
-        id: 'photocard-set',
-        name: '포토카드 세트',
-        price: 8000,
-        stock: 40,
-        badge: 'LIMITED',
-        description: '랜덤 또는 세트 판매용으로 바꿔 쓰기 쉬운 기본 카드예요.',
-        image: '../img/goods/photocard-set.webp'
-      }
-    ];
-
-    const CART_KEY = 'lumibelle_goods_cart';
-
-    function getCart(){
-      try {
-        return JSON.parse(localStorage.getItem(CART_KEY)) || [];
-      } catch(e){
-        return [];
-      }
-    }
-
-    function saveCart(cart){
-      localStorage.setItem(CART_KEY, JSON.stringify(cart));
-      updateCartCount();
-    }
-
-    function updateCartCount(){
-      const cart = getCart();
-      const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-      const el = document.getElementById('cartCount');
-      if (el) el.textContent = count;
-    }
-
-    function addToCart(id){
-      const goods = GOODS.find(item => item.id === id);
-      if (!goods) return;
-      const cart = getCart();
-      const existing = cart.find(item => item.id === id);
-      if (existing) {
-        existing.quantity += 1;
-      } else {
-        cart.push({
-          id: goods.id,
-          name: goods.name,
-          price: goods.price,
-          image: goods.image,
-          quantity: 1
-        });
-      }
-      saveCart(cart);
-      alert('장바구니에 담았어요 ✦');
-    }
-
-    function renderGoods(){
-      const grid = document.getElementById('goodsGrid');
-      grid.innerHTML = GOODS.map(item => `
-        <article class="goods-card">
-          <div class="goods-thumb">
-            <span class="goods-badge">${item.badge}</span>
-            <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async">
-          </div>
-          <div class="goods-body">
-            <h3 class="goods-name">${item.name}</h3>
-            <p class="goods-desc">${item.description}</p>
-            <div class="goods-meta">
-              <div class="goods-price">₩ ${item.price.toLocaleString('ko-KR')}</div>
-              <div class="goods-stock">재고 ${item.stock}</div>
-            </div>
-            <div class="goods-actions">
-              <button class="goods-btn cart" type="button" data-id="${item.id}">장바구니 담기</button>
-              <a href="cart.html" class="goods-btn detail">바로 주문</a>
-            </div>
-          </div>
-        </article>
-      `).join('');
-
-      document.querySelectorAll('.goods-btn.cart').forEach(button => {
-        button.addEventListener('click', () => addToCart(button.dataset.id));
-      });
-    }
-
-    renderGoods();
-    updateCartCount();
-  </script>
 </body>
 </html>
