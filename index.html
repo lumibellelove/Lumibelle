@@ -23,12 +23,11 @@
       flex: 1;
     }
 
-    .top-lang-bar{
-      width:100%;
+    .top-lang-bar,
+    .header-shell,
+    .subnav-shell{
       max-width:1260px;
-      margin:16px auto 0;
-      display:flex;
-      justify-content:flex-end;
+      margin:0 auto;
       padding:0 18px;
       box-sizing:border-box;
     }
@@ -36,18 +35,35 @@
     /* ===== 상단 1차 메뉴 ===== */
     nav{
       display:grid;
-      grid-template-columns:repeat(8, minmax(92px,1fr));
-      gap:28px;
+      grid-template-columns:repeat(8, minmax(0,1fr));
+      gap:16px;
       text-align:center;
       align-items:center;
       flex:1;
-      margin:0 26px;
+      margin:0 14px;
+    }
+
+    .top-lang-bar{
+      margin:16px auto 8px;
+      display:flex;
+      justify-content:flex-end;
     }
 
     .header-box{
       display:flex;
       align-items:center;
-      gap:24px;
+      gap:18px;
+    }
+
+    nav a{
+      min-width:0;
+    }
+
+    nav a b,
+    nav a span{
+      display:block;
+      text-align:center;
+      white-space:nowrap;
     }
 
     /* ===== 언어 버튼 ===== */
@@ -88,8 +104,7 @@
       display:grid;
       grid-template-columns:repeat(4, minmax(180px, 1fr));
       gap:18px;
-      margin:34px auto 8px;
-      max-width:1180px;
+      margin:12px 0 10px;
     }
 
     .subnav-card{
@@ -146,6 +161,34 @@
       box-shadow:0 6px 14px rgba(255,89,165,0.22);
     }
 
+    nav a.current{
+      position:relative;
+      border-radius:24px;
+      overflow:visible;
+      background:transparent !important;
+      box-shadow:none !important;
+      z-index:1;
+    }
+
+    nav a.current::before{
+      content:"";
+      position:absolute;
+      top:-10px;
+      bottom:-10px;
+      left:-18px;
+      right:-18px;
+      border-radius:28px;
+      background:linear-gradient(90deg,
+        rgba(255,89,165,0) 0%,
+        rgba(255,89,165,0.12) 18%,
+        rgba(255,89,165,0.22) 50%,
+        rgba(255,89,165,0.12) 82%,
+        rgba(255,89,165,0) 100%);
+      z-index:-1;
+      pointer-events:none;
+      filter:blur(0.2px);
+    }
+
     /* ===== 위로가기 버튼 ===== */
     .back-to-top{
       position:fixed;
@@ -182,7 +225,7 @@
     /* ===== 상단 메인 비주얼 (최종 통합본) ===== */
     .hero-banner {
       position: relative;
-      margin-top: 2px;
+      margin-top: 6px;
       border: 1px solid #f2d8e7;
       border-radius: 32px;
       overflow: hidden;
@@ -876,15 +919,11 @@
     @media (max-width: 1180px){
       nav{
         grid-template-columns:repeat(4,1fr);
-        gap:16px;
+        gap:14px;
       }
 
       .subnav-wrap{
         grid-template-columns:repeat(2, minmax(180px,1fr));
-      }
-
-      .top-lang-bar{
-        max-width:1260px;
       }
     }
 
@@ -902,7 +941,10 @@
 
       .top-lang-bar{
         justify-content:center;
-        margin-top:14px;
+      }
+
+      .subnav-wrap{
+        grid-template-columns:repeat(2, minmax(160px,1fr));
       }
     }
 
@@ -979,7 +1021,6 @@
       nav{
         grid-template-columns:repeat(2,1fr);
         gap:12px;
-        margin:0;
       }
 
       .subnav-wrap{
@@ -1005,14 +1046,9 @@
 
 <body>
   <div class="top-lang-bar">
-    <div class="lang-switch">
-      <a href="index.html" class="active">KR</a>
-      <a href="en/index.html">EN</a>
-      <a href="jp/index.html">JP</a>
-      <a href="cn/index.html">CN</a>
-    </div>
   </div>
 
+  <div class="header-shell">
   <header>
     <div class="wrap header-box">
       <div class="logo">
@@ -1033,7 +1069,9 @@
       </nav>
     </div>
   </header>
+  </div>
 
+  <div class="subnav-shell">
   <div class="wrap">
     <div class="subnav-wrap reveal">
       <a href="content.html" class="subnav-card">
@@ -1059,6 +1097,7 @@
         <p>이벤트</p>
       </a>
     </div>
+  </div>
   </div>
 
   <main class="page-shell">
