@@ -1735,33 +1735,70 @@
   </script>
 
 
+
 <script>
-document.addEventListener("click", function(e){
-  const target = e.target.closest(".member-btn, .more-btn, .info-link-btn, .ticket-btn, nav a, .subnav-card, .live-guide-card");
-  if(!target) return;
+(function(){
+  function makeBurstAt(x, y, level = "normal"){
+    const petalCount = level === "big" ? 12 : 8;
+    const sparkCount = level === "big" ? 6 : 4;
+    const petalMin = level === "big" ? 26 : 18;
+    const petalMax = level === "big" ? 72 : 56;
+    const sparkMin = level === "big" ? 36 : 26;
+    const sparkMax = level === "big" ? 92 : 70;
 
-  const makeBurst = (cls, count, minD, maxD) => {
-    for(let i=0;i<count;i++){
-      const el = document.createElement("span");
-      el.className = cls;
+    const makeBurst = (cls, count, minD, maxD) => {
+      for(let i=0;i<count;i++){
+        const el = document.createElement("span");
+        el.className = cls;
 
-      const angle = (Math.PI * 2 / count) * i + (Math.random() * 0.35 - 0.175);
-      const distance = minD + Math.random() * (maxD - minD);
+        const angle = (Math.PI * 2 / count) * i + (Math.random() * 0.35 - 0.175);
+        const distance = minD + Math.random() * (maxD - minD);
 
-      el.style.setProperty("--x", Math.cos(angle) * distance + "px");
-      el.style.setProperty("--y", Math.sin(angle) * distance + "px");
-      el.style.left = e.clientX + "px";
-      el.style.top = e.clientY + "px";
+        el.style.setProperty("--x", Math.cos(angle) * distance + "px");
+        el.style.setProperty("--y", Math.sin(angle) * distance + "px");
+        el.style.left = x + "px";
+        el.style.top = y + "px";
 
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 850);
-    }
-  };
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 850);
+      }
+    };
 
-  makeBurst("burst-petal", 8, 20, 56);
-  makeBurst("burst-spark", 4, 28, 70);
-});
+    makeBurst("burst-petal", petalCount, petalMin, petalMax);
+    makeBurst("burst-spark", sparkCount, sparkMin, sparkMax);
+  }
+
+  document.addEventListener("pointerdown", function(e){
+    const target = e.target.closest("a, button, .member-card, .subnav-card, .live-guide-card, .info-link-btn, .ticket-btn, .member-btn, .more-btn");
+    if(!target) return;
+
+    const level = target.closest("nav") || target.classList.contains("subnav-card") ? "big" : "normal";
+    makeBurstAt(e.clientX, e.clientY, level);
+  });
+
+  document.addEventListener("click", function(e){
+    const link = e.target.closest('a[href]');
+    if(!link) return;
+
+    const href = link.getAttribute('href');
+    const targetAttr = link.getAttribute('target');
+    const isHash = href && href.startsWith('#');
+    const isJs = href && href.startsWith('javascript:');
+    const isMail = href && href.startsWith('mailto:');
+    const isTel = href && href.startsWith('tel:');
+    const isBlank = targetAttr === '_blank';
+    const hasDownload = link.hasAttribute('download');
+
+    if (!href || isHash || isJs || isMail || isTel || isBlank || hasDownload) return;
+
+    e.preventDefault();
+    setTimeout(() => {
+      window.location.href = href;
+    }, 180);
+  });
+})();
 </script>
+
 
 
 <script>
