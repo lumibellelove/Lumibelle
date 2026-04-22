@@ -181,6 +181,20 @@
       background:#fff0f7;
     }
 
+    nav a:focus,
+    nav a:active,
+    .subnav-card:focus,
+    .subnav-card:active{
+      outline:none !important;
+      transform:none !important;
+      box-shadow:0 8px 24px rgba(232, 191, 211, 0.12) !important;
+    }
+
+    nav a,
+    .subnav-card{
+      -webkit-tap-highlight-color:transparent;
+    }
+
     .subnav-card h3{
       margin:0 0 8px;
       color:#ff59a5;
@@ -263,24 +277,6 @@
 
     .hero-banner .slide{
       z-index:1;
-    }
-
-    .hero-overlay{
-      position:absolute;
-      inset:0;
-      background:
-        linear-gradient(
-          90deg,
-          rgba(255,255,255,0.38) 0%,
-          rgba(255,255,255,0.22) 22%,
-          rgba(255,255,255,0.10) 42%,
-          rgba(255,255,255,0.03) 60%,
-          rgba(255,255,255,0) 76%
-        );
-      backdrop-filter: blur(5px);
-      -webkit-backdrop-filter: blur(5px);
-      z-index:1;
-      pointer-events:none;
     }
 
     .slide {
@@ -458,9 +454,11 @@
 
     .member-meta {
       color: #8f7183;
-      font-size: 13.5px;
-      line-height: 1.75;
+      font-size: 14px;
+      line-height: 1.8;
       margin-bottom: 18px;
+      text-align:left;
+      padding:0 16px 0 18px;
     }
 
     .member-meta div{
@@ -1233,7 +1231,7 @@
 
     @media (hover: hover) and (pointer: fine){
       .member-card:hover{
-        transform:translateY(-6px) scale(1.015);
+        transform:translateY(-6px);
         box-shadow:0 18px 36px rgba(0,0,0,0.13);
       }
     }
@@ -1452,19 +1450,41 @@
     }
 
     .hero-desc{
-      display:block !important;
+      position:relative !important;
+      display:inline-block !important;
       margin-top:18px !important;
-      padding:0 !important;
-      border-radius:0 !important;
+      padding:12px 16px !important;
+      border-radius:20px !important;
       background:transparent !important;
       backdrop-filter:none !important;
       -webkit-backdrop-filter:none !important;
       box-shadow:none !important;
-      color:rgba(60,50,56,.90) !important;
-      text-shadow:0 1px 2px rgba(255,255,255,.28) !important;
+      color:rgba(60,50,56,.92) !important;
+      text-shadow:0 1px 2px rgba(255,255,255,.20) !important;
       font-size:16px !important;
-      line-height:1.8 !important;
+      line-height:1.85 !important;
       font-weight:600 !important;
+      isolation:isolate;
+      overflow:hidden;
+    }
+
+    .hero-desc::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:20px;
+      background:linear-gradient(90deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,.18) 10%,
+        rgba(255,255,255,.30) 24%,
+        rgba(255,255,255,.36) 50%,
+        rgba(255,255,255,.30) 76%,
+        rgba(255,255,255,.18) 90%,
+        rgba(255,255,255,0) 100%);
+      backdrop-filter:blur(5px);
+      -webkit-backdrop-filter:blur(5px);
+      z-index:-1;
+      pointer-events:none;
     }
 
     .section-heading h2{
@@ -1515,9 +1535,11 @@
     }
 
     .member-meta{
-      font-size:14.8px !important;
-      line-height:1.9 !important;
+      font-size:14px !important;
+      line-height:1.8 !important;
       color:#8a7481 !important;
+      text-align:left !important;
+      padding:0 16px 0 18px !important;
     }
 
     .member-btn,
@@ -1663,7 +1685,6 @@
         <div class="slide active" style="background-image: url('hero.png');"></div>
         <div class="slide" style="background-image: url('hero2.png');"></div>
         <div class="slide" style="background-image: url('hero3.png');"></div>
-        <div class="hero-overlay"></div>
 
         <div class="hero-inner">
           <div class="hero-kor">빛나는 미소의 소녀들</div>
