@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CART | Lumibelle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#fffafc;--panel:#fff5fb;--line:#f2d8e7;--pink:#ff5aa6;--text:#7f6a77;--sub:#c697b1;--shadow:0 8px 24px rgba(232,191,211,0.12)}
+    *{box-sizing:border-box} html,body{margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:"SUIT","Noto Sans KR",sans-serif}
+    .wrap{width:min(1100px, calc(100% - 32px)); margin:0 auto}
+    .top{padding:30px 0 20px; display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap}
+    .top h1{margin:0; font-size:48px; color:var(--pink)}
+    .back{display:inline-flex; padding:12px 18px; border-radius:999px; text-decoration:none; background:#fff; color:#d27ca8; border:1px solid #f0bfd4}
+    .panel{background:var(--panel); border:1px solid var(--line); border-radius:28px; box-shadow:var(--shadow); overflow:hidden}
+    .cart-item{display:grid; grid-template-columns:120px 1fr auto; gap:18px; padding:18px; align-items:center; border-bottom:1px solid var(--line)}
+    .cart-item:last-child{border-bottom:none}
+    .thumb{width:120px; height:120px; border-radius:18px; overflow:hidden; background:#fff}
+    .thumb img{width:100%; height:100%; object-fit:cover; display:block}
+    .name{font-size:20px; font-weight:900; color:#d77ca7; margin:0 0 8px}
+    .price{color:#8f7183; font-weight:800; margin:0 0 12px}
+    .qty-controls{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .qty-controls button{width:36px; height:36px; border-radius:50%; border:1px solid #f0bfd4; background:#fff; color:#d27ca8; font-size:18px; font-weight:900; cursor:pointer}
+    .remove{margin-top:12px; background:none; border:none; color:#c697b1; text-decoration:underline; cursor:pointer; padding:0; font:inherit}
+    .item-total{font-size:18px; font-weight:900; color:#7e6b78}
+    .summary{margin-top:22px; background:var(--panel); border:1px solid var(--line); border-radius:28px; box-shadow:var(--shadow); padding:24px}
+    .summary-row{display:flex; justify-content:space-between; gap:12px; font-size:18px; font-weight:800; color:#7e6b78}
+    .actions{display:flex; gap:12px; justify-content:flex-end; flex-wrap:wrap; margin-top:18px}
+    .btn{display:inline-flex; align-items:center; justify-content:center; padding:14px 20px; border-radius:999px; text-decoration:none; font-weight:800; border:none; cursor:pointer}
+    .btn.primary{background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%); color:#fff; box-shadow:0 8px 18px rgba(255,95,165,.25)}
+    .btn.secondary{background:#fff; color:#d27ca8; border:1px solid #f0bfd4}
+    .empty{padding:70px 20px; text-align:center; color:#b28ea2}
+    @media (max-width:780px){.cart-item{grid-template-columns:1fr}.thumb{width:100%; height:auto; aspect-ratio:1/1}.item-total{text-align:left}.top h1{font-size:38px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <h1>CART</h1>
+      <a href="goods_index.html" class="back">← 굿즈로 돌아가기</a>
+    </div>
+
+    <section class="panel" id="cartPanel"></section>
+
+    <section class="summary" id="summaryBox" hidden>
+      <div class="summary-row">
+        <span>총 금액</span>
+        <span id="totalPrice">₩ 0</span>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn secondary" id="clearCart">장바구니 비우기</button>
+        <a href="order.html" class="btn primary">주문서 작성하기</a>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const CART_KEY = 'lumibelle_goods_cart';
+    function getCart(){ try{return JSON.parse(localStorage.getItem(CART_KEY))||[]}catch(e){return []} }
+    function saveCart(cart){ localStorage.setItem(CART_KEY, JSON.stringify(cart)); renderCart(); }
+    function money(v){ return `₩ ${v.toLocaleString('ko-KR')}`; }
+    function renderCart(){
+      const panel = document.getElementById('cartPanel');
+      const summary = document.getElementById('summaryBox');
+      const cart = getCart();
+      if (!cart.length){
+        panel.innerHTML = '<div class="empty">장바구니가 비어 있어요 ✦<br>굿즈 페이지에서 상품을 담아 주세요.</div>';
+        summary.hidden = true;
+        return;
+      }
+      panel.innerHTML = cart.map(item => `
+        <article class="cart-item">
+          <div class="thumb"><img src="${item.image}" alt="${item.name}"></div>
+          <div>
+            <h2 class="name">${item.name}</h2>
+            <div class="price">개당 ${money(item.price)}</div>
+            <div class="qty-controls">
+              <button type="button" data-action="minus" data-id="${item.id}">−</button>
+              <strong>${item.quantity}</strong>
+              <button type="button" data-action="plus" data-id="${item.id}">＋</button>
+            </div>
+            <button class="remove" type="button" data-action="remove" data-id="${item.id}">삭제하기</button>
+          </div>
+          <div class="item-total">${money(item.price * item.quantity)}</div>
+        </article>
+      `).join('');
+      summary.hidden = false;
+      document.getElementById('totalPrice').textContent = money(cart.reduce((sum, item) => sum + item.price * item.quantity, 0));
+
+      panel.querySelectorAll('[data-action]').forEach(button => {
+        button.addEventListener('click', () => updateCart(button.dataset.id, button.dataset.action));
+      });
+    }
+    function updateCart(id, action){
+      const cart = getCart();
+      const target = cart.find(item => item.id === id);
+      if (!target) return;
+      if (action === 'plus') target.quantity += 1;
+      if (action === 'minus') target.quantity -= 1;
+      let next = cart.filter(item => item.quantity > 0);
+      if (action === 'remove') next = cart.filter(item => item.id !== id);
+      saveCart(next);
+    }
+    document.getElementById('clearCart').addEventListener('click', () => {
+      localStorage.removeItem(CART_KEY);
+      renderCart();
+    });
+    renderCart();
+  </script>
+</body>
+</html>
