@@ -6,29 +6,24 @@
   <title>GOODS | Lumibelle</title>
   <link rel="stylesheet" href="../style.css" />
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800&display=swap');
-    html, body { margin:0; padding:0; }
-    body{
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      background:#fffafc;
-      font-family:"SUIT","Noto Sans KR",sans-serif;
-      letter-spacing:-0.01em;
-      color:#7f6a77;
+
+    html, body { margin: 0; padding: 0; }
+    body {
+      min-height: 100vh; display: flex; flex-direction: column;
+      background: #fffafc; font-family:"SUIT","Noto Sans KR",sans-serif;
+      letter-spacing:-0.01em; color:#7f6a77;
     }
-    main.page-shell{ flex:1; }
+    main.page-shell { flex: 1; }
     .wrap{ width:min(1260px, calc(100% - 32px)); margin:0 auto; }
 
     .top-lang-bar{
-      width:100%;
-      max-width:1260px;
-      margin:16px auto 0;
-      display:flex;
-      justify-content:flex-end;
-      padding:0 34px 0 18px;
-      box-sizing:border-box;
+      width:100%; max-width:1260px; margin:16px auto 0; display:flex;
+      justify-content:flex-end; padding:0 34px 0 18px; box-sizing:border-box;
     }
     .header-box{ display:flex; align-items:center; gap:24px; }
 
@@ -37,151 +32,147 @@
       display:inline-flex; align-items:center; justify-content:center;
       min-width:42px; height:36px; padding:0 10px; border-radius:999px;
       background:#fff; border:1px solid #f0bfd4; color:#d27ca8; text-decoration:none;
-      font-size:12px; font-weight:900; box-shadow:0 4px 10px rgba(255,95,165,0.08);
-      transition:background .18s ease, color .18s ease, box-shadow .18s ease;
+      font-size:12px; font-weight:900; transition:background .18s ease, color .18s ease, box-shadow .18s ease;
+      box-shadow:0 4px 10px rgba(255,95,165,0.08);
     }
     .lang-switch a:hover,.lang-switch a.active{ background:#fff0f7; color:#ff59a5; }
 
     nav{
-      display:grid;
-      grid-template-columns:repeat(8, minmax(0, 1fr));
-      gap:18px;
-      text-align:center;
-      align-items:center;
-      flex:1;
-      margin:0 20px;
+      display:grid; grid-template-columns:repeat(8, minmax(0, 1fr)); gap:18px;
+      text-align:center; align-items:center; flex:1; margin:0 20px;
     }
     nav a{
       width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
-      min-width:0; text-decoration:none; position:relative; border-radius:22px; color:inherit;
+      min-width:0; position:relative; border-radius:22px; overflow:visible;
+      text-decoration:none; transform:none !important;
     }
     nav a b, nav a span{ display:block; width:100%; text-align:center; white-space:nowrap; }
-    nav a b{ font-size:1.2em; font-weight:700; color:#d97ca9; }
-    nav a span{ margin-top:6px; font-size:.94em; font-weight:600; color:#c697b1; }
-    nav a.current::before, nav a:hover::before, nav a:focus-visible::before{
-      content:""; position:absolute; inset:0; border-radius:22px;
+    nav a b{
+      font-family:"SUIT","Noto Sans KR",sans-serif !important;
+      font-size:1.2em !important; font-weight:700 !important; color:#d97ca9 !important;
+      letter-spacing:-0.03em !important;
+    }
+    nav a span{
+      font-family:"SUIT","Noto Sans KR",sans-serif !important;
+      font-size:.94em !important; font-weight:600 !important; color:#c697b1 !important;
+      margin-top:6px !important; letter-spacing:-0.01em !important;
+    }
+    nav a.current, nav a:hover, nav a:focus, nav a:focus-visible, nav a:active{
+      background:transparent !important; box-shadow:none !important; z-index:1; outline:none !important; transform:none !important;
+    }
+    nav a.current::before, nav a:hover::before, nav a:focus::before, nav a:focus-visible::before{
+      content:""; position:absolute; top:0; bottom:0; left:0; right:0; border-radius:22px;
       background:linear-gradient(90deg,
         rgba(255,217,232,0.00) 0%, rgba(255,217,232,0.14) 16%, rgba(255,192,215,0.16) 36%,
-        rgba(255,192,215,0.20) 50%, rgba(255,192,215,0.16) 64%, rgba(255,217,232,0.14) 84%, rgba(255,217,232,0.00) 100%);
-      z-index:-1;
+        rgba(255,192,215,0.20) 50%, rgba(255,192,215,0.16) 64%, rgba(255,217,232,0.14) 84%, rgba(255,217,232,0.00) 100%) !important;
+      z-index:-1; pointer-events:none; box-shadow:0 2px 8px rgba(255,192,215,0.04) !important;
     }
-    nav a.current b, nav a:hover b{ color:#ff59a5; }
-    nav a.current span, nav a:hover span{ color:#d88dad; }
+    nav a.current b, nav a:hover b{ color:#ff59a5 !important; }
+    nav a.current span, nav a:hover span{ color:#d88dad !important; }
 
     .hero-mini{
-      position:relative;
-      margin-top:18px;
-      border:1px solid #f2d8e7;
-      border-radius:32px;
-      overflow:hidden;
-      background:linear-gradient(135deg,#fff0f7 0%,#f7efff 100%);
-      box-shadow:0 8px 24px rgba(232,191,211,0.12);
-      padding:62px 56px 56px;
+      position:relative; margin-top:18px; border:1px solid #f2d8e7; border-radius:32px; overflow:hidden;
+      background:linear-gradient(135deg, #fff0f7 0%, #f3ebff 100%);
+      box-shadow:0 8px 24px rgba(232,191,211,0.12); padding:62px 56px 56px;
     }
     .hero-mini::after{
-      content:"";
-      position:absolute;
-      right:-40px; top:-50px;
-      width:260px; height:260px;
-      background:radial-gradient(circle, rgba(255,255,255,.75) 0%, rgba(255,255,255,0) 70%);
+      content:""; position:absolute; top:-20%; left:-10%; width:260px; height:260px;
+      background:radial-gradient(circle, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 70%);
       pointer-events:none;
     }
-    .hero-mini .sub{ color:#ff5aa6; font-size:18px; font-weight:800; margin-bottom:10px; }
-    .hero-mini h1{
-      margin:0;
-      font-family:"Cormorant Garamond", serif;
-      font-size:90px; line-height:.9; font-weight:600;
-      color:#ff5aa6;
-      text-shadow:0 1px 0 rgba(255,255,255,.98), 0 0 10px rgba(255,120,178,.18), 0 0 20px rgba(255,255,255,.28);
+    .hero-mini .sub{
+      font-size:20px !important; font-weight:800 !important; color:#ff5aa6 !important;
+      margin-bottom:10px !important; text-shadow:0 0 8px rgba(255,255,255,.34) !important;
     }
-    .hero-mini p{ margin:16px 0 0; color:#8f7183; font-size:17px; font-weight:600; line-height:1.8; }
+    .hero-mini h1{
+      margin:0; font-family:"Cormorant Garamond", serif !important; font-size:102px !important;
+      line-height:.9 !important; font-weight:600 !important; letter-spacing:-0.025em !important;
+      color:#ff5aa6 !important;
+      text-shadow:0 1px 0 rgba(255,255,255,.98), 0 0 10px rgba(255,120,178,.22), 0 0 20px rgba(255,255,255,.34) !important;
+    }
+    .hero-mini p{
+      display:inline-block !important; margin-top:18px !important; color:#8f7183; font-size:17px; line-height:1.9;
+      font-weight:700;
+    }
 
     .section-heading { text-align:center; margin:38px 0 20px; }
     .section-heading h2 {
-      margin:0; color:#d67faa; font-size:62px; line-height:1; font-weight:900;
-      text-shadow:0 6px 18px rgba(255,120,178,.10);
+      margin:0; color:#d67faa !important; font-size:62px !important; line-height:.95 !important; font-weight:900;
+      text-shadow:0 6px 18px rgba(255,120,178,.10) !important;
+      font-family:"SUIT","Noto Sans KR",sans-serif !important;
     }
-    .section-heading p { margin:10px 0 0; color:#c79bb3; font-size:17px; font-weight:700; }
-
-    .goods-toolbar{
-      display:flex; gap:14px; justify-content:flex-end; align-items:center;
-      margin:0 0 18px;
-    }
-    .toolbar-btn{
-      display:inline-flex; align-items:center; justify-content:center;
-      min-width:160px; padding:14px 20px; border-radius:999px;
-      background:linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%);
-      color:#fff; text-decoration:none; font-size:15px; font-weight:800;
-      box-shadow:0 8px 18px rgba(255,95,165,0.25);
-      transition:transform .15s ease;
-    }
-    .toolbar-btn:hover{ transform:translateY(-2px); }
-    .toolbar-btn.sub{
-      background:#fff; color:#d77ca7; border:1px solid #f0bfd4; box-shadow:0 4px 10px rgba(255,95,165,0.08);
+    .section-heading p {
+      margin:10px 0 0; color:#c79bb3 !important; font-size:17px !important; font-weight:700;
     }
 
-    .goods-grid{
-      display:grid;
-      grid-template-columns:repeat(3, minmax(0,1fr));
-      gap:22px;
+    .back-to-top{
+      position:fixed; right:22px; bottom:22px; width:56px; height:56px; border:none; border-radius:50%;
+      background:linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%); color:#fff; font-size:22px; font-weight:900;
+      cursor:pointer; box-shadow:0 12px 22px rgba(255,95,165,0.28); z-index:1200;
+      opacity:0; visibility:hidden; transform:translateY(8px); transition:all .2s ease;
     }
-    .goods-card{
-      background:#fff5fb;
-      border:1px solid #f2d8e7;
-      border-radius:28px;
-      box-shadow:0 8px 24px rgba(232,191,211,0.12);
-      overflow:hidden;
-      transition:transform .2s ease, box-shadow .2s ease;
-      position:relative;
-    }
-    .goods-card:hover{ transform:translateY(-6px); box-shadow:0 14px 32px rgba(0,0,0,0.10); }
-    .goods-badge{
-      position:absolute; top:14px; right:14px; z-index:2;
-      display:inline-flex; align-items:center; justify-content:center;
-      padding:7px 12px; border-radius:999px; font-size:11px; font-weight:900;
-      letter-spacing:.04em; line-height:1; box-shadow:0 6px 14px rgba(255,89,165,0.18);
-    }
-    .goods-badge.sale{ background:#ff59a5; color:#fff; }
-    .goods-badge.ready{ background:#fff; color:#d77ca7; border:1px solid #f0bfd4; }
+    .back-to-top.show{ opacity:1; visibility:visible; transform:translateY(0); }
+    .back-to-top:hover{ transform:translateY(-2px); filter:brightness(1.04); }
 
-    .goods-image{
-      width:100%; aspect-ratio:1/1; background:#fff; border-bottom:1px solid #f2d8e7;
-      display:flex; align-items:center; justify-content:center; overflow:hidden;
-    }
-    .goods-image img{ width:100%; height:100%; object-fit:cover; display:block; }
-    .goods-image .placeholder{
-      width:100%; height:100%; display:flex; align-items:center; justify-content:center; flex-direction:column;
-      color:#d6a2bc; background:linear-gradient(180deg,#fff 0%,#fff8fc 100%);
-      font-weight:800; font-size:15px;
-    }
-    .goods-image .placeholder span{ margin-top:8px; font-size:13px; font-weight:700; color:#c99ab2; }
+    .reveal{ opacity:0; transform:translateY(30px); transition:opacity .85s ease, transform .85s ease; will-change:opacity, transform; }
+    .reveal.show{ opacity:1; transform:translateY(0); }
 
-    .goods-body{ padding:22px 20px 20px; }
-    .goods-name{ margin:0 0 8px; color:#d77ca7; font-size:23px; font-weight:900; line-height:1.2; }
-    .goods-desc{ margin:0 0 14px; color:#8f7183; font-size:14px; line-height:1.7; min-height:48px; }
-    .goods-meta{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
-    .goods-price{ color:#ff5aa6; font-size:22px; font-weight:900; }
-    .goods-stock{ color:#b28ea2; font-size:13px; font-weight:700; }
-    .goods-actions{ display:flex; gap:10px; }
-    .goods-btn{
-      flex:1;
-      display:inline-flex; align-items:center; justify-content:center;
-      min-height:48px; padding:12px 14px; border-radius:999px; text-decoration:none;
-      font-size:14px; font-weight:800; transition:transform .15s ease;
+    nav a, .toolbar-btn, .goods-btn, .cta-btn, .back, .address-search-btn, .qty-btn, .remove-btn, .submit-btn{
+      position:relative; overflow:hidden; isolation:isolate;
     }
-    .goods-btn:hover{ transform:translateY(-2px); }
-    .goods-btn.cart{ background:#fff; color:#d77ca7; border:1px solid #f0bfd4; }
-    .goods-btn.buy{ background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%); color:#fff; box-shadow:0 8px 18px rgba(255,95,165,0.22); }
-
-    .notice-card{
-      margin-top:24px;
-      background:#fff5fb; border:1px solid #f2d8e7; border-radius:28px;
-      box-shadow:0 8px 24px rgba(232,191,211,0.12); padding:28px 26px;
+    nav a::after, .toolbar-btn::after, .goods-btn::after, .cta-btn::after, .back::after, .address-search-btn::after, .submit-btn::after{
+      content:""; position:absolute; top:-35%; left:-42%; width:22%; height:170%;
+      background:linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.12) 35%, rgba(255,255,255,.28) 50%, rgba(255,255,255,.12) 65%, rgba(255,255,255,0) 100%);
+      transform:skewX(-22deg) translateX(0); opacity:0; pointer-events:none; z-index:2;
     }
-    .notice-card h3{ margin:0 0 10px; color:#d77ca7; font-size:28px; font-weight:900; }
-    .notice-card p{ margin:0; color:#8f7183; line-height:1.9; font-size:15px; }
+    nav a:hover::after, .toolbar-btn:hover::after, .goods-btn:hover::after, .cta-btn:hover::after, .back:hover::after, .address-search-btn:hover::after, .submit-btn:hover::after{
+      animation:sweepShine .9s ease forwards;
+    }
+    @keyframes sweepShine{
+      0%{opacity:0; transform:skewX(-22deg) translateX(0);}
+      15%{opacity:1;}
+      100%{opacity:0; transform:skewX(-22deg) translateX(560%);}
+    }
+    .click-shine::after{ animation:sweepShine .9s ease forwards; }
 
-    footer { text-align:center; padding:28px 16px 40px; color:#c6a2b4; font-size:14px; }
+    .ripple-effect{
+      position:absolute; border-radius:50%; transform:scale(0); animation:ripple .65s ease-out forwards;
+      background:rgba(255,255,255,.35); pointer-events:none; z-index:3;
+    }
+    @keyframes ripple{ to{ transform:scale(4.2); opacity:0; } }
+
+    .glitter-burst{
+      position:absolute; pointer-events:none; width:8px; height:8px;
+      background:radial-gradient(circle, #fff 0%, #ffc0d7 60%, transparent 100%);
+      border-radius:50%; opacity:0; animation:glitterPop 0.8s ease-out forwards;
+    }
+    @keyframes glitterPop{
+      0%{ transform:translate(0,0) scale(0.5); opacity:1; }
+      100%{ transform:translate(var(--x), var(--y)) scale(1.2); opacity:0; }
+    }
+    .burst-spark, .burst-petal{
+      position:fixed; pointer-events:none; left:0; top:0; z-index:5000; opacity:0;
+    }
+    .burst-spark{ width:16px; height:16px; animation:burstSpark .72s ease-out forwards; }
+    .burst-spark::before, .burst-spark::after{
+      content:""; position:absolute; background:#fff; border-radius:999px;
+      box-shadow:0 0 10px rgba(255,255,255,.9), 0 0 18px rgba(255,192,215,.7);
+    }
+    .burst-spark::before{ width:3px; height:16px; left:6.5px; top:0; }
+    .burst-spark::after{ width:16px; height:3px; left:0; top:6.5px; }
+    .burst-petal{
+      width:14px; height:14px; border-radius:999px;
+      background:radial-gradient(circle at 35% 35%, #fff 0%, #ffd9e8 42%, #ffc0d7 78%, rgba(255,192,215,0) 100%);
+      box-shadow:0 0 10px rgba(255,192,215,.55); animation:burstPetal .78s ease-out forwards;
+    }
+    @keyframes burstSpark{
+      0%{ transform:translate(0,0) scale(.45) rotate(0deg); opacity:1; }
+      100%{ transform:translate(var(--x), var(--y)) scale(1.15) rotate(90deg); opacity:0; }
+    }
+    @keyframes burstPetal{
+      0%{ transform:translate(0,0) scale(.6); opacity:1; }
+      100%{ transform:translate(var(--x), var(--y)) scale(1.2); opacity:0; }
+    }
 
     @media (max-width: 1180px){
       nav{ grid-template-columns:repeat(4,1fr); gap:16px; }
@@ -191,163 +182,75 @@
       .header-box{ flex-wrap:wrap; justify-content:center; }
       nav{ grid-template-columns:repeat(4,1fr); width:100%; margin:0; }
       .top-lang-bar{ justify-content:center; margin-top:14px; }
-      .goods-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); }
-      .hero-mini h1{ font-size:74px; }
+      .hero-mini h1{ font-size:82px !important; }
+      .section-heading h2{ font-size:54px !important; }
     }
     @media (max-width: 780px){
       nav{ grid-template-columns:repeat(2,1fr); gap:12px; margin:0; }
       .hero-mini{ padding:42px 24px 40px; }
-      .hero-mini h1{ font-size:62px; }
-      .hero-mini p{ font-size:15px; }
-      .section-heading h2{ font-size:42px; }
-      .goods-grid{ grid-template-columns:1fr; }
-      .goods-toolbar{ flex-direction:column; align-items:stretch; }
-      .toolbar-btn{ width:100%; }
+      .hero-mini h1{ font-size:68px !important; }
+      .hero-mini .sub{ font-size:17px !important; }
+      .hero-mini p{ font-size:14px !important; }
+      .section-heading h2{ font-size:42px !important; }
     }
-  
 
-/* ===== common effects from index ===== */
-nav a,
-.toolbar-btn,
-.goods-btn,
-.cta-btn,
-.back,
-.address-search-btn,
-.submit-btn,
-.qty-btn,
-.remove-btn{
-  position:relative;
-  overflow:hidden;
-  isolation:isolate;
-}
 
-nav a::after,
-.toolbar-btn::after,
-.goods-btn::after,
-.cta-btn::after,
-.back::after,
-.address-search-btn::after,
-.submit-btn::after,
-.qty-btn::after{
-  content:"";
-  position:absolute;
-  top:-35%;
-  left:-42%;
-  width:22%;
-  height:170%;
-  background:linear-gradient(
-    90deg,
-    rgba(255,255,255,0) 0%,
-    rgba(255,255,255,.12) 35%,
-    rgba(255,255,255,.28) 50%,
-    rgba(255,255,255,.12) 65%,
-    rgba(255,255,255,0) 100%
-  );
-  transform:skewX(-22deg) translateX(0);
-  opacity:0;
-  pointer-events:none;
-  z-index:2;
-}
+    .goods-toolbar{ display:flex; gap:14px; justify-content:flex-end; align-items:center; margin:0 0 18px; }
+    .toolbar-btn{
+      display:inline-flex; align-items:center; justify-content:center; min-width:160px; padding:14px 20px; border-radius:999px;
+      background:linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%); color:#fff; text-decoration:none; font-size:15px; font-weight:800;
+      box-shadow:0 8px 18px rgba(255,95,165,0.25); transition:transform .15s ease;
+    }
+    .toolbar-btn:hover{ transform:translateY(-2px); }
+    .toolbar-btn.sub{ background:#fff; color:#d77ca7; border:1px solid #f0bfd4; box-shadow:0 4px 10px rgba(255,95,165,0.08); }
 
-nav a:hover::after,
-.toolbar-btn:hover::after,
-.goods-btn:hover::after,
-.cta-btn:hover::after,
-.back:hover::after,
-.address-search-btn:hover::after,
-.submit-btn:hover::after,
-.qty-btn:hover::after{
-  animation:sweepShine .9s ease forwards;
-}
+    .goods-grid{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:22px; }
+    .goods-card{
+      background:#fff5fb; border:1px solid #f2d8e7; border-radius:28px; box-shadow:0 8px 24px rgba(232,191,211,0.12);
+      overflow:hidden; transition:transform .2s ease, box-shadow .2s ease; position:relative;
+    }
+    .goods-card:hover{ transform:translateY(-6px); box-shadow:0 14px 32px rgba(0,0,0,0.10); }
+    .goods-badge{
+      position:absolute; top:14px; right:14px; z-index:2; display:inline-flex; align-items:center; justify-content:center;
+      padding:7px 12px; border-radius:999px; font-size:11px; font-weight:900; letter-spacing:.04em; line-height:1;
+      box-shadow:0 6px 14px rgba(255,89,165,0.18);
+    }
+    .goods-badge.sale{ background:#ff59a5; color:#fff; }
+    .goods-badge.ready{ background:#fff; color:#d77ca7; border:1px solid #f0bfd4; }
+    .goods-image{
+      width:100%; aspect-ratio:1/1; background:#fff; border-bottom:1px solid #f2d8e7;
+      display:flex; align-items:center; justify-content:center; overflow:hidden;
+    }
+    .goods-image img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .goods-image .placeholder{
+      width:100%; height:100%; display:flex; align-items:center; justify-content:center; flex-direction:column;
+      color:#d6a2bc; background:linear-gradient(180deg,#fff 0%,#fff8fc 100%); font-weight:800; font-size:15px;
+    }
+    .goods-body{ padding:22px 20px 20px; }
+    .goods-name{ margin:0 0 8px; color:#d77ca7; font-size:23px; font-weight:900; line-height:1.2; }
+    .goods-desc{ margin:0 0 14px; color:#8f7183; font-size:14px; line-height:1.7; min-height:48px; }
+    .goods-meta{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
+    .goods-price{ color:#ff5aa6; font-size:22px; font-weight:900; }
+    .goods-stock{ color:#b28ea2; font-size:13px; font-weight:700; }
+    .goods-actions{ display:flex; gap:10px; }
+    .goods-btn{
+      flex:1; display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:12px 14px; border-radius:999px; text-decoration:none;
+      font-size:14px; font-weight:800; transition:transform .15s ease;
+    }
+    .goods-btn:hover{ transform:translateY(-2px); }
+    .goods-btn.cart{ background:#fff; color:#d77ca7; border:1px solid #f0bfd4; }
+    .goods-btn.buy{ background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%); color:#fff; box-shadow:0 8px 18px rgba(255,95,165,.22); }
+    .notice-card{
+      margin-top:24px; background:#fff5fb; border:1px solid #f2d8e7; border-radius:28px;
+      box-shadow:0 8px 24px rgba(232,191,211,0.12); padding:28px 26px;
+    }
+    .notice-card h3{ margin:0 0 10px; color:#d77ca7; font-size:28px; font-weight:900; }
+    .notice-card p{ margin:0; color:#8f7183; line-height:1.9; font-size:15px; }
+    @media (max-width:980px){ .goods-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
+    @media (max-width:780px){ .goods-grid{ grid-template-columns:1fr; } .goods-toolbar{ flex-direction:column; align-items:stretch; } .toolbar-btn{ width:100%; } }
 
-@keyframes sweepShine{
-  0%{opacity:0; transform:skewX(-22deg) translateX(0);}
-  15%{opacity:1;}
-  100%{opacity:0; transform:skewX(-22deg) translateX(560%);}
-}
-
-.click-shine::after{ animation:sweepShine .9s ease forwards; }
-
-.ripple-effect{
-  position:absolute;
-  border-radius:50%;
-  transform:scale(0);
-  animation:ripple .65s ease-out forwards;
-  background:rgba(255,255,255,.35);
-  pointer-events:none;
-  z-index:3;
-}
-
-@keyframes ripple{
-  to{ transform:scale(4.2); opacity:0; }
-}
-
-.glitter-burst{
-  position:fixed;
-  pointer-events:none;
-  width:8px;
-  height:8px;
-  background:radial-gradient(circle, #fff 0%, #ffc0d7 60%, transparent 100%);
-  border-radius:50%;
-  opacity:0;
-  animation:glitterPop 0.8s ease-out forwards;
-}
-
-@keyframes glitterPop{
-  0%{ transform:translate(0,0) scale(0.5); opacity:1; }
-  100%{ transform:translate(var(--x), var(--y)) scale(1.2); opacity:0; }
-}
-
-.burst-spark,
-.burst-petal{
-  position:fixed;
-  pointer-events:none;
-  left:0;
-  top:0;
-  z-index:5000;
-  opacity:0;
-}
-
-.burst-spark{
-  width:16px;
-  height:16px;
-  animation:burstSpark .72s ease-out forwards;
-}
-
-.burst-spark::before,
-.burst-spark::after{
-  content:"";
-  position:absolute;
-  background:#fff;
-  border-radius:999px;
-  box-shadow:0 0 10px rgba(255,255,255,.9), 0 0 18px rgba(255,192,215,.7);
-}
-
-.burst-spark::before{ width:3px; height:16px; left:6.5px; top:0; }
-.burst-spark::after{ width:16px; height:3px; left:0; top:6.5px; }
-
-.burst-petal{
-  width:14px;
-  height:14px;
-  border-radius:999px;
-  background:radial-gradient(circle at 35% 35%, #fff 0%, #ffd9e8 42%, #ffc0d7 78%, rgba(255,192,215,0) 100%);
-  box-shadow:0 0 10px rgba(255,192,215,.55);
-  animation:burstPetal .78s ease-out forwards;
-}
-
-@keyframes burstSpark{
-  0%{ transform:translate(0,0) scale(.45) rotate(0deg); opacity:1; }
-  100%{ transform:translate(var(--x), var(--y)) scale(1.15) rotate(90deg); opacity:0; }
-}
-
-@keyframes burstPetal{
-  0%{ transform:translate(0,0) scale(.6); opacity:1; }
-  100%{ transform:translate(var(--x), var(--y)) scale(1.2); opacity:0; }
-}
-
-</style>
+  </style>
 </head>
-
 <body>
   <div class="top-lang-bar">
     <div class="lang-switch">
@@ -357,7 +260,6 @@ nav a:hover::after,
       <a href="../cn/index.html">CN</a>
     </div>
   </div>
-
   <header>
     <div class="wrap header-box">
       <div class="logo">
@@ -368,7 +270,6 @@ nav a:hover::after,
           </picture>
         </a>
       </div>
-
       <nav>
         <a href="../index.html"><b>HOME</b><span>홈</span></a>
         <a href="../news.html"><b>NEWS</b><span>공지사항</span></a>
@@ -381,176 +282,176 @@ nav a:hover::after,
       </nav>
     </div>
   </header>
+  
+<main class="page-shell">
+  <div class="wrap">
+    <section class="hero-mini reveal">
+      <div class="sub">반짝이는 순간을 담은 공식 굿즈</div>
+      <h1>Goods</h1>
+      <p>루미벨의 공식 굿즈를 한곳에서 만나보세요.<br>장바구니에 담거나 바로 구매할 수 있어요 ✦</p>
+    </section>
 
-  <main class="page-shell">
-    <div class="wrap">
-      <section class="hero-mini">
-        <div class="sub">반짝이는 순간을 담은 공식 굿즈</div>
-        <h1>Goods</h1>
-        <p>
-          루미벨의 공식 굿즈를 한곳에서 만나보세요.<br>
-          장바구니에 담은 뒤 주문 정보를 입력하고, 안내된 계좌로 입금하면 됩니다 ✦
-        </p>
-      </section>
+    <section class="section-heading reveal">
+      <h2>GOODS</h2>
+      <p>굿즈</p>
+    </section>
 
-      <section class="section-heading">
-        <h2>GOODS</h2>
-        <p>굿즈</p>
-      </section>
-
-      <div class="goods-toolbar">
-        <a href="cart.html" class="toolbar-btn">장바구니 보기</a>
-        <a href="archive/" class="toolbar-btn sub">지난 굿즈 보기</a>
-      </div>
-
-      <section class="goods-grid">
-        <article class="goods-card">
-          <span class="goods-badge sale">AVAILABLE</span>
-          <div class="goods-image">
-            <img src="../img/goods/lumibelle-debut-tshirt.webp" alt="루미벨 데뷔 티셔츠" onerror="this.closest('.goods-image').innerHTML='&lt;div class=&quot;placeholder&quot;&gt;GOODS IMAGE&lt;span&gt;../img/goods/lumibelle-debut-tshirt.webp&lt;/span&gt;&lt;/div&gt;'">
-          </div>
-          <div class="goods-body">
-            <h3 class="goods-name">루미벨 데뷔 티셔츠</h3>
-            <p class="goods-desc">데뷔 라이브를 기념한 공식 티셔츠입니다. 부드러운 컬러감과 편하게 입기 좋은 핏으로 준비했어요.</p>
-            <div class="goods-meta">
-              <div class="goods-price">₩30,000</div>
-              <div class="goods-stock">배송비 별도</div>
-            </div>
-            <div class="goods-actions">
-              <a href="cart.html?item=tshirt" class="goods-btn cart">장바구니</a>
-              <a href="order.html?item=tshirt" class="goods-btn buy">구매하기</a>
-            </div>
-          </div>
-        </article>
-
-        <article class="goods-card">
-          <span class="goods-badge ready">PREVIEW</span>
-          <div class="goods-image">
-            <img src="../img/goods/lumibelle-acrylic-stand.webp" alt="아크릴 스탠드" onerror="this.closest('.goods-image').innerHTML='&lt;div class=&quot;placeholder&quot;&gt;GOODS IMAGE&lt;span&gt;../img/goods/lumibelle-acrylic-stand.webp&lt;/span&gt;&lt;/div&gt;'">
-          </div>
-          <div class="goods-body">
-            <h3 class="goods-name">아크릴 스탠드</h3>
-            <p class="goods-desc">멤버의 분위기를 담은 아크릴 스탠드입니다. 책상이나 선반에 올려두기 좋은 사이즈로 준비 중이에요.</p>
-            <div class="goods-meta">
-              <div class="goods-price">₩12,000</div>
-              <div class="goods-stock">준비 중</div>
-            </div>
-            <div class="goods-actions">
-              <a href="cart.html?item=acrylic" class="goods-btn cart">장바구니</a>
-              <a href="order.html?item=acrylic" class="goods-btn buy">구매하기</a>
-            </div>
-          </div>
-        </article>
-
-        <article class="goods-card">
-          <span class="goods-badge ready">PREVIEW</span>
-          <div class="goods-image">
-            <img src="../img/goods/lumibelle-photocard-set.webp" alt="포토카드 세트" onerror="this.closest('.goods-image').innerHTML='&lt;div class=&quot;placeholder&quot;&gt;GOODS IMAGE&lt;span&gt;../img/goods/lumibelle-photocard-set.webp&lt;/span&gt;&lt;/div&gt;'">
-          </div>
-          <div class="goods-body">
-            <h3 class="goods-name">포토카드 세트</h3>
-            <p class="goods-desc">루미벨의 반짝이는 순간들을 모은 포토카드 세트입니다. 소장용으로 가볍게 즐기기 좋아요.</p>
-            <div class="goods-meta">
-              <div class="goods-price">₩8,000</div>
-              <div class="goods-stock">준비 중</div>
-            </div>
-            <div class="goods-actions">
-              <a href="cart.html?item=photocard" class="goods-btn cart">장바구니</a>
-              <a href="order.html?item=photocard" class="goods-btn buy">구매하기</a>
-            </div>
-          </div>
-        </article>
-      </section>
-
-      <section class="notice-card">
-        <h3>주문 안내</h3>
-        <p>
-          굿즈는 장바구니에 담아 한 번에 주문할 수 있으며, 1개만 구매해도 바로 주문 페이지로 이동할 수 있습니다.<br>
-          배송비는 우체국 택배 기준 6,000원이며, 주문서 제출 후 안내된 계좌로 입금해 주세요.
-        </p>
-      </section>
+    <div class="goods-toolbar reveal">
+      <a href="cart.html" class="toolbar-btn">장바구니 보기</a>
+      <a href="archive/" class="toolbar-btn sub">지난 굿즈 보기</a>
     </div>
-  </main>
+
+    <section class="goods-grid reveal">
+      <article class="goods-card">
+        <span class="goods-badge sale">AVAILABLE</span>
+        <div class="goods-image">
+          <img src="../img/goods/lumibelle-debut-tshirt.webp" alt="루미벨 데뷔 티셔츠" onerror="this.closest('.goods-image').innerHTML='<div class=&quot;placeholder&quot;>GOODS IMAGE</div>'">
+        </div>
+        <div class="goods-body">
+          <h3 class="goods-name">루미벨 데뷔 티셔츠</h3>
+          <p class="goods-desc">데뷔 라이브를 기념한 공식 티셔츠입니다. 부드러운 컬러감과 편하게 입기 좋은 핏으로 준비했어요.</p>
+          <div class="goods-meta"><div class="goods-price">₩30,000</div><div class="goods-stock">배송비 별도</div></div>
+          <div class="goods-actions">
+            <a href="cart.html?add=tshirt" class="goods-btn cart">장바구니</a>
+            <a href="order.html?item=tshirt&mode=direct" class="goods-btn buy">구매하기</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="goods-card">
+        <span class="goods-badge ready">PREVIEW</span>
+        <div class="goods-image">
+          <img src="../img/goods/lumibelle-acrylic-stand.webp" alt="아크릴 스탠드" onerror="this.closest('.goods-image').innerHTML='<div class=&quot;placeholder&quot;>GOODS IMAGE</div>'">
+        </div>
+        <div class="goods-body">
+          <h3 class="goods-name">아크릴 스탠드</h3>
+          <p class="goods-desc">멤버의 분위기를 담은 아크릴 스탠드입니다. 책상이나 선반에 올려두기 좋은 사이즈로 준비 중이에요.</p>
+          <div class="goods-meta"><div class="goods-price">₩12,000</div><div class="goods-stock">준비 중</div></div>
+          <div class="goods-actions">
+            <a href="cart.html?add=acrylic" class="goods-btn cart">장바구니</a>
+            <a href="order.html?item=acrylic&mode=direct" class="goods-btn buy">구매하기</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="goods-card">
+        <span class="goods-badge ready">PREVIEW</span>
+        <div class="goods-image">
+          <img src="../img/goods/lumibelle-photocard-set.webp" alt="포토카드 세트" onerror="this.closest('.goods-image').innerHTML='<div class=&quot;placeholder&quot;>GOODS IMAGE</div>'">
+        </div>
+        <div class="goods-body">
+          <h3 class="goods-name">포토카드 세트</h3>
+          <p class="goods-desc">루미벨의 반짝이는 순간들을 모은 포토카드 세트입니다. 소장용으로 가볍게 즐기기 좋아요.</p>
+          <div class="goods-meta"><div class="goods-price">₩8,000</div><div class="goods-stock">준비 중</div></div>
+          <div class="goods-actions">
+            <a href="cart.html?add=photocard" class="goods-btn cart">장바구니</a>
+            <a href="order.html?item=photocard&mode=direct" class="goods-btn buy">구매하기</a>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="notice-card reveal">
+      <h3>주문 안내</h3>
+      <p>1개만 구매해도 바로 주문 페이지로 이동할 수 있고, 여러 개는 장바구니에 담아 한 번에 주문할 수 있어요.<br>
+      배송비는 기본 6,000원이며 제주 및 도서산간 지역은 별도 안내 후 함께 입금해 주세요.</p>
+    </section>
+  </div>
+</main>
 
   <footer>© 2026 Lumibelle All Rights Reserved.</footer>
+  <button class="back-to-top" id="backToTop" aria-label="맨 위로 이동">↑</button>
 
-<script>
-(function(){
-  const clickable = document.querySelectorAll('nav a, .toolbar-btn, .goods-btn, .cta-btn, .back, .address-search-btn, .submit-btn, .qty-btn');
-  clickable.forEach((el) => {
-    el.addEventListener('click', function(e){
-      const old = this.querySelector('.ripple-effect');
-      if (old) old.remove();
-
-      const ripple = document.createElement('span');
-      ripple.className = 'ripple-effect';
-      const rect = this.getBoundingClientRect();
-      const size = Math.max(rect.width, rect.height) * 0.7;
-      ripple.style.width = ripple.style.height = `${size}px`;
-      ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
-      ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
-      this.appendChild(ripple);
-      ripple.addEventListener('animationend', () => ripple.remove());
-
-      this.classList.remove('click-shine');
-      void this.offsetWidth;
-      this.classList.add('click-shine');
-      setTimeout(() => this.classList.remove('click-shine'), 900);
-    });
-  });
-
-  function makeBurstAt(x, y, level = 'normal'){
-    const petalCount = level === 'big' ? 12 : 8;
-    const sparkCount = level === 'big' ? 6 : 4;
-    const petalMin = level === 'big' ? 26 : 18;
-    const petalMax = level === 'big' ? 72 : 56;
-    const sparkMin = level === 'big' ? 36 : 26;
-    const sparkMax = level === 'big' ? 92 : 70;
-
-    const makeBurst = (cls, count, minD, maxD) => {
-      for(let i=0;i<count;i++){
-        const el = document.createElement('span');
-        el.className = cls;
-        const angle = (Math.PI * 2 / count) * i + (Math.random() * 0.35 - 0.175);
-        const distance = minD + Math.random() * (maxD - minD);
-        el.style.setProperty('--x', Math.cos(angle) * distance + 'px');
-        el.style.setProperty('--y', Math.sin(angle) * distance + 'px');
-        el.style.left = x + 'px';
-        el.style.top = y + 'px';
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 850);
-      }
-    };
-
-    makeBurst('burst-petal', petalCount, petalMin, petalMax);
-    makeBurst('burst-spark', sparkCount, sparkMin, sparkMax);
-  }
-
-  document.addEventListener('pointerdown', function(e){
-    const target = e.target.closest('nav a, .toolbar-btn, .goods-btn, .cta-btn, .back, .address-search-btn, .submit-btn, .qty-btn');
-    if(!target) return;
-    makeBurstAt(e.clientX, e.clientY, target.closest('nav') ? 'normal' : 'normal');
-  });
-
-  document.addEventListener('click', function(e){
-    const target = e.target.closest('.goods-btn, .cta-btn, .back, .submit-btn');
-    if(!target) return;
-    const rect = target.getBoundingClientRect();
-    for(let i=0;i<12;i++){
-      const dot = document.createElement('span');
-      dot.className = 'glitter-burst';
-      const angle = Math.random()*Math.PI*2;
-      const distance = 40 + Math.random()*30;
-      dot.style.setProperty('--x', Math.cos(angle)*distance + 'px');
-      dot.style.setProperty('--y', Math.sin(angle)*distance + 'px');
-      dot.style.left = e.clientX + 'px';
-      dot.style.top = e.clientY + 'px';
-      document.body.appendChild(dot);
-      setTimeout(()=>dot.remove(), 900);
+  <script>
+    const backToTop = document.getElementById('backToTop');
+    if(backToTop){
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 280) backToTop.classList.add('show');
+        else backToTop.classList.remove('show');
+      });
+      backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
     }
-  });
-})();
-</script>
+
+    const revealItems = document.querySelectorAll('.reveal');
+    if(revealItems.length){
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => { if (entry.isIntersecting) entry.target.classList.add('show'); });
+      });
+      revealItems.forEach((el) => revealObserver.observe(el));
+    }
+
+    document.querySelectorAll('nav a, .toolbar-btn, .goods-btn, .cta-btn, .back, .address-search-btn, .submit-btn').forEach((el) => {
+      el.addEventListener('click', function(){
+        this.classList.remove('click-shine');
+        void this.offsetWidth;
+        this.classList.add('click-shine');
+        setTimeout(() => this.classList.remove('click-shine'), 900);
+      });
+    });
+
+    document.querySelectorAll('.toolbar-btn, .goods-btn, .cta-btn, .back, .address-search-btn, .submit-btn').forEach((btn) => {
+      btn.addEventListener('click', function(e){
+        const old = this.querySelector('.ripple-effect');
+        if (old) old.remove();
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple-effect';
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height) * 0.7;
+        ripple.style.width = ripple.style.height = `${size}px`;
+        ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+        ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+        this.appendChild(ripple);
+        ripple.addEventListener('animationend', () => ripple.remove());
+      });
+    });
+
+    (function(){
+      function makeBurstAt(x, y){
+        const petalCount = 8, sparkCount = 4;
+        const makeBurst = (cls, count, minD, maxD) => {
+          for(let i=0;i<count;i++){
+            const el = document.createElement("span");
+            el.className = cls;
+            const angle = (Math.PI * 2 / count) * i + (Math.random() * 0.35 - 0.175);
+            const distance = minD + Math.random() * (maxD - minD);
+            el.style.setProperty("--x", Math.cos(angle) * distance + "px");
+            el.style.setProperty("--y", Math.sin(angle) * distance + "px");
+            el.style.left = x + "px";
+            el.style.top = y + "px";
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 850);
+          }
+        };
+        makeBurst("burst-petal", petalCount, 18, 56);
+        makeBurst("burst-spark", sparkCount, 26, 70);
+      }
+
+      document.addEventListener("pointerdown", function(e){
+        const target = e.target.closest("nav a, button, .toolbar-btn, .goods-btn, .cta-btn, .back, .address-search-btn, .submit-btn");
+        if(!target) return;
+        makeBurstAt(e.clientX, e.clientY);
+      });
+
+      document.addEventListener("click", function(e){
+        const target = e.target.closest(".toolbar-btn, .goods-btn, .cta-btn, .back, .address-search-btn, .submit-btn");
+        if(!target) return;
+        const rect = target.getBoundingClientRect();
+        for(let i=0;i<12;i++){
+          const dot = document.createElement("span");
+          dot.className = "glitter-burst";
+          const angle = Math.random()*Math.PI*2;
+          const distance = 40 + Math.random()*30;
+          dot.style.setProperty("--x", Math.cos(angle)*distance + "px");
+          dot.style.setProperty("--y", Math.sin(angle)*distance + "px");
+          dot.style.left = (e.clientX - rect.left) + "px";
+          dot.style.top = (e.clientY - rect.top) + "px";
+          target.appendChild(dot);
+          setTimeout(()=>dot.remove(), 900);
+        }
+      });
+    })();
+  </script>
+
 
 </body>
 </html>
