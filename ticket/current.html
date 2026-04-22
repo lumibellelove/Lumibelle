@@ -1,1 +1,385 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lumibelle Ticket</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800&display=swap');
 
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      min-height:100vh;
+      background:linear-gradient(180deg,#fffafc 0%, #fff7fb 100%);
+      color:#7f6a77;
+      font-family:"SUIT","Noto Sans KR",sans-serif;
+      letter-spacing:-0.01em;
+    }
+    a{text-decoration:none;color:inherit}
+    .wrap{width:min(1260px, calc(100% - 32px));margin:0 auto}
+
+    .top-lang-bar{
+      width:100%;
+      max-width:1260px;
+      margin:16px auto 0;
+      display:flex;
+      justify-content:flex-end;
+      padding:0 8px;
+    }
+    .lang-switch{display:flex;gap:10px}
+    .lang-switch a{
+      display:inline-flex;align-items:center;justify-content:center;
+      min-width:42px;height:36px;padding:0 10px;border-radius:999px;
+      background:#fff;border:1px solid #f0bfd4;color:#d27ca8;
+      font-size:12px;font-weight:900;box-shadow:0 4px 10px rgba(255,95,165,.08)
+    }
+    .lang-switch a.active,.lang-switch a:hover{background:#fff0f7;color:#ff59a5}
+
+    header{padding:8px 0 0}
+    .header-box{display:flex;align-items:center;gap:24px}
+    .logo{
+      flex:0 0 auto;
+      width:128px;height:84px;border-radius:24px;
+      display:flex;align-items:center;justify-content:center;
+      background:rgba(255,255,255,.72);border:1px solid #f2d8e7;
+      box-shadow:0 8px 24px rgba(232,191,211,.1);
+      color:#d67faa;font-weight:800
+    }
+    nav{
+      flex:1;display:grid;grid-template-columns:repeat(8, minmax(0,1fr));
+      gap:14px;align-items:center;text-align:center
+    }
+    nav a{
+      position:relative;padding:12px 8px;border-radius:20px;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      min-width:0
+    }
+    nav a b, nav a span{display:block;width:100%;white-space:nowrap;text-align:center}
+    nav a b{font-size:1.08rem;font-weight:700;color:#d97ca9}
+    nav a span{font-size:.9rem;color:#c697b1;margin-top:6px}
+    nav a.current::before, nav a:hover::before{
+      content:"";position:absolute;inset:0;border-radius:20px;
+      background:linear-gradient(90deg, rgba(255,217,232,0) 0%, rgba(255,192,215,.18) 50%, rgba(255,217,232,0) 100%);
+    }
+    nav a>*{position:relative;z-index:1}
+    nav a.current b, nav a:hover b{color:#ff59a5}
+    nav a.current span, nav a:hover span{color:#d88dad}
+
+    .page-hero{
+      margin-top:18px;padding:52px 44px;border-radius:34px;
+      border:1px solid #f2d8e7;
+      background:
+        radial-gradient(circle at top right, rgba(255,214,233,.65) 0%, rgba(255,214,233,0) 34%),
+        linear-gradient(135deg,#fff3f8 0%,#fff9fc 48%,#fdf0f7 100%);
+      box-shadow:0 12px 28px rgba(232,191,211,.13);
+      overflow:hidden;position:relative
+    }
+    .page-hero::after{
+      content:"";position:absolute;right:-38px;bottom:-48px;width:210px;height:210px;border-radius:50%;
+      background:radial-gradient(circle, rgba(255,255,255,.8) 0%, rgba(255,255,255,0) 70%);
+      pointer-events:none
+    }
+    .eyebrow{font-size:18px;font-weight:800;color:#ff5aa6;margin-bottom:10px}
+    .page-title{
+      margin:0;font-family:"Cormorant Garamond", serif;font-size:92px;line-height:.88;
+      font-weight:600;color:#ff5aa6;text-shadow:0 1px 0 rgba(255,255,255,.95),0 0 18px rgba(255,120,178,.18)
+    }
+    .page-sub{margin:14px 0 0;color:#ff72b6;font-size:24px;font-weight:700}
+    .page-desc{margin:22px 0 0;max-width:720px;color:#8b7181;font-size:17px;line-height:1.9;font-weight:600}
+
+    .ticket-layout{
+      display:grid;grid-template-columns:1.02fr .98fr;gap:22px;margin-top:22px;align-items:start
+    }
+    .panel{
+      background:#fff5fb;border:1px solid #f2d8e7;border-radius:30px;
+      box-shadow:0 8px 24px rgba(232,191,211,.12)
+    }
+    .panel-head{padding:28px 28px 16px;text-align:center}
+    .panel-head h2{margin:0;color:#d67faa;font-size:46px;line-height:1;font-weight:900}
+    .panel-head p{margin:10px 0 0;color:#c99ab2;font-size:16px;font-weight:700}
+
+    .event-card{padding:0 24px 26px}
+    .event-inner{
+      background:#fff;border:1px solid #f0dde8;border-radius:24px;padding:24px;
+      box-shadow:0 8px 18px rgba(255,95,165,.06)
+    }
+    .event-badge{display:inline-flex;padding:8px 14px;border-radius:999px;background:#ffeaf4;color:#ff5aa6;font-size:12px;font-weight:900;margin-bottom:14px}
+    .event-title{margin:0;font-size:30px;font-weight:900;color:#7e6775;line-height:1.25}
+    .event-meta{margin-top:16px;display:grid;gap:10px}
+    .event-meta div{background:#fff7fb;border:1px solid #f4e2ec;border-radius:16px;padding:13px 16px;font-size:15px;color:#846f81;line-height:1.6}
+    .event-meta strong{color:#c07f9f;margin-right:8px}
+
+    .steps{display:grid;gap:12px;margin-top:18px}
+    .step{display:flex;gap:14px;align-items:flex-start;background:#fff7fb;border:1px solid #f4e2ec;border-radius:18px;padding:15px 16px}
+    .step-no{width:32px;height:32px;border-radius:50%;flex:0 0 32px;background:linear-gradient(180deg,#ff8ac2 0%, #ff5fa8 100%);color:#fff;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(255,95,165,.22)}
+    .step-text strong{display:block;color:#946f84;font-size:15px;margin-bottom:4px}
+    .step-text span{color:#8f7183;font-size:14px;line-height:1.65}
+
+    .form-wrap{padding:0 24px 26px}
+    form{
+      background:#fff;border:1px solid #f0dde8;border-radius:24px;padding:22px;
+      box-shadow:0 8px 18px rgba(255,95,165,.06)
+    }
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .field{display:flex;flex-direction:column;gap:8px}
+    .field.full{grid-column:1 / -1}
+    .field label{font-size:14px;font-weight:800;color:#a2728d}
+    .field input, .field select, .field textarea{
+      width:100%;padding:14px 16px;border-radius:16px;border:1px solid #eed8e6;background:#fffafc;
+      font:inherit;color:#745e6c;outline:none;transition:border-color .16s ease, box-shadow .16s ease, background .16s ease
+    }
+    .field input:focus, .field select:focus, .field textarea:focus{
+      border-color:#f3a8ca;background:#fff;box-shadow:0 0 0 4px rgba(255,95,165,.08)
+    }
+    .field textarea{min-height:118px;resize:vertical}
+    .helper{margin-top:-2px;color:#b08ca0;font-size:12.5px;line-height:1.5}
+    .price-box{
+      margin-top:16px;padding:16px 18px;border-radius:18px;background:linear-gradient(180deg,#fff3f8 0%, #fff9fc 100%);
+      border:1px solid #f2dce8;color:#8f7183;font-size:14px;line-height:1.75
+    }
+    .price-box strong{color:#ff5aa6}
+    .agree{
+      display:flex;gap:10px;align-items:flex-start;margin-top:18px;padding:14px 15px;border-radius:16px;background:#fff8fc;border:1px solid #f3e1eb
+    }
+    .agree input{margin-top:2px;accent-color:#ff5fa8}
+    .agree label{font-size:13px;color:#8d7481;line-height:1.7}
+    .submit-btn{
+      width:100%;margin-top:18px;border:none;border-radius:999px;padding:16px 20px;cursor:pointer;
+      background:linear-gradient(180deg,#ff89c1 0%, #ff5fa8 100%);color:#fff;font-size:16px;font-weight:900;
+      box-shadow:0 10px 20px rgba(255,95,165,.24);transition:transform .16s ease, filter .16s ease
+    }
+    .submit-btn:hover{transform:translateY(-2px);filter:brightness(1.02)}
+
+    .notice-list{display:grid;gap:10px;margin-top:18px}
+    .notice-item{padding:14px 16px;border-radius:16px;background:#fff7fb;border:1px solid #f3e1eb;color:#8d7481;font-size:14px;line-height:1.7}
+    .notice-item strong{color:#bf7a9b}
+
+    .result-box{
+      display:none;margin-top:18px;padding:16px 18px;border-radius:18px;
+      background:linear-gradient(180deg,#fff4f9 0%, #fffdfd 100%);
+      border:1px solid #f1cfe0;color:#855f73
+    }
+    .result-box.show{display:block}
+    .result-box strong{display:block;margin-bottom:8px;color:#ff5aa6;font-size:16px}
+    .result-code{display:inline-flex;align-items:center;justify-content:center;margin-top:8px;padding:8px 12px;border-radius:999px;background:#fff;color:#d56c9f;border:1px solid #f0bfd4;font-size:13px;font-weight:900;letter-spacing:.04em}
+
+    .save-note{margin-top:16px;text-align:center;color:#b590a4;font-size:12.5px;line-height:1.7}
+    footer{text-align:center;padding:30px 16px 40px;color:#c6a2b4;font-size:14px}
+
+    @media (max-width: 1180px){
+      nav{grid-template-columns:repeat(4, minmax(0,1fr))}
+      .ticket-layout{grid-template-columns:1fr}
+    }
+    @media (max-width: 780px){
+      .wrap{width:min(100% - 20px, 1260px)}
+      .header-box{flex-direction:column;align-items:stretch}
+      .logo{width:100%;height:72px}
+      nav{grid-template-columns:repeat(2, minmax(0,1fr));gap:10px}
+      .page-hero{padding:40px 22px}
+      .page-title{font-size:64px}
+      .page-sub{font-size:20px}
+      .page-desc{font-size:15px}
+      .panel-head h2{font-size:34px}
+      .form-grid{grid-template-columns:1fr}
+      .event-title{font-size:25px}
+    }
+  </style>
+</head>
+<body>
+  <div class="top-lang-bar">
+    <div class="lang-switch">
+      <a href="index.html" class="active">KR</a>
+      <a href="en/index.html">EN</a>
+      <a href="jp/index.html">JP</a>
+      <a href="cn/index.html">CN</a>
+    </div>
+  </div>
+
+  <header>
+    <div class="wrap header-box">
+      <div class="logo">LUMIBELLE</div>
+      <nav>
+        <a href="index.html"><b>HOME</b><span>홈</span></a>
+        <a href="news.html"><b>NEWS</b><span>공지사항</span></a>
+        <a href="member.html"><b>MEMBER</b><span>멤버 소개</span></a>
+        <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
+        <a href="ticket.html" class="current"><b>TICKET</b><span>예매</span></a>
+        <a href="goods.html"><b>GOODS</b><span>굿즈</span></a>
+        <a href="setlist.html"><b>SETLIST</b><span>응원 가이드</span></a>
+        <a href="info.html"><b>INFO</b><span>안내</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="page-hero">
+      <div class="eyebrow">빛나는 미소의 소녀들</div>
+      <h1 class="page-title">Ticket</h1>
+      <div class="page-sub">✦ 루미벨 공식 예매 페이지 ✦</div>
+      <div class="page-desc">
+        외부 페이지로 이동하지 않고 이 페이지 안에서 바로 예매 신청할 수 있도록 구성한 공식 예약 페이지입니다.<br>
+        현재 안내 기준은 기존 예약폼 내용을 반영해 정리했고, 다음 단계에서 구글 시트 저장 연결만 붙이면 실사용 구조로 바로 확장할 수 있어요.
+      </div>
+    </section>
+
+    <section class="ticket-layout">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>NOW BOOKING</h2>
+          <p>현재 예매 진행 중인 공연</p>
+        </div>
+        <div class="event-card">
+          <div class="event-inner">
+            <span class="event-badge">OFFICIAL RESERVATION</span>
+            <h3 class="event-title">Shine Me UP : 루미벨 데뷔 라이브</h3>
+            <div class="event-meta">
+              <div><strong>일시</strong> 2026.07.12 (일) 14:20 공연 시작 / 13:50 입장</div>
+              <div><strong>장소</strong> KT&amp;G 상상마당 라이브홀 (서울 마포구 어울마당로 65 B2F)</div>
+              <div><strong>출연</strong> 시로나 · 옵시드 · 너에게 닿기를 · 스이타 · 이토리 · Lumibelle</div>
+              <div><strong>예매 방식</strong> 폼 제출 → 계좌이체 → 입금 확인 후 최종 확정</div>
+            </div>
+            <div class="steps">
+              <div class="step">
+                <div class="step-no">1</div>
+                <div class="step-text"><strong>예매 정보 입력</strong><span>이름, 연락처, 매수, 입금자명 등을 페이지 안에서 바로 입력해요.</span></div>
+              </div>
+              <div class="step">
+                <div class="step-no">2</div>
+                <div class="step-text"><strong>입금 진행</strong><span>폼 제출 후 계좌이체로 입금해 주세요. 폼 제출 없이 입금만 하면 확인이 누락될 수 있어요.</span></div>
+              </div>
+              <div class="step">
+                <div class="step-no">3</div>
+                <div class="step-text"><strong>입금 확인 및 입장</strong><span>입금 확인 후 최종 확정되며, 당일에는 닉네임 + 숫자 4자리 기준으로 본인 확인 후 입장해요.</span></div>
+              </div>
+            </div>
+            <div class="notice-list">
+              <div class="notice-item"><strong>패키지 A.</strong> 데뷔 기념 한정 굿즈 풀세트 A 80,000원 / 15명 한정 / 6월 15일 제작 마감 후 환불 불가</div>
+              <div class="notice-item"><strong>패키지 B.</strong> 데뷔 기념 한정 굿즈 패키지 B 50,000원 / 20명 한정 / 6월 15일 제작 마감 후 환불 불가</div>
+              <div class="notice-item"><strong>사전 예약.</strong> 10,000원 / 7월 11일 23:59 마감 / 7월 5일 23:59까지 취소 시 100% 환불 가능</div>
+              <div class="notice-item"><strong>현장 예약.</strong> 20,000원 / 현장 잔여석 기준 / 현장 메아테 지정 가능</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>RESERVE</h2>
+          <p>예매 신청서</p>
+        </div>
+        <div class="form-wrap">
+          <form id="reservationForm">
+            <div class="form-grid">
+              <div class="field">
+                <label for="name">이름 / 닉네임</label>
+                <input id="name" name="name" type="text" placeholder="예: 루미나" required>
+              </div>
+              <div class="field">
+                <label for="contact">연락처</label>
+                <input id="contact" name="contact" type="text" placeholder="예: 010-0000-0000" required>
+              </div>
+              <div class="field">
+                <label for="ticketType">티켓 종류 선택</label>
+                <select id="ticketType" name="ticketType" required>
+                  <option value="">선택해 주세요</option>
+                  <option>데뷔 기념 한정 굿즈 풀세트 A 패키지 80,000원</option>
+                  <option>데뷔 기념 한정 굿즈 패키지 B 50,000원</option>
+                  <option>사전 예약 10,000원</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="depositor">입금자명</label>
+                <input id="depositor" name="depositor" type="text" placeholder="예: 홍길동" required>
+              </div>
+              <div class="field full">
+                <label for="team">메아테</label>
+                <select id="team" name="team" required>
+                  <option value="">선택해 주세요</option>
+                  <option>시로나</option>
+                  <option>옵시드</option>
+                  <option>너에게 닿기를</option>
+                  <option>스이타</option>
+                  <option>이토리</option>
+                  <option>Lumibelle</option>
+                </select>
+                <div class="helper">메아테 정산 및 현장 확인용으로 사용하는 항목이야.</div>
+              </div>
+              <div class="field full">
+                <label for="memo">메모</label>
+                <textarea id="memo" name="memo" placeholder="추가 요청사항이나 전달할 내용을 적어주세요."></textarea>
+              </div>
+            </div>
+
+            <div class="price-box">
+              <strong>예매 안내</strong><br>
+              추가 구매 시 폼을 새로 작성한 뒤 별도로 입금해 주세요. 합산 입금 시 확인이 누락될 수 있어요.<br>
+              입금 확인은 <b>폼 제출 + 입금 완료</b> 순서대로 진행되며, 패키지 A/B는 6월 15일 제작 마감으로 조기 종료될 수 있어요.
+            </div>
+
+            <div class="agree">
+              <input id="agree" name="agree" type="checkbox" required>
+              <label for="agree">폼 제출 후 계좌이체 입금 확인 기준으로 예약이 확정되며, 패키지 상품의 제작 마감/환불 규정을 확인했습니다.</label>
+            </div>
+
+            <button class="submit-btn" type="submit">예매 신청하기</button>
+
+            <div id="resultBox" class="result-box" aria-live="polite">
+              <strong>예매 신청이 접수되었어요.</strong>
+              같은 페이지 안에서 신청 완료 안내가 표시되도록 구성되어 있어요.<br>
+              <span class="result-code" id="resultCode">LMB-0000</span>
+            </div>
+
+            <div class="save-note">
+              지금 버전은 외부 이동 없이 페이지 안에서 입력·제출되는 예약 화면이야.<br>구글 시트 저장 연결을 붙이면 실제 운영용으로 바로 사용할 수 있어.
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>© 2026 Lumibelle All Rights Reserved.</footer>
+
+  <script>
+    (function(){
+      const form = document.getElementById('reservationForm');
+      const resultBox = document.getElementById('resultBox');
+      const resultCode = document.getElementById('resultCode');
+
+      function makeCode(){
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth()+1).padStart(2,'0');
+        const d = String(now.getDate()).padStart(2,'0');
+        const n = String(Math.floor(Math.random()*9000)+1000);
+        return `LMB-${y}${m}${d}-${n}`;
+      }
+
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        if(!form.reportValidity()) return;
+
+        const payload = {
+          code: makeCode(),
+          name: form.name.value.trim(),
+          contact: form.contact.value.trim(),
+          ticketType: form.ticketType.value,
+          depositor: form.depositor.value.trim(),
+          metaate: form.team.value,
+          memo: form.memo.value.trim(),
+          createdAt: new Date().toISOString()
+        };
+
+        try{
+          localStorage.setItem('lumibelle_last_reservation', JSON.stringify(payload));
+        }catch(err){}
+
+        resultCode.textContent = payload.code;
+        resultBox.classList.add('show');
+        resultBox.scrollIntoView({behavior:'smooth', block:'nearest'});
+      });
+    })();
+  </script>
+</body>
+</html>
