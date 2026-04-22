@@ -20,6 +20,12 @@
       background: #fffafc;
     }
 
+    img{
+      -webkit-user-drag:none;
+      user-select:none;
+      -webkit-user-select:none;
+    }
+
     main.page-shell {
       flex: 1;
     }
@@ -263,6 +269,19 @@
 
     .hero-banner .slide{
       z-index:1;
+    }
+
+    .hero-banner::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:1;
+      background:linear-gradient(90deg,
+        rgba(255,250,252,0.24) 0%,
+        rgba(255,250,252,0.16) 20%,
+        rgba(255,250,252,0.06) 38%,
+        rgba(255,250,252,0.00) 58%);
+      pointer-events:none;
     }
 
     .slide {
@@ -1574,6 +1593,33 @@
       .home-card-head h3, .section-title h3{ font-size:36px !important; }
     }
 
+
+    @media (hover: none) and (pointer: coarse){
+      .subnav-card:hover,
+      .member-card:hover,
+      .live-guide-card:hover,
+      .member-btn:hover,
+      .more-btn:hover,
+      .info-link-btn:hover,
+      .ticket-btn:hover,
+      .sns-icon:hover{
+        transform:none !important;
+        box-shadow:inherit !important;
+        filter:none !important;
+      }
+
+      nav a:hover::before,
+      .subnav-card:hover::after,
+      .live-guide-card:hover::before,
+      .member-btn:hover::after,
+      .more-btn:hover::after,
+      .info-link-btn:hover::after,
+      .ticket-btn:hover::after{
+        animation:none !important;
+        opacity:0 !important;
+      }
+    }
+
   </style>
 </head>
 
@@ -1702,7 +1748,7 @@
             엔젤블루 ♥
           </div>
           <div class="member-meta">
-            <div><strong>키워드</strong> 4차원 /맑눈광 / 천사같은악마</div>
+            <div><strong>키워드</strong> 4차원 / 맑눈광 / 천사같은악마</div>
             <div><strong>한마디</strong> 네 세상의 색(色)을 완전히 바꿔 줄게!</div>
           </div>
           <a href="iro.html" class="member-btn iro">자세히 보기</a>
@@ -1718,7 +1764,7 @@
             달빛퍼플 ♥
           </div>
           <div class="member-meta">
-            <div><strong>키워드</strong> 내강외유/신비로움/말랑고양이</div>
+            <div><strong>키워드</strong> 내강외유 / 신비로움 / 말랑고양이</div>
             <div><strong>한마디</strong> 언제나 너만을 비추는 달이 될게.</div>
           </div>
           <a href="lunar.html" class="member-btn lunar">자세히 보기</a>
@@ -1861,9 +1907,9 @@
 
             <div class="sns-icons">
               <a href="https://x.com/Lumibelle_love" target="_blank" rel="noopener noreferrer" class="sns-icon">X</a>
-              <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" class="sns-icon">IG</a>
-              <a href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer" class="sns-icon">TT</a>
-              <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" class="sns-icon">YT</a>
+              <a href="https://www.instagram.com/lumibelle.offcial/" target="_blank" rel="noopener noreferrer" class="sns-icon">IG</a>
+              <a href="https://www.tiktok.com/@lumibelle_official" target="_blank" rel="noopener noreferrer" class="sns-icon">TT</a>
+              <a href="https://www.youtube.com/@Lumibelle_Official" target="_blank" rel="noopener noreferrer" class="sns-icon">YT</a>
             </div>
           </div>
         </div>
@@ -2083,6 +2129,20 @@ document.addEventListener("click", function(e){
 
     target.appendChild(star);
     setTimeout(()=>star.remove(), 900);
+  }
+});
+</script>
+
+<script>
+document.addEventListener("contextmenu", function(e){
+  if(e.target.closest("img, .member-photo, .hero-banner, .fanname-image-box")){
+    e.preventDefault();
+  }
+});
+
+document.addEventListener("dragstart", function(e){
+  if(e.target.closest("img")){
+    e.preventDefault();
   }
 });
 </script>
