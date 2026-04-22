@@ -18,19 +18,24 @@
     .grid{display:grid; grid-template-columns:1.05fr .95fr; gap:22px}
     .panel{background:var(--panel); border:1px solid var(--line); border-radius:28px; box-shadow:var(--shadow); padding:24px}
     .panel h2{margin:0 0 16px; color:#d77ca7; font-size:28px}
-    .cart-line{display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid var(--line)}
-    .cart-line:last-child{border-bottom:none}
+    .cart-line,.price-line{display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid var(--line)}
+    .cart-line:last-child,.price-line:last-child{border-bottom:none}
     .cart-line strong{display:block; margin-bottom:4px}
-    .total{display:flex; justify-content:space-between; gap:12px; font-size:20px; font-weight:900; margin-top:18px; color:#7e6b78}
+    .price-box{margin-top:18px; padding:18px; border-radius:22px; background:#fff; border:1px solid var(--line)}
+    .price-line.total{font-size:20px; font-weight:900; color:#7e6b78}
     .bank-box{margin-top:18px; padding:18px; border-radius:22px; background:#fff; border:1px solid var(--line)}
     .bank-box strong{color:var(--pink)}
     .field{margin-bottom:16px}
     .field label{display:block; margin-bottom:8px; font-weight:800; color:#8f7183}
     .field input,.field textarea{width:100%; border:1px solid #ebcadc; border-radius:16px; padding:14px 16px; font:inherit; color:inherit; background:#fff}
     .field textarea{min-height:110px; resize:vertical}
+    .address-row{display:grid; grid-template-columns:1fr auto; gap:10px}
+    .address-search-btn{border:none; border-radius:16px; padding:0 18px; background:#fff; color:#d27ca8; font-weight:800; border:1px solid #f0bfd4; cursor:pointer; white-space:nowrap}
+    .note{font-size:13px; color:#b28ea2; line-height:1.7; margin-top:8px}
     .submit-btn{width:100%; border:none; border-radius:999px; padding:16px 20px; background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%); color:#fff; font-size:16px; font-weight:800; cursor:pointer; box-shadow:0 8px 18px rgba(255,95,165,.25)}
     .help{font-size:13px; color:#b28ea2; line-height:1.7; margin-top:10px}
     @media (max-width:900px){.grid{grid-template-columns:1fr}.top h1{font-size:40px}}
+    @media (max-width:620px){.address-row{grid-template-columns:1fr}.address-search-btn{height:48px}}
   </style>
 </head>
 <body>
@@ -44,9 +49,21 @@
       <section class="panel">
         <h2>주문 상품</h2>
         <div id="cartSummary"></div>
-        <div class="total">
-          <span>총 금액</span>
-          <span id="grandTotal">₩ 0</span>
+
+        <div class="price-box">
+          <div class="price-line">
+            <span>상품 금액</span>
+            <span id="productTotal">₩ 0</span>
+          </div>
+          <div class="price-line">
+            <span>배송비</span>
+            <span id="shippingFee">₩ 6,000</span>
+          </div>
+          <div class="price-line total">
+            <span>총 금액</span>
+            <span id="grandTotal">₩ 0</span>
+          </div>
+          <div class="note">※ 배송비는 주문 1건당 6,000원입니다. 우체국 배송 기준이에요.</div>
         </div>
 
         <div class="bank-box">
@@ -54,7 +71,7 @@
           국민은행 000000-00-000000<br>
           예금주 : 루미벨<br><br>
           주문 제출 후 위 계좌로 입금해 주세요.<br>
-          입금자명은 주문서 이름과 동일하게 맞춰주시면 확인이 빨라져요.
+          입금자명은 주문서 이름 또는 입금자명 칸과 동일하게 맞춰주시면 확인이 빨라져요.
         </div>
       </section>
 
@@ -70,8 +87,19 @@
             <input id="contact" name="contact" type="text" placeholder="010-0000-0000" required>
           </div>
           <div class="field">
-            <label for="address">배송지</label>
-            <textarea id="address" name="address" required></textarea>
+            <label for="postcode">우편번호</label>
+            <div class="address-row">
+              <input id="postcode" name="postcode" type="text" readonly placeholder="주소 찾기를 눌러주세요" required>
+              <button type="button" class="address-search-btn" onclick="execDaumPostcode()">주소 찾기</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="address">주소</label>
+            <input id="address" name="address" type="text" readonly placeholder="주소 찾기를 눌러주세요" required>
+          </div>
+          <div class="field">
+            <label for="detailAddress">상세 주소</label>
+            <input id="detailAddress" name="detailAddress" type="text" placeholder="동, 호수 등 상세 주소를 입력해 주세요" required>
           </div>
           <div class="field">
             <label for="depositor">입금자명</label>
@@ -91,11 +119,25 @@
     </div>
   </div>
 
+  <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
   <script>
     const CART_KEY = 'lumibelle_goods_cart';
     const ORDER_KEY = 'lumibelle_goods_last_order';
+    const SHIPPING_FEE = 6000;
+
     function getCart(){ try{return JSON.parse(localStorage.getItem(CART_KEY))||[]}catch(e){return []} }
     function money(v){ return `₩ ${v.toLocaleString('ko-KR')}`; }
+
+    function execDaumPostcode() {
+      new daum.Postcode({
+        oncomplete: function(data) {
+          document.getElementById('postcode').value = data.zonecode || '';
+          document.getElementById('address').value = data.address || '';
+          document.getElementById('detailAddress').focus();
+        }
+      }).open();
+    }
+
     function renderSummary(){
       const cart = getCart();
       if (!cart.length){
@@ -109,21 +151,30 @@
           <div>${money(item.price * item.quantity)}</div>
         </div>
       `).join('');
-      const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      document.getElementById('grandTotal').textContent = money(total);
+      const productTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const grandTotal = productTotal + SHIPPING_FEE;
+      document.getElementById('productTotal').textContent = money(productTotal);
+      document.getElementById('shippingFee').textContent = money(SHIPPING_FEE);
+      document.getElementById('grandTotal').textContent = money(grandTotal);
     }
 
     document.getElementById('orderForm').addEventListener('submit', function(e){
       e.preventDefault();
       const cart = getCart();
+      const productTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
       const orderData = {
         buyerName: document.getElementById('buyerName').value.trim(),
         contact: document.getElementById('contact').value.trim(),
+        postcode: document.getElementById('postcode').value.trim(),
         address: document.getElementById('address').value.trim(),
+        detailAddress: document.getElementById('detailAddress').value.trim(),
+        fullAddress: `${document.getElementById('address').value.trim()} ${document.getElementById('detailAddress').value.trim()}`.trim(),
         depositor: document.getElementById('depositor').value.trim(),
         memo: document.getElementById('memo').value.trim(),
         cart,
-        total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+        productTotal,
+        shippingFee: SHIPPING_FEE,
+        total: productTotal + SHIPPING_FEE
       };
       localStorage.setItem(ORDER_KEY, JSON.stringify(orderData));
       location.href = 'complete.html';
