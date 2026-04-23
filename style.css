@@ -1,4 +1,4 @@
-/* Lumibelle mobile-only patch for style(3).css
+/* Lumibelle mobile-only patch v2 for style(3).css
    Load AFTER style(3).css
    PC styles remain unchanged.
 */
@@ -7,32 +7,55 @@
 
   html, body{
     overflow-x:hidden !important;
+    -webkit-text-size-adjust:100% !important;
+    text-rendering:optimizeLegibility !important;
   }
 
   body{
-    padding-top:56px !important;
+    padding-top:0 !important;
+    -webkit-font-smoothing:antialiased !important;
+    -moz-osx-font-smoothing:grayscale !important;
+  }
+
+  /* ===== 전체 상단 영역이 같이 고정 ===== */
+  .top-lang-bar{
+    position:static !important;
+    width:100% !important;
+    margin:0 !important;
+    padding:8px 12px !important;
+    background:transparent !important;
+    border-bottom:none !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+  }
+
+  header{
+    position:sticky !important;
+    top:0 !important;
+    z-index:1400 !important;
+    background:rgba(255,248,252,.96) !important;
+    backdrop-filter:blur(8px) !important;
+    -webkit-backdrop-filter:blur(8px) !important;
+    border-bottom:1px solid rgba(241,212,227,.85) !important;
+    box-shadow:0 8px 20px rgba(255,120,178,.06) !important;
+  }
+
+  .header-box{
+    margin:0 auto !important;
+    padding:10px 14px 12px !important;
+    min-height:auto !important;
+    gap:10px !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    border:none !important;
+    border-radius:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
   }
 
   .wrap{
     width:min(1220px, calc(100% - 28px)) !important;
     margin:0 auto !important;
-  }
-
-  /* top language bar */
-  .top-lang-bar{
-    position:fixed !important;
-    top:0 !important;
-    left:0 !important;
-    right:0 !important;
-    z-index:1400 !important;
-    width:100% !important;
-    margin:0 !important;
-    padding:8px 12px !important;
-    background:rgba(255,248,252,.96) !important;
-    border-bottom:1px solid rgba(241,212,227,.85) !important;
-    backdrop-filter:blur(8px) !important;
-    -webkit-backdrop-filter:blur(8px) !important;
-    box-sizing:border-box !important;
   }
 
   .lang-switch{
@@ -41,6 +64,7 @@
     align-items:center !important;
     gap:10px !important;
     flex-wrap:nowrap !important;
+    width:100% !important;
   }
 
   .lang-switch a{
@@ -52,34 +76,15 @@
     line-height:34px !important;
     border-radius:999px !important;
     text-align:center !important;
+    text-decoration:none !important;
     -webkit-font-smoothing:antialiased !important;
     text-rendering:geometricPrecision !important;
-  }
-
-  /* header/menu */
-  header{
-    position:static !important;
-    top:auto !important;
-    z-index:auto !important;
-    background:transparent !important;
-    backdrop-filter:none !important;
-    -webkit-backdrop-filter:none !important;
-    border-bottom:none !important;
     box-shadow:none !important;
-  }
-
-  .header-box{
-    margin:10px auto 14px !important;
-    padding:16px 14px 14px !important;
-    min-height:auto !important;
-    gap:10px !important;
-    flex-direction:column !important;
-    align-items:center !important;
-    border-radius:24px !important;
+    transform:none !important;
   }
 
   .logo img{
-    height:58px !important;
+    height:52px !important;
     width:auto !important;
   }
 
@@ -90,35 +95,65 @@
   }
 
   nav a{
-    padding:5px 0 !important;
+    padding:4px 0 !important;
     border-radius:14px !important;
+    text-decoration:none !important;
+    transform:none !important;
+    box-shadow:none !important;
   }
 
-  nav b{
+  nav a b,
+  nav a span,
+  .lang-switch a,
+  .subnav-card h3,
+  .subnav-card p,
+  .fanname-name,
+  .fanname-desc{
+    text-decoration:none !important;
+    -webkit-font-smoothing:antialiased !important;
+    text-rendering:geometricPrecision !important;
+    letter-spacing:-0.01em !important;
+  }
+
+  nav a b{
     font-size:13px !important;
     margin-bottom:4px !important;
     line-height:1.1 !important;
+    color:#d97ca9 !important;
   }
 
-  nav span{
+  nav a span{
     font-size:10px !important;
     line-height:1.2 !important;
+    color:#b98ea4 !important;
   }
 
-  /* subnav */
+  /* ===== 이벤트/순간들/스토리 중앙 정렬 ===== */
   .subnav-wrap{
     grid-template-columns:1fr !important;
     gap:12px !important;
-    margin:0 auto 18px !important;
+    margin:18px auto 18px !important;
     width:min(1220px, calc(100% - 28px)) !important;
   }
 
   .subnav-card{
     width:100% !important;
-    padding:20px 18px 18px !important;
+    padding:22px 18px 18px !important;
     border-radius:22px !important;
     text-align:center !important;
     overflow:hidden !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+  }
+
+  .subnav-card h3,
+  .subnav-card p{
+    width:100% !important;
+    text-align:center !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
   }
 
   .subnav-card h3{
@@ -138,236 +173,7 @@
     padding:5px 8px !important;
   }
 
-  /* hero */
-  .hero-banner,
-  .hero-card{
-    min-height:360px !important;
-    border-radius:28px !important;
-    overflow:hidden !important;
-  }
-
-  .hero-banner::before,
-  .hero-card::before{
-    content:"" !important;
-    position:absolute !important;
-    inset:0 !important;
-    z-index:1 !important;
-    pointer-events:none !important;
-    background:linear-gradient(
-      180deg,
-      rgba(30,12,22,.04) 0%,
-      rgba(30,12,22,.10) 45%,
-      rgba(30,12,22,.24) 76%,
-      rgba(30,12,22,.34) 100%
-    ) !important;
-  }
-
-  .hero-inner,
-  .hero-copy{
-    position:relative !important;
-    z-index:2 !important;
-    max-width:62% !important;
-    padding:18px 16px 24px !important;
-  }
-
-  .hero-kor{
-    font-size:11px !important;
-    margin-bottom:5px !important;
-  }
-
-  .hero-logo{
-    font-size:36px !important;
-    line-height:.92 !important;
-    margin:0 0 4px !important;
-  }
-
-  .hero-sub{
-    font-size:14px !important;
-    margin-bottom:8px !important;
-  }
-
-  .hero-desc{
-    margin-top:8px !important;
-    max-width:100% !important;
-    padding:8px 10px !important;
-    font-size:10px !important;
-    line-height:1.55 !important;
-    border-radius:14px !important;
-    background:rgba(255,255,255,.08) !important;
-    color:#fff !important;
-    text-shadow:0 2px 10px rgba(0,0,0,.28) !important;
-  }
-
-  /* titles */
-  .section-title h2,
-  .section-heading h2,
-  .home-card-head h3,
-  .fanname-card .card-title h3{
-    font-size:30px !important;
-    line-height:1.03 !important;
-  }
-
-  /* member */
-  .member-grid{
-    grid-template-columns:1fr !important;
-    gap:16px !important;
-  }
-
-  .member-card{
-    padding:10px 10px 14px !important;
-    border-radius:26px !important;
-  }
-
-  .member-photo{
-    height:290px !important;
-    border-radius:20px !important;
-    margin-bottom:14px !important;
-  }
-
-  .member-name-bar{
-    font-size:17px !important;
-    padding:13px 10px !important;
-    margin-bottom:12px !important;
-  }
-
-  .member-color-text{
-    font-size:15px !important;
-    line-height:1.65 !important;
-    margin-bottom:12px !important;
-    font-weight:900 !important;
-    opacity:1 !important;
-  }
-
-  .member-meta{
-    font-size:14px !important;
-    line-height:1.75 !important;
-    text-align:left !important;
-    padding:0 16px !important;
-    color:#7f6a77 !important;
-  }
-
-  .member-meta strong{
-    font-weight:900 !important;
-  }
-
-  .member-card.mariring .member-color-text,
-  .member-card.mariring .member-meta strong{
-    color:#ff4f9e !important;
-    -webkit-text-fill-color:#ff4f9e !important;
-    background:none !important;
-  }
-
-  .member-card.lulu .member-color-text,
-  .member-card.lulu .member-meta strong{
-    color:#dfa7c2 !important;
-    -webkit-text-fill-color:#dfa7c2 !important;
-    background:none !important;
-  }
-
-  .member-card.iro .member-color-text,
-  .member-card.iro .member-meta strong{
-    color:#83bee9 !important;
-    -webkit-text-fill-color:#83bee9 !important;
-    background:none !important;
-  }
-
-  .member-card.lunar .member-color-text,
-  .member-card.lunar .member-meta strong{
-    color:#b07ae6 !important;
-    -webkit-text-fill-color:#b07ae6 !important;
-    background:none !important;
-  }
-
-  .member-btn{
-    font-size:16px !important;
-    padding:13px 16px !important;
-  }
-
-  /* setlist / cards spacing */
-  .live-guide-shortcut{
-    margin-top:28px !important;
-    margin-bottom:20px !important;
-  }
-
-  .live-guide-card{
-    width:100% !important;
-    margin:0 auto !important;
-    padding:18px 18px !important;
-    gap:10px !important;
-    overflow:hidden !important;
-    box-sizing:border-box !important;
-  }
-
-  .live-guide-text{
-    min-width:0 !important;
-    flex:1 1 auto !important;
-  }
-
-  .live-guide-text strong{
-    font-size:20px !important;
-    line-height:1.05 !important;
-    margin-bottom:6px !important;
-  }
-
-  .live-guide-text span{
-    font-size:12px !important;
-    line-height:1.45 !important;
-    white-space:normal !important;
-    word-break:keep-all !important;
-  }
-
-  .live-guide-arrow{
-    width:24px !important;
-    min-width:24px !important;
-    font-size:20px !important;
-    margin-left:4px !important;
-    text-align:right !important;
-  }
-
-  .home-grid-top{
-    grid-template-columns:1fr !important;
-    gap:20px !important;
-    margin-top:0 !important;
-  }
-
-  .home-grid-bottom{
-    grid-template-columns:1fr !important;
-    gap:20px !important;
-    margin-top:20px !important;
-    align-items:stretch !important;
-  }
-
-  .video-section{
-    margin-top:20px !important;
-  }
-
-  .home-card-head{
-    padding:24px 22px 16px !important;
-  }
-
-  .news-item,
-  .schedule-item{
-    padding:18px 18px !important;
-  }
-
-  .home-card-foot{
-    padding:18px 18px 22px !important;
-  }
-
-  .more-btn{
-    width:calc(100% - 36px) !important;
-    min-width:0 !important;
-    max-width:440px !important;
-  }
-
-  /* fanname / info / follow */
-  .fanname-card,
-  .info-card,
-  .follow-card{
-    padding:24px 18px !important;
-    border-radius:24px !important;
-  }
-
+  /* ===== 팬네임 줄바꿈/정렬 ===== */
   .fanname-name{
     font-size:24px !important;
     line-height:1.2 !important;
@@ -381,25 +187,18 @@
   .fanname-desc{
     font-size:14px !important;
     line-height:1.8 !important;
+    white-space:normal !important;
     word-break:keep-all !important;
     overflow-wrap:anywhere !important;
     max-width:100% !important;
+    text-align:left !important;
   }
 
-  .info-links{
-    gap:14px !important;
-    grid-template-columns:1fr !important;
+  .fanname-card{
+    padding:24px 18px !important;
   }
 
-  .info-link-btn{
-    min-height:70px !important;
-    font-size:15px !important;
-  }
-
-  .sns-icons{
-    gap:14px !important;
-  }
-
+  /* ===== 위로가기 ===== */
   .back-to-top{
     width:54px !important;
     height:54px !important;
