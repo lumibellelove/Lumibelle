@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>포인트 적립기</title>
 <style>
 body{
@@ -19,12 +20,14 @@ input, select, textarea, button{
   margin-bottom:10px;
   border-radius:10px;
   border:1px solid #ddd;
+  box-sizing:border-box;
 }
 button{
   background:#ff5fa8;
   color:white;
   border:none;
   font-weight:bold;
+  cursor:pointer;
 }
 .status{
   margin-top:10px;
@@ -37,78 +40,53 @@ button{
 <div class="wrap">
   <h2>포인트 적립기</h2>
 
-  <select id="staff">
-    <option value="">스탭 선택</option>
-    <option>마리링</option>
-    <option>루루</option>
-    <option>이로</option>
-    <option>루나</option>
-  </select>
+  <form
+    id="pointForm"
+    action="https://script.google.com/macros/s/AKfycbzMf1Kxtzz1KbqoqoQOOSbzcRyomYaQZd32ls9-hDDtuc5YR4hVPjp5LHLpAy0fpsDv/exec"
+    method="POST"
+    target="hidden_iframe"
+  >
+    <select name="staff" id="staff" required>
+      <option value="">스탭 선택</option>
+      <option value="마리링">마리링</option>
+      <option value="루루">루루</option>
+      <option value="이로">이로</option>
+      <option value="루나">루나</option>
+    </select>
 
-  <input id="member" placeholder="회원번호 (예: 001)">
+    <input name="memberId" id="memberId" placeholder="회원번호 (예: LB-001)" required>
+    
+    <select name="type" id="type" required>
+      <option value="적립">적립</option>
+      <option value="사용">사용</option>
+    </select>
 
-  <select id="type">
-    <option value="적립">적립</option>
-    <option value="사용">사용</option>
-  </select>
+    <input name="point" id="point" type="number" placeholder="포인트" required>
 
-  <input id="point" type="number" placeholder="포인트">
+    <textarea name="memo" id="memo" placeholder="메모"></textarea>
 
-  <textarea id="memo" placeholder="메모"></textarea>
+    <button type="submit">저장</button>
+  </form>
 
-  <button onclick="save()">저장</button>
+  <iframe name="hidden_iframe" style="display:none;"></iframe>
 
   <div id="status" class="status"></div>
 </div>
 
 <script>
-const URL = "https://script.google.com/macros/s/AKfycbzMf1Kxtzz1KbqoqoQOOSbzcRyomYaQZd32ls9-hDDtuc5YR4hVPjp5LHLpAy0fpsDv/exec";
+const form = document.getElementById("pointForm");
+const statusEl = document.getElementById("status");
 
-async function save(){
-  const staff = document.getElementById("staff").value;
-  const member = document.getElementById("member").value;
-  const type = document.getElementById("type").value;
-  const point = document.getElementById("point").value;
-  const memo = document.getElementById("memo").value;
+form.addEventListener("submit", () => {
+  statusEl.innerText = "저장 중...";
+  statusEl.style.color = "#a0617f";
 
-  if(!staff || !member || !point){
-    setStatus("입력 확인해줘", true);
-    return;
-  }
-
-  try{
-    const res = await fetch(URL,{
-      method:"POST",
-      headers:{
-        "Content-Type":"text/plain"
-      },
-      body: JSON.stringify({
-        staff: staff,
-        memberId: "LB-" + member,
-        type: type,
-        point: point,
-        memo: memo
-      })
-    });
-
-    const text = await res.text();
-
-    if(text.trim() !== "ok"){
-      throw new Error("저장 안됨");
-    }
-
-    setStatus("저장 완료!");
-    
-  }catch(e){
-    setStatus("저장 실패", true);
-  }
-}
-
-function setStatus(msg, error=false){
-  const el = document.getElementById("status");
-  el.innerText = msg;
-  el.style.color = error ? "red" : "green";
-}
+  setTimeout(() => {
+    statusEl.innerText = "저장 완료!";
+    statusEl.style.color = "green";
+    form.reset();
+  }, 1200);
+});
 </script>
 
 </body>
