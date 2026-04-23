@@ -292,7 +292,14 @@ nav a:hover::after,
     const goodsMap = {
       tshirt: { id:'tshirt', name:'루미벨 데뷔 티셔츠', price:30000, quantity:1 },
       acrylic: { id:'acrylic', name:'아크릴 스탠드', price:12000, quantity:1 },
-      photocard: { id:'photocard', name:'포토카드 세트', price:8000, quantity:1 }
+      photocard: { id:'photocard', name:'포토카드 세트', price:8000, quantity:1 },
+      "package-a": { id:'package-a', name:'데뷔 한정 A 패키지', price:80000, quantity:1 },
+      "package-b": { id:'package-b', name:'데뷔 한정 B 패키지', price:50000, quantity:1 },
+      "live-cheki": { id:'live-cheki', name:'체키 메뉴', price:7000, quantity:1 },
+      "live-digital": { id:'live-digital', name:'디지털 메뉴', price:7000, quantity:1 },
+      "voice-mariring": { id:'voice-mariring', name:'마리링 보이스', price:5000, quantity:1 },
+      "voice-lulu": { id:'voice-lulu', name:'루루 보이스', price:5000, quantity:1 },
+      "voice-iro": { id:'voice-iro', name:'이로 보이스', price:5000, quantity:1 }
     };
 
     function getCart(){ try{return JSON.parse(localStorage.getItem(CART_KEY))||[]}catch(e){return []} }
@@ -369,26 +376,99 @@ nav a:hover::after,
 
     document.getElementById('orderForm').addEventListener('submit', function(e){
       e.preventDefault();
+
+      const buyerName = document.getElementById('buyerName').value.trim();
+      const receiverName = document.getElementById('receiverName').value.trim();
+      const contact = document.getElementById('contact').value.trim();
+      const postcode = document.getElementById('postcode').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const detailAddress = document.getElementById('detailAddress').value.trim();
+      const depositor = document.getElementById('depositor').value.trim();
+      const memo = document.getElementById('memo').value.trim();
+      const privacyAgree = document.getElementById('privacyAgree').checked;
+      const refundAgree = document.getElementById('refundAgree').checked;
+
+      if(!buyerName || !receiverName || !contact || !detailAddress || !depositor){
+        alert('필수 항목을 모두 입력해 주세요.');
+        return;
+      }
+
+      if(!postcode || !address){
+        alert('주소 찾기를 먼저 완료해 주세요.');
+        return;
+      }
+
+      if(!privacyAgree || !refundAgree){
+        alert('필수 동의 항목을 체크해 주세요.');
+        return;
+      }
+
       const items = getOrderItems();
       const totals = updateTotals();
+
       const orderData = {
-        buyerName: document.getElementById('buyerName').value.trim(),
-        receiverName: document.getElementById('receiverName').value.trim(),
-        contact: document.getElementById('contact').value.trim(),
-        postcode: document.getElementById('postcode').value.trim(),
-        address: document.getElementById('address').value.trim(),
-        detailAddress: document.getElementById('detailAddress').value.trim(),
-        fullAddress: `${document.getElementById('address').value.trim()} ${document.getElementById('detailAddress').value.trim()}`.trim(),
-        depositor: document.getElementById('depositor').value.trim(),
-        memo: document.getElementById('memo').value.trim(),
+        buyerName,
+        receiverName,
+        contact,
+        postcode,
+        address,
+        detailAddress,
+        fullAddress: `${address} ${detailAddress}`.trim(),
+        depositor,
+        memo,
         cart: items,
         productTotal: totals.productTotal,
         shippingFee: totals.shippingFee,
         total: totals.grandTotal,
         mode: getModeInfo().mode || 'cart'
       };
+
       localStorage.setItem(ORDER_KEY, JSON.stringify(orderData));
-      location.href = 'complete.html';
+
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = 'https://docs.google.com/forms/d/e/1FAIpQLSfL4ZDGJH_5GV9YpI1amvY7YlJZ5xAwIoHwvoJx2iZzhuKCKg/formResponse';
+      form.target = 'hidden_iframe';
+      form.style.display = 'none';
+
+      const goodsSummary = items.map(item => `${item.name} x ${item.quantity} (${money(item.price * item.quantity)})`).join(' / ');
+
+      const fields = {
+        'entry.1610407847': buyerName,
+        'entry.2094548838': receiverName,
+        'entry.1641030467': contact,
+        'entry.2133511760': postcode,
+        'entry.768143369': address,
+        'entry.791734754': detailAddress,
+        'entry.1015507795': depositor,
+        'entry.798486836': memo || '-',
+        'entry.281634451': goodsSummary,
+        'entry.1965746370': String(totals.productTotal),
+        'entry.909379098': String(totals.shippingFee),
+        'entry.2132027971': String(totals.grandTotal)
+      };
+
+      Object.entries(fields).forEach(([name, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+
+      const submitBtn = this.querySelector('.submit-btn');
+      if(submitBtn){
+        submitBtn.disabled = true;
+        submitBtn.textContent = '제출 중...';
+        submitBtn.style.opacity = '0.8';
+      }
+
+      setTimeout(() => {
+        location.href = 'complete.html';
+      }, 700);
     });
 
     renderSummary();
@@ -471,6 +551,9 @@ nav a:hover::after,
   });
 })();
 </script>
+
+
+  <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
 
 </body>
 </html>
