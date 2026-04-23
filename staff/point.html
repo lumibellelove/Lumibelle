@@ -1,1 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>포인트 적립기</title>
+  <style>
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      font-family:"Noto Sans KR", sans-serif;
+      background:#fff7fb;
+      color:#8a6377;
+    }
+    .wrap{
+      max-width:720px;
+      margin:0 auto;
+      padding:40px 20px 60px;
+    }
+    h1{
+      font-size:28px;
+      margin:0 0 24px;
+      color:#8a6377;
+    }
+    input, select, textarea, button{
+      width:100%;
+      padding:16px 18px;
+      margin-bottom:14px;
+      border-radius:18px;
+      border:1px solid #efd4e3;
+      background:#fff;
+      font:inherit;
+      color:#8a6377;
+      outline:none;
+    }
+    textarea{
+      min-height:110px;
+      resize:vertical;
+    }
+    button{
+      background:#f25ca8;
+      color:#fff;
+      font-weight:800;
+      border:2px solid #2b1d26;
+      cursor:pointer;
+    }
+    .status{
+      margin-top:8px;
+      font-size:16px;
+      font-weight:700;
+    }
+    .ok{ color:green; }
+    .error{ color:red; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>포인트 적립기</h1>
 
+    <form
+      id="pointForm"
+      action="https://script.google.com/macros/s/AKfycbzyGaMYysw7WCcdsIux_kHM6blL81Z94YVtUUXak-wiuzki7W-kCKSFIItxP_SvAcsS9w/exec"
+      method="POST"
+      target="hidden_iframe"
+    >
+      <select name="staff" required>
+        <option value="">스탭 선택</option>
+        <option value="마리링">마리링</option>
+        <option value="루루">루루</option>
+        <option value="이로">이로</option>
+        <option value="루나">루나</option>
+      </select>
+
+      <input
+        name="memberId"
+        type="text"
+        placeholder="회원번호 (예: LB-001)"
+        required
+      >
+
+      <select name="type" required>
+        <option value="적립">적립</option>
+        <option value="사용">사용</option>
+      </select>
+
+      <input
+        name="point"
+        type="number"
+        min="1"
+        step="1"
+        placeholder="포인트"
+        required
+      >
+
+      <textarea
+        name="memo"
+        placeholder="메모"
+      ></textarea>
+
+      <button type="submit">저장</button>
+    </form>
+
+    <iframe name="hidden_iframe" style="display:none;"></iframe>
+
+    <div id="status" class="status"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById("pointForm");
+    const statusEl = document.getElementById("status");
+    const iframe = document.querySelector('iframe[name="hidden_iframe"]');
+
+    form.addEventListener("submit", () => {
+      statusEl.textContent = "저장 중...";
+      statusEl.className = "status";
+    });
+
+    iframe.addEventListener("load", () => {
+      statusEl.textContent = "저장 완료! 시트 확인해줘.";
+      statusEl.className = "status ok";
+      form.reset();
+    });
+  </script>
+</body>
+</html>
