@@ -6,6 +6,8 @@
 <title>루미벨 스탭</title>
 
 <style>
+*{box-sizing:border-box;}
+
 body{
   margin:0;
   font-family:sans-serif;
@@ -26,11 +28,15 @@ body{
 }
 
 h1{
-  margin:0 0 10px;
+  margin:0 0 18px;
 }
 
 .field{
   margin-bottom:12px;
+}
+
+input, select, textarea, button, a{
+  font:inherit;
 }
 
 input, select, textarea{
@@ -38,39 +44,52 @@ input, select, textarea{
   padding:12px;
   border-radius:12px;
   border:1px solid #eee;
+  background:#fff;
 }
 
 textarea{
-  min-height:80px;
+  min-height:110px;
+  resize:vertical;
 }
 
 .member{
   display:flex;
   gap:8px;
+  align-items:center;
 }
 
 .member span{
+  flex:0 0 auto;
   background:#fff0f7;
   border:1px solid #f3d9e7;
   border-radius:12px;
-  padding:12px;
+  padding:12px 14px;
   color:#ff5fa8;
   font-weight:bold;
+  line-height:1;
+}
+
+.member input{
+  flex:1;
+  min-width:0;
 }
 
 .quick{
   display:grid;
   grid-template-columns:repeat(3,1fr);
   gap:8px;
+  margin-top:4px;
 }
 
 .quick button{
+  width:100%;
   padding:10px;
   border-radius:12px;
   border:none;
   background:#fff0f7;
   color:#ff5fa8;
   font-weight:bold;
+  cursor:pointer;
 }
 
 .actions{
@@ -80,19 +99,45 @@ textarea{
   margin-top:10px;
 }
 
+.actions.single{
+  grid-template-columns:1fr;
+}
+
+.btn-primary,
+.btn-secondary{
+  display:block;
+  width:100%;
+  text-align:center;
+  text-decoration:none;
+  padding:14px;
+  border-radius:14px;
+  cursor:pointer;
+}
+
 .btn-primary{
   background:#ff5fa8;
   color:white;
   border:none;
-  padding:14px;
-  border-radius:14px;
 }
 
 .btn-secondary{
   background:#fff;
   border:1px solid #ddd;
-  padding:14px;
-  border-radius:14px;
+  color:#7d5c6d;
+}
+
+iframe{
+  display:none;
+}
+
+@media (max-width:640px){
+  .quick{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .actions{
+    grid-template-columns:1fr;
+  }
 }
 </style>
 </head>
@@ -100,84 +145,76 @@ textarea{
 <body>
 
 <div class="wrap">
-<div class="card">
+  <div class="card">
 
-<h1>포인트 적립기</h1>
+    <h1>포인트 적립기</h1>
 
-<form id="form"
-action="https://docs.google.com/forms/d/e/1FAIpQLSdkBI418UPiPPEqF0YxEQ1_yvRD9ex-6pXkB9fXyV66f1TxpQ/formResponse"
-method="POST"
-target="hidden_iframe">
+    <form id="form"
+      action="https://docs.google.com/forms/d/e/1FAIpQLSdkBI418UPiPPEqF0YxEQ1_yvRD9ex-6pXkB9fXyV66f1TxpQ/formResponse"
+      method="POST"
+      target="hidden_iframe">
 
-<!-- 스탭 -->
-<div class="field">
-<select id="staff">
-<option value="">스탭 선택</option>
-<option>마리링</option>
-<option>루루</option>
-<option>이로</option>
-<option>루나</option>
-</select>
+      <div class="field">
+        <select id="staff" required>
+          <option value="">스탭 선택</option>
+          <option value="마리링">마리링</option>
+          <option value="루루">루루</option>
+          <option value="이로">이로</option>
+          <option value="루나">루나</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <div class="member">
+          <span>LB-</span>
+          <input id="member" placeholder="001" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <select id="type" name="entry.668276280">
+          <option value="적립">적립</option>
+          <option value="사용">사용</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <input id="point" name="entry.1489084345" placeholder="포인트" required>
+      </div>
+
+      <div class="field">
+        <textarea id="memo" name="entry.377436320" placeholder="메모"></textarea>
+      </div>
+
+      <div class="quick">
+        <button type="button" onclick="add(1)">+1</button>
+        <button type="button" onclick="add(2)">+2</button>
+        <button type="button" onclick="add(3)">+3</button>
+        <button type="button" onclick="add(5)">+5</button>
+        <button type="button" onclick="add(10)">+10</button>
+        <button type="button" onclick="use100()">사용100</button>
+      </div>
+
+      <input type="hidden" name="entry.517609756" id="staffHidden">
+      <input type="hidden" name="entry.1501139250" id="memberHidden">
+
+      <div class="actions">
+        <button class="btn-primary" type="submit">저장</button>
+        <button type="button" class="btn-secondary" onclick="resetForm()">초기화</button>
+      </div>
+
+      <div class="actions single">
+        <a class="btn-secondary"
+          href="https://docs.google.com/spreadsheets/d/1Os_YlqM5yY1owd2a4jS4QdQDeTubu1yuuKI4ownDqh8/edit?usp=sharing"
+          target="_blank"
+          rel="noopener noreferrer">기록 보기</a>
+      </div>
+
+    </form>
+  </div>
 </div>
 
-<!-- 회원번호 -->
-<div class="field">
-<div class="member">
-<span>LB-</span>
-<input id="member" placeholder="001">
-</div>
-</div>
-
-<!-- 구분 -->
-<div class="field">
-<select id="type" name="entry.668276280">
-<option value="적립">적립</option>
-<option value="사용">사용</option>
-</select>
-</div>
-
-<!-- 포인트 -->
-<div class="field">
-<input id="point" name="entry.1489084345" placeholder="포인트">
-</div>
-
-<!-- 메모 -->
-<div class="field">
-<textarea id="memo" name="entry.377436320"></textarea>
-</div>
-
-<!-- 빠른 버튼 -->
-<div class="quick">
-<button type="button" onclick="add(1)">+1</button>
-<button type="button" onclick="add(2)">+2</button>
-<button type="button" onclick="add(3)">+3</button>
-<button type="button" onclick="add(5)">+5</button>
-<button type="button" onclick="add(10)">+10</button>
-<button type="button" onclick="use100()">사용100</button>
-</div>
-
-<!-- 숨김 -->
-<input type="hidden" name="entry.517609756" id="staffHidden">
-<input type="hidden" name="entry.1501139250" id="memberHidden">
-
-<div class="actions">
-<button class="btn-primary">저장</button>
-<button type="button" class="btn-secondary" onclick="resetForm()">초기화</button>
-</div>
-
-<div class="actions">
-<a class="btn-secondary"
-href="https://docs.google.com/spreadsheets/d/1Os_YlqM5yY1owd2a4jS4QdQDeTubu1yuuKI4ownDqh8/edit?usp=sharing"
-target="_blank">기록 보기</a>
-</div>
-
-</form>
-
-</div>
-</div>
-
-<!-- 🔥 엑박 방지 -->
-<iframe name="hidden_iframe" style="display:none;"></iframe>
+<iframe name="hidden_iframe"></iframe>
 
 <script>
 const staff = document.getElementById("staff");
@@ -205,7 +242,7 @@ document.getElementById("form").addEventListener("submit", e=>{
   }
 
   document.getElementById("staffHidden").value = staff.value;
-  document.getElementById("memberHidden").value = "LB-" + member.value;
+  document.getElementById("memberHidden").value = "LB-" + member.value.trim();
 
   setTimeout(()=>{
     point.value="";
