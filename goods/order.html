@@ -457,6 +457,7 @@ nav a:hover::after,
       });
 
       document.body.appendChild(form);
+      window.__lumibelleOrderSubmitted = true;
       form.submit();
 
       const submitBtn = this.querySelector('.submit-btn');
@@ -467,8 +468,10 @@ nav a:hover::after,
       }
 
       setTimeout(() => {
-        location.href = 'complete.html';
-      }, 700);
+        if(window.__lumibelleOrderSubmitted){
+          window.location.href = 'complete.html';
+        }
+      }, 1800);
     });
 
     renderSummary();
@@ -554,6 +557,19 @@ nav a:hover::after,
 
 
   <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+  <script>
+    window.__lumibelleOrderSubmitted = false;
+    window.addEventListener("DOMContentLoaded", function(){
+      const hiddenFrame = document.getElementById("hidden_iframe");
+      if(hiddenFrame){
+        hiddenFrame.addEventListener("load", function(){
+          if(window.__lumibelleOrderSubmitted){
+            window.location.href = "complete.html";
+          }
+        });
+      }
+    });
+  </script>
 
 </body>
 </html>
