@@ -349,11 +349,11 @@
         </div>
 
         <form
-  id="staffForm"
-  action="https://docs.google.com/forms/d/e/1FAIpQLSfXJcfw9a5AxnR9W9YvNO7ppvr0-YSG7Lf_87gB_eJkHPnwzg/formResponse"
-  method="POST"
-  target="hidden_iframe"
->
+          id="staffForm"
+          action="https://docs.google.com/forms/d/e/1FAIpQLSfXJcfw9a5AxnR9W9YvNO7ppvr0-YSG7Lf_87gB_eJkHPnwzg/formResponse"
+          method="POST"
+          target="hidden_iframe"
+        >
           <div class="row">
             <div class="field">
               <label for="staffSelect">스탭 선택</label>
@@ -576,6 +576,17 @@
 
       submitStarted = true;
       showStatus("저장 중...", "ok");
+
+      setTimeout(() => {
+        if (!submitStarted) return;
+        submitStarted = false;
+        showStatus("저장 완료! 구글폼으로 전송됐어요.", "ok");
+        pointInput.value = "";
+        memoInput.value = "";
+        typeInput.value = "적립";
+        memberInput.value = "";
+        memberInput.focus();
+      }, 1200);
     });
 
     hiddenIframe.addEventListener("load", () => {
