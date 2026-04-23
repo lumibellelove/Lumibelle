@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>루미벨 포인트 조회</title>
+<style>
+body{
+  margin:0;
+  font-family:"Noto Sans KR",sans-serif;
+  background:linear-gradient(180deg,#fff8fc,#ffeef6);
+  color:#7d5c6d;
+}
+.wrap{
+  max-width:430px;
+  margin:auto;
+  padding:40px 18px;
+}
+.card{
+  background:rgba(255,255,255,.95);
+  border:1px solid #f3d9e7;
+  border-radius:24px;
+  padding:26px 22px;
+  box-shadow:0 18px 40px rgba(255,95,168,.12);
+}
+.sub{
+  font-size:12px;
+  letter-spacing:.18em;
+  color:#ff5fa8;
+  font-weight:800;
+  margin-bottom:8px;
+}
+h1{
+  margin:0;
+  font-size:26px;
+  color:#8a6377;
+}
+.desc{
+  margin:8px 0 20px;
+  font-size:14px;
+  line-height:1.6;
+  color:#b08ba0;
+}
+.input-wrap{
+  display:flex;
+  margin-bottom:14px;
+}
+.prefix{
+  background:#fff0f7;
+  border:1px solid #f3d9e7;
+  border-right:none;
+  border-radius:16px 0 0 16px;
+  padding:14px 14px;
+  font-weight:800;
+  color:#ff5fa8;
+}
+input{
+  flex:1;
+  border:1px solid #f3d9e7;
+  border-radius:0 16px 16px 0;
+  padding:14px 16px;
+  font-size:16px;
+  outline:none;
+}
+input:focus{
+  border-color:#f4a4ca;
+  box-shadow:0 0 0 4px rgba(255,121,181,.12);
+}
+button{
+  width:100%;
+  border:none;
+  border-radius:16px;
+  padding:15px;
+  font-size:16px;
+  font-weight:800;
+  color:#fff;
+  background:linear-gradient(135deg,#ff79b5,#ff5fa8);
+  box-shadow:0 12px 24px rgba(255,95,168,.22);
+  cursor:pointer;
+}
+.result{
+  display:none;
+  margin-top:18px;
+  padding:18px;
+  border-radius:18px;
+  background:#fff7fb;
+  border:1px solid #f4cade;
+  text-align:center;
+}
+.result-label{
+  font-size:13px;
+  color:#b08ba0;
+  margin-bottom:8px;
+}
+.point{
+  font-size:30px;
+  font-weight:900;
+  color:#ff5fa8;
+}
+.help{
+  margin-top:10px;
+  font-size:12px;
+  color:#b08ba0;
+  line-height:1.7;
+}
+.error{
+  display:none;
+  margin-top:14px;
+  padding:12px 14px;
+  border-radius:14px;
+  background:#fff7f7;
+  border:1px solid #f3caca;
+  color:#b45d6e;
+  font-size:13px;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="sub">LUMIBELLE POINT</div>
+    <h1>POINT CHECK</h1>
+    <div class="desc">회원번호를 입력하면 현재 포인트를 확인할 수 있어요.</div>
+
+    <div class="input-wrap">
+      <div class="prefix">LB-</div>
+      <input id="member" type="text" inputmode="numeric" placeholder="회원번호 입력">
+    </div>
+
+    <button onclick="checkPoint()">조회하기</button>
+
+    <div id="errorBox" class="error"></div>
+
+    <div class="result" id="result">
+      <div class="result-label">현재 포인트</div>
+      <div class="point" id="point">0P</div>
+      <div class="help">포인트 관련 문의는 현장 스탭에게 말씀해주세요.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/1zXDDktS4iKmQoSYip5BCBNnfPMfiPjBGyIwu6JNRcRg/edit?usp=sharing";
+
+async function checkPoint(){
+  const member = document.getElementById("member").value.trim();
+  const result = document.getElementById("result");
+  const point = document.getElementById("point");
+  const errorBox = document.getElementById("errorBox");
+
+  result.style.display = "none";
+  errorBox.style.display = "none";
+  errorBox.textContent = "";
+
+  if(!member){
+    errorBox.textContent = "회원번호를 입력해줘.";
+    errorBox.style.display = "block";
+    return;
+  }
+
+  try{
+    const url = SHEET_URL.replace("/edit?usp=sharing","/gviz/tq?tqx=out:json&sheet=%ED%8F%AC%EC%9D%B8%ED%8A%B8%EC%A0%95%EB%A6%AC");
+    const res = await fetch(url);
+    const text = await res.text();
+    const json = JSON.parse(text.substring(47).slice(0,-2));
+    const rows = json.table.rows;
+
+    let foundPoint = null;
+
+    rows.forEach(row => {
+      const id = row.c[0] ? String(row.c[0].v).trim() : "";
+      const total = row.c[1] ? row.c[1].v : 0;
+
+      if(id === member){
+        foundPoint = total;
+      }
+    });
+
+    point.textContent = (foundPoint ?? 0) + "P";
+    result.style.display = "block";
+  }catch(e){
+    errorBox.textContent = "조회 중 문제가 생겼어. 시트 공개 설정을 다시 확인해줘.";
+    errorBox.style.display = "block";
+  }
+}
+</script>
+</body>
+</html>
