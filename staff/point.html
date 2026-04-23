@@ -1,125 +1,206 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>포인트 적립기</title>
-  <style>
-    *{box-sizing:border-box;}
-    body{
-      margin:0;
-      font-family:"Noto Sans KR", sans-serif;
-      background:#fff7fb;
-      color:#8a6377;
-    }
-    .wrap{
-      max-width:720px;
-      margin:0 auto;
-      padding:40px 20px 60px;
-    }
-    h1{
-      font-size:28px;
-      margin:0 0 24px;
-      color:#8a6377;
-    }
-    input, select, textarea, button{
-      width:100%;
-      padding:16px 18px;
-      margin-bottom:14px;
-      border-radius:18px;
-      border:1px solid #efd4e3;
-      background:#fff;
-      font:inherit;
-      color:#8a6377;
-      outline:none;
-    }
-    textarea{
-      min-height:110px;
-      resize:vertical;
-    }
-    button{
-      background:#f25ca8;
-      color:#fff;
-      font-weight:800;
-      border:2px solid #2b1d26;
-      cursor:pointer;
-    }
-    .status{
-      margin-top:8px;
-      font-size:16px;
-      font-weight:700;
-    }
-    .ok{ color:green; }
-    .error{ color:red; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>포인트 적립기</title>
+
+<style>
+*{box-sizing:border-box;}
+
+body{
+  margin:0;
+  font-family:"Noto Sans KR",sans-serif;
+  background:#fff7fb;
+}
+
+.wrap{
+  max-width:720px;
+  margin:auto;
+  padding:20px;
+}
+
+.card{
+  background:#fff;
+  border-radius:24px;
+  padding:24px;
+  box-shadow:0 10px 25px rgba(255,95,168,0.15);
+}
+
+.title{
+  font-size:12px;
+  letter-spacing:2px;
+  color:#ff7ab5;
+  margin-bottom:6px;
+}
+
+h1{
+  margin:0 0 18px;
+}
+
+.field{
+  margin-bottom:12px;
+}
+
+input, select, textarea{
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid #eee;
+  font-size:14px;
+}
+
+textarea{
+  resize:none;
+  height:90px;
+}
+
+.actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+}
+
+button{
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.save{
+  background:#ff5fa8;
+  color:#fff;
+  grid-column:span 2;
+}
+
+.reset{
+  background:#eee;
+}
+
+.quick{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-top:10px;
+}
+
+.quick button{
+  background:#ffe2ef;
+}
+
+.status{
+  margin-top:12px;
+  font-weight:700;
+}
+.ok{color:green;}
+.error{color:red;}
+</style>
 </head>
+
 <body>
-  <div class="wrap">
-    <h1>포인트 적립기</h1>
 
-    <form
-      id="pointForm"
-      action="https://script.google.com/macros/s/AKfycbx_M_uqEj1T4Nf9C0ryW_lPXmaPvcXOsW39fA33b2l9T-5-n8AFk6u_wxkFbFr_U1J_vQ/exec"
-      method="POST"
-      target="hidden_iframe"
-    >
-      <select name="staff" required>
-        <option value="">스탭 선택</option>
-        <option value="마리링">마리링</option>
-        <option value="루루">루루</option>
-        <option value="이로">이로</option>
-        <option value="루나">루나</option>
-      </select>
+<div class="wrap">
+<div class="card">
 
-      <input
-        name="memberId"
-        type="text"
-        placeholder="회원번호 (예: LB-001)"
-        required
-      >
+<div class="title">LUMIBELLE STAFF</div>
+<h1>포인트 적립기</h1>
 
-      <select name="type" required>
-        <option value="적립">적립</option>
-        <option value="사용">사용</option>
-      </select>
+<form id="pointForm"
+action="https://script.google.com/macros/s/AKfycbx_M_uqEj1T4Nf9C0ryW_lPXmaPvcXOsW39fA33b2l9T-5-n8AFk6u_wxkFbFr_U1J_vQ/exec"
+method="POST"
+target="hidden_iframe">
 
-      <input
-        name="point"
-        type="number"
-        min="1"
-        step="1"
-        placeholder="포인트"
-        required
-      >
+<div class="field">
+<select name="staff" required>
+<option value="">스탭 선택</option>
+<option>마리링</option>
+<option>루루</option>
+<option>이로</option>
+<option>루나</option>
+</select>
+</div>
 
-      <textarea
-        name="memo"
-        placeholder="메모"
-      ></textarea>
+<div class="field">
+<input name="memberId" placeholder="회원번호 (숫자만 입력)"
+pattern="[0-9]+" required>
+</div>
 
-      <button type="submit">저장</button>
-    </form>
+<div class="field">
+<select name="type">
+<option value="적립">적립</option>
+<option value="사용">사용</option>
+</select>
+</div>
 
-    <iframe name="hidden_iframe" style="display:none;"></iframe>
+<div class="field">
+<input name="point" type="number" min="1" placeholder="포인트" required>
+</div>
 
-    <div id="status" class="status"></div>
-  </div>
+<div class="field">
+<textarea name="memo" placeholder="메모"></textarea>
+</div>
 
-  <script>
-    const form = document.getElementById("pointForm");
-    const statusEl = document.getElementById("status");
-    const iframe = document.querySelector('iframe[name="hidden_iframe"]');
+<!-- 빠른 입력 -->
+<div class="quick">
+<button type="button" onclick="addPoint(1)">+1</button>
+<button type="button" onclick="addPoint(2)">+2</button>
+<button type="button" onclick="addPoint(3)">+3</button>
+<button type="button" onclick="addPoint(5)">+5</button>
+<button type="button" onclick="addPoint(10)">+10</button>
+<button type="button" onclick="use100()">사용100</button>
+</div>
 
-    form.addEventListener("submit", () => {
-      statusEl.textContent = "저장 중...";
-      statusEl.className = "status";
-    });
+<div class="actions">
+<button type="submit" class="save">저장</button>
+<button type="button" class="reset" onclick="form.reset()">초기화</button>
+</div>
 
-    iframe.addEventListener("load", () => {
-      statusEl.textContent = "저장 요청 완료! 시트 확인해줘.";
-      statusEl.className = "status ok";
-      form.reset();
-    });
-  </script>
+</form>
+
+<iframe name="hidden_iframe" style="display:none;"></iframe>
+
+<div id="status" class="status"></div>
+
+</div>
+</div>
+
+<script>
+const form = document.getElementById("pointForm");
+const statusEl = document.getElementById("status");
+const iframe = document.querySelector('iframe[name="hidden_iframe"]');
+const pointInput = document.querySelector('input[name="point"]');
+const typeSelect = document.querySelector('select[name="type"]');
+
+/* 실수 방지 확인 */
+form.addEventListener("submit", (e)=>{
+  if(!confirm("이대로 저장할까요?")){
+    e.preventDefault();
+    return;
+  }
+  statusEl.textContent="저장 중...";
+});
+
+/* 저장 완료 감지 */
+iframe.addEventListener("load", ()=>{
+  statusEl.textContent="저장 완료!";
+  statusEl.className="status ok";
+  form.reset();
+});
+
+/* 빠른 적립 */
+function addPoint(n){
+  pointInput.value = (parseInt(pointInput.value||0)+n);
+}
+
+/* 사용 100 */
+function use100(){
+  pointInput.value = 100;
+  typeSelect.value = "사용";
+}
+</script>
+
 </body>
 </html>
