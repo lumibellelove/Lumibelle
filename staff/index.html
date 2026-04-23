@@ -80,7 +80,7 @@
     }
 
     .wrap{
-      width:min(100%, 620px);
+      width:min(100%, 720px);
       margin:0 auto;
       padding:28px 18px 40px;
     }
@@ -154,6 +154,23 @@
       gap:12px;
     }
 
+    .member-input{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .member-prefix{
+      min-width:52px;
+      text-align:center;
+      padding:14px 12px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:#fff7fb;
+      color:var(--pink-deep);
+      font-weight:800;
+    }
+
     .quick{
       display:grid;
       grid-template-columns:repeat(3,1fr);
@@ -184,11 +201,11 @@
       background:#fff7fb;
     }
 
-    .actions{
+    .actions,
+    .sub-actions{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:10px;
-      margin-top:4px;
     }
 
     .btn{
@@ -199,6 +216,8 @@
       font-weight:800;
       cursor:pointer;
       transition:.2s ease;
+      text-decoration:none;
+      text-align:center;
     }
 
     .btn-primary{
@@ -254,14 +273,15 @@
 
     iframe{display:none}
 
-    @media (max-width:520px){
+    @media (max-width:640px){
       .head h1,
       .gate-card h1{
         font-size:24px;
       }
 
       .row,
-      .actions{
+      .actions,
+      .sub-actions{
         grid-template-columns:1fr;
       }
 
@@ -305,8 +325,8 @@
       <div class="card">
         <div class="head">
           <div class="sub">LUMIBELLE STAFF</div>
-          <h1>포인트 처리</h1>
-          <p>회원번호를 입력하고 적립 또는 사용을 기록하세요.</p>
+          <h1>포인트 적립기</h1>
+          <p>스탭 선택은 유지되고, 회원번호는 숫자만 입력하면 돼요.</p>
         </div>
 
         <form id="staffForm"
@@ -314,27 +334,34 @@
               method="POST"
               target="hidden_iframe">
 
+          <!-- 숨김값 -->
+          <input type="hidden" name="entry.517609756" id="staffHidden" />
+          <input type="hidden" name="entry.1501139250" id="memberId" />
+
           <div class="row">
             <div class="field">
-              <label for="staffName">스탭 이름</label>
-              <input
-                id="staffName"
-                name="entry.517609756"
-                type="text"
-                placeholder="예: 마리링 / 루루 / 이로"
-                required
-              />
+              <label for="staffSelect">스탭 선택</label>
+              <select id="staffSelect" required>
+                <option value="">선택</option>
+                <option value="마리링">마리링</option>
+                <option value="루루">루루</option>
+                <option value="이로">이로</option>
+                <option value="루나">루나</option>
+              </select>
             </div>
 
             <div class="field">
-              <label for="memberId">회원번호</label>
-              <input
-                id="memberId"
-                name="entry.1501139250"
-                type="text"
-                placeholder="예: LB-001"
-                required
-              />
+              <label for="memberNumber">회원번호</label>
+              <div class="member-input">
+                <div class="member-prefix">LB-</div>
+                <input
+                  id="memberNumber"
+                  type="number"
+                  inputmode="numeric"
+                  placeholder="예: 001"
+                  required
+                />
+              </div>
             </div>
           </div>
 
@@ -386,12 +413,24 @@
             <button type="submit" class="btn btn-primary">저장하기</button>
             <button type="button" class="btn btn-secondary" id="resetBtn">초기화</button>
           </div>
+
+          <div class="sub-actions">
+            <a
+              class="btn btn-secondary"
+              href="https://docs.google.com/spreadsheets/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              기록 보기
+            </a>
+            <button type="button" class="btn btn-secondary" id="logoutBtn">스탭 변경</button>
+          </div>
         </form>
 
         <div class="note">
-          ※ 적립 버튼은 구분과 포인트를 함께 채워줘요.<br />
+          ※ 적립 버튼은 누적돼요. 예: +1 → +1 → +3 = 5<br />
           ※ 사용 100 버튼은 구분이 자동으로 ‘사용’으로 바뀌어요.<br />
-          ※ 폼 질문 순서나 항목명을 바꾸면 entry 번호를 다시 확인해야 해요.
+          ※ 스탭 이름은 한 번 선택하면 유지돼요.
         </div>
       </div>
 
@@ -403,6 +442,7 @@
 
   <script>
     const STAFF_PASSWORD = "lmb0712";
+    const STAFF_NAME_KEY = "lb_staff_name";
 
     const gate = document.getElementById("gate");
     const staffPage = document.getElementById("staffPage");
@@ -411,20 +451,33 @@
     const gateError = document.getElementById("gateError");
 
     const form = document.getElementById("staffForm");
-    const staffNameInput = document.getElementById("staffName");
-    const memberInput = document.getElementById("memberId");
+    const staffSelect = document.getElementById("staffSelect");
+    const staffHidden = document.getElementById("staffHidden");
+    const memberNumberInput = document.getElementById("memberNumber");
+    const memberIdHidden = document.getElementById("memberId");
     const typeInput = document.getElementById("type");
     const pointInput = document.getElementById("point");
     const memoInput = document.getElementById("memo");
     const statusBox = document.getElementById("statusBox");
     const resetBtn = document.getElementById("resetBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
     const chips = document.querySelectorAll(".chip");
+
+    staffSelect.value = localStorage.getItem(STAFF_NAME_KEY) || "";
+
+    staffSelect.addEventListener("change", () => {
+      localStorage.setItem(STAFF_NAME_KEY, staffSelect.value);
+    });
 
     function openStaffPage() {
       gate.classList.add("hidden");
       staffPage.classList.remove("hidden");
       setTimeout(() => {
-        staffNameInput.focus();
+        if (staffSelect.value) {
+          memberNumberInput.focus();
+        } else {
+          staffSelect.focus();
+        }
       }, 50);
     }
 
@@ -445,18 +498,28 @@
       statusBox.className = `status show ${type}`;
     }
 
+    function formatMemberId() {
+      const raw = String(memberNumberInput.value || "").trim();
+      if (!raw) return "";
+      return "LB-" + raw.padStart(3, "0");
+    }
+
     function fillQuickAction(chip) {
       const selectedType = chip.dataset.type;
-      const selectedPoint = chip.dataset.point;
-
-      typeInput.value = selectedType;
-      pointInput.value = selectedPoint;
+      const selectedPoint = Number(chip.dataset.point || 0);
+      const currentPoint = Number(pointInput.value || 0);
 
       if (selectedType === "사용") {
+        typeInput.value = "사용";
+        pointInput.value = 100;
         if (!memoInput.value.trim()) {
           memoInput.value = "포인트 사용";
         }
+        return;
       }
+
+      typeInput.value = "적립";
+      pointInput.value = currentPoint + selectedPoint;
     }
 
     loginBtn.addEventListener("click", checkPassword);
@@ -483,15 +546,15 @@
     });
 
     form.addEventListener("submit", (e) => {
-      if (!staffNameInput.value.trim()) {
+      if (!staffSelect.value) {
         e.preventDefault();
-        showStatus("스탭 이름을 입력해줘.", "error");
+        showStatus("스탭을 선택해줘.", "error");
         return;
       }
 
-      if (!memberInput.value.trim()) {
+      if (!memberNumberInput.value.trim()) {
         e.preventDefault();
-        showStatus("회원번호를 입력해줘.", "error");
+        showStatus("회원번호 숫자를 입력해줘.", "error");
         return;
       }
 
@@ -516,25 +579,39 @@
         }
       }
 
-      const savedStaffName = staffNameInput.value.trim();
+      staffHidden.value = staffSelect.value;
+      memberIdHidden.value = formatMemberId();
 
       setTimeout(() => {
         showStatus("저장 완료! 다음 입력 진행해줘.", "ok");
         form.reset();
-        staffNameInput.value = savedStaffName;
+        staffSelect.value = localStorage.getItem(STAFF_NAME_KEY) || "";
         typeInput.value = "적립";
-        memberInput.focus();
+        pointInput.value = "";
+        memoInput.value = "";
+        memberIdHidden.value = "";
+        memberNumberInput.value = "";
+        memberNumberInput.focus();
       }, 500);
     });
 
     resetBtn.addEventListener("click", () => {
-      const savedStaffName = staffNameInput.value.trim();
       form.reset();
-      staffNameInput.value = savedStaffName;
+      staffSelect.value = localStorage.getItem(STAFF_NAME_KEY) || "";
       typeInput.value = "적립";
+      pointInput.value = "";
+      memoInput.value = "";
+      memberIdHidden.value = "";
+      memberNumberInput.value = "";
       statusBox.className = "status";
       statusBox.textContent = "";
-      memberInput.focus();
+      memberNumberInput.focus();
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem(STAFF_NAME_KEY);
+      sessionStorage.removeItem("lb_staff_auth");
+      location.reload();
     });
 
     window.addEventListener("load", () => {
