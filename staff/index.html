@@ -32,20 +32,57 @@
 
     .hidden{display:none !important;}
 
-    .gate-wrap,
-    .wrap{
-      width:min(100%, 560px);
-      margin:0 auto;
-      padding:28px 18px 40px;
+    .gate-box{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
     }
 
+    .gate-card,
     .card{
       background:var(--panel);
       backdrop-filter:blur(10px);
       border:1px solid var(--line);
-      border-radius:var(--radius);
+      border-radius:24px;
       box-shadow:var(--shadow);
       overflow:hidden;
+    }
+
+    .gate-card{
+      width:min(100%,420px);
+      padding:28px 22px;
+      text-align:center;
+    }
+
+    .gate-sub,
+    .head .sub{
+      font-size:12px;
+      letter-spacing:.18em;
+      color:var(--pink-deep);
+      font-weight:700;
+    }
+
+    .gate-sub{margin-bottom:10px;}
+
+    .gate-card h1{
+      margin:0 0 10px;
+      font-size:28px;
+      color:#8a6377;
+    }
+
+    .gate-card p{
+      margin:0 0 18px;
+      font-size:14px;
+      line-height:1.6;
+      color:var(--soft);
+    }
+
+    .wrap{
+      width:min(100%, 620px);
+      margin:0 auto;
+      padding:28px 18px 40px;
     }
 
     .head{
@@ -55,10 +92,6 @@
     }
 
     .head .sub{
-      font-size:12px;
-      letter-spacing:.18em;
-      color:var(--pink-deep);
-      font-weight:700;
       margin-bottom:8px;
     }
 
@@ -74,45 +107,6 @@
       font-size:14px;
       color:var(--soft);
       line-height:1.6;
-    }
-
-    .gate-box{
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:24px;
-    }
-
-    .gate-card{
-      width:min(100%,420px);
-      background:rgba(255,255,255,.92);
-      border:1px solid var(--line);
-      border-radius:24px;
-      box-shadow:var(--shadow);
-      padding:28px 22px;
-      text-align:center;
-    }
-
-    .gate-sub{
-      font-size:12px;
-      letter-spacing:.18em;
-      color:var(--pink-deep);
-      font-weight:700;
-      margin-bottom:10px;
-    }
-
-    .gate-card h1{
-      margin:0 0 10px;
-      font-size:28px;
-      color:#8a6377;
-    }
-
-    .gate-card p{
-      margin:0 0 18px;
-      font-size:14px;
-      line-height:1.6;
-      color:var(--soft);
     }
 
     form{
@@ -150,7 +144,7 @@
     }
 
     textarea{
-      min-height:96px;
+      min-height:88px;
       resize:vertical;
     }
 
@@ -161,14 +155,14 @@
     }
 
     .quick{
-      display:flex;
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
       gap:10px;
       margin-top:6px;
     }
 
     .chip{
-      flex:1;
-      padding:12px 0;
+      padding:12px 8px;
       border-radius:14px;
       border:1px solid #f3d9e7;
       background:#fff;
@@ -183,6 +177,11 @@
       background:#fff0f7;
       border-color:#f4a4ca;
       transform:translateY(-1px);
+    }
+
+    .chip.use{
+      color:#a0617f;
+      background:#fff7fb;
     }
 
     .actions{
@@ -222,7 +221,7 @@
       padding:0 20px 20px;
       color:#b08ba0;
       font-size:12px;
-      line-height:1.6;
+      line-height:1.7;
     }
 
     .status{
@@ -255,11 +254,20 @@
 
     iframe{display:none}
 
-    @media (max-width:480px){
+    @media (max-width:520px){
       .head h1,
-      .gate-card h1{font-size:24px}
-      .row,.actions{grid-template-columns:1fr}
-      .quick{gap:8px}
+      .gate-card h1{
+        font-size:24px;
+      }
+
+      .row,
+      .actions{
+        grid-template-columns:1fr;
+      }
+
+      .quick{
+        grid-template-columns:repeat(2,1fr);
+      }
     }
   </style>
 </head>
@@ -306,23 +314,35 @@
               method="POST"
               target="hidden_iframe">
 
-          <div class="field">
-            <label for="memberId">회원번호</label>
-            <input
-              id="memberId"
-              name="entry.1501139250"
-              type="text"
-              placeholder="예: LB-001"
-              required
-            />
+          <div class="row">
+            <div class="field">
+              <label for="staffName">스탭 이름</label>
+              <input
+                id="staffName"
+                name="entry.517609756"
+                type="text"
+                placeholder="예: 마리링 / 루루 / 이로"
+                required
+              />
+            </div>
+
+            <div class="field">
+              <label for="memberId">회원번호</label>
+              <input
+                id="memberId"
+                name="entry.1501139250"
+                type="text"
+                placeholder="예: LB-001"
+                required
+              />
+            </div>
           </div>
 
           <div class="row">
             <div class="field">
               <label for="type">구분</label>
               <select id="type" name="entry.668276280" required>
-                <option value="">선택</option>
-                <option value="적립">적립</option>
+                <option value="적립" selected>적립</option>
                 <option value="사용">사용</option>
               </select>
             </div>
@@ -346,17 +366,19 @@
             <textarea
               id="memo"
               name="entry.377436320"
-              placeholder="예: 2만원 이상 구매 / 특전 사용 / 현장 응대"
+              placeholder="예: 굿즈 구매 / 포인트 사용 / 현장 응대"
             ></textarea>
           </div>
 
           <div class="field">
-            <label>빠른 포인트 입력</label>
+            <label>빠른 입력</label>
             <div class="quick">
-              <button type="button" class="chip" data-point="1">+1</button>
-              <button type="button" class="chip" data-point="2">+2</button>
-              <button type="button" class="chip" data-point="3">+3</button>
-              <button type="button" class="chip" data-point="5">+5</button>
+              <button type="button" class="chip" data-type="적립" data-point="1">+1</button>
+              <button type="button" class="chip" data-type="적립" data-point="2">+2</button>
+              <button type="button" class="chip" data-type="적립" data-point="3">+3</button>
+              <button type="button" class="chip" data-type="적립" data-point="5">+5</button>
+              <button type="button" class="chip" data-type="적립" data-point="10">+10</button>
+              <button type="button" class="chip use" data-type="사용" data-point="100">사용 100</button>
             </div>
           </div>
 
@@ -367,8 +389,9 @@
         </form>
 
         <div class="note">
-          ※ 현재 코드는 구글폼으로 바로 전송되는 구조입니다.<br />
-          ※ 폼 질문 순서나 항목을 바꾸면 entry 번호를 다시 확인해야 합니다.
+          ※ 적립 버튼은 구분과 포인트를 함께 채워줘요.<br />
+          ※ 사용 100 버튼은 구분이 자동으로 ‘사용’으로 바뀌어요.<br />
+          ※ 폼 질문 순서나 항목명을 바꾸면 entry 번호를 다시 확인해야 해요.
         </div>
       </div>
 
@@ -388,9 +411,11 @@
     const gateError = document.getElementById("gateError");
 
     const form = document.getElementById("staffForm");
-    const pointInput = document.getElementById("point");
+    const staffNameInput = document.getElementById("staffName");
     const memberInput = document.getElementById("memberId");
     const typeInput = document.getElementById("type");
+    const pointInput = document.getElementById("point");
+    const memoInput = document.getElementById("memo");
     const statusBox = document.getElementById("statusBox");
     const resetBtn = document.getElementById("resetBtn");
     const chips = document.querySelectorAll(".chip");
@@ -398,6 +423,9 @@
     function openStaffPage() {
       gate.classList.add("hidden");
       staffPage.classList.remove("hidden");
+      setTimeout(() => {
+        staffNameInput.focus();
+      }, 50);
     }
 
     function checkPassword() {
@@ -417,6 +445,20 @@
       statusBox.className = `status show ${type}`;
     }
 
+    function fillQuickAction(chip) {
+      const selectedType = chip.dataset.type;
+      const selectedPoint = chip.dataset.point;
+
+      typeInput.value = selectedType;
+      pointInput.value = selectedPoint;
+
+      if (selectedType === "사용") {
+        if (!memoInput.value.trim()) {
+          memoInput.value = "포인트 사용";
+        }
+      }
+    }
+
     loginBtn.addEventListener("click", checkPassword);
 
     passwordInput.addEventListener("keydown", (e) => {
@@ -427,11 +469,26 @@
 
     chips.forEach(chip => {
       chip.addEventListener("click", () => {
-        pointInput.value = chip.dataset.point;
+        fillQuickAction(chip);
       });
     });
 
+    typeInput.addEventListener("change", () => {
+      if (typeInput.value === "사용" && pointInput.value === "") {
+        pointInput.value = 100;
+      }
+      if (typeInput.value === "사용" && !memoInput.value.trim()) {
+        memoInput.value = "포인트 사용";
+      }
+    });
+
     form.addEventListener("submit", (e) => {
+      if (!staffNameInput.value.trim()) {
+        e.preventDefault();
+        showStatus("스탭 이름을 입력해줘.", "error");
+        return;
+      }
+
       if (!memberInput.value.trim()) {
         e.preventDefault();
         showStatus("회원번호를 입력해줘.", "error");
@@ -450,16 +507,34 @@
         return;
       }
 
+      if (typeInput.value === "사용" && Number(pointInput.value) !== 100) {
+        const ok = confirm("사용 포인트가 100이 아니야. 그대로 저장할까?");
+        if (!ok) {
+          e.preventDefault();
+          showStatus("사용 포인트를 다시 확인해줘.", "error");
+          return;
+        }
+      }
+
+      const savedStaffName = staffNameInput.value.trim();
+
       setTimeout(() => {
-        showStatus("저장 요청을 보냈어. 스프레드시트에서 기록 확인해줘.", "ok");
+        showStatus("저장 완료! 다음 입력 진행해줘.", "ok");
         form.reset();
+        staffNameInput.value = savedStaffName;
+        typeInput.value = "적립";
+        memberInput.focus();
       }, 500);
     });
 
     resetBtn.addEventListener("click", () => {
+      const savedStaffName = staffNameInput.value.trim();
       form.reset();
+      staffNameInput.value = savedStaffName;
+      typeInput.value = "적립";
       statusBox.className = "status";
       statusBox.textContent = "";
+      memberInput.focus();
     });
 
     window.addEventListener("load", () => {
