@@ -38,10 +38,13 @@ body{
   border-radius:50%;
   object-fit:cover;
   border:3px solid #ff8ac2;
+  background:#fff;
 }
 
 .point{
   color:#ff5fa8;
+  font-weight:700;
+  line-height:1.6;
 }
 
 .bar{
@@ -58,6 +61,11 @@ body{
   background:linear-gradient(90deg,#ff8ac2,#ff5fa8);
 }
 
+#nextText{
+  display:block;
+  margin-top:8px;
+}
+
 .menu{
   display:grid;
   grid-template-columns:repeat(2,1fr);
@@ -71,7 +79,7 @@ body{
   border-radius:14px;
   text-align:center;
   color:#ff5fa8;
-  font-weight:600;
+  font-weight:700;
 }
 
 .msg{
@@ -82,7 +90,7 @@ body{
 }
 
 .locked{
-  opacity:0.4;
+  opacity:0.38;
   filter:blur(2px);
 }
 
@@ -90,7 +98,8 @@ body{
   display:flex;
   gap:10px;
   overflow-x:auto;
-  margin-top:10px;
+  margin-top:18px;
+  padding-bottom:4px;
 }
 
 .profile-select img{
@@ -99,10 +108,18 @@ body{
   border-radius:50%;
   cursor:pointer;
   border:2px solid transparent;
+  object-fit:cover;
+  background:#fff;
 }
 
 .profile-select img.active{
   border:2px solid #ff5fa8;
+}
+
+.section-title{
+  font-size:16px;
+  font-weight:800;
+  margin-bottom:12px;
 }
 </style>
 </head>
@@ -111,10 +128,9 @@ body{
 
 <div class="wrap">
 
-  <!-- 프로필 -->
   <div class="card">
     <div class="profile">
-      <img id="mainProfile" src="../img/lumi/profile/mariring-01.webp">
+      <img id="mainProfile" src="profile/mariring-01.webp" alt="프로필 이미지">
       <div class="point" id="pointText"></div>
     </div>
 
@@ -124,12 +140,11 @@ body{
 
     <small id="nextText"></small>
 
-    <!-- 프로필 선택 -->
     <div class="profile-select" id="profileSelect"></div>
   </div>
 
-  <!-- 메뉴 -->
   <div class="card">
+    <div class="section-title">MENU</div>
     <div class="menu">
       <a href="profile.html">프로필</a>
       <a href="frame.html">프레임</a>
@@ -140,11 +155,10 @@ body{
     </div>
   </div>
 
-  <!-- 메시지 -->
   <div class="card">
+    <div class="section-title">최근 메시지</div>
     <div class="msg">마리링: 오늘도 와줘서 고마워 💕</div>
     <div class="msg">루루: 다음 공연 기대해!</div>
-
     <div class="msg locked" id="iroMsg">🔒 이로 (선으로 이어지면 만날 수 있어)</div>
     <div class="msg locked" id="lunaMsg">🔒 루나 (빛을 나누면 만날 수 있어)</div>
   </div>
@@ -154,76 +168,84 @@ body{
 <script>
 const point = 32;
 
-// 레벨 계산
 let level = 1;
 let title = "점을 찍은 루미나 🌱";
 let prev = 0;
 let next = 10;
 
 if(point >= 100){
-  level=5; title="구원의 별, 루미나 👑"; prev=100; next=100;
-}
-else if(point >= 60){
-  level=4; title="빛을 나누는 루미나 💖"; prev=60; next=100;
-}
-else if(point >= 30){
-  level=3; title="선으로 이어진 루미나 ✨"; prev=30; next=60;
-}
-else if(point >= 10){
-  level=2; title="길을 비추는 루미나 💕"; prev=10; next=30;
+  level = 5;
+  title = "구원의 별, 루미나 👑";
+  prev = 100;
+  next = 100;
+}else if(point >= 60){
+  level = 4;
+  title = "빛을 나누는 루미나 💖";
+  prev = 60;
+  next = 100;
+}else if(point >= 30){
+  level = 3;
+  title = "선으로 이어진 루미나 ✨";
+  prev = 30;
+  next = 60;
+}else if(point >= 10){
+  level = 2;
+  title = "길을 비추는 루미나 💕";
+  prev = 10;
+  next = 30;
 }
 
-let percent = ((point-prev)/(next-prev))*100;
-if(level===5) percent=100;
+let percent = ((point - prev) / (next - prev)) * 100;
+if(level === 5) percent = 100;
 
 document.getElementById("pointText").innerText = `Lv.${level} ${title} · ${point}P`;
 document.getElementById("barFill").style.width = percent + "%";
 
-if(level===5){
-  document.getElementById("nextText").innerText="체인 서사 완성 👑";
+if(level === 5){
+  document.getElementById("nextText").innerText = "체인 서사의 완성 👑";
 }else{
-  document.getElementById("nextText").innerText=`다음 단계까지 ${next-point}P 남음`;
+  document.getElementById("nextText").innerText = `다음 단계까지 ${next - point}P 남음`;
 }
 
-// 🔓 해금
-if(level>=3){
-  let iro=document.getElementById("iroMsg");
+if(level >= 3){
+  const iro = document.getElementById("iroMsg");
   iro.classList.remove("locked");
-  iro.innerText="이로: 이제 우리가 이어졌네 💙";
-}
-if(level>=4){
-  let luna=document.getElementById("lunaMsg");
-  luna.classList.remove("locked");
-  luna.innerText="루나: …기다리고 있었어 🌙";
+  iro.innerText = "이로: 이제 우리가 이어졌네 💙";
 }
 
-// 프로필 리스트
+if(level >= 4){
+  const luna = document.getElementById("lunaMsg");
+  luna.classList.remove("locked");
+  luna.innerText = "루나: …기다리고 있었어 🌙";
+}
+
 const profiles = [
   "mariring-01.webp",
   "mariring-02.webp",
-  "mariring-03.webp",
-  "lulu-01.webp",
-  "lulu-02.webp"
+  "mariring-03.webp"
 ];
 
+const profileBasePath = "profile/";
 const container = document.getElementById("profileSelect");
 const main = document.getElementById("mainProfile");
 
-let saved = localStorage.getItem("profile") || profiles[0];
-main.src = "../img/lumi/profile/" + saved;
+let saved = localStorage.getItem("lumiProfile") || profiles[0];
+main.src = profileBasePath + saved;
 
-profiles.forEach(file=>{
-  const img=document.createElement("img");
-  img.src="../img/lumi/profile/"+file;
+profiles.forEach(file => {
+  const img = document.createElement("img");
+  img.src = profileBasePath + file;
+  img.alt = "프로필 선택";
 
-  if(file===saved) img.classList.add("active");
+  if(file === saved) img.classList.add("active");
 
-  img.onclick=()=>{
-    main.src=img.src;
-    localStorage.setItem("profile", file);
+  img.onclick = () => {
+    main.src = profileBasePath + file;
+    localStorage.setItem("lumiProfile", file);
 
-    document.querySelectorAll(".profile-select img")
-      .forEach(i=>i.classList.remove("active"));
+    document.querySelectorAll(".profile-select img").forEach(i => {
+      i.classList.remove("active");
+    });
 
     img.classList.add("active");
   };
