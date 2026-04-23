@@ -275,8 +275,8 @@ nav a:hover::after,
 
           <button type="submit" class="submit-btn">주문 제출하기</button>
           <div class="help">
-            지금 파일은 장바구니 흐름과 주문 화면을 먼저 볼 수 있게 만든 버전이야.<br>
-            나중에 구글폼 액션 URL과 entry 번호만 붙이면 시트 접수 방식으로 확장 가능해.
+            주문 제출 시 구글폼으로 접수되고, 접수 후 완료 페이지로 이동해요.<br>
+            제출 후 화면이 잠시 멈춰 보여도 1~2초 정도 기다려 주세요.
           </div>
         </form>
       </section>
@@ -422,7 +422,6 @@ nav a:hover::after,
         total: totals.grandTotal,
         mode: getModeInfo().mode || 'cart'
       };
-
       localStorage.setItem(ORDER_KEY, JSON.stringify(orderData));
 
       const goodsSummary = items.map(item => `${item.name} x ${item.quantity} (${money(item.price * item.quantity)})`).join(' / ');
@@ -465,11 +464,13 @@ nav a:hover::after,
         submitBtn.style.opacity = '0.8';
       }
 
+      // 구글폼 접수
       form.submit();
 
+      // 완료 페이지 이동
       setTimeout(() => {
-        window.location.href = 'complete.html';
-      }, 1200);
+        window.location.replace('complete.html');
+      }, 1500);
     });
 
     renderSummary();
