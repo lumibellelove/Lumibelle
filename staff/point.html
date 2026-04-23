@@ -17,7 +17,6 @@
       --pink:#ff79b5;
       --pink-deep:#ff5fa8;
       --shadow:0 18px 40px rgba(255,95,168,.12);
-      --radius:24px;
     }
 
     body{
@@ -44,7 +43,7 @@
     .card{
       background:var(--panel);
       border:1px solid var(--line);
-      border-radius:24px;
+      border-radius:26px;
       box-shadow:var(--shadow);
       overflow:hidden;
     }
@@ -60,7 +59,7 @@
       font-size:12px;
       letter-spacing:.18em;
       color:var(--pink-deep);
-      font-weight:700;
+      font-weight:800;
     }
 
     .gate-sub{margin-bottom:10px;}
@@ -86,13 +85,13 @@
     }
 
     .wrap{
-      width:min(100%,760px);
+      width:min(100%,680px);
       margin:0 auto;
-      padding:28px 18px 40px;
+      padding:30px 16px 44px;
     }
 
     .head{
-      padding:26px 22px 18px;
+      padding:24px 22px 18px;
       background:linear-gradient(135deg, rgba(255,138,194,.22), rgba(255,95,168,.10));
       border-bottom:1px solid var(--line);
     }
@@ -101,7 +100,7 @@
 
     .head h1{
       margin:0;
-      font-size:28px;
+      font-size:26px;
       line-height:1.2;
       color:#8a6377;
     }
@@ -111,6 +110,24 @@
       font-size:14px;
       color:var(--soft);
       line-height:1.6;
+    }
+
+    .mini-bar{
+      margin-top:14px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .mini-pill{
+      border:1px solid #f3d9e7;
+      background:#fff7fb;
+      color:#a26f87;
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1;
     }
 
     form{
@@ -132,7 +149,7 @@
 
     label{
       font-size:13px;
-      font-weight:700;
+      font-weight:800;
       color:#9a7187;
     }
 
@@ -145,10 +162,16 @@
       border:1px solid var(--line);
       background:#fff;
       color:var(--text);
-      border-radius:16px;
-      padding:14px 15px;
+      border-radius:18px;
+      padding:15px 16px;
       outline:none;
       transition:.2s ease;
+      font-size:16px;
+    }
+
+    input::placeholder,
+    textarea::placeholder{
+      color:#b89cad;
     }
 
     input:focus, select:focus, textarea:focus{
@@ -157,7 +180,7 @@
     }
 
     textarea{
-      min-height:110px;
+      min-height:128px;
       resize:vertical;
     }
 
@@ -169,14 +192,15 @@
 
     .member-prefix{
       flex:0 0 auto;
-      padding:14px 16px;
-      border-radius:16px;
+      padding:15px 16px;
+      border-radius:18px;
       background:#fff0f7;
       border:1px solid #f3d9e7;
       color:#ff5fa8;
       font-weight:800;
-      min-width:64px;
+      min-width:72px;
       text-align:center;
+      font-size:16px;
     }
 
     .member input{
@@ -192,13 +216,13 @@
     }
 
     .chip{
-      padding:12px 8px;
-      border-radius:14px;
+      padding:13px 8px;
+      border-radius:16px;
       border:1px solid #f3d9e7;
-      background:#fff0f7;
+      background:#fff;
       color:#ff5fa8;
-      font-weight:700;
-      font-size:15px;
+      font-weight:800;
+      font-size:16px;
       cursor:pointer;
       transition:all .2s ease;
     }
@@ -228,8 +252,9 @@
       text-decoration:none;
       border:none;
       border-radius:18px;
-      padding:15px 16px;
+      padding:16px;
       font-weight:800;
+      font-size:16px;
       cursor:pointer;
       transition:.2s ease;
     }
@@ -252,7 +277,7 @@
       padding:0 20px 20px;
       color:#b08ba0;
       font-size:12px;
-      line-height:1.75;
+      line-height:1.8;
     }
 
     .status{
@@ -294,6 +319,11 @@
       .quick{
         grid-template-columns:repeat(2,1fr);
       }
+
+      .wrap{
+        width:min(100%,640px);
+        padding:20px 12px 36px;
+      }
     }
   </style>
 </head>
@@ -322,6 +352,12 @@
           <div class="sub">LUMIBELLE STAFF</div>
           <h1>포인트 적립기</h1>
           <p>스탭 선택은 유지되고, 회원번호는 숫자만 입력하면 돼요.</p>
+
+          <div class="mini-bar">
+            <div class="mini-pill">보정없음</div>
+            <div class="mini-pill">현장 운영용</div>
+            <div class="mini-pill">자동 저장 연결 완료</div>
+          </div>
         </div>
 
         <form
@@ -350,7 +386,7 @@
                   id="memberInput"
                   name="memberId"
                   type="text"
-                  placeholder="001"
+                  placeholder="예: 001"
                   autocomplete="off"
                   inputmode="numeric"
                   pattern="[0-9]+"
@@ -377,7 +413,7 @@
                 type="number"
                 min="1"
                 step="1"
-                placeholder="포인트"
+                placeholder="예: 1"
                 required
               />
             </div>
@@ -388,7 +424,7 @@
             <textarea
               id="memo"
               name="memo"
-              placeholder="메모"
+              placeholder="예: 굿즈 구매 / 포인트 사용 / 현장 응대"
             ></textarea>
           </div>
 
@@ -400,19 +436,20 @@
               <button type="button" class="chip" data-add="3">+3</button>
               <button type="button" class="chip" data-add="5">+5</button>
               <button type="button" class="chip" data-add="10">+10</button>
-              <button type="button" class="chip use" id="use100Btn">사용100</button>
+              <button type="button" class="chip use" id="use100Btn">사용 100</button>
             </div>
           </div>
 
           <div class="actions">
-            <button class="btn btn-primary" type="submit">저장</button>
+            <button class="btn btn-primary" type="submit">저장하기</button>
             <button type="button" class="btn btn-secondary" id="resetBtn">초기화</button>
           </div>
 
           <div class="sub-actions">
             <a
               class="btn btn-secondary"
-              href="https://docs.google.com/spreadsheets/d/1Os_YlqM5yY1owd2a4jS4QdQDeTubu1yuuKI4ownDqh8/edit?usp=sharing"
+              id="recordViewBtn"
+              href="#"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -423,10 +460,9 @@
         </form>
 
         <div class="note">
-          ※ 회원번호는 숫자만 입력하면 자동으로 LB- 형식으로 저장돼요.<br />
           ※ 적립 버튼은 누적돼요. 예: +1 → +1 → +3 = 5<br />
-          ※ 사용100 버튼은 구분이 자동으로 ‘사용’으로 바뀌어요.<br />
-          ※ 저장 전에 한 번 더 확인창이 떠요.
+          ※ 사용 100 버튼은 구분이 자동으로 ‘사용’으로 바뀌어요.<br />
+          ※ 스탭 이름은 한 번 선택하면 유지돼요.
         </div>
       </div>
 
@@ -439,6 +475,9 @@
   <script>
     const STAFF_PASSWORD = "lmb0712";
     const STAFF_NAME_KEY = "lb_staff_name";
+
+    // 여기만 새 시트 링크 넣기
+    const RECORD_SHEET_URL = "여기에_새_시트_링크";
 
     const gate = document.getElementById("gate");
     const staffPage = document.getElementById("staffPage");
@@ -454,6 +493,7 @@
     const memoInput = document.getElementById("memo");
     const resetBtn = document.getElementById("resetBtn");
     const logoutBtn = document.getElementById("logoutBtn");
+    const recordViewBtn = document.getElementById("recordViewBtn");
     const statusBox = document.getElementById("statusBox");
     const quickButtons = document.querySelectorAll(".chip[data-add]");
     const use100Btn = document.getElementById("use100Btn");
@@ -461,6 +501,7 @@
 
     let submitStarted = false;
 
+    recordViewBtn.href = RECORD_SHEET_URL;
     staffSelect.value = localStorage.getItem(STAFF_NAME_KEY) || "";
 
     staffSelect.addEventListener("change", () => {
