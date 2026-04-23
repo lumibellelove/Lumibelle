@@ -143,11 +143,42 @@ body{
   <!-- 최근 메시지 -->
   <div class="card">
     <div class="title">최근 메시지</div>
-    <div class="msg">마리링: 오늘도 와줘서 고마워 💕</div>
-    <div class="msg">루루: 다음 공연 기대해!</div>
-  </div>
+     <div class="msg">마리링: 오늘도 와줘서 고마워 💕</div>
+  <div class="msg">루루: 다음 공연 기대해!</div>
+</div>
 
 </div>
 
+<script>
+const point = 1200;
+
+let level = 1;
+
+if(point >= 3500) level = 5;
+else if(point >= 2000) level = 4;
+else if(point >= 1000) level = 3;
+else if(point >= 500) level = 2;
+
+let next = 0;
+if(level === 1) next = 500 - point;
+else if(level === 2) next = 1000 - point;
+else if(level === 3) next = 2000 - point;
+else if(level === 4) next = 3500 - point;
+else next = 0;
+
+let percent = 0;
+if(level === 1) percent = (point / 500) * 100;
+else if(level === 2) percent = ((point-500)/500)*100;
+else if(level === 3) percent = ((point-1000)/1000)*100;
+else if(level === 4) percent = ((point-2000)/1500)*100;
+else percent = 100;
+
+document.querySelector(".point").innerText = `Lv.${level} · ${point}P`;
+document.querySelector(".bar-fill").style.width = percent + "%";
+document.querySelector(".next-text").innerText = `다음 등급까지 ${next}P 남음`;
+</script>
+
+</body>
+</html>
 </body>
 </html>
