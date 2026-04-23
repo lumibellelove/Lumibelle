@@ -3,252 +3,505 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ORDER COMPLETE | Lumibelle</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <title>COMPLETE | Lumibelle</title>
+  <link rel="stylesheet" href="../style.css" />
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800&display=swap');
     :root{
-      --bg:#fffafc;
-      --panel:#fff5fb;
-      --line:#f2d8e7;
-      --pink:#ff5aa6;
-      --text:#7f6a77;
+      --bg:#fffafc; --panel:#fff5fb; --line:#f2d8e7; --pink:#ff5aa6; --text:#7f6a77;
       --shadow:0 8px 24px rgba(232,191,211,0.12);
     }
     *{box-sizing:border-box}
     html,body{margin:0;padding:0}
     body{
-      min-height:100vh;
-      background:var(--bg);
-      color:var(--text);
-      font-family:"SUIT","Noto Sans KR",sans-serif;
+      min-height:100vh; display:flex; flex-direction:column;
+      background:var(--bg); color:var(--text);
+      font-family:"SUIT","Noto Sans KR",sans-serif; letter-spacing:-0.01em;
     }
-    .wrap{
-      width:min(920px, calc(100% - 32px));
-      margin:0 auto;
-      padding:42px 0 60px;
+    .wrap{width:min(1260px, calc(100% - 32px)); margin:0 auto;}
+    .top-lang-bar{
+      width:100%; max-width:1260px; margin:16px auto 0;
+      display:flex; justify-content:flex-end; padding:0 34px 0 18px; box-sizing:border-box;
     }
-    .card{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:32px;
-      box-shadow:var(--shadow);
-      padding:38px 28px 30px;
+    .header-box{display:flex; align-items:center; gap:24px;}
+    .lang-switch{display:flex; align-items:center; gap:10px; flex:0 0 auto; padding-right:2px;}
+    .lang-switch a{
+      display:inline-flex; align-items:center; justify-content:center;
+      min-width:42px; height:36px; padding:0 10px; border-radius:999px;
+      background:#fff; border:1px solid #f0bfd4; color:#d27ca8; text-decoration:none;
+      font-size:12px; font-weight:900; box-shadow:0 4px 10px rgba(255,95,165,0.08);
+    }
+    nav{
+      display:grid; grid-template-columns:repeat(8, minmax(0, 1fr));
+      gap:18px; text-align:center; align-items:center; flex:1; margin:0 20px;
+    }
+    nav a{
+      width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      min-width:0; text-decoration:none; position:relative; border-radius:22px; color:inherit;
+    }
+    nav a b, nav a span{display:block; width:100%; text-align:center; white-space:nowrap;}
+    nav a b{font-size:1.2em; font-weight:700; color:#d97ca9;}
+    nav a span{margin-top:6px; font-size:.94em; font-weight:600; color:#c697b1;}
+    nav a.current::before, nav a:hover::before{
+      content:""; position:absolute; inset:0; border-radius:22px;
+      background:linear-gradient(90deg,
+        rgba(255,217,232,0.00) 0%, rgba(255,217,232,0.14) 16%, rgba(255,192,215,0.16) 36%,
+        rgba(255,192,215,0.20) 50%, rgba(255,192,215,0.16) 64%, rgba(255,217,232,0.14) 84%, rgba(255,217,232,0.00) 100%);
+      z-index:-1;
+    }
+    nav a.current b, nav a:hover b{color:#ff59a5;}
+    nav a.current span, nav a:hover span{color:#d88dad;}
+
+    main{flex:1}
+    .hero-mini{
+      position:relative; margin-top:18px; border:1px solid var(--line); border-radius:32px; overflow:hidden;
+      background:linear-gradient(135deg,#fff0f7 0%,#f7efff 100%);
+      box-shadow:var(--shadow); padding:62px 56px 56px;
+    }
+    .hero-mini::after{
+      content:""; position:absolute; right:-40px; top:-50px; width:260px; height:260px;
+      background:radial-gradient(circle, rgba(255,255,255,.75) 0%, rgba(255,255,255,0) 70%);
+      pointer-events:none;
+    }
+    .hero-mini .sub{color:var(--pink); font-size:18px; font-weight:800; margin-bottom:10px;}
+    .hero-mini h1{
+      margin:0; font-family:"Cormorant Garamond", serif; font-size:90px; line-height:.9; font-weight:600;
+      color:var(--pink);
+      text-shadow:0 1px 0 rgba(255,255,255,.98),0 0 10px rgba(255,120,178,.18),0 0 20px rgba(255,255,255,.28);
+    }
+    .hero-mini p{margin:16px 0 0; color:#8f7183; font-size:17px; font-weight:600; line-height:1.8;}
+
+    .complete-card{
+      margin-top:28px;
+      background:var(--panel); border:1px solid var(--line); border-radius:28px; box-shadow:var(--shadow);
+      padding:32px 28px;
       text-align:center;
     }
-    .icon{
-      width:86px;
-      height:86px;
-      margin:0 auto 18px;
-      border-radius:50%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:38px;
-      font-weight:900;
-      color:#fff;
-      background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);
-      box-shadow:0 10px 24px rgba(255,95,165,.20);
+    .complete-title{
+      margin:0 0 10px;
+      color:#d77ca7; font-size:38px; font-weight:900;
     }
-    .sub{
-      color:#d77ca7;
-      font-weight:800;
-      font-size:18px;
-      margin-bottom:8px;
-    }
-    h1{
+    .complete-desc{
       margin:0;
-      font-family:"Cormorant Garamond", serif;
-      color:var(--pink);
-      font-size:72px;
-      line-height:.95;
-      font-weight:600;
+      color:#8f7183; font-size:16px; line-height:1.9;
     }
-    .desc{
-      margin:18px auto 0;
-      max-width:620px;
-      line-height:1.9;
-      font-size:15px;
-      color:#8f7183;
-      font-weight:700;
+    .order-box{
+      margin-top:22px;
+      background:#fff; border:1px solid var(--line); border-radius:22px; padding:22px; text-align:left;
     }
-    .summary{
-      margin-top:24px;
-      text-align:left;
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:24px;
-      padding:20px 18px;
+    .order-box h3{
+      margin:0 0 14px; color:#d77ca7; font-size:24px; font-weight:900;
     }
-    .summary h2{
-      margin:0 0 14px;
-      color:#d77ca7;
-      font-size:24px;
-      font-weight:900;
-    }
-    .row{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      padding:12px 0;
-      border-bottom:1px solid var(--line);
+    .line{
+      display:flex; justify-content:space-between; gap:12px;
+      padding:12px 0; border-bottom:1px solid var(--line);
       font-size:15px;
     }
-    .row:last-child{border-bottom:none}
-    .row.total{
-      font-size:20px;
-      font-weight:900;
-      color:#7e6b78;
+    .line:last-child{border-bottom:none}
+    .line.total{
+      font-size:19px; font-weight:900; color:#7e6b78;
     }
-    .goods-list{
-      margin-top:10px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
+    .cta-box{
+      display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:24px;
     }
-    .goods-item{
-      padding:12px 14px;
-      border:1px solid var(--line);
-      border-radius:18px;
-      background:linear-gradient(180deg,#fff9fc 0%, #fff4fa 100%);
-      font-size:14px;
-      line-height:1.7;
+    .cta-btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      min-width:200px; min-height:52px; padding:14px 20px; border-radius:999px;
+      text-decoration:none; font-size:15px; font-weight:800; transition:transform .15s ease;
     }
-    .notice{
-      margin-top:20px;
-      padding:16px 18px;
-      border-radius:20px;
-      background:#fff;
-      border:1px solid var(--line);
-      line-height:1.8;
-      font-size:14px;
-      text-align:left;
+    .cta-btn:hover{transform:translateY(-2px)}
+    .cta-btn.primary{
+      background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%); color:#fff; box-shadow:0 8px 18px rgba(255,95,165,.25);
     }
-    .actions{
-      margin-top:24px;
-      display:flex;
-      justify-content:center;
-      gap:12px;
-      flex-wrap:wrap;
+    .cta-btn.sub{
+      background:#fff; color:#d77ca7; border:1px solid #f0bfd4; box-shadow:0 4px 10px rgba(255,95,165,0.08);
     }
-    .btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-height:52px;
-      padding:14px 22px;
-      border-radius:999px;
-      text-decoration:none;
-      font-size:15px;
-      font-weight:800;
-      transition:transform .15s ease;
+    .note{
+      margin-top:18px; font-size:13px; color:#b28ea2; line-height:1.8;
     }
-    .btn:hover{ transform:translateY(-2px); }
-    .btn.primary{
-      background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);
-      color:#fff;
-      box-shadow:0 8px 18px rgba(255,95,165,.24);
+    footer{text-align:center; padding:28px 16px 40px; color:#c6a2b4; font-size:14px;}
+
+    @media (max-width:1180px){
+      nav{grid-template-columns:repeat(4,1fr); gap:16px;}
     }
-    .btn.sub{
-      background:#fff;
-      color:#d77ca7;
-      border:1px solid #f0bfd4;
-      box-shadow:0 4px 10px rgba(255,95,165,0.08);
+    @media (max-width:980px){
+      .header-box{flex-wrap:wrap; justify-content:center;}
+      nav{grid-template-columns:repeat(4,1fr); width:100%; margin:0;}
+      .top-lang-bar{justify-content:center; margin-top:14px;}
+      .hero-mini h1{font-size:74px;}
     }
-    .empty{
-      color:#b28ea2;
-      font-size:14px;
-      line-height:1.8;
+    @media (max-width:780px){
+      nav{grid-template-columns:repeat(2,1fr); gap:12px; margin:0;}
+      .hero-mini{padding:42px 24px 40px;}
+      .hero-mini h1{font-size:62px;}
+      .hero-mini p{font-size:15px;}
+      .complete-title{font-size:30px;}
+      .cta-btn{width:100%;}
     }
-    @media (max-width:700px){
-      .wrap{padding:28px 0 40px}
-      .card{padding:30px 18px 22px}
-      h1{font-size:56px}
-      .summary{text-align:left}
+  
+  /* ===== 공통 UI 효과 ===== */
+  nav a,
+  .toolbar-btn,
+  .goods-btn,
+  .cta-btn,
+  .address-search-btn,
+  .back,
+  .submit-btn{
+    position:relative;
+    overflow:hidden;
+    isolation:isolate;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  nav a::after,
+  .toolbar-btn::after,
+  .goods-btn::after,
+  .cta-btn::after,
+  .address-search-btn::after,
+  .back::after,
+  .submit-btn::after{
+    content:"";
+    position:absolute;
+    top:-35%;
+    left:-42%;
+    width:22%;
+    height:170%;
+    background:linear-gradient(
+      90deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,.12) 35%,
+      rgba(255,255,255,.28) 50%,
+      rgba(255,255,255,.12) 65%,
+      rgba(255,255,255,0) 100%
+    );
+    transform:skewX(-22deg) translateX(0);
+    opacity:0;
+    pointer-events:none;
+    z-index:2;
+  }
+
+  nav a:hover::after,
+  .toolbar-btn:hover::after,
+  .goods-btn:hover::after,
+  .cta-btn:hover::after,
+  .address-search-btn:hover::after,
+  .back:hover::after,
+  .submit-btn:hover::after{
+    animation:sweepShine .9s ease forwards;
+  }
+
+  @keyframes sweepShine{
+    0%{ opacity:0; transform:skewX(-22deg) translateX(0); }
+    15%{ opacity:1; }
+    100%{ opacity:0; transform:skewX(-22deg) translateX(560%); }
+  }
+
+  .click-shine::after{
+    animation:sweepShine .9s ease forwards;
+  }
+
+  .ripple-effect{
+    position:absolute;
+    border-radius:50%;
+    transform:scale(0);
+    animation:ripple .65s ease-out forwards;
+    background:rgba(255,255,255,.35);
+    pointer-events:none;
+    z-index:3;
+  }
+
+  @keyframes ripple{
+    to{
+      transform:scale(4.2);
+      opacity:0;
     }
+  }
+
+  .glitter-burst{
+    position:fixed;
+    pointer-events:none;
+    width:8px;
+    height:8px;
+    background:radial-gradient(circle, #fff 0%, #ffc0d7 60%, transparent 100%);
+    border-radius:50%;
+    opacity:0;
+    animation:glitterPop 0.8s ease-out forwards;
+    z-index:4500;
+  }
+
+  @keyframes glitterPop{
+    0%{ transform:translate(0,0) scale(0.5); opacity:1; }
+    100%{ transform:translate(var(--x), var(--y)) scale(1.2); opacity:0; }
+  }
+
+  .burst-spark,
+  .burst-petal{
+    position:fixed;
+    pointer-events:none;
+    left:0;
+    top:0;
+    z-index:5000;
+    opacity:0;
+  }
+
+  .burst-spark{
+    width:16px;
+    height:16px;
+    animation:burstSpark .72s ease-out forwards;
+  }
+
+  .burst-spark::before,
+  .burst-spark::after{
+    content:"";
+    position:absolute;
+    background:#fff;
+    border-radius:999px;
+    box-shadow:0 0 10px rgba(255,255,255,.9), 0 0 18px rgba(255,192,215,.7);
+  }
+
+  .burst-spark::before{
+    width:3px;
+    height:16px;
+    left:6.5px;
+    top:0;
+  }
+
+  .burst-spark::after{
+    width:16px;
+    height:3px;
+    left:0;
+    top:6.5px;
+  }
+
+  .burst-petal{
+    width:14px;
+    height:14px;
+    border-radius:999px;
+    background:radial-gradient(circle at 35% 35%, #fff 0%, #ffd9e8 42%, #ffc0d7 78%, rgba(255,192,215,0) 100%);
+    box-shadow:0 0 10px rgba(255,192,215,.55);
+    animation:burstPetal .78s ease-out forwards;
+  }
+
+  @keyframes burstSpark{
+    0%{ transform:translate(0,0) scale(.45) rotate(0deg); opacity:1; }
+    100%{ transform:translate(var(--x), var(--y)) scale(1.15) rotate(90deg); opacity:0; }
+  }
+
+  @keyframes burstPetal{
+    0%{ transform:translate(0,0) scale(.6); opacity:1; }
+    100%{ transform:translate(var(--x), var(--y)) scale(1.2); opacity:0; }
+  }
+
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <section class="card">
-      <div class="icon">✓</div>
-      <div class="sub">주문 접수가 완료되었어요</div>
-      <h1>Complete</h1>
-      <p class="desc">
-        루미벨 굿즈 주문이 정상적으로 접수되었어요.<br>
-        아래 내용을 확인한 뒤 안내된 계좌로 입금해 주세요 ✦
-      </p>
-
-      <div class="summary">
-        <h2>주문 요약</h2>
-        <div class="goods-list" id="goodsList">
-          <div class="empty">주문 상품 정보를 불러오는 중이에요.</div>
-        </div>
-
-        <div class="row" style="margin-top:14px;">
-          <span>상품 금액</span>
-          <span id="productTotal">₩ 0</span>
-        </div>
-        <div class="row">
-          <span>배송비</span>
-          <span id="shippingFee">₩ 0</span>
-        </div>
-        <div class="row total">
-          <span>총 금액</span>
-          <span id="grandTotal">₩ 0</span>
-        </div>
-      </div>
-
-      <div class="notice">
-        <strong style="color:#ff5aa6;">입금 안내</strong><br>
-        국민은행 000000-00-000000 / 예금주 : 루미벨<br><br>
-        주문서 접수 후 위 계좌로 입금해 주세요.<br>
-        입금자명은 주문서에 작성한 입금자명과 동일하게 맞춰주시면 확인이 빨라져요.
-      </div>
-
-      <div class="actions">
-        <a href="index.html" class="btn primary">굿즈 페이지로 돌아가기</a>
-        <a href="../index.html" class="btn sub">루미벨 홈으로 가기</a>
-      </div>
-    </section>
+  <div class="top-lang-bar">
+    <div class="lang-switch">
+      <a href="../index.html" class="active">KR</a>
+      <a href="../en/index.html">EN</a>
+      <a href="../jp/index.html">JP</a>
+      <a href="../cn/index.html">CN</a>
+    </div>
   </div>
+
+  <header>
+    <div class="wrap header-box">
+      <div class="logo">
+        <a href="../index.html">
+          <picture>
+            <source srcset="../img/ui/logo.webp?v=3" type="image/webp">
+            <img src="../img/ui/logo.png?v=3" alt="Lumibelle 로고" loading="eager" decoding="async">
+          </picture>
+        </a>
+      </div>
+
+      <nav>
+        <a href="../index.html"><b>HOME</b><span>홈</span></a>
+        <a href="../news.html"><b>NEWS</b><span>공지사항</span></a>
+        <a href="../member.html"><b>MEMBER</b><span>멤버 소개</span></a>
+        <a href="../schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
+        <a href="../ticket/"><b>TICKET</b><span>예매</span></a>
+        <a href="index.html" class="current"><b>GOODS</b><span>굿즈</span></a>
+        <a href="../setlist.html"><b>SETLIST</b><span>응원 가이드</span></a>
+        <a href="../info.html"><b>INFO</b><span>안내</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <section class="hero-mini">
+        <div class="sub">주문이 정상적으로 접수되었어요</div>
+        <h1>Complete</h1>
+        <p>
+          루미벨 굿즈를 구매해주셔서 감사합니다.<br>
+          입금 확인 후 순차적으로 발송될 예정이에요 ✦
+        </p>
+      </section>
+
+      <section class="complete-card">
+        <h2 class="complete-title">구매해주셔서 감사합니다 ✦</h2>
+        <p class="complete-desc">
+          주문 정보는 정상적으로 저장되었어요.<br>
+          아래 안내된 총 금액을 확인한 뒤 계좌로 입금해 주세요.
+        </p>
+
+        <div class="order-box">
+          <h3>주문 요약</h3>
+          <div id="orderSummary"></div>
+        </div>
+
+        <div class="cta-box">
+          <a href="index.html" class="cta-btn sub">굿즈로 돌아가기</a>
+          <a href="../index.html" class="cta-btn primary">메인으로 돌아가기</a>
+        </div>
+
+        <div class="note">
+          ※ 입금자명은 주문서에 작성한 이름과 동일하게 맞춰주시면 확인이 빨라져요.<br>
+          ※ 문의가 필요하면 안내 페이지 또는 공식 메일을 이용해 주세요.
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>© 2026 Lumibelle All Rights Reserved.</footer>
 
   <script>
     const ORDER_KEY = 'lumibelle_goods_last_order';
 
     function money(v){
-      return `₩ ${Number(v || 0).toLocaleString('ko-KR')}`;
+      return `₩ ${Number(v).toLocaleString('ko-KR')}`;
     }
 
     function renderComplete(){
-      let orderData = null;
+      let order = null;
       try{
-        orderData = JSON.parse(localStorage.getItem(ORDER_KEY));
+        order = JSON.parse(localStorage.getItem(ORDER_KEY));
       }catch(e){
-        orderData = null;
+        order = null;
       }
 
-      const goodsList = document.getElementById('goodsList');
+      const box = document.getElementById('orderSummary');
 
-      if(!orderData || !Array.isArray(orderData.cart) || !orderData.cart.length){
-        goodsList.innerHTML = '<div class="empty">최근 주문 정보를 찾지 못했어요. 그래도 구글폼 접수가 되었다면 정상 접수일 수 있어요.</div>';
+      if(!order){
+        box.innerHTML = `
+          <div class="line"><span>주문 정보</span><span>확인되지 않음</span></div>
+          <div class="line"><span>배송비</span><span>${money(6000)}</span></div>
+          <div class="line total"><span>총 금액</span><span>확인 필요</span></div>
+        `;
         return;
       }
 
-      goodsList.innerHTML = orderData.cart.map(item => `
-        <div class="goods-item">
-          <strong>${item.name}</strong><br>
-          ${money(item.price)} × ${item.quantity} = ${money(item.price * item.quantity)}
+      const items = (order.cart || []).map(item => `
+        <div class="line">
+          <span>${item.name} × ${item.quantity}</span>
+          <span>${money(item.price * item.quantity)}</span>
         </div>
       `).join('');
 
-      document.getElementById('productTotal').textContent = money(orderData.productTotal);
-      document.getElementById('shippingFee').textContent = money(orderData.shippingFee);
-      document.getElementById('grandTotal').textContent = money(orderData.total);
+      box.innerHTML = `
+        ${items}
+        <div class="line"><span>배송비</span><span>${money(order.shippingFee || 6000)}</span></div>
+        <div class="line total"><span>총 금액</span><span>${money(order.total || 0)}</span></div>
+      `;
     }
 
     renderComplete();
   </script>
+
+  <script>
+    document.querySelectorAll('nav a, .toolbar-btn, .goods-btn, .cta-btn, .address-search-btn, .back, .submit-btn').forEach((el) => {
+      el.addEventListener('click', function(e){
+        this.classList.remove('click-shine');
+        void this.offsetWidth;
+        this.classList.add('click-shine');
+        setTimeout(() => this.classList.remove('click-shine'), 900);
+
+        const old = this.querySelector('.ripple-effect');
+        if (old) old.remove();
+
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple-effect';
+
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height) * 0.7;
+        ripple.style.width = ripple.style.height = `${size}px`;
+        ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+        ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+
+        this.appendChild(ripple);
+        ripple.addEventListener('animationend', () => ripple.remove());
+      });
+    });
+  </script>
+
+  <script>
+    (function(){
+      function makeBurstAt(x, y, level = "normal"){
+        const petalCount = level === "big" ? 12 : 8;
+        const sparkCount = level === "big" ? 6 : 4;
+        const petalMin = level === "big" ? 26 : 18;
+        const petalMax = level === "big" ? 72 : 56;
+        const sparkMin = level === "big" ? 36 : 26;
+        const sparkMax = level === "big" ? 92 : 70;
+
+        const makeBurst = (cls, count, minD, maxD) => {
+          for(let i=0;i<count;i++){
+            const el = document.createElement("span");
+            el.className = cls;
+
+            const angle = (Math.PI * 2 / count) * i + (Math.random() * 0.35 - 0.175);
+            const distance = minD + Math.random() * (maxD - minD);
+
+            el.style.setProperty("--x", Math.cos(angle) * distance + "px");
+            el.style.setProperty("--y", Math.sin(angle) * distance + "px");
+            el.style.left = x + "px";
+            el.style.top = y + "px";
+
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 850);
+          }
+        };
+
+        makeBurst("burst-petal", petalCount, petalMin, petalMax);
+        makeBurst("burst-spark", sparkCount, sparkMin, sparkMax);
+      }
+
+      document.addEventListener("pointerdown", function(e){
+        const target = e.target.closest("nav a, .toolbar-btn, .goods-btn, .cta-btn, .address-search-btn, .back, .submit-btn");
+        if(!target) return;
+
+        const level = target.closest("nav") ? "normal" : "normal";
+        makeBurstAt(e.clientX, e.clientY, level);
+      });
+    })();
+  </script>
+
+  <script>
+    document.addEventListener("click", function(e){
+      const target = e.target.closest(".goods-btn, .cta-btn, .toolbar-btn, .address-search-btn, .back, .submit-btn");
+      if(!target) return;
+
+      const rect = target.getBoundingClientRect();
+
+      for(let i=0;i<12;i++){
+        const dot = document.createElement("span");
+        dot.className = "glitter-burst";
+
+        const angle = Math.random()*Math.PI*2;
+        const distance = 40 + Math.random()*30;
+
+        dot.style.setProperty("--x", Math.cos(angle)*distance + "px");
+        dot.style.setProperty("--y", Math.sin(angle)*distance + "px");
+
+        dot.style.left = e.clientX + "px";
+        dot.style.top = e.clientY + "px";
+
+        document.body.appendChild(dot);
+        setTimeout(()=>dot.remove(), 900);
+      }
+    });
+  </script>
+
 </body>
 </html>
