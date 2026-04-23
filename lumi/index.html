@@ -12,14 +12,12 @@ body{
   background:linear-gradient(180deg,#fff8fb,#ffeef6);
 }
 
-/* 전체 */
 .wrap{
   max-width:720px;
   margin:auto;
   padding:20px;
 }
 
-/* 카드 */
 .card{
   background:white;
   border-radius:20px;
@@ -28,7 +26,6 @@ body{
   margin-bottom:16px;
 }
 
-/* 프로필 */
 .profile{
   display:flex;
   align-items:center;
@@ -43,17 +40,10 @@ body{
   border:3px solid #ff8ac2;
 }
 
-.name{
-  font-size:18px;
-  font-weight:bold;
-}
-
 .point{
-  font-size:14px;
   color:#ff5fa8;
 }
 
-/* 게이지 */
 .bar{
   margin-top:10px;
   height:10px;
@@ -63,12 +53,11 @@ body{
 }
 
 .bar-fill{
-  width:65%;
   height:100%;
+  width:0%;
   background:linear-gradient(90deg,#ff8ac2,#ff5fa8);
 }
 
-/* 메뉴 */
 .menu{
   display:grid;
   grid-template-columns:repeat(2,1fr);
@@ -83,14 +72,8 @@ body{
   text-align:center;
   color:#ff5fa8;
   font-weight:600;
-  transition:0.2s;
 }
 
-.menu a:hover{
-  transform:translateY(-3px);
-}
-
-/* 메시지 */
 .msg{
   background:#fff0f7;
   padding:12px;
@@ -98,11 +81,28 @@ body{
   margin-bottom:8px;
 }
 
-/* 제목 */
-.title{
-  font-size:16px;
-  margin-bottom:10px;
-  font-weight:600;
+.locked{
+  opacity:0.4;
+  filter:blur(2px);
+}
+
+.profile-select{
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  margin-top:10px;
+}
+
+.profile-select img{
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  cursor:pointer;
+  border:2px solid transparent;
+}
+
+.profile-select img.active{
+  border:2px solid #ff5fa8;
 }
 </style>
 </head>
@@ -114,22 +114,22 @@ body{
   <!-- 프로필 -->
   <div class="card">
     <div class="profile">
-      <img src="../img/member/mariring/mariring-01.webp">
-      <div>
-        <div class="name">마리링</div>
-        <div class="point">Lv.3 · 1200P</div>
-      </div>
+      <img id="mainProfile" src="../img/lumi/profile/mariring-01.webp">
+      <div class="point" id="pointText"></div>
     </div>
 
     <div class="bar">
-      <div class="bar-fill"></div>
+      <div class="bar-fill" id="barFill"></div>
     </div>
-    <small>다음 등급까지 300P 남음</small>
+
+    <small id="nextText"></small>
+
+    <!-- 프로필 선택 -->
+    <div class="profile-select" id="profileSelect"></div>
   </div>
 
   <!-- 메뉴 -->
   <div class="card">
-    <div class="title">MENU</div>
     <div class="menu">
       <a href="profile.html">프로필</a>
       <a href="frame.html">프레임</a>
@@ -140,45 +140,97 @@ body{
     </div>
   </div>
 
-  <!-- 최근 메시지 -->
+  <!-- 메시지 -->
   <div class="card">
-    <div class="title">최근 메시지</div>
-     <div class="msg">마리링: 오늘도 와줘서 고마워 💕</div>
-  <div class="msg">루루: 다음 공연 기대해!</div>
-</div>
+    <div class="msg">마리링: 오늘도 와줘서 고마워 💕</div>
+    <div class="msg">루루: 다음 공연 기대해!</div>
+
+    <div class="msg locked" id="iroMsg">🔒 이로 (선으로 이어지면 만날 수 있어)</div>
+    <div class="msg locked" id="lunaMsg">🔒 루나 (빛을 나누면 만날 수 있어)</div>
+  </div>
 
 </div>
 
 <script>
-const point = 1200;
+const point = 32;
 
+// 레벨 계산
 let level = 1;
+let title = "점을 찍은 루미나 🌱";
+let prev = 0;
+let next = 10;
 
-if(point >= 3500) level = 5;
-else if(point >= 2000) level = 4;
-else if(point >= 1000) level = 3;
-else if(point >= 500) level = 2;
+if(point >= 100){
+  level=5; title="구원의 별, 루미나 👑"; prev=100; next=100;
+}
+else if(point >= 60){
+  level=4; title="빛을 나누는 루미나 💖"; prev=60; next=100;
+}
+else if(point >= 30){
+  level=3; title="선으로 이어진 루미나 ✨"; prev=30; next=60;
+}
+else if(point >= 10){
+  level=2; title="길을 비추는 루미나 💕"; prev=10; next=30;
+}
 
-let next = 0;
-if(level === 1) next = 500 - point;
-else if(level === 2) next = 1000 - point;
-else if(level === 3) next = 2000 - point;
-else if(level === 4) next = 3500 - point;
-else next = 0;
+let percent = ((point-prev)/(next-prev))*100;
+if(level===5) percent=100;
 
-let percent = 0;
-if(level === 1) percent = (point / 500) * 100;
-else if(level === 2) percent = ((point-500)/500)*100;
-else if(level === 3) percent = ((point-1000)/1000)*100;
-else if(level === 4) percent = ((point-2000)/1500)*100;
-else percent = 100;
+document.getElementById("pointText").innerText = `Lv.${level} ${title} · ${point}P`;
+document.getElementById("barFill").style.width = percent + "%";
 
-document.querySelector(".point").innerText = `Lv.${level} · ${point}P`;
-document.querySelector(".bar-fill").style.width = percent + "%";
-document.querySelector(".next-text").innerText = `다음 등급까지 ${next}P 남음`;
+if(level===5){
+  document.getElementById("nextText").innerText="체인 서사 완성 👑";
+}else{
+  document.getElementById("nextText").innerText=`다음 단계까지 ${next-point}P 남음`;
+}
+
+// 🔓 해금
+if(level>=3){
+  let iro=document.getElementById("iroMsg");
+  iro.classList.remove("locked");
+  iro.innerText="이로: 이제 우리가 이어졌네 💙";
+}
+if(level>=4){
+  let luna=document.getElementById("lunaMsg");
+  luna.classList.remove("locked");
+  luna.innerText="루나: …기다리고 있었어 🌙";
+}
+
+// 프로필 리스트
+const profiles = [
+  "mariring-01.webp",
+  "mariring-02.webp",
+  "mariring-03.webp",
+  "lulu-01.webp",
+  "lulu-02.webp"
+];
+
+const container = document.getElementById("profileSelect");
+const main = document.getElementById("mainProfile");
+
+let saved = localStorage.getItem("profile") || profiles[0];
+main.src = "../img/lumi/profile/" + saved;
+
+profiles.forEach(file=>{
+  const img=document.createElement("img");
+  img.src="../img/lumi/profile/"+file;
+
+  if(file===saved) img.classList.add("active");
+
+  img.onclick=()=>{
+    main.src=img.src;
+    localStorage.setItem("profile", file);
+
+    document.querySelectorAll(".profile-select img")
+      .forEach(i=>i.classList.remove("active"));
+
+    img.classList.add("active");
+  };
+
+  container.appendChild(img);
+});
 </script>
 
-</body>
-</html>
 </body>
 </html>
