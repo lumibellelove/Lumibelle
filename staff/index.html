@@ -542,11 +542,11 @@
       }
     });
 
-   form.addEventListener("submit", async (e) => {
+  form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const staff = staffSelect.value;
-  const member = memberInput.value;
+  const member = memberInput.value.trim();
   const type = typeInput.value;
   const point = pointInput.value;
   const memo = memoInput.value;
@@ -557,8 +557,11 @@
   }
 
   try {
-    await fetch("https://script.google.com/macros/s/AKfycbzMf1Kxtzz1KbqoqoQOOSbzcRyomYaQZd32ls9-hDDtuc5YR4hVPjp5LHLpAy0fpsDv/exec", {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbzMf1Kxtzz1KbqoqoQOOSbzcRyomYaQZd32ls9-hDDtuc5YR4hVPjp5LHLpAy0fpsDv/exec", {
       method: "POST",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
       body: JSON.stringify({
         staff: staff,
         memberId: "LB-" + member,
@@ -568,9 +571,17 @@
       })
     });
 
+    const text = await response.text();
+    console.log("앱스크립트 응답:", response.status, text);
+
+    if (!response.ok || text.trim() !== "ok") {
+      throw new Error("시트 저장 응답이 정상이 아님");
+    }
+
     showStatus("저장 완료!", "ok");
 
   } catch (err) {
+    console.error(err);
     showStatus("저장 실패", "error");
   }
 });
