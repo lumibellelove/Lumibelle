@@ -277,7 +277,7 @@
       padding:0 20px 20px;
       color:#b08ba0;
       font-size:12px;
-      line-height:1.8;
+      line-height:1.85;
     }
 
     .status{
@@ -306,24 +306,12 @@
 
     @media (max-width:640px){
       .head h1,
-      .gate-card h1{
-        font-size:24px;
-      }
-
+      .gate-card h1{font-size:24px;}
       .row,
       .actions,
-      .sub-actions{
-        grid-template-columns:1fr;
-      }
-
-      .quick{
-        grid-template-columns:repeat(2,1fr);
-      }
-
-      .wrap{
-        width:min(100%,640px);
-        padding:20px 12px 36px;
-      }
+      .sub-actions{grid-template-columns:1fr;}
+      .quick{grid-template-columns:repeat(2,1fr);}
+      .wrap{width:min(100%,640px); padding:20px 12px 36px;}
     }
   </style>
 </head>
@@ -354,22 +342,22 @@
           <p>스탭 선택은 유지되고, 회원번호는 숫자만 입력하면 돼요.</p>
 
           <div class="mini-bar">
-            <div class="mini-pill">보정없음</div>
-            <div class="mini-pill">현장 운영용</div>
-            <div class="mini-pill">자동 저장 연결 완료</div>
+            <div class="mini-pill">입력 확인 필수</div>
+            <div class="mini-pill">실수 시 재입력 처리</div>
+            <div class="mini-pill">구글폼 자동 기록</div>
           </div>
         </div>
 
         <form
           id="staffForm"
-          action="https://script.google.com/macros/s/AKfycbx_M_uqEj1T4Nf9C0ryW_lPXmaPvcXOsW39fA33b2l9T-5-n8AFk6u_wxkFbFr_U1J_vQ/exec"
+          action="https://docs.google.com/forms/d/e/1FAIpQLScpXbqtkyGdzxHrOovb4X8RpCb4Tw8fq8uXOBG8uWcqvShbCw/formResponse"
           method="POST"
           target="hidden_iframe"
         >
           <div class="row">
             <div class="field">
               <label for="staffSelect">스탭 선택</label>
-              <select id="staffSelect" name="staff" required>
+              <select id="staffSelect" name="entry.1934544596" required>
                 <option value="">스탭 선택</option>
                 <option value="마리링">마리링</option>
                 <option value="루루">루루</option>
@@ -384,7 +372,7 @@
                 <div class="member-prefix">LB-</div>
                 <input
                   id="memberInput"
-                  name="memberId"
+                  name="entry.1134785165"
                   type="text"
                   placeholder="예: 001"
                   autocomplete="off"
@@ -399,7 +387,7 @@
           <div class="row">
             <div class="field">
               <label for="type">구분</label>
-              <select id="type" name="type" required>
+              <select id="type" name="entry.1981522529" required>
                 <option value="적립" selected>적립</option>
                 <option value="사용">사용</option>
               </select>
@@ -409,7 +397,7 @@
               <label for="point">포인트</label>
               <input
                 id="point"
-                name="point"
+                name="entry.273641598"
                 type="number"
                 min="1"
                 step="1"
@@ -423,7 +411,7 @@
             <label for="memo">메모</label>
             <textarea
               id="memo"
-              name="memo"
+              name="entry.1237181694"
               placeholder="예: 굿즈 구매 / 포인트 사용 / 현장 응대"
             ></textarea>
           </div>
@@ -462,7 +450,8 @@
         <div class="note">
           ※ 적립 버튼은 누적돼요. 예: +1 → +1 → +3 = 5<br />
           ※ 사용 100 버튼은 구분이 자동으로 ‘사용’으로 바뀌어요.<br />
-          ※ 스탭 이름은 한 번 선택하면 유지돼요.
+          ※ 스탭 이름은 한 번 선택하면 유지돼요.<br />
+          ※ 실수한 경우 반대 내용으로 다시 입력해서 맞춰주세요.
         </div>
       </div>
 
@@ -476,8 +465,8 @@
     const STAFF_PASSWORD = "lmb0712";
     const STAFF_NAME_KEY = "lb_staff_name";
 
-    // 여기만 새 시트 링크 넣기
-    const RECORD_SHEET_URL = "여기에_새_시트_링크";
+    // 응답 시트 링크가 생기면 여기만 바꿔주면 돼요.
+    const RECORD_SHEET_URL = "#";
 
     const gate = document.getElementById("gate");
     const staffPage = document.getElementById("staffPage");
@@ -500,6 +489,7 @@
     const hiddenIframe = document.querySelector('iframe[name="hidden_iframe"]');
 
     let submitStarted = false;
+    let firstIframeLoad = true;
 
     recordViewBtn.href = RECORD_SHEET_URL;
     staffSelect.value = localStorage.getItem(STAFF_NAME_KEY) || "";
@@ -512,17 +502,13 @@
       gate.classList.add("hidden");
       staffPage.classList.remove("hidden");
       setTimeout(() => {
-        if (staffSelect.value) {
-          memberInput.focus();
-        } else {
-          staffSelect.focus();
-        }
+        if (staffSelect.value) memberInput.focus();
+        else staffSelect.focus();
       }, 50);
     }
 
     function checkPassword() {
       const input = passwordInput.value.trim();
-
       if (input === STAFF_PASSWORD) {
         sessionStorage.setItem("lb_staff_auth", "yes");
         gateError.style.display = "none";
@@ -557,9 +543,7 @@
     });
 
     typeInput.addEventListener("change", () => {
-      if (typeInput.value === "사용" && !pointInput.value) {
-        pointInput.value = 100;
-      }
+      if (typeInput.value === "사용" && !pointInput.value) pointInput.value = 100;
     });
 
     form.addEventListener("submit", (e) => {
@@ -595,10 +579,15 @@
     });
 
     hiddenIframe.addEventListener("load", () => {
-      if (!submitStarted) return;
+      if (firstIframeLoad) {
+        firstIframeLoad = false;
+        return;
+      }
 
+      if (!submitStarted) return;
       submitStarted = false;
-      showStatus("저장 완료!", "ok");
+
+      showStatus("저장 완료! 구글폼으로 전송됐어요.", "ok");
       pointInput.value = "";
       memoInput.value = "";
       typeInput.value = "적립";
@@ -622,10 +611,15 @@
       location.reload();
     });
 
-    window.addEventListener("load", () => {
-      if (sessionStorage.getItem("lb_staff_auth") === "yes") {
-        openStaffPage();
+    recordViewBtn.addEventListener("click", (e) => {
+      if (RECORD_SHEET_URL === "#") {
+        e.preventDefault();
+        showStatus("기록 보기 버튼은 응답 시트 링크를 넣은 뒤 사용할 수 있어요.", "error");
       }
+    });
+
+    window.addEventListener("load", () => {
+      if (sessionStorage.getItem("lb_staff_auth") === "yes") openStaffPage();
     });
   </script>
 </body>
