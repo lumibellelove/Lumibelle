@@ -342,9 +342,7 @@
           <p>스탭 선택은 유지되고, 회원번호는 숫자만 입력하면 돼요.</p>
         </div>
 
-        <form
-          id="staffForm"
-          action="https://docs.google.com/forms/d/e/1FAIpQLSdkBI418UPiPPEqF0YxEQ1_yvRD9ex-6pXkB9fXyV66f1TxpQ/formResponse"
+      <form id="staffForm">
           method="POST"
           target="hidden_iframe"
         >
@@ -544,25 +542,38 @@
       }
     });
 
-    form.addEventListener("submit", (e) => {
-      if (!staffSelect.value || !memberInput.value.trim() || !pointInput.value) {
-        e.preventDefault();
-        showStatus("입력을 확인해줘.", "error");
-        return;
-      }
+   form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-      staffHidden.value = staffSelect.value;
-      memberHidden.value = "LB-" + memberInput.value.trim();
+  const staff = staffSelect.value;
+  const member = memberInput.value;
+  const type = typeInput.value;
+  const point = pointInput.value;
+  const memo = memoInput.value;
 
-      setTimeout(() => {
-        showStatus("저장 완료!", "ok");
-        pointInput.value = "";
-        memoInput.value = "";
-        typeInput.value = "적립";
-        memberInput.value = "";
-        memberInput.focus();
-      }, 300);
+  if (!staff || !member || !point) {
+    showStatus("입력 확인해줘", "error");
+    return;
+  }
+
+  try {
+    await fetch("https://script.google.com/macros/s/AKfycbzMf1Kxtzz1KbqoqoQOOSbzcRyomYaQZd32ls9-hDDtuc5YR4hVPjp5LHLpAy0fpsDv/exec", {
+      method: "POST",
+      body: JSON.stringify({
+        staff: staff,
+        memberId: "LB-" + member,
+        type: type,
+        point: point,
+        memo: memo
+      })
     });
+
+    showStatus("저장 완료!", "ok");
+
+  } catch (err) {
+    showStatus("저장 실패", "error");
+  }
+});
 
     resetBtn.addEventListener("click", () => {
       pointInput.value = "";
