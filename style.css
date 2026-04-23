@@ -1,61 +1,31 @@
-/* Lumibelle mobile-only patch v2 for style(3).css
+/* Lumibelle mobile patch v2 for style(3).css
    Load AFTER style(3).css
-   PC styles remain unchanged.
+   Mobile only
 */
 
 @media (max-width: 768px){
 
   html, body{
     overflow-x:hidden !important;
-    -webkit-text-size-adjust:100% !important;
-    text-rendering:optimizeLegibility !important;
   }
 
+  /* ===== top stack: language bar + header move together ===== */
   body{
     padding-top:0 !important;
-    -webkit-font-smoothing:antialiased !important;
-    -moz-osx-font-smoothing:grayscale !important;
   }
 
-  /* ===== 전체 상단 영역이 같이 고정 ===== */
   .top-lang-bar{
-    position:static !important;
-    width:100% !important;
-    margin:0 !important;
-    padding:8px 12px !important;
-    background:transparent !important;
-    border-bottom:none !important;
-    backdrop-filter:none !important;
-    -webkit-backdrop-filter:none !important;
-  }
-
-  header{
     position:sticky !important;
     top:0 !important;
     z-index:1400 !important;
+    width:100% !important;
+    margin:0 !important;
+    padding:8px 12px !important;
     background:rgba(255,248,252,.96) !important;
+    border-bottom:1px solid rgba(241,212,227,.85) !important;
     backdrop-filter:blur(8px) !important;
     -webkit-backdrop-filter:blur(8px) !important;
-    border-bottom:1px solid rgba(241,212,227,.85) !important;
-    box-shadow:0 8px 20px rgba(255,120,178,.06) !important;
-  }
-
-  .header-box{
-    margin:0 auto !important;
-    padding:10px 14px 12px !important;
-    min-height:auto !important;
-    gap:10px !important;
-    flex-direction:column !important;
-    align-items:center !important;
-    border:none !important;
-    border-radius:0 !important;
-    background:transparent !important;
-    box-shadow:none !important;
-  }
-
-  .wrap{
-    width:min(1220px, calc(100% - 28px)) !important;
-    margin:0 auto !important;
+    box-sizing:border-box !important;
   }
 
   .lang-switch{
@@ -64,7 +34,6 @@
     align-items:center !important;
     gap:10px !important;
     flex-wrap:nowrap !important;
-    width:100% !important;
   }
 
   .lang-switch a{
@@ -74,17 +43,40 @@
     font-size:11px !important;
     font-weight:900 !important;
     line-height:34px !important;
-    border-radius:999px !important;
     text-align:center !important;
+    border-radius:999px !important;
     text-decoration:none !important;
+    letter-spacing:0 !important;
     -webkit-font-smoothing:antialiased !important;
     text-rendering:geometricPrecision !important;
+  }
+
+  header{
+    position:sticky !important;
+    top:51px !important;
+    z-index:1300 !important;
+    background:rgba(255,248,252,.96) !important;
+    border-bottom:1px solid rgba(241,212,227,.75) !important;
     box-shadow:none !important;
-    transform:none !important;
+    backdrop-filter:blur(8px) !important;
+    -webkit-backdrop-filter:blur(8px) !important;
+  }
+
+  .header-box{
+    margin:0 auto !important;
+    padding:12px 14px 12px !important;
+    min-height:auto !important;
+    gap:10px !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    border:none !important;
+    background:transparent !important;
+    box-shadow:none !important;
+    border-radius:0 !important;
   }
 
   .logo img{
-    height:52px !important;
+    height:54px !important;
     width:auto !important;
   }
 
@@ -95,50 +87,55 @@
   }
 
   nav a{
-    padding:4px 0 !important;
+    padding:5px 0 !important;
     border-radius:14px !important;
     text-decoration:none !important;
-    transform:none !important;
-    box-shadow:none !important;
   }
 
-  nav a b,
-  nav a span,
-  .lang-switch a,
-  .subnav-card h3,
-  .subnav-card p,
-  .fanname-name,
-  .fanname-desc{
+  nav a:hover,
+  nav a.current,
+  nav a:focus,
+  nav a:active,
+  nav a:visited{
     text-decoration:none !important;
+  }
+
+  nav b,
+  nav span{
+    text-decoration:none !important;
+    letter-spacing:-0.01em !important;
     -webkit-font-smoothing:antialiased !important;
     text-rendering:geometricPrecision !important;
-    letter-spacing:-0.01em !important;
   }
 
-  nav a b{
+  nav b{
     font-size:13px !important;
     margin-bottom:4px !important;
     line-height:1.1 !important;
-    color:#d97ca9 !important;
   }
 
-  nav a span{
+  nav span{
     font-size:10px !important;
     line-height:1.2 !important;
-    color:#b98ea4 !important;
   }
 
-  /* ===== 이벤트/순간들/스토리 중앙 정렬 ===== */
+  /* ===== spacing container ===== */
+  .wrap{
+    width:min(1220px, calc(100% - 28px)) !important;
+    margin:0 auto !important;
+  }
+
+  /* ===== event / moments / story / gamezone center ===== */
   .subnav-wrap{
     grid-template-columns:1fr !important;
     gap:12px !important;
-    margin:18px auto 18px !important;
+    margin:0 auto 18px !important;
     width:min(1220px, calc(100% - 28px)) !important;
   }
 
   .subnav-card{
     width:100% !important;
-    padding:22px 18px 18px !important;
+    padding:20px 18px 18px !important;
     border-radius:22px !important;
     text-align:center !important;
     overflow:hidden !important;
@@ -152,8 +149,8 @@
   .subnav-card p{
     width:100% !important;
     text-align:center !important;
-    margin-left:0 !important;
-    margin-right:0 !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
   }
 
   .subnav-card h3{
@@ -173,7 +170,74 @@
     padding:5px 8px !important;
   }
 
-  /* ===== 팬네임 줄바꿈/정렬 ===== */
+  /* ===== hero ===== */
+  .hero-banner,
+  .hero-card{
+    min-height:360px !important;
+    border-radius:28px !important;
+    overflow:hidden !important;
+  }
+
+  .hero-banner::before,
+  .hero-card::before{
+    content:"" !important;
+    position:absolute !important;
+    inset:0 !important;
+    z-index:1 !important;
+    pointer-events:none !important;
+    background:linear-gradient(
+      180deg,
+      rgba(30,12,22,.04) 0%,
+      rgba(30,12,22,.10) 45%,
+      rgba(30,12,22,.24) 76%,
+      rgba(30,12,22,.34) 100%
+    ) !important;
+  }
+
+  .hero-inner,
+  .hero-copy{
+    position:relative !important;
+    z-index:2 !important;
+    max-width:62% !important;
+    padding:18px 16px 24px !important;
+  }
+
+  .hero-kor{
+    font-size:11px !important;
+    margin-bottom:5px !important;
+  }
+
+  .hero-logo{
+    font-size:36px !important;
+    line-height:.92 !important;
+    margin:0 0 4px !important;
+  }
+
+  .hero-sub{
+    font-size:14px !important;
+    margin-bottom:8px !important;
+  }
+
+  .hero-desc{
+    margin-top:8px !important;
+    max-width:100% !important;
+    padding:8px 10px !important;
+    font-size:10px !important;
+    line-height:1.55 !important;
+    border-radius:14px !important;
+    background:rgba(255,255,255,.08) !important;
+    color:#fff !important;
+    text-shadow:0 2px 10px rgba(0,0,0,.28) !important;
+  }
+
+  /* ===== fanname wrap ===== */
+  .fanname-card,
+  .info-card,
+  .follow-card{
+    padding:24px 18px !important;
+    border-radius:24px !important;
+  }
+
   .fanname-name{
     font-size:24px !important;
     line-height:1.2 !important;
@@ -187,18 +251,13 @@
   .fanname-desc{
     font-size:14px !important;
     line-height:1.8 !important;
-    white-space:normal !important;
+    text-align:left !important;
     word-break:keep-all !important;
     overflow-wrap:anywhere !important;
     max-width:100% !important;
-    text-align:left !important;
   }
 
-  .fanname-card{
-    padding:24px 18px !important;
-  }
-
-  /* ===== 위로가기 ===== */
+  /* ===== back to top ===== */
   .back-to-top{
     width:54px !important;
     height:54px !important;
