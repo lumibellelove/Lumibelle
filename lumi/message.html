@@ -1,1 +1,439 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LUMI MESSAGE</title>
 
+<style>
+*{box-sizing:border-box;}
+
+body{
+  margin:0;
+  font-family:sans-serif;
+  background:linear-gradient(180deg,#fff8fb,#ffeef6);
+  color:#6f5868;
+}
+
+.wrap{
+  max-width:720px;
+  margin:auto;
+  padding:18px;
+  padding-bottom:90px;
+}
+
+.top-nav{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:14px;
+}
+
+.top-nav a{
+  text-decoration:none;
+  text-align:center;
+  padding:10px 8px;
+  border-radius:999px;
+  background:#fff;
+  color:#ff5fa8;
+  font-size:13px;
+  font-weight:800;
+  box-shadow:0 6px 16px rgba(255,95,168,.12);
+}
+
+.phone{
+  background:#fff;
+  border:1px solid #f2d8e7;
+  border-radius:28px;
+  box-shadow:0 14px 35px rgba(255,95,168,.18);
+  overflow:hidden;
+}
+
+.phone-head{
+  padding:18px;
+  background:linear-gradient(135deg,#ff8ac2,#ff5fa8);
+  color:#fff;
+  text-align:center;
+}
+
+.phone-head h1{
+  margin:0;
+  font-size:22px;
+}
+
+.phone-head p{
+  margin:6px 0 0;
+  font-size:13px;
+  opacity:.9;
+}
+
+.member-tabs{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  padding:12px;
+  background:#fff7fb;
+  border-bottom:1px solid #f2d8e7;
+}
+
+.member-tabs button{
+  border:none;
+  border-radius:999px;
+  padding:10px 6px;
+  background:#fff;
+  color:#c483a5;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 4px 10px rgba(255,95,168,.08);
+}
+
+.member-tabs button.active{
+  background:#ff5fa8;
+  color:#fff;
+}
+
+.chat{
+  min-height:420px;
+  padding:18px;
+  background:
+    radial-gradient(circle at 20% 10%,rgba(255,192,215,.22),transparent 25%),
+    linear-gradient(180deg,#fffafd,#fff5fb);
+}
+
+.bubble{
+  max-width:78%;
+  padding:11px 13px;
+  border-radius:18px;
+  margin-bottom:8px;
+  line-height:1.55;
+  font-size:14px;
+  animation:pop .18s ease;
+}
+
+.member{
+  background:#fff;
+  border:1px solid #f2d8e7;
+  color:#735c6a;
+  border-bottom-left-radius:6px;
+}
+
+.me{
+  margin-left:auto;
+  background:linear-gradient(135deg,#ff8ac2,#ff5fa8);
+  color:#fff;
+  border-bottom-right-radius:6px;
+}
+
+@keyframes pop{
+  from{transform:translateY(5px);opacity:0;}
+  to{transform:translateY(0);opacity:1;}
+}
+
+.choices{
+  padding:14px;
+  background:#fff;
+  border-top:1px solid #f2d8e7;
+  display:grid;
+  gap:8px;
+}
+
+.choices button{
+  border:none;
+  border-radius:16px;
+  padding:13px;
+  background:#ffe6f1;
+  color:#ff5fa8;
+  font-weight:800;
+  cursor:pointer;
+  text-align:left;
+}
+
+.choices button:hover{
+  background:#ffd8ea;
+}
+
+.reset-btn{
+  margin-top:10px;
+  width:100%;
+  border:none;
+  border-radius:999px;
+  padding:12px;
+  background:#fff;
+  color:#c483a5;
+  font-weight:800;
+  box-shadow:0 6px 16px rgba(255,95,168,.1);
+}
+
+.notice{
+  margin-top:12px;
+  text-align:center;
+  color:#b48a9f;
+  font-size:12px;
+  line-height:1.6;
+}
+
+@media(max-width:520px){
+  .top-nav{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .member-tabs{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .bubble{
+    max-width:86%;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <div class="top-nav">
+    <a href="../index.html">🏠 홈</a>
+    <a href="../schedule.html">🎤 라이브장</a>
+    <a href="../gamezone/">🎮 오락실</a>
+    <a href="#">💬 뒷풀이</a>
+  </div>
+
+  <div class="phone">
+    <div class="phone-head">
+      <h1>LUMI MESSAGE</h1>
+      <p>루미벨에게서 메시지가 도착했어요</p>
+    </div>
+
+    <div class="member-tabs">
+      <button class="active" onclick="loadChat('mariring', this)">마리링</button>
+      <button onclick="loadChat('lulu', this)">루루</button>
+      <button onclick="loadChat('iro', this)">이로</button>
+      <button onclick="loadChat('luna', this)">루나</button>
+    </div>
+
+    <div class="chat" id="chat"></div>
+
+    <div class="choices" id="choices"></div>
+  </div>
+
+  <button class="reset-btn" onclick="resetChat()">대화 다시 보기</button>
+
+  <div class="notice">
+    ※ 현재는 데모 대화입니다.<br>
+    추후 레벨, 업적, 이벤트에 따라 새로운 메시지가 열릴 예정이에요.
+  </div>
+
+</div>
+
+<script>
+const chats = {
+  mariring:{
+    start:[
+      "마리링: 콕콕",
+      "마리링: 뭐해요오",
+      "마리링: 링링은 지금 좀 심심한데 ㅎㅎ"
+    ],
+    choices:[
+      {
+        text:"마리링 생각 중이었어",
+        me:"마리링 생각 중이었어",
+        reply:[
+          "마리링: 에에에~ 진짜요?? 😳",
+          "마리링: 링링 지금 좀 기뻐도 되는 거야?",
+          "마리링: えへへ… 너무 좋다 💕"
+        ]
+      },
+      {
+        text:"그냥 있었어",
+        me:"그냥 있었어",
+        reply:[
+          "마리링: 그냥 있었다구요?",
+          "마리링: 에~ 링링은 잘 모르겠는데?",
+          "마리링: 데헷 ㅇ.<",
+          "마리링: 그럼 이제부터는 나 생각해줘요 ✨"
+        ]
+      },
+      {
+        text:"루미벨 홈페이지 보고 있었어",
+        me:"루미벨 홈페이지 보고 있었어",
+        reply:[
+          "마리링: 헉 공홈 보셨다구요??",
+          "마리링: 열심히 만든 보람이 있네…ㅠㅠ",
+          "마리링: もっと頑張るね…!!"
+        ]
+      }
+    ]
+  },
+
+  lulu:{
+    start:[
+      "루루: 뭐했어요오 🥺",
+      "루루: 오늘도 잘 지냈어요?"
+    ],
+    choices:[
+      {
+        text:"루루 보러 왔어",
+        me:"루루 보러 왔어",
+        reply:[
+          "루루: 헤헤…",
+          "루루: 그런 말 들으면 기분이 포근해져요 🐰",
+          "루루: 오늘도 와줘서 고마워요"
+        ]
+      },
+      {
+        text:"밥 먹었어",
+        me:"밥 먹었어",
+        reply:[
+          "루루: 잘했어요오",
+          "루루: 밥은 꼭 먹어야 해요",
+          "루루: 루루도 케이크 생각했어요 🍰"
+        ]
+      },
+      {
+        text:"조금 피곤해",
+        me:"조금 피곤해",
+        reply:[
+          "루루: 아이구…",
+          "루루: 오늘은 무리하지 말구 쉬어요",
+          "루루가 포근포근 응원할게요"
+        ]
+      }
+    ]
+  },
+
+  iro:{
+    start:[
+      "이로: 뭐해요 ㅋㅋ",
+      "이로: 갑자기 생각났는데",
+      "이로: 어흥 🐯"
+    ],
+    choices:[
+      {
+        text:"이로 생각했어",
+        me:"이로 생각했어",
+        reply:[
+          "이로: 오…",
+          "이로: 그거 좀 위험한데?",
+          "이로: 나 좋아지면 책임져야 함 😏"
+        ]
+      },
+      {
+        text:"그냥 있었어",
+        me:"그냥 있었어",
+        reply:[
+          "이로: 그냥 있었다고요?",
+          "이로: 그럼 이제 나랑 놀아야지",
+          "이로: 규칙임 😐"
+        ]
+      },
+      {
+        text:"왜 갑자기 어흥이야?",
+        me:"왜 갑자기 어흥이야?",
+        reply:[
+          "이로: 이유는 아직 없음",
+          "이로: 나중에 생각할게요",
+          "이로: 일단 호랑이임 🐯"
+        ]
+      }
+    ]
+  },
+
+  luna:{
+    start:[
+      "루나: 뭐하고 계세요?",
+      "루나: 네에 ㅎㅎ"
+    ],
+    choices:[
+      {
+        text:"루나 생각했어",
+        me:"루나 생각했어",
+        reply:[
+          "루나: 네에…? 😳",
+          "루나: 갑자기 그런 말 하시면",
+          "루나: 좀 부끄러워요… ㅎㅎ"
+        ]
+      },
+      {
+        text:"그냥 있었어",
+        me:"그냥 있었어",
+        reply:[
+          "루나: 네에 ㅎㅎ",
+          "루나: 저도 그냥 있었어요",
+          "루나: 뭔가 애매하네요 이런 시간…"
+        ]
+      },
+      {
+        text:"루미벨 보고 있었어",
+        me:"루미벨 보고 있었어",
+        reply:[
+          "루나: 네에!!",
+          "루나: 보셨구나…",
+          "루나: 감사합니다…ㅎㅎ"
+        ]
+      }
+    ]
+  }
+};
+
+let current = "mariring";
+
+function addBubble(text, type="member"){
+  const chat = document.getElementById("chat");
+  const div = document.createElement("div");
+  div.className = "bubble " + type;
+  div.innerText = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function loadChat(member, btn){
+  current = member;
+
+  document.querySelectorAll(".member-tabs button").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+
+  const chat = document.getElementById("chat");
+  const choices = document.getElementById("choices");
+
+  chat.innerHTML = "";
+  choices.innerHTML = "";
+
+  chats[member].start.forEach((line, i)=>{
+    setTimeout(()=>addBubble(line), i * 250);
+  });
+
+  setTimeout(()=>renderChoices(member), chats[member].start.length * 260);
+}
+
+function renderChoices(member){
+  const choices = document.getElementById("choices");
+  choices.innerHTML = "";
+
+  chats[member].choices.forEach(choice=>{
+    const btn = document.createElement("button");
+    btn.innerText = choice.text;
+    btn.onclick = ()=>{
+      addBubble("나: " + choice.me, "me");
+      choices.innerHTML = "";
+
+      choice.reply.forEach((line, i)=>{
+        setTimeout(()=>addBubble(line), (i+1) * 350);
+      });
+    };
+    choices.appendChild(btn);
+  });
+}
+
+function resetChat(){
+  const activeBtn = document.querySelector(".member-tabs button.active");
+  loadChat(current, activeBtn);
+}
+
+window.onload = ()=>{
+  loadChat("mariring", document.querySelector(".member-tabs button"));
+};
+</script>
+
+</body>
+</html>
