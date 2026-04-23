@@ -2,142 +2,471 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Lumibelle Staff</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>루미벨 스탭 페이지</title>
   <style>
-    body{
-      margin:0;
-      font-family:"Noto Sans KR",sans-serif;
-      background:linear-gradient(180deg,#fff8fc,#fffdfd);
-      color:#7d5c6d;
+    :root{
+      --bg1:#fff8fc;
+      --bg2:#fffdfd;
+      --panel:rgba(255,255,255,.92);
+      --line:#f3d9e7;
+      --text:#7d5c6d;
+      --soft:#b992a7;
+      --pink:#ff79b5;
+      --pink-deep:#ff5fa8;
+      --shadow:0 18px 40px rgba(255,95,168,.12);
+      --radius:24px;
     }
 
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:"Noto Sans KR",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top, rgba(255,185,220,.22), transparent 35%),
+        linear-gradient(180deg,var(--bg1),var(--bg2));
+      min-height:100vh;
+    }
+
+    .hidden{display:none !important;}
+
+    .gate-wrap,
     .wrap{
-      width:min(100%,500px);
+      width:min(100%, 560px);
       margin:0 auto;
-      padding:30px 16px;
+      padding:28px 18px 40px;
     }
 
     .card{
-      background:#fff;
-      border-radius:20px;
-      padding:20px;
-      box-shadow:0 10px 25px rgba(255,95,168,.15);
+      background:var(--panel);
+      backdrop-filter:blur(10px);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
     }
 
-    h1{margin:0 0 10px}
-    p{margin:0 0 20px}
+    .head{
+      padding:26px 22px 18px;
+      background:linear-gradient(135deg, rgba(255,138,194,.22), rgba(255,95,168,.10));
+      border-bottom:1px solid var(--line);
+    }
 
-    input,select,textarea{
-      width:100%;
-      padding:12px;
-      border-radius:12px;
-      border:1px solid #eee;
+    .head .sub{
+      font-size:12px;
+      letter-spacing:.18em;
+      color:var(--pink-deep);
+      font-weight:700;
+      margin-bottom:8px;
+    }
+
+    .head h1{
+      margin:0;
+      font-size:28px;
+      line-height:1.2;
+      color:#8a6377;
+    }
+
+    .head p{
+      margin:8px 0 0;
+      font-size:14px;
+      color:var(--soft);
+      line-height:1.6;
+    }
+
+    .gate-box{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+
+    .gate-card{
+      width:min(100%,420px);
+      background:rgba(255,255,255,.92);
+      border:1px solid var(--line);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      padding:28px 22px;
+      text-align:center;
+    }
+
+    .gate-sub{
+      font-size:12px;
+      letter-spacing:.18em;
+      color:var(--pink-deep);
+      font-weight:700;
       margin-bottom:10px;
-      font:inherit;
     }
 
-    button{
+    .gate-card h1{
+      margin:0 0 10px;
+      font-size:28px;
+      color:#8a6377;
+    }
+
+    .gate-card p{
+      margin:0 0 18px;
+      font-size:14px;
+      line-height:1.6;
+      color:var(--soft);
+    }
+
+    form{
+      padding:20px;
+      display:grid;
+      gap:14px;
+    }
+
+    .field{
+      display:grid;
+      gap:7px;
+    }
+
+    label{
+      font-size:13px;
+      font-weight:700;
+      color:#9a7187;
+    }
+
+    input, select, textarea{
       width:100%;
-      padding:14px;
-      border:none;
-      border-radius:14px;
-      background:linear-gradient(135deg,#ff79b5,#ff5fa8);
-      color:#fff;
-      font-weight:bold;
-      cursor:pointer;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--text);
+      border-radius:16px;
+      padding:14px 15px;
+      font:inherit;
+      outline:none;
+      transition:.2s ease;
+    }
+
+    input:focus, select:focus, textarea:focus{
+      border-color:#f4a4ca;
+      box-shadow:0 0 0 4px rgba(255,121,181,.12);
+    }
+
+    textarea{
+      min-height:96px;
+      resize:vertical;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+
+    .quick{
+      display:flex;
+      gap:10px;
+      margin-top:6px;
     }
 
     .chip{
-      width:23%;
-      margin:2px;
-      padding:10px;
-      border-radius:10px;
-      border:1px solid #eee;
+      flex:1;
+      padding:12px 0;
+      border-radius:14px;
+      border:1px solid #f3d9e7;
       background:#fff;
+      color:#ff5fa8;
+      font-weight:700;
+      font-size:14px;
       cursor:pointer;
+      transition:all .2s ease;
     }
 
-    .hidden{display:none}
+    .chip:hover{
+      background:#fff0f7;
+      border-color:#f4a4ca;
+      transform:translateY(-1px);
+    }
+
+    .actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:4px;
+    }
+
+    .btn{
+      border:none;
+      border-radius:18px;
+      padding:15px 16px;
+      font:inherit;
+      font-weight:800;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,var(--pink),var(--pink-deep));
+      color:#fff;
+      box-shadow:0 12px 24px rgba(255,95,168,.22);
+    }
+
+    .btn-secondary{
+      background:#fff;
+      color:#a26f87;
+      border:1px solid var(--line);
+    }
+
+    .btn:hover{
+      transform:translateY(-1px);
+    }
+
+    .note{
+      padding:0 20px 20px;
+      color:#b08ba0;
+      font-size:12px;
+      line-height:1.6;
+    }
+
+    .status{
+      margin-top:14px;
+      padding:14px 16px;
+      border-radius:16px;
+      font-size:14px;
+      display:none;
+    }
+
+    .status.show{display:block}
+    .status.ok{
+      background:#fff7fb;
+      border:1px solid #f4cade;
+      color:#a0617f;
+    }
+
+    .status.error{
+      background:#fff7f7;
+      border:1px solid #f3caca;
+      color:#b45d6e;
+    }
+
+    .gate-error{
+      display:none;
+      margin:12px 0 0;
+      color:#b45d6e;
+      font-size:13px;
+    }
+
+    iframe{display:none}
+
+    @media (max-width:480px){
+      .head h1,
+      .gate-card h1{font-size:24px}
+      .row,.actions{grid-template-columns:1fr}
+      .quick{gap:8px}
+    }
   </style>
 </head>
-
 <body>
 
-<!-- 🔒 비밀번호 화면 -->
-<div id="gate" class="wrap">
-  <div class="card">
-    <h1>스탭 전용</h1>
-    <p>비밀번호 입력</p>
+  <!-- 비밀번호 입장 -->
+  <div id="gate" class="gate-box">
+    <div class="gate-card">
+      <div class="gate-sub">LUMIBELLE STAFF</div>
+      <h1>스탭 전용 입장</h1>
+      <p>비밀번호를 입력하면 스탭 페이지가 열려요.</p>
 
-    <input id="pw" type="password" placeholder="비밀번호"/>
-    <button onclick="login()">입장</button>
+      <input
+        id="passwordInput"
+        type="password"
+        placeholder="비밀번호 입력"
+      />
+
+      <button
+        id="loginBtn"
+        class="btn btn-primary"
+        type="button"
+        style="width:100%; margin-top:12px;"
+      >
+        입장하기
+      </button>
+
+      <p id="gateError" class="gate-error">비밀번호가 맞지 않아.</p>
+    </div>
   </div>
-</div>
 
-<!-- 🌸 실제 스탭 페이지 -->
-<div id="staff" class="wrap hidden">
-  <div class="card">
-    <h1>포인트 처리</h1>
-    <p>회원번호 입력 후 적립</p>
+  <!-- 실제 스탭 페이지 -->
+  <div id="staffPage" class="hidden">
+    <div class="wrap">
+      <div class="card">
+        <div class="head">
+          <div class="sub">LUMIBELLE STAFF</div>
+          <h1>포인트 처리</h1>
+          <p>회원번호를 입력하고 적립 또는 사용을 기록하세요.</p>
+        </div>
 
-    <form id="form"
-      action="https://docs.google.com/forms/d/e/1FAIpQLSdkBI418UPiPPEqF0YxEQ1_yvRD9ex-6pXkB9fXyV66f1TxpQ/formResponse"
-      method="POST"
-      target="hidden_iframe">
+        <form id="staffForm"
+              action="https://docs.google.com/forms/d/e/1FAIpQLSdkBI418UPiPPEqF0YxEQ1_yvRD9ex-6pXkB9fXyV66f1TxpQ/formResponse"
+              method="POST"
+              target="hidden_iframe">
 
-      <input name="entry.1501139250" placeholder="회원번호 (LB-001)" required>
+          <div class="field">
+            <label for="memberId">회원번호</label>
+            <input
+              id="memberId"
+              name="entry.1501139250"
+              type="text"
+              placeholder="예: LB-001"
+              required
+            />
+          </div>
 
-      <select name="entry.668276280" required>
-        <option value="">선택</option>
-        <option value="적립">적립</option>
-        <option value="사용">사용</option>
-      </select>
+          <div class="row">
+            <div class="field">
+              <label for="type">구분</label>
+              <select id="type" name="entry.668276280" required>
+                <option value="">선택</option>
+                <option value="적립">적립</option>
+                <option value="사용">사용</option>
+              </select>
+            </div>
 
-      <input name="entry.1489084345" type="number" placeholder="포인트" required>
+            <div class="field">
+              <label for="point">포인트</label>
+              <input
+                id="point"
+                name="entry.1489084345"
+                type="number"
+                min="1"
+                step="1"
+                placeholder="예: 1"
+                required
+              />
+            </div>
+          </div>
 
-      <textarea name="entry.377436320" placeholder="메모"></textarea>
+          <div class="field">
+            <label for="memo">메모</label>
+            <textarea
+              id="memo"
+              name="entry.377436320"
+              placeholder="예: 2만원 이상 구매 / 특전 사용 / 현장 응대"
+            ></textarea>
+          </div>
 
-      <div>
-        <button type="button" class="chip" onclick="setPoint(1)">+1</button>
-        <button type="button" class="chip" onclick="setPoint(2)">+2</button>
-        <button type="button" class="chip" onclick="setPoint(3)">+3</button>
-        <button type="button" class="chip" onclick="setPoint(5)">+5</button>
+          <div class="field">
+            <label>빠른 포인트 입력</label>
+            <div class="quick">
+              <button type="button" class="chip" data-point="1">+1</button>
+              <button type="button" class="chip" data-point="2">+2</button>
+              <button type="button" class="chip" data-point="3">+3</button>
+              <button type="button" class="chip" data-point="5">+5</button>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn btn-primary">저장하기</button>
+            <button type="button" class="btn btn-secondary" id="resetBtn">초기화</button>
+          </div>
+        </form>
+
+        <div class="note">
+          ※ 현재 코드는 구글폼으로 바로 전송되는 구조입니다.<br />
+          ※ 폼 질문 순서나 항목을 바꾸면 entry 번호를 다시 확인해야 합니다.
+        </div>
       </div>
 
-      <button type="submit">저장하기</button>
-    </form>
+      <div id="statusBox" class="status"></div>
+    </div>
   </div>
-</div>
 
-<iframe name="hidden_iframe" style="display:none;"></iframe>
+  <iframe name="hidden_iframe" id="hidden_iframe"></iframe>
 
-<script>
-const PASSWORD = "lmb0712"; // 🔑 여기 바꿔
+  <script>
+    const STAFF_PASSWORD = "lmb0712";
 
-function login(){
-  const pw = document.getElementById("pw").value;
-  if(pw === PASSWORD){
-    sessionStorage.setItem("staff","yes");
-    document.getElementById("gate").style.display="none";
-    document.getElementById("staff").classList.remove("hidden");
-  }else{
-    alert("비밀번호 틀림");
-  }
-}
+    const gate = document.getElementById("gate");
+    const staffPage = document.getElementById("staffPage");
+    const passwordInput = document.getElementById("passwordInput");
+    const loginBtn = document.getElementById("loginBtn");
+    const gateError = document.getElementById("gateError");
 
-function setPoint(n){
-  document.querySelector('input[type="number"]').value = n;
-}
+    const form = document.getElementById("staffForm");
+    const pointInput = document.getElementById("point");
+    const memberInput = document.getElementById("memberId");
+    const typeInput = document.getElementById("type");
+    const statusBox = document.getElementById("statusBox");
+    const resetBtn = document.getElementById("resetBtn");
+    const chips = document.querySelectorAll(".chip");
 
-window.onload = ()=>{
-  if(sessionStorage.getItem("staff")==="yes"){
-    document.getElementById("gate").style.display="none";
-    document.getElementById("staff").classList.remove("hidden");
-  }
-}
-</script>
+    function openStaffPage() {
+      gate.classList.add("hidden");
+      staffPage.classList.remove("hidden");
+    }
 
+    function checkPassword() {
+      const input = passwordInput.value.trim();
+
+      if (input === STAFF_PASSWORD) {
+        sessionStorage.setItem("lb_staff_auth", "yes");
+        gateError.style.display = "none";
+        openStaffPage();
+      } else {
+        gateError.style.display = "block";
+      }
+    }
+
+    function showStatus(message, type = "ok") {
+      statusBox.textContent = message;
+      statusBox.className = `status show ${type}`;
+    }
+
+    loginBtn.addEventListener("click", checkPassword);
+
+    passwordInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        checkPassword();
+      }
+    });
+
+    chips.forEach(chip => {
+      chip.addEventListener("click", () => {
+        pointInput.value = chip.dataset.point;
+      });
+    });
+
+    form.addEventListener("submit", (e) => {
+      if (!memberInput.value.trim()) {
+        e.preventDefault();
+        showStatus("회원번호를 입력해줘.", "error");
+        return;
+      }
+
+      if (!typeInput.value) {
+        e.preventDefault();
+        showStatus("구분을 선택해줘.", "error");
+        return;
+      }
+
+      if (!pointInput.value || Number(pointInput.value) < 1) {
+        e.preventDefault();
+        showStatus("포인트를 1 이상 입력해줘.", "error");
+        return;
+      }
+
+      setTimeout(() => {
+        showStatus("저장 요청을 보냈어. 스프레드시트에서 기록 확인해줘.", "ok");
+        form.reset();
+      }, 500);
+    });
+
+    resetBtn.addEventListener("click", () => {
+      form.reset();
+      statusBox.className = "status";
+      statusBox.textContent = "";
+    });
+
+    window.addEventListener("load", () => {
+      if (sessionStorage.getItem("lb_staff_auth") === "yes") {
+        openStaffPage();
+      }
+    });
+  </script>
 </body>
 </html>
