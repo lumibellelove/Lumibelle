@@ -425,13 +425,13 @@ nav a:hover::after,
 
       localStorage.setItem(ORDER_KEY, JSON.stringify(orderData));
 
+      const goodsSummary = items.map(item => `${item.name} x ${item.quantity} (${money(item.price * item.quantity)})`).join(' / ');
+
       const form = document.createElement('form');
       form.method = 'POST';
       form.action = 'https://docs.google.com/forms/d/e/1FAIpQLSfL4ZDGJH_5GV9YpI1amvY7YlJZ5xAwIoHwvoJx2iZzhuKCKg/formResponse';
       form.target = 'hidden_iframe';
       form.style.display = 'none';
-
-      const goodsSummary = items.map(item => `${item.name} x ${item.quantity} (${money(item.price * item.quantity)})`).join(' / ');
 
       const fields = {
         'entry.1610407847': buyerName,
@@ -457,8 +457,6 @@ nav a:hover::after,
       });
 
       document.body.appendChild(form);
-      window.__lumibelleOrderSubmitted = true;
-      form.submit();
 
       const submitBtn = this.querySelector('.submit-btn');
       if(submitBtn){
@@ -467,11 +465,11 @@ nav a:hover::after,
         submitBtn.style.opacity = '0.8';
       }
 
+      form.submit();
+
       setTimeout(() => {
-        if(window.__lumibelleOrderSubmitted){
-          window.location.href = 'complete.html';
-        }
-      }, 1800);
+        window.location.href = 'complete.html';
+      }, 1200);
     });
 
     renderSummary();
@@ -555,21 +553,6 @@ nav a:hover::after,
 })();
 </script>
 
-
   <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
-  <script>
-    window.__lumibelleOrderSubmitted = false;
-    window.addEventListener("DOMContentLoaded", function(){
-      const hiddenFrame = document.getElementById("hidden_iframe");
-      if(hiddenFrame){
-        hiddenFrame.addEventListener("load", function(){
-          if(window.__lumibelleOrderSubmitted){
-            window.location.href = "complete.html";
-          }
-        });
-      }
-    });
-  </script>
-
 </body>
 </html>
