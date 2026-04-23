@@ -1786,6 +1786,143 @@ line-height:1.9 !important;
       transform:none !important;
     }
 
+
+    /* ===== 홈 하단 체험 메뉴 + LUMI ID 추가 ===== */
+    .subnav-wrap{
+      grid-template-columns:repeat(5, minmax(0, 1fr)) !important;
+    }
+
+    .subnav-card{
+      min-height:92px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .subnav-card h3,
+    .subnav-card p{
+      position:relative;
+      z-index:2;
+    }
+
+    .lumi-id-card{
+      background:linear-gradient(135deg, #ff8ac2 0%, #ff5fa8 58%, #caa7ff 100%) !important;
+      border-color:rgba(255,255,255,.72) !important;
+      box-shadow:0 14px 34px rgba(255,95,168,.28) !important;
+      overflow:hidden !important;
+      isolation:isolate;
+    }
+
+    .lumi-id-card::before{
+      content:"" !important;
+      position:absolute !important;
+      inset:-70% !important;
+      display:block !important;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.60), transparent 18%),
+        radial-gradient(circle at 72% 58%, rgba(255,255,255,.35), transparent 16%),
+        conic-gradient(from 0deg, rgba(255,255,255,0), rgba(255,255,255,.34), rgba(255,255,255,0), rgba(255,255,255,.22), rgba(255,255,255,0));
+      animation:lumiIdShine 7s linear infinite;
+      opacity:.9 !important;
+      z-index:0 !important;
+      pointer-events:none;
+    }
+
+    .lumi-id-card::after{
+      content:"✦" !important;
+      position:absolute !important;
+      right:18px !important;
+      bottom:12px !important;
+      left:auto !important;
+      top:auto !important;
+      width:auto !important;
+      height:auto !important;
+      background:none !important;
+      color:rgba(255,255,255,.72) !important;
+      font-size:28px !important;
+      transform:none !important;
+      opacity:1 !important;
+      z-index:1 !important;
+      animation:lumiStarFloat 2.6s ease-in-out infinite !important;
+      pointer-events:none;
+    }
+
+    .lumi-id-card h3{
+      color:#fff !important;
+      text-shadow:0 2px 12px rgba(139,46,108,.20) !important;
+    }
+
+    .lumi-id-card p{
+      color:#fff4fa !important;
+      text-shadow:0 2px 8px rgba(139,46,108,.18) !important;
+    }
+
+    .enter-badge{
+      position:absolute;
+      top:10px;
+      right:10px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:5px 9px;
+      border-radius:999px;
+      background:rgba(255,255,255,.88);
+      color:#ff59a5;
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.04em;
+      line-height:1;
+      box-shadow:0 6px 14px rgba(255,89,165,.16);
+      z-index:3;
+    }
+
+    @keyframes lumiIdShine{
+      0%{transform:rotate(0deg) scale(1);}
+      100%{transform:rotate(360deg) scale(1);}
+    }
+
+    @keyframes lumiStarFloat{
+      0%,100%{transform:translateY(0) rotate(0deg); opacity:.62;}
+      50%{transform:translateY(-5px) rotate(12deg); opacity:1;}
+    }
+
+    /* ===== SNS 아이콘 이미지 적용 ===== */
+    .sns-icon{
+      background:transparent !important;
+      box-shadow:none !important;
+      overflow:visible !important;
+    }
+
+    .sns-icon img{
+      width:58px;
+      height:58px;
+      display:block;
+      object-fit:contain;
+      border-radius:50%;
+      filter:drop-shadow(0 8px 14px rgba(255,95,168,.16));
+    }
+
+    .sns-icon:hover img{
+      transform:translateY(-2px) scale(1.03);
+    }
+
+    @media (max-width:1180px){
+      .subnav-wrap{
+        grid-template-columns:repeat(3, minmax(180px, 1fr)) !important;
+      }
+    }
+
+    @media (max-width:780px){
+      .subnav-wrap{
+        grid-template-columns:1fr !important;
+      }
+
+      .subnav-card{
+        min-height:86px;
+      }
+    }
+
   </style>
 </head>
 
@@ -1848,6 +1985,12 @@ line-height:1.9 !important;
         <h3>GAME ZONE</h3>
         <p>게임존</p>
       </a>
+
+      <a href="point.html" class="subnav-card lumi-id-card">
+        <span class="enter-badge">ENTER</span>
+        <h3>LUMI ID</h3>
+        <p>나의 루미벨 플레이어 카드</p>
+      </a>
     </div>
   </div>
 
@@ -1855,9 +1998,9 @@ line-height:1.9 !important;
     <div class="wrap">
 
       <section class="hero-banner reveal">
-        <div class="slide active" style="background-image: url('img/ui/hero.webp');"></div>
-        <div class="slide" style="background-image: url('img/ui/hero2.webp');"></div>
-        <div class="slide" style="background-image: url('img/ui/hero3.webp');"></div>
+        <div class="slide active" style="background-image: url('img/ui/hero-01.webp');"></div>
+        <div class="slide" style="background-image: url('img/ui/hero-02.webp');"></div>
+        <div class="slide" style="background-image: url('img/ui/hero-03.webp');"></div>
 
         <div class="hero-inner">
           <div class="hero-kor">빛나는 미소의 소녀들</div>
@@ -2089,10 +2232,18 @@ line-height:1.9 !important;
             </div>
 
             <div class="sns-icons">
-              <a href="https://x.com/Lumibelle_love" target="_blank" rel="noopener noreferrer" class="sns-icon">X</a>
-              <a href="https://www.instagram.com/lumibelle.offcial/" target="_blank" rel="noopener noreferrer" class="sns-icon">IG</a>
-              <a href="https://www.tiktok.com/@lumibelle_official" target="_blank" rel="noopener noreferrer" class="sns-icon">TT</a>
-              <a href="https://www.youtube.com/@Lumibelle_Official" target="_blank" rel="noopener noreferrer" class="sns-icon">YT</a>
+              <a href="https://x.com/Lumibelle_love" target="_blank" rel="noopener noreferrer" class="sns-icon" aria-label="X">
+                <img src="img/ui/X.webp" alt="X">
+              </a>
+              <a href="https://www.instagram.com/lumibelle.offcial/" target="_blank" rel="noopener noreferrer" class="sns-icon" aria-label="Instagram">
+                <img src="img/ui/instargram.png" alt="Instagram">
+              </a>
+              <a href="https://www.tiktok.com/@lumibelle_official" target="_blank" rel="noopener noreferrer" class="sns-icon" aria-label="TikTok">
+                <img src="img/ui/tiktok.webp" alt="TikTok">
+              </a>
+              <a href="https://www.youtube.com/@Lumibelle_Official" target="_blank" rel="noopener noreferrer" class="sns-icon" aria-label="YouTube">
+                <img src="img/ui/youtube.webp" alt="YouTube">
+              </a>
             </div>
           </div>
         </div>
