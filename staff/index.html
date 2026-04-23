@@ -1,610 +1,224 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>루미벨 스탭</title>
-  <style>
-    :root{
-      --bg1:#fff8fc;
-      --bg2:#fffdfd;
-      --panel:rgba(255,255,255,.95);
-      --line:#f3d9e7;
-      --text:#7d5c6d;
-      --soft:#b992a7;
-      --pink:#ff79b5;
-      --pink-deep:#ff5fa8;
-      --shadow:0 18px 40px rgba(255,95,168,.12);
-      --radius:24px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>루미벨 스탭</title>
 
-    *{box-sizing:border-box}
+<style>
+body{
+  margin:0;
+  font-family:sans-serif;
+  background:#fff7fb;
+}
 
-    body{
-      margin:0;
-      font-family:"Noto Sans KR",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(circle at top, rgba(255,185,220,.22), transparent 35%),
-        linear-gradient(180deg,var(--bg1),var(--bg2));
-      min-height:100vh;
-    }
+.wrap{
+  max-width:720px;
+  margin:auto;
+  padding:20px;
+}
 
-    .hidden{display:none !important;}
+.card{
+  background:#fff;
+  border-radius:20px;
+  padding:20px;
+  box-shadow:0 10px 25px rgba(255,95,168,0.15);
+}
 
-    .gate-box{
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:24px;
-    }
+h1{
+  margin:0 0 10px;
+}
 
-    .gate-card,
-    .card{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:24px;
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
+.field{
+  margin-bottom:12px;
+}
 
-    .gate-card{
-      width:min(100%,420px);
-      padding:28px 22px;
-      text-align:center;
-    }
+input, select, textarea{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #eee;
+}
 
-    .gate-sub,
-    .head .sub{
-      font-size:12px;
-      letter-spacing:.18em;
-      color:var(--pink-deep);
-      font-weight:700;
-    }
+textarea{
+  min-height:80px;
+}
 
-    .gate-sub{margin-bottom:10px;}
+.member{
+  display:flex;
+  gap:8px;
+}
 
-    .gate-card h1{
-      margin:0 0 10px;
-      font-size:28px;
-      color:#8a6377;
-    }
+.member span{
+  background:#fff0f7;
+  border:1px solid #f3d9e7;
+  border-radius:12px;
+  padding:12px;
+  color:#ff5fa8;
+  font-weight:bold;
+}
 
-    .gate-card p{
-      margin:0 0 18px;
-      font-size:14px;
-      line-height:1.6;
-      color:var(--soft);
-    }
+.quick{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+}
 
-    .wrap{
-      width:min(100%, 760px);
-      margin:0 auto;
-      padding:28px 18px 40px;
-    }
+.quick button{
+  padding:10px;
+  border-radius:12px;
+  border:none;
+  background:#fff0f7;
+  color:#ff5fa8;
+  font-weight:bold;
+}
 
-    .head{
-      padding:26px 22px 18px;
-      background:linear-gradient(135deg, rgba(255,138,194,.22), rgba(255,95,168,.10));
-      border-bottom:1px solid var(--line);
-    }
+.actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+}
 
-    .head .sub{margin-bottom:8px;}
+.btn-primary{
+  background:#ff5fa8;
+  color:white;
+  border:none;
+  padding:14px;
+  border-radius:14px;
+}
 
-    .head h1{
-      margin:0;
-      font-size:28px;
-      line-height:1.2;
-      color:#8a6377;
-    }
-
-    .head p{
-      margin:8px 0 0;
-      font-size:14px;
-      color:var(--soft);
-      line-height:1.6;
-    }
-
-    form{
-      padding:20px;
-      display:grid;
-      gap:14px;
-    }
-
-    .field{
-      display:grid;
-      gap:7px;
-    }
-
-    label{
-      font-size:13px;
-      font-weight:700;
-      color:#9a7187;
-    }
-
-    input, select, textarea{
-      width:100%;
-      border:1px solid var(--line);
-      background:#fff;
-      color:var(--text);
-      border-radius:16px;
-      padding:14px 15px;
-      font:inherit;
-      outline:none;
-      transition:.2s ease;
-    }
-
-    input:focus, select:focus, textarea:focus{
-      border-color:#f4a4ca;
-      box-shadow:0 0 0 4px rgba(255,121,181,.12);
-    }
-
-    textarea{
-      min-height:96px;
-      resize:vertical;
-    }
-
-    .row{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-    }
-
-    .quick{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:10px;
-      margin-top:6px;
-    }
-
-    .chip{
-      padding:12px 8px;
-      border-radius:14px;
-      border:1px solid #f3d9e7;
-      background:#fff0f7;
-      color:#ff5fa8;
-      font-weight:700;
-      font-size:15px;
-      cursor:pointer;
-      transition:all .2s ease;
-    }
-
-    .chip:hover{
-      background:#ffe7f3;
-      border-color:#f4a4ca;
-      transform:translateY(-1px);
-    }
-
-    .chip.use{
-      background:#fff7fb;
-      color:#a0617f;
-    }
-
-    .actions,
-    .sub-actions{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-    }
-
-    .btn{
-      border:none;
-      border-radius:18px;
-      padding:15px 16px;
-      font:inherit;
-      font-weight:800;
-      cursor:pointer;
-      transition:.2s ease;
-      text-decoration:none;
-      text-align:center;
-    }
-
-    .btn-primary{
-      background:linear-gradient(135deg,var(--pink),var(--pink-deep));
-      color:#fff;
-      box-shadow:0 12px 24px rgba(255,95,168,.22);
-    }
-
-    .btn-secondary{
-      background:#fff;
-      color:#a26f87;
-      border:1px solid var(--line);
-    }
-
-    .btn:hover{
-      transform:translateY(-1px);
-    }
-
-    .note{
-      padding:0 20px 20px;
-      color:#b08ba0;
-      font-size:12px;
-      line-height:1.75;
-    }
-
-    .status{
-      margin-top:14px;
-      padding:14px 16px;
-      border-radius:16px;
-      font-size:14px;
-      display:none;
-    }
-
-    .status.show{display:block}
-    .status.ok{
-      background:#fff7fb;
-      border:1px solid #f4cade;
-      color:#a0617f;
-    }
-
-    .status.error{
-      background:#fff7f7;
-      border:1px solid #f3caca;
-      color:#b45d6e;
-    }
-
-    .gate-error{
-      display:none;
-      margin:12px 0 0;
-      color:#b45d6e;
-      font-size:13px;
-    }
-
-    iframe{
-      display:none;
-    }
-
-    @media (max-width:640px){
-      .head h1,
-      .gate-card h1{
-        font-size:24px;
-      }
-
-      .row,
-      .actions,
-      .sub-actions{
-        grid-template-columns:1fr;
-      }
-
-      .quick{
-        grid-template-columns:repeat(2,1fr);
-      }
-    }
-  </style>
+.btn-secondary{
+  background:#fff;
+  border:1px solid #ddd;
+  padding:14px;
+  border-radius:14px;
+}
+</style>
 </head>
+
 <body>
 
-  <!-- 비밀번호 화면 -->
-  <div id="gate" class="gate-box">
-    <div class="gate-card">
-      <div class="gate-sub">LUMIBELLE STAFF</div>
-      <h1>스탭 전용 입장</h1>
-      <p>비밀번호를 입력하면 스탭 페이지가 열려요.</p>
+<div class="wrap">
+<div class="card">
 
-      <input id="passwordInput" type="password" placeholder="비밀번호 입력" />
+<h1>포인트 적립기</h1>
 
-      <button
-        id="loginBtn"
-        class="btn btn-primary"
-        type="button"
-        style="width:100%; margin-top:12px;"
-      >
-        입장하기
-      </button>
+<form id="form"
+action="https://docs.google.com/forms/d/e/1FAIpQLSdkBI418UPiPPEqF0YxEQ1_yvRD9ex-6pXkB9fXyV66f1TxpQ/formResponse"
+method="POST"
+target="hidden_iframe">
 
-      <p id="gateError" class="gate-error">비밀번호가 맞지 않아.</p>
-    </div>
-  </div>
+<!-- 스탭 -->
+<div class="field">
+<select id="staff">
+<option value="">스탭 선택</option>
+<option>마리링</option>
+<option>루루</option>
+<option>이로</option>
+<option>루나</option>
+</select>
+</div>
 
-  <!-- 실제 스탭 페이지 -->
-  <div id="staffPage" class="hidden">
-    <div class="wrap">
-      <div class="card">
-        <div class="head">
-          <div class="sub">LUMIBELLE STAFF</div>
-          <h1>포인트 적립기</h1>
-          <p>스탭 선택은 유지되고, 회원번호는 그대로 입력하면 돼요.</p>
-        </div>
+<!-- 회원번호 -->
+<div class="field">
+<div class="member">
+<span>LB-</span>
+<input id="member" placeholder="001">
+</div>
+</div>
 
-        <form
-          id="staffForm"
-          action="https://docs.google.com/forms/d/e/1FAIpQLSdkBI418UPiPPEqF0YxEQ1_yvRD9ex-6pXkB9fXyV66f1TxpQ/formResponse"
-          method="POST"
-          target="hidden_iframe"
-        >
-          <!-- 숨김값 -->
-          <input type="hidden" name="entry.517609756" id="staffHidden" />
-          <input type="hidden" name="entry.1501139250" id="memberHidden" />
+<!-- 구분 -->
+<div class="field">
+<select id="type" name="entry.668276280">
+<option value="적립">적립</option>
+<option value="사용">사용</option>
+</select>
+</div>
 
-          <div class="row">
-            <div class="field">
-              <label for="staffSelect">스탭 선택</label>
-              <select id="staffSelect" required>
-                <option value="">스탭 선택</option>
-                <option value="마리링">마리링</option>
-                <option value="루루">루루</option>
-                <option value="이로">이로</option>
-                <option value="루나">루나</option>
-              </select>
-            </div>
+<!-- 포인트 -->
+<div class="field">
+<input id="point" name="entry.1489084345" placeholder="포인트">
+</div>
 
-            <div class="field">
-              <label for="memberInput">회원번호</label>
-              <input
-                id="memberInput"
-                type="text"
-                placeholder="예: LB-001"
-                autocomplete="off"
-                required
-              />
-            </div>
-          </div>
+<!-- 메모 -->
+<div class="field">
+<textarea id="memo" name="entry.377436320"></textarea>
+</div>
 
-          <div class="row">
-            <div class="field">
-              <label for="type">구분</label>
-              <select id="type" name="entry.668276280" required>
-                <option value="적립" selected>적립</option>
-                <option value="사용">사용</option>
-              </select>
-            </div>
+<!-- 빠른 버튼 -->
+<div class="quick">
+<button type="button" onclick="add(1)">+1</button>
+<button type="button" onclick="add(2)">+2</button>
+<button type="button" onclick="add(3)">+3</button>
+<button type="button" onclick="add(5)">+5</button>
+<button type="button" onclick="add(10)">+10</button>
+<button type="button" onclick="use100()">사용100</button>
+</div>
 
-            <div class="field">
-              <label for="point">포인트</label>
-              <input
-                id="point"
-                name="entry.1489084345"
-                type="number"
-                min="1"
-                step="1"
-                placeholder="포인트"
-                required
-              />
-            </div>
-          </div>
+<!-- 숨김 -->
+<input type="hidden" name="entry.517609756" id="staffHidden">
+<input type="hidden" name="entry.1501139250" id="memberHidden">
 
-          <div class="field">
-            <label for="fixReason">보정 사유</label>
-            <select id="fixReason" name="entry.XXXXX">
-              <option value="">보정 없음</option>
-              <option value="오입력 보정">오입력 보정</option>
-              <option value="중복 적립 보정">중복 적립 보정</option>
-              <option value="잘못 사용 처리 보정">잘못 사용 처리 보정</option>
-            </select>
-          </div>
+<div class="actions">
+<button class="btn-primary">저장</button>
+<button type="button" class="btn-secondary" onclick="resetForm()">초기화</button>
+</div>
 
-          <div class="field">
-            <label for="memo">메모</label>
-            <textarea
-              id="memo"
-              name="entry.377436320"
-              placeholder="필요한 메모 입력"
-            ></textarea>
-          </div>
+<div class="actions">
+<a class="btn-secondary"
+href="https://docs.google.com/spreadsheets/d/1Os_YlqM5yY1owd2a4jS4QdQDeTubu1yuuKI4ownDqh8/edit?usp=sharing"
+target="_blank">기록 보기</a>
+</div>
 
-          <div class="field">
-            <label>빠른 입력</label>
-            <div class="quick">
-              <button type="button" class="chip" data-type="적립" data-point="1">+1</button>
-              <button type="button" class="chip" data-type="적립" data-point="2">+2</button>
-              <button type="button" class="chip" data-type="적립" data-point="3">+3</button>
-              <button type="button" class="chip" data-type="적립" data-point="5">+5</button>
-              <button type="button" class="chip" data-type="적립" data-point="10">+10</button>
-              <button type="button" class="chip use" data-type="사용" data-point="100">사용 100</button>
-            </div>
-          </div>
+</form>
 
-          <div class="actions">
-            <button type="submit" class="btn btn-primary">저장하기</button>
-            <button type="button" class="btn btn-secondary" id="resetBtn">초기화</button>
-          </div>
+</div>
+</div>
 
-          <div class="sub-actions">
-            <a
-              class="btn btn-secondary"
-              href="https://docs.google.com/spreadsheets/d/1Os_YlqM5yY1owd2a4jS4QdQDeTubu1yuuKI4ownDqh8/edit?usp=sharing"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              기록 보기
-            </a>
-            <button type="button" class="btn btn-secondary" id="logoutBtn">스탭 변경</button>
-          </div>
-        </form>
+<!-- 🔥 엑박 방지 -->
+<iframe name="hidden_iframe" style="display:none;"></iframe>
 
-        <div class="note">
-          ※ 적립 버튼은 누적돼요. 예: +1 → +1 → +3 = 5<br />
-          ※ 사용 100 버튼은 구분이 자동으로 ‘사용’으로 바뀌어요.<br />
-          ※ 스탭 이름은 한 번 선택하면 유지돼요.<br />
-          ※ 보정 건은 보정 사유를 선택하면 나중에 시트에서 따로 걸러보기 쉬워요.
-        </div>
-      </div>
+<script>
+const staff = document.getElementById("staff");
+const member = document.getElementById("member");
+const point = document.getElementById("point");
+const type = document.getElementById("type");
+const memo = document.getElementById("memo");
 
-      <div id="statusBox" class="status"></div>
-    </div>
-  </div>
+function add(num){
+  type.value = "적립";
+  point.value = (Number(point.value)||0) + num;
+}
 
-  <!-- 엑박 방지: 숨김 iframe -->
-  <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+function use100(){
+  type.value = "사용";
+  point.value = 100;
+  if(!memo.value) memo.value="포인트 사용";
+}
 
-  <script>
-    const STAFF_PASSWORD = "lmb0712";
-    const STAFF_NAME_KEY = "lb_staff_name";
+document.getElementById("form").addEventListener("submit", e=>{
+  if(!staff.value || !member.value || !point.value){
+    e.preventDefault();
+    alert("입력 확인해줘");
+    return;
+  }
 
-    const gate = document.getElementById("gate");
-    const staffPage = document.getElementById("staffPage");
-    const passwordInput = document.getElementById("passwordInput");
-    const loginBtn = document.getElementById("loginBtn");
-    const gateError = document.getElementById("gateError");
+  document.getElementById("staffHidden").value = staff.value;
+  document.getElementById("memberHidden").value = "LB-" + member.value;
 
-    const form = document.getElementById("staffForm");
-    const staffSelect = document.getElementById("staffSelect");
-    const staffHidden = document.getElementById("staffHidden");
-    const memberInput = document.getElementById("memberInput");
-    const memberHidden = document.getElementById("memberHidden");
-    const typeInput = document.getElementById("type");
-    const pointInput = document.getElementById("point");
-    const memoInput = document.getElementById("memo");
-    const statusBox = document.getElementById("statusBox");
-    const resetBtn = document.getElementById("resetBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const chips = document.querySelectorAll(".chip");
+  setTimeout(()=>{
+    point.value="";
+    memo.value="";
+    member.focus();
+  },300);
+});
 
-    staffSelect.value = localStorage.getItem(STAFF_NAME_KEY) || "";
+function resetForm(){
+  point.value="";
+  memo.value="";
+}
+</script>
 
-    staffSelect.addEventListener("change", () => {
-      localStorage.setItem(STAFF_NAME_KEY, staffSelect.value);
-    });
-
-    function openStaffPage() {
-      gate.classList.add("hidden");
-      staffPage.classList.remove("hidden");
-      setTimeout(() => {
-        if (staffSelect.value) {
-          memberInput.focus();
-        } else {
-          staffSelect.focus();
-        }
-      }, 50);
-    }
-
-    function checkPassword() {
-      const input = passwordInput.value.trim();
-
-      if (input === STAFF_PASSWORD) {
-        sessionStorage.setItem("lb_staff_auth", "yes");
-        gateError.style.display = "none";
-        openStaffPage();
-      } else {
-        gateError.style.display = "block";
-      }
-    }
-
-    function showStatus(message, type = "ok") {
-      statusBox.textContent = message;
-      statusBox.className = `status show ${type}`;
-    }
-
-    function normalizeMemberId(value) {
-      return String(value || "").trim().toUpperCase();
-    }
-
-    function fillQuickAction(chip) {
-      const selectedType = chip.dataset.type;
-      const selectedPoint = Number(chip.dataset.point || 0);
-      const currentPoint = Number(pointInput.value || 0);
-
-      if (selectedType === "사용") {
-        typeInput.value = "사용";
-        pointInput.value = 100;
-        if (!memoInput.value.trim()) {
-          memoInput.value = "포인트 사용";
-        }
-        return;
-      }
-
-      typeInput.value = "적립";
-      pointInput.value = currentPoint + selectedPoint;
-    }
-
-    loginBtn.addEventListener("click", checkPassword);
-
-    passwordInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        checkPassword();
-      }
-    });
-
-    chips.forEach(chip => {
-      chip.addEventListener("click", () => {
-        fillQuickAction(chip);
-      });
-    });
-
-    typeInput.addEventListener("change", () => {
-      if (typeInput.value === "사용" && pointInput.value === "") {
-        pointInput.value = 100;
-      }
-      if (typeInput.value === "사용" && !memoInput.value.trim()) {
-        memoInput.value = "포인트 사용";
-      }
-    });
-
-    form.addEventListener("submit", (e) => {
-      if (!staffSelect.value) {
-        e.preventDefault();
-        showStatus("스탭을 선택해줘.", "error");
-        return;
-      }
-
-      if (!memberInput.value.trim()) {
-        e.preventDefault();
-        showStatus("회원번호를 입력해줘.", "error");
-        return;
-      }
-
-      if (!typeInput.value) {
-        e.preventDefault();
-        showStatus("구분을 선택해줘.", "error");
-        return;
-      }
-
-      if (!pointInput.value || Number(pointInput.value) < 1) {
-        e.preventDefault();
-        showStatus("포인트를 1 이상 입력해줘.", "error");
-        return;
-      }
-
-      if (typeInput.value === "사용" && Number(pointInput.value) !== 100) {
-        const ok = confirm("사용 포인트가 100이 아니야. 그대로 저장할까?");
-        if (!ok) {
-          e.preventDefault();
-          showStatus("사용 포인트를 다시 확인해줘.", "error");
-          return;
-        }
-      }
-
-      staffHidden.value = staffSelect.value;
-      memberHidden.value = normalizeMemberId(memberInput.value);
-
-      setTimeout(() => {
-        showStatus("저장 완료! 다음 입력 진행해줘.", "ok");
-        form.reset();
-        staffSelect.value = localStorage.getItem(STAFF_NAME_KEY) || "";
-        typeInput.value = "적립";
-        pointInput.value = "";
-        memoInput.value = "";
-        memberHidden.value = "";
-        memberInput.value = "";
-        memberInput.focus();
-      }, 400);
-    });
-
-    resetBtn.addEventListener("click", () => {
-      form.reset();
-      staffSelect.value = localStorage.getItem(STAFF_NAME_KEY) || "";
-      typeInput.value = "적립";
-      pointInput.value = "";
-      memoInput.value = "";
-      memberHidden.value = "";
-      memberInput.value = "";
-      statusBox.className = "status";
-      statusBox.textContent = "";
-      memberInput.focus();
-    });
-
-    logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem(STAFF_NAME_KEY);
-      sessionStorage.removeItem("lb_staff_auth");
-      location.reload();
-    });
-
-    window.addEventListener("load", () => {
-      if (sessionStorage.getItem("lb_staff_auth") === "yes") {
-        openStaffPage();
-      }
-    });
-  </script>
 </body>
 </html>
