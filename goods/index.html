@@ -100,7 +100,7 @@
     }
     .filter-btn.active,.filter-btn:hover{ background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%); color:#fff; border-color:transparent; }
 
-    .goods-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px; margin-bottom:32px; }
+    .goods-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:22px; margin-bottom:32px; }
     .goods-card{
       background:#fff5fb; border:1px solid #f2d8e7; border-radius:28px; box-shadow:0 8px 24px rgba(232,191,211,0.12);
       overflow:hidden; position:relative; display:flex; flex-direction:column; cursor:pointer;
@@ -283,7 +283,7 @@
 <a class="goods-btn buy disabled" href="packages/2026-07-12/a.html">예약하기</a>
 </div>
 </div>
-</article><article class="goods-card" data-category="goods" data-link="packages/2026-07-12/b.html"
+</article><article class="goods-card" data-category="goods" data-link="packages/2026-07-12/b.html">
 <span class="goods-badge preview">PRE-ORDER CLOSED</span>
 <div class="goods-image"><div class="placeholder">PACKAGE B</div></div>
 <div class="goods-body">
@@ -379,32 +379,6 @@
       });
     });
 
-    document.querySelectorAll('.filter-btn').forEach((button) => {
-      button.addEventListener('click', () => {
-        const filter = button.dataset.filter;
-        document.querySelectorAll('.filter-btn').forEach((btn) => btn.classList.remove('active'));
-        button.classList.add('active');
-
-        document.querySelectorAll('.goods-card').forEach((card) => {
-          if (filter === 'all' || card.dataset.category === filter) {
-            card.style.display = 'flex';
-          } else {
-            card.style.display = 'none';
-          }
-        });
-      });
-    });
-  </script>
-
-<script>
-    document.querySelectorAll('.goods-card').forEach((card) => {
-      card.addEventListener('click', (e) => {
-        if (e.target.closest('.goods-btn')) return;
-        const link = card.dataset.link;
-        if (link) window.location.href = link;
-      });
-    });
-
     function reorderGoodsGrid(mode){
       const grid = document.getElementById('goodsGrid');
       if(!grid) return;
@@ -457,5 +431,6 @@
     reorderGoodsGrid('all');
   </script>
 
+<script src="goods-data.js"></script>
 </body>
 </html>
