@@ -3,474 +3,252 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ORDER | Lumibelle</title>
+  <title>ORDER COMPLETE | Lumibelle</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=SUIT:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#fffafc;--panel:#fff5fb;--line:#f2d8e7;--pink:#ff5aa6;--text:#7f6a77;--shadow:0 8px 24px rgba(232,191,211,0.12)}
-    *{box-sizing:border-box} html,body{margin:0;padding:0}
-    body{background:var(--bg); color:var(--text); font-family:"SUIT","Noto Sans KR",sans-serif}
-    .wrap{width:min(1100px, calc(100% - 32px)); margin:0 auto; padding:32px 0 48px}
-    .top{display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:22px}
-    .top h1{margin:0; font-size:48px; color:var(--pink)}
-    .back{display:inline-flex; padding:12px 18px; border-radius:999px; text-decoration:none; background:#fff; color:#d27ca8; border:1px solid #f0bfd4}
-    .grid{display:grid; grid-template-columns:1.05fr .95fr; gap:22px}
-    .panel{background:var(--panel); border:1px solid var(--line); border-radius:28px; box-shadow:var(--shadow); padding:24px}
-    .panel h2{margin:0 0 16px; color:#d77ca7; font-size:28px}
-    .cart-line,.price-line{display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid var(--line)}
-    .cart-line:last-child,.price-line:last-child{border-bottom:none}
-    .cart-line strong{display:block; margin-bottom:4px}
-    .price-box{margin-top:18px; padding:18px; border-radius:22px; background:#fff; border:1px solid var(--line)}
-    .price-line.total{font-size:20px; font-weight:900; color:#7e6b78}
-    .bank-box{margin-top:18px; padding:18px; border-radius:22px; background:#fff; border:1px solid var(--line)}
-    .bank-box strong{color:var(--pink)}
-    .field{margin-bottom:16px}
-    .field label{display:block; margin-bottom:8px; font-weight:800; color:#8f7183}
-    .field input,.field textarea{width:100%; border:1px solid #ebcadc; border-radius:16px; padding:14px 16px; font:inherit; color:inherit; background:#fff}
-    .field textarea{min-height:110px; resize:vertical}
-    .address-row{display:grid; grid-template-columns:1fr auto; gap:10px}
-    .address-search-btn{border:none; border-radius:16px; padding:0 18px; background:#fff; color:#d27ca8; font-weight:800; border:1px solid #f0bfd4; cursor:pointer; white-space:nowrap}
-    .check-field{display:flex; align-items:flex-start; gap:10px; margin-bottom:14px; color:#8f7183; font-size:14px; line-height:1.7}
-    .check-field input{margin-top:3px}
-    .note{font-size:13px; color:#b28ea2; line-height:1.7; margin-top:8px}
-    .shipping-note{margin-top:10px; padding:12px 14px; background:#fff; border:1px solid var(--line); border-radius:16px; font-size:13px; color:#8f7183; line-height:1.7}
-    .shipping-note strong{color:var(--pink)}
-    .submit-btn{width:100%; border:none; border-radius:999px; padding:16px 20px; background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%); color:#fff; font-size:16px; font-weight:800; cursor:pointer; box-shadow:0 8px 18px rgba(255,95,165,.25)}
-    .help{font-size:13px; color:#b28ea2; line-height:1.7; margin-top:10px}
-    @media (max-width:900px){.grid{grid-template-columns:1fr}.top h1{font-size:40px}}
-    @media (max-width:620px){.address-row{grid-template-columns:1fr}.address-search-btn{height:48px}}
-  
-
-/* ===== common effects from index ===== */
-nav a,
-.toolbar-btn,
-.goods-btn,
-.cta-btn,
-.back,
-.address-search-btn,
-.submit-btn,
-.qty-btn,
-.remove-btn{
-  position:relative;
-  overflow:hidden;
-  isolation:isolate;
-}
-
-nav a::after,
-.toolbar-btn::after,
-.goods-btn::after,
-.cta-btn::after,
-.back::after,
-.address-search-btn::after,
-.submit-btn::after,
-.qty-btn::after{
-  content:"";
-  position:absolute;
-  top:-35%;
-  left:-42%;
-  width:22%;
-  height:170%;
-  background:linear-gradient(
-    90deg,
-    rgba(255,255,255,0) 0%,
-    rgba(255,255,255,.12) 35%,
-    rgba(255,255,255,.28) 50%,
-    rgba(255,255,255,.12) 65%,
-    rgba(255,255,255,0) 100%
-  );
-  transform:skewX(-22deg) translateX(0);
-  opacity:0;
-  pointer-events:none;
-  z-index:2;
-}
-
-nav a:hover::after,
-.toolbar-btn:hover::after,
-.goods-btn:hover::after,
-.cta-btn:hover::after,
-.back:hover::after,
-.address-search-btn:hover::after,
-.submit-btn:hover::after,
-.qty-btn:hover::after{
-  animation:sweepShine .9s ease forwards;
-}
-
-@keyframes sweepShine{
-  0%{opacity:0; transform:skewX(-22deg) translateX(0);}
-  15%{opacity:1;}
-  100%{opacity:0; transform:skewX(-22deg) translateX(560%);}
-}
-
-.click-shine::after{ animation:sweepShine .9s ease forwards; }
-
-.ripple-effect{
-  position:absolute;
-  border-radius:50%;
-  transform:scale(0);
-  animation:ripple .65s ease-out forwards;
-  background:rgba(255,255,255,.35);
-  pointer-events:none;
-  z-index:3;
-}
-
-@keyframes ripple{
-  to{ transform:scale(4.2); opacity:0; }
-}
-
-.glitter-burst{
-  position:fixed;
-  pointer-events:none;
-  width:8px;
-  height:8px;
-  background:radial-gradient(circle, #fff 0%, #ffc0d7 60%, transparent 100%);
-  border-radius:50%;
-  opacity:0;
-  animation:glitterPop 0.8s ease-out forwards;
-}
-
-@keyframes glitterPop{
-  0%{ transform:translate(0,0) scale(0.5); opacity:1; }
-  100%{ transform:translate(var(--x), var(--y)) scale(1.2); opacity:0; }
-}
-
-.burst-spark,
-.burst-petal{
-  position:fixed;
-  pointer-events:none;
-  left:0;
-  top:0;
-  z-index:5000;
-  opacity:0;
-}
-
-.burst-spark{
-  width:16px;
-  height:16px;
-  animation:burstSpark .72s ease-out forwards;
-}
-
-.burst-spark::before,
-.burst-spark::after{
-  content:"";
-  position:absolute;
-  background:#fff;
-  border-radius:999px;
-  box-shadow:0 0 10px rgba(255,255,255,.9), 0 0 18px rgba(255,192,215,.7);
-}
-
-.burst-spark::before{ width:3px; height:16px; left:6.5px; top:0; }
-.burst-spark::after{ width:16px; height:3px; left:0; top:6.5px; }
-
-.burst-petal{
-  width:14px;
-  height:14px;
-  border-radius:999px;
-  background:radial-gradient(circle at 35% 35%, #fff 0%, #ffd9e8 42%, #ffc0d7 78%, rgba(255,192,215,0) 100%);
-  box-shadow:0 0 10px rgba(255,192,215,.55);
-  animation:burstPetal .78s ease-out forwards;
-}
-
-@keyframes burstSpark{
-  0%{ transform:translate(0,0) scale(.45) rotate(0deg); opacity:1; }
-  100%{ transform:translate(var(--x), var(--y)) scale(1.15) rotate(90deg); opacity:0; }
-}
-
-@keyframes burstPetal{
-  0%{ transform:translate(0,0) scale(.6); opacity:1; }
-  100%{ transform:translate(var(--x), var(--y)) scale(1.2); opacity:0; }
-}
-
-</style>
+    :root{
+      --bg:#fffafc;
+      --panel:#fff5fb;
+      --line:#f2d8e7;
+      --pink:#ff5aa6;
+      --text:#7f6a77;
+      --shadow:0 8px 24px rgba(232,191,211,0.12);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      min-height:100vh;
+      background:var(--bg);
+      color:var(--text);
+      font-family:"SUIT","Noto Sans KR",sans-serif;
+    }
+    .wrap{
+      width:min(920px, calc(100% - 32px));
+      margin:0 auto;
+      padding:42px 0 60px;
+    }
+    .card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:32px;
+      box-shadow:var(--shadow);
+      padding:38px 28px 30px;
+      text-align:center;
+    }
+    .icon{
+      width:86px;
+      height:86px;
+      margin:0 auto 18px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:38px;
+      font-weight:900;
+      color:#fff;
+      background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);
+      box-shadow:0 10px 24px rgba(255,95,165,.20);
+    }
+    .sub{
+      color:#d77ca7;
+      font-weight:800;
+      font-size:18px;
+      margin-bottom:8px;
+    }
+    h1{
+      margin:0;
+      font-family:"Cormorant Garamond", serif;
+      color:var(--pink);
+      font-size:72px;
+      line-height:.95;
+      font-weight:600;
+    }
+    .desc{
+      margin:18px auto 0;
+      max-width:620px;
+      line-height:1.9;
+      font-size:15px;
+      color:#8f7183;
+      font-weight:700;
+    }
+    .summary{
+      margin-top:24px;
+      text-align:left;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:20px 18px;
+    }
+    .summary h2{
+      margin:0 0 14px;
+      color:#d77ca7;
+      font-size:24px;
+      font-weight:900;
+    }
+    .row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 0;
+      border-bottom:1px solid var(--line);
+      font-size:15px;
+    }
+    .row:last-child{border-bottom:none}
+    .row.total{
+      font-size:20px;
+      font-weight:900;
+      color:#7e6b78;
+    }
+    .goods-list{
+      margin-top:10px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .goods-item{
+      padding:12px 14px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:linear-gradient(180deg,#fff9fc 0%, #fff4fa 100%);
+      font-size:14px;
+      line-height:1.7;
+    }
+    .notice{
+      margin-top:20px;
+      padding:16px 18px;
+      border-radius:20px;
+      background:#fff;
+      border:1px solid var(--line);
+      line-height:1.8;
+      font-size:14px;
+      text-align:left;
+    }
+    .actions{
+      margin-top:24px;
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:52px;
+      padding:14px 22px;
+      border-radius:999px;
+      text-decoration:none;
+      font-size:15px;
+      font-weight:800;
+      transition:transform .15s ease;
+    }
+    .btn:hover{ transform:translateY(-2px); }
+    .btn.primary{
+      background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);
+      color:#fff;
+      box-shadow:0 8px 18px rgba(255,95,165,.24);
+    }
+    .btn.sub{
+      background:#fff;
+      color:#d77ca7;
+      border:1px solid #f0bfd4;
+      box-shadow:0 4px 10px rgba(255,95,165,0.08);
+    }
+    .empty{
+      color:#b28ea2;
+      font-size:14px;
+      line-height:1.8;
+    }
+    @media (max-width:700px){
+      .wrap{padding:28px 0 40px}
+      .card{padding:30px 18px 22px}
+      h1{font-size:56px}
+      .summary{text-align:left}
+    }
+  </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="top">
-      <h1>ORDER</h1>
-      <a href="cart.html" class="back" id="backButton">← 장바구니로 돌아가기</a>
-    </div>
+    <section class="card">
+      <div class="icon">✓</div>
+      <div class="sub">주문 접수가 완료되었어요</div>
+      <h1>Complete</h1>
+      <p class="desc">
+        루미벨 굿즈 주문이 정상적으로 접수되었어요.<br>
+        아래 내용을 확인한 뒤 안내된 계좌로 입금해 주세요 ✦
+      </p>
 
-    <div class="grid">
-      <section class="panel">
-        <h2>주문 상품</h2>
-        <div id="cartSummary"></div>
-
-        <div class="price-box">
-          <div class="price-line">
-            <span>상품 금액</span>
-            <span id="productTotal">₩ 0</span>
-          </div>
-          <div class="price-line">
-            <span>배송비</span>
-            <span id="shippingFee">₩ 6,000</span>
-          </div>
-          <div class="price-line total">
-            <span>총 금액</span>
-            <span id="grandTotal">₩ 0</span>
-          </div>
-          <div class="note">※ 배송비는 기본 6,000원입니다. 우체국 배송 기준이에요.</div>
-          <div class="shipping-note" id="shippingNote">
-            <strong>제주 / 도서산간 안내</strong><br>
-            제주 및 도서산간 지역은 추가 배송비가 발생할 수 있어요. 해당 지역 주문 건은 별도 안내 후 함께 입금해 주세요.
-          </div>
+      <div class="summary">
+        <h2>주문 요약</h2>
+        <div class="goods-list" id="goodsList">
+          <div class="empty">주문 상품 정보를 불러오는 중이에요.</div>
         </div>
 
-        <div class="bank-box">
-          <strong>입금 계좌 안내</strong><br>
-          국민은행 000000-00-000000<br>
-          예금주 : 루미벨<br><br>
-          주문 제출 후 위 계좌로 입금해 주세요.<br>
-          입금자명은 주문서 이름 또는 입금자명 칸과 동일하게 맞춰주시면 확인이 빨라져요.
+        <div class="row" style="margin-top:14px;">
+          <span>상품 금액</span>
+          <span id="productTotal">₩ 0</span>
         </div>
-      </section>
+        <div class="row">
+          <span>배송비</span>
+          <span id="shippingFee">₩ 0</span>
+        </div>
+        <div class="row total">
+          <span>총 금액</span>
+          <span id="grandTotal">₩ 0</span>
+        </div>
+      </div>
 
-      <section class="panel">
-        <h2>주문자 정보</h2>
-        <form id="orderForm">
-          <div class="field">
-            <label for="buyerName">주문자 이름</label>
-            <input id="buyerName" name="buyerName" type="text" required>
-          </div>
-          <div class="field">
-            <label for="receiverName">수령인 이름</label>
-            <input id="receiverName" name="receiverName" type="text" required>
-          </div>
-          <div class="field">
-            <label for="contact">연락처</label>
-            <input id="contact" name="contact" type="text" placeholder="010-0000-0000" required>
-          </div>
-          <div class="field">
-            <label for="postcode">우편번호</label>
-            <div class="address-row">
-              <input id="postcode" name="postcode" type="text" readonly placeholder="주소 찾기를 눌러주세요" required>
-              <button type="button" class="address-search-btn" onclick="execDaumPostcode()">주소 찾기</button>
-            </div>
-          </div>
-          <div class="field">
-            <label for="address">주소</label>
-            <input id="address" name="address" type="text" readonly placeholder="주소 찾기를 눌러주세요" required>
-          </div>
-          <div class="field">
-            <label for="detailAddress">상세 주소</label>
-            <input id="detailAddress" name="detailAddress" type="text" placeholder="동, 호수 등 상세 주소를 입력해 주세요" required>
-          </div>
-          <div class="field">
-            <label for="depositor">입금자명</label>
-            <input id="depositor" name="depositor" type="text" required>
-          </div>
-          <div class="field">
-            <label for="memo">요청사항</label>
-            <textarea id="memo" name="memo" placeholder="없으면 비워두셔도 돼요."></textarea>
-          </div>
+      <div class="notice">
+        <strong style="color:#ff5aa6;">입금 안내</strong><br>
+        국민은행 000000-00-000000 / 예금주 : 루미벨<br><br>
+        주문서 접수 후 위 계좌로 입금해 주세요.<br>
+        입금자명은 주문서에 작성한 입금자명과 동일하게 맞춰주시면 확인이 빨라져요.
+      </div>
 
-          <label class="check-field">
-            <input type="checkbox" id="privacyAgree" required>
-            <span>개인정보 수집 및 이용에 동의합니다.</span>
-          </label>
-
-          <label class="check-field">
-            <input type="checkbox" id="refundAgree" required>
-            <span>주문 제작 및 발송 후 교환 / 환불 안내를 확인했습니다.</span>
-          </label>
-
-          <button type="submit" class="submit-btn">주문 제출하기</button>
-          <div class="help">
-            지금 파일은 장바구니 흐름과 주문 화면을 먼저 볼 수 있게 만든 버전이야.<br>
-            나중에 구글폼 액션 URL과 entry 번호만 붙이면 시트 접수 방식으로 확장 가능해.
-          </div>
-        </form>
-      </section>
-    </div>
+      <div class="actions">
+        <a href="index.html" class="btn primary">굿즈 페이지로 돌아가기</a>
+        <a href="../index.html" class="btn sub">루미벨 홈으로 가기</a>
+      </div>
+    </section>
   </div>
 
-  <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
   <script>
-    const CART_KEY = 'lumibelle_goods_cart';
     const ORDER_KEY = 'lumibelle_goods_last_order';
-    const SHIPPING_FEE = 6000;
 
-    const goodsMap = {
-      tshirt: { id:'tshirt', name:'루미벨 데뷔 티셔츠', price:30000, quantity:1 },
-      acrylic: { id:'acrylic', name:'아크릴 스탠드', price:12000, quantity:1 },
-      photocard: { id:'photocard', name:'포토카드 세트', price:8000, quantity:1 }
-    };
-
-    function getCart(){ try{return JSON.parse(localStorage.getItem(CART_KEY))||[]}catch(e){return []} }
-    function money(v){ return `₩ ${Number(v).toLocaleString('ko-KR')}`; }
-
-    function getModeInfo(){
-      const params = new URLSearchParams(location.search);
-      return {
-        mode: params.get('mode') || '',
-        item: params.get('item') || ''
-      };
+    function money(v){
+      return `₩ ${Number(v || 0).toLocaleString('ko-KR')}`;
     }
 
-    function getOrderItems(){
-      const info = getModeInfo();
-      if(info.mode === 'direct' && goodsMap[info.item]){
-        return [{...goodsMap[info.item]}];
+    function renderComplete(){
+      let orderData = null;
+      try{
+        orderData = JSON.parse(localStorage.getItem(ORDER_KEY));
+      }catch(e){
+        orderData = null;
       }
-      return getCart();
-    }
 
-    function updateBackButton(){
-      const info = getModeInfo();
-      const backButton = document.getElementById('backButton');
-      if(info.mode === 'direct'){
-        backButton.href = 'index.html';
-        backButton.textContent = '← 굿즈로 돌아가기';
-      } else {
-        backButton.href = 'cart.html';
-        backButton.textContent = '← 장바구니로 돌아가기';
-      }
-    }
+      const goodsList = document.getElementById('goodsList');
 
-    function updateTotals(){
-      const items = getOrderItems();
-      const productTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      const grandTotal = productTotal + SHIPPING_FEE;
-
-      document.getElementById('productTotal').textContent = money(productTotal);
-      document.getElementById('shippingFee').textContent = money(SHIPPING_FEE);
-      document.getElementById('grandTotal').textContent = money(grandTotal);
-      return { productTotal, shippingFee: SHIPPING_FEE, grandTotal };
-    }
-
-    function execDaumPostcode() {
-      new daum.Postcode({
-        oncomplete: function(data) {
-          document.getElementById('postcode').value = data.zonecode || '';
-          document.getElementById('address').value = data.address || '';
-          document.getElementById('detailAddress').focus();
-        }
-      }).open();
-    }
-
-    function renderSummary(){
-      const items = getOrderItems();
-
-      if (!items.length){
-        alert('주문할 상품이 없어요. 굿즈 페이지로 이동할게요.');
-        location.href = 'index.html';
+      if(!orderData || !Array.isArray(orderData.cart) || !orderData.cart.length){
+        goodsList.innerHTML = '<div class="empty">최근 주문 정보를 찾지 못했어요. 그래도 구글폼 접수가 되었다면 정상 접수일 수 있어요.</div>';
         return;
       }
 
-      document.getElementById('cartSummary').innerHTML = items.map(item => `
-        <div class="cart-line">
-          <div><strong>${item.name}</strong><span>${money(item.price)} × ${item.quantity}</span></div>
-          <div>${money(item.price * item.quantity)}</div>
+      goodsList.innerHTML = orderData.cart.map(item => `
+        <div class="goods-item">
+          <strong>${item.name}</strong><br>
+          ${money(item.price)} × ${item.quantity} = ${money(item.price * item.quantity)}
         </div>
       `).join('');
 
-      updateBackButton();
-      updateTotals();
+      document.getElementById('productTotal').textContent = money(orderData.productTotal);
+      document.getElementById('shippingFee').textContent = money(orderData.shippingFee);
+      document.getElementById('grandTotal').textContent = money(orderData.total);
     }
 
-    document.getElementById('orderForm').addEventListener('submit', function(e){
-      e.preventDefault();
-      const items = getOrderItems();
-      const totals = updateTotals();
-      const orderData = {
-        buyerName: document.getElementById('buyerName').value.trim(),
-        receiverName: document.getElementById('receiverName').value.trim(),
-        contact: document.getElementById('contact').value.trim(),
-        postcode: document.getElementById('postcode').value.trim(),
-        address: document.getElementById('address').value.trim(),
-        detailAddress: document.getElementById('detailAddress').value.trim(),
-        fullAddress: `${document.getElementById('address').value.trim()} ${document.getElementById('detailAddress').value.trim()}`.trim(),
-        depositor: document.getElementById('depositor').value.trim(),
-        memo: document.getElementById('memo').value.trim(),
-        cart: items,
-        productTotal: totals.productTotal,
-        shippingFee: totals.shippingFee,
-        total: totals.grandTotal,
-        mode: getModeInfo().mode || 'cart'
-      };
-      localStorage.setItem(ORDER_KEY, JSON.stringify(orderData));
-      location.href = 'complete.html';
-    });
-
-    renderSummary();
+    renderComplete();
   </script>
-
-<script>
-(function(){
-  const clickable = document.querySelectorAll('nav a, .toolbar-btn, .goods-btn, .cta-btn, .back, .address-search-btn, .submit-btn, .qty-btn');
-  clickable.forEach((el) => {
-    el.addEventListener('click', function(e){
-      const old = this.querySelector('.ripple-effect');
-      if (old) old.remove();
-
-      const ripple = document.createElement('span');
-      ripple.className = 'ripple-effect';
-      const rect = this.getBoundingClientRect();
-      const size = Math.max(rect.width, rect.height) * 0.7;
-      ripple.style.width = ripple.style.height = `${size}px`;
-      ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
-      ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
-      this.appendChild(ripple);
-      ripple.addEventListener('animationend', () => ripple.remove());
-
-      this.classList.remove('click-shine');
-      void this.offsetWidth;
-      this.classList.add('click-shine');
-      setTimeout(() => this.classList.remove('click-shine'), 900);
-    });
-  });
-
-  function makeBurstAt(x, y, level = 'normal'){
-    const petalCount = level === 'big' ? 12 : 8;
-    const sparkCount = level === 'big' ? 6 : 4;
-    const petalMin = level === 'big' ? 26 : 18;
-    const petalMax = level === 'big' ? 72 : 56;
-    const sparkMin = level === 'big' ? 36 : 26;
-    const sparkMax = level === 'big' ? 92 : 70;
-
-    const makeBurst = (cls, count, minD, maxD) => {
-      for(let i=0;i<count;i++){
-        const el = document.createElement('span');
-        el.className = cls;
-        const angle = (Math.PI * 2 / count) * i + (Math.random() * 0.35 - 0.175);
-        const distance = minD + Math.random() * (maxD - minD);
-        el.style.setProperty('--x', Math.cos(angle) * distance + 'px');
-        el.style.setProperty('--y', Math.sin(angle) * distance + 'px');
-        el.style.left = x + 'px';
-        el.style.top = y + 'px';
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 850);
-      }
-    };
-
-    makeBurst('burst-petal', petalCount, petalMin, petalMax);
-    makeBurst('burst-spark', sparkCount, sparkMin, sparkMax);
-  }
-
-  document.addEventListener('pointerdown', function(e){
-    const target = e.target.closest('nav a, .toolbar-btn, .goods-btn, .cta-btn, .back, .address-search-btn, .submit-btn, .qty-btn');
-    if(!target) return;
-    makeBurstAt(e.clientX, e.clientY, target.closest('nav') ? 'normal' : 'normal');
-  });
-
-  document.addEventListener('click', function(e){
-    const target = e.target.closest('.goods-btn, .cta-btn, .back, .submit-btn');
-    if(!target) return;
-    const rect = target.getBoundingClientRect();
-    for(let i=0;i<12;i++){
-      const dot = document.createElement('span');
-      dot.className = 'glitter-burst';
-      const angle = Math.random()*Math.PI*2;
-      const distance = 40 + Math.random()*30;
-      dot.style.setProperty('--x', Math.cos(angle)*distance + 'px');
-      dot.style.setProperty('--y', Math.sin(angle)*distance + 'px');
-      dot.style.left = e.clientX + 'px';
-      dot.style.top = e.clientY + 'px';
-      document.body.appendChild(dot);
-      setTimeout(()=>dot.remove(), 900);
-    }
-  });
-})();
-</script>
-
 </body>
 </html>
