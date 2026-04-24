@@ -296,6 +296,20 @@
       color: #fff;
     }
 
+    .badge-live {
+      right: 12px;
+      top: 46px;
+      background: #ff4fa3;
+      color: #fff;
+    }
+
+    .badge-highlight {
+      left: 12px;
+      top: 46px;
+      background: linear-gradient(180deg, #ffd36e 0%, #ff9f5f 100%);
+      color: #fff;
+    }
+
     .video-card-body {
       padding: 16px 16px 18px;
     }
@@ -644,6 +658,8 @@
               <option value="ALL">전체</option>
               <option value="아이돌 라이브">아이돌 라이브</option>
               <option value="방송/출연">방송/출연</option>
+              <option value="방송 다시보기">방송 다시보기</option>
+              <option value="하이라이트">하이라이트</option>
               <option value="직캠">직캠</option>
               <option value="클립">클립</option>
               <option value="합방">합방</option>
@@ -963,7 +979,7 @@
       {
         id: 18,
         platform: "tiktok",
-        member: "루나",
+        member: "LUNAR",
         title: "LUNAR TIKTOK CLIP 01",
         date: "2026-04-20",
         tag: "TIKTOK",
@@ -1107,6 +1123,14 @@
       return buildThumbUrl(item.youtubeId);
     }
 
+    function isLiveVideo(item) {
+      return item.category === "방송 다시보기" || item.tag === "LIVE" || item.event === "STREAM";
+    }
+
+    function isHighlightVideo(item) {
+      return item.category === "하이라이트" || item.tag === "HIGHLIGHT" || item.event === "HIGHLIGHT";
+    }
+
     function createCard(item) {
       const article = document.createElement("article");
       article.className =
@@ -1125,6 +1149,8 @@
           ${badgeLabel ? `<span class="video-badge badge-featured">${badgeLabel}</span>` : ""}
           ${isRecent(item.date) ? `<span class="video-badge badge-new">NEW</span>` : ""}
           ${item.isTrending ? `<span class="video-badge badge-trending">TRENDING</span>` : ""}
+          ${isLiveVideo(item) ? `<span class="video-badge badge-live">LIVE</span>` : ""}
+          ${isHighlightVideo(item) ? `<span class="video-badge badge-highlight">HIGHLIGHT</span>` : ""}
         </div>
         <div class="video-card-body">
           <div class="video-meta-top">
