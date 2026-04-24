@@ -556,6 +556,134 @@
       }
     }
 
+  
+
+    /* ===== 최종 보정: 핑크/화이트 원형 마법진 + 선명한 잔광 ===== */
+    @media (hover:hover) and (pointer:fine){
+      .lumi-magic-ring{
+        width:96px !important;
+        height:96px !important;
+        border-radius:50% !important;
+        background:
+          radial-gradient(circle, rgba(255,255,255,.98) 0%, rgba(255,255,255,.76) 11%, rgba(255,240,248,.42) 24%, rgba(255,138,194,.22) 42%, rgba(255,138,194,0) 70%) !important;
+        border:1px solid rgba(255,255,255,.84) !important;
+        box-shadow:
+          0 0 18px rgba(255,255,255,.72),
+          0 0 28px rgba(255,138,194,.42),
+          inset 0 0 18px rgba(255,255,255,.70) !important;
+        -webkit-mask:none !important;
+        mask:none !important;
+        filter:drop-shadow(0 0 16px rgba(255,138,194,.45)) !important;
+        animation:lumiRingPulseFinal .86s ease-out forwards !important;
+      }
+
+      .lumi-magic-ring::before,
+      .lumi-magic-ring::after{
+        content:"";
+        position:absolute;
+        border-radius:50%;
+        pointer-events:none;
+      }
+
+      .lumi-magic-ring::before{
+        inset:11px;
+        border:4px solid rgba(255,255,255,.78);
+        border-top-color:rgba(255,255,255,.96);
+        border-right-color:rgba(255,190,220,.54);
+        border-bottom-color:rgba(255,138,194,.38);
+        border-left-color:rgba(255,255,255,.42);
+        box-shadow:
+          0 0 16px rgba(255,255,255,.55),
+          0 0 20px rgba(255,138,194,.30),
+          inset 0 0 14px rgba(255,255,255,.42);
+      }
+
+      .lumi-magic-ring::after{
+        inset:24px;
+        border:2px solid rgba(255,255,255,.64);
+        border-top-color:rgba(255,183,216,.64);
+        border-right-color:rgba(255,255,255,.90);
+        box-shadow:0 0 14px rgba(255,230,245,.55);
+      }
+
+      .lumi-magic-star{
+        width:17px !important;
+        height:17px !important;
+        filter:drop-shadow(0 0 8px rgba(255,255,255,.80)) drop-shadow(0 0 10px rgba(255,138,194,.52)) !important;
+      }
+      .lumi-magic-star::before{width:3px !important;height:17px !important;background:linear-gradient(180deg,#fff 0%,#fff5fb 42%,#ff8ac2 100%) !important;}
+      .lumi-magic-star::after{width:17px !important;height:3px !important;background:linear-gradient(90deg,#fff 0%,#fff5fb 42%,#ff8ac2 100%) !important;}
+
+      .lumi-magic-butterfly{
+        width:23px !important;
+        height:19px !important;
+        filter:drop-shadow(0 0 7px rgba(126,224,255,.62)) drop-shadow(0 0 10px rgba(255,138,194,.36)) !important;
+        animation:lumiButterflyFlyFinal 1.12s cubic-bezier(.16,.82,.34,1) forwards !important;
+      }
+      .lumi-magic-butterfly::before,
+      .lumi-magic-butterfly::after{
+        top:2px !important;
+        width:11px !important;
+        height:15px !important;
+        background:linear-gradient(135deg,#ffffff 0%,#7ee0ff 24%,#4fc3ff 52%,#ff8ac2 100%) !important;
+        border:1px solid rgba(255,255,255,.96) !important;
+        box-shadow:inset 0 0 5px rgba(255,255,255,.78),0 0 6px rgba(126,224,255,.32) !important;
+      }
+
+      @keyframes lumiRingPulseFinal{
+        0%{opacity:0;transform:translate(-50%,-50%) scale(.34) rotate(0deg);}
+        14%{opacity:1;}
+        58%{opacity:.86;}
+        100%{opacity:0;transform:translate(-50%,-50%) scale(1.55) rotate(18deg);}
+      }
+
+      @keyframes lumiButterflyFlyFinal{
+        0%{opacity:0; transform:translate(-50%,-50%) scale(.45) rotate(0deg);}
+        10%{opacity:.95;}
+        100%{opacity:0; transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.16) rotate(var(--r));}
+      }
+
+      .lumi-cursor-glow{
+        width:56px !important;
+        height:56px !important;
+        opacity:.82 !important;
+        filter:blur(9px) !important;
+        background:
+          radial-gradient(circle, rgba(255,255,255,.98) 0%, rgba(255,255,255,.72) 14%, rgba(255,231,244,.42) 28%, rgba(255,138,194,.30) 48%, rgba(126,224,255,.18) 62%, rgba(255,138,194,0) 78%) !important;
+      }
+
+      .lumi-cursor-core{
+        width:7px !important;
+        height:7px !important;
+        opacity:.95 !important;
+        box-shadow:0 0 10px rgba(255,255,255,1),0 0 18px rgba(255,138,194,.70),0 0 22px rgba(126,224,255,.45) !important;
+      }
+
+      body.lumi-cursor-hover .lumi-cursor-glow{
+        width:88px !important;
+        height:88px !important;
+        opacity:.96 !important;
+        filter:blur(8px) !important;
+        background:
+          radial-gradient(circle, rgba(255,255,255,.90) 0%, rgba(255,255,255,.56) 16%, rgba(255,235,247,.34) 27%, rgba(255,138,194,.26) 41%, rgba(255,255,255,.18) 52%, rgba(255,138,194,0) 72%),
+          conic-gradient(from 12deg, rgba(255,255,255,0), rgba(255,255,255,.72), rgba(255,190,220,.54), rgba(255,255,255,.72), rgba(255,255,255,0)) !important;
+      }
+
+      .lumi-trail-spark{
+        width:14px !important;
+        height:14px !important;
+        filter:drop-shadow(0 0 8px rgba(255,255,255,.76)) drop-shadow(0 0 10px rgba(255,138,194,.44)) !important;
+        animation:lumiTrailFadeFinal .95s ease-out forwards !important;
+      }
+      .lumi-trail-spark::before{width:2.5px !important;height:14px !important;background:linear-gradient(180deg,#fff,#ffd9ef 58%,#ff8ac2) !important;}
+      .lumi-trail-spark::after{width:14px !important;height:2.5px !important;background:linear-gradient(90deg,#fff,#ffd9ef 58%,#7ee0ff) !important;}
+
+      @keyframes lumiTrailFadeFinal{
+        0%{opacity:.92;transform:translate(-50%,-50%) scale(.42) rotate(0deg);}
+        100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.22) rotate(42deg);}
+      }
+    }
+
   </style>
  </head>
  <body>
@@ -1052,7 +1180,7 @@
       setTimeout(() => ring.remove(), 980);
 
       // 2) 별빛은 점 덩어리처럼 보이지 않게 6개만, 십자 별로 퍼짐
-      const starCount = 6;
+      const starCount = 8;
       for(let i=0; i<starCount; i++){
         const star = document.createElement('span');
         star.className = 'lumi-magic-star';
@@ -1068,12 +1196,12 @@
       }
 
       // 3) 나비는 2~3개만 위/옆으로 날아가게
-      const butterflyCount = 3;
+      const butterflyCount = 2;
       for(let i=0; i<butterflyCount; i++){
         const butterfly = document.createElement('span');
         butterfly.className = 'lumi-magic-butterfly';
         const angle = -Math.PI / 2 + (i - 1) * .42 + (Math.random() * .22 - .11);
-        const distance = 46 + Math.random() * 34;
+        const distance = 54 + Math.random() * 38;
         butterfly.style.left = x + 'px';
         butterfly.style.top = y + 'px';
         butterfly.style.setProperty('--x', Math.cos(angle) * distance + 'px');
@@ -1119,8 +1247,8 @@
         spark.className = 'lumi-trail-spark';
         spark.style.left = x + 'px';
         spark.style.top = y + 'px';
-        spark.style.setProperty('--x', (Math.random() * 24 - 12) + 'px');
-        spark.style.setProperty('--y', (-12 - Math.random() * 22) + 'px');
+        spark.style.setProperty('--x', (Math.random() * 34 - 17) + 'px');
+        spark.style.setProperty('--y', (-16 - Math.random() * 28) + 'px');
         document.body.appendChild(spark);
         setTimeout(() => spark.remove(), 1000);
       }
@@ -1128,7 +1256,7 @@
       document.addEventListener('pointermove', (event) => {
         moveCursor(event.clientX, event.clientY);
         const now = performance.now();
-        if(now - lastTrail > 95){
+        if(now - lastTrail > 58){
           lastTrail = now;
           createTrailSpark(event.clientX, event.clientY);
         }
