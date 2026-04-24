@@ -1,31 +1,49 @@
 <!DOCTYPE html>
 <html lang="ko">
- <head>
+<head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>
-   TICKET | Lumibelle
-  </title>
+  <title>TICKET | Lumibelle</title>
   <link href="../style.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com" rel="preconnect"/>
   <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
-   :root{--panel:#fff5fb;--line:#f2d8e7;--pink:#ff5fa8;--text:#7f6a77;--muted:#b28ea2;--shadow:0 8px 24px rgba(232,191,211,.12)}
-    *{box-sizing:border-box} html,body{margin:0;padding:0} body{min-height:100vh;display:flex;flex-direction:column;background:linear-gradient(180deg,#fffafc 0%,#fff8fb 100%);color:var(--text);font-family:"SUIT","Noto Sans KR",sans-serif;letter-spacing:-.01em} main{flex:1}
-    
-    /* 상단 레이아웃 스타일 (기존 스타일 생략 후 하단에 FINAL 코드로 덮어씌움) */
+    /* 기본 테마 설정 */
+    :root{--panel:#fff5fb;--line:#f2d8e7;--pink:#ff5fa8;--text:#7f6a77;--muted:#b28ea2;--shadow:0 8px 24px rgba(232,191,211,.12)}
+    *{box-sizing:border-box} 
+    html,body{margin:0;padding:0} 
+    body{min-height:100vh;display:flex;flex-direction:column;background:linear-gradient(180deg,#fffafc 0%,#fff8fb 100%);color:var(--text);font-family:"SUIT","Noto Sans KR",sans-serif;letter-spacing:-.01em} 
+    main{flex:1}
 
-    /* [기존 티켓 페이지 전용 스타일들...] */
+    /* 티켓 페이지 본문 스타일 */
     .ticket-container{max-width:1200px;margin:60px auto;padding:0 24px}
-    /* ... (생략된 기존 티켓 페이지 본문 스타일들) ... */
+    .ticket-header{text-align:center;margin-bottom:60px}
+    .ticket-header h1{font-family:'Cormorant Garamond',serif;font-size:3.5rem;color:var(--pink);margin:0;font-weight:700;letter-spacing:0.05em}
+    .ticket-header p{font-size:1.1rem;color:var(--muted);margin-top:10px}
+    .ticket-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:30px;margin-bottom:80px}
+    .ticket-card{background:var(--panel);border:1px solid var(--line);border-radius:32px;padding:40px;transition:all 0.4s cubic-bezier(0.165,0.84,0.44,1);position:relative;overflow:hidden}
+    .ticket-card:hover{transform:translateY(-8px);box-shadow:var(--shadow);border-color:var(--pink)}
+    .ticket-type{font-size:0.9rem;font-weight:800;color:var(--pink);background:rgba(255,95,168,0.1);padding:6px 16px;border-radius:100px;display:inline-block;margin-bottom:20px}
+    .ticket-name{font-size:1.8rem;font-weight:800;margin-bottom:15px;color:#4a3b45}
+    .ticket-price{font-size:2rem;font-weight:800;color:var(--pink);margin-bottom:25px}
+    .ticket-price span{font-size:1rem;color:var(--muted);font-weight:500;margin-left:4px}
+    .ticket-features{list-style:none;padding:0;margin:0 0 35px 0}
+    .ticket-features li{padding:8px 0;display:flex;align-items:center;font-size:1.05rem;color:#66545f}
+    .ticket-features li::before{content:'✦';margin-right:10px;color:var(--pink);font-size:0.8rem}
+    .reserve-btn{width:100%;padding:18px;border-radius:20px;border:none;background:var(--pink);color:white;font-weight:700;font-size:1.1rem;cursor:pointer;transition:all 0.3s}
+    .reserve-btn:hover{background:#ff4094;box-shadow:0 10px 20px rgba(255,95,168,0.2)}
 
-    /* ===== FINAL: 홈 기준 상단 레이아웃 강제 통일 (사용자 요청 반영) ===== */
+    /* 마우스 효과 스타일 (사용자 선호 효과) */
+    #lumi-cursor-glow{position:fixed;top:0;left:0;width:400px;height:400px;background:radial-gradient(circle, rgba(255,182,213,0.15) 0%, rgba(255,255,255,0) 70%);pointer-events:none;z-index:9998;transform:translate(-50%, -50%);transition:opacity 0.3s ease;opacity:0}
+    #lumi-cursor-core{position:fixed;top:0;left:0;width:12px;height:12px;background:#ffb6d5;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%, -50%);box-shadow:0 0 10px #ffb6d5;transition:opacity 0.3s ease;opacity:0}
+    .lumi-cursor-spark{position:fixed;width:6px;height:6px;background:#ffdeeb;border-radius:50%;pointer-events:none;z-index:9997}
+
+    /* ===== FINAL: 홈 기준 상단 레이아웃 강제 통일 ===== */
     .wrap {
       width: min(1260px, calc(100% - 32px)) !important;
       margin: 0 auto !important;
     }
-
     .top-lang-bar {
       width: 100% !important;
       max-width: 1260px !important;
@@ -35,33 +53,28 @@
       padding: 0 34px 0 18px !important;
       box-sizing: border-box !important;
     }
-
     .lang-switch {
       display: flex !important;
       align-items: center !important;
       gap: 10px !important;
     }
-
     .lang-switch a {
       margin-left: 0 !important;
       text-decoration: none !important;
       font-size: 0.85em !important;
       color: #b28ea2 !important;
     }
-
     .header-box {
       display: flex !important;
       align-items: center !important;
       gap: 24px !important;
       margin-top: 20px !important;
     }
-
     .logo img {
       display: block !important;
       max-width: 150px !important;
       height: auto !important;
     }
-
     nav {
       display: grid !important;
       grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
@@ -71,7 +84,6 @@
       flex: 1 !important;
       margin: 0 20px !important;
     }
-
     nav a {
       width: 100% !important;
       display: flex !important;
@@ -83,84 +95,156 @@
       text-decoration: none !important;
       transform: none !important;
     }
-
-    nav a b,
-    nav a span {
-      display: block !important;
-      width: 100% !important;
-      text-align: center !important;
-      white-space: nowrap !important;
-    }
-
     nav a b {
       font-size: 1.18em !important;
       font-weight: 700 !important;
       color: #d97ca9 !important;
+      display: block !important;
     }
-
     nav a span {
-      margin-top: 2px !important; /* 홈 기준인 2px로 수정 */
+      margin-top: 2px !important; /* 홈 기준 정렬 */
       font-size: 0.94em !important;
       font-weight: 600 !important;
       color: #c697b1 !important;
+      display: block !important;
     }
+    nav a.current b, nav a:hover b { color: #ff59a5 !important; }
+    nav a.current span, nav a:hover span { color: #d88dad !important; }
 
-    nav a.current b,
-    nav a:hover b {
-      color: #ff59a5 !important;
+    /* 반응형 설정 */
+    @media (max-width: 1180px) {
+      nav { grid-template-columns: repeat(4, 1fr) !important; gap: 16px !important; width: 100% !important; margin: 0 !important; }
+      .header-box { flex-wrap: wrap !important; justify-content: center !important; }
+      .top-lang-bar { justify-content: center !important; margin-top: 14px !important; }
     }
-
-    nav a.current span,
-    nav a:hover span {
-      color: #d88dad !important;
+    @media (max-width: 780px) {
+      .wrap { width: min(100% - 24px, 1260px) !important; }
+      .top-lang-bar { padding: 0 12px !important; }
+      .logo img { max-width: 132px !important; }
+      nav { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; margin: 0 !important; }
+      nav a { padding: 10px 4px !important; border-radius: 18px !important; }
+      nav a b { font-size: 1.05em !important; }
+      nav a span { margin-top: 4px !important; font-size: 0.82em !important; }
     }
-
-    /* 마우스 효과용 스타일 유지 */
-    #lumi-cursor-glow { position: fixed; top: 0; left: 0; width: 400px; height: 400px; background: radial-gradient(circle, rgba(255,182,213,0.15) 0%, rgba(255,255,255,0) 70%); pointer-events: none; z-index: 9998; transform: translate(-50%, -50%); transition: opacity 0.3s ease; opacity: 0; }
-    #lumi-cursor-core { position: fixed; top: 0; left: 0; width: 12px; height: 12px; background: #ffb6d5; border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); box-shadow: 0 0 10px #ffb6d5; transition: opacity 0.3s ease; opacity: 0; }
-    .lumi-cursor-spark { position: fixed; width: 6px; height: 6px; background: #ffdeeb; border-radius: 50%; pointer-events: none; z-index: 9997; }
-
-    /* 반응형 규칙 생략 (사용자 제공 코드와 동일) */
-    @media (max-width: 1180px) { ... }
-    @media (max-width: 780px) { ... }
   </style>
- </head>
- <body>
+</head>
+<body>
   <div id="lumi-cursor-glow"></div>
   <div id="lumi-cursor-core"></div>
 
   <header>
-   <div class="top-lang-bar">
-    <div class="lang-switch">
-     <a class="active" href="#">KOR</a>
-     <a href="#">JPN</a>
-     <a href="#">ENG</a>
+    <div class="top-lang-bar">
+      <div class="lang-switch">
+        <a class="active" href="#">KOR</a>
+        <a href="#">JPN</a>
+        <a href="#">ENG</a>
+      </div>
     </div>
-   </div>
-   <div class="wrap">
-    <div class="header-box">
-     <a class="logo" href="../index.html">
-      <img alt="Lumibelle Logo" src="../img/logo_p.png"/>
-     </a>
-     <nav>
-      <a href="../news.html"><b>NEWS</b><span>새소식</span></a>
-      <a href="../about.html"><b>ABOUT</b><span>소개</span></a>
-      <a href="../members.html"><b>MEMBERS</b><span>멤버</span></a>
-      <a href="../schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
-      <a class="current" href="index.html"><b>TICKET</b><span>티켓</span></a>
-      <a href="../music.html"><b>MUSIC</b><span>음악</span></a>
-      <a href="../goods.html"><b>GOODS</b><span>굿즈</span></a>
-      <a href="../contact.html"><b>CONTACT</b><span>문의</span></a>
-     </nav>
+    <div class="wrap">
+      <div class="header-box">
+        <a class="logo" href="../index.html">
+          <img alt="Lumibelle Logo" src="../img/logo_p.png"/>
+        </a>
+        <nav>
+          <a href="../news.html"><b>NEWS</b><span>새소식</span></a>
+          <a href="../about.html"><b>ABOUT</b><span>소개</span></a>
+          <a href="../members.html"><b>MEMBERS</b><span>멤버</span></a>
+          <a href="../schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
+          <a class="current" href="index.html"><b>TICKET</b><span>티켓</span></a>
+          <a href="../music.html"><b>MUSIC</b><span>음악</span></a>
+          <a href="../goods.html"><b>GOODS</b><span>굿즈</span></a>
+          <a href="../contact.html"><b>CONTACT</b><span>문의</span></a>
+        </nav>
+      </div>
     </div>
-   </div>
   </header>
 
   <main>
-    </main>
+    <div class="ticket-container">
+      <div class="ticket-header">
+        <h1>TICKET INFO</h1>
+        <p>루미벨의 공식 공연 및 이벤트 티켓 예매 정보입니다.</p>
+      </div>
+
+      <div class="ticket-grid">
+        <div class="ticket-card">
+          <span class="ticket-type">REGULAR</span>
+          <div class="ticket-name">일반 예매권</div>
+          <div class="ticket-price">55,000<span>KRW</span></div>
+          <ul class="ticket-features">
+            <li>전 좌석 지정석 입장권</li>
+            <li>공연 한정 공식 굿즈 증정</li>
+            <li>디지털 기념 포토카드</li>
+          </ul>
+          <button class="reserve-btn">예매하기</button>
+        </div>
+
+        <div class="ticket-card" style="border-color:var(--pink); background:rgba(255,95,168,0.03)">
+          <span class="ticket-type" style="background:var(--pink); color:white">PREMIUM</span>
+          <div class="ticket-name">프리미엄 패키지</div>
+          <div class="ticket-price">110,000<span>KRW</span></div>
+          <ul class="ticket-features">
+            <li>최우선 구역(VVIP) 좌석 배정</li>
+            <li>공연 전 리허설 관람 권한</li>
+            <li>멤버 친필 사인이 포함된 굿즈 세트</li>
+            <li>스페셜 나마콜(Nama Call) 이용권</li>
+          </ul>
+          <button class="reserve-btn">예매하기</button>
+        </div>
+      </div>
+
+      <div class="ticket-info-footer" style="background:white; padding:40px; border-radius:24px; border:1px solid var(--line)">
+        <h3 style="color:var(--pink); margin-top:0">티켓 구매 유의사항</h3>
+        <ul style="color:var(--muted); font-size:0.95rem; line-height:1.8; padding-left:20px">
+          <li>모든 티켓은 양도가 불가능하며, 본인 확인 후 입장이 가능합니다.</li>
+          <li>프리미엄 패키지의 경우 한정 수량으로 조기 마감될 수 있습니다.</li>
+          <li>취소 및 환불은 공연 7일 전까지만 가능하며, 이후에는 규정에 따라 위약금이 발생합니다.</li>
+          <li>자세한 예매 가이드는 고객센터 문의 페이지를 확인해주세요.</li>
+        </ul>
+      </div>
+    </div>
+  </main>
 
   <script>
-    // [기존 마우스 효과 및 반짝이 효과 스크립트...]
+    /* 마우스 효과 스크립트 */
+    const glow = document.getElementById('lumi-cursor-glow');
+    const core = document.getElementById('lumi-cursor-core');
+    let lastTrail = 0;
+
+    function moveCursor(x, y) {
+      glow.style.left = x + 'px';
+      glow.style.top = y + 'px';
+      core.style.left = x + 'px';
+      core.style.top = y + 'px';
+      glow.style.opacity = '1';
+      core.style.opacity = '1';
+    }
+
+    function createTrailSpark(x, y) {
+      const spark = document.createElement('div');
+      spark.className = 'lumi-cursor-spark';
+      spark.style.left = x + 'px';
+      spark.style.top = y + 'px';
+      const size = Math.random() * 6 + 2;
+      spark.style.width = size + 'px';
+      spark.style.height = size + 'px';
+      document.body.appendChild(spark);
+      setTimeout(() => spark.remove(), 1000);
+    }
+
+    document.addEventListener('pointermove', (e) => {
+      moveCursor(e.clientX, e.clientY);
+      const now = performance.now();
+      if(now - lastTrail > 58) {
+        lastTrail = now;
+        createTrailSpark(e.clientX, e.clientY);
+      }
+    }, { passive: true });
+
+    document.addEventListener('mouseleave', () => {
+      glow.style.opacity = '0';
+      core.style.opacity = '0';
+    });
   </script>
- </body>
+</body>
 </html>
