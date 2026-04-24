@@ -7,258 +7,33 @@
   <link rel="stylesheet" href="../style.css" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800;900&display=swap');
-
-    *{box-sizing:border-box;}
-    html,body{margin:0;padding:0;scroll-behavior:smooth;}
-    body{
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      background:#fffafc;
-      color:#7f6a77;
-      font-family:"SUIT","Noto Sans KR",sans-serif;
-      letter-spacing:-0.01em;
-    }
-    main{flex:1;}
-    a{text-decoration:none;color:inherit;}
-
-    .broadcast-shell{padding-top:18px;padding-bottom:52px;}
-
-    .onair-hero{
-      position:relative;
-      overflow:hidden;
-      border:1px solid #f2d8e7;
-      border-radius:32px;
-      background:linear-gradient(135deg,#fff1f8 0%,#f6f0ff 100%);
-      box-shadow:0 8px 24px rgba(232,191,211,.12);
-      padding:46px 28px 40px;
-      text-align:center;
-      isolation:isolate;
-    }
-    .onair-hero::before{
-      content:"";
-      position:absolute;
-      inset:-80% auto auto -15%;
-      width:360px;height:360px;border-radius:50%;
-      background:radial-gradient(circle,rgba(255,255,255,.82),rgba(255,138,194,.25) 36%,transparent 70%);
-      z-index:-1;
-    }
-    .onair-hero::after{
-      content:"✦";
-      position:absolute;
-      right:34px;bottom:22px;
-      color:rgba(255,95,165,.26);
-      font-size:58px;
-      animation:floatStar 2.8s ease-in-out infinite;
-    }
-    .onair-hero h2{
-      margin:0;
-      color:#d77ca7;
-      font-size:64px;
-      line-height:.95;
-      font-weight:900;
-    }
-    .onair-hero p{
-      margin:13px 0 0;
-      color:#b98aa3;
-      font-size:17px;
-      font-weight:700;
-      line-height:1.8;
-    }
-    .hero-badges{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:22px;}
-    .hero-badge{
-      display:inline-flex;align-items:center;justify-content:center;
-      padding:9px 14px;border-radius:999px;
-      background:#fff;border:1px solid #f0bfd4;color:#d77ca7;
-      font-size:12px;font-weight:900;box-shadow:0 6px 14px rgba(255,95,165,.08);
-    }
-
-    .onair-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:22px;
-      margin-top:24px;
-      align-items:start;
-    }
-    .onair-card{
-      background:#fff5fb;
-      border:1px solid #f2d8e7;
-      border-radius:28px;
-      box-shadow:0 8px 24px rgba(232,191,211,.12);
-      overflow:hidden;
-    }
-    .card-head{padding:28px 26px 18px;text-align:center;}
-    .card-head h3{margin:0;color:#d77ca7;font-size:42px;font-weight:900;line-height:1;}
-    .card-head p{margin:8px 0 0;color:#c99ab2;font-size:15px;font-weight:700;}
-
-    .broadcast-list{border-top:1px solid #f2d8e7;}
-    .broadcast-item{
-      display:grid;
-      grid-template-columns:110px 1fr auto;
-      gap:14px;align-items:center;
-      padding:18px 22px;
-      border-bottom:1px solid #f2d8e7;
-      background:#fff5fb;
-      transition:background .18s ease;
-    }
-    .broadcast-item:hover{background:#fff0f7;}
-    .broadcast-date{color:#ff5fa5;font-size:21px;font-weight:900;white-space:nowrap;}
-    .broadcast-title{color:#846f81;font-size:16px;font-weight:900;line-height:1.5;}
-    .broadcast-desc{margin-top:4px;color:#ab869c;font-size:13.5px;font-weight:700;line-height:1.55;}
-    .status-badge{
-      display:inline-flex;align-items:center;justify-content:center;
-      min-width:74px;padding:8px 12px;border-radius:999px;
-      color:#fff;background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);
-      font-size:11px;font-weight:900;letter-spacing:.04em;
-      box-shadow:0 6px 14px rgba(255,95,165,.18);
-    }
-    .status-badge.wait{background:linear-gradient(180deg,#caa7ff 0%,#ba8ce7 100%);}
-
-    .diary-list{display:grid;gap:14px;padding:0 22px 22px;border-top:1px solid #f2d8e7;padding-top:20px;}
-    .diary-card{
-      display:block;
-      padding:20px;
-      border-radius:22px;
-      background:#fff;
-      border:1px solid #f0dde8;
-      transition:transform .18s ease, box-shadow .18s ease;
-    }
-    .diary-card:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(232,191,211,.15);}
-    .diary-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
-    .member-chip,.diary-date{
-      display:inline-flex;align-items:center;justify-content:center;
-      padding:6px 10px;border-radius:999px;
-      font-size:11px;font-weight:900;line-height:1;
-    }
-    .member-chip{background:#fff0f7;color:#ff59a5;border:1px solid #f0bfd4;}
-    .diary-date{background:#f7f2ff;color:#9f6de0;border:1px solid #dfcef6;}
-    .diary-card h4{margin:0;color:#846f81;font-size:18px;font-weight:900;line-height:1.45;}
-    .diary-card p{margin:8px 0 0;color:#8f7183;font-size:14px;font-weight:700;line-height:1.75;}
-
-    .quick-links{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:14px;
-      margin-top:22px;
-    }
-    .quick-link{
-      display:flex;align-items:center;justify-content:center;
-      min-height:58px;padding:14px 18px;border-radius:999px;
-      font-size:15px;font-weight:900;
-      border:1px solid #f0bfd4;background:#fff;color:#d27ca8;
-      box-shadow:0 6px 14px rgba(255,95,165,.08);
-      transition:transform .18s ease, box-shadow .18s ease;
-    }
-    .quick-link.primary{background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);color:#fff;border-color:transparent;box-shadow:0 8px 18px rgba(255,95,165,.24);}
-    .quick-link:hover{transform:translateY(-2px);box-shadow:0 12px 22px rgba(232,191,211,.18);}
-
-    footer{text-align:center;padding:28px 16px 40px;color:#c6a2b4;font-size:14px;}
-
-    @keyframes floatStar{0%,100%{transform:translateY(0) rotate(0deg);opacity:.65;}50%{transform:translateY(-7px) rotate(10deg);opacity:1;}}
-    @media(max-width:1100px){.onair-grid{grid-template-columns:1fr;}}
-    @media(max-width:780px){
-      .onair-hero{padding:36px 18px 30px;}
-      .onair-hero h2{font-size:44px;}
-      .onair-hero p{font-size:14.5px;}
-      .card-head h3{font-size:34px;}
-      .broadcast-item{grid-template-columns:1fr;align-items:start;}
-      .status-badge{width:max-content;}
-      .quick-links{grid-template-columns:1fr;}
-    }
+    *{box-sizing:border-box} html,body{margin:0;padding:0;scroll-behavior:smooth} body{min-height:100vh;display:flex;flex-direction:column;background:#fffafc;color:#7f6a77;font-family:"SUIT","Noto Sans KR",sans-serif;letter-spacing:-.01em} main{flex:1} a{text-decoration:none;color:inherit}.broadcast-shell{padding-top:18px;padding-bottom:52px}
+    .onair-hero{position:relative;overflow:hidden;border:1px solid #f2d8e7;border-radius:32px;background:linear-gradient(135deg,#fff1f8 0%,#f6f0ff 100%);box-shadow:0 8px 24px rgba(232,191,211,.12);padding:46px 28px 40px;text-align:center;isolation:isolate}.onair-hero:before{content:"";position:absolute;inset:-80% auto auto -15%;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.82),rgba(255,138,194,.25) 36%,transparent 70%);z-index:-1}.onair-hero:after{content:"✦";position:absolute;right:34px;bottom:22px;color:rgba(255,95,165,.26);font-size:58px;animation:floatStar 2.8s ease-in-out infinite}.onair-hero h2{margin:0;color:#d77ca7;font-size:64px;line-height:.95;font-weight:900}.onair-hero p{margin:13px 0 0;color:#b98aa3;font-size:17px;font-weight:700;line-height:1.8}.hero-badges{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:22px}.hero-badge{display:inline-flex;align-items:center;justify-content:center;padding:9px 14px;border-radius:999px;background:#fff;border:1px solid #f0bfd4;color:#d77ca7;font-size:12px;font-weight:900;box-shadow:0 6px 14px rgba(255,95,165,.08)}
+    .quick-links{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}.quick-link{display:flex;align-items:center;justify-content:center;min-height:58px;padding:14px 18px;border-radius:999px;font-size:15px;font-weight:900;border:1px solid #f0bfd4;background:#fff;color:#d27ca8;box-shadow:0 6px 14px rgba(255,95,165,.08);transition:transform .18s ease,box-shadow .18s ease}.quick-link.primary{background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);color:#fff;border-color:transparent;box-shadow:0 8px 18px rgba(255,95,165,.24)}.quick-link:hover{transform:translateY(-2px);box-shadow:0 12px 22px rgba(232,191,211,.18)}
+    .onair-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:24px;align-items:start}.onair-card{background:#fff5fb;border:1px solid #f2d8e7;border-radius:28px;box-shadow:0 8px 24px rgba(232,191,211,.12);overflow:hidden}.card-head{padding:28px 26px 18px;text-align:center}.card-head h3{margin:0;color:#d77ca7;font-size:42px;font-weight:900;line-height:1}.card-head p{margin:8px 0 0;color:#c99ab2;font-size:15px;font-weight:700}
+    .weekly-schedule{border-top:1px solid #f2d8e7;padding:20px 20px 22px}.week-range{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;color:#b98aa3;font-size:14px;font-weight:900}.week-range strong{color:#ff5fa5}.schedule-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}.day-card{position:relative;min-height:158px;padding:14px 10px 13px;border-radius:22px;background:#fff;border:1px solid #f0dde8;box-shadow:0 6px 14px rgba(232,191,211,.10);text-align:center;overflow:hidden}.day-card:after{content:"";position:absolute;inset:auto -20px -32px auto;width:72px;height:72px;border-radius:50%;background:radial-gradient(circle,rgba(255,192,215,.22),transparent 68%);pointer-events:none}.day-card.live{background:linear-gradient(180deg,#fff 0%,#fff0f7 100%);border-color:#ffafd0;box-shadow:0 8px 18px rgba(255,95,165,.13)}.day-card.off{background:#fffafd;opacity:.72}.day-card.cancel{background:linear-gradient(180deg,#fff7fa 0%,#fff0f3 100%);border:1.5px dashed #ff7aa4}.day-card.notice{background:linear-gradient(180deg,#f9f4ff 0%,#fff8fc 100%);border-color:#d9c0f4}.day-label{display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:30px;padding:0 10px;border-radius:999px;background:#fff0f7;color:#ff59a5;border:1px solid #f0bfd4;font-size:13px;font-weight:900;margin-bottom:10px}.day-status{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:900;line-height:1;margin-bottom:9px;background:#fbe8f4;color:#c97ca8;border:1px solid #efc6dc}.day-card.live .day-status{background:#ff5fa5;color:#fff;border-color:#ff5fa5}.day-card.cancel .day-status{background:#fff;color:#ff4f7e;border-color:#ff9db8}.day-card.notice .day-status{background:#f7f2ff;color:#9f6de0;border-color:#dfcef6}.day-title{color:#846f81;font-size:15px;font-weight:900;line-height:1.45;word-break:keep-all}.day-time{margin-top:7px;color:#ff5fa5;font-size:16px;font-weight:900}.day-note{margin-top:8px;color:#9a7c8e;font-size:12px;font-weight:700;line-height:1.55;word-break:keep-all}.schedule-help{margin:16px 0 0;text-align:center;color:#b98aa3;font-size:12.5px;font-weight:700;line-height:1.7}
+    .diary-list{display:grid;gap:14px;padding:20px 22px 22px;border-top:1px solid #f2d8e7}.diary-card{display:block;padding:20px;border-radius:22px;background:#fff;border:1px solid #f0dde8;transition:transform .18s ease,box-shadow .18s ease}.diary-card:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(232,191,211,.15)}.diary-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}.member-chip,.diary-date{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:900;line-height:1}.member-chip{background:#fff0f7;color:#ff59a5;border:1px solid #f0bfd4}.diary-date{background:#f7f2ff;color:#9f6de0;border:1px solid #dfcef6}.diary-card h4{margin:0;color:#846f81;font-size:18px;font-weight:900;line-height:1.45}.diary-card p{margin:8px 0 0;color:#8f7183;font-size:14px;font-weight:700;line-height:1.75}
+    footer{text-align:center;padding:28px 16px 40px;color:#c6a2b4;font-size:14px}@keyframes floatStar{0%,100%{transform:translateY(0) rotate(0deg);opacity:.65}50%{transform:translateY(-7px) rotate(10deg);opacity:1}}@media(max-width:1100px){.onair-grid{grid-template-columns:1fr}.schedule-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:780px){.onair-hero{padding:36px 18px 30px}.onair-hero h2{font-size:44px}.onair-hero p{font-size:14.5px}.card-head h3{font-size:34px}.quick-links{grid-template-columns:1fr}.schedule-grid{grid-template-columns:1fr}.day-card{min-height:auto}}
   </style>
 </head>
 <body>
-  <header>
-    <div class="wrap">
-      <div class="header-box">
-        <div class="top-bow">🎀</div>
-        <div class="logo">
-          <h1>Lumibelle</h1>
-          <p>루미벨</p>
-        </div>
-        <nav>
-          <a href="../index.html"><b>HOME</b><span>홈</span></a>
-          <a href="../news.html"><b>NEWS</b><span>공지사항</span></a>
-          <a href="../member.html"><b>MEMBER</b><span>멤버 소개</span></a>
-          <a href="../schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
-          <a href="../video.html"><b>VIDEO</b><span>영상</span></a>
-          <a href="../info.html"><b>INFO</b><span>안내</span></a>
-        </nav>
-      </div>
-    </div>
-  </header>
-
-  <main>
-    <div class="wrap broadcast-shell">
-      <section class="onair-hero">
-        <h2>ON AIR</h2>
-        <p>루미벨의 방송 스케줄과 방송 후기를 모아두는 공간입니다.<br>영상은 MORE VIDEO에서, 방송의 분위기와 기록은 ON AIR에서 확인해주세요…♡</p>
-        <div class="hero-badges">
-          <span class="hero-badge">방송 스케줄</span>
-          <span class="hero-badge">방송 후기</span>
-          <span class="hero-badge">멤버별 기록</span>
-        </div>
-      </section>
-
-      <div class="quick-links">
-        <a href="../video.html" class="quick-link primary">방송 영상 보러가기</a>
-        <a href="../index.html" class="quick-link">메인으로 돌아가기</a>
-      </div>
-
-      <section class="onair-grid">
-        <div class="onair-card">
-          <div class="card-head">
-            <h3>SCHEDULE</h3>
-            <p>방송 예정</p>
-          </div>
-          <div class="broadcast-list">
-            <div class="broadcast-item">
-              <div class="broadcast-date">COMING</div>
-              <div>
-                <div class="broadcast-title">마리링 ON AIR 예정</div>
-                <div class="broadcast-desc">방송 일정이 정해지면 이곳에 업데이트됩니다.</div>
-              </div>
-              <span class="status-badge wait">예정</span>
-            </div>
-            <div class="broadcast-item">
-              <div class="broadcast-date">MEMBER</div>
-              <div>
-                <div class="broadcast-title">멤버별 방송 일정</div>
-                <div class="broadcast-desc">추후 루루 · 이로 · LUNAR의 방송도 같은 형식으로 추가할 수 있어요.</div>
-              </div>
-              <span class="status-badge wait">대기</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="onair-card">
-          <div class="card-head">
-            <h3>DIARY</h3>
-            <p>방송 후기</p>
-          </div>
-          <div class="diary-list">
-            <a href="#" class="diary-card">
-              <div class="diary-meta">
-                <span class="member-chip">MARIRING</span>
-                <span class="diary-date">준비중</span>
-              </div>
-              <h4>마리링의 첫 ON AIR 기록</h4>
-              <p>루미들과 함께한 방송의 순간을 일기처럼 남겨둘 예정이에요. 긴 후기는 이곳에서 읽고, 영상은 MORE VIDEO에서 볼 수 있어요.</p>
-            </a>
-            <a href="#" class="diary-card">
-              <div class="diary-meta">
-                <span class="member-chip">LUMIBELLE</span>
-                <span class="diary-date">COMING SOON</span>
-              </div>
-              <h4>방송 후기는 이곳에 차곡차곡</h4>
-              <p>짧은 공지보다 조금 더 따뜻하게, 팬들이 다시 읽고 싶어지는 기록으로 쌓아갈 수 있어요.</p>
-            </a>
-          </div>
-        </div>
-      </section>
-    </div>
-  </main>
-
+  <header><div class="wrap"><div class="header-box"><div class="top-bow">🎀</div><div class="logo"><h1>Lumibelle</h1><p>루미벨</p></div><nav><a href="../index.html"><b>HOME</b><span>홈</span></a><a href="../news.html"><b>NEWS</b><span>공지사항</span></a><a href="../member.html"><b>MEMBER</b><span>멤버 소개</span></a><a href="../schedule.html"><b>SCHEDULE</b><span>스케줄</span></a><a href="../video.html"><b>VIDEO</b><span>영상</span></a><a href="../info.html"><b>INFO</b><span>안내</span></a></nav></div></div></header>
+  <main><div class="wrap broadcast-shell"><section class="onair-hero"><h2>ON AIR</h2><p>루미벨의 방송 스케줄과 방송 후기를 모아두는 공간입니다.<br>영상은 MORE VIDEO에서, 방송의 분위기와 기록은 ON AIR에서 확인해주세요…♡</p><div class="hero-badges"><span class="hero-badge">방송 스케줄</span><span class="hero-badge">방송 후기</span><span class="hero-badge">멤버별 기록</span></div></section><div class="quick-links"><a href="../video.html" class="quick-link primary">방송 영상 보러가기</a><a href="../index.html" class="quick-link">메인으로 돌아가기</a></div><section class="onair-grid"><div class="onair-card"><div class="card-head"><h3>SCHEDULE</h3><p>이번 주 방송 예정</p></div><div class="weekly-schedule"><div class="week-range"><span>이번 주 방송 스케줄</span><strong id="weekRangeText">날짜를 입력해주세요</strong></div><div class="schedule-grid" id="weeklyScheduleGrid"></div><p class="schedule-help">※ 방송 일정은 상황에 따라 변경될 수 있어요. 급한 휴방이나 변경 공지도 이 표에서 바로 확인할 수 있어요…♡</p></div></div><div class="onair-card"><div class="card-head"><h3>DIARY</h3><p>방송 후기</p></div><div class="diary-list"><a href="#" class="diary-card"><div class="diary-meta"><span class="member-chip">MARIRING</span><span class="diary-date">준비중</span></div><h4>마리링의 첫 ON AIR 기록</h4><p>루미들과 함께한 방송의 순간을 일기처럼 남겨둘 예정이에요. 긴 후기는 이곳에서 읽고, 영상은 MORE VIDEO에서 볼 수 있어요.</p></a><a href="#" class="diary-card"><div class="diary-meta"><span class="member-chip">LUMIBELLE</span><span class="diary-date">COMING SOON</span></div><h4>방송 후기는 이곳에 차곡차곡</h4><p>짧은 공지보다 조금 더 따뜻하게, 팬들이 다시 읽고 싶어지는 기록으로 쌓아갈 수 있어요.</p></a></div></div></section></div></main>
   <footer>© 2026 Lumibelle All Rights Reserved.</footer>
+  <script>
+    const weekInfo = "2026.04.27 ~ 2026.05.03";
+    const weeklySchedule = [
+      { day:"월", status:"off", title:"휴방", note:"다음 방송 준비하는 날" },
+      { day:"화", status:"off", title:"휴방" },
+      { day:"수", status:"off", title:"휴방" },
+      { day:"목", status:"off", title:"휴방" },
+      { day:"금", status:"live", title:"마리링 ON AIR", time:"22:00", note:"루미들이랑 수다하는 시간 💫" },
+      { day:"토", status:"notice", title:"방송 공지", note:"일정 변동 시 이곳에 안내됩니다" },
+      { day:"일", status:"live", title:"주간 마무리 방송", time:"20:00", note:"같이 한 주를 마무리해요♡" }
+    ];
+    const statusLabel={live:"ON AIR",off:"휴방",cancel:"휴방 안내",notice:"공지"};
+    document.getElementById("weekRangeText").textContent=weekInfo;
+    document.getElementById("weeklyScheduleGrid").innerHTML=weeklySchedule.map(item=>`<article class="day-card ${item.status}"><div class="day-label">${item.day}</div><br><div class="day-status">${statusLabel[item.status]||"공지"}</div><div class="day-title">${item.title||""}</div>${item.time?`<div class="day-time">${item.time}</div>`:""}${item.note?`<div class="day-note">${item.note}</div>`:""}</article>`).join("");
+  </script>
 </body>
 </html>
