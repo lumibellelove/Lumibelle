@@ -621,6 +621,162 @@
       margin-top:12px;
     }
 
+
+    /* ===== VIDEO + ON AIR 카드 ===== */
+    .media-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:22px;
+      margin-top:12px;
+      align-items:stretch;
+    }
+
+    .media-link-card{
+      display:block;
+      text-decoration:none;
+      color:inherit;
+      min-height:260px;
+      position:relative;
+      overflow:hidden;
+      transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .media-link-card:hover{
+      transform:translateY(-3px);
+      box-shadow:0 14px 30px rgba(232,191,211,0.18);
+      background:#fff0f7;
+    }
+
+    .media-preview-box,
+    .onair-preview{
+      margin:0 24px 26px;
+      padding:22px;
+      border-radius:24px;
+      background:#fff;
+      border:1px solid #f0dde8;
+      box-shadow:0 8px 18px rgba(232,191,211,0.10);
+    }
+
+    .media-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:7px 12px;
+      border-radius:999px;
+      background:#fff0f7;
+      border:1px solid #f0bfd4;
+      color:#d77ca7;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.04em;
+      margin-bottom:13px;
+    }
+
+    .media-preview-box strong{
+      display:block;
+      color:#ff59a5;
+      font-size:22px;
+      font-weight:900;
+      margin-bottom:8px;
+    }
+
+    .media-preview-box em{
+      display:block;
+      color:#8f7183;
+      font-size:15px;
+      font-style:normal;
+      font-weight:700;
+      line-height:1.7;
+    }
+
+    .onair-card{
+      background:linear-gradient(135deg, #fff5fb 0%, #f6f0ff 100%) !important;
+      isolation:isolate;
+    }
+
+    .onair-glow{
+      position:absolute;
+      inset:-60% -30% auto auto;
+      width:260px;
+      height:260px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(255,255,255,.78) 0%, rgba(255,138,194,.25) 34%, rgba(202,167,255,.18) 58%, transparent 72%);
+      pointer-events:none;
+      animation:onairGlow 5.5s ease-in-out infinite;
+      z-index:0;
+    }
+
+    .onair-card > *:not(.onair-glow){
+      position:relative;
+      z-index:1;
+    }
+
+    .onair-preview{
+      display:grid;
+      gap:12px;
+    }
+
+    .onair-row{
+      display:grid;
+      grid-template-columns:82px 1fr;
+      gap:12px;
+      align-items:start;
+      padding:14px;
+      border-radius:18px;
+      background:#fff8fc;
+      border:1px solid #f3ddea;
+    }
+
+    .onair-label{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      height:28px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.04em;
+      color:#fff;
+      background:linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%);
+      box-shadow:0 6px 12px rgba(255,95,165,.18);
+    }
+
+    .onair-row.next .onair-label{
+      background:linear-gradient(180deg, #caa7ff 0%, #ba8ce7 100%);
+    }
+
+    .onair-row strong{
+      display:block;
+      color:#846f81;
+      font-size:16px;
+      font-weight:900;
+      margin-bottom:4px;
+    }
+
+    .onair-row p{
+      margin:0;
+      color:#ab869c;
+      font-size:13.5px;
+      font-weight:700;
+      line-height:1.55;
+    }
+
+    @keyframes onairGlow{
+      0%,100%{transform:translate(0,0) scale(1); opacity:.82;}
+      50%{transform:translate(-18px,18px) scale(1.08); opacity:1;}
+    }
+
+    @media (max-width: 1100px){
+      .media-grid{grid-template-columns:1fr;}
+    }
+
+    @media (max-width: 780px){
+      .media-link-card{min-height:auto;}
+      .media-preview-box,.onair-preview{margin:0 16px 18px;padding:16px;}
+      .onair-row{grid-template-columns:1fr;}
+      .onair-label{width:max-content;padding:0 12px;}
+    }
+
     .home-card-head {
       padding: 30px 28px 18px;
       text-align: center;
@@ -2519,15 +2675,42 @@ line-height:1.9 !important;
         </div>
       </section>
 
-      <section class="video-section home-card reveal">
-        <div class="home-card-head">
-          <h3>MORE VIDEO</h3>
-          <p>영상</p>
-        </div>
+      <section class="media-grid reveal">
+        <a href="video.html" class="home-card media-link-card video-mini-card" aria-label="MORE VIDEO 영상 페이지로 이동">
+          <div class="home-card-head">
+            <h3>MORE VIDEO</h3>
+            <p>루미벨 영상 아카이브</p>
+          </div>
+          <div class="media-preview-box">
+            <span class="media-pill">CLIP · LIVE · SHORTS</span>
+            <strong>영상 보러가기</strong>
+            <em>공연 직캠부터 방송 클립까지 한 번에 모아보기</em>
+          </div>
+        </a>
 
-        <div class="home-card-foot">
-          <a href="video.html" class="more-btn">영상 보러가기</a>
-        </div>
+        <a href="broadcast/" class="home-card media-link-card onair-card" aria-label="ON AIR 방송 페이지로 이동">
+          <div class="onair-glow"></div>
+          <div class="home-card-head">
+            <h3>ON AIR</h3>
+            <p>방송 스케줄 · 후기</p>
+          </div>
+          <div class="onair-preview">
+            <div class="onair-row recent">
+              <span class="onair-label">RECENT</span>
+              <div>
+                <strong>마리링 LIVE 기록</strong>
+                <p>루미들과 함께한 방송의 반짝이는 순간…♡</p>
+              </div>
+            </div>
+            <div class="onair-row next">
+              <span class="onair-label">NEXT</span>
+              <div>
+                <strong>다음 ON AIR 예정</strong>
+                <p>방송 일정은 이곳에서 확인해주세요.</p>
+              </div>
+            </div>
+          </div>
+        </a>
       </section>
 
       <section class="home-grid-bottom reveal">
