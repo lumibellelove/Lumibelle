@@ -344,31 +344,61 @@
       }
     }
 
-    .lumi-magic-spark,
+    .lumi-magic-ring,
+    .lumi-magic-star,
     .lumi-magic-butterfly{
       position:fixed;
       left:0;
       top:0;
       pointer-events:none;
-      z-index:9999;
+      z-index:10001;
       opacity:0;
       transform:translate(-50%,-50%);
+      will-change:transform,opacity;
     }
 
-    .lumi-magic-spark{
-      width:9px;
-      height:9px;
-      background:radial-gradient(circle,#fff 0%,#ffd9ef 42%,#ff8ac2 72%,rgba(255,138,194,0) 100%);
+    /* 클릭 시 생기는 둥근 마법진/빛 고리 */
+    .lumi-magic-ring{
+      width:74px;
+      height:74px;
       border-radius:50%;
-      box-shadow:0 0 10px rgba(255,138,194,.62),0 0 16px rgba(126,224,255,.28);
-      animation:lumiSparkPop .78s ease-out forwards;
+      background:
+        radial-gradient(circle, rgba(255,255,255,.58) 0%, rgba(255,255,255,.28) 21%, rgba(255,138,194,.14) 34%, rgba(255,138,194,0) 62%),
+        conic-gradient(from 8deg, rgba(126,224,255,0), rgba(126,224,255,.55), rgba(255,255,255,.90), rgba(255,138,194,.62), rgba(126,224,255,0));
+      -webkit-mask:radial-gradient(circle, transparent 0 38%, #000 41% 55%, transparent 58% 100%);
+      mask:radial-gradient(circle, transparent 0 38%, #000 41% 55%, transparent 58% 100%);
+      filter:drop-shadow(0 0 10px rgba(255,138,194,.50)) drop-shadow(0 0 18px rgba(126,224,255,.25));
+      animation:lumiRingPulse .92s ease-out forwards;
     }
 
+    /* 별 반짝: 점 덩어리가 아니라 십자 별 모양 */
+    .lumi-magic-star{
+      width:14px;
+      height:14px;
+      animation:lumiStarPop .86s ease-out forwards;
+      filter:drop-shadow(0 0 8px rgba(255,138,194,.45));
+    }
+
+    .lumi-magic-star::before,
+    .lumi-magic-star::after{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      border-radius:999px;
+      background:linear-gradient(180deg,#fff 0%,#ffe4f3 40%,#ff8ac2 100%);
+    }
+
+    .lumi-magic-star::before{width:3px;height:14px;}
+    .lumi-magic-star::after{width:14px;height:3px;}
+
+    /* 실제 나비 실루엣 */
     .lumi-magic-butterfly{
-      width:16px;
-      height:13px;
-      animation:lumiButterflyFly .9s ease-out forwards;
-      filter:drop-shadow(0 0 5px rgba(255,138,194,.32));
+      width:18px;
+      height:15px;
+      animation:lumiButterflyFly .98s cubic-bezier(.16,.82,.34,1) forwards;
+      filter:drop-shadow(0 0 5px rgba(126,224,255,.45)) drop-shadow(0 0 7px rgba(255,138,194,.25));
     }
 
     .lumi-magic-butterfly::before,
@@ -376,38 +406,154 @@
       content:"";
       position:absolute;
       top:2px;
-      width:8px;
-      height:10px;
-      background:linear-gradient(135deg,#7ee0ff 0%,#ff8ac2 100%);
-      border:1px solid rgba(255,255,255,.78);
-      border-radius:8px 8px 8px 2px;
+      width:9px;
+      height:12px;
+      background:linear-gradient(135deg,#7ee0ff 0%,#4fc3ff 38%,#ff8ac2 100%);
+      border:1px solid rgba(255,255,255,.92);
+      box-shadow:inset 0 0 4px rgba(255,255,255,.75);
     }
 
     .lumi-magic-butterfly::before{
       left:0;
-      transform:rotate(-28deg);
+      border-radius:10px 8px 9px 2px;
+      transform:rotate(-30deg);
       transform-origin:100% 80%;
     }
 
     .lumi-magic-butterfly::after{
       right:0;
-      transform:scaleX(-1) rotate(-28deg);
+      border-radius:8px 10px 2px 9px;
+      transform:rotate(30deg);
       transform-origin:0 80%;
     }
 
-    @keyframes lumiSparkPop{
-      0%{opacity:1; transform:translate(-50%,-50%) scale(.45);}
-      100%{opacity:0; transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.35);}
+    @keyframes lumiRingPulse{
+      0%{opacity:0;transform:translate(-50%,-50%) scale(.28) rotate(0deg);}
+      18%{opacity:.95;}
+      100%{opacity:0;transform:translate(-50%,-50%) scale(1.5) rotate(22deg);}
+    }
+
+    @keyframes lumiStarPop{
+      0%{opacity:0; transform:translate(-50%,-50%) scale(.25) rotate(0deg);}
+      18%{opacity:1;}
+      100%{opacity:0; transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.18) rotate(var(--r));}
     }
 
     @keyframes lumiButterflyFly{
       0%{opacity:0; transform:translate(-50%,-50%) scale(.55) rotate(0deg);}
-      14%{opacity:1;}
-      100%{opacity:0; transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.1) rotate(var(--r));}
+      12%{opacity:1;}
+      100%{opacity:0; transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.08) rotate(var(--r));}
     }
 
     @media (max-width:780px){
-      .lumi-magic-spark,.lumi-magic-butterfly{display:none;}
+      .lumi-magic-ring,.lumi-magic-star,.lumi-magic-butterfly{display:none;}
+    }
+
+  
+
+    /* ===== 루미벨 나비 열쇠 커서: PC 전체 적용 ===== */
+    @media (hover:hover) and (pointer:fine){
+      html,
+      body,
+      body *:not(input):not(textarea):not(select):not(option){
+        cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2248%22%20height%3D%2248%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%3Cdefs%3E%0A%3ClinearGradient%20id%3D%22wingA%22%20x1%3D%224%22%20y1%3D%227%22%20x2%3D%2223%22%20y2%3D%2220%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%234FC3FF%22%2F%3E%3Cstop%20offset%3D%22.48%22%20stop-color%3D%22%237EE0FF%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23FF8AC2%22%2F%3E%3C%2FlinearGradient%3E%0A%3ClinearGradient%20id%3D%22rose%22%20x1%3D%2212%22%20y1%3D%224%22%20x2%3D%2223%22%20y2%3D%2230%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23FFE9F7%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23FFB1D5%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23F6D7FF%22%2F%3E%3C%2FlinearGradient%3E%0A%3Cfilter%20id%3D%22glow%22%20x%3D%22-40%25%22%20y%3D%22-40%25%22%20width%3D%22180%25%22%20height%3D%22180%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%22.9%22%20result%3D%22b%22%2F%3E%3CfeMerge%3E%3CfeMergeNode%20in%3D%22b%22%2F%3E%3CfeMergeNode%20in%3D%22SourceGraphic%22%2F%3E%3C%2FfeMerge%3E%3C%2Ffilter%3E%0A%3C%2Fdefs%3E%0A%3Cpath%20d%3D%22M17.5%204.4C13.9%202.8%209.4%205.5%209.7%209.8c.18%202.7%202.3%204.4%204.35%205.1%203.9%201.35%208.95-.98%209.75-5.13%22%20fill%3D%22none%22%20stroke%3D%22%23F3B6CF%22%20stroke-width%3D%221.55%22%20stroke-linecap%3D%22round%22%20filter%3D%22url%28%23glow%29%22%2F%3E%0A%3Cpath%20d%3D%22M22.6%204.1l.9%201.65%201.75.85-1.75.85-.9%201.65-.9-1.65-1.75-.85%201.75-.85.9-1.65z%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF9FCB%22%20stroke-width%3D%22.75%22%2F%3E%0A%3Cg%20filter%3D%22url%28%23glow%29%22%3E%0A%3Cpath%20d%3D%22M15.8%2011.9C10%206.1%204.9%207.4%205.2%2012c.2%203.15%203.65%204.55%207.3%203.2-2.7%203.2%201.5%205.7%203.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cpath%20d%3D%22M16.2%2011.9c5.8-5.8%2010.9-4.5%2010.6.1-.2%203.15-3.65%204.55-7.3%203.2%202.7%203.2-1.5%205.7-3.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cellipse%20cx%3D%2216%22%20cy%3D%2215.2%22%20rx%3D%221.25%22%20ry%3D%223.25%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.7%22%2F%3E%0A%3Ccircle%20cx%3D%2216%22%20cy%3D%2214%22%20r%3D%221.15%22%20fill%3D%22%23FFD8F0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.4%22%2F%3E%0A%3C%2Fg%3E%0A%3Cpath%20d%3D%22M16%2018.2v8.2%22%20stroke%3D%22url%28%23rose%29%22%20stroke-width%3D%222.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M16%2021.8h2.35M16%2024.3h3.3M18.5%2024.3v1.9%22%20stroke%3D%22%23D997AF%22%20stroke-width%3D%221.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M18.9%2019.5c1.2-1.15%202.95-.35%202.8%201.05-.18%201.8-2.18%202.7-2.8%203.2-.62-.5-2.62-1.4-2.8-3.2-.15-1.4%201.6-2.2%202.8-1.05z%22%20fill%3D%22%23FFD9F0%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.65%22%2F%3E%0A%3Cpath%20d%3D%22M8%2010.2l2.1%201.8M23.8%2010.2l-2.1%201.8%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22%2F%3E%0A%3C%2Fsvg%3E") 24 38, auto !important;
+      }
+
+      a, button,
+      .ticket-option, .meate-option,
+      .package-btn, .quick-icon-btn, .reserve-btn,
+      .top-button, .lang-switch a, nav a{
+        cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2248%22%20height%3D%2248%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%3Cdefs%3E%0A%3ClinearGradient%20id%3D%22wingA%22%20x1%3D%224%22%20y1%3D%227%22%20x2%3D%2223%22%20y2%3D%2220%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%234FC3FF%22%2F%3E%3Cstop%20offset%3D%22.48%22%20stop-color%3D%22%237EE0FF%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23FF8AC2%22%2F%3E%3C%2FlinearGradient%3E%0A%3ClinearGradient%20id%3D%22rose%22%20x1%3D%2212%22%20y1%3D%224%22%20x2%3D%2223%22%20y2%3D%2230%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23FFE9F7%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23FFB1D5%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23F6D7FF%22%2F%3E%3C%2FlinearGradient%3E%0A%3Cfilter%20id%3D%22glow%22%20x%3D%22-40%25%22%20y%3D%22-40%25%22%20width%3D%22180%25%22%20height%3D%22180%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%22.9%22%20result%3D%22b%22%2F%3E%3CfeMerge%3E%3CfeMergeNode%20in%3D%22b%22%2F%3E%3CfeMergeNode%20in%3D%22SourceGraphic%22%2F%3E%3C%2FfeMerge%3E%3C%2Ffilter%3E%0A%3C%2Fdefs%3E%0A%3Cpath%20d%3D%22M17.5%204.4C13.9%202.8%209.4%205.5%209.7%209.8c.18%202.7%202.3%204.4%204.35%205.1%203.9%201.35%208.95-.98%209.75-5.13%22%20fill%3D%22none%22%20stroke%3D%22%23F3B6CF%22%20stroke-width%3D%221.55%22%20stroke-linecap%3D%22round%22%20filter%3D%22url%28%23glow%29%22%2F%3E%0A%3Cpath%20d%3D%22M22.6%204.1l.9%201.65%201.75.85-1.75.85-.9%201.65-.9-1.65-1.75-.85%201.75-.85.9-1.65z%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF9FCB%22%20stroke-width%3D%22.75%22%2F%3E%0A%3Cg%20filter%3D%22url%28%23glow%29%22%3E%0A%3Cpath%20d%3D%22M15.8%2011.9C10%206.1%204.9%207.4%205.2%2012c.2%203.15%203.65%204.55%207.3%203.2-2.7%203.2%201.5%205.7%203.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cpath%20d%3D%22M16.2%2011.9c5.8-5.8%2010.9-4.5%2010.6.1-.2%203.15-3.65%204.55-7.3%203.2%202.7%203.2-1.5%205.7-3.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cellipse%20cx%3D%2216%22%20cy%3D%2215.2%22%20rx%3D%221.25%22%20ry%3D%223.25%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.7%22%2F%3E%0A%3Ccircle%20cx%3D%2216%22%20cy%3D%2214%22%20r%3D%221.15%22%20fill%3D%22%23FFD8F0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.4%22%2F%3E%0A%3C%2Fg%3E%0A%3Cpath%20d%3D%22M16%2018.2v8.2%22%20stroke%3D%22url%28%23rose%29%22%20stroke-width%3D%222.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M16%2021.8h2.35M16%2024.3h3.3M18.5%2024.3v1.9%22%20stroke%3D%22%23D997AF%22%20stroke-width%3D%221.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M18.9%2019.5c1.2-1.15%202.95-.35%202.8%201.05-.18%201.8-2.18%202.7-2.8%203.2-.62-.5-2.62-1.4-2.8-3.2-.15-1.4%201.6-2.2%202.8-1.05z%22%20fill%3D%22%23FFD9F0%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.65%22%2F%3E%0A%3Cpath%20d%3D%22M8%2010.2l2.1%201.8M23.8%2010.2l-2.1%201.8%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22%2F%3E%0A%3C%2Fsvg%3E") 24 38, pointer !important;
+      }
+
+      input, textarea{
+        cursor:text !important;
+      }
+    }
+
+
+    /* ===== 루미벨 커서 고급화: 상시 반짝 / hover / 전체 클릭 ===== */
+    @media (hover:hover) and (pointer:fine){
+      .lumi-cursor-glow,
+      .lumi-cursor-core{
+        position:fixed;
+        left:0;
+        top:0;
+        pointer-events:none;
+        transform:translate(-50%,-50%);
+        z-index:10000;
+        opacity:0;
+        will-change:transform,left,top,opacity;
+      }
+
+      .lumi-cursor-glow{
+        width:34px;
+        height:34px;
+        border-radius:50%;
+        background:
+          radial-gradient(circle, rgba(255,255,255,.95) 0%, rgba(255,255,255,.55) 18%, rgba(126,224,255,.42) 36%, rgba(255,138,194,.34) 58%, rgba(255,138,194,0) 78%);
+        filter:blur(7px);
+        opacity:.52;
+        transition:width .16s ease,height .16s ease,opacity .16s ease,filter .16s ease,background .16s ease;
+      }
+
+      .lumi-cursor-core{
+        width:6px;
+        height:6px;
+        border-radius:50%;
+        background:#fff;
+        box-shadow:0 0 8px rgba(255,255,255,.95),0 0 14px rgba(126,224,255,.55),0 0 18px rgba(255,138,194,.45);
+        opacity:.78;
+        transition:width .16s ease,height .16s ease,opacity .16s ease,box-shadow .16s ease;
+      }
+
+      body.lumi-cursor-hover .lumi-cursor-glow{
+        width:64px;
+        height:64px;
+        opacity:.88;
+        filter:blur(8px);
+        background:
+          radial-gradient(circle, rgba(255,255,255,.88) 0%, rgba(255,255,255,.42) 22%, rgba(255,138,194,.30) 34%, rgba(126,224,255,.26) 47%, rgba(255,138,194,0) 70%),
+          conic-gradient(from 8deg, rgba(126,224,255,0), rgba(126,224,255,.34), rgba(255,255,255,.56), rgba(255,138,194,.36), rgba(126,224,255,0));
+      }
+
+      body.lumi-cursor-hover .lumi-cursor-core{
+        width:8px;
+        height:8px;
+        opacity:1;
+        box-shadow:0 0 10px rgba(255,255,255,1),0 0 18px rgba(126,224,255,.72),0 0 24px rgba(255,138,194,.62);
+      }
+
+      .lumi-trail-spark{
+        position:fixed;
+        left:0;
+        top:0;
+        width:10px;
+        height:10px;
+        pointer-events:none;
+        z-index:9998;
+        opacity:0;
+        transform:translate(-50%,-50%) scale(.55);
+        animation:lumiTrailFade 1.05s ease-out forwards;
+        filter:drop-shadow(0 0 7px rgba(255,138,194,.38));
+      }
+      .lumi-trail-spark::before,
+      .lumi-trail-spark::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        transform:translate(-50%,-50%);
+        border-radius:999px;
+        background:linear-gradient(180deg,#fff,#ffd9ef 54%,#7ee0ff);
+      }
+      .lumi-trail-spark::before{width:2px;height:10px;}
+      .lumi-trail-spark::after{width:10px;height:2px;}
+
+      @keyframes lumiTrailFade{
+        0%{opacity:.7;transform:translate(-50%,-50%) scale(.35) rotate(0deg);}
+        100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.05) rotate(38deg);}
+      }
     }
 
   </style>
@@ -892,49 +1038,131 @@
       }
     }
 
-    document.querySelectorAll('.ticket-option, .meate-option, .package-btn, .quick-icon-btn, .reserve-btn, .top-button').forEach((el) => {
-      el.addEventListener('click', (event) => {
-        createBurst(event.clientX, event.clientY);
-      });
-    });
+    // click burst is now handled globally below, including empty spaces.
   </script>
 
   <script>
     function createLumibelleCursorMagic(x, y){
-      const sparkleCount = 10;
-      for(let i=0; i<sparkleCount; i++){
-        const spark = document.createElement('span');
-        spark.className = 'lumi-magic-spark';
-        const angle = (Math.PI * 2 * i) / sparkleCount;
-        const distance = 18 + Math.random() * 28;
-        spark.style.left = x + 'px';
-        spark.style.top = y + 'px';
-        spark.style.setProperty('--x', Math.cos(angle) * distance + 'px');
-        spark.style.setProperty('--y', Math.sin(angle) * distance + 'px');
-        document.body.appendChild(spark);
-        setTimeout(() => spark.remove(), 850);
+      // 1) 먼저 둥근 빛 고리부터 크게 퍼지게
+      const ring = document.createElement('span');
+      ring.className = 'lumi-magic-ring';
+      ring.style.left = x + 'px';
+      ring.style.top = y + 'px';
+      document.body.appendChild(ring);
+      setTimeout(() => ring.remove(), 980);
+
+      // 2) 별빛은 점 덩어리처럼 보이지 않게 6개만, 십자 별로 퍼짐
+      const starCount = 6;
+      for(let i=0; i<starCount; i++){
+        const star = document.createElement('span');
+        star.className = 'lumi-magic-star';
+        const angle = (Math.PI * 2 * i) / starCount + (Math.random() * .35 - .18);
+        const distance = 28 + Math.random() * 34;
+        star.style.left = x + 'px';
+        star.style.top = y + 'px';
+        star.style.setProperty('--x', Math.cos(angle) * distance + 'px');
+        star.style.setProperty('--y', Math.sin(angle) * distance + 'px');
+        star.style.setProperty('--r', (Math.random() * 120 - 60) + 'deg');
+        document.body.appendChild(star);
+        setTimeout(() => star.remove(), 900);
       }
 
-      for(let i=0; i<3; i++){
+      // 3) 나비는 2~3개만 위/옆으로 날아가게
+      const butterflyCount = 3;
+      for(let i=0; i<butterflyCount; i++){
         const butterfly = document.createElement('span');
         butterfly.className = 'lumi-magic-butterfly';
-        const angle = -Math.PI / 2 + (Math.random() * 1.5 - .75);
-        const distance = 38 + Math.random() * 34;
+        const angle = -Math.PI / 2 + (i - 1) * .42 + (Math.random() * .22 - .11);
+        const distance = 46 + Math.random() * 34;
         butterfly.style.left = x + 'px';
         butterfly.style.top = y + 'px';
         butterfly.style.setProperty('--x', Math.cos(angle) * distance + 'px');
         butterfly.style.setProperty('--y', Math.sin(angle) * distance + 'px');
-        butterfly.style.setProperty('--r', (Math.random() * 70 - 35) + 'deg');
+        butterfly.style.setProperty('--r', (Math.random() * 54 - 27) + 'deg');
         document.body.appendChild(butterfly);
-        setTimeout(() => butterfly.remove(), 950);
+        setTimeout(() => butterfly.remove(), 1050);
       }
     }
 
-    document.querySelectorAll('a, button, .ticket-option, .meate-option').forEach((el) => {
-      el.addEventListener('click', (event) => {
+    // click magic is now handled globally below, including empty spaces.
+  </script>
+
+  <script>
+    // 루미벨 커서 최종 효과: 허공 클릭 / 마우스 잔광 / hover 상태
+    (() => {
+      const canUseMagicCursor = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+      if(!canUseMagicCursor) return;
+
+      const glow = document.createElement('span');
+      glow.className = 'lumi-cursor-glow';
+      document.body.appendChild(glow);
+
+      const core = document.createElement('span');
+      core.className = 'lumi-cursor-core';
+      document.body.appendChild(core);
+
+      let lastTrail = 0;
+      let lastX = 0;
+      let lastY = 0;
+
+      function moveCursor(x, y){
+        lastX = x;
+        lastY = y;
+        glow.style.left = x + 'px';
+        glow.style.top = y + 'px';
+        core.style.left = x + 'px';
+        core.style.top = y + 'px';
+      }
+
+      function createTrailSpark(x, y){
+        const spark = document.createElement('span');
+        spark.className = 'lumi-trail-spark';
+        spark.style.left = x + 'px';
+        spark.style.top = y + 'px';
+        spark.style.setProperty('--x', (Math.random() * 24 - 12) + 'px');
+        spark.style.setProperty('--y', (-12 - Math.random() * 22) + 'px');
+        document.body.appendChild(spark);
+        setTimeout(() => spark.remove(), 1000);
+      }
+
+      document.addEventListener('pointermove', (event) => {
+        moveCursor(event.clientX, event.clientY);
+        const now = performance.now();
+        if(now - lastTrail > 95){
+          lastTrail = now;
+          createTrailSpark(event.clientX, event.clientY);
+        }
+      }, { passive:true });
+
+      document.addEventListener('pointerover', (event) => {
+        if(event.target.closest('a, button, .ticket-option, .meate-option, .package-btn, .quick-icon-btn, .reserve-btn, .top-button, .lang-switch a, nav a')){
+          document.body.classList.add('lumi-cursor-hover');
+        }
+      });
+
+      document.addEventListener('pointerout', (event) => {
+        if(event.target.closest('a, button, .ticket-option, .meate-option, .package-btn, .quick-icon-btn, .reserve-btn, .top-button, .lang-switch a, nav a')){
+          document.body.classList.remove('lumi-cursor-hover');
+        }
+      });
+
+      document.addEventListener('click', (event) => {
+        // 클릭 가능한 곳뿐 아니라 허공 클릭도 전부 마법 효과 발생
         createLumibelleCursorMagic(event.clientX, event.clientY);
       });
-    });
+
+      document.addEventListener('mouseleave', () => {
+        glow.style.opacity = '0';
+        core.style.opacity = '0';
+      });
+
+      document.addEventListener('mouseenter', () => {
+        glow.style.opacity = '';
+        core.style.opacity = '';
+        moveCursor(lastX, lastY);
+      });
+    })();
   </script>
+
  </body>
 </html>
