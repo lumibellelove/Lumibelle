@@ -763,9 +763,241 @@
   18%{opacity:1;}
   100%{transform:translateY(-18px) scale(1.15);opacity:0;}
 }
-</style>
+
+
+/* =========================================================
+   FINAL RESET: ticket header only
+   - 본문(ticket layout) 폭은 그대로 둠
+   - 상단(header)만 홈 style.css 기준 폭으로 분리
+   - 공통 style.css의 7칸 nav / min-height / 배경 충돌 차단
+   ========================================================= */
+body.ticket-page header{
+  position:sticky !important;
+  top:0 !important;
+  z-index:50 !important;
+  background:rgba(255,248,252,.93) !important;
+  backdrop-filter:blur(10px) !important;
+  -webkit-backdrop-filter:blur(10px) !important;
+  border-bottom:1px solid rgba(241,212,227,.85) !important;
+  box-shadow:0 8px 20px rgba(255,120,178,.06) !important;
+}
+
+body.ticket-page header .wrap.header-box{
+  width:min(1220px, calc(100% - 28px)) !important;
+  max-width:1220px !important;
+  margin:18px auto 14px !important;
+  padding:18px 22px !important;
+  box-sizing:border-box !important;
+  min-height:auto !important;
+
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  flex-wrap:nowrap !important;
+  gap:24px !important;
+
+  border:1px solid #f1d4e3 !important;
+  border-radius:22px !important;
+  background:linear-gradient(180deg, rgba(255,252,254,.97), rgba(255,246,251,.95)) !important;
+  box-shadow:0 16px 30px rgba(255,120,178,.10) !important;
+  overflow:visible !important;
+}
+
+body.ticket-page header .logo{
+  flex:0 0 auto !important;
+  display:flex !important;
+  align-items:center !important;
+}
+
+body.ticket-page header .logo img{
+  height:110px !important;
+  width:auto !important;
+  max-width:150px !important;
+  display:block !important;
+}
+
+body.ticket-page header nav{
+  flex:1 1 auto !important;
+  display:grid !important;
+  grid-template-columns:repeat(8, minmax(0, 1fr)) !important;
+  gap:12px !important;
+  margin:0 !important;
+  text-align:center !important;
+  align-items:center !important;
+  min-width:0 !important;
+}
+
+body.ticket-page header nav a{
+  position:relative !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:100% !important;
+  min-width:0 !important;
+  min-height:64px !important;
+  padding:10px 4px !important;
+  border-radius:18px !important;
+  text-decoration:none !important;
+  color:inherit !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  transform:none !important;
+  overflow:hidden !important;
+  isolation:isolate !important;
+  -webkit-tap-highlight-color:transparent !important;
+}
+
+body.ticket-page header nav a b,
+body.ticket-page header nav a span{
+  display:block !important;
+  width:100% !important;
+  text-align:center !important;
+  white-space:nowrap !important;
+  line-height:1.1 !important;
+}
+
+body.ticket-page header nav a b{
+  margin:0 0 6px !important;
+  color:#d06f9f !important;
+  font-size:18px !important;
+  font-weight:900 !important;
+  letter-spacing:-.02em !important;
+}
+
+body.ticket-page header nav a span{
+  margin:0 !important;
+  color:#c288a6 !important;
+  font-size:13.5px !important;
+  font-weight:900 !important;
+  letter-spacing:-.02em !important;
+}
+
+/* 홈 느낌의 은은한 그라데이션 메뉴 박스 */
+body.ticket-page header nav a::before{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  border-radius:18px !important;
+  background:linear-gradient(90deg,
+    rgba(255,217,232,0.00) 0%,
+    rgba(255,217,232,0.14) 16%,
+    rgba(255,192,215,0.16) 36%,
+    rgba(255,192,215,0.22) 50%,
+    rgba(255,192,215,0.16) 64%,
+    rgba(255,217,232,0.14) 84%,
+    rgba(255,217,232,0.00) 100%) !important;
+  opacity:0 !important;
+  z-index:-1 !important;
+  pointer-events:none !important;
+  transition:opacity .18s ease !important;
+  box-shadow:0 4px 10px rgba(255,192,215,.05) !important;
+}
+
+body.ticket-page header nav a.current::before,
+body.ticket-page header nav a:hover::before,
+body.ticket-page header nav a:focus-visible::before{
+  opacity:1 !important;
+}
+
+body.ticket-page header nav a.current b,
+body.ticket-page header nav a:hover b,
+body.ticket-page header nav a:focus-visible b{
+  color:#ff59a5 !important;
+}
+
+body.ticket-page header nav a.current span,
+body.ticket-page header nav a:hover span,
+body.ticket-page header nav a:focus-visible span{
+  color:#d88dad !important;
+}
+
+/* 하얀 스윕 효과 복구 */
+body.ticket-page header nav a::after{
+  content:"" !important;
+  position:absolute !important;
+  top:-35% !important;
+  left:-42% !important;
+  width:22% !important;
+  height:170% !important;
+  background:linear-gradient(90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,.12) 35%,
+    rgba(255,255,255,.32) 50%,
+    rgba(255,255,255,.12) 65%,
+    rgba(255,255,255,0) 100%) !important;
+  transform:skewX(-22deg) translateX(0) !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+  z-index:2 !important;
+}
+
+body.ticket-page header nav a:hover::after{
+  animation:ticketHeaderSweepShine .9s ease forwards !important;
+}
+
+@keyframes ticketHeaderSweepShine{
+  0%{opacity:0;transform:skewX(-22deg) translateX(0);}
+  15%{opacity:1;}
+  100%{opacity:0;transform:skewX(-22deg) translateX(560%);}
+}
+
+/* 언어 버튼도 홈과 같은 폭 계산 */
+body.ticket-page .top-lang-bar{
+  width:100% !important;
+  max-width:1220px !important;
+  margin:16px auto 0 !important;
+  display:flex !important;
+  justify-content:flex-end !important;
+  padding:0 18px !important;
+  box-sizing:border-box !important;
+}
+
+@media (max-width:1180px){
+  body.ticket-page header .wrap.header-box{
+    flex-wrap:wrap !important;
+    justify-content:center !important;
+  }
+  body.ticket-page header nav{
+    grid-template-columns:repeat(4, minmax(0, 1fr)) !important;
+    width:100% !important;
+  }
+  body.ticket-page .top-lang-bar{
+    justify-content:center !important;
+  }
+}
+
+@media (max-width:780px){
+  body.ticket-page header .wrap.header-box{
+    width:min(100% - 24px, 1220px) !important;
+    padding:14px 14px !important;
+    gap:14px !important;
+    margin:14px auto 12px !important;
+  }
+  body.ticket-page header .logo img{
+    height:86px !important;
+    max-width:132px !important;
+  }
+  body.ticket-page header nav{
+    grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+    gap:10px !important;
+  }
+  body.ticket-page header nav a{
+    min-height:56px !important;
+    padding:9px 4px !important;
+    border-radius:16px !important;
+  }
+  body.ticket-page header nav a b{
+    font-size:16px !important;
+  }
+  body.ticket-page header nav a span{
+    font-size:12.5px !important;
+  }
+}
+
+  </style>
  </head>
- <body>
+ <body class="ticket-page">
   <div class="top-lang-bar">
    <div class="lang-switch">
     <a class="active" href="../index.html">
