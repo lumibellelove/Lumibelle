@@ -2,44 +2,259 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>STAFF QR SCAN | Lumibelle</title>
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800;900&display=swap');
-    :root{--panel:#fff5fb;--line:#f2d8e7;--pink:#ff5fa8;--text:#7f6a77;--muted:#b28ea2;--purple:#a88cff;--sky:#4fc3ff;--shadow:0 10px 28px rgba(232,191,211,.18)}
+
+    :root{
+      --line:#f2d8e7;
+      --pink:#ff5fa8;
+      --text:#7f6a77;
+      --muted:#b28ea2;
+      --shadow:0 8px 22px rgba(232,191,211,.16);
+    }
+
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0}
-    body{min-height:100vh;font-family:"SUIT","Noto Sans KR",Arial,sans-serif;color:var(--text);background:radial-gradient(circle at 12% 8%,rgba(255,192,215,.34) 0%,rgba(255,192,215,0) 28%),radial-gradient(circle at 88% 18%,rgba(202,167,255,.22) 0%,rgba(202,167,255,0) 26%),linear-gradient(180deg,#fffafc 0%,#fff0f7 100%);padding:18px;letter-spacing:-.01em}
-    .wrap{width:min(720px,100%);margin:0 auto}
-    .hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:30px;background:linear-gradient(135deg,#fff0f7 0%,#f7efff 100%);box-shadow:var(--shadow);padding:34px 22px 30px;text-align:center}
-    .hero::after{content:"✦";position:absolute;right:28px;bottom:22px;color:rgba(255,95,168,.22);font-size:38px;pointer-events:none}
-    .eyebrow{color:var(--pink);font-size:14px;font-weight:900;margin-bottom:8px}
-    h1{margin:0;font-family:"Cormorant Garamond",serif;font-size:54px;line-height:.92;font-weight:700;color:var(--pink);text-shadow:0 1px 0 rgba(255,255,255,.98),0 0 10px rgba(255,120,178,.18)}
-    .sub{margin:14px 0 0;color:#8f7183;font-size:15px;line-height:1.7;font-weight:800}
-    .card{margin-top:16px;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:26px;padding:20px;box-shadow:0 8px 22px rgba(255,95,165,.08)}
-    label{display:block;color:#d77ca7;font-size:16px;font-weight:900;margin:0 0 8px}
-    .hint{margin:0 0 12px;color:var(--muted);font-size:13px;line-height:1.6;font-weight:800}
-    input{width:100%;min-height:52px;border:1px solid #f0bfd4;border-radius:18px;background:#fff;color:var(--text);font-size:18px;font-weight:900;padding:0 16px;outline:none}
-    input:focus{border-color:#ff8ac2;box-shadow:0 0 0 4px rgba(255,138,194,.14)}
-    .buttons{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px}
-    button,a.btn{min-height:50px;border:0;border-radius:999px;font-size:14px;font-weight:900;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;text-align:center;padding:0 14px;font-family:inherit}
-    .scan{width:100%;min-height:58px;margin-top:12px;background:linear-gradient(180deg,#78d6ff,#4fc3ff);color:#fff;box-shadow:0 9px 20px rgba(79,195,255,.25);font-size:16px}
+
+    html,body{
+      margin:0;
+      padding:0;
+      width:100%;
+      max-width:100%;
+      overflow-x:hidden;
+    }
+
+    body{
+      min-height:100vh;
+      font-family:"SUIT","Noto Sans KR",Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 12% 8%,rgba(255,192,215,.30) 0%,rgba(255,192,215,0) 28%),
+        radial-gradient(circle at 88% 18%,rgba(202,167,255,.20) 0%,rgba(202,167,255,0) 26%),
+        linear-gradient(180deg,#fffafc 0%,#fff0f7 100%);
+      padding:10px;
+      letter-spacing:-.01em;
+    }
+
+    .wrap{
+      width:100%;
+      max-width:520px;
+      margin:0 auto;
+    }
+
+    .hero{
+      width:100%;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:linear-gradient(135deg,#fff0f7 0%,#f7efff 100%);
+      box-shadow:var(--shadow);
+      padding:22px 14px 20px;
+      text-align:center;
+    }
+
+    .eyebrow{
+      color:var(--pink);
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:8px;
+    }
+
+    h1{
+      margin:0;
+      font-family:"Cormorant Garamond",serif;
+      font-size:40px;
+      line-height:.92;
+      font-weight:700;
+      color:var(--pink);
+      text-shadow:0 1px 0 rgba(255,255,255,.98),0 0 10px rgba(255,120,178,.18);
+    }
+
+    .sub{
+      margin:12px 0 0;
+      color:#8f7183;
+      font-size:13px;
+      line-height:1.6;
+      font-weight:800;
+    }
+
+    .card{
+      width:100%;
+      margin-top:12px;
+      background:rgba(255,255,255,.94);
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:12px;
+      box-shadow:0 8px 22px rgba(255,95,165,.08);
+      overflow:hidden;
+    }
+
+    label{
+      display:block;
+      color:#d77ca7;
+      font-size:15px;
+      font-weight:900;
+      margin:0 0 8px;
+    }
+
+    .hint{
+      margin:0 0 10px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.55;
+      font-weight:800;
+    }
+
+    input{
+      width:100%;
+      min-height:50px;
+      border:1px solid #f0bfd4;
+      border-radius:16px;
+      background:#fff;
+      color:var(--text);
+      font-size:17px;
+      font-weight:900;
+      padding:0 14px;
+      outline:none;
+    }
+
+    input:focus{
+      border-color:#ff8ac2;
+      box-shadow:0 0 0 4px rgba(255,138,194,.14);
+    }
+
+    button,a.btn{
+      width:100%;
+      min-height:48px;
+      border:0;
+      border-radius:999px;
+      font-size:13.5px;
+      font-weight:900;
+      cursor:pointer;
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:0 12px;
+      font-family:inherit;
+      line-height:1.2;
+      white-space:normal;
+    }
+
+    .scan{
+      min-height:56px;
+      background:linear-gradient(180deg,#78d6ff,#4fc3ff);
+      color:#fff;
+      box-shadow:0 9px 20px rgba(79,195,255,.25);
+      font-size:15px;
+    }
+
+    .buttons{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:10px;
+      width:100%;
+    }
+
+    .wide{grid-column:1 / -1}
+
     .primary{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;box-shadow:0 8px 18px rgba(255,95,165,.22)}
     .subbtn{background:#fff0f7;color:#d77ca7;border:1px solid #f0bfd4}
     .purple{background:linear-gradient(180deg,#bca7ff,#a88cff);color:#fff;box-shadow:0 8px 18px rgba(168,140,255,.22)}
     .green{background:linear-gradient(180deg,#6edb91,#31b765);color:#fff;box-shadow:0 8px 18px rgba(49,183,101,.22)}
-    .message{margin-top:14px;padding:14px;border-radius:18px;background:#fff0f7;color:#d77ca7;font-weight:900;text-align:center;line-height:1.65;font-size:14px}
-    .success{background:#e9fff0;color:#21864a}.danger{background:#fff2e8;color:#d36b36}
-    .scanner{display:none;margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:22px;background:#fff7fb}.scanner.active{display:block}
-    #qr-reader{width:100%;max-width:440px;margin:0 auto;overflow:hidden;border-radius:18px;background:#fff}
-    .small{margin:12px 0 0;color:#9a7a8c;font-size:12.5px;font-weight:800;line-height:1.7;text-align:center}
-    .manual{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
-    .openBox{display:none;margin-top:14px;padding:14px;border-radius:20px;background:#f8fff9;border:1px solid #ccefd7}
+
+    .message{
+      margin-top:12px;
+      padding:12px;
+      border-radius:18px;
+      background:#fff0f7;
+      color:#d77ca7;
+      font-weight:900;
+      text-align:center;
+      line-height:1.6;
+      font-size:13px;
+    }
+
+    .success{background:#e9fff0;color:#21864a}
+    .danger{background:#fff2e8;color:#d36b36}
+
+    .scanner{
+      display:none;
+      margin-top:12px;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:#fff7fb;
+      width:100%;
+      overflow:hidden;
+    }
+
+    .scanner.active{display:block}
+
+    #qr-reader{
+      width:100%;
+      max-width:100%;
+      margin:0 auto;
+      overflow:hidden;
+      border-radius:16px;
+      background:#fff;
+    }
+
+    .small{
+      margin:10px 0 0;
+      color:#9a7a8c;
+      font-size:12px;
+      font-weight:800;
+      line-height:1.65;
+      text-align:center;
+    }
+
+    .manual{
+      margin-top:12px;
+      padding-top:12px;
+      border-top:1px solid var(--line);
+    }
+
+    .openBox{
+      display:none;
+      margin-top:12px;
+      padding:12px;
+      border-radius:20px;
+      background:#f8fff9;
+      border:1px solid #ccefd7;
+      width:100%;
+    }
+
     .openBox.active{display:block}
-    .openBox .found{margin:0 0 10px;color:#21864a;font-size:15px;font-weight:900;text-align:center;line-height:1.6}
-    .footer-note{margin-top:14px;color:#b28ea2;font-size:12px;line-height:1.7;text-align:center;font-weight:700}
-    @media(max-width:520px){body{padding:14px}h1{font-size:44px}.buttons{grid-template-columns:1fr}.hero{padding:30px 18px 26px}.card{padding:18px}}
+
+    .found{
+      margin:0 0 10px;
+      color:#21864a;
+      font-size:14px;
+      font-weight:900;
+      text-align:center;
+      line-height:1.6;
+      word-break:break-word;
+    }
+
+    .footer-note{
+      margin-top:10px;
+      color:#b28ea2;
+      font-size:11.5px;
+      line-height:1.6;
+      text-align:center;
+      font-weight:700;
+    }
+
+    @media(max-width:360px){
+      h1{font-size:36px}
+      .buttons{grid-template-columns:1fr}
+      .wide{grid-column:auto}
+    }
   </style>
 </head>
 <body>
@@ -56,23 +271,23 @@
       <div id="scannerBox" class="scanner">
         <div id="qr-reader"></div>
         <p class="small">카메라 권한을 허용한 뒤 팬의 QR을 비춰주세요.<br>QR에는 예약번호만 들어 있어요.</p>
-        <button class="subbtn" style="width:100%;margin-top:10px;" type="button" onclick="closeScanner()">스캔 닫기</button>
+        <button class="subbtn" style="margin-top:10px;" type="button" onclick="closeScanner()">스캔 닫기</button>
       </div>
 
       <div id="openBox" class="openBox">
         <p id="foundText" class="found">예약번호를 읽었어요.</p>
-        <a id="openCheckinLink" class="btn green" href="#" target="_self">입장확인 페이지 열기</a>
+        <button id="openCheckinBtn" class="green" type="button" onclick="openCheckin()">입장확인 페이지 열기</button>
       </div>
 
       <div class="manual">
         <label for="manualInput">수동 입력</label>
-        <p class="hint">스캔이 안 되면 예약번호 끝 4자리, 루미ID 숫자, 입금자명, 닉네임을 입력해 주세요.</p>
+        <p class="hint">스캔이 안 되면 번호/이름/닉네임으로 바로 조회해 주세요.</p>
         <input id="manualInput" placeholder="예: 1180 / 김민지 / 닉네임 / 8648" inputmode="text" />
 
         <div class="buttons">
-          <button class="primary" type="button" onclick="goManualTicket()">예약번호 조회</button>
-          <button class="purple" type="button" onclick="goManualLumi()">LB- 루미ID</button>
-          <button class="subbtn" type="button" onclick="goManualSearch()">통합 조회</button>
+          <button class="primary" type="button" onclick="goManualTicket()">예약번호</button>
+          <button class="purple" type="button" onclick="goManualLumi()">LB- ID</button>
+          <button class="subbtn wide" type="button" onclick="goManualSearch()">입금자명/닉네임 조회</button>
         </div>
       </div>
 
@@ -84,9 +299,9 @@
 
   <script>
     const CHECKIN_URL = "https://script.google.com/macros/s/AKfycbzan2-YWU9W7q5YKFN_gf7z7uYaWQlTGvrXcpTzobXPDfi3ZX969ARWsFb6VoExTyRHDA/exec";
-
     let scanner = null;
     let scannerRunning = false;
+    let pendingValue = "";
 
     function setMsg(text, type){
       const msg = document.getElementById("msg");
@@ -118,40 +333,52 @@
 
     function showOpenButton(value){
       const normalized = normalizeTicket(value);
-      const openBox = document.getElementById("openBox");
-      const foundText = document.getElementById("foundText");
-      const link = document.getElementById("openCheckinLink");
+      pendingValue = normalized;
 
       document.getElementById("manualInput").value = normalized;
-      foundText.innerHTML = "예약번호를 읽었어요.<br>" + escapeHtml(normalized);
-      link.href = checkinHref(normalized);
-      openBox.classList.add("active");
-      setMsg("아래 초록 버튼을 눌러 입장확인 페이지를 열어주세요.", "success");
+      document.getElementById("foundText").innerHTML = "예약번호를 읽었어요.<br>" + escapeHtml(normalized);
+      document.getElementById("openBox").classList.add("active");
+      setMsg("초록 버튼을 눌러 입장확인 페이지를 열어주세요.", "success");
+    }
+
+    function openCheckin(){
+      if(!pendingValue){
+        pendingValue = normalizeTicket(document.getElementById("manualInput").value);
+      }
+      if(!pendingValue){
+        setMsg("예약번호를 찾지 못했어요.", "danger");
+        return;
+      }
+      window.location.href = checkinHref(pendingValue);
     }
 
     function goManualTicket(){
       const value = normalizeTicket(document.getElementById("manualInput").value);
       if(!value){ setMsg("예약번호를 입력해 주세요.", "danger"); return; }
-      location.href = checkinHref(value);
+      pendingValue = value;
+      window.location.href = checkinHref(value);
     }
 
     function goManualLumi(){
       const value = normalizeLumi(document.getElementById("manualInput").value);
       if(!value){ setMsg("루미ID 숫자 4자리를 입력해 주세요.", "danger"); return; }
       document.getElementById("manualInput").value = value;
-      location.href = checkinHref(value);
+      pendingValue = value;
+      window.location.href = checkinHref(value);
     }
 
     function goManualSearch(){
       const value = String(document.getElementById("manualInput").value || "").trim();
       if(!value){ setMsg("입금자명, 닉네임, 예약번호, 루미ID 중 하나를 입력해 주세요.", "danger"); return; }
-      location.href = checkinHref(value);
+      pendingValue = value;
+      window.location.href = checkinHref(value);
     }
 
     function openScanner(){
       document.getElementById("openBox").classList.remove("active");
       const box = document.getElementById("scannerBox");
       box.classList.add("active");
+
       if(scannerRunning) return;
 
       if(typeof Html5Qrcode === "undefined"){
@@ -160,9 +387,10 @@
       }
 
       scanner = new Html5Qrcode("qr-reader");
+
       scanner.start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
+        { fps: 10, qrbox: { width: 230, height: 230 }, aspectRatio: 1.0 },
         function(decodedText){
           const ticketId = normalizeTicket(decodedText);
           closeScanner().then(function(){ showOpenButton(ticketId); });
@@ -179,6 +407,7 @@
 
     function closeScanner(){
       const box = document.getElementById("scannerBox");
+
       if(scanner && scannerRunning){
         return scanner.stop().then(function(){
           scanner.clear();
@@ -189,6 +418,7 @@
           box.classList.remove("active");
         });
       }
+
       box.classList.remove("active");
       return Promise.resolve();
     }
