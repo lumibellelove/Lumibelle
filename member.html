@@ -7,214 +7,755 @@
   <link rel="stylesheet" href="style.css" />
 
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800;900&display=swap');
+
+    :root{
+      --bg:#fffafc;
+      --line:#f2d8e7;
+      --pink:#ff59a5;
+      --deep-pink:#d77ca7;
+      --text:#846f81;
+      --soft:#c99ab2;
+      --shadow:0 8px 24px rgba(232,191,211,0.12);
     }
 
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      background: #fffafc;
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+
+    body{
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      background:
+        radial-gradient(circle at 12% 4%, rgba(255,217,232,.52), transparent 28%),
+        radial-gradient(circle at 88% 10%, rgba(239,229,255,.66), transparent 30%),
+        linear-gradient(180deg,#fffafc 0%,#fff7fb 100%);
+      font-family:"SUIT","Noto Sans KR",sans-serif;
+      color:var(--text);
+      letter-spacing:-0.01em;
     }
 
-    main.page-shell {
-      flex: 1;
+    a{text-decoration:none;color:inherit;}
+    main.page-shell{flex:1;}
+
+    .wrap{
+      width:min(1260px, calc(100% - 28px));
+      margin:0 auto;
     }
 
+    /* ===== 홈 기준 상단 언어/메뉴 ===== */
+    .top-lang-bar{
+      width:100%;
+      max-width:1260px;
+      margin:16px auto 0;
+      display:flex;
+      justify-content:flex-end;
+      padding:0 34px 0 18px;
+    }
+
+    .lang-switch{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .lang-switch a{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:42px;
+      height:36px;
+      padding:0 10px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid #f0bfd4;
+      color:#d27ca8;
+      font-size:12px;
+      font-weight:900;
+      box-shadow:0 4px 10px rgba(255,95,165,0.08);
+      transition:background .18s ease, color .18s ease;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    .lang-switch a:hover,
+    .lang-switch a.active{
+      background:#fff0f7;
+      color:var(--pink);
+    }
+
+    .header-box{
+      display:flex;
+      align-items:center;
+      gap:24px;
+      margin:14px auto 0;
+      padding:20px 24px;
+      border:1px solid var(--line);
+      border-radius:28px;
+      background:linear-gradient(180deg,rgba(255,252,254,.97),rgba(255,246,251,.95));
+      box-shadow:var(--shadow);
+    }
+
+    .logo{
+      flex:0 0 auto;
+      min-width:148px;
+      color:var(--pink);
+      text-align:center;
+    }
+
+    .logo h1{
+      margin:0;
+      font-family:"Cormorant Garamond",serif;
+      font-size:42px;
+      line-height:.9;
+      font-weight:700;
+      letter-spacing:-.03em;
+      color:var(--pink);
+      text-shadow:
+        0 1px 0 rgba(255,255,255,.98),
+        0 0 10px rgba(255,120,178,.18);
+    }
+
+    .logo p{
+      margin:6px 0 0;
+      color:#c697b1;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.08em;
+    }
+
+    nav{
+      flex:1;
+      display:grid;
+      grid-template-columns:repeat(8,minmax(0,1fr));
+      gap:18px;
+      text-align:center;
+      align-items:center;
+      margin:0 20px;
+    }
+
+    nav a{
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      min-height:58px;
+      min-width:0;
+      border-radius:22px;
+      overflow:hidden;
+      transform:none !important;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    nav a::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:18px;
+      background:linear-gradient(90deg,
+        rgba(255,217,232,0.00) 0%,
+        rgba(255,217,232,0.14) 16%,
+        rgba(255,192,215,0.16) 36%,
+        rgba(255,192,215,0.20) 50%,
+        rgba(255,192,215,0.16) 64%,
+        rgba(255,217,232,0.14) 84%,
+        rgba(255,217,232,0.00) 100%);
+      opacity:0;
+      transition:opacity .18s ease;
+      pointer-events:none;
+    }
+
+    nav a.current::before,
+    nav a:hover::before,
+    nav a:focus-visible::before{
+      opacity:1;
+    }
+
+    nav a b,
+    nav a span{
+      position:relative;
+      z-index:1;
+      display:block;
+      width:100%;
+      text-align:center;
+      white-space:nowrap;
+    }
+
+    nav a b{
+      font-size:1.18em;
+      font-weight:700;
+      color:#d97ca9;
+      letter-spacing:-0.03em;
+    }
+
+    nav a span{
+      margin-top:6px;
+      font-size:.94em;
+      color:#c697b1;
+      font-weight:600;
+    }
+
+    nav a.current b,
+    nav a:hover b{color:var(--pink);}
+    nav a.current span,
+    nav a:hover span{color:#d88dad;}
+
+    /* ===== 제목 ===== */
     .page-title {
-      text-align: center;
-      margin: 34px 0 22px;
+      text-align:center;
+      margin:44px 0 24px;
     }
 
     .page-title h2 {
-      margin: 0;
-      color: #d77ca7;
-      font-size: 62px;
-      line-height: 1;
-      font-weight: 900;
+      margin:0;
+      color:#d67faa;
+      font-size:62px;
+      line-height:.95;
+      font-weight:800;
+      text-shadow:0 6px 18px rgba(255,120,178,.10);
     }
 
     .page-title p {
-      margin: 10px 0 0;
-      color: #c99ab2;
-      font-size: 18px;
-      font-weight: 700;
+      margin:10px 0 0;
+      color:#c79bb3;
+      font-size:17px;
+      font-weight:600;
     }
 
+    /* ===== 멤버 카드 ===== */
     .member-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-top: 18px;
-      margin-bottom: 46px;
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:18px;
+      margin-top:18px;
+      margin-bottom:56px;
+      align-items:stretch;
     }
 
     .member-card {
-      background: #fff5fb;
-      border: 1px solid #f2d8e7;
-      border-radius: 28px;
-      padding: 10px 10px 16px;
-      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position:relative;
+      overflow:hidden;
+      isolation:isolate;
+      background:#fff5fb;
+      border:1px solid var(--line);
+      border-radius:28px;
+      padding:10px 10px 16px;
+      box-shadow:var(--shadow);
+      transition:transform .2s ease, box-shadow .2s ease;
+      min-height:100%;
     }
 
     .member-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 14px 32px rgba(0,0,0,0.12);
+      transform:translateY(-6px);
+      box-shadow:0 18px 36px rgba(0,0,0,.13);
     }
 
-    .member-card.mariring {
-      background: #fff0f6;
+    .member-card.mariring{background:#fff0f6;}
+    .member-card.lulu{background:#fff6f9;}
+
+    .member-card::after{
+      content:"";
+      position:absolute;
+      top:-20%;
+      left:-38%;
+      width:24%;
+      height:140%;
+      background:linear-gradient(
+        90deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,.16) 35%,
+        rgba(255,255,255,.40) 50%,
+        rgba(255,255,255,.16) 65%,
+        rgba(255,255,255,0) 100%);
+      transform:skewX(-24deg) translateX(0);
+      opacity:0;
+      pointer-events:none;
+      z-index:2;
     }
 
-    .member-card.lulu {
-      background: #fff6f9;
+    .member-card:hover::after{
+      animation:memberShine .95s ease forwards;
     }
 
-    .member-card.iro {
-      background: #f4faff;
-    }
-
-    .member-card.lunar {
-      background: #f7f2ff;
+    @keyframes memberShine{
+      0%{opacity:0;transform:skewX(-24deg) translateX(0);}
+      10%{opacity:1;}
+      100%{opacity:0;transform:skewX(-24deg) translateX(620%);}
     }
 
     .member-name-bar {
-      border-radius: 0 0 999px 999px;
-      color: #fff;
-      text-align: center;
-      font-size: 18px;
-      font-weight: 900;
-      padding: 14px 10px;
-      margin-bottom: 12px;
-      letter-spacing: 0.08em;
+      border-radius:0 0 999px 999px;
+      color:#fff;
+      text-align:center;
+      font-size:19px;
+      font-weight:800;
+      padding:14px 10px;
+      margin-bottom:12px;
+      letter-spacing:.03em;
+      text-shadow:0 1px 3px rgba(0,0,0,.06);
     }
 
-    .member-card.mariring .member-name-bar {
-      background: #ff59a5;
-      box-shadow: 0 6px 16px rgba(255, 89, 165, 0.25);
+    .member-card.mariring .member-name-bar{
+      background:#ff59a5;
+      box-shadow:0 6px 16px rgba(255,89,165,.25);
     }
 
-    .member-card.lulu .member-name-bar {
-      background: linear-gradient(180deg, #FFB8D3 0%, #FFD9E8 100%);
-      box-shadow: 0 6px 16px rgba(255, 184, 211, 0.30);
-    }
-
-    .member-card.iro .member-name-bar {
-      background: #8ECDF2;
-      box-shadow: 0 6px 16px rgba(142, 205, 242, 0.30);
-    }
-
-    .member-card.luna .member-name-bar {
-      background: #9F6DE0;
-      box-shadow: 0 6px 16px rgba(159, 109, 224, 0.30);
+    .member-card.lulu .member-name-bar{
+      background:linear-gradient(180deg,#FFB8D3 0%,#FFD9E8 100%);
+      box-shadow:0 6px 16px rgba(255,184,211,.30);
     }
 
     .member-photo {
-      width: 100%;
-      height: 360px;
-      background: #fff;
-      border: 1px solid #f0dde8;
-      border-radius: 22px;
-      overflow: hidden;
-      margin-bottom: 16px;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
+      width:100%;
+      height:360px;
+      border:1px solid #f0dde8;
+      border-radius:22px;
+      overflow:hidden;
+      margin-bottom:16px;
+      background:#fff;
+      background-size:cover;
+      background-position:center;
+      background-repeat:no-repeat;
+    }
+
+    .member-photo.placeholder{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      background:
+        radial-gradient(circle at 22% 18%, rgba(255,255,255,.82), transparent 26%),
+        linear-gradient(135deg,#fff0f7 0%,#fff8fc 100%);
+      color:rgba(215,124,167,.36);
+      font-size:25px;
+      font-weight:900;
+      letter-spacing:.04em;
+    }
+
+    .member-photo.placeholder::before{
+      content:"PHOTO\A COMING SOON";
+      white-space:pre;
+      line-height:1.28;
     }
 
     .member-color-text {
-      text-align: center;
-      color: #b28ea2;
-      line-height: 1.7;
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 14px;
+      text-align:center;
+      color:#b28ea2;
+      line-height:1.8;
+      font-size:16px;
+      font-weight:800;
+      margin-bottom:16px;
     }
 
     .member-meta {
-      color: #8f7183;
-      font-size: 14px;
-      line-height: 1.8;
-      margin-bottom: 18px;
+      color:#8a7481;
+      font-size:14px;
+      line-height:1.8;
+      margin-bottom:18px;
+      text-align:left;
+      padding:0 16px 0 18px;
+      min-height:164px;
     }
 
-    .member-meta strong {
-      color: #b28ea2;
-      margin-right: 6px;
+    .member-meta div{
+      margin-bottom:12px;
+      overflow-wrap:anywhere;
+      word-break:keep-all;
+    }
+
+    .member-meta strong{
+      display:inline;
+      color:#b28ea2;
+      margin-right:8px;
+      font-weight:800;
     }
 
     .member-btn {
-      display: inline-flex;
-      width: 100%;
-      align-items: center;
-      justify-content: center;
-      padding: 14px 18px;
-      border-radius: 999px;
-      text-decoration: none;
-      font-size: 16px;
-      font-weight: 900;
-      color: #fff;
-      box-sizing: border-box;
-      transition: all 0.2s ease;
+      position:relative;
+      overflow:hidden;
+      isolation:isolate;
+      display:inline-flex;
+      width:100%;
+      align-items:center;
+      justify-content:center;
+      padding:14px 18px;
+      border-radius:999px;
+      text-decoration:none;
+      font-size:16px;
+      font-weight:700;
+      color:#fff;
+      transition:all .2s ease;
     }
 
-    .member-btn.mariring { background: #f35aa0; }
-    .member-btn.lulu { background: linear-gradient(180deg, #FFC0D7 0%, #FFD9E8 100%); }
-    .member-btn.iro { background: #B2DEFF; }
-    .member-btn.lunar { background: #ba8ce7; }
+    .member-btn.mariring{background:#f35aa0;}
+    .member-btn.lulu{background:linear-gradient(180deg,#FFC0D7 0%,#FFD9E8 100%);}
 
-    .member-btn:hover {
-      transform: translateY(-2px);
-      filter: brightness(1.05);
+    .member-btn:hover{
+      transform:translateY(-2px);
+      filter:brightness(1.05);
     }
 
-    footer {
-      text-align: center;
-      padding: 28px 16px 40px;
-      color: #c6a2b4;
-      font-size: 14px;
+    .member-btn::after{
+      content:"";
+      position:absolute;
+      top:-35%;
+      left:-42%;
+      width:22%;
+      height:170%;
+      background:linear-gradient(
+        90deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,.12) 35%,
+        rgba(255,255,255,.28) 50%,
+        rgba(255,255,255,.12) 65%,
+        rgba(255,255,255,0) 100%);
+      transform:skewX(-22deg) translateX(0);
+      opacity:0;
+      pointer-events:none;
+      z-index:2;
     }
 
-    @media (max-width: 1200px) {
-      .member-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .member-btn:hover::after{animation:sweepShine .9s ease forwards;}
+
+    @keyframes sweepShine{
+      0%{opacity:0;transform:skewX(-22deg) translateX(0);}
+      15%{opacity:1;}
+      100%{opacity:0;transform:skewX(-22deg) translateX(560%);}
+    }
+
+    /* ===== 새 멤버 예고 카드 ===== */
+    .new-member-card{
+      position:relative;
+      overflow:hidden;
+      isolation:isolate;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      min-height:100%;
+      padding:34px 26px;
+      border:1px solid rgba(242,216,231,.95);
+      border-radius:28px;
+      background:
+        radial-gradient(circle at 25% 18%, rgba(255,255,255,.88), transparent 22%),
+        radial-gradient(circle at 82% 76%, rgba(202,167,255,.26), transparent 30%),
+        linear-gradient(135deg,#fff0f7 0%,#f5eeff 100%);
+      box-shadow:var(--shadow);
+      text-align:center;
+      transition:transform .2s ease, box-shadow .2s ease;
+    }
+
+    .new-member-card:hover{
+      transform:translateY(-6px);
+      box-shadow:0 18px 36px rgba(0,0,0,.13);
+    }
+
+    .new-member-card::before{
+      content:"";
+      position:absolute;
+      inset:-70%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.62), transparent 18%),
+        radial-gradient(circle at 72% 58%, rgba(255,255,255,.35), transparent 16%),
+        conic-gradient(from 0deg, rgba(255,255,255,0), rgba(255,255,255,.34), rgba(255,255,255,0), rgba(255,255,255,.22), rgba(255,255,255,0));
+      animation:lumiSpin 8s linear infinite;
+      pointer-events:none;
+      opacity:.78;
+      z-index:0;
+    }
+
+    .new-member-card::after{
+      content:"✦";
+      position:absolute;
+      right:20px;
+      bottom:16px;
+      color:rgba(255,89,165,.42);
+      font-size:42px;
+      animation:lumiStarFloat 2.6s ease-in-out infinite;
+      z-index:1;
+    }
+
+    .new-member-inner{
+      position:relative;
+      z-index:2;
+    }
+
+    .new-member-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      margin-bottom:20px;
+      padding:8px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.85);
+      border:1px solid #f0bfd4;
+      color:#ff59a5;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.08em;
+      box-shadow:0 8px 16px rgba(255,95,168,.08);
+    }
+
+    .new-member-title{
+      margin:0;
+      color:#ff59a5;
+      font-size:36px;
+      line-height:1.08;
+      font-weight:900;
+      letter-spacing:-.04em;
+      text-shadow:0 3px 12px rgba(255,120,178,.12);
+    }
+
+    .new-member-sub{
+      margin:18px 0 0;
+      color:#8f7183;
+      font-size:16px;
+      line-height:1.85;
+      font-weight:800;
+    }
+
+    .new-member-note{
+      margin:22px auto 0;
+      max-width:320px;
+      padding:14px 16px;
+      border-radius:18px;
+      background:rgba(255,255,255,.72);
+      border:1px solid #f0dde8;
+      color:#b28ea2;
+      font-size:13px;
+      line-height:1.7;
+      font-weight:800;
+    }
+
+    @keyframes lumiSpin{
+      to{transform:rotate(360deg);}
+    }
+
+    @keyframes lumiStarFloat{
+      0%,100%{transform:translateY(0) rotate(0deg);opacity:.62;}
+      50%{transform:translateY(-5px) rotate(12deg);opacity:1;}
+    }
+
+    /* ===== 위로가기 버튼 ===== */
+    .back-to-top{
+      position:fixed;
+      right:22px;
+      bottom:22px;
+      width:64px;
+      height:64px;
+      border:none;
+      border-radius:50%;
+      background:linear-gradient(180deg,#ff86bb 0%,#ff5fa5 54%,#caa7ff 100%);
+      color:#fff;
+      cursor:pointer;
+      box-shadow:
+        0 14px 28px rgba(255,95,165,.28),
+        0 0 0 6px rgba(255,255,255,.58),
+        0 0 24px rgba(202,167,255,.18);
+      z-index:1200;
+      opacity:0;
+      visibility:hidden;
+      transform:translateY(10px) scale(.94);
+      transition:opacity .2s ease, visibility .2s ease, transform .2s ease, filter .2s ease;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      font-family:"SUIT","Noto Sans KR",sans-serif;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    .back-to-top.show{
+      opacity:1;
+      visibility:visible;
+      transform:translateY(0) scale(1);
+    }
+
+    .back-to-top:hover{
+      filter:brightness(1.04);
+      transform:translateY(-3px) scale(1.03);
+    }
+
+    .back-to-top::before{
+      content:"";
+      position:absolute;
+      inset:-70%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.75), transparent 16%),
+        radial-gradient(circle at 68% 62%, rgba(255,255,255,.34), transparent 18%),
+        conic-gradient(from 0deg, transparent, rgba(255,255,255,.42), transparent, rgba(255,255,255,.28), transparent);
+      animation:lumiTopSpin 5s linear infinite;
+      pointer-events:none;
+    }
+
+    .back-to-top::after{
+      content:"✦";
+      position:absolute;
+      right:10px;
+      top:8px;
+      color:rgba(255,255,255,.78);
+      font-size:14px;
+      animation:lumiTopStar 1.8s ease-in-out infinite;
+      pointer-events:none;
+    }
+
+    .top-arrow,.top-label{
+      position:relative;
+      z-index:1;
+      line-height:1;
+      font-style:normal;
+      text-shadow:0 2px 8px rgba(148,64,112,.18);
+    }
+
+    .top-arrow{font-size:25px;font-weight:900;margin-top:1px;}
+    .top-label{margin-top:4px;font-size:10px;font-weight:900;letter-spacing:.08em;}
+
+    @keyframes lumiTopSpin{to{transform:rotate(360deg);}}
+    @keyframes lumiTopStar{
+      0%,100%{transform:translateY(0) rotate(0deg);opacity:.58;}
+      50%{transform:translateY(-3px) rotate(12deg);opacity:1;}
+    }
+
+    footer{
+      text-align:center;
+      padding:28px 16px 40px;
+      color:#c6a2b4;
+      font-size:14px;
+    }
+
+    /* ===== 클릭 뿅 효과 ===== */
+    .burst-spark,
+    .burst-petal{
+      position:fixed;
+      pointer-events:none;
+      left:0;
+      top:0;
+      z-index:5000;
+      opacity:0;
+    }
+
+    .burst-spark{
+      width:16px;
+      height:16px;
+      animation:burstSpark .72s ease-out forwards;
+    }
+
+    .burst-spark::before,
+    .burst-spark::after{
+      content:"";
+      position:absolute;
+      background:#fff;
+      border-radius:999px;
+      box-shadow:0 0 10px rgba(255,255,255,.9), 0 0 18px rgba(255,192,215,.7);
+    }
+
+    .burst-spark::before{width:3px;height:16px;left:6.5px;top:0;}
+    .burst-spark::after{width:16px;height:3px;left:0;top:6.5px;}
+
+    .burst-petal{
+      width:14px;
+      height:14px;
+      border-radius:999px;
+      background:radial-gradient(circle at 35% 35%, #fff 0%, #ffd9e8 42%, #ffc0d7 78%, rgba(255,192,215,0) 100%);
+      box-shadow:0 0 10px rgba(255,192,215,.55);
+      animation:burstPetal .78s ease-out forwards;
+    }
+
+    @keyframes burstSpark{
+      0%{transform:translate(0,0) scale(.45) rotate(0deg);opacity:1;}
+      100%{transform:translate(var(--x), var(--y)) scale(1.15) rotate(90deg);opacity:0;}
+    }
+
+    @keyframes burstPetal{
+      0%{transform:translate(0,0) scale(.6);opacity:1;}
+      100%{transform:translate(var(--x), var(--y)) scale(1.2);opacity:0;}
+    }
+
+    @media (max-width:1180px){
+      nav{
+        grid-template-columns:repeat(4,1fr);
+        gap:16px;
+      }
+
+      .member-grid{
+        grid-template-columns:repeat(2, 1fr);
+      }
+
+      .new-member-card{
+        grid-column:1 / -1;
+        min-height:260px;
       }
     }
 
-    @media (max-width: 780px) {
-      .member-grid {
-        grid-template-columns: 1fr;
+    @media (max-width:980px){
+      .header-box{
+        flex-wrap:wrap;
+        justify-content:center;
       }
+      nav{
+        grid-template-columns:repeat(4,1fr);
+        width:100%;
+        margin:0;
+      }
+      .top-lang-bar{
+        justify-content:center;
+        margin-top:14px;
+      }
+    }
 
-      .page-title h2 {
-        font-size: 40px;
+    @media (max-width:780px){
+      .wrap{width:min(100% - 24px,1260px);}
+      .header-box{padding:16px 14px;border-radius:24px;}
+      nav{grid-template-columns:repeat(2,1fr);gap:12px;}
+      nav a b{font-size:1.12em;}
+      nav a span{font-size:.9em;}
+      .page-title{margin:32px 0 18px;}
+      .page-title h2{font-size:42px;}
+      .page-title p{font-size:16px;}
+      .member-grid{grid-template-columns:1fr;}
+      .member-photo{height:420px;}
+      .member-meta{min-height:auto;}
+      .new-member-card{
+        grid-column:auto;
+        min-height:320px;
       }
+      .new-member-title{font-size:30px;}
+      .back-to-top{right:16px;bottom:16px;width:58px;height:58px;}
+      .top-arrow{font-size:23px;}
+      .top-label{font-size:9px;}
+    }
 
-      .page-title p {
-        font-size: 16px;
-      }
+    @media (max-width:520px){
+      .member-photo{height:360px;}
     }
   </style>
 </head>
 
 <body>
   <header>
+    <div class="top-lang-bar">
+      <div class="lang-switch">
+        <a href="#" class="active">KR</a>
+        <a href="#">JP</a>
+      </div>
+    </div>
+
     <div class="wrap">
       <div class="header-box">
-        <div class="top-bow">🎀</div>
-        <div class="logo">
+        <a class="logo" href="index.html" aria-label="Lumibelle home">
           <h1>Lumibelle</h1>
-          <p>루미벨</p>
-        </div>
-        <nav>
+          <p>OFFICIAL</p>
+        </a>
+
+        <nav aria-label="main navigation">
           <a href="index.html"><b>HOME</b><span>홈</span></a>
-          <a href="news.html"><b>NEWS</b><span>공지사항</span></a>
-          <a href="member.html" class="current"><b>MEMBER</b><span>멤버소개</span></a>
+          <a href="news.html"><b>NOTICE</b><span>공지</span></a>
+          <a href="member.html" class="current"><b>MEMBER</b><span>멤버</span></a>
           <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
-          <a href="fanname.html"><b>FANNAME</b><span>팬네임</span></a>
+          <a href="ticket/"><b>TICKET</b><span>예매</span></a>
+          <a href="goods/"><b>GOODS</b><span>굿즈</span></a>
+          <a href="setlist.html"><b>SETLIST</b><span>응원가이드</span></a>
           <a href="info.html"><b>INFO</b><span>안내</span></a>
         </nav>
       </div>
@@ -231,63 +772,92 @@
       <div class="member-grid">
         <article class="member-card mariring">
           <div class="member-name-bar">MARIRING</div>
-          <div class="member-photo" style="background-image:url('mariring.jpg');"></div>
+          <div class="member-photo placeholder"></div>
           <div class="member-color-text">
             멤버 컬러<br />
-            체리핑크 ♥
+            Cherry Pink / 체리핑크 ♥
           </div>
           <div class="member-meta">
-            <div><strong>키워드</strong> 청춘 / 아이돌 / 반짝임</div>
-            <div><strong>한마디</strong> 반짝이는 순간을 함께 만들자!</div>
+            <div><strong>오시마크</strong> 🎀⭐️</div>
+            <div><strong>키워드</strong> 외강내유 / 밝고쾌활함 / 아이돌오타쿠</div>
+            <div><strong>한마디</strong> 언제 어디서나 빛나는 사람이 되기를 ⛧</div>
           </div>
           <a href="mariring.html" class="member-btn mariring">자세히 보기</a>
         </article>
 
         <article class="member-card lulu">
           <div class="member-name-bar">LULU</div>
-          <div class="member-photo" style="background-image:url('lulu.jpg');"></div>
+          <div class="member-photo placeholder"></div>
           <div class="member-color-text">
             멤버 컬러<br />
-            밀키핑크 ♥
+            Milky Pink / 밀키핑크 ♥
           </div>
           <div class="member-meta">
-            <div><strong>키워드</strong> 러블리 / 포근함</div>
-            <div><strong>한마디</strong> 오늘도 다정한 하루가 되길!</div>
+            <div><strong>오시마크</strong> 🍼🐰</div>
+            <div><strong>키워드</strong> 포근함 / 작은 용기 / 아기토끼공주</div>
+            <div><strong>한마디</strong> 루루만의 길로 한발씩, 포근하게!</div>
           </div>
           <a href="lulu.html" class="member-btn lulu">자세히 보기</a>
         </article>
 
-        <article class="member-card iro">
-          <div class="member-name-bar">IRO</div>
-          <div class="member-photo" style="background-image:url('iro.jpg');"></div>
-          <div class="member-color-text">
-            멤버 컬러<br />
-            엔젤블루 ♥
+        <article class="new-member-card" aria-label="새 멤버 공개 예정">
+          <div class="new-member-inner">
+            <span class="new-member-badge">NEW MEMBER</span>
+            <h3 class="new-member-title">COMING SOON</h3>
+            <p class="new-member-sub">
+              루미벨의 새로운 반짝임이 곧 찾아옵니다.<br />
+              조금만 기다려주세요.
+            </p>
+            <div class="new-member-note">
+              공개 일정과 티저는 공식 계정 및 홈페이지를 통해 순차적으로 안내됩니다.
+            </div>
           </div>
-          <div class="member-meta">
-            <div><strong>키워드</strong> 청량 / 에너지</div>
-            <div><strong>한마디</strong> 제일 즐거운 무대를 같이 만들자!</div>
-          </div>
-          <a href="iro.html" class="member-btn iro">자세히 보기</a>
-        </article>
-
-        <article class="member-card lunar">
-          <div class="member-name-bar">LUNAR</div>
-          <div class="member-photo" style="background-image:url('luna.jpg');"></div>
-          <div class="member-color-text">
-            멤버 컬러<br />
-            달빛퍼플 ♥
-          </div>
-          <div class="member-meta">
-            <div><strong>키워드</strong> 신비로움 / 달빛</div>
-            <div><strong>한마디</strong> 조용히 스며드는 반짝임이 될게.</div>
-          </div>
-          <a href="luna.html" class="member-btn luna">자세히 보기</a>
         </article>
       </div>
     </div>
   </main>
 
+  <button class="back-to-top" type="button" aria-label="맨 위로">
+    <i class="top-arrow">↑</i>
+    <i class="top-label">TOP</i>
+  </button>
+
   <footer>© 2026 Lumibelle All Rights Reserved.</footer>
+
+  <script>
+    const topButton = document.querySelector(".back-to-top");
+
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 300) {
+        topButton.classList.add("show");
+      } else {
+        topButton.classList.remove("show");
+      }
+    });
+
+    topButton.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    document.addEventListener("click", (e) => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+      for (let i = 0; i < 10; i++) {
+        const spark = document.createElement("span");
+        spark.className = i % 2 ? "burst-petal" : "burst-spark";
+
+        const angle = (Math.PI * 2 / 10) * i;
+        const distance = 26 + Math.random() * 28;
+
+        spark.style.left = e.clientX + "px";
+        spark.style.top = e.clientY + "px";
+        spark.style.setProperty("--x", Math.cos(angle) * distance + "px");
+        spark.style.setProperty("--y", Math.sin(angle) * distance + "px");
+
+        document.body.appendChild(spark);
+        setTimeout(() => spark.remove(), 850);
+      }
+    });
+  </script>
 </body>
 </html>
