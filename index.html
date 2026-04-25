@@ -251,37 +251,114 @@
       box-shadow:0 6px 14px rgba(255,89,165,0.22);
     }
 
-    /* ===== 위로가기 버튼 ===== */
+    /* ===== 위로가기 버튼 : 마법구슬 버전 ===== */
     .back-to-top{
       position:fixed;
       right:22px;
       bottom:22px;
-      width:56px;
-      height:56px;
+      width:64px;
+      height:64px;
       border:none;
       border-radius:50%;
-      background:linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%);
+      background:linear-gradient(180deg,#ff86bb 0%,#ff5fa5 54%,#caa7ff 100%);
       color:#fff;
-      font-size:22px;
-      font-weight:900;
       cursor:pointer;
-      box-shadow:0 12px 22px rgba(255, 95, 165, 0.28);
+      box-shadow:
+        0 14px 28px rgba(255,95,165,.28),
+        0 0 0 6px rgba(255,255,255,.58),
+        0 0 24px rgba(202,167,255,.18);
       z-index:1200;
       opacity:0;
       visibility:hidden;
-      transform:translateY(8px);
-      transition:all .2s ease;
+      transform:translateY(10px) scale(.94);
+      transition:opacity .2s ease, visibility .2s ease, transform .2s ease, filter .2s ease;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      font-family:"SUIT","Noto Sans KR",sans-serif;
+      -webkit-tap-highlight-color:transparent;
     }
 
     .back-to-top.show{
       opacity:1;
       visibility:visible;
-      transform:translateY(0);
+      transform:translateY(0) scale(1);
     }
 
     .back-to-top:hover{
-      transform:translateY(-2px);
       filter:brightness(1.04);
+      transform:translateY(-3px) scale(1.03);
+    }
+
+    .back-to-top::before{
+      content:"";
+      position:absolute;
+      inset:-70%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.75), transparent 16%),
+        radial-gradient(circle at 68% 62%, rgba(255,255,255,.34), transparent 18%),
+        conic-gradient(from 0deg, transparent, rgba(255,255,255,.42), transparent, rgba(255,255,255,.28), transparent);
+      animation:lumiTopSpin 5s linear infinite;
+      pointer-events:none;
+    }
+
+    .back-to-top::after{
+      content:"✦";
+      position:absolute;
+      right:10px;
+      top:8px;
+      color:rgba(255,255,255,.78);
+      font-size:14px;
+      animation:lumiTopStar 1.8s ease-in-out infinite;
+      pointer-events:none;
+    }
+
+    .back-to-top .top-arrow,
+    .back-to-top .top-label{
+      position:relative;
+      z-index:1;
+      line-height:1;
+      font-style:normal;
+      text-shadow:0 2px 8px rgba(148,64,112,.18);
+    }
+
+    .back-to-top .top-arrow{
+      font-size:25px;
+      font-weight:900;
+      margin-top:1px;
+    }
+
+    .back-to-top .top-label{
+      margin-top:4px;
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.08em;
+    }
+
+    @keyframes lumiTopSpin{
+      to{transform:rotate(360deg);}
+    }
+
+    @keyframes lumiTopStar{
+      0%,100%{transform:translateY(0) rotate(0deg);opacity:.58;}
+      50%{transform:translateY(-3px) rotate(12deg);opacity:1;}
+    }
+
+    @media (max-width:780px){
+      .back-to-top{
+        right:16px;
+        bottom:16px;
+        width:58px;
+        height:58px;
+      }
+      .back-to-top .top-arrow{
+        font-size:23px;
+      }
+      .back-to-top .top-label{
+        font-size:9px;
+      }
     }
 
     /* ===== 상단 메인 비주얼 (최종 통합본) ===== */
@@ -3442,7 +3519,7 @@ line-height:1.9 !important;
 
   <footer>© 2026 Lumibelle All Rights Reserved.</footer>
 
-  <button class="back-to-top" id="backToTop" aria-label="맨 위로 이동">↑</button>
+  <button class="back-to-top" id="backToTop" aria-label="맨 위로 이동"><span class="top-arrow">↑</span><span class="top-label">TOP</span></button>
 
   <script>
     const backToTop = document.getElementById('backToTop');
