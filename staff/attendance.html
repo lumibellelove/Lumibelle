@@ -1,1 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>STAFF ATTENDANCE | Lumibelle</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800;900&display=swap');
+    :root{--line:#f2d8e7;--pink:#ff5fa8;--text:#7f6a77;--shadow:0 8px 24px rgba(232,191,211,.14)}
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"SUIT","Noto Sans KR",Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(255,192,215,.34) 0%, rgba(255,192,215,0) 28%),
+        radial-gradient(circle at 88% 18%, rgba(202,167,255,.22) 0%, rgba(202,167,255,0) 26%),
+        linear-gradient(180deg,#fffafc 0%,#fff0f7 100%);
+      min-height:100vh;
+    }
+    a{text-decoration:none;color:inherit}
+    .wrap{width:min(760px,calc(100% - 32px));margin:0 auto;padding:24px 0 46px}
+    .hero,.card{
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:rgba(255,255,255,.82);
+      box-shadow:var(--shadow);
+      padding:28px;
+    }
+    .hero{background:linear-gradient(135deg,#fff0f7 0%,#f7efff 100%);text-align:center}
+    .eyebrow{
+      display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:0 12px;border-radius:999px;
+      background:#fff;border:1px solid #f0bfd4;color:#d77ca7;font-size:12px;font-weight:900;margin-bottom:14px;
+    }
+    h1{
+      margin:0;
+      font-family:"Cormorant Garamond",serif;
+      font-size:62px;
+      line-height:.9;
+      color:var(--pink);
+    }
+    .hero p{margin:16px 0 0;color:#8f7183;font-size:15px;line-height:1.8;font-weight:800}
+    .card{margin-top:16px}
+    label{display:block;margin:14px 0 8px;color:#d77ca7;font-size:15px;font-weight:900}
+    input,select,textarea{
+      width:100%;
+      min-height:50px;
+      border:1px solid #f0bfd4;
+      border-radius:16px;
+      padding:0 14px;
+      font-family:inherit;
+      font-size:15px;
+      font-weight:800;
+      color:#7f6a77;
+      background:#fff;
+      outline:none;
+    }
+    textarea{padding:14px;min-height:90px;resize:vertical}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+    button,.btn{
+      min-height:52px;
+      border:0;
+      border-radius:999px;
+      font-family:inherit;
+      font-size:15px;
+      font-weight:900;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:0 16px;
+    }
+    .primary{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;box-shadow:0 8px 18px rgba(255,95,165,.22)}
+    .sub{background:#fff;color:#d77ca7;border:1px solid #f0bfd4;box-shadow:0 4px 10px rgba(255,95,165,.08)}
+    .msg{
+      margin-top:14px;
+      padding:14px;
+      border-radius:18px;
+      background:#fff0f7;
+      color:#d77ca7;
+      font-size:13px;
+      line-height:1.7;
+      font-weight:850;
+      text-align:center;
+    }
+    .msg.ok{background:#e9fff0;color:#21864a}
+    .list{display:grid;gap:10px;margin-top:12px}
+    .item{padding:14px 16px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,#fff9fc 0%,#fff4fa 100%)}
+    .item strong{display:block;color:#d77ca7;font-size:14px;margin-bottom:5px}
+    .item span{display:block;color:#8f7183;font-size:13px;line-height:1.7;font-weight:750}
+    .top-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+    footer{text-align:center;padding:24px 16px 36px;color:#c6a2b4;font-size:13px;font-weight:700}
+    @media(max-width:560px){.grid,.btns{grid-template-columns:1fr}h1{font-size:52px}.hero,.card{padding:22px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">STAFF CHECK</div>
+      <h1>Staff<br>Attendance</h1>
+      <p>스탭 출석/퇴근을 간단히 기록하는 페이지예요.<br>현재 버전은 기기 안에 임시 저장되고, 나중에 시트 연동으로 업그레이드할 수 있어요.</p>
+      <div class="top-actions">
+        <a class="btn sub" href="index.html">스탭 허브로 돌아가기</a>
+        <a class="btn sub" href="guide.html">스탭 안내 보기</a>
+      </div>
+    </section>
 
+    <section class="card">
+      <div class="grid">
+        <div>
+          <label for="staffName">스탭 이름 / 닉네임</label>
+          <input id="staffName" placeholder="예: 소율">
+        </div>
+        <div>
+          <label for="role">담당 역할</label>
+          <select id="role">
+            <option value="입장 확인">입장 확인</option>
+            <option value="물판">물판</option>
+            <option value="포인트">포인트</option>
+            <option value="현장 보조">현장 보조</option>
+            <option value="촬영/기록">촬영/기록</option>
+            <option value="기타">기타</option>
+          </select>
+        </div>
+      </div>
+
+      <label for="memo">메모</label>
+      <textarea id="memo" placeholder="예: 1부 입장 담당 / 물판 보조"></textarea>
+
+      <div class="btns">
+        <button class="primary" onclick="checkIn()">출석 체크</button>
+        <button class="sub" onclick="checkOut()">퇴근 체크</button>
+      </div>
+
+      <div id="msg" class="msg">출석 체크를 하면 아래에 기록이 남아요.</div>
+
+      <div class="list" id="records"></div>
+    </section>
+  </div>
+
+  <footer>© 2026 Lumibelle Staff Attendance</footer>
+
+  <script>
+    const KEY = "lumibelle_staff_attendance_records";
+
+    function nowText(){
+      const d = new Date();
+      const pad = n => String(n).padStart(2,"0");
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+
+    function getRecords(){
+      try{
+        return JSON.parse(localStorage.getItem(KEY) || "[]");
+      }catch(e){
+        return [];
+      }
+    }
+
+    function saveRecords(records){
+      localStorage.setItem(KEY, JSON.stringify(records));
+    }
+
+    function addRecord(type){
+      const name = document.getElementById("staffName").value.trim();
+      const role = document.getElementById("role").value;
+      const memo = document.getElementById("memo").value.trim();
+
+      if(!name){
+        showMsg("스탭 이름을 입력해 주세요.", false);
+        return;
+      }
+
+      const records = getRecords();
+      records.unshift({
+        type,
+        name,
+        role,
+        memo,
+        time: nowText()
+      });
+      saveRecords(records);
+      showMsg(`${name} 스탭 ${type} 기록 완료 ✦`, true);
+      renderRecords();
+    }
+
+    function checkIn(){ addRecord("출석"); }
+    function checkOut(){ addRecord("퇴근"); }
+
+    function showMsg(text, ok){
+      const el = document.getElementById("msg");
+      el.textContent = text;
+      el.className = ok ? "msg ok" : "msg";
+    }
+
+    function renderRecords(){
+      const records = getRecords();
+      const box = document.getElementById("records");
+
+      if(!records.length){
+        box.innerHTML = '<div class="item"><strong>기록 없음</strong><span>아직 출석 기록이 없어요.</span></div>';
+        return;
+      }
+
+      box.innerHTML = records.map(r => `
+        <div class="item">
+          <strong>${escapeHtml(r.type)} · ${escapeHtml(r.name)} / ${escapeHtml(r.role)}</strong>
+          <span>${escapeHtml(r.time)}<br>${escapeHtml(r.memo || "-")}</span>
+        </div>
+      `).join("");
+    }
+
+    function escapeHtml(value){
+      return String(value || "").replace(/[&<>"']/g, function(m){
+        return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m];
+      });
+    }
+
+    renderRecords();
+  </script>
+</body>
+</html>
