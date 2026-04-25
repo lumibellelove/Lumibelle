@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Lumibelle Staff Check-in</title>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=SUIT:wght@600;700;800;900&display=swap');
     *{box-sizing:border-box}
@@ -31,25 +32,36 @@
       margin-top:12px;background:#fff;border:1px solid #f2d8e7;border-radius:22px;
       padding:12px;box-shadow:0 8px 20px rgba(255,95,165,.08);overflow:hidden;
     }
-    button{
+    button,label.file-btn{
       width:100%;min-height:50px;border:0;border-radius:999px;font-family:inherit;
       font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;
-      cursor:pointer;text-align:center;padding:0 12px;line-height:1.2;
+      cursor:pointer;text-align:center;padding:0 12px;line-height:1.2;text-decoration:none;
     }
     .scan{background:linear-gradient(180deg,#78d6ff,#4fc3ff);color:#fff;box-shadow:0 8px 18px rgba(79,195,255,.25)}
     .pink{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;box-shadow:0 8px 18px rgba(255,95,165,.22)}
     .purple{background:linear-gradient(180deg,#bca7ff,#a88cff);color:#fff;box-shadow:0 8px 18px rgba(168,140,255,.22)}
     .sub{background:#fff0f7;color:#d77ca7;border:1px solid #f0bfd4}
-    .reader-box{
-      display:none;margin-top:12px;padding:10px;border-radius:18px;border:1px solid #f2d8e7;
-      background:#fff7fb;overflow:hidden;
+    .photo-box{
+      margin-top:12px;
+      padding:10px;
+      border-radius:18px;
+      border:1px solid #f2d8e7;
+      background:#fff7fb;
+      display:none;
     }
-    .reader-box.on{display:block}
-    video{
-      width:100%;max-height:420px;border-radius:16px;background:#000;display:block;object-fit:cover;
+    .photo-box.on{display:block}
+    #preview{
+      width:100%;
+      max-height:360px;
+      object-fit:contain;
+      border-radius:14px;
+      background:#fff;
+      display:none;
+      margin-top:10px;
     }
-    label{display:block;margin:14px 0 8px;color:#d77ca7;font-size:15px;font-weight:900}
-    input{
+    input[type="file"]{display:none}
+    label.text-label{display:block;margin:14px 0 8px;color:#d77ca7;font-size:15px;font-weight:900}
+    input[type="text"]{
       width:100%;min-height:50px;border:1px solid #f0bfd4;border-radius:16px;
       padding:0 14px;font-size:17px;font-weight:900;color:#7f6a77;outline:none;
     }
@@ -94,19 +106,20 @@
     <section class="hero">
       <small>STAFF ONLY</small>
       <h1>Lumibelle<br>Check-in</h1>
-      <p>이번 버전은 외부 QR 라이브러리 없이<br>브라우저 기본 카메라 스캔을 사용해요.</p>
+      <p>실시간 카메라 대신<br>QR 사진/캡쳐로 조회해요.</p>
     </section>
 
     <section class="card">
-      <button class="scan" type="button" onclick="startNativeScan()">QR 스캔 시작</button>
+      <label class="file-btn scan" for="qrFile">QR 촬영 / 사진 선택</label>
+      <input id="qrFile" type="file" accept="image/*" capture="environment">
 
-      <div id="readerBox" class="reader-box">
-        <video id="video" playsinline muted></video>
-        <button class="sub" type="button" style="margin-top:10px;" onclick="stopScan()">스캔 닫기</button>
+      <div id="photoBox" class="photo-box">
+        <img id="preview" alt="QR preview">
+        <button class="sub" type="button" style="margin-top:10px;" onclick="clearPhoto()">사진 지우기</button>
       </div>
 
-      <label for="q">검색어</label>
-      <input id="q" placeholder="예: 1180 / 김민지 / 닉네임 / 8648">
+      <label class="text-label" for="q">검색어</label>
+      <input id="q" type="text" placeholder="예: 1180 / 김민지 / 닉네임 / 8648">
 
       <div class="grid">
         <button class="pink" type="button" onclick="searchTicket()">예약번호</button>
@@ -114,21 +127,18 @@
         <button class="sub wide" type="button" onclick="searchRaw()">입금자명/닉네임 조회</button>
       </div>
 
-      <div id="msg" class="msg">QR을 스캔하거나 직접 입력해 주세요.</div>
+      <div id="msg" class="msg">QR 사진을 선택하거나 직접 입력해 주세요.</div>
       <div id="results"></div>
 
       <p class="note">
-        ※ Chrome Android 기준 native BarcodeDetector를 사용합니다.<br>
-        ※ 카메라 권한을 허용해야 작동합니다.
+        ※ QR에는 개인정보가 아닌 예약번호만 들어 있습니다.<br>
+        ※ 사진으로 QR이 안 읽히면 예약번호 끝 4자리로 조회해 주세요.
       </p>
     </section>
   </div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwJRbaZDXnquhBTYaa4R1Onaq0pkDLUWPip0pjzoAcdkcUVNYCCZ2wHWtzCyQLZ0sboJQ/exec";
-    let stream = null;
-    let detector = null;
-    let scanning = false;
     let selectedTicketId = "";
 
     function msg(text, cls) {
@@ -163,6 +173,7 @@
       return new Promise(function(resolve, reject) {
         const cbName = "__lumibelle_cb_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
         params.callback = cbName;
+
         const qs = Object.keys(params).map(function(k) {
           return encodeURIComponent(k) + "=" + encodeURIComponent(params[k]);
         }).join("&");
@@ -194,6 +205,80 @@
       });
     }
 
+    document.getElementById("qrFile").addEventListener("change", function(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      if (typeof jsQR === "undefined") {
+        msg("QR 판독 기능을 불러오지 못했어요.<br>인터넷 연결을 확인해 주세요.", "err");
+        return;
+      }
+
+      msg("QR 이미지를 읽는 중이에요...", "");
+      const reader = new FileReader();
+
+      reader.onload = function(ev) {
+        const img = new Image();
+        img.onload = function() {
+          document.getElementById("photoBox").classList.add("on");
+          const preview = document.getElementById("preview");
+          preview.src = ev.target.result;
+          preview.style.display = "block";
+
+          const canvas = document.createElement("canvas");
+          const maxSize = 1200;
+          let w = img.width;
+          let h = img.height;
+
+          if (w > maxSize || h > maxSize) {
+            const scale = Math.min(maxSize / w, maxSize / h);
+            w = Math.round(w * scale);
+            h = Math.round(h * scale);
+          }
+
+          canvas.width = w;
+          canvas.height = h;
+
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, w, h);
+
+          const imageData = ctx.getImageData(0, 0, w, h);
+          const code = jsQR(imageData.data, imageData.width, imageData.height, {
+            inversionAttempts: "attemptBoth"
+          });
+
+          if (!code || !code.data) {
+            msg("QR을 읽지 못했어요.<br>QR이 크게 보이게 다시 촬영하거나 예약번호 끝 4자리로 조회해 주세요.", "err");
+            return;
+          }
+
+          const value = ticket(code.data);
+          document.getElementById("q").value = value;
+          msg("QR 인식 완료!<br>" + escapeHtml(value) + "<br>조회 중이에요...", "ok");
+          search(value);
+        };
+
+        img.onerror = function() {
+          msg("이미지를 불러오지 못했어요.", "err");
+        };
+
+        img.src = ev.target.result;
+      };
+
+      reader.onerror = function() {
+        msg("파일을 읽지 못했어요.", "err");
+      };
+
+      reader.readAsDataURL(file);
+    });
+
+    function clearPhoto() {
+      document.getElementById("qrFile").value = "";
+      document.getElementById("preview").src = "";
+      document.getElementById("preview").style.display = "none";
+      document.getElementById("photoBox").classList.remove("on");
+    }
+
     function searchTicket() {
       const value = ticket(document.getElementById("q").value);
       if (!value) return msg("예약번호를 입력해 주세요.", "err");
@@ -218,10 +303,20 @@
       selectedTicketId = "";
       document.getElementById("results").innerHTML = "";
       msg("조회 중이에요...", "");
+
       try {
         const res = await jsonp({ action: "search", q: value });
-        if (!res.ok) return msg("조회 오류: " + escapeHtml(res.error || "알 수 없는 오류"), "err");
-        if (!res.found || !res.items || !res.items.length) return msg("예약 정보를 찾을 수 없어요.", "err");
+
+        if (!res.ok) {
+          msg("조회 오류: " + escapeHtml(res.error || "알 수 없는 오류"), "err");
+          return;
+        }
+
+        if (!res.found || !res.items || !res.items.length) {
+          msg("예약 정보를 찾을 수 없어요.", "err");
+          return;
+        }
+
         if (res.items.length === 1) renderDetail(res.items[0]);
         else renderList(res.items);
       } catch (e) {
@@ -232,6 +327,7 @@
     function renderList(items) {
       msg("검색 결과가 " + items.length + "건 있어요.<br>메아테와 닉네임을 확인하고 선택해 주세요.", "ok");
       let html = '<div class="list">';
+
       items.forEach(function(item, index) {
         html += '<button class="result-btn" type="button" onclick="selectFromList(' + index + ')">';
         html += '<strong>' + escapeHtml(item.depositor || "-") + ' / ' + escapeHtml(item.nickname || "-") + '</strong>';
@@ -241,6 +337,7 @@
         html += '<p><b>결제</b> ' + escapeHtml(item.paymentStatus || "-") + ' / <b>입장</b> ' + escapeHtml(item.entryStatus || "-") + '</p>';
         html += '</button>';
       });
+
       html += '</div>';
       window.__searchItems = items;
       document.getElementById("results").innerHTML = html;
@@ -263,6 +360,7 @@
       const payClass = statusClass(data.paymentStatus);
       const entryClass = statusClass(data.entryStatus);
       let button = "";
+
       if (data.entryStatus === "입장완료") {
         button = '<div class="msg ok">이미 입장완료 처리된 예약이에요.<br>입장시간: ' + escapeHtml(data.entryTime || "-") + '</div>';
       } else if (data.paymentStatus !== "입금확인완료") {
@@ -270,6 +368,7 @@
       } else {
         button = '<button class="pink" type="button" style="margin-top:10px;" onclick="checkin()">입장완료 처리</button>';
       }
+
       const html =
         '<div class="detail">' +
         row("예약번호", data.ticketId) +
@@ -283,6 +382,7 @@
         row("입장시간", data.entryTime || "-") +
         button +
         '</div>';
+
       msg("예약 정보를 찾았어요.", "ok");
       document.getElementById("results").innerHTML = html;
       window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
@@ -295,82 +395,22 @@
     async function checkin() {
       if (!selectedTicketId) return msg("예약번호를 찾지 못했어요.", "err");
       if (!confirm("이 예약을 입장완료 처리할까요?")) return;
+
       msg("입장완료 처리 중이에요...", "");
+
       try {
         const res = await jsonp({ action: "checkin", ticketId: selectedTicketId });
-        if (!res.ok) return msg("입장 처리 오류: " + escapeHtml(res.error || "알 수 없는 오류"), "err");
+
+        if (!res.ok) {
+          msg("입장 처리 오류: " + escapeHtml(res.error || "알 수 없는 오류"), "err");
+          return;
+        }
+
         msg("입장완료 처리됐어요.", "ok");
         renderDetail(res.item);
       } catch (e) {
         msg(escapeHtml(e.message || e), "err");
       }
-    }
-
-    async function startNativeScan() {
-      if (!("BarcodeDetector" in window)) {
-        msg("이 브라우저는 기본 QR 스캔을 지원하지 않아요.<br>Chrome 최신 버전에서 다시 시도해 주세요.", "err");
-        return;
-      }
-
-      try {
-        detector = new BarcodeDetector({ formats: ["qr_code"] });
-      } catch (e) {
-        msg("QR 감지기를 시작할 수 없어요.", "err");
-        return;
-      }
-
-      const box = document.getElementById("readerBox");
-      const video = document.getElementById("video");
-      box.classList.add("on");
-
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: { ideal: "environment" },
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          },
-          audio: false
-        });
-        video.srcObject = stream;
-        await video.play();
-
-        scanning = true;
-        msg("카메라가 켜졌어요.<br>팬의 QR을 화면 안에 맞춰주세요.", "ok");
-        scanLoop();
-      } catch (e) {
-        msg("카메라를 열 수 없어요.<br>크롬 사이트 설정에서 카메라 권한을 허용해 주세요.", "err");
-      }
-    }
-
-    async function scanLoop() {
-      const video = document.getElementById("video");
-      while (scanning) {
-        try {
-          const codes = await detector.detect(video);
-          if (codes && codes.length) {
-            const raw = codes[0].rawValue || "";
-            const value = ticket(raw);
-            document.getElementById("q").value = value;
-            msg("QR 인식 완료!<br>" + escapeHtml(value) + "<br>조회 중이에요...", "ok");
-            search(value);
-            stopScan();
-            break;
-          }
-        } catch (e) {}
-        await new Promise(function(resolve) { setTimeout(resolve, 180); });
-      }
-    }
-
-    function stopScan() {
-      scanning = false;
-      document.getElementById("readerBox").classList.remove("on");
-      const video = document.getElementById("video");
-      if (stream) {
-        stream.getTracks().forEach(function(track) { track.stop(); });
-        stream = null;
-      }
-      video.srcObject = null;
     }
 
     function escapeHtml(value) {
