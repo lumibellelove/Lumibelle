@@ -1,1329 +1,266 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lumibelle</title>
-  <link rel="stylesheet" href="style.css" />
-
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   TICKET | Lumibelle
+  </title>
+  <link href="../style.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800&display=swap');
-    html, body {
-      margin: 0;
-      padding: 0;
+   :root{--panel:#fff5fb;--line:#f2d8e7;--pink:#ff5fa8;--text:#7f6a77;--muted:#b28ea2;--shadow:0 8px 24px rgba(232,191,211,.12)}
+    *{box-sizing:border-box} html,body{margin:0;padding:0} body{min-height:100vh;display:flex;flex-direction:column;background:linear-gradient(180deg,#fffafc 0%,#fff8fb 100%);color:var(--text);font-family:"SUIT","Noto Sans KR",sans-serif;letter-spacing:-.01em} main{flex:1}.wrap{width:min(1260px,calc(100% - 32px));margin:0 auto}
+    .top-lang-bar{width:100%;max-width:1260px;margin:16px auto 0;display:flex;justify-content:flex-end;padding:0 34px 0 18px}.lang-switch{display:flex;gap:10px}.lang-switch a{display:inline-flex;align-items:center;justify-content:center;min-width:42px;height:36px;padding:0 10px;border-radius:999px;background:#fff;border:1px solid #f0bfd4;color:#d27ca8;text-decoration:none;font-size:12px;font-weight:900;box-shadow:0 4px 10px rgba(255,95,165,.08)}.lang-switch a.active,.lang-switch a:hover{background:#fff0f7;color:#ff59a5}
+    .header-box{display:flex;align-items:center;gap:24px}.logo img{display:block;max-width:150px;height:auto}nav{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:18px;text-align:center;align-items:center;flex:1;margin:0 20px}nav a{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;position:relative;border-radius:22px;text-decoration:none;color:inherit}nav a b,nav a span{display:block;width:100%;text-align:center;white-space:nowrap}nav a b{font-size:1.2em;font-weight:700;color:#d97ca9}nav a span{margin-top:6px;font-size:.94em;font-weight:600;color:#c697b1}nav a.current b,nav a:hover b{color:#ff59a5}nav a.current span,nav a:hover span{color:#d88dad}nav a.current::before,nav a:hover::before{content:"";position:absolute;inset:0;border-radius:22px;background:linear-gradient(90deg,rgba(255,217,232,0) 0%,rgba(255,217,232,.14) 16%,rgba(255,192,215,.20) 50%,rgba(255,217,232,.14) 84%,rgba(255,217,232,0) 100%);z-index:-1}
+    .hero-mini{position:relative;margin-top:18px;border:1px solid var(--line);border-radius:32px;overflow:hidden;background:linear-gradient(135deg,#fff0f7 0%,#f3ebff 100%);box-shadow:var(--shadow);padding:62px 56px 56px}.hero-mini .sub{color:var(--pink);font-size:20px;font-weight:800;margin-bottom:10px}.hero-mini h1{margin:0;font-family:"Cormorant Garamond",serif;font-size:96px;line-height:.9;font-weight:600;color:var(--pink);text-shadow:0 1px 0 rgba(255,255,255,.98),0 0 10px rgba(255,120,178,.22)}.hero-mini p{margin:18px 0 0;color:#8f7183;font-size:17px;line-height:1.9;font-weight:700}.status-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.status-pill{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 13px;border-radius:999px;background:#fff;border:1px solid #f0bfd4;color:#d27ca8;font-size:12px;font-weight:900}.status-pill.strong{background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);color:#fff;border:none}
+    .ticket-layout{display:grid;grid-template-columns:.92fr 1.08fr;gap:24px;margin-top:28px;align-items:start}.left-stack{padding-top:62px}.poster-card,.ticket-card,.detail-card,.package-card{background:var(--panel);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);overflow:hidden}.poster-box{aspect-ratio:3/4;background:linear-gradient(135deg,#fff0f7 0%,#f4ebff 100%);display:flex;align-items:center;justify-content:center;padding:22px;text-align:center;color:#d77ca7;font-weight:900;font-size:22px;line-height:1.5}.poster-box img{width:100%;height:100%;object-fit:cover;border-radius:22px;display:block}.info-card{padding:28px}.info-card h2,.ticket-card h2,.detail-card h2,.package-card h2{margin:0 0 16px;color:#d77ca7;font-size:32px;font-weight:900;line-height:1.15}.info-card p{margin:0;color:#8f7183;line-height:1.85;font-weight:700;font-size:16px}.event-lines{display:grid;gap:12px;margin-top:18px}.event-line{display:grid;grid-template-columns:90px 1fr;gap:12px;padding:13px 14px;border:1px solid var(--line);border-radius:18px;background:#fff;line-height:1.65}.event-line strong{color:#d77ca7;font-weight:900}.event-line span{color:#7f6a77;font-weight:650;word-break:keep-all}.cast-box{margin-top:18px;padding:14px 0 0;border-top:1px solid #f2d8e7;background:transparent}.cast-title{margin:0 0 18px;color:#d77ca7 !important;font-family:"SUIT","Noto Sans KR",sans-serif !important;font-size:20px !important;font-weight:800 !important;letter-spacing:-.02em;line-height:1.2;text-shadow:0 1px 0 #fff}.info-card .cast-list{display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;margin-top:8px;padding-bottom:4px;-webkit-overflow-scrolling:touch}.cast-list::-webkit-scrollbar{height:6px}.cast-list::-webkit-scrollbar-thumb{background:#f0bfd4;border-radius:999px}.cast-pill{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border-radius:999px;background:#fff;border:1px solid #f0bfd4;color:#c182a5;font-size:14px;font-weight:900}
+    .right-stack{display:grid;gap:18px}.right-top-actions{display:flex;justify-content:flex-end}.quick-icon-btn,.package-btn,.reserve-btn,.sub-btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 18px;border-radius:999px;text-decoration:none;font-size:15px;font-weight:900;text-align:center;transition:transform .15s ease,filter .15s ease}.quick-icon-btn,.package-btn,.sub-btn{background:#fff;border:1px solid #f0bfd4;color:#d77ca7;box-shadow:0 4px 10px rgba(255,95,165,.08)}.quick-icon-btn{min-height:44px;font-size:14px}.package-btn:hover,.reserve-btn:hover,.sub-btn:hover,.quick-icon-btn:hover{transform:translateY(-2px);filter:brightness(1.03)}.package-card,.ticket-card,.detail-card{padding:24px}.package-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ticket-note{margin:16px 0 0;color:#8f7183;font-size:14px;line-height:1.85;font-weight:650}.ticket-card .ticket-note{margin:12px 0 16px}.ticket-card > .status-row{gap:12px;margin:4px 0 14px}.ticket-card > .status-row .status-pill{min-height:46px;padding:0 18px;font-size:15px;font-weight:900;letter-spacing:-.01em;color:#c96f9c;background:#fff;border-color:#f0bfd4}.ticket-price{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:20px;border-radius:22px;background:#fff;border:1px solid var(--line);margin-bottom:18px}.ticket-price strong{display:block;color:#d77ca7;font-size:22px;font-weight:900}.ticket-price span{display:block;margin-top:6px;color:var(--muted);font-size:13px;font-weight:800}.ticket-price b{color:var(--pink);font-size:28px;font-weight:900;white-space:nowrap}.reserve-btn{width:100%;background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);color:#fff;box-shadow:0 8px 18px rgba(255,95,165,.25)}
+    .reserve-form{margin-top:18px;display:grid;gap:13px;max-width:560px}.form-row{display:grid;grid-template-columns:1fr 130px;gap:10px}.field label{display:block;margin:0 0 7px;color:#d77ca7;font-size:18px;font-weight:900}.field input,.field select{width:100%;min-height:50px;border-radius:18px;border:1px solid #f0bfd4;background:#fff;color:#7f6a77;font-size:16px;font-weight:700;padding:0 16px;outline:none}.field input:focus,.field select:focus{border-color:#ff8ac2;box-shadow:0 0 0 4px rgba(255,138,194,.12)}.ticket-options{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0 0;align-items:center}.ticket-divider{height:1px;margin:28px 0 20px;background:linear-gradient(90deg,rgba(242,216,231,0),#f2d8e7 14%,#f2d8e7 86%,rgba(242,216,231,0))}.ticket-option{border:1px solid #f0bfd4;background:#fff;color:#d77ca7;border-radius:999px;min-height:46px;padding:0 18px;font-size:15px;font-weight:900;cursor:pointer;letter-spacing:-.01em;box-shadow:0 4px 10px rgba(255,95,165,.06)}.ticket-option.active{background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);color:#fff;border-color:transparent;box-shadow:0 6px 14px rgba(255,95,165,.18)}.meate-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.meate-option{border:1px solid #f0bfd4;background:#fff;color:#d77ca7;border-radius:999px;min-height:46px;padding:0 12px;font-size:15px;font-weight:900;cursor:pointer;letter-spacing:-.01em;box-shadow:0 4px 10px rgba(255,95,165,.06);transition:transform .15s ease,filter .15s ease}.meate-option:hover{transform:translateY(-2px);filter:brightness(1.03)}.meate-option.active{background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);color:#fff;border-color:transparent;box-shadow:0 6px 14px rgba(255,95,165,.18)}.agree-box{display:flex;align-items:center;gap:10px;min-height:42px;margin-top:8px;padding:9px 14px;border:1px solid #f0bfd4;border-radius:16px;background:#fff;color:#8f7183;font-size:14px;font-weight:750;line-height:1.45}.agree-box input{width:17px;height:17px;accent-color:#ff5fa8;flex:0 0 auto}.reserve-btn{border:none;cursor:pointer;max-width:280px;margin:4px auto 0;font-size:16px}.reserve-msg{display:none;margin-top:12px;padding:12px 14px;border-radius:16px;background:#fff0f7;border:1px solid #f0bfd4;color:#d77ca7;font-weight:900;text-align:center}
+    .notice-grid{display:grid;grid-template-columns:1fr;gap:14px}.notice-box{background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px 20px}.notice-box h3{margin:0 0 10px;color:#d77ca7;font-size:22px;font-weight:900}.notice-box ul{margin:0;padding-left:18px;color:#8f7183;line-height:1.75;font-weight:700;font-size:15.5px}.notice-box li{margin:4px 0}.notice-box strong{color:#d77ca7}footer{text-align:center;padding:28px 16px 40px;color:#c6a2b4;font-size:14px}
+    @media (max-width:1180px){nav{grid-template-columns:repeat(4,1fr);gap:16px;width:100%;margin:0}.header-box{flex-wrap:wrap;justify-content:center}.top-lang-bar{justify-content:center;margin-top:14px}}@media (max-width:980px){.ticket-layout{grid-template-columns:1fr}.left-stack{padding-top:0}.hero-mini h1{font-size:76px}}@media (max-width:780px){nav{grid-template-columns:repeat(2,1fr);gap:12px}.hero-mini{padding:42px 24px 40px}.hero-mini h1{font-size:62px}.hero-mini .sub{font-size:17px}.hero-mini p{font-size:14px}.info-card,.ticket-card,.detail-card,.package-card{padding:22px 18px}.event-line{grid-template-columns:1fr;gap:4px}.package-actions{grid-template-columns:1fr}.ticket-price{align-items:flex-start;flex-direction:column}.ticket-price b{font-size:24px}.form-row{grid-template-columns:1fr}.meate-options{grid-template-columns:repeat(2,1fr)}.reserve-form{max-width:100%}.reserve-btn{max-width:100%}}
+
+    .hero-mini .status-pill{min-height:44px;padding:0 18px;font-size:15px;font-weight:900}
+    .top-button{position:fixed;right:22px;bottom:24px;z-index:50;display:none;align-items:center;justify-content:center;min-width:78px;min-height:42px;padding:0 16px;border:1px solid #f0bfd4;border-radius:999px;background:rgba(255,255,255,.92);color:#d77ca7;font-family:"SUIT","Noto Sans KR",sans-serif;font-size:14px;font-weight:900;letter-spacing:-.01em;box-shadow:0 8px 18px rgba(255,95,165,.16);cursor:pointer;backdrop-filter:blur(6px);transition:transform .15s ease,filter .15s ease,opacity .15s ease}
+    .top-button.show{display:inline-flex}
+    .top-button:hover{transform:translateY(-2px);filter:brightness(1.03)}
+    @media (max-width:780px){.hero-mini .status-pill{min-height:40px;padding:0 15px;font-size:13px}.top-button{right:16px;bottom:18px;min-width:68px;min-height:38px;font-size:13px}}
+
+
+    /* 일반 스마트폰 기준 모바일 최적화 */
+    @media (max-width:780px){
+      .wrap{width:min(100% - 24px,1260px)}
+      .top-lang-bar{padding:0 12px}
+      .lang-switch a{min-width:38px;height:34px;font-size:11px}
+      .header-box{gap:14px}
+      .logo img{max-width:132px}
+      nav{gap:10px}
+      nav a{padding:10px 4px;border-radius:18px}
+      nav a b{font-size:1.05em}
+      nav a span{margin-top:4px;font-size:.82em}
+      .hero-mini{margin-top:14px;padding:38px 20px 34px;border-radius:26px}
+      .hero-mini h1{font-size:58px}
+      .hero-mini .sub{font-size:16px}
+      .hero-mini p{font-size:14px;line-height:1.75}
+      .hero-mini .status-row{gap:8px;margin-top:16px}
+      .hero-mini .status-pill{min-height:38px;padding:0 14px;font-size:13px}
+      .ticket-layout{gap:18px;margin-top:20px}
+      .right-stack{gap:16px}
+      .poster-card,.ticket-card,.detail-card,.package-card{border-radius:24px}
+      .info-card,.ticket-card,.detail-card,.package-card{padding:20px 16px}
+      .info-card h2,.ticket-card h2,.detail-card h2,.package-card h2{font-size:28px}
+      .ticket-card > .status-row{gap:8px}
+      .ticket-card > .status-row .status-pill{min-height:42px;padding:0 14px;font-size:14px}
+      .ticket-price{padding:18px 16px;border-radius:20px}
+      .ticket-price strong{font-size:20px}
+      .ticket-price b{font-size:23px}
+      .ticket-options{gap:10px}
+      .ticket-option{min-height:44px;padding:0 14px;font-size:14px}
+      .ticket-divider{margin:26px 0 20px}
+      .field label{font-size:17px}
+      .field input,.field select{min-height:48px;border-radius:16px;font-size:15px}
+      .meate-options{gap:8px}
+      .meate-option{min-height:44px;padding:0 10px;font-size:14px}
+      .agree-box{align-items:flex-start;font-size:13.5px;line-height:1.45}
+      .agree-box input{margin-top:2px}
+      .top-button{right:14px;bottom:calc(16px + env(safe-area-inset-bottom))}
     }
 
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      background: #fffafc;
+    /* 폭이 좁은 일반 안드로이드/소형 아이폰 보정 */
+    @media (max-width:390px){
+      .wrap{width:calc(100% - 20px)}
+      .hero-mini{padding:34px 18px 32px}
+      .hero-mini h1{font-size:52px}
+      .hero-mini .status-pill{min-height:36px;padding:0 12px;font-size:12px}
+      nav a b{font-size:1em}
+      nav a span{font-size:.78em}
+      .info-card h2,.ticket-card h2,.detail-card h2,.package-card h2{font-size:26px}
+      .ticket-card > .status-row .status-pill{width:100%;justify-content:center}
+      .ticket-option{padding:0 12px;font-size:13.5px}
+      .meate-option{font-size:13.5px}
+      .agree-box{font-size:13px}
+      .top-button{min-width:58px;min-height:36px;font-size:12px}
     }
 
-    main.page-shell {
-      flex: 1;
+
+
+    /* ===== 홈 index 기준 고급화 레이어 ===== */
+    body{
+      background:
+        radial-gradient(circle at 12% 8%, rgba(255,192,215,.34) 0%, rgba(255,192,215,0) 28%),
+        radial-gradient(circle at 88% 18%, rgba(202,167,255,.20) 0%, rgba(202,167,255,0) 26%),
+        linear-gradient(180deg,#fffafc 0%,#fff8fb 100%);
     }
 
-    .top-lang-bar{
-      width:100%;
-      max-width:1260px;
-      margin:16px auto 0;
-      display:flex;
-      justify-content:flex-end;
-      padding:0 34px 0 18px;
-      box-sizing:border-box;
-    }
-
-    /* ===== 상단 1차 메뉴 ===== */
-    nav{
-      display:grid;
-      grid-template-columns:repeat(8, minmax(0, 1fr));
-      gap:18px;
-      text-align:center;
-      align-items:center;
-      flex:1;
-      margin:0 20px;
-    }
-
-    nav a{
-      width:100%;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      min-width:0;
-    }
-
-    nav a b,
-    nav a span{
-      display:block;
-      width:100%;
-      text-align:center;
-      white-space:nowrap;
-    }
-
-    nav a b{
-      font-size:1.18em;
-    }
-
-    nav a span{
-      margin-top:2px;
-    }
-
-    .header-box{
-      display:flex;
-      align-items:center;
-      gap:24px;
-    }
-
-    /* ===== 언어 버튼 ===== */
-    .lang-switch{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex:0 0 auto;
-      padding-right:2px;
-    }
-
-    .lang-switch a{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-width:42px;
-      height:36px;
-      padding:0 10px;
-      border-radius:999px;
-      background:#fff;
-      border:1px solid #f0bfd4;
-      color:#d27ca8;
-      text-decoration:none;
-      font-size:12px;
-      font-weight:900;
-      transition:background .18s ease, color .18s ease, box-shadow .18s ease;
-      box-shadow:0 4px 10px rgba(255,95,165,0.08);
-    }
-
-    .lang-switch a:hover,
-    .lang-switch a.active{
-      background:#fff0f7;
-      color:#ff59a5;
-      transform:translateY(-1px);
-    }
-
-    nav a{
+    .hero-mini,
+    .poster-card,
+    .ticket-card,
+    .detail-card,
+    .package-card{
       position:relative;
-      border-radius:22px;
-      overflow:visible;
-      transform:none !important;
-    }
-
-    nav a.current,
-    nav a:hover,
-    nav a:focus,
-    nav a:focus-visible,
-    nav a:active{
-      background:transparent !important;
-      box-shadow:none !important;
-      z-index:1;
-      outline:none !important;
-      transform:none !important;
-    }
-
-    nav a.current::before,
-    nav a:hover::before,
-    nav a:focus::before,
-    nav a:focus-visible::before{
-      content:"";
-      position:absolute;
-      top:0;
-      bottom:0;
-      left:0;
-      right:0;
-      border-radius:22px;
-      background:linear-gradient(90deg,
-        rgba(255,217,232,0.00) 0%,
-        rgba(255,217,232,0.18) 16%,
-        rgba(255,192,215,0.20) 36%,
-        rgba(255,192,215,0.24) 50%,
-        rgba(255,192,215,0.20) 64%,
-        rgba(255,217,232,0.18) 84%,
-        rgba(255,217,232,0.00) 100%);
-      z-index:-1;
-      pointer-events:none;
-      box-shadow:0 4px 10px rgba(255,192,215,0.05);
-    }
-
-    nav a.current b,
-    nav a:hover b{
-      color:#ff59a5;
-    }
-
-    nav a.current span,
-    nav a:hover span{
-      color:#d88dad;
-    }
-
-
-    /* ===== 상단 2차 메뉴 ===== */
-    .subnav-wrap{
-      display:grid;
-      grid-template-columns:repeat(4, minmax(0, 1fr));
-      gap:18px;
-      margin:18px auto 8px;
-      max-width:1260px;
-    }
-
-    .subnav-card{
-      position:relative;
-      padding:24px 30px;
-      border-radius:24px;
-      background:#fff5fb;
-      border:1px solid #f2d8e7;
-      box-shadow:0 8px 24px rgba(232, 191, 211, 0.12);
-      text-decoration:none;
-      text-align:center;
-      transition:transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-      overflow:hidden;
-    }
-
-    .subnav-card:hover{
-      transform:translateY(-3px);
-      box-shadow:0 14px 30px rgba(232,191,211,0.18);
-      background:#fff0f7;
-    }
-
-    .subnav-card:focus,
-    .subnav-card:focus-visible,
-    .subnav-card:active,
-    .live-guide-card:focus,
-    .live-guide-card:focus-visible,
-    .live-guide-card:active{
-      transform:none !important;
-      outline:none !important;
-    }
-
-    nav a:focus,
-    nav a:active,
-    .subnav-card:focus,
-    .subnav-card:active{
-      outline:none !important;
-      transform:none !important;
-      box-shadow:0 8px 24px rgba(232, 191, 211, 0.12) !important;
-    }
-
-    nav a,
-    .subnav-card{
-      -webkit-tap-highlight-color:transparent;
-    }
-
-    .subnav-card h3{
-      margin:0 0 8px;
-      color:#ff59a5;
-      font-size:21px;
-      font-weight:900;
-      line-height:1;
-      letter-spacing:0.02em;
-    }
-
-    .subnav-card p{
-      margin:0;
-      color:#b28ea2;
-      font-size:15px;
-      font-weight:800;
-      line-height:1.3;
-    }
-
-    .coming-badge{
-      position:absolute;
-      top:10px;
-      right:10px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:5px 9px;
-      border-radius:999px;
-      background:#ff59a5;
-      color:#fff;
-      font-size:10px;
-      font-weight:900;
-      letter-spacing:0.04em;
-      line-height:1;
-      box-shadow:0 6px 14px rgba(255,89,165,0.22);
-    }
-
-    /* ===== 위로가기 버튼 ===== */
-    .back-to-top{
-      position:fixed;
-      right:22px;
-      bottom:22px;
-      width:56px;
-      height:56px;
-      border:none;
-      border-radius:50%;
-      background:linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%);
-      color:#fff;
-      font-size:22px;
-      font-weight:900;
-      cursor:pointer;
-      box-shadow:0 12px 22px rgba(255, 95, 165, 0.28);
-      z-index:1200;
-      opacity:0;
-      visibility:hidden;
-      transform:translateY(8px);
-      transition:all .2s ease;
-    }
-
-    .back-to-top.show{
-      opacity:1;
-      visibility:visible;
-      transform:translateY(0);
-    }
-
-    .back-to-top:hover{
-      transform:translateY(-2px);
-      filter:brightness(1.04);
-    }
-
-    /* ===== 상단 메인 비주얼 (최종 통합본) ===== */
-    .hero-banner {
-      position: relative;
-      margin-top: 8px;
-      border: 1px solid #f2d8e7;
-      border-radius: 32px;
-      overflow: hidden;
-      min-height: 560px;
-      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
-      background: #fdf2f7; 
-    }
-
-    .hero-banner .slide{
-      z-index:1;
-    }
-
-    .slide {
-      position: absolute;
-      inset: 0;
-      background-size: cover;
-      background-position: center;
-      opacity: 0;
-      transition: opacity 1.5s ease-in-out;
-      z-index: 1;
-    }
-
-    .slide.active {
-      opacity: 1;
-      z-index: 1;
-    }
-
-    .hero-inner {
-      position: relative;
-      z-index: 2; 
-      padding: 86px 56px 96px;
-      max-width: 720px;
-    }
-
-    .hero-kor {
-      font-size: 18px;
-      font-weight: 800;
-      color: #f35aa0;
-      margin-bottom: 5px;
-    }
-
-    .hero-logo {
-      font-size: 80px;
-      font-weight: 900;
-      color: #f5539f;
-      line-height: 1;
-      margin: 10px 0;
-      text-shadow: 2px 2px 0px #fff;
-    }
-
-    .hero-sub {
-      font-size: 24px;
-      font-weight: 800;
-      color: #f35aa0;
-    }
-
-    .hero-desc {
-      font-size: 16px;
-      line-height: 1.8;
-      font-weight: 700;
-      color: #555;
-      margin-top: 25px;
-      text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.9);
-    }
-
-    /* ===== 섹션 공통 ===== */
-    .section-heading {
-      text-align: center;
-      margin: 38px 0 20px;
-    }
-
-    .section-heading h2 {
-      margin: 0;
-      color: #d77ca7;
-      font-size: 62px;
-      line-height: 1;
-      font-weight: 900;
-    }
-
-    .section-heading p {
-      margin: 10px 0 0;
-      color: #c99ab2;
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    /* ===== 멤버 ===== */
-    .member-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-top: 18px;
-    }
-
-    .member-card {
-      background: #fff5fb;
-      border: 1px solid #f2d8e7;
-      border-radius: 28px;
-      padding: 10px 10px 16px;
-      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .member-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 14px 32px rgba(0,0,0,0.12);
-    }
-
-    .member-card.mariring {
-      background: #fff0f6;
-    }
-
-    .member-card.lulu {
-      background: #fff6f9;
-    }
-
-    .member-card.iro {
-      background: #f4faff;
-    }
-
-    .member-card.lunar {
-      background: #f7f2ff;
-    }
-
-    .member-name-bar {
-      border-radius: 0 0 999px 999px;
-      color: #fff;
-      text-align: center;
-      font-size: 18px;
-      font-weight: 900;
-      padding: 14px 10px;
-      margin-bottom: 12px;
-      letter-spacing: 0.08em;
-    }
-
-    .member-card.mariring .member-name-bar {
-      background: #ff59a5;
-      box-shadow: 0 6px 16px rgba(255, 89, 165, 0.25);
-    }
-
-    .member-card.lulu .member-name-bar {
-      background: linear-gradient(180deg, #FFB8D3 0%, #FFD9E8 100%);
-      box-shadow: 0 6px 16px rgba(255, 184, 211, 0.30);
-    }
-
-    .member-card.iro .member-name-bar {
-      background: #8ECDF2;
-      box-shadow: 0 6px 16px rgba(142, 205, 242, 0.30);
-    }
-
-    .member-card.lunar .member-name-bar {
-      background: #9F6DE0;
-      box-shadow: 0 6px 16px rgba(159, 109, 224, 0.30);
-    }
-
-    .mariring { background: #f35aa0; }
-    .lulu { background: linear-gradient(180deg, #FFC0D7 0%, #FFD9E8 100%); }
-    .iro { background: #B2DEFF; }
-
-    .member-photo {
-      width: 100%;
-      height: 360px;
-      background: #fff;
-      border: 1px solid #f0dde8;
-      border-radius: 22px;
-      overflow: hidden;
-      margin-bottom: 16px;
-    }
-
-    .member-photo picture{
-      display:block;
-      width:100%;
-      height:100%;
-    }
-
-    .member-photo img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .member-color-text {
-      text-align: center;
-      color: #b28ea2;
-      line-height: 1.8;
-      font-size: 16px;
-      font-weight: 800;
-      margin-bottom: 16px;
-    }
-
-    .member-meta {
-      color: #8f7183;
-      font-size: 14px;
-      line-height: 1.8;
-      margin-bottom: 18px;
-      text-align:left;
-      padding:0 16px 0 18px;
-    }
-
-    .member-meta div{
-      margin-bottom: 12px;
-      overflow-wrap: anywhere;
-      word-break: keep-all;
-    }
-
-    .member-meta strong {
-      display:inline;
-      color: #b28ea2;
-      margin-right: 8px;
-      margin-bottom: 0;
-      font-weight: 800;
-    }
-
-    .member-btn {
-      display: inline-flex;
-      width: 100%;
-      align-items: center;
-      justify-content: center;
-      padding: 14px 18px;
-      border-radius: 999px;
-      text-decoration: none;
-      font-size: 16px;
-      font-weight: 900;
-      color: #fff;
-      box-sizing: border-box;
-      transition: all 0.2s ease;
-    }
-
-    .member-btn.mariring { background: #f35aa0; }
-    .member-btn.lulu { background: linear-gradient(180deg, #FFC0D7 0%, #FFD9E8 100%); }
-    .member-btn.iro { background: #B2DEFF; }
-    .member-btn.lunar { background: #ba8ce7; }
-
-    .member-btn:hover {
-      transform: translateY(-2px);
-      filter: brightness(1.05);
-    }
-
-    /* ===== SETLIST 바로가기 카드 ===== */
-    .live-guide-shortcut{
-      margin-top: 52px;
-      margin-bottom: 28px;
-      margin-bottom: 4px;
-    }
-
-    .live-guide-card{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:18px;
-      width:100%;
-      padding:32px 34px;
-      border-radius:28px;
-      border:1px solid #f2d8e7;
-      background:linear-gradient(135deg, #fff0f7 0%, #f3ebff 100%);
-      box-shadow:0 8px 24px rgba(232,191,211,0.12);
-      text-decoration:none;
-      transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
-      position:relative;
-      overflow:hidden;
-    }
-
-    .live-guide-card::after{
-      content:"";
-      position:absolute;
-      top:-20%;
-      left:-30%;
-      width:180px;
-      height:180px;
-      background:radial-gradient(circle, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 70%);
-      pointer-events:none;
-    }
-
-    .live-guide-card:hover{
-      transform:translateY(-3px);
-      box-shadow:0 14px 30px rgba(232,191,211,0.18);
-      background:linear-gradient(135deg, #ffe8f3 0%, #efe5ff 100%);
-    }
-
-    .live-guide-text strong{
-      display:block;
-      margin-bottom:8px;
-      color:#ff59a5;
-      font-size:32px;
-      font-weight:900;
-      line-height:1;
-    }
-
-    .live-guide-text span{
-      display:block;
-      color:#8f7183;
-      font-size:17px;
-      font-weight:700;
-      line-height:1.6;
-    }
-
-    .live-guide-arrow{
-      flex:0 0 auto;
-      color:#c99ab2;
-      font-size:28px;
-      font-weight:900;
-      line-height:1;
-    }
-
-    /* ===== 중간 박스들 ===== */
-    .home-grid-top {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 22px;
-      margin-top: 8px;
-    }
-
-    .home-grid-bottom {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 22px;
-      margin-top: 12px;
-      align-items: stretch;
-    }
-
-    .home-card {
-      background: #fff5fb;
-      border: 1px solid #f2d8e7;
-      border-radius: 28px;
-      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
-      overflow: hidden;
-    }
-
-    .video-section{
-      margin-top:12px;
-    }
-
-
-    /* ===== VIDEO + ON AIR 카드 ===== */
-    .media-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:22px;
-      margin-top:12px;
-      align-items:stretch;
-    }
-
-    .media-link-card{
-      display:block;
-      text-decoration:none;
-      color:inherit;
-      min-height:260px;
-      position:relative;
-      overflow:hidden;
-      transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
-    }
-
-    .media-link-card:hover{
-      transform:translateY(-3px);
-      box-shadow:0 14px 30px rgba(232,191,211,0.18);
-      background:#fff0f7;
-    }
-
-    .media-preview-box,
-    .onair-preview{
-      margin:0 24px 26px;
-      padding:22px;
-      border-radius:24px;
-      background:#fff;
-      border:1px solid #f0dde8;
-      box-shadow:0 8px 18px rgba(232,191,211,0.10);
-    }
-
-    .media-pill{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:7px 12px;
-      border-radius:999px;
-      background:#fff0f7;
-      border:1px solid #f0bfd4;
-      color:#d77ca7;
-      font-size:11px;
-      font-weight:900;
-      letter-spacing:.04em;
-      margin-bottom:13px;
-    }
-
-    .media-preview-box strong{
-      display:block;
-      color:#ff59a5;
-      font-size:22px;
-      font-weight:900;
-      margin-bottom:8px;
-    }
-
-    .media-preview-box em{
-      display:block;
-      color:#8f7183;
-      font-size:15px;
-      font-style:normal;
-      font-weight:700;
-      line-height:1.7;
-    }
-
-    .onair-card{
-      background:linear-gradient(135deg, #fff5fb 0%, #f6f0ff 100%) !important;
       isolation:isolate;
     }
 
-    .onair-glow{
+    .hero-mini::before,
+    .ticket-card::before,
+    .detail-card::before,
+    .package-card::before,
+    .poster-card::before{
+      content:"";
       position:absolute;
-      inset:-60% -30% auto auto;
-      width:260px;
-      height:260px;
-      border-radius:50%;
-      background:radial-gradient(circle, rgba(255,255,255,.78) 0%, rgba(255,138,194,.25) 34%, rgba(202,167,255,.18) 58%, transparent 72%);
+      inset:-1px;
+      border-radius:inherit;
+      background:linear-gradient(135deg, rgba(255,255,255,.42), rgba(255,255,255,0) 34%, rgba(255,192,215,.14) 100%);
       pointer-events:none;
-      animation:onairGlow 5.5s ease-in-out infinite;
-      z-index:0;
+      z-index:-1;
     }
 
-    .onair-card > *:not(.onair-glow){
+    .hero-mini::after{
+      content:"✦";
+      position:absolute;
+      right:34px;
+      bottom:24px;
+      color:rgba(255,95,168,.22);
+      font-size:42px;
+      line-height:1;
+      animation:lumiStarFloat 3s ease-in-out infinite;
+      pointer-events:none;
+    }
+
+    @keyframes lumiStarFloat{
+      0%,100%{transform:translateY(0) rotate(0deg); opacity:.48;}
+      50%{transform:translateY(-6px) rotate(12deg); opacity:.88;}
+    }
+
+    @media (hover:hover) and (pointer:fine){
+      .poster-card:hover,
+      .ticket-card:hover,
+      .detail-card:hover,
+      .package-card:hover{
+        transform:translateY(-3px);
+        box-shadow:0 16px 34px rgba(232,191,211,.20);
+      }
+    }
+
+    .poster-card,
+    .ticket-card,
+    .detail-card,
+    .package-card{
+      transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .ticket-price,
+    .notice-box,
+    .event-line,
+    .status-pill,
+    .ticket-option,
+    .meate-option,
+    .package-btn,
+    .quick-icon-btn,
+    .reserve-btn{
       position:relative;
-      z-index:1;
+      overflow:hidden;
+      isolation:isolate;
     }
 
-    .onair-preview{
-      display:grid;
-      gap:12px;
+    .ticket-price::after,
+    .status-pill::after,
+    .ticket-option::after,
+    .meate-option::after,
+    .package-btn::after,
+    .quick-icon-btn::after,
+    .reserve-btn::after{
+      content:"";
+      position:absolute;
+      top:-35%;
+      left:-44%;
+      width:24%;
+      height:170%;
+      background:linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.18) 35%, rgba(255,255,255,.45) 50%, rgba(255,255,255,.18) 65%, rgba(255,255,255,0) 100%);
+      transform:skewX(-22deg) translateX(0);
+      opacity:0;
+      pointer-events:none;
+      z-index:2;
     }
 
-    .onair-row{
-      display:grid;
-      grid-template-columns:82px 1fr;
-      gap:12px;
-      align-items:start;
-      padding:14px;
-      border-radius:18px;
-      background:#fff8fc;
-      border:1px solid #f3ddea;
+    .ticket-price:hover::after,
+    .status-pill:hover::after,
+    .ticket-option:hover::after,
+    .meate-option:hover::after,
+    .package-btn:hover::after,
+    .quick-icon-btn:hover::after,
+    .reserve-btn:hover::after{
+      animation:sweepShine .9s ease forwards;
     }
 
-    .onair-label{
-      display:inline-flex;
+    @keyframes sweepShine{
+      0%{opacity:0;transform:skewX(-22deg) translateX(0);}
+      15%{opacity:1;}
+      100%{opacity:0;transform:skewX(-22deg) translateX(560%);}
+    }
+
+    .ticket-price{
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.85), 0 6px 16px rgba(255,95,165,.05);
+    }
+
+    .notice-box:hover,
+    .event-line:hover{
+      background:#fffafd;
+    }
+
+    .reserve-btn{
+      min-height:54px;
+      box-shadow:0 10px 22px rgba(255,95,165,.26);
+    }
+
+    .reserve-btn:hover{
+      box-shadow:0 14px 28px rgba(255,95,165,.30);
+    }
+
+    /* 홈 index와 같은 원형 위로가기 버튼 */
+    .top-button{
+      position:fixed !important;
+      right:22px !important;
+      bottom:22px !important;
+      width:56px !important;
+      height:56px !important;
+      min-width:0 !important;
+      min-height:0 !important;
+      padding:0 !important;
+      border:none !important;
+      border-radius:50% !important;
+      background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%) !important;
+      color:#fff !important;
+      font-size:22px !important;
+      font-weight:900 !important;
+      box-shadow:0 12px 22px rgba(255,95,165,.28) !important;
+      z-index:1200 !important;
+      opacity:0;
+      visibility:hidden;
+      display:inline-flex !important;
       align-items:center;
       justify-content:center;
-      height:28px;
-      border-radius:999px;
-      font-size:11px;
-      font-weight:900;
-      letter-spacing:.04em;
-      color:#fff;
-      background:linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%);
-      box-shadow:0 6px 12px rgba(255,95,165,.18);
+      transform:translateY(8px);
+      transition:all .2s ease !important;
     }
 
-    .onair-row.next .onair-label{
-      background:linear-gradient(180deg, #caa7ff 0%, #ba8ce7 100%);
+    .top-button.show{
+      opacity:1 !important;
+      visibility:visible !important;
+      transform:translateY(0) !important;
     }
 
-    .onair-row strong{
-      display:block;
-      color:#846f81;
-      font-size:16px;
-      font-weight:900;
-      margin-bottom:4px;
+    .top-button:hover{
+      transform:translateY(-2px) !important;
+      filter:brightness(1.04);
     }
 
-    .onair-row p{
-      margin:0;
-      color:#ab869c;
-      font-size:13.5px;
-      font-weight:700;
-      line-height:1.55;
-    }
-
-    @keyframes onairGlow{
-      0%,100%{transform:translate(0,0) scale(1); opacity:.82;}
-      50%{transform:translate(-18px,18px) scale(1.08); opacity:1;}
-    }
-
-    @media (max-width: 1100px){
-      .media-grid{grid-template-columns:1fr;}
-    }
-
-    @media (max-width: 780px){
-      .media-link-card{min-height:auto;}
-      .media-preview-box,.onair-preview{margin:0 16px 18px;padding:16px;}
-      .onair-row{grid-template-columns:1fr;}
-      .onair-label{width:max-content;padding:0 12px;}
-    }
-
-    .home-card-head {
-      padding: 30px 28px 18px;
-      text-align: center;
-    }
-
-    .home-card-head h3 {
-      margin: 0;
-      color: #d77ca7;
-      font-size: 44px;
-      font-weight: 900;
-      line-height: 1.1;
-    }
-
-    .home-card-head p {
-      margin: 8px 0 0;
-      color: #c99ab2;
-      font-size: 15px;
-      font-weight: 700;
-    }
-
-    /* ===== 뉴스 ===== */
-    .news-list {
-      border-top: 1px solid #f2d8e7;
-    }
-
-    .news-item {
-      display: grid;
-      grid-template-columns: 110px 90px 1fr 20px;
-      align-items: center;
-      gap: 10px;
-      padding: 18px 22px;
-      border-bottom: 1px solid #f2d8e7;
-      text-decoration: none;
-      background: #fff5fb;
-      transition: background 0.18s ease;
-    }
-
-    .news-item:hover {
-      background: #fff0f7;
-    }
-
-    .news-date {
-      font-size: 16px;
-      color: #9b7d90;
-      font-weight: 800;
-    }
-
-    .news-tags {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .news-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 7px 14px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 900;
-      border: 1px solid transparent;
-      line-height: 1;
-    }
-
-    .badge-new {
-      background: #ff4fa3;
-      color: #fff;
-      border-color: #ff4fa3;
-    }
-
-    .badge-info {
-      background: #fbe8f4;
-      color: #c97ca8;
-      border-color: #efc6dc;
-    }
-
-    .badge-media {
-      background: #eaf4ff;
-      color: #73a1da;
-      border-color: #c7def8;
-    }
-
-    .badge-live {
-      background: #eaf4ff;
-      color: #73a1da;
-      border-color: #c7def8;
-    }
-
-    .news-title {
-      font-size: 18px;
-      line-height: 1.5;
-      color: #846f81;
-      font-weight: 900;
-      letter-spacing: -0.01em;
-    }
-
-    .news-arrow {
-      color: #d8a0bc;
-      font-size: 20px;
-      font-weight: 700;
-      text-align: right;
-    }
-
-    /* ===== 스케줄 ===== */
-    .schedule-list {
-      border-top: 1px solid #f2d8e7;
-    }
-
-    .schedule-item {
-      display: grid;
-      grid-template-columns: 125px 165px 1fr auto;
-      align-items: center;
-      gap: 14px;
-      padding: 16px 22px;
-      border-bottom: 1px solid #f2d8e7;
-      color: #846f81;
-      transition: background 0.18s ease;
-    }
-
-    .schedule-item:hover {
-      background: #fff0f7;
-    }
-
-    .schedule-date {
-      font-size: 24px;
-      font-weight: 900;
-      color: #ff5fa5;
-      letter-spacing: -0.02em;
-      white-space: nowrap;
-    }
-
-    .schedule-place {
-      font-size: 16px;
-      font-weight: 800;
-      color: #7e6b78;
-      white-space: nowrap;
-    }
-
-    .schedule-title {
-      font-size: 16px;
-      font-weight: 800;
-      color: #7e6b78;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .ticket-btn {
-      background: #ffffff;
-      color: #e27aa9;
-      border: 1.5px solid #f0bfd4;
-      border-radius: 999px;
-      padding: 8px 14px;
-      font-size: 12px;
-      font-weight: 800;
-      white-space: nowrap;
-      text-decoration:none;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    .ticket-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 10px rgba(255, 95, 165, 0.15);
-    }
-
-    .ticket-btn.coming-soon:hover {
-      transform: none;
-      box-shadow: none;
-    }
-
-    .home-card-foot {
-      padding: 20px 24px 24px;
-      text-align: center;
-    }
-
-    .more-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 210px;
-      padding: 14px 22px;
-      border-radius: 999px;
-      text-decoration: none;
-      font-size: 15px;
-      font-weight: 800;
-      background: linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%);
-      color: #fff;
-      box-shadow: 0 8px 18px rgba(255, 95, 165, 0.25);
-      transition: transform 0.15s ease;
-    }
-
-    .more-btn:hover {
-      transform: translateY(-2px);
-    }
-
-    /* ===== 팬네임/인포/팔로우 ===== */
-    .fanname-card {
-      padding: 28px 18px 26px;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      box-sizing: border-box;
-    }
-
-    .fanname-card .card-title {
-      text-align: center;
-      margin-bottom: 18px;
-    }
-
-    .fanname-card .card-title h3 {
-      margin: 0;
-      color: #d77ca7;
-      font-size: 44px;
-      font-weight: 900;
-      line-height: 1.1;
-    }
-
-    .fanname-card .card-title p {
-      margin: 8px 0 0;
-      color: #c99ab2;
-      font-size: 15px;
-      font-weight: 700;
-    }
-
-    .fanname-image-box {
-      background: #fff;
-      border: 1px solid #f2d8e7;
-      border-radius: 24px;
-      padding: 16px;
-    }
-
-    .fanname-image-box picture{
-      display:block;
-      width:100%;
-    }
-
-    .fanname-image-box img {
-      width: 100%;
-      display: block;
-      border-radius: 18px;
-    }
-
-    .fanname-name {
-      margin-top: 18px;
-      text-align: center;
-      font-size: 28px;
-      font-weight: 900;
-      color: #ef67a8;
-    }
-
-    .fanname-desc {
-      margin-top: 10px;
-      text-align: center;
-      color: #8f7183;
-      line-height: 1.85;
-      font-size: 15px;
-    }
-
-    .right-column {
-      display: flex;
-      flex-direction: column;
-      gap: 22px;
-      height: 100%;
-    }
-
-    .info-card,
-    .follow-card {
-      background: #fff5fb;
-      border: 1px solid #f2d8e7;
-      border-radius: 28px;
-      box-shadow: 0 8px 24px rgba(232, 191, 211, 0.12);
-      padding: 28px 24px;
-      box-sizing: border-box;
-    }
-
-    .info-card {
-      flex: 1.1;
-    }
-
-    .follow-card {
-      flex: 0.9;
-    }
-
-    .section-title {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .section-title h3 {
-      margin: 0;
-      color: #d77ca7;
-      font-size: 44px;
-      font-weight: 900;
-      line-height: 1.1;
-    }
-
-    .section-title p {
-      margin: 8px 0 0;
-      color: #c99ab2;
-      font-size: 15px;
-      font-weight: 700;
-    }
-
-    .info-links {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 14px;
-    }
-
-    .info-link-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 48px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: #fff;
-      border: 1px solid #f0dde8;
-      color: #d27ca8;
-      text-decoration: none;
-      font-weight: 800;
-      transition: background 0.18s ease, transform 0.18s ease;
-      text-align: center;
-    }
-
-    .info-link-btn:hover {
-      background: #fff0f7;
-      transform: translateY(-1px);
-    }
-
-    .sns-icons {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      margin-top: 24px;
-      flex-wrap: wrap;
-    }
-
-    .sns-icon {
-      width: 58px;
-      height: 58px;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      font-weight: 900;
-      color: #fff;
-      background: linear-gradient(180deg, #d9b7ef 0%, #cba0e8 100%);
-      box-shadow: 0 8px 18px rgba(203, 160, 232, 0.25);
-      transition: transform 0.18s ease, opacity 0.18s ease;
-    }
-
-    .sns-icon:hover {
-      transform: translateY(-2px);
-      opacity: 0.95;
-    }
-
-    footer {
-      text-align: center;
-      padding: 28px 16px 40px;
-      color: #c6a2b4;
-      font-size: 14px;
-    }
-
-    @media (max-width: 1200px) {
-      .member-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 1100px) {
-      .home-grid-top,
-      .home-grid-bottom {
-        grid-template-columns: 1fr;
-      }
-
-      .right-column {
-        height: auto;
-      }
-    }
-
-    @media (max-width: 1180px){
-      nav{
-        grid-template-columns:repeat(4,1fr);
-        gap:16px;
-      }
-
-      .subnav-wrap{
-        grid-template-columns:repeat(2, minmax(180px,1fr));
-      }
-
-      .top-lang-bar{
-        max-width:1260px;
-      }
-    }
-
-
-    nav a,
-    .subnav-card,
-    .live-guide-card{
-      transform:none;
-      outline:none;
-    }
-
-    nav a:focus,
-    nav a:focus-visible,
-    nav a:active,
-    .subnav-card:focus,
-    .subnav-card:focus-visible,
-    .subnav-card:active,
-    .live-guide-card:focus,
-    .live-guide-card:focus-visible,
-    .live-guide-card:active{
-      transform:none !important;
-      outline:none !important;
-    }
-
-    .subnav-card:active,
-    .live-guide-card:active{
-      box-shadow:0 8px 24px rgba(232,191,211,0.12) !important;
-    }
-
-    @media (max-width: 980px){
-      .header-box{
-        flex-wrap:wrap;
-        justify-content:center;
-      }
-
-      nav{
-        grid-template-columns:repeat(4,1fr);
-        width:100%;
-        margin:0;
-      }
-
-      .top-lang-bar{
-        justify-content:center;
-        margin-top:14px;
-      }
-    }
-
-    @media (max-width: 780px) {
-      .hero-inner {
-        padding: 50px 24px 80px;
-      }
-
-      .hero-logo {
-        font-size: 68px;
-      }
-
-      .hero-sub {
-        font-size: 22px;
-      }
-
-      .member-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .news-item,
-      .schedule-item {
-        grid-template-columns: 1fr;
-        align-items: flex-start;
-      }
-
-      .news-arrow {
-        display: none;
-      }
-
-      .info-links {
-        grid-template-columns: 1fr;
-      }
-
-      .home-card-head h3,
-      .section-title h3,
-      .fanname-card .card-title h3,
-      .section-heading h2 {
-        font-size: 34px;
-      }
-
-      .news-date,
-      .news-title,
-      .schedule-place,
-      .schedule-title {
-        font-size: 16px;
-      }
-
-      .schedule-date {
-        font-size: 20px;
-      }
-
-      .schedule-place,
-      .schedule-title {
-        white-space: normal;
-      }
-
-      .live-guide-card{
-        padding:20px 18px;
-      }
-
-      .live-guide-text strong{
-        font-size:22px;
-      }
-
-      .live-guide-text span{
-        font-size:14px;
-      }
-
-      .live-guide-arrow{
-        font-size:22px;
-      }
-
-      nav{
-        grid-template-columns:repeat(2,1fr);
-        gap:12px;
-        margin:0;
-      }
-
-      .subnav-wrap{
-        grid-template-columns:1fr;
-        gap:12px;
-        margin:14px auto 20px;
-      }
-
-      .subnav-card{
-        padding:18px 18px;
-      }
-
-      .subnav-card h3{
-        font-size:20px;
-      }
-
-      .subnav-card p{
-        font-size:14px;
-      }
-    }
-  
-    /* ===== reveal animation (조금 더 보이게) ===== */
     .reveal{
       opacity:0;
-      transform:translateY(30px);
-      transition:opacity .85s ease, transform .85s ease;
+      transform:translateY(26px);
+      transition:opacity .8s ease, transform .8s ease;
       will-change:opacity, transform;
     }
 
@@ -1332,1710 +269,1007 @@
       transform:translateY(0);
     }
 
-    /* ===== 메뉴/버튼 스윕 효과 ===== */
-    nav a,
-    .subnav-card,
-    .live-guide-card,
-    .member-btn,
-    .more-btn,
-    .info-link-btn,
-    .ticket-btn{
-      position:relative;
-      overflow:hidden;
-      isolation:isolate;
+    .burst-spark,
+    .burst-petal{
+      position:fixed;
+      pointer-events:none;
+      left:0;
+      top:0;
+      z-index:5000;
+      opacity:0;
     }
 
-    nav a::after,
-    .subnav-card::after,
-    .live-guide-card::before,
-    .member-btn::after,
-    .more-btn::after,
-    .info-link-btn::after,
-    .ticket-btn::after{
+    .burst-spark{
+      width:16px;
+      height:16px;
+      animation:burstSpark .72s ease-out forwards;
+    }
+
+    .burst-spark::before,
+    .burst-spark::after{
       content:"";
       position:absolute;
-      top:-35%;
-      left:-42%;
-      width:22%;
-      height:170%;
-      background:linear-gradient(
-        90deg,
-        rgba(255,255,255,0) 0%,
-        rgba(255,255,255,.12) 35%,
-        rgba(255,255,255,.28) 50%,
-        rgba(255,255,255,.12) 65%,
-        rgba(255,255,255,0) 100%
-      );
-      transform:skewX(-22deg) translateX(0);
-      opacity:0;
-      pointer-events:none;
-      z-index:2;
-    }
-
-    nav a:hover::after,
-    .subnav-card:hover::after,
-    .live-guide-card:hover::before,
-    .member-btn:hover::after,
-    .more-btn:hover::after,
-    .info-link-btn:hover::after,
-    .ticket-btn:hover::after{
-      animation:sweepShine .9s ease forwards;
-    }
-
-    @keyframes sweepShine{
-      0%{
-        opacity:0;
-        transform:skewX(-22deg) translateX(0);
-      }
-      15%{
-        opacity:1;
-      }
-      100%{
-        opacity:0;
-        transform:skewX(-22deg) translateX(560%);
-      }
-    }
-
-    .click-shine::after{
-      animation:sweepShine .9s ease forwards;
-    }
-
-
-    /* ===== 멤버 카드 hover 강화 + 하얀 선 1회만 ===== */
-    .member-card{
-      position:relative;
-      overflow:hidden;
-      isolation:isolate;
-    }
-
-    .member-card::after{
-      content:"";
-      position:absolute;
-      top:-20%;
-      left:-38%;
-      width:24%;
-      height:140%;
-      background:linear-gradient(
-        90deg,
-        rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0.16) 35%,
-        rgba(255,255,255,0.40) 50%,
-        rgba(255,255,255,0.16) 65%,
-        rgba(255,255,255,0) 100%
-      );
-      transform:skewX(-24deg) translateX(0);
-      opacity:0;
-      pointer-events:none;
-      z-index:2;
-      will-change:transform, opacity;
-    }
-
-    .member-card.shine-once::after{
-      animation:memberShine .95s ease forwards;
-    }
-
-    @keyframes memberShine{
-      0%{
-        opacity:0;
-        transform:skewX(-24deg) translateX(0);
-      }
-      10%{
-        opacity:1;
-      }
-      100%{
-        opacity:0;
-        transform:skewX(-24deg) translateX(620%);
-      }
-    }
-
-    @media (hover: hover) and (pointer: fine){
-      .member-card:hover{
-        transform:translateY(-6px);
-        box-shadow:0 18px 36px rgba(0,0,0,0.13);
-      }
-    }
-
-    /* ===== 버튼 ripple ===== */
-    .ripple-effect{
-      position:absolute;
-      border-radius:50%;
-      transform:scale(0);
-      animation:ripple .65s ease-out forwards;
-      background:rgba(255,255,255,.35);
-      pointer-events:none;
-      z-index:3;
-    }
-
-    @keyframes ripple{
-      to{
-        transform:scale(4.2);
-        opacity:0;
-      }
-    }
-
-  
-/* ===== 기본 글리터 클릭 효과 ===== */
-.glitter-burst{
-  position:fixed;
-  pointer-events:none;
-  width:8px;
-  height:8px;
-  background:radial-gradient(circle, #fff 0%, #ffc0d7 60%, transparent 100%);
-  border-radius:50%;
-  opacity:0;
-  animation:glitterPop 0.8s ease-out forwards;
-}
-
-@keyframes glitterPop{
-  0%{
-    transform:translate(0,0) scale(0.5);
-    opacity:1;
-  }
-  100%{
-    transform:translate(var(--x), var(--y)) scale(1.2);
-    opacity:0;
-  }
-}
-
-
-/* ===== 클릭 뿅 효과 ===== */
-.burst-spark,
-.burst-petal{
-  position:fixed;
-  pointer-events:none;
-  left:0;
-  top:0;
-  z-index:5000;
-  opacity:0;
-}
-
-.burst-spark{
-  width:16px;
-  height:16px;
-  animation:burstSpark .72s ease-out forwards;
-}
-
-.burst-spark::before,
-.burst-spark::after{
-  content:"";
-  position:absolute;
-  background:#fff;
-  border-radius:999px;
-  box-shadow:0 0 10px rgba(255,255,255,.9), 0 0 18px rgba(255,192,215,.7);
-}
-
-.burst-spark::before{
-  width:3px;
-  height:16px;
-  left:6.5px;
-  top:0;
-}
-
-.burst-spark::after{
-  width:16px;
-  height:3px;
-  left:0;
-  top:6.5px;
-}
-
-.burst-petal{
-  width:14px;
-  height:14px;
-  border-radius:999px;
-  background:radial-gradient(circle at 35% 35%, #fff 0%, #ffd9e8 42%, #ffc0d7 78%, rgba(255,192,215,0) 100%);
-  box-shadow:0 0 10px rgba(255,192,215,.55);
-  animation:burstPetal .78s ease-out forwards;
-}
-
-@keyframes burstSpark{
-  0%{
-    transform:translate(0,0) scale(.45) rotate(0deg);
-    opacity:1;
-  }
-  100%{
-    transform:translate(var(--x), var(--y)) scale(1.15) rotate(90deg);
-    opacity:0;
-  }
-}
-
-@keyframes burstPetal{
-  0%{
-    transform:translate(0,0) scale(.6);
-    opacity:1;
-  }
-  100%{
-    transform:translate(var(--x), var(--y)) scale(1.2);
-    opacity:0;
-  }
-}
-
-
-    /* ===== 루미벨 우아한 폰트 시스템 ===== */
-    body{
-      font-family:"SUIT","Noto Sans KR",sans-serif !important;
-      letter-spacing:-0.01em;
-      color:#7f6a77;
-    }
-
-    .hero-logo{
-      font-family:"Cormorant Garamond", serif !important;
-      font-weight:600 !important;
-      letter-spacing:-0.025em !important;
-    }
-
-    nav a b,
-    .section-heading h2,
-    .home-card-head h3,
-    .section-title h3,
-    .member-name-bar,
-    .live-guide-text strong{
-      font-family:"SUIT","Noto Sans KR",sans-serif !important;
-      font-weight:800 !important;
-      letter-spacing:-0.03em !important;
-    }
-
-    nav a span,
-    .section-heading p,
-    .home-card-head p,
-    .section-title p,
-    .hero-kor,
-    .hero-sub{
-      font-family:"SUIT","Noto Sans KR",sans-serif !important;
-      font-weight:600 !important;
-      letter-spacing:-0.01em !important;
-    }
-
-    .hero-desc,
-    .member-meta,
-    .fanname-desc,
-    .news-title,
-    .news-date,
-    .schedule-place,
-    .schedule-title,
-    .info-link-btn,
-    .more-btn,
-    .member-btn,
-    .ticket-btn{
-      font-family:"SUIT","Noto Sans KR",sans-serif !important;
-      font-weight:500 !important;
-      letter-spacing:-0.01em !important;
-    }
-
-    nav a b{
-      font-size:1.2em !important;
-      font-weight:700 !important;
-      color:#d97ca9 !important;
-    }
-
-    nav a span{
-      font-size:.94em !important;
-      color:#c697b1 !important;
-      margin-top:6px !important;
-    }
-
-    .hero-logo{
-      font-size:102px !important;
-      line-height:.9 !important;
-      color:#ff5aa6 !important;
-      text-shadow:
-        0 1px 0 rgba(255,255,255,.98),
-        0 0 10px rgba(255,120,178,.22),
-        0 0 20px rgba(255,255,255,.34) !important;
-    }
-
-    .hero-kor{
-      font-size:20px !important;
-      color:#ff5aa6 !important;
-      margin-bottom:10px !important;
-      text-shadow:0 0 8px rgba(255,255,255,.34) !important;
-    }
-
-    .hero-sub{
-      font-size:28px !important;
-      color:#ff6fb2 !important;
-      margin-top:2px !important;
-      margin-bottom:10px !important;
-    }
-
-.hero-desc{
-  display:inline-block !important;
-  margin-top:18px !important;
-  padding:0 !important;
-  border-radius:0 !important;
-  background:transparent !important;
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
-  box-shadow:none !important;
-
-  color:#ffffff !important;
-font-size:18px !important;
-line-height:1.9 !important;
-  font-weight:700 !important;
-
-  text-shadow:
-    0 2px 10px rgba(0,0,0,0.4),
-    0 0 18px rgba(255,150,200,0.5);
-
-  isolation:auto !important;
-  overflow:visible !important;
-}
-
-
-    .section-heading h2{
-      font-size:62px !important;
-      color:#d67faa !important;
-      text-shadow:0 6px 18px rgba(255,120,178,.10) !important;
-      line-height:.95 !important;
-    }
-
-    .section-heading p{
-      font-size:17px !important;
-      color:#c79bb3 !important;
-      margin-top:10px !important;
-    }
-
-    .home-card-head h3,
-    .section-title h3{
-      font-size:50px !important;
-      color:#d67faa !important;
-      line-height:1 !important;
-      text-shadow:0 4px 12px rgba(255,120,178,.08) !important;
-    }
-
-    .home-card-head p,
-    .section-title p{
-      font-size:16px !important;
-      color:#c89fb5 !important;
-      margin-top:8px !important;
-    }
-
-    .live-guide-text strong{
-      font-size:31px !important;
-      color:#ff5aa6 !important;
-    }
-
-    .live-guide-text span{
-      font-size:16px !important;
-      color:#8f7183 !important;
-      font-weight:600 !important;
-      line-height:1.65 !important;
-    }
-
-    .member-name-bar{
-      font-size:19px !important;
-      color:#ffffff !important;
-      text-shadow:0 1px 3px rgba(0,0,0,.06) !important;
-      letter-spacing:.03em !important;
-    }
-
-    .member-meta{
-      font-size:14px !important;
-      line-height:1.8 !important;
-      color:#8a7481 !important;
-      text-align:left !important;
-      padding:0 16px 0 18px !important;
-    }
-
-    .member-btn,
-    .more-btn{
-      font-size:16px !important;
-      font-weight:700 !important;
-      letter-spacing:-0.01em !important;
-    }
-
-    .fanname-name{
-      font-family:"SUIT","Noto Sans KR",sans-serif !important;
-      font-size:28px !important;
-      font-weight:800 !important;
-      letter-spacing:-0.03em !important;
-      color:#ff5aa6 !important;
-      text-shadow:0 3px 12px rgba(255,120,178,.14) !important;
-    }
-
-    .fanname-desc{
-      font-size:15.5px !important;
-      line-height:1.9 !important;
-      color:#8a7481 !important;
-    }
-
-    .news-title{
-      font-size:18px !important;
-      font-weight:600 !important;
-    }
-
-    .news-date,
-    .schedule-place,
-    .schedule-title{
-      font-size:16px !important;
-      font-weight:600 !important;
-    }
-
-    .schedule-date{
-      font-size:24px !important;
-      font-weight:800 !important;
-      letter-spacing:-0.03em !important;
-    }
-
-    .info-link-btn{
-      font-size:15px !important;
-      font-weight:700 !important;
-    }
-
-    nav a.current::before,
-    nav a:hover::before,
-    nav a:focus::before,
-    nav a:focus-visible::before{
-      background:linear-gradient(90deg,
-        rgba(255,217,232,0.00) 0%,
-        rgba(255,217,232,0.14) 16%,
-        rgba(255,192,215,0.16) 36%,
-        rgba(255,192,215,0.20) 50%,
-        rgba(255,192,215,0.16) 64%,
-        rgba(255,217,232,0.14) 84%,
-        rgba(255,217,232,0.00) 100%) !important;
-      box-shadow:0 2px 8px rgba(255,192,215,0.04) !important;
-    }
-
-    @media (max-width: 980px){
-      .hero-logo{ font-size:82px !important; }
-      .section-heading h2{ font-size:54px !important; }
-      .home-card-head h3, .section-title h3{ font-size:42px !important; }
-    }
-
-    @media (max-width: 780px){
-      nav a b{ font-size:1.12em !important; }
-      nav a span{ font-size:.9em !important; }
-      .hero-logo{ font-size:68px !important; }
-      .hero-kor{ font-size:17px !important; }
-      .hero-sub{ font-size:22px !important; }
-      .hero-desc{ font-size:14px !important; }
-      .section-heading h2{ font-size:42px !important; }
-      .home-card-head h3, .section-title h3{ font-size:36px !important; }
-    }
-
-  
-
-    /* ===== 상단바 클릭/호버 튐 방지 최종 고정 ===== */
-    .top-lang-bar,
-    .header-box,
-    nav,
-    .lang-switch{
-      overflow:visible !important;
-    }
-
-    .lang-switch a,
-    .lang-switch a:hover,
-    .lang-switch a.active,
-    .lang-switch a:focus,
-    .lang-switch a:active,
-    nav a,
-    nav a:hover,
-    nav a.current,
-    nav a:focus,
-    nav a:focus-visible,
-    nav a:active{
-      transform:none !important;
-      translate:none !important;
-      scale:1 !important;
-      top:auto !important;
-      bottom:auto !important;
-      margin-top:0 !important;
-      margin-bottom:0 !important;
-      box-shadow:none !important;
-    }
-
-    nav a{
-      transition:color .18s ease, background .18s ease !important;
-    }
-
-    nav a::before,
-    nav a.current::before,
-    nav a:hover::before,
-    nav a:focus::before,
-    nav a:focus-visible::before{
-      top:0 !important;
-      bottom:0 !important;
-      left:0 !important;
-      right:0 !important;
-      border-radius:18px !important;
-      opacity:0;
-      transition:opacity .18s ease !important;
-      box-shadow:none !important;
-    }
-
-    nav a.current::before,
-    nav a:hover::before,
-    nav a:focus::before,
-    nav a:focus-visible::before{
-      opacity:1 !important;
-    }
-
-    nav a:focus::after,
-    nav a:active::after{
-      display:none !important;
-      animation:none !important;
-    }
-
-
-
-    /* ===== 상단 메뉴 안정화 정리본 ===== */
-    .lang-switch a,
-    nav a,
-    .subnav-card{
-      transform:none !important;
-      transition:background-color .18s ease, color .18s ease, box-shadow .18s ease, opacity .18s ease !important;
-    }
-
-    .lang-switch a:hover,
-    .lang-switch a.active,
-    .lang-switch a:focus,
-    .lang-switch a:focus-visible,
-    .lang-switch a:active,
-    nav a:hover,
-    nav a:focus,
-    nav a:focus-visible,
-    nav a:active,
-    .subnav-card:hover,
-    .subnav-card:focus,
-    .subnav-card:focus-visible,
-    .subnav-card:active{
-      transform:none !important;
-    }
-
-    .subnav-card::after{
-      content:none !important;
-      animation:none !important;
-      display:none !important;
-    }
-
-    nav a::before,
-    nav a.current::before,
-    nav a:hover::before,
-    nav a:focus::before,
-    nav a:focus-visible::before{
-      top:0 !important;
-      bottom:0 !important;
-      left:0 !important;
-      right:0 !important;
-      transform:none !important;
-      transition:none !important;
-    }
-
-    nav a,
-    nav a.current,
-    nav a:hover,
-    nav a:focus,
-    nav a:focus-visible,
-    nav a:active{
-      top:auto !important;
-      bottom:auto !important;
-      margin-top:0 !important;
-      margin-bottom:0 !important;
-      translate:none !important;
-      scale:none !important;
-    }
-
-    .header-box,
-    nav,
-    .top-lang-bar,
-    .subnav-wrap{
-      transform:none !important;
-    }
-
-
-    /* ===== 홈 하단 체험 메뉴 + LUMI ID 추가 ===== */
-    .subnav-wrap{
-      grid-template-columns:repeat(5, minmax(0, 1fr)) !important;
-    }
-
-    .subnav-card{
-      min-height:92px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-    }
-
-    .subnav-card h3,
-    .subnav-card p{
-      position:relative;
-      z-index:2;
-    }
-
-    .lumi-id-card{
-      background:linear-gradient(135deg, #ff8ac2 0%, #ff5fa8 58%, #caa7ff 100%) !important;
-      border-color:rgba(255,255,255,.72) !important;
-      box-shadow:0 14px 34px rgba(255,95,168,.28) !important;
-      overflow:hidden !important;
-      isolation:isolate;
-    }
-
-    .lumi-id-card::before{
-      content:"" !important;
-      position:absolute !important;
-      inset:-70% !important;
-      display:block !important;
-      background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,.60), transparent 18%),
-        radial-gradient(circle at 72% 58%, rgba(255,255,255,.35), transparent 16%),
-        conic-gradient(from 0deg, rgba(255,255,255,0), rgba(255,255,255,.34), rgba(255,255,255,0), rgba(255,255,255,.22), rgba(255,255,255,0));
-      animation:lumiIdShine 7s linear infinite;
-      opacity:.9 !important;
-      z-index:0 !important;
-      pointer-events:none;
-    }
-
-    .lumi-id-card::after{
-      content:"✦" !important;
-      position:absolute !important;
-      right:18px !important;
-      bottom:12px !important;
-      left:auto !important;
-      top:auto !important;
-      width:auto !important;
-      height:auto !important;
-      background:none !important;
-      color:rgba(255,255,255,.72) !important;
-      font-size:28px !important;
-      transform:none !important;
-      opacity:1 !important;
-      z-index:1 !important;
-      animation:lumiStarFloat 2.6s ease-in-out infinite !important;
-      pointer-events:none;
-    }
-
-    .lumi-id-card h3{
-      color:#fff !important;
-      text-shadow:0 2px 12px rgba(139,46,108,.20) !important;
-    }
-
-    .lumi-id-card p{
-      color:#fff4fa !important;
-      text-shadow:0 2px 8px rgba(139,46,108,.18) !important;
-    }
-
-    .enter-badge{
-      position:absolute;
-      top:10px;
-      right:10px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:5px 9px;
+      background:#fff;
       border-radius:999px;
-      background:rgba(255,255,255,.88);
-      color:#ff59a5;
-      font-size:10px;
-      font-weight:900;
-      letter-spacing:.04em;
-      line-height:1;
-      box-shadow:0 6px 14px rgba(255,89,165,.16);
-      z-index:3;
+      box-shadow:0 0 10px rgba(255,255,255,.9),0 0 18px rgba(255,192,215,.7);
     }
 
-    @keyframes lumiIdShine{
-      0%{transform:rotate(0deg) scale(1);}
-      100%{transform:rotate(360deg) scale(1);}
+    .burst-spark::before{width:3px;height:16px;left:6.5px;top:0;}
+    .burst-spark::after{width:16px;height:3px;left:0;top:6.5px;}
+
+    .burst-petal{
+      width:14px;
+      height:14px;
+      border-radius:999px;
+      background:radial-gradient(circle at 35% 35%, #fff 0%, #ffd9e8 42%, #ffc0d7 78%, rgba(255,192,215,0) 100%);
+      box-shadow:0 0 10px rgba(255,192,215,.55);
+      animation:burstPetal .78s ease-out forwards;
     }
 
-    @keyframes lumiStarFloat{
-      0%,100%{transform:translateY(0) rotate(0deg); opacity:.62;}
-      50%{transform:translateY(-5px) rotate(12deg); opacity:1;}
+    @keyframes burstSpark{
+      0%{transform:translate(0,0) scale(.45) rotate(0deg);opacity:1;}
+      100%{transform:translate(var(--x), var(--y)) scale(1.15) rotate(90deg);opacity:0;}
     }
 
-    /* ===== SNS 아이콘 이미지 적용 ===== */
-    .sns-icon{
-      background:transparent !important;
-      box-shadow:none !important;
-      overflow:visible !important;
-    }
-
-    .sns-icon img{
-      width:58px;
-      height:58px;
-      display:block;
-      object-fit:contain;
-      border-radius:50%;
-      filter:drop-shadow(0 8px 14px rgba(255,95,168,.16));
-    }
-
-    .sns-icon:hover img{
-      transform:translateY(-2px) scale(1.03);
-    }
-
-    @media (max-width:1180px){
-      .subnav-wrap{
-        grid-template-columns:repeat(3, minmax(180px, 1fr)) !important;
-      }
+    @keyframes burstPetal{
+      0%{transform:translate(0,0) scale(.6);opacity:1;}
+      100%{transform:translate(var(--x), var(--y)) scale(1.2);opacity:0;}
     }
 
     @media (max-width:780px){
-      .subnav-wrap{
-        grid-template-columns:1fr !important;
-      }
-
-      .subnav-card{
-        min-height:86px;
-      }
+      .hero-mini::after{font-size:30px;right:22px;bottom:18px;}
+      .top-button{right:16px !important;bottom:calc(18px + env(safe-area-inset-bottom)) !important;width:50px !important;height:50px !important;font-size:20px !important;}
+      .reveal{transform:translateY(18px);}
     }
 
-  
+    @media (prefers-reduced-motion: reduce){
+      .reveal,
+      .poster-card,
+      .ticket-card,
+      .detail-card,
+      .package-card,
+      .top-button{
+        transition:none !important;
+        animation:none !important;
+      }
+      .hero-mini::after{animation:none !important;}
+    }
+
+
 
     /* ===== 루미벨 나비 열쇠 커서 + 클릭 마법 효과 ===== */
-        @media (hover:hover) and (pointer:fine){
-          a, button, .ticket-option, .meate-option, .package-btn, .quick-icon-btn, .reserve-btn, .top-button, .back-to-top, .lang-switch a, nav a, .subnav-card, .live-guide-card, .member-card, .member-btn, .more-btn, .info-link-btn, .ticket-btn, .sns-icon, .news-item, .schedule-item{
-            cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%3Cdefs%3E%0A%3ClinearGradient%20id%3D%22wingA%22%20x1%3D%224%22%20y1%3D%227%22%20x2%3D%2223%22%20y2%3D%2220%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%234FC3FF%22%2F%3E%3Cstop%20offset%3D%22.48%22%20stop-color%3D%22%237EE0FF%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23FF8AC2%22%2F%3E%3C%2FlinearGradient%3E%0A%3ClinearGradient%20id%3D%22rose%22%20x1%3D%2212%22%20y1%3D%224%22%20x2%3D%2223%22%20y2%3D%2230%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23FFE9F7%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23FFB1D5%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23F6D7FF%22%2F%3E%3C%2FlinearGradient%3E%0A%3Cfilter%20id%3D%22glow%22%20x%3D%22-40%25%22%20y%3D%22-40%25%22%20width%3D%22180%25%22%20height%3D%22180%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%22.9%22%20result%3D%22b%22%2F%3E%3CfeMerge%3E%3CfeMergeNode%20in%3D%22b%22%2F%3E%3CfeMergeNode%20in%3D%22SourceGraphic%22%2F%3E%3C%2FfeMerge%3E%3C%2Ffilter%3E%0A%3C%2Fdefs%3E%0A%3Cpath%20d%3D%22M17.5%204.4C13.9%202.8%209.4%205.5%209.7%209.8c.18%202.7%202.3%204.4%204.35%205.1%203.9%201.35%208.95-.98%209.75-5.13%22%20fill%3D%22none%22%20stroke%3D%22%23F3B6CF%22%20stroke-width%3D%221.55%22%20stroke-linecap%3D%22round%22%20filter%3D%22url%28%23glow%29%22%2F%3E%0A%3Cpath%20d%3D%22M22.6%204.1l.9%201.65%201.75.85-1.75.85-.9%201.65-.9-1.65-1.75-.85%201.75-.85.9-1.65z%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF9FCB%22%20stroke-width%3D%22.75%22%2F%3E%0A%3Cg%20filter%3D%22url%28%23glow%29%22%3E%0A%3Cpath%20d%3D%22M15.8%2011.9C10%206.1%204.9%207.4%205.2%2012c.2%203.15%203.65%204.55%207.3%203.2-2.7%203.2%201.5%205.7%203.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cpath%20d%3D%22M16.2%2011.9c5.8-5.8%2010.9-4.5%2010.6.1-.2%203.15-3.65%204.55-7.3%203.2%202.7%203.2-1.5%205.7-3.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cellipse%20cx%3D%2216%22%20cy%3D%2215.2%22%20rx%3D%221.25%22%20ry%3D%223.25%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.7%22%2F%3E%0A%3Ccircle%20cx%3D%2216%22%20cy%3D%2214%22%20r%3D%221.15%22%20fill%3D%22%23FFD8F0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.4%22%2F%3E%0A%3C%2Fg%3E%0A%3Cpath%20d%3D%22M16%2018.2v8.2%22%20stroke%3D%22url%28%23rose%29%22%20stroke-width%3D%222.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M16%2021.8h2.35M16%2024.3h3.3M18.5%2024.3v1.9%22%20stroke%3D%22%23D997AF%22%20stroke-width%3D%221.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M18.9%2019.5c1.2-1.15%202.95-.35%202.8%201.05-.18%201.8-2.18%202.7-2.8%203.2-.62-.5-2.62-1.4-2.8-3.2-.15-1.4%201.6-2.2%202.8-1.05z%22%20fill%3D%22%23FFD9F0%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.65%22%2F%3E%0A%3Cpath%20d%3D%22M8%2010.2l2.1%201.8M23.8%2010.2l-2.1%201.8%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22%2F%3E%0A%3C%2Fsvg%3E") 16 26, pointer;
-          }
-        }
-    
-        .lumi-magic-ring,
-        .lumi-magic-star,
-        .lumi-magic-butterfly{
-          position:fixed;
-          left:0;
-          top:0;
-          pointer-events:none;
-          z-index:10001;
-          opacity:0;
-          transform:translate(-50%,-50%);
-          will-change:transform,opacity;
-        }
-    
-        /* 클릭 시 생기는 둥근 마법진/빛 고리 */
-        .lumi-magic-ring{
-          width:74px;
-          height:74px;
-          border-radius:50%;
-          background:
-            radial-gradient(circle, rgba(255,255,255,.58) 0%, rgba(255,255,255,.28) 21%, rgba(255,138,194,.14) 34%, rgba(255,138,194,0) 62%),
-            conic-gradient(from 8deg, rgba(126,224,255,0), rgba(126,224,255,.55), rgba(255,255,255,.90), rgba(255,138,194,.62), rgba(126,224,255,0));
-          -webkit-mask:radial-gradient(circle, transparent 0 38%, #000 41% 55%, transparent 58% 100%);
-          mask:radial-gradient(circle, transparent 0 38%, #000 41% 55%, transparent 58% 100%);
-          filter:drop-shadow(0 0 10px rgba(255,138,194,.50)) drop-shadow(0 0 18px rgba(126,224,255,.25));
-          animation:lumiRingPulse .92s ease-out forwards;
-        }
-    
-        /* 별 반짝: 점 덩어리가 아니라 십자 별 모양 */
-        .lumi-magic-star{
-          width:14px;
-          height:14px;
-          animation:lumiStarPop .86s ease-out forwards;
-          filter:drop-shadow(0 0 8px rgba(255,138,194,.45));
-        }
-    
-        .lumi-magic-star::before,
-        .lumi-magic-star::after{
-          content:"";
-          position:absolute;
-          left:50%;
-          top:50%;
-          transform:translate(-50%,-50%);
-          border-radius:999px;
-          background:linear-gradient(180deg,#fff 0%,#ffe4f3 40%,#ff8ac2 100%);
-        }
-    
-        .lumi-magic-star::before{width:3px;height:14px;}
-        .lumi-magic-star::after{width:14px;height:3px;}
-    
-        /* 실제 나비 실루엣 */
-        .lumi-magic-butterfly{
-          width:18px;
-          height:15px;
-          animation:lumiButterflyFly .98s cubic-bezier(.16,.82,.34,1) forwards;
-          filter:drop-shadow(0 0 5px rgba(126,224,255,.45)) drop-shadow(0 0 7px rgba(255,138,194,.25));
-        }
-    
-        .lumi-magic-butterfly::before,
-        .lumi-magic-butterfly::after{
-          content:"";
-          position:absolute;
-          top:2px;
-          width:9px;
-          height:12px;
-          background:linear-gradient(135deg,#7ee0ff 0%,#4fc3ff 38%,#ff8ac2 100%);
-          border:1px solid rgba(255,255,255,.92);
-          box-shadow:inset 0 0 4px rgba(255,255,255,.75);
-        }
-    
-        .lumi-magic-butterfly::before{
-          left:0;
-          border-radius:10px 8px 9px 2px;
-          transform:rotate(-30deg);
-          transform-origin:100% 80%;
-        }
-    
-        .lumi-magic-butterfly::after{
-          right:0;
-          border-radius:8px 10px 2px 9px;
-          transform:rotate(30deg);
-          transform-origin:0 80%;
-        }
-    
-        @keyframes lumiRingPulse{
-          0%{opacity:0;transform:translate(-50%,-50%) scale(.28) rotate(0deg);}
-          18%{opacity:.95;}
-          100%{opacity:0;transform:translate(-50%,-50%) scale(1.5) rotate(22deg);}
-        }
-    
-        @keyframes lumiStarPop{
-          0%{opacity:0; transform:translate(-50%,-50%) scale(.25) rotate(0deg);}
-          18%{opacity:1;}
-          100%{opacity:0; transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.18) rotate(var(--r));}
-        }
-    
-        @keyframes lumiButterflyFly{
-          0%{opacity:0; transform:translate(-50%,-50%) scale(.55) rotate(0deg);}
-          12%{opacity:1;}
-          100%{opacity:0; transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.08) rotate(var(--r));}
-        }
-    
-        @media (max-width:780px){
-          .lumi-magic-ring,.lumi-magic-star,.lumi-magic-butterfly{display:none;}
-        }
-    
-      
-    
-        /* ===== 루미벨 나비 열쇠 커서: PC 전체 적용 ===== */
-        @media (hover:hover) and (pointer:fine){
-          html,
-          body,
-          body *:not(input):not(textarea):not(select):not(option){
-            cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2248%22%20height%3D%2248%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%3Cdefs%3E%0A%3ClinearGradient%20id%3D%22wingA%22%20x1%3D%224%22%20y1%3D%227%22%20x2%3D%2223%22%20y2%3D%2220%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%234FC3FF%22%2F%3E%3Cstop%20offset%3D%22.48%22%20stop-color%3D%22%237EE0FF%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23FF8AC2%22%2F%3E%3C%2FlinearGradient%3E%0A%3ClinearGradient%20id%3D%22rose%22%20x1%3D%2212%22%20y1%3D%224%22%20x2%3D%2223%22%20y2%3D%2230%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23FFE9F7%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23FFB1D5%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23F6D7FF%22%2F%3E%3C%2FlinearGradient%3E%0A%3Cfilter%20id%3D%22glow%22%20x%3D%22-40%25%22%20y%3D%22-40%25%22%20width%3D%22180%25%22%20height%3D%22180%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%22.9%22%20result%3D%22b%22%2F%3E%3CfeMerge%3E%3CfeMergeNode%20in%3D%22b%22%2F%3E%3CfeMergeNode%20in%3D%22SourceGraphic%22%2F%3E%3C%2FfeMerge%3E%3C%2Ffilter%3E%0A%3C%2Fdefs%3E%0A%3Cpath%20d%3D%22M17.5%204.4C13.9%202.8%209.4%205.5%209.7%209.8c.18%202.7%202.3%204.4%204.35%205.1%203.9%201.35%208.95-.98%209.75-5.13%22%20fill%3D%22none%22%20stroke%3D%22%23F3B6CF%22%20stroke-width%3D%221.55%22%20stroke-linecap%3D%22round%22%20filter%3D%22url%28%23glow%29%22%2F%3E%0A%3Cpath%20d%3D%22M22.6%204.1l.9%201.65%201.75.85-1.75.85-.9%201.65-.9-1.65-1.75-.85%201.75-.85.9-1.65z%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF9FCB%22%20stroke-width%3D%22.75%22%2F%3E%0A%3Cg%20filter%3D%22url%28%23glow%29%22%3E%0A%3Cpath%20d%3D%22M15.8%2011.9C10%206.1%204.9%207.4%205.2%2012c.2%203.15%203.65%204.55%207.3%203.2-2.7%203.2%201.5%205.7%203.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cpath%20d%3D%22M16.2%2011.9c5.8-5.8%2010.9-4.5%2010.6.1-.2%203.15-3.65%204.55-7.3%203.2%202.7%203.2-1.5%205.7-3.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cellipse%20cx%3D%2216%22%20cy%3D%2215.2%22%20rx%3D%221.25%22%20ry%3D%223.25%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.7%22%2F%3E%0A%3Ccircle%20cx%3D%2216%22%20cy%3D%2214%22%20r%3D%221.15%22%20fill%3D%22%23FFD8F0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.4%22%2F%3E%0A%3C%2Fg%3E%0A%3Cpath%20d%3D%22M16%2018.2v8.2%22%20stroke%3D%22url%28%23rose%29%22%20stroke-width%3D%222.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M16%2021.8h2.35M16%2024.3h3.3M18.5%2024.3v1.9%22%20stroke%3D%22%23D997AF%22%20stroke-width%3D%221.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M18.9%2019.5c1.2-1.15%202.95-.35%202.8%201.05-.18%201.8-2.18%202.7-2.8%203.2-.62-.5-2.62-1.4-2.8-3.2-.15-1.4%201.6-2.2%202.8-1.05z%22%20fill%3D%22%23FFD9F0%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.65%22%2F%3E%0A%3Cpath%20d%3D%22M8%2010.2l2.1%201.8M23.8%2010.2l-2.1%201.8%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22%2F%3E%0A%3C%2Fsvg%3E") 24 38, auto !important;
-          }
-    
-          a, button, .ticket-option, .meate-option, .package-btn, .quick-icon-btn, .reserve-btn, .top-button, .back-to-top, .lang-switch a, nav a, .subnav-card, .live-guide-card, .member-card, .member-btn, .more-btn, .info-link-btn, .ticket-btn, .sns-icon, .news-item, .schedule-item{
-            cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2248%22%20height%3D%2248%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%3Cdefs%3E%0A%3ClinearGradient%20id%3D%22wingA%22%20x1%3D%224%22%20y1%3D%227%22%20x2%3D%2223%22%20y2%3D%2220%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%234FC3FF%22%2F%3E%3Cstop%20offset%3D%22.48%22%20stop-color%3D%22%237EE0FF%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23FF8AC2%22%2F%3E%3C%2FlinearGradient%3E%0A%3ClinearGradient%20id%3D%22rose%22%20x1%3D%2212%22%20y1%3D%224%22%20x2%3D%2223%22%20y2%3D%2230%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23FFE9F7%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23FFB1D5%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23F6D7FF%22%2F%3E%3C%2FlinearGradient%3E%0A%3Cfilter%20id%3D%22glow%22%20x%3D%22-40%25%22%20y%3D%22-40%25%22%20width%3D%22180%25%22%20height%3D%22180%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%22.9%22%20result%3D%22b%22%2F%3E%3CfeMerge%3E%3CfeMergeNode%20in%3D%22b%22%2F%3E%3CfeMergeNode%20in%3D%22SourceGraphic%22%2F%3E%3C%2FfeMerge%3E%3C%2Ffilter%3E%0A%3C%2Fdefs%3E%0A%3Cpath%20d%3D%22M17.5%204.4C13.9%202.8%209.4%205.5%209.7%209.8c.18%202.7%202.3%204.4%204.35%205.1%203.9%201.35%208.95-.98%209.75-5.13%22%20fill%3D%22none%22%20stroke%3D%22%23F3B6CF%22%20stroke-width%3D%221.55%22%20stroke-linecap%3D%22round%22%20filter%3D%22url%28%23glow%29%22%2F%3E%0A%3Cpath%20d%3D%22M22.6%204.1l.9%201.65%201.75.85-1.75.85-.9%201.65-.9-1.65-1.75-.85%201.75-.85.9-1.65z%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF9FCB%22%20stroke-width%3D%22.75%22%2F%3E%0A%3Cg%20filter%3D%22url%28%23glow%29%22%3E%0A%3Cpath%20d%3D%22M15.8%2011.9C10%206.1%204.9%207.4%205.2%2012c.2%203.15%203.65%204.55%207.3%203.2-2.7%203.2%201.5%205.7%203.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cpath%20d%3D%22M16.2%2011.9c5.8-5.8%2010.9-4.5%2010.6.1-.2%203.15-3.65%204.55-7.3%203.2%202.7%203.2-1.5%205.7-3.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cellipse%20cx%3D%2216%22%20cy%3D%2215.2%22%20rx%3D%221.25%22%20ry%3D%223.25%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.7%22%2F%3E%0A%3Ccircle%20cx%3D%2216%22%20cy%3D%2214%22%20r%3D%221.15%22%20fill%3D%22%23FFD8F0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.4%22%2F%3E%0A%3C%2Fg%3E%0A%3Cpath%20d%3D%22M16%2018.2v8.2%22%20stroke%3D%22url%28%23rose%29%22%20stroke-width%3D%222.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M16%2021.8h2.35M16%2024.3h3.3M18.5%2024.3v1.9%22%20stroke%3D%22%23D997AF%22%20stroke-width%3D%221.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M18.9%2019.5c1.2-1.15%202.95-.35%202.8%201.05-.18%201.8-2.18%202.7-2.8%203.2-.62-.5-2.62-1.4-2.8-3.2-.15-1.4%201.6-2.2%202.8-1.05z%22%20fill%3D%22%23FFD9F0%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.65%22%2F%3E%0A%3Cpath%20d%3D%22M8%2010.2l2.1%201.8M23.8%2010.2l-2.1%201.8%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22%2F%3E%0A%3C%2Fsvg%3E") 24 38, pointer !important;
-          }
-    
-          input, textarea{
-            cursor:text !important;
-          }
-        }
-    
-    
-        /* ===== 루미벨 커서 고급화: 상시 반짝 / hover / 전체 클릭 ===== */
-        @media (hover:hover) and (pointer:fine){
-          .lumi-cursor-glow,
-          .lumi-cursor-core{
-            position:fixed;
-            left:0;
-            top:0;
-            pointer-events:none;
-            transform:translate(-50%,-50%);
-            z-index:10000;
-            opacity:0;
-            will-change:transform,left,top,opacity;
-          }
-    
-          .lumi-cursor-glow{
-            width:34px;
-            height:34px;
-            border-radius:50%;
-            background:
-              radial-gradient(circle, rgba(255,255,255,.95) 0%, rgba(255,255,255,.55) 18%, rgba(126,224,255,.42) 36%, rgba(255,138,194,.34) 58%, rgba(255,138,194,0) 78%);
-            filter:blur(7px);
-            opacity:.52;
-            transition:width .16s ease,height .16s ease,opacity .16s ease,filter .16s ease,background .16s ease;
-          }
-    
-          .lumi-cursor-core{
-            width:6px;
-            height:6px;
-            border-radius:50%;
-            background:#fff;
-            box-shadow:0 0 8px rgba(255,255,255,.95),0 0 14px rgba(126,224,255,.55),0 0 18px rgba(255,138,194,.45);
-            opacity:.78;
-            transition:width .16s ease,height .16s ease,opacity .16s ease,box-shadow .16s ease;
-          }
-    
-          body.lumi-cursor-hover .lumi-cursor-glow{
-            width:64px;
-            height:64px;
-            opacity:.88;
-            filter:blur(8px);
-            background:
-              radial-gradient(circle, rgba(255,255,255,.88) 0%, rgba(255,255,255,.42) 22%, rgba(255,138,194,.30) 34%, rgba(126,224,255,.26) 47%, rgba(255,138,194,0) 70%),
-              conic-gradient(from 8deg, rgba(126,224,255,0), rgba(126,224,255,.34), rgba(255,255,255,.56), rgba(255,138,194,.36), rgba(126,224,255,0));
-          }
-    
-          body.lumi-cursor-hover .lumi-cursor-core{
-            width:8px;
-            height:8px;
-            opacity:1;
-            box-shadow:0 0 10px rgba(255,255,255,1),0 0 18px rgba(126,224,255,.72),0 0 24px rgba(255,138,194,.62);
-          }
-    
-          .lumi-trail-spark{
-            position:fixed;
-            left:0;
-            top:0;
-            width:10px;
-            height:10px;
-            pointer-events:none;
-            z-index:9998;
-            opacity:0;
-            transform:translate(-50%,-50%) scale(.55);
-            animation:lumiTrailFade 1.05s ease-out forwards;
-            filter:drop-shadow(0 0 7px rgba(255,138,194,.38));
-          }
-          .lumi-trail-spark::before,
-          .lumi-trail-spark::after{
-            content:"";
-            position:absolute;
-            left:50%;
-            top:50%;
-            transform:translate(-50%,-50%);
-            border-radius:999px;
-            background:linear-gradient(180deg,#fff,#ffd9ef 54%,#7ee0ff);
-          }
-          .lumi-trail-spark::before{width:2px;height:10px;}
-          .lumi-trail-spark::after{width:10px;height:2px;}
-    
-          @keyframes lumiTrailFade{
-            0%{opacity:.7;transform:translate(-50%,-50%) scale(.35) rotate(0deg);}
-            100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.05) rotate(38deg);}
-          }
-        }
-    
-      
-    
-        /* ===== 최종 보정: 핑크/화이트 원형 마법진 + 선명한 잔광 ===== */
-        @media (hover:hover) and (pointer:fine){
-          .lumi-magic-ring{
-            width:96px !important;
-            height:96px !important;
-            border-radius:50% !important;
-            background:
-              radial-gradient(circle, rgba(255,255,255,.98) 0%, rgba(255,255,255,.76) 11%, rgba(255,240,248,.42) 24%, rgba(255,138,194,.22) 42%, rgba(255,138,194,0) 70%) !important;
-            border:1px solid rgba(255,255,255,.84) !important;
-            box-shadow:
-              0 0 18px rgba(255,255,255,.72),
-              0 0 28px rgba(255,138,194,.42),
-              inset 0 0 18px rgba(255,255,255,.70) !important;
-            -webkit-mask:none !important;
-            mask:none !important;
-            filter:drop-shadow(0 0 16px rgba(255,138,194,.45)) !important;
-            animation:lumiRingPulseFinal .86s ease-out forwards !important;
-          }
-    
-          .lumi-magic-ring::before,
-          .lumi-magic-ring::after{
-            content:"";
-            position:absolute;
-            border-radius:50%;
-            pointer-events:none;
-          }
-    
-          .lumi-magic-ring::before{
-            inset:11px;
-            border:4px solid rgba(255,255,255,.78);
-            border-top-color:rgba(255,255,255,.96);
-            border-right-color:rgba(255,190,220,.54);
-            border-bottom-color:rgba(255,138,194,.38);
-            border-left-color:rgba(255,255,255,.42);
-            box-shadow:
-              0 0 16px rgba(255,255,255,.55),
-              0 0 20px rgba(255,138,194,.30),
-              inset 0 0 14px rgba(255,255,255,.42);
-          }
-    
-          .lumi-magic-ring::after{
-            inset:24px;
-            border:2px solid rgba(255,255,255,.64);
-            border-top-color:rgba(255,183,216,.64);
-            border-right-color:rgba(255,255,255,.90);
-            box-shadow:0 0 14px rgba(255,230,245,.55);
-          }
-    
-          .lumi-magic-star{
-            width:17px !important;
-            height:17px !important;
-            filter:drop-shadow(0 0 8px rgba(255,255,255,.80)) drop-shadow(0 0 10px rgba(255,138,194,.52)) !important;
-          }
-          .lumi-magic-star::before{width:3px !important;height:17px !important;background:linear-gradient(180deg,#fff 0%,#fff5fb 42%,#ff8ac2 100%) !important;}
-          .lumi-magic-star::after{width:17px !important;height:3px !important;background:linear-gradient(90deg,#fff 0%,#fff5fb 42%,#ff8ac2 100%) !important;}
-    
-          .lumi-magic-butterfly{
-            width:23px !important;
-            height:19px !important;
-            filter:drop-shadow(0 0 7px rgba(126,224,255,.62)) drop-shadow(0 0 10px rgba(255,138,194,.36)) !important;
-            animation:lumiButterflyFlyFinal 1.12s cubic-bezier(.16,.82,.34,1) forwards !important;
-          }
-          .lumi-magic-butterfly::before,
-          .lumi-magic-butterfly::after{
-            top:2px !important;
-            width:11px !important;
-            height:15px !important;
-            background:linear-gradient(135deg,#ffffff 0%,#7ee0ff 24%,#4fc3ff 52%,#ff8ac2 100%) !important;
-            border:1px solid rgba(255,255,255,.96) !important;
-            box-shadow:inset 0 0 5px rgba(255,255,255,.78),0 0 6px rgba(126,224,255,.32) !important;
-          }
-    
-          @keyframes lumiRingPulseFinal{
-            0%{opacity:0;transform:translate(-50%,-50%) scale(.34) rotate(0deg);}
-            14%{opacity:1;}
-            58%{opacity:.86;}
-            100%{opacity:0;transform:translate(-50%,-50%) scale(1.55) rotate(18deg);}
-          }
-    
-          @keyframes lumiButterflyFlyFinal{
-            0%{opacity:0; transform:translate(-50%,-50%) scale(.45) rotate(0deg);}
-            10%{opacity:.95;}
-            100%{opacity:0; transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.16) rotate(var(--r));}
-          }
-    
-          .lumi-cursor-glow{
-            width:56px !important;
-            height:56px !important;
-            opacity:.82 !important;
-            filter:blur(9px) !important;
-            background:
-              radial-gradient(circle, rgba(255,255,255,.98) 0%, rgba(255,255,255,.72) 14%, rgba(255,231,244,.42) 28%, rgba(255,138,194,.30) 48%, rgba(126,224,255,.18) 62%, rgba(255,138,194,0) 78%) !important;
-          }
-    
-          .lumi-cursor-core{
-            width:7px !important;
-            height:7px !important;
-            opacity:.95 !important;
-            box-shadow:0 0 10px rgba(255,255,255,1),0 0 18px rgba(255,138,194,.70),0 0 22px rgba(126,224,255,.45) !important;
-          }
-    
-          body.lumi-cursor-hover .lumi-cursor-glow{
-            width:88px !important;
-            height:88px !important;
-            opacity:.96 !important;
-            filter:blur(8px) !important;
-            background:
-              radial-gradient(circle, rgba(255,255,255,.90) 0%, rgba(255,255,255,.56) 16%, rgba(255,235,247,.34) 27%, rgba(255,138,194,.26) 41%, rgba(255,255,255,.18) 52%, rgba(255,138,194,0) 72%),
-              conic-gradient(from 12deg, rgba(255,255,255,0), rgba(255,255,255,.72), rgba(255,190,220,.54), rgba(255,255,255,.72), rgba(255,255,255,0)) !important;
-          }
-    
-          .lumi-trail-spark{
-            width:14px !important;
-            height:14px !important;
-            filter:drop-shadow(0 0 8px rgba(255,255,255,.76)) drop-shadow(0 0 10px rgba(255,138,194,.44)) !important;
-            animation:lumiTrailFadeFinal .95s ease-out forwards !important;
-          }
-          .lumi-trail-spark::before{width:2.5px !important;height:14px !important;background:linear-gradient(180deg,#fff,#ffd9ef 58%,#ff8ac2) !important;}
-          .lumi-trail-spark::after{width:14px !important;height:2.5px !important;background:linear-gradient(90deg,#fff,#ffd9ef 58%,#7ee0ff) !important;}
-    
-          @keyframes lumiTrailFadeFinal{
-            0%{opacity:.92;transform:translate(-50%,-50%) scale(.42) rotate(0deg);}
-            100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.22) rotate(42deg);}
-          }
-        }
+    @media (hover:hover) and (pointer:fine){
+      a, button, .ticket-option, .meate-option, .package-btn, .quick-icon-btn, .reserve-btn, .top-button, .lang-switch a, nav a{
+        cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%3Cdefs%3E%0A%3ClinearGradient%20id%3D%22wingA%22%20x1%3D%224%22%20y1%3D%227%22%20x2%3D%2223%22%20y2%3D%2220%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%234FC3FF%22%2F%3E%3Cstop%20offset%3D%22.48%22%20stop-color%3D%22%237EE0FF%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23FF8AC2%22%2F%3E%3C%2FlinearGradient%3E%0A%3ClinearGradient%20id%3D%22rose%22%20x1%3D%2212%22%20y1%3D%224%22%20x2%3D%2223%22%20y2%3D%2230%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23FFE9F7%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23FFB1D5%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23F6D7FF%22%2F%3E%3C%2FlinearGradient%3E%0A%3Cfilter%20id%3D%22glow%22%20x%3D%22-40%25%22%20y%3D%22-40%25%22%20width%3D%22180%25%22%20height%3D%22180%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%22.9%22%20result%3D%22b%22%2F%3E%3CfeMerge%3E%3CfeMergeNode%20in%3D%22b%22%2F%3E%3CfeMergeNode%20in%3D%22SourceGraphic%22%2F%3E%3C%2FfeMerge%3E%3C%2Ffilter%3E%0A%3C%2Fdefs%3E%0A%3Cpath%20d%3D%22M17.5%204.4C13.9%202.8%209.4%205.5%209.7%209.8c.18%202.7%202.3%204.4%204.35%205.1%203.9%201.35%208.95-.98%209.75-5.13%22%20fill%3D%22none%22%20stroke%3D%22%23F3B6CF%22%20stroke-width%3D%221.55%22%20stroke-linecap%3D%22round%22%20filter%3D%22url%28%23glow%29%22%2F%3E%0A%3Cpath%20d%3D%22M22.6%204.1l.9%201.65%201.75.85-1.75.85-.9%201.65-.9-1.65-1.75-.85%201.75-.85.9-1.65z%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF9FCB%22%20stroke-width%3D%22.75%22%2F%3E%0A%3Cg%20filter%3D%22url%28%23glow%29%22%3E%0A%3Cpath%20d%3D%22M15.8%2011.9C10%206.1%204.9%207.4%205.2%2012c.2%203.15%203.65%204.55%207.3%203.2-2.7%203.2%201.5%205.7%203.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cpath%20d%3D%22M16.2%2011.9c5.8-5.8%2010.9-4.5%2010.6.1-.2%203.15-3.65%204.55-7.3%203.2%202.7%203.2-1.5%205.7-3.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cellipse%20cx%3D%2216%22%20cy%3D%2215.2%22%20rx%3D%221.25%22%20ry%3D%223.25%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.7%22%2F%3E%0A%3Ccircle%20cx%3D%2216%22%20cy%3D%2214%22%20r%3D%221.15%22%20fill%3D%22%23FFD8F0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.4%22%2F%3E%0A%3C%2Fg%3E%0A%3Cpath%20d%3D%22M16%2018.2v8.2%22%20stroke%3D%22url%28%23rose%29%22%20stroke-width%3D%222.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M16%2021.8h2.35M16%2024.3h3.3M18.5%2024.3v1.9%22%20stroke%3D%22%23D997AF%22%20stroke-width%3D%221.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M18.9%2019.5c1.2-1.15%202.95-.35%202.8%201.05-.18%201.8-2.18%202.7-2.8%203.2-.62-.5-2.62-1.4-2.8-3.2-.15-1.4%201.6-2.2%202.8-1.05z%22%20fill%3D%22%23FFD9F0%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.65%22%2F%3E%0A%3Cpath%20d%3D%22M8%2010.2l2.1%201.8M23.8%2010.2l-2.1%201.8%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22%2F%3E%0A%3C%2Fsvg%3E") 16 26, pointer;
+      }
+    }
+
+    .lumi-magic-ring,
+    .lumi-magic-star,
+    .lumi-magic-butterfly{
+      position:fixed;
+      left:0;
+      top:0;
+      pointer-events:none;
+      z-index:10001;
+      opacity:0;
+      transform:translate(-50%,-50%);
+      will-change:transform,opacity;
+    }
+
+    /* 클릭 시 생기는 둥근 마법진/빛 고리 */
+    .lumi-magic-ring{
+      width:74px;
+      height:74px;
+      border-radius:50%;
+      background:
+        radial-gradient(circle, rgba(255,255,255,.58) 0%, rgba(255,255,255,.28) 21%, rgba(255,138,194,.14) 34%, rgba(255,138,194,0) 62%),
+        conic-gradient(from 8deg, rgba(126,224,255,0), rgba(126,224,255,.55), rgba(255,255,255,.90), rgba(255,138,194,.62), rgba(126,224,255,0));
+      -webkit-mask:radial-gradient(circle, transparent 0 38%, #000 41% 55%, transparent 58% 100%);
+      mask:radial-gradient(circle, transparent 0 38%, #000 41% 55%, transparent 58% 100%);
+      filter:drop-shadow(0 0 10px rgba(255,138,194,.50)) drop-shadow(0 0 18px rgba(126,224,255,.25));
+      animation:lumiRingPulse .92s ease-out forwards;
+    }
+
+    /* 별 반짝: 점 덩어리가 아니라 십자 별 모양 */
+    .lumi-magic-star{
+      width:14px;
+      height:14px;
+      animation:lumiStarPop .86s ease-out forwards;
+      filter:drop-shadow(0 0 8px rgba(255,138,194,.45));
+    }
+
+    .lumi-magic-star::before,
+    .lumi-magic-star::after{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      border-radius:999px;
+      background:linear-gradient(180deg,#fff 0%,#ffe4f3 40%,#ff8ac2 100%);
+    }
+
+    .lumi-magic-star::before{width:3px;height:14px;}
+    .lumi-magic-star::after{width:14px;height:3px;}
+
+    /* 실제 나비 실루엣 */
+    .lumi-magic-butterfly{
+      width:18px;
+      height:15px;
+      animation:lumiButterflyFly .98s cubic-bezier(.16,.82,.34,1) forwards;
+      filter:drop-shadow(0 0 5px rgba(126,224,255,.45)) drop-shadow(0 0 7px rgba(255,138,194,.25));
+    }
+
+    .lumi-magic-butterfly::before,
+    .lumi-magic-butterfly::after{
+      content:"";
+      position:absolute;
+      top:2px;
+      width:9px;
+      height:12px;
+      background:linear-gradient(135deg,#7ee0ff 0%,#4fc3ff 38%,#ff8ac2 100%);
+      border:1px solid rgba(255,255,255,.92);
+      box-shadow:inset 0 0 4px rgba(255,255,255,.75);
+    }
+
+    .lumi-magic-butterfly::before{
+      left:0;
+      border-radius:10px 8px 9px 2px;
+      transform:rotate(-30deg);
+      transform-origin:100% 80%;
+    }
+
+    .lumi-magic-butterfly::after{
+      right:0;
+      border-radius:8px 10px 2px 9px;
+      transform:rotate(30deg);
+      transform-origin:0 80%;
+    }
+
+    @keyframes lumiRingPulse{
+      0%{opacity:0;transform:translate(-50%,-50%) scale(.28) rotate(0deg);}
+      18%{opacity:.95;}
+      100%{opacity:0;transform:translate(-50%,-50%) scale(1.5) rotate(22deg);}
+    }
+
+    @keyframes lumiStarPop{
+      0%{opacity:0; transform:translate(-50%,-50%) scale(.25) rotate(0deg);}
+      18%{opacity:1;}
+      100%{opacity:0; transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.18) rotate(var(--r));}
+    }
+
+    @keyframes lumiButterflyFly{
+      0%{opacity:0; transform:translate(-50%,-50%) scale(.55) rotate(0deg);}
+      12%{opacity:1;}
+      100%{opacity:0; transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.08) rotate(var(--r));}
+    }
+
+    @media (max-width:780px){
+      .lumi-magic-ring,.lumi-magic-star,.lumi-magic-butterfly{display:none;}
+    }
+
   
 
-    /* ===== ON AIR LIVE 상태 표시 ===== */
-    .onair-live-pill{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      width:max-content;
-      margin:0 auto 12px;
-      padding:7px 13px;
-      border-radius:999px;
-      background:#fff;
-      border:1px solid #efc6dc;
-      color:#c97ca8;
-      font-size:11px;
-      font-weight:900;
-      letter-spacing:.06em;
-      box-shadow:0 6px 14px rgba(255,95,168,.10);
-    }
-    .onair-card.is-live{
-      background:linear-gradient(135deg,#fff0f7 0%,#fff8fc 42%,#f3ebff 100%) !important;
-      border-color:#ff9ac8 !important;
-      box-shadow:0 16px 36px rgba(255,95,168,.20) !important;
-    }
-    .onair-card.is-live .onair-live-pill{
-      background:linear-gradient(180deg,#ff6fae 0%,#ff4fa3 100%);
-      color:#fff;
-      border-color:transparent;
-      animation:onairPulse 1.25s ease-in-out infinite;
-    }
-    @keyframes onairPulse{
-      0%,100%{transform:scale(1); box-shadow:0 0 0 rgba(255,79,163,0);}
-      50%{transform:scale(1.04); box-shadow:0 0 18px rgba(255,79,163,.30);}
+    /* ===== 루미벨 나비 열쇠 커서: PC 전체 적용 ===== */
+    @media (hover:hover) and (pointer:fine){
+      html,
+      body,
+      body *:not(input):not(textarea):not(select):not(option){
+        cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2248%22%20height%3D%2248%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%3Cdefs%3E%0A%3ClinearGradient%20id%3D%22wingA%22%20x1%3D%224%22%20y1%3D%227%22%20x2%3D%2223%22%20y2%3D%2220%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%234FC3FF%22%2F%3E%3Cstop%20offset%3D%22.48%22%20stop-color%3D%22%237EE0FF%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23FF8AC2%22%2F%3E%3C%2FlinearGradient%3E%0A%3ClinearGradient%20id%3D%22rose%22%20x1%3D%2212%22%20y1%3D%224%22%20x2%3D%2223%22%20y2%3D%2230%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23FFE9F7%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23FFB1D5%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23F6D7FF%22%2F%3E%3C%2FlinearGradient%3E%0A%3Cfilter%20id%3D%22glow%22%20x%3D%22-40%25%22%20y%3D%22-40%25%22%20width%3D%22180%25%22%20height%3D%22180%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%22.9%22%20result%3D%22b%22%2F%3E%3CfeMerge%3E%3CfeMergeNode%20in%3D%22b%22%2F%3E%3CfeMergeNode%20in%3D%22SourceGraphic%22%2F%3E%3C%2FfeMerge%3E%3C%2Ffilter%3E%0A%3C%2Fdefs%3E%0A%3Cpath%20d%3D%22M17.5%204.4C13.9%202.8%209.4%205.5%209.7%209.8c.18%202.7%202.3%204.4%204.35%205.1%203.9%201.35%208.95-.98%209.75-5.13%22%20fill%3D%22none%22%20stroke%3D%22%23F3B6CF%22%20stroke-width%3D%221.55%22%20stroke-linecap%3D%22round%22%20filter%3D%22url%28%23glow%29%22%2F%3E%0A%3Cpath%20d%3D%22M22.6%204.1l.9%201.65%201.75.85-1.75.85-.9%201.65-.9-1.65-1.75-.85%201.75-.85.9-1.65z%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF9FCB%22%20stroke-width%3D%22.75%22%2F%3E%0A%3Cg%20filter%3D%22url%28%23glow%29%22%3E%0A%3Cpath%20d%3D%22M15.8%2011.9C10%206.1%204.9%207.4%205.2%2012c.2%203.15%203.65%204.55%207.3%203.2-2.7%203.2%201.5%205.7%203.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cpath%20d%3D%22M16.2%2011.9c5.8-5.8%2010.9-4.5%2010.6.1-.2%203.15-3.65%204.55-7.3%203.2%202.7%203.2-1.5%205.7-3.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cellipse%20cx%3D%2216%22%20cy%3D%2215.2%22%20rx%3D%221.25%22%20ry%3D%223.25%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.7%22%2F%3E%0A%3Ccircle%20cx%3D%2216%22%20cy%3D%2214%22%20r%3D%221.15%22%20fill%3D%22%23FFD8F0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.4%22%2F%3E%0A%3C%2Fg%3E%0A%3Cpath%20d%3D%22M16%2018.2v8.2%22%20stroke%3D%22url%28%23rose%29%22%20stroke-width%3D%222.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M16%2021.8h2.35M16%2024.3h3.3M18.5%2024.3v1.9%22%20stroke%3D%22%23D997AF%22%20stroke-width%3D%221.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M18.9%2019.5c1.2-1.15%202.95-.35%202.8%201.05-.18%201.8-2.18%202.7-2.8%203.2-.62-.5-2.62-1.4-2.8-3.2-.15-1.4%201.6-2.2%202.8-1.05z%22%20fill%3D%22%23FFD9F0%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.65%22%2F%3E%0A%3Cpath%20d%3D%22M8%2010.2l2.1%201.8M23.8%2010.2l-2.1%201.8%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22%2F%3E%0A%3C%2Fsvg%3E") 24 38, auto !important;
+      }
+
+      a, button,
+      .ticket-option, .meate-option,
+      .package-btn, .quick-icon-btn, .reserve-btn,
+      .top-button, .lang-switch a, nav a{
+        cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2248%22%20height%3D%2248%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%3Cdefs%3E%0A%3ClinearGradient%20id%3D%22wingA%22%20x1%3D%224%22%20y1%3D%227%22%20x2%3D%2223%22%20y2%3D%2220%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%234FC3FF%22%2F%3E%3Cstop%20offset%3D%22.48%22%20stop-color%3D%22%237EE0FF%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23FF8AC2%22%2F%3E%3C%2FlinearGradient%3E%0A%3ClinearGradient%20id%3D%22rose%22%20x1%3D%2212%22%20y1%3D%224%22%20x2%3D%2223%22%20y2%3D%2230%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23FFE9F7%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23FFB1D5%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23F6D7FF%22%2F%3E%3C%2FlinearGradient%3E%0A%3Cfilter%20id%3D%22glow%22%20x%3D%22-40%25%22%20y%3D%22-40%25%22%20width%3D%22180%25%22%20height%3D%22180%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%22.9%22%20result%3D%22b%22%2F%3E%3CfeMerge%3E%3CfeMergeNode%20in%3D%22b%22%2F%3E%3CfeMergeNode%20in%3D%22SourceGraphic%22%2F%3E%3C%2FfeMerge%3E%3C%2Ffilter%3E%0A%3C%2Fdefs%3E%0A%3Cpath%20d%3D%22M17.5%204.4C13.9%202.8%209.4%205.5%209.7%209.8c.18%202.7%202.3%204.4%204.35%205.1%203.9%201.35%208.95-.98%209.75-5.13%22%20fill%3D%22none%22%20stroke%3D%22%23F3B6CF%22%20stroke-width%3D%221.55%22%20stroke-linecap%3D%22round%22%20filter%3D%22url%28%23glow%29%22%2F%3E%0A%3Cpath%20d%3D%22M22.6%204.1l.9%201.65%201.75.85-1.75.85-.9%201.65-.9-1.65-1.75-.85%201.75-.85.9-1.65z%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF9FCB%22%20stroke-width%3D%22.75%22%2F%3E%0A%3Cg%20filter%3D%22url%28%23glow%29%22%3E%0A%3Cpath%20d%3D%22M15.8%2011.9C10%206.1%204.9%207.4%205.2%2012c.2%203.15%203.65%204.55%207.3%203.2-2.7%203.2%201.5%205.7%203.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cpath%20d%3D%22M16.2%2011.9c5.8-5.8%2010.9-4.5%2010.6.1-.2%203.15-3.65%204.55-7.3%203.2%202.7%203.2-1.5%205.7-3.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cellipse%20cx%3D%2216%22%20cy%3D%2215.2%22%20rx%3D%221.25%22%20ry%3D%223.25%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.7%22%2F%3E%0A%3Ccircle%20cx%3D%2216%22%20cy%3D%2214%22%20r%3D%221.15%22%20fill%3D%22%23FFD8F0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.4%22%2F%3E%0A%3C%2Fg%3E%0A%3Cpath%20d%3D%22M16%2018.2v8.2%22%20stroke%3D%22url%28%23rose%29%22%20stroke-width%3D%222.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M16%2021.8h2.35M16%2024.3h3.3M18.5%2024.3v1.9%22%20stroke%3D%22%23D997AF%22%20stroke-width%3D%221.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M18.9%2019.5c1.2-1.15%202.95-.35%202.8%201.05-.18%201.8-2.18%202.7-2.8%203.2-.62-.5-2.62-1.4-2.8-3.2-.15-1.4%201.6-2.2%202.8-1.05z%22%20fill%3D%22%23FFD9F0%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.65%22%2F%3E%0A%3Cpath%20d%3D%22M8%2010.2l2.1%201.8M23.8%2010.2l-2.1%201.8%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22%2F%3E%0A%3C%2Fsvg%3E") 24 38, pointer !important;
+      }
+
+      input, textarea{
+        cursor:text !important;
+      }
     }
 
-  </style>
-</head>
 
-<body>
+    /* ===== 루미벨 커서 고급화: 상시 반짝 / hover / 전체 클릭 ===== */
+    @media (hover:hover) and (pointer:fine){
+      .lumi-cursor-glow,
+      .lumi-cursor-core{
+        position:fixed;
+        left:0;
+        top:0;
+        pointer-events:none;
+        transform:translate(-50%,-50%);
+        z-index:10000;
+        opacity:0;
+        will-change:transform,left,top,opacity;
+      }
+
+      .lumi-cursor-glow{
+        width:34px;
+        height:34px;
+        border-radius:50%;
+        background:
+          radial-gradient(circle, rgba(255,255,255,.95) 0%, rgba(255,255,255,.55) 18%, rgba(126,224,255,.42) 36%, rgba(255,138,194,.34) 58%, rgba(255,138,194,0) 78%);
+        filter:blur(7px);
+        opacity:.52;
+        transition:width .16s ease,height .16s ease,opacity .16s ease,filter .16s ease,background .16s ease;
+      }
+
+      .lumi-cursor-core{
+        width:6px;
+        height:6px;
+        border-radius:50%;
+        background:#fff;
+        box-shadow:0 0 8px rgba(255,255,255,.95),0 0 14px rgba(126,224,255,.55),0 0 18px rgba(255,138,194,.45);
+        opacity:.78;
+        transition:width .16s ease,height .16s ease,opacity .16s ease,box-shadow .16s ease;
+      }
+
+      body.lumi-cursor-hover .lumi-cursor-glow{
+        width:64px;
+        height:64px;
+        opacity:.88;
+        filter:blur(8px);
+        background:
+          radial-gradient(circle, rgba(255,255,255,.88) 0%, rgba(255,255,255,.42) 22%, rgba(255,138,194,.30) 34%, rgba(126,224,255,.26) 47%, rgba(255,138,194,0) 70%),
+          conic-gradient(from 8deg, rgba(126,224,255,0), rgba(126,224,255,.34), rgba(255,255,255,.56), rgba(255,138,194,.36), rgba(126,224,255,0));
+      }
+
+      body.lumi-cursor-hover .lumi-cursor-core{
+        width:8px;
+        height:8px;
+        opacity:1;
+        box-shadow:0 0 10px rgba(255,255,255,1),0 0 18px rgba(126,224,255,.72),0 0 24px rgba(255,138,194,.62);
+      }
+
+      .lumi-trail-spark{
+        position:fixed;
+        left:0;
+        top:0;
+        width:10px;
+        height:10px;
+        pointer-events:none;
+        z-index:9998;
+        opacity:0;
+        transform:translate(-50%,-50%) scale(.55);
+        animation:lumiTrailFade 1.05s ease-out forwards;
+        filter:drop-shadow(0 0 7px rgba(255,138,194,.38));
+      }
+      .lumi-trail-spark::before,
+      .lumi-trail-spark::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        transform:translate(-50%,-50%);
+        border-radius:999px;
+        background:linear-gradient(180deg,#fff,#ffd9ef 54%,#7ee0ff);
+      }
+      .lumi-trail-spark::before{width:2px;height:10px;}
+      .lumi-trail-spark::after{width:10px;height:2px;}
+
+      @keyframes lumiTrailFade{
+        0%{opacity:.7;transform:translate(-50%,-50%) scale(.35) rotate(0deg);}
+        100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.05) rotate(38deg);}
+      }
+    }
+
+  
+
+    /* ===== 최종 보정: 핑크/화이트 원형 마법진 + 선명한 잔광 ===== */
+    @media (hover:hover) and (pointer:fine){
+      .lumi-magic-ring{
+        width:96px !important;
+        height:96px !important;
+        border-radius:50% !important;
+        background:
+          radial-gradient(circle, rgba(255,255,255,.98) 0%, rgba(255,255,255,.76) 11%, rgba(255,240,248,.42) 24%, rgba(255,138,194,.22) 42%, rgba(255,138,194,0) 70%) !important;
+        border:1px solid rgba(255,255,255,.84) !important;
+        box-shadow:
+          0 0 18px rgba(255,255,255,.72),
+          0 0 28px rgba(255,138,194,.42),
+          inset 0 0 18px rgba(255,255,255,.70) !important;
+        -webkit-mask:none !important;
+        mask:none !important;
+        filter:drop-shadow(0 0 16px rgba(255,138,194,.45)) !important;
+        animation:lumiRingPulseFinal .86s ease-out forwards !important;
+      }
+
+      .lumi-magic-ring::before,
+      .lumi-magic-ring::after{
+        content:"";
+        position:absolute;
+        border-radius:50%;
+        pointer-events:none;
+      }
+
+      .lumi-magic-ring::before{
+        inset:11px;
+        border:4px solid rgba(255,255,255,.78);
+        border-top-color:rgba(255,255,255,.96);
+        border-right-color:rgba(255,190,220,.54);
+        border-bottom-color:rgba(255,138,194,.38);
+        border-left-color:rgba(255,255,255,.42);
+        box-shadow:
+          0 0 16px rgba(255,255,255,.55),
+          0 0 20px rgba(255,138,194,.30),
+          inset 0 0 14px rgba(255,255,255,.42);
+      }
+
+      .lumi-magic-ring::after{
+        inset:24px;
+        border:2px solid rgba(255,255,255,.64);
+        border-top-color:rgba(255,183,216,.64);
+        border-right-color:rgba(255,255,255,.90);
+        box-shadow:0 0 14px rgba(255,230,245,.55);
+      }
+
+      .lumi-magic-star{
+        width:17px !important;
+        height:17px !important;
+        filter:drop-shadow(0 0 8px rgba(255,255,255,.80)) drop-shadow(0 0 10px rgba(255,138,194,.52)) !important;
+      }
+      .lumi-magic-star::before{width:3px !important;height:17px !important;background:linear-gradient(180deg,#fff 0%,#fff5fb 42%,#ff8ac2 100%) !important;}
+      .lumi-magic-star::after{width:17px !important;height:3px !important;background:linear-gradient(90deg,#fff 0%,#fff5fb 42%,#ff8ac2 100%) !important;}
+
+      .lumi-magic-butterfly{
+        width:23px !important;
+        height:19px !important;
+        filter:drop-shadow(0 0 7px rgba(126,224,255,.62)) drop-shadow(0 0 10px rgba(255,138,194,.36)) !important;
+        animation:lumiButterflyFlyFinal 1.12s cubic-bezier(.16,.82,.34,1) forwards !important;
+      }
+      .lumi-magic-butterfly::before,
+      .lumi-magic-butterfly::after{
+        top:2px !important;
+        width:11px !important;
+        height:15px !important;
+        background:linear-gradient(135deg,#ffffff 0%,#7ee0ff 24%,#4fc3ff 52%,#ff8ac2 100%) !important;
+        border:1px solid rgba(255,255,255,.96) !important;
+        box-shadow:inset 0 0 5px rgba(255,255,255,.78),0 0 6px rgba(126,224,255,.32) !important;
+      }
+
+      @keyframes lumiRingPulseFinal{
+        0%{opacity:0;transform:translate(-50%,-50%) scale(.34) rotate(0deg);}
+        14%{opacity:1;}
+        58%{opacity:.86;}
+        100%{opacity:0;transform:translate(-50%,-50%) scale(1.55) rotate(18deg);}
+      }
+
+      @keyframes lumiButterflyFlyFinal{
+        0%{opacity:0; transform:translate(-50%,-50%) scale(.45) rotate(0deg);}
+        10%{opacity:.95;}
+        100%{opacity:0; transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.16) rotate(var(--r));}
+      }
+
+      .lumi-cursor-glow{
+        width:56px !important;
+        height:56px !important;
+        opacity:.82 !important;
+        filter:blur(9px) !important;
+        background:
+          radial-gradient(circle, rgba(255,255,255,.98) 0%, rgba(255,255,255,.72) 14%, rgba(255,231,244,.42) 28%, rgba(255,138,194,.30) 48%, rgba(126,224,255,.18) 62%, rgba(255,138,194,0) 78%) !important;
+      }
+
+      .lumi-cursor-core{
+        width:7px !important;
+        height:7px !important;
+        opacity:.95 !important;
+        box-shadow:0 0 10px rgba(255,255,255,1),0 0 18px rgba(255,138,194,.70),0 0 22px rgba(126,224,255,.45) !important;
+      }
+
+      body.lumi-cursor-hover .lumi-cursor-glow{
+        width:88px !important;
+        height:88px !important;
+        opacity:.96 !important;
+        filter:blur(8px) !important;
+        background:
+          radial-gradient(circle, rgba(255,255,255,.90) 0%, rgba(255,255,255,.56) 16%, rgba(255,235,247,.34) 27%, rgba(255,138,194,.26) 41%, rgba(255,255,255,.18) 52%, rgba(255,138,194,0) 72%),
+          conic-gradient(from 12deg, rgba(255,255,255,0), rgba(255,255,255,.72), rgba(255,190,220,.54), rgba(255,255,255,.72), rgba(255,255,255,0)) !important;
+      }
+
+      .lumi-trail-spark{
+        width:14px !important;
+        height:14px !important;
+        filter:drop-shadow(0 0 8px rgba(255,255,255,.76)) drop-shadow(0 0 10px rgba(255,138,194,.44)) !important;
+        animation:lumiTrailFadeFinal .95s ease-out forwards !important;
+      }
+      .lumi-trail-spark::before{width:2.5px !important;height:14px !important;background:linear-gradient(180deg,#fff,#ffd9ef 58%,#ff8ac2) !important;}
+      .lumi-trail-spark::after{width:14px !important;height:2.5px !important;background:linear-gradient(90deg,#fff,#ffd9ef 58%,#7ee0ff) !important;}
+
+      @keyframes lumiTrailFadeFinal{
+        0%{opacity:.92;transform:translate(-50%,-50%) scale(.42) rotate(0deg);}
+        100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.22) rotate(42deg);}
+      }
+    }
+
+  
+
+/* ===== FINAL: 홈 1차 상단바 폭/구조 강제 매칭 - 두번째 박스 없음 ===== */
+ (min-width:981px){
+  .wrap{
+    width:min(980px, calc(100% - 32px)) !important;
+    max-width:980px !important;
+    margin:0 auto !important;
+    padding:0 !important;
+    box-sizing:border-box !important;
+  }
+  .top-lang-bar{
+    width:min(980px, calc(100% - 32px)) !important;
+    max-width:980px !important;
+    margin:16px auto 0 !important;
+    padding:0 34px 0 18px !important;
+    box-sizing:border-box !important;
+    display:flex !important;
+    justify-content:flex-end !important;
+  }
+  header .wrap.header-box{
+    width:min(980px, calc(100% - 32px)) !important;
+    max-width:980px !important;
+    margin:0 auto !important;
+    padding:18px 24px !important;
+    box-sizing:border-box !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    gap:24px !important;
+  }
+  header .logo{
+    flex:0 0 auto !important;
+  }
+  header .logo img{
+    display:block !important;
+    max-width:150px !important;
+    height:auto !important;
+  }
+  header nav{
+    display:grid !important;
+    grid-template-columns:repeat(8, minmax(0, 1fr)) !important;
+    gap:18px !important;
+    margin:0 20px !important;
+    flex:1 1 auto !important;
+    width:auto !important;
+    min-width:0 !important;
+  }
+  header nav a{
+    width:100% !important;
+    min-width:0 !important;
+    padding:0 !important;
+  }
+}
+
+ (max-width:980px){
+  header .wrap.header-box{
+    width:min(1260px, calc(100% - 32px)) !important;
+    margin:0 auto !important;
+  }
+}
+
+/* 마우스 반짝이가 보이도록 최종 보강 */
+.sparkle{
+  position:fixed;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  pointer-events:none;
+  z-index:4300;
+  background:radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,210,235,.95) 42%, rgba(255,192,215,0) 100%);
+  box-shadow:0 0 10px rgba(255,255,255,.95), 0 0 16px rgba(255,192,215,.55);
+  animation:sparkleFloat 1.1s ease-out forwards;
+}
+ sparkleFloat{
+  0%{transform:translateY(0) scale(.55);opacity:0;}
+  18%{opacity:1;}
+  100%{transform:translateY(-18px) scale(1.15);opacity:0;}
+}
+</style>
+ </head>
+ <body>
   <div class="top-lang-bar">
-    <div class="lang-switch">
-      <a href="index.html" class="active">KR</a>
-      <a href="en/index.html">EN</a>
-      <a href="jp/index.html">JP</a>
-      <a href="cn/index.html">CN</a>
-    </div>
+   <div class="lang-switch">
+    <a class="active" href="../index.html">
+     KR
+    </a>
+    <a href="../en/index.html">
+     EN
+    </a>
+    <a href="../jp/index.html">
+     JP
+    </a>
+    <a href="../cn/index.html">
+     CN
+    </a>
+   </div>
   </div>
-
   <header>
-    <div class="wrap header-box">
-      <div class="logo">
-        <a href="index.html">
-          <picture>
-            <source srcset="img/ui/logo.webp?v=3" type="image/webp">
-            <img src="img/ui/logo.png?v=3" alt="Lumibelle 로고" loading="eager" decoding="async">
-          </picture>
-        </a>
-      </div>
-
-      <nav>
-        <a href="index.html" class="current"><b>HOME</b><span>홈</span></a>
-        <a href="news.html"><b>NEWS</b><span>공지사항</span></a>
-        <a href="member.html"><b>MEMBER</b><span>멤버 소개</span></a>
-        <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
-        <a href="ticket/"><b>TICKET</b><span>예매</span></a>
-        <a href="goods/"><b>GOODS</b><span>굿즈</span></a>
-        <a href="setlist.html"><b>SETLIST</b><span>응원 가이드</span></a>
-        <a href="info.html"><b>INFO</b><span>안내</span></a>
-      </nav>
+   <div class="wrap header-box">
+    <div class="logo">
+     <a href="../index.html">
+      <picture>
+       <source srcset="../img/ui/logo.webp?v=3" type="image/webp"/>
+       <img alt="Lumibelle 로고" decoding="async" loading="eager" src="../img/ui/logo.png?v=3"/>
+      </picture>
+     </a>
     </div>
+    <nav>
+     <a href="../index.html">
+      <b>
+       HOME
+      </b>
+      <span>
+       홈
+      </span>
+     </a>
+     <a href="../news.html">
+      <b>
+       NEWS
+      </b>
+      <span>
+       공지사항
+      </span>
+     </a>
+     <a href="../member.html">
+      <b>
+       MEMBER
+      </b>
+      <span>
+       멤버 소개
+      </span>
+     </a>
+     <a href="../schedule.html">
+      <b>
+       SCHEDULE
+      </b>
+      <span>
+       스케줄
+      </span>
+     </a>
+     <a class="current" href="index.html">
+      <b>
+       TICKET
+      </b>
+      <span>
+       예매
+      </span>
+     </a>
+     <a href="../goods/">
+      <b>
+       GOODS
+      </b>
+      <span>
+       굿즈
+      </span>
+     </a>
+     <a href="../setlist.html">
+      <b>
+       SETLIST
+      </b>
+      <span>
+       응원 가이드
+      </span>
+     </a>
+     <a href="../info.html">
+      <b>
+       INFO
+      </b>
+      <span>
+       안내
+      </span>
+     </a>
+    </nav>
+   </div>
   </header>
-
-  <div class="wrap">
-    <div class="subnav-wrap reveal">
-      <a href="event/" class="subnav-card">
-        <h3>EVENT</h3>
-        <p>이벤트</p>
-      </a>
-
-      <a href="moments/" class="subnav-card">
-        <h3>MOMENTS</h3>
-        <p>순간들</p>
-      </a>
-
-      <a href="story/" class="subnav-card">
-        <h3>STORY</h3>
-        <p>스토리</p>
-      </a>
-
-      <a href="gamezone/" class="subnav-card">
-        <h3>GAME ZONE</h3>
-        <p>게임존</p>
-      </a>
-
-      <a href="lumi/index.html" class="subnav-card lumi-id-card">
-        <span class="enter-badge">ENTER</span>
-        <h3>LUMI ID</h3>
-        <p>나의 루미벨 플레이어 카드</p>
-      </a>
-    </div>
-  </div>
-
-  <main class="page-shell">
-    <div class="wrap">
-
-      <section class="hero-banner reveal">
-        <div class="slide active" style="background-image: url('img/ui/hero-01.webp');"></div>
-        <div class="slide" style="background-image: url('img/ui/hero-02.webp');"></div>
-        <div class="slide" style="background-image: url('img/ui/hero-03.webp');"></div>
-
-        <div class="hero-inner">
-          <div class="hero-kor">빛나는 미소의 소녀들</div>
-          <h1 class="hero-logo">Lumibelle</h1>
-          <div class="hero-sub">✦ 루미벨 ✦</div>
-          <div class="hero-desc">
-            한국에서 활동하고 있는 왕도 아이돌 그룹 Lumibelle (루미벨)입니다.<br />
-            루미나들이 있기에 루미벨은 더 빛나요…♡
-          </div>
+  <main>
+   <div class="wrap">
+    <section class="hero-mini reveal">
+     <div class="sub">
+      루미벨 데뷔 라이브 티켓 예매
+     </div>
+     <h1>
+      Ticket
+     </h1>
+     <p>
+      Shine Me UP : 루미벨 데뷔 라이브 예매 페이지입니다.
+      <br/>
+      일반 사전 예약은 예매폼에서 신청하고, A/B 패키지는 굿즈 페이지에서 확인해 주세요.
+     </p>
+     <div class="status-row">
+      <span class="status-pill strong">
+       NOW OPEN
+      </span>
+      <span class="status-pill">
+       PRE-ORDER
+      </span>
+      <span class="status-pill">
+       입금 확인 후 예약 확정
+      </span>
+     </div>
+    </section>
+    <section class="ticket-layout reveal">
+     <div class="left-stack">
+      <article class="poster-card reveal">
+       <div class="poster-box">
+        <picture>
+         <source srcset="../img/poster/2026-07-12.webp" type="image/webp"/>
+         <img alt="Shine Me UP 루미벨 데뷔 라이브 포스터" onerror="this.closest('.poster-box').innerHTML='공연 포스터<br>2026.07.12<br>Shine Me UP';" src="../img/poster/2026-07-12.png"/>
+        </picture>
+       </div>
+       <div class="info-card">
+        <h2>
+         공연 정보
+        </h2>
+        <p>
+         빛나는 미소의 소녀들, Lumibelle의 첫 시작을 함께해 주세요.
+        </p>
+        <div class="cast-box">
+         <p class="cast-title">
+          CAST / 출연진 안내
+         </p>
+         <div class="cast-list">
+          <span class="cast-pill">
+           시로나
+          </span>
+          <span class="cast-pill">
+           옵시드
+          </span>
+          <span class="cast-pill">
+           너에게 닿기를
+          </span>
+          <span class="cast-pill">
+           스이타
+          </span>
+          <span class="cast-pill">
+           이토리
+          </span>
+          <span class="cast-pill">
+           Lumibelle
+          </span>
+         </div>
         </div>
-      </section>
-
-      <section class="section-heading reveal">
-        <h2>MEMBER</h2>
-        <p>멤버 소개</p>
-      </section>
-
-      <section id="member" class="member-grid reveal">
-        <div class="member-card mariring reveal">
-          <div class="member-name-bar">MARIRING</div>
-          <div class="member-photo">
-            <picture>
-              <source srcset="img/member/mariring/mariring.webp" type="image/webp">
-              <img src="img/member/mariring/mariring.webp" alt="마리링" loading="lazy" decoding="async">
-            </picture>
-          </div>
-          <div class="member-color-text">
-            멤버컬러<br />
-            체리핑크 ♥
-          </div>
-          <div class="member-meta">
-            <div><strong>키워드</strong> 외유내강 / 밝고쾌활함 / 아이돌 오타쿠</div>
-            <div><strong>한마디</strong> 언제 어디서나 빛나는 사람이 되기를⛧</div>
-          </div>
-          <a href="mariring.html" class="member-btn mariring">자세히 보기</a>
+        <div class="event-lines">
+         <div class="event-line">
+          <strong>
+           일시
+          </strong>
+          <span>
+           2026년 7월 12일 (일) 14:20 공연 시작
+          </span>
+         </div>
+         <div class="event-line">
+          <strong>
+           입장
+          </strong>
+          <span>
+           13:50부터 가능
+          </span>
+         </div>
+         <div class="event-line">
+          <strong>
+           장소
+          </strong>
+          <span>
+           KT&G 상상마당 라이브홀
+           <br/>
+           서울 마포구 어울마당로 65 B2F
+          </span>
+         </div>
         </div>
-
-        <div class="member-card lulu reveal">
-          <div class="member-name-bar">LULU</div>
-          <div class="member-photo">
-            <picture>
-              <source srcset="img/member/lulu/lulu.webp" type="image/webp">
-              <img src="img/member/lulu/lulu.webp" alt="루루" loading="lazy" decoding="async">
-            </picture>
-          </div>
-          <div class="member-color-text">
-            멤버컬러<br />
-            밀키핑크 ♥
-          </div>
-          <div class="member-meta">
-            <div><strong>키워드</strong> 포근함 / 작은 용기 / 아기토끼공주</div>
-            <div><strong>한마디</strong> 루루만의 길로 한발씩, 포근하게!</div>
-          </div>
-          <a href="lulu.html" class="member-btn lulu">자세히 보기</a>
+       </div>
+      </article>
+     </div>
+     <div class="right-stack">
+      <div class="right-top-actions">
+       <a class="quick-icon-btn" href="archive.html">
+        ♡ 지난 공연 보기
+       </a>
+      </div>
+      <article class="detail-card reveal">
+       <h2>
+        상세 안내
+       </h2>
+       <div class="notice-grid">
+        <div class="notice-box">
+         <h3>
+          입장 및 대기 규칙
+         </h3>
+         <ul>
+          <li>
+           줄 대기 시작:
+           <strong>
+            13:20부터 가능
+           </strong>
+           합니다.
+          </li>
+          <li>
+           13:20 이전 대기는 절대 불가합니다.
+          </li>
+          <li>
+           입장 순서: 사전 예약 입장(13:50~) ▶ 현장 입장
+          </li>
+          <li>
+           입장 시
+           <strong>
+            닉네임 + 숫자 4자리
+           </strong>
+           가 일치해야 합니다.
+          </li>
+          <li>
+           입금 확인이 완료된 예약자만 QR 체크인을 통해 입장할 수 있습니다.
+          </li>
+         </ul>
         </div>
-
-        <div class="member-card iro reveal">
-          <div class="member-name-bar">IRO</div>
-          <div class="member-photo">
-            <picture>
-              <source srcset="img/member/iro/iro.webp" type="image/webp">
-              <img src="img/member/iro/iro.png" alt="이로" loading="lazy" decoding="async">
-            </picture>
-          </div>
-          <div class="member-color-text">
-            멤버컬러<br />
-            엔젤블루 ♥
-          </div>
-          <div class="member-meta">
-            <div><strong>키워드</strong> 4차원 /맑눈광 / 천사같은악마</div>
-            <div><strong>한마디</strong> 네 세상의 색(色)을 완전히 바꿔 줄게!</div>
-          </div>
-          <a href="iro.html" class="member-btn iro">자세히 보기</a>
+        <div class="notice-box">
+         <h3>
+          취소 및 환불
+         </h3>
+         <ul>
+          <li>
+           한정 패키지:
+           <strong>
+            6/15 마감 후 환불 불가
+           </strong>
+          </li>
+          <li>
+           일반 예약:
+           <strong>
+            7/5(일) 23:59까지 가능
+           </strong>
+          </li>
+          <li>
+           정가 외 프리미엄 양도 적발 시 예약이 강제 취소될 수 있습니다.
+          </li>
+         </ul>
         </div>
-
-        <div class="member-card lunar reveal">
-          <div class="member-name-bar">LUNAR</div>
-          <div class="member-photo">
-            <picture>
-              <source srcset="img/member/lunar/lunar.webp" type="image/webp">
-              <img src="img/member/lunar/lunar.png" alt="루나" loading="lazy" decoding="async">
-            </picture>
-          </div>
-          <div class="member-color-text">
-            멤버컬러<br />
-            달빛퍼플 ♥
-          </div>
-          <div class="member-meta">
-            <div><strong>키워드</strong> 내강외유/신비로움/말랑고양이</div>
-            <div><strong>한마디</strong> 언제나 너만을 비추는 달이 될게.</div>
-          </div>
-          <a href="lunar.html" class="member-btn lunar">자세히 보기</a>
+        <div class="notice-box">
+         <h3>
+          관람 유의사항
+         </h3>
+         <ul>
+          <li>
+           500ml 생수 외 모든 음식물, 주류, 꽃다발 반입은 불가합니다.
+          </li>
+          <li>
+           코인락커는 500원짜리 동전만 사용 가능하며, 지폐에서 동전 교환은 불가합니다.
+          </li>
+          <li>
+           아티스트 선물은 로비 스태프를 통해서만 전달 가능합니다.
+          </li>
+          <li>
+           대관처 규정상 라이브홀 내 가벼운 간식 등도 반입이 불가능합니다. 해당 팀의 스태프를 통해 전달해 주세요.
+          </li>
+          <li>
+           공연장 내 주차가 불가하므로 대중교통 이용을 권장합니다.
+          </li>
+         </ul>
         </div>
-      </section>
-
-      <section class="live-guide-shortcut reveal">
-        <a href="setlist.html" class="live-guide-card">
-          <div class="live-guide-text">
-            <strong>SETLIST</strong>
-            <span>공연 세트리스트 · 응원가이드 · 믹스콜 보기</span>
-          </div>
-          <div class="live-guide-arrow">→</div>
+       </div>
+      </article>
+      <article class="package-card reveal">
+       <h2>
+        한정 패키지 안내
+       </h2>
+       <p class="ticket-note" style="margin-top:0">
+        데뷔 기념 한정 A/B 패키지는 굿즈 상세 페이지에서 구성과 안내를 확인한 뒤 구매할 수 있어요.
+       </p>
+       <div class="package-actions">
+        <a class="package-btn" href="../goods/packages/package-a.html">
+         A 패키지 보러가기
         </a>
-      </section>
-
-      <section class="home-grid-top reveal">
-        <div class="home-card">
-          <div class="home-card-head">
-            <h3>NEWS</h3>
-            <p>공지사항</p>
-          </div>
-
-          <div class="news-list">
-            <a href="news-debut.html" class="news-item">
-              <div class="news-date">2026.07.12</div>
-              <div class="news-tags">
-                <span class="news-badge badge-new">NEW</span>
-              </div>
-              <div class="news-title">루미벨 데뷔라이브 안내</div>
-              <div class="news-arrow">›</div>
-            </a>
-
-            <a href="news-big-event.html" class="news-item">
-              <div class="news-date">2026.10.18</div>
-              <div class="news-tags">
-                <span class="news-badge badge-live">LIVE</span>
-              </div>
-              <div class="news-title">빅 이벤트 라이브 예정 안내</div>
-              <div class="news-arrow">›</div>
-            </a>
-
-            <a href="#" class="news-item">
-              <div class="news-date">2026.05.01</div>
-              <div class="news-tags">
-                <span class="news-badge badge-info">INFO</span>
-              </div>
-              <div class="news-title">굿즈 관련 안내 예정</div>
-              <div class="news-arrow">›</div>
-            </a>
-          </div>
-
-          <div class="home-card-foot">
-            <a href="news.html" class="more-btn">공지사항 더보기</a>
-          </div>
-        </div>
-
-        <div class="home-card">
-          <div class="home-card-head">
-            <h3>SCHEDULE</h3>
-            <p>스케줄</p>
-          </div>
-
-          <div class="schedule-list">
-            <div class="schedule-item">
-              <div class="schedule-date">07.12(土)</div>
-              <div class="schedule-place">상상마당@홍대</div>
-              <div class="schedule-title">루미벨 데뷔라이브</div>
-              <a class="ticket-btn"
-   href="ticket/">
-   TICKET
-</a>
-            </div>
-
-            <div class="schedule-item">
-              <div class="schedule-date">10.18(日)</div>
-              <div class="schedule-place">빅 이벤트</div>
-              <div class="schedule-title">라이브 예정</div>
-              <div class="ticket-btn coming-soon">COMING SOON</div>
-            </div>
-          </div>
-
-          <div class="home-card-foot">
-            <a href="schedule.html" class="more-btn">스케줄 더보기</a>
-          </div>
-        </div>
-      </section>
-
-      <section class="media-grid reveal">
-        <a href="video.html" class="home-card media-link-card video-mini-card" aria-label="MORE VIDEO 영상 페이지로 이동">
-          <div class="home-card-head">
-            <h3>MORE VIDEO</h3>
-            <p>루미벨 영상 아카이브</p>
-          </div>
-          <div class="media-preview-box">
-            <span class="media-pill">CLIP · LIVE · SHORTS</span>
-            <strong>영상 보러가기</strong>
-            <em>공연 직캠부터 방송 클립까지 한 번에 모아보기</em>
-          </div>
+        <a class="package-btn" href="../goods/packages/package-b.html">
+         B 패키지 보러가기
         </a>
-
-        <a href="broadcast/" class="home-card media-link-card onair-card" aria-label="ON AIR 방송 페이지로 이동">
-          <div class="onair-glow"></div>
-          <div class="home-card-head">
-            <h3>ON AIR</h3>
-            <p>방송 스케줄 · 후기</p>
-          </div>
-          <div class="onair-preview" id="homeOnairPreview">
-            <div class="onair-live-pill" id="homeLivePill">OFF AIR</div>
-            <div class="onair-row recent">
-              <span class="onair-label" id="homeOnairLabel">NEXT</span>
-              <div>
-                <strong id="homeOnairTitle">다음 ON AIR 예정</strong>
-                <p id="homeOnairText">방송 일정과 기록은 이곳에서 확인해주세요.</p>
-              </div>
-            </div>
-            <div class="onair-row next">
-              <span class="onair-label">LINK</span>
-              <div>
-                <strong id="homeOnairPlatform">BROADCAST HUB</strong>
-                <p>클릭하면 방송 페이지로 이동합니다.</p>
-              </div>
-            </div>
-          </div>
-        </a>
-      </section>
-
-      <section class="home-grid-bottom reveal">
-        <div class="home-card fanname-card">
-          <div class="card-title">
-            <h3>FANNAME</h3>
-            <p>팬네임</p>
-          </div>
-
-          <div class="fanname-image-box">
-            <picture>
-              <source srcset="img/ui/fanname.webp" type="image/webp">
-              <img src="img/ui/fanname.webp" alt="fanname" loading="lazy" decoding="async" />
-            </picture>
-          </div>
-
-          <div class="fanname-name">Lumina (루미나)</div>
-          <div class="fanname-desc">
-            ‘빛나는 존재’라는 의미를 담은 Lumibelle의 팬네임입니다.<br />
-            Lumibelle과 함께 반짝이는 존재라는 뜻을 가지고 있어요…♡
-          </div>
+       </div>
+      </article>
+      <article class="ticket-card reveal">
+       <h2>
+        예매 정보 입력
+       </h2>
+       <div class="status-row">
+        <span class="status-pill">
+         계좌 : 국민은행 000000-00-000000
+        </span>
+        <span class="status-pill">
+         예금주 : 루미벨
+        </span>
+       </div>
+       <div class="ticket-price" id="ticketDisplay">
+        <div>
+         <strong>
+          사전 예약 티켓
+         </strong>
+         <span>
+          일반 입장권 / 입금 확인 후 예약 확정
+         </span>
         </div>
-
-        <div class="right-column">
-          <div class="info-card">
-            <div class="section-title">
-              <h3>INFO</h3>
-              <p>안내</p>
-            </div>
-
-            <div class="info-links">
-              <a href="info.html" class="info-link-btn">처음 오신 분</a>
-              <a href="ticket/" class="info-link-btn">티켓 안내</a>
-              <a href="info.html" class="info-link-btn">FAQ</a>
-              <a href="mailto:lumibelle.love@gmail.com" class="info-link-btn">문의하기</a>
-            </div>
-          </div>
-
-          <div class="follow-card">
-            <div class="section-title">
-              <h3>FOLLOW US</h3>
-              <p>SNS</p>
-            </div>
-
-            <div class="sns-icons">
-              <a href="https://x.com/Lumibelle_love" target="_blank" rel="noopener noreferrer" class="sns-icon" aria-label="X">
-                <img src="img/ui/X.webp" alt="X">
-              </a>
-              <a href="https://www.instagram.com/lumibelle.offcial/" target="_blank" rel="noopener noreferrer" class="sns-icon" aria-label="Instagram">
-                <img src="img/ui/instargram.png" alt="Instagram">
-              </a>
-              <a href="https://www.tiktok.com/@lumibelle_official" target="_blank" rel="noopener noreferrer" class="sns-icon" aria-label="TikTok">
-                <img src="img/ui/tiktok.webp" alt="TikTok">
-              </a>
-              <a href="https://www.youtube.com/@Lumibelle_Official" target="_blank" rel="noopener noreferrer" class="sns-icon" aria-label="YouTube">
-                <img src="img/ui/youtube.webp" alt="YouTube">
-              </a>
-            </div>
-          </div>
+        <b>
+         ₩10,000
+        </b>
+       </div>
+       <div aria-label="티켓 종류 선택" class="ticket-options">
+        <button class="ticket-option active" data-ticket="pre" type="button">
+         사전 예약
+        </button>
+        <button class="ticket-option" data-ticket="s" type="button">
+         S 티켓
+        </button>
+        <button class="ticket-option" data-ticket="vip" type="button">
+         VIP 티켓
+        </button>
+       </div>
+       <div class="ticket-divider"></div>
+       <form class="reserve-form" id="reserveForm">
+        <div class="form-row">
+         <div class="field">
+          <label for="nickname">
+           닉네임
+          </label>
+          <input id="nickname" name="nickname" placeholder="예: 유리링" required="" type="text"/>
+         </div>
+         <div class="field">
+          <label for="pin">
+           숫자 4자리
+          </label>
+          <input id="pin" inputmode="numeric" maxlength="4" name="pin" placeholder="1234" required="" type="text"/>
+         </div>
         </div>
-      </section>
-
-    </div>
+        <div class="field">
+         <label for="email">
+          이메일
+         </label>
+         <input id="email" name="email" placeholder="example@email.com" required="" type="email"/>
+        </div>
+        <div class="field">
+         <label for="depositor">
+          입금자명
+         </label>
+         <input id="depositor" name="depositor" placeholder="입금 시 사용할 이름" required="" type="text"/>
+        </div>
+        <div class="field">
+         <label>
+          메아테
+         </label>
+         <div aria-label="메아테 선택" class="meate-options">
+          <button class="meate-option" data-meate="시로나" type="button">
+           시로나
+          </button>
+          <button class="meate-option" data-meate="옵시드" type="button">
+           옵시드
+          </button>
+          <button class="meate-option" data-meate="너에게 닿기를" type="button">
+           너에게 닿기를
+          </button>
+          <button class="meate-option" data-meate="스이타" type="button">
+           스이타
+          </button>
+          <button class="meate-option" data-meate="이토리" type="button">
+           이토리
+          </button>
+          <button class="meate-option" data-meate="Lumibelle" type="button">
+           Lumibelle
+          </button>
+         </div>
+         <input id="meate" name="meate" required="" type="hidden"/>
+        </div>
+        <label class="agree-box">
+         <input id="agree" required="" type="checkbox"/>
+         <span>
+          취소/환불/입장 규칙을 모두 확인하였으며 안내사항에 동의합니다.
+         </span>
+        </label>
+        <button class="reserve-btn" type="submit">
+         예매하기
+        </button>
+        <div class="reserve-msg" id="reserveMsg">
+         예매 정보가 입력되었어요. 다음 단계에서 접수 시스템과 연결됩니다.
+        </div>
+       </form>
+      </article>
+     </div>
+    </section>
+   </div>
   </main>
-
-  <footer>© 2026 Lumibelle All Rights Reserved.</footer>
-
-  <button class="back-to-top" id="backToTop" aria-label="맨 위로 이동">↑</button>
-
+  <button class="top-button" id="topButton" type="button" aria-label="위로 올라가기">↑</button>
+  <footer>
+   © 2026 Lumibelle All Rights Reserved.
+  </footer>
   <script>
-    const backToTop = document.getElementById('backToTop');
+   const ticketData = {
+      pre: { title: '사전 예약 티켓', desc: '일반 입장권 / 입금 확인 후 예약 확정', price: '₩10,000' },
+      s: { title: 'S 티켓', desc: '추후 공개 예정 / 특전 포함 예정', price: '추후 공개' },
+      vip: { title: 'VIP 티켓', desc: '추후 공개 예정 / 우선 입장 및 특전 예정', price: '추후 공개' }
+    };
+    let selectedTicket = 'pre';
+    document.querySelectorAll('.ticket-option').forEach((button) => {
+      button.addEventListener('click', () => {
+        selectedTicket = button.dataset.ticket;
+        const data = ticketData[selectedTicket];
+        document.getElementById('ticketDisplay').innerHTML = `<div><strong>${data.title}</strong><span>${data.desc}</span></div><b>${data.price}</b>`;
+        document.querySelectorAll('.ticket-option').forEach((btn) => btn.classList.remove('active'));
+        button.classList.add('active');
+      });
+    });
+    document.querySelectorAll('.meate-option').forEach((button) => {
+      button.addEventListener('click', () => {
+        document.getElementById('meate').value = button.dataset.meate;
+        document.querySelectorAll('.meate-option').forEach((btn) => btn.classList.remove('active'));
+        button.classList.add('active');
+      });
+    });
+    document.getElementById('reserveForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const pin = document.getElementById('pin').value.trim();
+      const meate = document.getElementById('meate').value.trim();
+      if(!/^\d{4}$/.test(pin)){ alert('숫자 4자리를 정확히 입력해 주세요.'); return; }
+      if(!meate){ alert('메아테를 선택해 주세요.'); return; }
+
+      const nickname = document.getElementById('nickname').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const depositor = document.getElementById('depositor').value.trim();
+      const ticketInfo = ticketData[selectedTicket] || ticketData.pre;
+      const order = {
+        reservationNo: nickname + '-' + pin,
+        nickname: nickname,
+        email: email,
+        depositor: depositor,
+        meate: meate,
+        ticketType: ticketInfo.title,
+        selectedTicket: selectedTicket,
+        last4: pin,
+        paymentStatus: '입금확인대기',
+        createdAt: new Date().toISOString()
+      };
+
+      localStorage.setItem('lumibelle_ticket_last_order', JSON.stringify(order));
+      document.getElementById('reserveMsg').style.display = 'block';
+      window.location.href = 'complete.html';
+    });
+
+    const topButton = document.getElementById('topButton');
     window.addEventListener('scroll', () => {
-      if (window.scrollY > 280) {
-        backToTop.classList.add('show');
-      } else {
-        backToTop.classList.remove('show');
+      if(window.scrollY > 360){
+        topButton.classList.add('show');
+      }else{
+        topButton.classList.remove('show');
       }
     });
-    backToTop.addEventListener('click', () => {
+    topButton.addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   </script>
 
   <script>
-    let currentSlide = 0;
-    const slides = document.querySelectorAll('.slide');
-
-    function nextSlide() {
-      if (slides.length === 0) return;
-      slides[currentSlide].classList.remove('active');
-      currentSlide = (currentSlide + 1) % slides.length;
-      slides[currentSlide].classList.add('active');
-    }
-
-    setInterval(nextSlide, 4000);
-  </script>
-
-  <script>
     const revealItems = document.querySelectorAll('.reveal');
-
     const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
+        if(entry.isIntersecting){
           entry.target.classList.add('show');
         }
       });
-    });
-
+    }, { threshold: 0.08 });
     revealItems.forEach((el) => revealObserver.observe(el));
-  </script>
 
-  <script>
-    document.addEventListener("pointermove", (e) => {
-      if (Math.random() > 0.1) return;
-
-      const sparkle = document.createElement("div");
-      sparkle.className = "sparkle";
-      sparkle.style.left = e.clientX + (Math.random() * 20 - 10) + "px";
-      sparkle.style.top = e.clientY + (Math.random() * 20 - 10) + "px";
-
-      document.body.appendChild(sparkle);
-
-      setTimeout(() => {
-        sparkle.remove();
-      }, 1200);
-    });
-  </script>
-
-  <script>
-    // 멤버 카드 shine 1회 실행
-    document.querySelectorAll('.member-card').forEach((card) => {
-      let armed = true;
-      card.addEventListener('mouseenter', () => {
-        if (!armed) return;
-        armed = false;
-        card.classList.remove('shine-once');
-        void card.offsetWidth;
-        card.classList.add('shine-once');
-      });
-      card.addEventListener('mouseleave', () => {
-        armed = true;
-        card.classList.remove('shine-once');
-      });
-    });
-  </script>
-
-  <script>
-    // 버튼 ripple
-    document.querySelectorAll('.member-btn, .more-btn, .info-link-btn, .ticket-btn').forEach((btn) => {
-      btn.addEventListener('click', function(e){
-        const old = this.querySelector('.ripple-effect');
-        if (old) old.remove();
-
-        const ripple = document.createElement('span');
-        ripple.className = 'ripple-effect';
-
-        const rect = this.getBoundingClientRect();
-        const size = Math.max(rect.width, rect.height) * 0.7;
-        ripple.style.width = ripple.style.height = `${size}px`;
-        ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
-        ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
-
-        this.appendChild(ripple);
-        ripple.addEventListener('animationend', () => ripple.remove());
-      });
-    });
-  </script>
-
-
-  <script>
-    document.querySelectorAll('nav a, .member-btn, .more-btn, .info-link-btn, .ticket-btn').forEach((el) => {
-      el.addEventListener('click', function(){
-        this.classList.remove('click-shine');
-        void this.offsetWidth;
-        this.classList.add('click-shine');
-        setTimeout(() => this.classList.remove('click-shine'), 900);
-      });
-    });
-  </script>
-
-
-<script>
-(function(){
-  function makeBurstAt(x, y, level = "normal"){
-    const petalCount = level === "big" ? 12 : 8;
-    const sparkCount = level === "big" ? 6 : 4;
-    const petalMin = level === "big" ? 26 : 18;
-    const petalMax = level === "big" ? 72 : 56;
-    const sparkMin = level === "big" ? 36 : 26;
-    const sparkMax = level === "big" ? 92 : 70;
-
-    const makeBurst = (cls, count, minD, maxD) => {
-      for(let i=0;i<count;i++){
-        const el = document.createElement("span");
-        el.className = cls;
-
-        const angle = (Math.PI * 2 / count) * i + (Math.random() * 0.35 - 0.175);
-        const distance = minD + Math.random() * (maxD - minD);
-
-        el.style.setProperty("--x", Math.cos(angle) * distance + "px");
-        el.style.setProperty("--y", Math.sin(angle) * distance + "px");
-        el.style.left = x + "px";
-        el.style.top = y + "px";
-
+    function createBurst(x, y){
+      const pieces = 9;
+      for(let i=0; i<pieces; i++){
+        const el = document.createElement('span');
+        el.className = i % 3 === 0 ? 'burst-spark' : 'burst-petal';
+        const angle = (Math.PI * 2 * i) / pieces;
+        const distance = 24 + Math.random() * 18;
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        el.style.setProperty('--x', Math.cos(angle) * distance + 'px');
+        el.style.setProperty('--y', Math.sin(angle) * distance + 'px');
         document.body.appendChild(el);
         setTimeout(() => el.remove(), 850);
       }
-    };
+    }
 
-    makeBurst("burst-petal", petalCount, petalMin, petalMax);
-    makeBurst("burst-spark", sparkCount, sparkMin, sparkMax);
-  }
+    // click burst is now handled globally below, including empty spaces.
+  </script>
 
-  document.addEventListener("pointerdown", function(e){
-    const target = e.target.closest("nav a, button, .member-card, .subnav-card, .live-guide-card, .info-link-btn, .ticket-btn, .member-btn, .more-btn");
-    if(!target) return;
-
-    const level = target.closest("nav") ? "normal" : (target.classList.contains("subnav-card") ? "big" : "normal");
-    makeBurstAt(e.clientX, e.clientY, level);
-  });
-
-  document.addEventListener("click", function(e){
-    const link = e.target.closest('a[href]');
-    if(!link) return;
-
-    const href = link.getAttribute('href');
-    const targetAttr = link.getAttribute('target');
-    const isHash = href && href.startsWith('#');
-    const isJs = href && href.startsWith('javascript:');
-    const isMail = href && href.startsWith('mailto:');
-    const isTel = href && href.startsWith('tel:');
-    const isBlank = targetAttr === '_blank';
-    const hasDownload = link.hasAttribute('download');
-
-    if (!href || isHash || isJs || isMail || isTel || isBlank || hasDownload) return;
-  });
-})();
-</script>
-
-
-
-<script>
-document.addEventListener("click", function(e){
-  const target = e.target.closest(".member-btn, .more-btn, .info-link-btn, .ticket-btn");
-  if(!target) return;
-
-  const rect = target.getBoundingClientRect();
-
-  // glitter
-  for(let i=0;i<12;i++){
-    const dot = document.createElement("span");
-    dot.className = "glitter-burst";
-
-    const angle = Math.random()*Math.PI*2;
-    const distance = 40 + Math.random()*30;
-
-    dot.style.setProperty("--x", Math.cos(angle)*distance + "px");
-    dot.style.setProperty("--y", Math.sin(angle)*distance + "px");
-
-    dot.style.left = (e.clientX - rect.left) + "px";
-    dot.style.top = (e.clientY - rect.top) + "px";
-
-    target.appendChild(dot);
-    setTimeout(()=>dot.remove(), 900);
-  }
-
-  // stars
-  for(let i=0;i<4;i++){
-    const star = document.createElement("span");
-    star.className = "star-burst";
-
-    const angle = Math.random()*Math.PI*2;
-    const distance = 50 + Math.random()*40;
-
-    star.style.setProperty("--x", Math.cos(angle)*distance + "px");
-    star.style.setProperty("--y", Math.sin(angle)*distance + "px");
-
-    star.style.left = (e.clientX - rect.left) + "px";
-    star.style.top = (e.clientY - rect.top) + "px";
-
-    target.appendChild(star);
-    setTimeout(()=>star.remove(), 900);
-  }
-});
-</script>
-
-
-
-<script>
+  <script>
     function createLumibelleCursorMagic(x, y){
       // 1) 먼저 둥근 빛 고리부터 크게 퍼지게
       const ring = document.createElement('span');
@@ -3081,7 +1315,7 @@ document.addEventListener("click", function(e){
     // click magic is now handled globally below, including empty spaces.
   </script>
 
-<script>
+  <script>
     // 루미벨 커서 최종 효과: 허공 클릭 / 마우스 잔광 / hover 상태
     (() => {
       const canUseMagicCursor = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
@@ -3129,13 +1363,13 @@ document.addEventListener("click", function(e){
       }, { passive:true });
 
       document.addEventListener('pointerover', (event) => {
-        if(event.target.closest('a, button, .ticket-option, .meate-option, .package-btn, .quick-icon-btn, .reserve-btn, .top-button, .back-to-top, .lang-switch a, nav a, .subnav-card, .live-guide-card, .member-card, .member-btn, .more-btn, .info-link-btn, .ticket-btn, .sns-icon, .news-item, .schedule-item')){
+        if(event.target.closest('a, button, .ticket-option, .meate-option, .package-btn, .quick-icon-btn, .reserve-btn, .top-button, .lang-switch a, nav a')){
           document.body.classList.add('lumi-cursor-hover');
         }
       });
 
       document.addEventListener('pointerout', (event) => {
-        if(event.target.closest('a, button, .ticket-option, .meate-option, .package-btn, .quick-icon-btn, .reserve-btn, .top-button, .back-to-top, .lang-switch a, nav a, .subnav-card, .live-guide-card, .member-card, .member-btn, .more-btn, .info-link-btn, .ticket-btn, .sns-icon, .news-item, .schedule-item')){
+        if(event.target.closest('a, button, .ticket-option, .meate-option, .package-btn, .quick-icon-btn, .reserve-btn, .top-button, .lang-switch a, nav a')){
           document.body.classList.remove('lumi-cursor-hover');
         }
       });
@@ -3158,63 +1392,5 @@ document.addEventListener("click", function(e){
     })();
   </script>
 
-
-<script>
-  /* ===== ON AIR 홈 카드 상태 =====
-     공개 사이트에서 기본값을 바꾸려면 아래 DEFAULT_ONAIR만 수정하세요.
-     broadcast 페이지의 테스트 버튼은 내 브라우저(localStorage)에만 저장됩니다. */
-  const DEFAULT_ONAIR = {
-    isLive: false,
-    platform: "cime", // cime / youtube / twitcast
-    member: "마리링",
-    cimeUrl: "https://ci.me/@mariring_love",
-    youtubeUrl: "",
-    nextTitle: "다음 ON AIR 예정",
-    nextText: "이번 주 방송 스케줄과 후기를 확인해보세요."
-  };
-
-  function getOnairState(){
-    const saved = localStorage.getItem("lumibelleLiveState");
-    if(!saved) return DEFAULT_ONAIR;
-    try{ return Object.assign({}, DEFAULT_ONAIR, JSON.parse(saved)); }
-    catch(e){ return DEFAULT_ONAIR; }
-  }
-
-  function platformName(p){
-    if(p === "cime") return "CI.ME";
-    if(p === "youtube") return "YOUTUBE";
-    if(p === "twitcast") return "TWITCAST";
-    return "BROADCAST";
-  }
-
-  function renderHomeOnair(){
-    const state = getOnairState();
-    const card = document.querySelector(".onair-card");
-    const pill = document.getElementById("homeLivePill");
-    const label = document.getElementById("homeOnairLabel");
-    const title = document.getElementById("homeOnairTitle");
-    const text = document.getElementById("homeOnairText");
-    const platform = document.getElementById("homeOnairPlatform");
-    if(!card || !pill || !label || !title || !text || !platform) return;
-
-    if(state.isLive){
-      card.classList.add("is-live");
-      pill.textContent = "● LIVE NOW";
-      label.textContent = "LIVE";
-      title.textContent = `현재 ${state.member || "멤버"} 방송중입니다`;
-      text.textContent = `${platformName(state.platform)}에서 ON AIR 중이에요. 클릭하면 방송 페이지로 이동합니다.`;
-      platform.textContent = `${platformName(state.platform)} 연결 준비 완료`;
-    }else{
-      card.classList.remove("is-live");
-      pill.textContent = "OFF AIR";
-      label.textContent = "NEXT";
-      title.textContent = state.nextTitle || DEFAULT_ONAIR.nextTitle;
-      text.textContent = state.nextText || DEFAULT_ONAIR.nextText;
-      platform.textContent = "BROADCAST HUB";
-    }
-  }
-  renderHomeOnair();
-</script>
-
-</body>
+ </body>
 </html>
