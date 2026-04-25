@@ -521,6 +521,7 @@
           title: item.title || "현재 방송중입니다",
           cimeUrl: platformKey === "cime" ? (item.url || "https://ci.me/@mariring_love") : "",
           youtubeUrl: platformKey === "youtube" ? (item.url || "") : "",
+          youtubeId: platformKey === "youtube" ? extractYoutubeId(item.url || "") : "",
           twitcastUrl: platformKey === "twitcast" ? (item.url || "") : "",
           url: item.url || ""
         };
@@ -627,7 +628,24 @@
     if(p === "twitcast") return "트윗캐스";
     return "방송";
   }
-  function getYoutubeEmbed(id){
+  function extractYoutubeId(url){
+    const raw = String(url || "").trim();
+    if(!raw) return "";
+    const patterns = [
+      /youtube\.com\/watch\?v=([^&?#]+)/i,
+      /youtube\.com\/live\/([^&?#/]+)/i,
+      /youtu\.be\/([^&?#/]+)/i,
+      /youtube\.com\/embed\/([^&?#/]+)/i
+    ];
+    for(const pattern of patterns){
+      const match = raw.match(pattern);
+      if(match && match[1]) return match[1];
+    }
+    return "";
+  }
+
+  function getYoutubeEmbed(idOrUrl){
+    const id = extractYoutubeId(idOrUrl) || String(idOrUrl || "").trim();
     if(!id) return "";
     return `https://www.youtube.com/embed/${id}?autoplay=0&playsinline=1&rel=0`;
   }
@@ -707,11 +725,14 @@
         <div class="platform-buttons">${buildWatchButtons(item)}</div>
       </article>
     `).join("");
-    const youtubeLive = liveList.find(item => item.youtubeId);
+    const youtubeLive = liveList.find(item => item.youtubeId || item.youtubeUrl);
     if(youtubeLive){
-      playerCard.classList.add("show");
-      playerFrame.innerHTML = `<iframe src="${getYoutubeEmbed(youtubeLive.youtubeId)}" title="YouTube live" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
-      playerCaption.textContent = "유튜브 송출이 있는 방송은 이 페이지 안에서도 바로 볼 수 있어요.";
+      const embedUrl = getYoutubeEmbed(youtubeLive.youtubeId || youtubeLive.youtubeUrl);
+      if(embedUrl){
+        playerCard.classList.add("show");
+        playerFrame.innerHTML = `<iframe src="${embedUrl}" title="YouTube live" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+        playerCaption.textContent = "유튜브 송출이 있는 방송은 이 페이지 안에서도 바로 볼 수 있어요.";
+      }
     }
   }
   function renderTabs(containerId, active, onClick){
