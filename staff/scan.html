@@ -1,438 +1,426 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>STAFF QR SCAN | Lumibelle</title>
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lumibelle Staff Scan</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=SUIT:wght@600;700;800;900&display=swap');
 
-    :root{
-      --line:#f2d8e7;
-      --pink:#ff5fa8;
-      --text:#7f6a77;
-      --muted:#b28ea2;
-      --shadow:0 8px 22px rgba(232,191,211,.16);
+    * {
+      box-sizing: border-box;
     }
 
-    *{box-sizing:border-box}
-
-    html,body{
-      margin:0;
-      padding:0;
-      width:100%;
-      max-width:100%;
-      overflow-x:hidden;
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      overflow-x: hidden;
+      font-family: "SUIT", "Noto Sans KR", sans-serif;
+      background: linear-gradient(180deg, #fffafc 0%, #fff0f7 100%);
+      color: #7f6a77;
     }
 
-    body{
-      min-height:100vh;
-      font-family:"SUIT","Noto Sans KR",Arial,sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(circle at 12% 8%,rgba(255,192,215,.30) 0%,rgba(255,192,215,0) 28%),
-        radial-gradient(circle at 88% 18%,rgba(202,167,255,.20) 0%,rgba(202,167,255,0) 26%),
-        linear-gradient(180deg,#fffafc 0%,#fff0f7 100%);
-      padding:10px;
-      letter-spacing:-.01em;
+    body {
+      padding: 12px;
     }
 
-    .wrap{
-      width:100%;
-      max-width:520px;
-      margin:0 auto;
+    .wrap {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
     }
 
-    .hero{
-      width:100%;
-      overflow:hidden;
-      border:1px solid var(--line);
-      border-radius:24px;
-      background:linear-gradient(135deg,#fff0f7 0%,#f7efff 100%);
-      box-shadow:var(--shadow);
-      padding:22px 14px 20px;
-      text-align:center;
+    .hero {
+      background: linear-gradient(135deg, #fff0f7, #f7efff);
+      border: 1px solid #f2d8e7;
+      border-radius: 24px;
+      padding: 24px 16px;
+      text-align: center;
+      box-shadow: 0 8px 22px rgba(232,191,211,.18);
     }
 
-    .eyebrow{
-      color:var(--pink);
-      font-size:12px;
-      font-weight:900;
-      margin-bottom:8px;
+    .hero small {
+      display: block;
+      color: #ff5fa8;
+      font-weight: 900;
+      margin-bottom: 8px;
     }
 
-    h1{
-      margin:0;
-      font-family:"Cormorant Garamond",serif;
-      font-size:40px;
-      line-height:.92;
-      font-weight:700;
-      color:var(--pink);
-      text-shadow:0 1px 0 rgba(255,255,255,.98),0 0 10px rgba(255,120,178,.18);
+    h1 {
+      margin: 0;
+      color: #ff5fa8;
+      font-size: 34px;
+      line-height: 1.1;
+      font-weight: 900;
     }
 
-    .sub{
-      margin:12px 0 0;
-      color:#8f7183;
-      font-size:13px;
-      line-height:1.6;
-      font-weight:800;
+    .hero p {
+      margin: 12px 0 0;
+      font-size: 13px;
+      line-height: 1.6;
+      font-weight: 800;
+      color: #8f7183;
     }
 
-    .card{
-      width:100%;
-      margin-top:12px;
-      background:rgba(255,255,255,.94);
-      border:1px solid var(--line);
-      border-radius:22px;
-      padding:12px;
-      box-shadow:0 8px 22px rgba(255,95,165,.08);
-      overflow:hidden;
+    .card {
+      margin-top: 12px;
+      background: #fff;
+      border: 1px solid #f2d8e7;
+      border-radius: 22px;
+      padding: 14px;
+      box-shadow: 0 8px 20px rgba(255,95,165,.08);
     }
 
-    label{
-      display:block;
-      color:#d77ca7;
-      font-size:15px;
-      font-weight:900;
-      margin:0 0 8px;
+    button, .btn {
+      width: 100%;
+      min-height: 52px;
+      border: 0;
+      border-radius: 999px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 900;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-align: center;
+      padding: 0 12px;
     }
 
-    .hint{
-      margin:0 0 10px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.55;
-      font-weight:800;
+    .scan {
+      background: linear-gradient(180deg, #78d6ff, #4fc3ff);
+      color: white;
+      box-shadow: 0 8px 18px rgba(79,195,255,.25);
     }
 
-    input{
-      width:100%;
-      min-height:50px;
-      border:1px solid #f0bfd4;
-      border-radius:16px;
-      background:#fff;
-      color:var(--text);
-      font-size:17px;
-      font-weight:900;
-      padding:0 14px;
-      outline:none;
+    .pink {
+      background: linear-gradient(180deg, #ff7eb3, #ff5fa5);
+      color: white;
+      box-shadow: 0 8px 18px rgba(255,95,165,.22);
     }
 
-    input:focus{
-      border-color:#ff8ac2;
-      box-shadow:0 0 0 4px rgba(255,138,194,.14);
+    .purple {
+      background: linear-gradient(180deg, #bca7ff, #a88cff);
+      color: white;
+      box-shadow: 0 8px 18px rgba(168,140,255,.22);
     }
 
-    button,a.btn{
-      width:100%;
-      min-height:48px;
-      border:0;
-      border-radius:999px;
-      font-size:13.5px;
-      font-weight:900;
-      cursor:pointer;
-      text-decoration:none;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:0 12px;
-      font-family:inherit;
-      line-height:1.2;
-      white-space:normal;
+    .green {
+      background: linear-gradient(180deg, #6edb91, #31b765);
+      color: white;
+      box-shadow: 0 8px 18px rgba(49,183,101,.22);
     }
 
-    .scan{
-      min-height:56px;
-      background:linear-gradient(180deg,#78d6ff,#4fc3ff);
-      color:#fff;
-      box-shadow:0 9px 20px rgba(79,195,255,.25);
-      font-size:15px;
+    .sub {
+      background: #fff0f7;
+      color: #d77ca7;
+      border: 1px solid #f0bfd4;
     }
 
-    .buttons{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:8px;
-      margin-top:10px;
-      width:100%;
+    .reader-box {
+      display: none;
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 18px;
+      border: 1px solid #f2d8e7;
+      background: #fff7fb;
+      overflow: hidden;
     }
 
-    .wide{grid-column:1 / -1}
-
-    .primary{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;box-shadow:0 8px 18px rgba(255,95,165,.22)}
-    .subbtn{background:#fff0f7;color:#d77ca7;border:1px solid #f0bfd4}
-    .purple{background:linear-gradient(180deg,#bca7ff,#a88cff);color:#fff;box-shadow:0 8px 18px rgba(168,140,255,.22)}
-    .green{background:linear-gradient(180deg,#6edb91,#31b765);color:#fff;box-shadow:0 8px 18px rgba(49,183,101,.22)}
-
-    .message{
-      margin-top:12px;
-      padding:12px;
-      border-radius:18px;
-      background:#fff0f7;
-      color:#d77ca7;
-      font-weight:900;
-      text-align:center;
-      line-height:1.6;
-      font-size:13px;
+    .reader-box.on {
+      display: block;
     }
 
-    .success{background:#e9fff0;color:#21864a}
-    .danger{background:#fff2e8;color:#d36b36}
-
-    .scanner{
-      display:none;
-      margin-top:12px;
-      padding:10px;
-      border:1px solid var(--line);
-      border-radius:20px;
-      background:#fff7fb;
-      width:100%;
-      overflow:hidden;
+    #reader {
+      width: 100%;
+      max-width: 100%;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
     }
 
-    .scanner.active{display:block}
-
-    #qr-reader{
-      width:100%;
-      max-width:100%;
-      margin:0 auto;
-      overflow:hidden;
-      border-radius:16px;
-      background:#fff;
+    .msg {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      background: #fff0f7;
+      color: #d77ca7;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.6;
+      text-align: center;
+      word-break: break-word;
     }
 
-    .small{
-      margin:10px 0 0;
-      color:#9a7a8c;
-      font-size:12px;
-      font-weight:800;
-      line-height:1.65;
-      text-align:center;
+    .msg.ok {
+      background: #e9fff0;
+      color: #21864a;
     }
 
-    .manual{
-      margin-top:12px;
-      padding-top:12px;
-      border-top:1px solid var(--line);
+    .msg.err {
+      background: #fff2e8;
+      color: #d36b36;
     }
 
-    .openBox{
-      display:none;
-      margin-top:12px;
-      padding:12px;
-      border-radius:20px;
-      background:#f8fff9;
-      border:1px solid #ccefd7;
-      width:100%;
+    .open-box {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 18px;
+      background: #f8fff9;
+      border: 1px solid #ccefd7;
     }
 
-    .openBox.active{display:block}
-
-    .found{
-      margin:0 0 10px;
-      color:#21864a;
-      font-size:14px;
-      font-weight:900;
-      text-align:center;
-      line-height:1.6;
-      word-break:break-word;
+    .open-box.on {
+      display: block;
     }
 
-    .footer-note{
-      margin-top:10px;
-      color:#b28ea2;
-      font-size:11.5px;
-      line-height:1.6;
-      text-align:center;
-      font-weight:700;
+    .found {
+      margin: 0 0 10px;
+      color: #21864a;
+      font-size: 14px;
+      font-weight: 900;
+      text-align: center;
+      line-height: 1.6;
+      word-break: break-word;
     }
 
-    @media(max-width:360px){
-      h1{font-size:36px}
-      .buttons{grid-template-columns:1fr}
-      .wide{grid-column:auto}
+    label {
+      display: block;
+      margin: 16px 0 8px;
+      color: #d77ca7;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    input {
+      width: 100%;
+      min-height: 50px;
+      border: 1px solid #f0bfd4;
+      border-radius: 16px;
+      padding: 0 14px;
+      font-size: 17px;
+      font-weight: 900;
+      color: #7f6a77;
+      outline: none;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .wide {
+      grid-column: 1 / -1;
+    }
+
+    .note {
+      margin: 12px 0 0;
+      text-align: center;
+      font-size: 11.5px;
+      line-height: 1.6;
+      color: #b28ea2;
+      font-weight: 700;
+    }
+
+    @media (max-width: 360px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      .wide {
+        grid-column: auto;
+      }
+      h1 {
+        font-size: 30px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <section class="hero">
-      <div class="eyebrow">STAFF ONLY</div>
-      <h1>QR Scan</h1>
-      <p class="sub">팬의 입장 확인 QR을 스캔하면<br>예약번호가 자동으로 입력돼요.</p>
+      <small>STAFF ONLY</small>
+      <h1>Lumibelle<br>QR Scan</h1>
+      <p>팬의 입장 확인 QR을 스캔하거나<br>번호/이름/닉네임으로 빠르게 조회해요.</p>
     </section>
 
     <section class="card">
-      <button class="scan" type="button" onclick="openScanner()">QR 스캔 시작</button>
+      <button class="scan" type="button" onclick="startScan()">QR 스캔 시작</button>
 
-      <div id="scannerBox" class="scanner">
-        <div id="qr-reader"></div>
-        <p class="small">카메라 권한을 허용한 뒤 팬의 QR을 비춰주세요.<br>QR에는 예약번호만 들어 있어요.</p>
-        <button class="subbtn" style="margin-top:10px;" type="button" onclick="closeScanner()">스캔 닫기</button>
+      <div id="readerBox" class="reader-box">
+        <div id="reader"></div>
+        <button class="sub" type="button" style="margin-top:10px;" onclick="stopScan()">스캔 닫기</button>
       </div>
 
-      <div id="openBox" class="openBox">
+      <div id="openBox" class="open-box">
         <p id="foundText" class="found">예약번호를 읽었어요.</p>
-        <button id="openCheckinBtn" class="green" type="button" onclick="openCheckin()">입장확인 페이지 열기</button>
+        <button class="green" type="button" onclick="openCheckin()">입장확인 페이지 열기</button>
       </div>
 
-      <div class="manual">
-        <label for="manualInput">수동 입력</label>
-        <p class="hint">스캔이 안 되면 번호/이름/닉네임으로 바로 조회해 주세요.</p>
-        <input id="manualInput" placeholder="예: 1180 / 김민지 / 닉네임 / 8648" inputmode="text" />
+      <label for="q">수동 입력</label>
+      <input id="q" placeholder="예: 1180 / 김민지 / 닉네임 / 8648">
 
-        <div class="buttons">
-          <button class="primary" type="button" onclick="goManualTicket()">예약번호</button>
-          <button class="purple" type="button" onclick="goManualLumi()">LB- ID</button>
-          <button class="subbtn wide" type="button" onclick="goManualSearch()">입금자명/닉네임 조회</button>
-        </div>
+      <div class="grid">
+        <button class="pink" type="button" onclick="manualTicket()">예약번호</button>
+        <button class="purple" type="button" onclick="manualLumi()">LB- ID</button>
+        <button class="sub wide" type="button" onclick="manualSearch()">입금자명/닉네임 조회</button>
       </div>
 
-      <div id="msg" class="message">QR을 스캔하거나 직접 입력해 주세요.</div>
+      <div id="msg" class="msg">QR을 스캔하거나 직접 입력해 주세요.</div>
 
-      <p class="footer-note">※ 이 페이지는 스탭용입니다.<br>※ QR에는 개인정보가 아닌 예약번호만 들어 있습니다.</p>
+      <p class="note">
+        ※ QR에는 개인정보가 아닌 예약번호만 들어 있습니다.<br>
+        ※ 크롬/사파리에서 사용을 권장합니다.
+      </p>
     </section>
   </div>
 
   <script>
     const CHECKIN_URL = "https://script.google.com/macros/s/AKfycbzan2-YWU9W7q5YKFN_gf7z7uYaWQlTGvrXcpTzobXPDfi3ZX969ARWsFb6VoExTyRHDA/exec";
-    let scanner = null;
-    let scannerRunning = false;
-    let pendingValue = "";
 
-    function setMsg(text, type){
-      const msg = document.getElementById("msg");
-      msg.className = "message" + (type ? " " + type : "");
-      msg.innerHTML = text;
+    let qr = null;
+    let running = false;
+    let lastValue = "";
+
+    function msg(text, cls) {
+      const el = document.getElementById("msg");
+      el.className = "msg" + (cls ? " " + cls : "");
+      el.innerHTML = text;
     }
 
-    function normalizeTicket(value){
-      let v = String(value || "").trim().toUpperCase().replace(/\s+/g, "");
-      try{
+    function clean(v) {
+      return String(v || "").trim().toUpperCase().replace(/\s+/g, "");
+    }
+
+    function ticket(v) {
+      v = clean(v);
+
+      try {
         const url = new URL(v);
         const id = url.searchParams.get("id");
-        if(id) v = id.trim().toUpperCase().replace(/\s+/g, "");
-      }catch(e){}
-      if(/^\d{4}$/.test(v)) return "LBT-0712-" + v;
+        if (id) v = clean(id);
+      } catch(e) {}
+
+      if (/^\d{4}$/.test(v)) return "LBT-0712-" + v;
       return v;
     }
 
-    function normalizeLumi(value){
-      let v = String(value || "").trim().toUpperCase().replace(/\s+/g, "");
-      if(/^\d{4}$/.test(v)) return "LB-" + v;
-      if(/^LB\d{4}$/.test(v)) return "LB-" + v.replace("LB", "");
+    function lumi(v) {
+      v = clean(v);
+      if (/^\d{4}$/.test(v)) return "LB-" + v;
+      if (/^LB\d{4}$/.test(v)) return "LB-" + v.replace("LB", "");
       return v;
     }
 
-    function checkinHref(value){
-      return CHECKIN_URL + "?id=" + encodeURIComponent(value);
+    function href(v) {
+      return CHECKIN_URL + "?id=" + encodeURIComponent(v);
     }
 
-    function showOpenButton(value){
-      const normalized = normalizeTicket(value);
-      pendingValue = normalized;
-
-      document.getElementById("manualInput").value = normalized;
-      document.getElementById("foundText").innerHTML = "예약번호를 읽었어요.<br>" + escapeHtml(normalized);
-      document.getElementById("openBox").classList.add("active");
-      setMsg("초록 버튼을 눌러 입장확인 페이지를 열어주세요.", "success");
+    function showOpen(v) {
+      lastValue = ticket(v);
+      document.getElementById("q").value = lastValue;
+      document.getElementById("foundText").innerHTML = "예약번호를 읽었어요.<br>" + escapeHtml(lastValue);
+      document.getElementById("openBox").classList.add("on");
+      msg("초록 버튼을 눌러 입장확인 페이지를 열어주세요.", "ok");
     }
 
-    function openCheckin(){
-      if(!pendingValue){
-        pendingValue = normalizeTicket(document.getElementById("manualInput").value);
-      }
-      if(!pendingValue){
-        setMsg("예약번호를 찾지 못했어요.", "danger");
+    function openCheckin() {
+      const v = lastValue || document.getElementById("q").value;
+      if (!v) {
+        msg("조회할 값을 찾지 못했어요.", "err");
         return;
       }
-      window.location.href = checkinHref(pendingValue);
+      window.location.href = href(v);
     }
 
-    function goManualTicket(){
-      const value = normalizeTicket(document.getElementById("manualInput").value);
-      if(!value){ setMsg("예약번호를 입력해 주세요.", "danger"); return; }
-      pendingValue = value;
-      window.location.href = checkinHref(value);
+    function manualTicket() {
+      const v = ticket(document.getElementById("q").value);
+      if (!v) {
+        msg("예약번호를 입력해 주세요.", "err");
+        return;
+      }
+      window.location.href = href(v);
     }
 
-    function goManualLumi(){
-      const value = normalizeLumi(document.getElementById("manualInput").value);
-      if(!value){ setMsg("루미ID 숫자 4자리를 입력해 주세요.", "danger"); return; }
-      document.getElementById("manualInput").value = value;
-      pendingValue = value;
-      window.location.href = checkinHref(value);
+    function manualLumi() {
+      const v = lumi(document.getElementById("q").value);
+      if (!v) {
+        msg("루미ID 숫자 4자리를 입력해 주세요.", "err");
+        return;
+      }
+      window.location.href = href(v);
     }
 
-    function goManualSearch(){
-      const value = String(document.getElementById("manualInput").value || "").trim();
-      if(!value){ setMsg("입금자명, 닉네임, 예약번호, 루미ID 중 하나를 입력해 주세요.", "danger"); return; }
-      pendingValue = value;
-      window.location.href = checkinHref(value);
+    function manualSearch() {
+      const v = String(document.getElementById("q").value || "").trim();
+      if (!v) {
+        msg("입금자명, 닉네임, 예약번호, 루미ID 중 하나를 입력해 주세요.", "err");
+        return;
+      }
+      window.location.href = href(v);
     }
 
-    function openScanner(){
-      document.getElementById("openBox").classList.remove("active");
-      const box = document.getElementById("scannerBox");
-      box.classList.add("active");
+    function startScan() {
+      document.getElementById("openBox").classList.remove("on");
+      document.getElementById("readerBox").classList.add("on");
 
-      if(scannerRunning) return;
+      if (running) return;
 
-      if(typeof Html5Qrcode === "undefined"){
-        setMsg("QR 스캔 라이브러리를 불러오지 못했어요.<br>인터넷 연결을 확인해 주세요.", "danger");
+      if (typeof Html5Qrcode === "undefined") {
+        msg("QR 스캔 기능을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.", "err");
         return;
       }
 
-      scanner = new Html5Qrcode("qr-reader");
+      qr = new Html5Qrcode("reader");
 
-      scanner.start(
+      qr.start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 230, height: 230 }, aspectRatio: 1.0 },
-        function(decodedText){
-          const ticketId = normalizeTicket(decodedText);
-          closeScanner().then(function(){ showOpenButton(ticketId); });
+        { fps: 10, qrbox: { width: 230, height: 230 } },
+        function(decodedText) {
+          stopScan().then(function() {
+            showOpen(decodedText);
+          });
         },
-        function(errorMessage){}
-      ).then(function(){
-        scannerRunning = true;
-        setMsg("카메라가 켜졌어요.<br>팬의 QR을 비춰주세요.", "success");
-      }).catch(function(err){
-        scannerRunning = false;
-        setMsg("카메라를 열 수 없어요.<br>브라우저 카메라 권한을 허용해 주세요.", "danger");
+        function() {}
+      ).then(function() {
+        running = true;
+        msg("카메라가 켜졌어요. 팬의 QR을 비춰주세요.", "ok");
+      }).catch(function() {
+        running = false;
+        msg("카메라를 열 수 없어요. 브라우저 카메라 권한을 허용해 주세요.", "err");
       });
     }
 
-    function closeScanner(){
-      const box = document.getElementById("scannerBox");
+    function stopScan() {
+      document.getElementById("readerBox").classList.remove("on");
 
-      if(scanner && scannerRunning){
-        return scanner.stop().then(function(){
-          scanner.clear();
-          scannerRunning = false;
-          box.classList.remove("active");
-        }).catch(function(){
-          scannerRunning = false;
-          box.classList.remove("active");
+      if (qr && running) {
+        return qr.stop().then(function() {
+          qr.clear();
+          running = false;
+        }).catch(function() {
+          running = false;
         });
       }
 
-      box.classList.remove("active");
       return Promise.resolve();
     }
 
-    function escapeHtml(value){
-      return String(value || "").replace(/[&<>"']/g, function(m){
+    function escapeHtml(value) {
+      return String(value || "").replace(/[&<>"']/g, function(m) {
         return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m];
       });
     }
 
-    document.getElementById("manualInput").addEventListener("keydown", function(e){
-      if(e.key === "Enter"){
+    document.getElementById("q").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
         e.preventDefault();
-        goManualTicket();
+        manualTicket();
       }
     });
   </script>
