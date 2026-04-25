@@ -608,13 +608,15 @@
       .filter(item => String(item.type || "").toLowerCase() === "live")
       .sort((a,b)=>String(b.createdAt || b.date || "").localeCompare(String(a.createdAt || a.date || "")));
 
-    const latestByMember = {};
+    const latestByMemberPlatform = {};
     liveRows.forEach(item => {
-      const key = memberIdFromName(item.member);
-      if(!latestByMember[key]) latestByMember[key] = item;
+      const p = normalizePlatform(item.platform);
+      const platformKey = String(p).includes("유튜브") ? "youtube" : String(p).includes("트윗") ? "twitcast" : "cime";
+      const key = memberIdFromName(item.member) + "__" + platformKey;
+      if(!latestByMemberPlatform[key]) latestByMemberPlatform[key] = item;
     });
 
-    sheetLiveList = Object.values(latestByMember)
+    sheetLiveList = Object.values(latestByMemberPlatform)
       .filter(item => ["on","live","방송중"].includes(String(item.status || "").trim().toLowerCase()))
       .map(item => {
         const p = normalizePlatform(item.platform);
@@ -914,8 +916,11 @@
     }
     badge.className = "live-badge on";
     badge.textContent = liveList.length > 1 ? `● LIVE · ${liveList.length}` : `● LIVE · ${platformName(liveList[0].platform).toUpperCase()}`;
-    title.textContent = liveList.length > 1 ? `현재 ${liveList.length}명의 멤버가 방송중입니다` : `현재 ${liveList[0].member || getMemberName(liveList[0].memberId) || "멤버"} 방송중입니다`;
-    sub.textContent = liveList.length > 1 ? "아래에서 멤버별 방송을 선택해서 볼 수 있어요." : "방송 플랫폼에 맞춰 시청 버튼이 표시됩니다.";
+    const uniqueMembers = [...new Set(liveList.map(item => item.member || getMemberName(item.memberId) || "멤버"))];
+    title.textContent = liveList.length > 1
+      ? (uniqueMembers.length === 1 ? `현재 ${uniqueMembers[0]} 동시송출 중입니다` : `현재 ${uniqueMembers.length}명의 멤버가 방송중입니다`)
+      : `현재 ${liveList[0].member || getMemberName(liveList[0].memberId) || "멤버"} 방송중입니다`;
+    sub.textContent = liveList.length > 1 ? "아래에서 플랫폼별 방송을 선택해서 볼 수 있어요." : "방송 플랫폼에 맞춰 시청 버튼이 표시됩니다.";
     grid.innerHTML = liveList.map(item => `
       <article class="live-member-card">
         <div class="live-member-top">
