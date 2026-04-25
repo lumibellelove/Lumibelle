@@ -3,60 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ON AIR LIVE ADMIN | Lumibelle</title>
+  <title>ON AIR ADMIN | Lumibelle</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=SUIT:wght@400;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=SUIT:wght@500;700;800;900&display=swap');
     *{box-sizing:border-box}
     body{
       margin:0;
       min-height:100vh;
+      padding:24px 14px 50px;
       background:#fffafc;
       color:#7f6a77;
       font-family:"SUIT","Noto Sans KR",sans-serif;
-      padding:24px 14px 48px;
     }
-    .wrap{max-width:860px;margin:0 auto}
-    .panel{
+    .wrap{max-width:760px;margin:0 auto}
+    .card{
       border:1px solid #f2d8e7;
-      border-radius:34px;
-      background:linear-gradient(180deg,#fff1f8 0%,#fff8fc 100%);
+      border-radius:32px;
+      background:linear-gradient(180deg,#fff1f8,#fff8fc);
       box-shadow:0 8px 24px rgba(232,191,211,.12);
       padding:28px;
-      overflow:hidden;
     }
     h1{
       margin:0;
       text-align:center;
       color:#d77ca7;
-      font-size:52px;
-      line-height:1;
+      font-size:46px;
       font-weight:900;
       letter-spacing:-.04em;
     }
-    .lead{
+    .desc{
+      margin:12px 0 22px;
       text-align:center;
-      margin:12px auto 24px;
-      color:#b688a2;
-      font-size:15px;
-      line-height:1.7;
-      font-weight:800;
-    }
-    .notice{
-      padding:16px 18px;
-      border:1px solid #f0d5e4;
-      border-radius:22px;
-      background:#fff;
       color:#9b7d90;
       font-size:14px;
       font-weight:800;
       line-height:1.7;
-      margin-bottom:18px;
     }
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .notice{
+      margin-bottom:16px;
+      padding:14px 16px;
+      border-radius:20px;
+      border:1px solid #f0d5e4;
+      background:#fff;
+      color:#9b7d90;
+      font-size:13px;
+      font-weight:800;
+      line-height:1.65;
+    }
     label{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
+      display:block;
+      margin:12px 0 6px;
       color:#b57e9d;
       font-size:13px;
       font-weight:900;
@@ -64,8 +60,8 @@
     input, select, textarea{
       width:100%;
       border:1px solid #efd4e2;
-      background:#fff;
       border-radius:16px;
+      background:#fff;
       padding:13px 14px;
       color:#846f81;
       font-size:15px;
@@ -73,220 +69,139 @@
       font-family:inherit;
       outline:none;
     }
-    textarea{min-height:90px;resize:vertical}
+    textarea{min-height:80px;resize:vertical}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .full{grid-column:1/-1}
-    .actions{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-      margin-top:18px;
-    }
-    button, a.btn{
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+    button,a{
+      display:flex;
+      align-items:center;
+      justify-content:center;
       min-height:54px;
-      border:0;
       border-radius:999px;
+      padding:13px 16px;
+      text-decoration:none;
+      border:0;
       font-family:inherit;
       font-size:16px;
       font-weight:900;
       cursor:pointer;
-      text-decoration:none;
-      display:flex;
-      align-items:center;
-      justify-content:center;
       text-align:center;
-      padding:13px 18px;
     }
-    .primary{
-      color:#fff;
-      background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);
-      box-shadow:0 10px 22px rgba(255,95,165,.24);
-    }
-    .off{
-      color:#fff;
-      background:linear-gradient(180deg,#a98aa0 0%,#8c7385 100%);
-      box-shadow:0 10px 22px rgba(140,115,133,.16);
-    }
-    .ghost{
-      color:#c97ca8;
+    .on{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;box-shadow:0 10px 22px rgba(255,95,165,.22)}
+    .off{background:linear-gradient(180deg,#a98aa0,#8c7385);color:#fff}
+    .ghost{background:#fff;color:#c97ca8;border:1px solid #efc6dc}
+    .status{
+      margin-top:18px;
+      padding:15px;
+      border-radius:20px;
       background:#fff;
-      border:1px solid #efc6dc;
-    }
-    .status-box{
-      margin-top:20px;
       border:1px solid #f0dde8;
-      border-radius:24px;
-      background:#fff;
-      padding:18px;
       color:#8f7183;
       font-size:14px;
       font-weight:800;
       line-height:1.7;
-      white-space:pre-wrap;
+      white-space:pre-line;
     }
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      padding:7px 12px;
-      border-radius:999px;
-      background:#fff0f7;
-      border:1px solid #efc6dc;
-      color:#c97ca8;
-      font-size:12px;
-      font-weight:900;
-      margin:0 6px 8px 0;
-    }
-    .pill.live{background:#ff5fa5;color:#fff;border-color:transparent}
-    @media(max-width:720px){
-      h1{font-size:38px}
-      .grid,.actions{grid-template-columns:1fr}
-      .panel{padding:22px 16px}
-    }
+    @media(max-width:650px){.grid,.actions{grid-template-columns:1fr} h1{font-size:36px} .card{padding:22px 16px}}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <section class="panel">
+    <section class="card">
       <h1>ON AIR ADMIN</h1>
-      <p class="lead">방송 시작/종료를 구글시트에 바로 기록하고, 현재 상태를 확인하는 관리용 페이지입니다.</p>
-
+      <p class="desc">이 페이지는 구글시트에 직접 저장하는 아주 단순한 버전입니다.</p>
       <div class="notice">
-        이 페이지는 팬 메뉴에 넣지 말고 링크를 아는 사람만 사용하세요.<br>
-        방송 시작은 <b>LIVE ON</b>, 방송 종료는 <b>LIVE OFF</b> 버튼을 누르면 됩니다.
+        저장이 안 되던 문제 때문에 fetch 방식 대신 <b>일반 form 제출 방식</b>으로 바꿨어요.<br>
+        버튼을 누르면 시트에 한 줄이 들어가야 정상입니다.
       </div>
 
-      <div class="grid">
-        <label>멤버
-          <select id="member">
-            <option value="마리링">마리링</option>
-            <option value="루루">루루</option>
-            <option value="이로">이로</option>
-            <option value="루나">루나</option>
-          </select>
-        </label>
+      <form id="liveForm" action="https://script.google.com/macros/s/AKfycbyTc3TdPD3KUrUHYciEAlZYNdYdVX8khT_BHAASCpejc86vTr-lORomb9lO2acPiurGDA/exec" method="POST" target="hiddenFrame">
+        <input type="hidden" name="type" value="live">
+        <input type="hidden" name="visibility" value="public">
+        <input type="hidden" name="status" id="statusInput" value="on">
+        <input type="hidden" name="date" id="dateInput">
+        <input type="hidden" name="time" id="timeInput">
 
-        <label>플랫폼
-          <select id="platform">
-            <option value="씨미">씨미</option>
-            <option value="유튜브">유튜브</option>
-            <option value="트윗캐스">트윗캐스</option>
-            <option value="기타">기타</option>
-          </select>
-        </label>
+        <div class="grid">
+          <div>
+            <label>멤버</label>
+            <select name="member" id="member">
+              <option value="마리링">마리링</option>
+              <option value="루루">루루</option>
+              <option value="이로">이로</option>
+              <option value="루나">루나</option>
+            </select>
+          </div>
+          <div>
+            <label>플랫폼</label>
+            <select name="platform" id="platform">
+              <option value="씨미">씨미</option>
+              <option value="유튜브">유튜브</option>
+              <option value="트윗캐스">트윗캐스</option>
+              <option value="기타">기타</option>
+            </select>
+          </div>
+          <div class="full">
+            <label>방송 제목</label>
+            <input name="title" id="title" value="현재 마리링 방송중입니다">
+          </div>
+          <div class="full">
+            <label>요약</label>
+            <textarea name="summary" id="summary">씨미에서 ON AIR 중이에요.</textarea>
+          </div>
+          <div class="full">
+            <label>본문</label>
+            <textarea name="body" id="body">클릭하면 방송 페이지로 이동합니다.</textarea>
+          </div>
+          <div class="full">
+            <label>방송 링크</label>
+            <input name="url" id="url" value="https://ci.me/@mariring_love">
+          </div>
+        </div>
 
-        <label>방송 제목
-          <input id="title" value="현재 마리링 방송중입니다" />
-        </label>
+        <div class="actions">
+          <button type="button" class="on" onclick="submitLive('on')">LIVE ON</button>
+          <button type="button" class="off" onclick="submitLive('off')">LIVE OFF</button>
+          <a class="ghost" href="https://script.google.com/macros/s/AKfycbyTc3TdPD3KUrUHYciEAlZYNdYdVX8khT_BHAASCpejc86vTr-lORomb9lO2acPiurGDA/exec" target="_blank" rel="noopener noreferrer">시트 연결 테스트</a>
+          <a class="ghost" href="https://lumibellelove.github.io/Lumibelle/broadcast/?v=admin" target="_blank" rel="noopener noreferrer">방송 페이지 보기</a>
+        </div>
+      </form>
 
-        <label>방송 링크
-          <input id="url" value="https://ci.me/@mariring_love" />
-        </label>
-
-        <label class="full">안내 문구
-          <textarea id="summary">씨미에서 ON AIR 중이에요.</textarea>
-        </label>
-      </div>
-
-      <div class="actions">
-        <button class="primary" type="button" onclick="setLive('on')">LIVE ON</button>
-        <button class="off" type="button" onclick="setLive('off')">LIVE OFF</button>
-        <button class="ghost" type="button" onclick="loadStatus()">현재 상태 확인</button>
-        <a class="btn ghost" href="https://lumibellelove.github.io/Lumibelle/broadcast/?v=live" target="_blank" rel="noopener noreferrer">방송 페이지 보기</a>
-      </div>
-
-      <div class="status-box" id="statusBox">현재 상태 확인 버튼을 누르면 시트의 LIVE 상태가 표시됩니다.</div>
+      <iframe name="hiddenFrame" id="hiddenFrame" style="display:none"></iframe>
+      <div class="status" id="statusBox">버튼을 누르면 1~2초 뒤 구글시트에 새 줄이 생겨야 해요.</div>
     </section>
   </div>
 
 <script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyTc3TdPD3KUrUHYciEAlZYNdYdVX8khT_BHAASCpejc86vTr-lORomb9lO2acPiurGDA/exec";
-
-  function todayKST(){
+  function kstParts(){
     const now = new Date();
     const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
-    return kst.toISOString().slice(0,10);
+    return {
+      date: kst.toISOString().slice(0,10),
+      time: kst.toISOString().slice(11,16)
+    };
   }
 
-  function timeKST(){
-    const now = new Date();
-    const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
-    return kst.toISOString().slice(11,16);
-  }
+  function submitLive(status){
+    const p = kstParts();
+    document.getElementById("statusInput").value = status;
+    document.getElementById("dateInput").value = p.date;
+    document.getElementById("timeInput").value = p.time;
 
-  function payload(status){
     const member = document.getElementById("member").value;
     const platform = document.getElementById("platform").value;
-    return {
-      mode: "live",
-      type: "live",
-      member,
-      status,
-      date: todayKST(),
-      time: timeKST(),
-      platform,
-      visibility: "public",
-      title: document.getElementById("title").value || `현재 ${member} 방송중입니다`,
-      summary: document.getElementById("summary").value || `${platform}에서 ON AIR 중이에요.`,
-      body: status === "on" ? "방송 페이지로 이동해서 시청할 수 있어요." : "방송이 종료되었습니다.",
-      url: document.getElementById("url").value || ""
-    };
-  }
 
-  async function postForm(data){
-    const form = new FormData();
-    Object.entries(data).forEach(([k,v]) => form.append(k, v ?? ""));
-    const res = await fetch(SCRIPT_URL, { method: "POST", body: form });
-    const text = await res.text();
-    try { return JSON.parse(text); } catch(e) { return { ok:false, raw:text }; }
-  }
-
-  async function setLive(status){
-    const box = document.getElementById("statusBox");
-    box.textContent = status === "on" ? "LIVE ON 저장중..." : "LIVE OFF 저장중...";
-    try{
-      const result = await postForm(payload(status));
-      if(result.ok){
-        box.textContent = status === "on"
-          ? "저장 완료! 방송중 상태가 켜졌어요. 방송 페이지를 새로고침해서 확인하세요."
-          : "저장 완료! 방송중 상태가 꺼졌어요. 방송 페이지를 새로고침해서 확인하세요.";
-        setTimeout(loadStatus, 800);
-      }else{
-        box.textContent = "저장 실패: " + JSON.stringify(result);
-      }
-    }catch(err){
-      box.textContent = "저장 실패: " + err.message;
+    if(status === "on"){
+      if(!document.getElementById("title").value.trim()) document.getElementById("title").value = `현재 ${member} 방송중입니다`;
+      if(!document.getElementById("summary").value.trim()) document.getElementById("summary").value = `${platform}에서 ON AIR 중이에요.`;
     }
-  }
 
-  function loadStatus(){
-    const box = document.getElementById("statusBox");
-    box.textContent = "현재 상태 불러오는 중...";
-    const cb = "liveAdminCallback_" + Date.now();
-    window[cb] = function(data){
-      try{
-        const items = (data.items || []).filter(x => String(x.type).toLowerCase() === "live");
-        const active = items.filter(x => ["on","live","방송중"].includes(String(x.status || "").toLowerCase()) && String(x.visibility || "public").toLowerCase() === "public");
-        if(active.length){
-          box.innerHTML = '<span class="pill live">LIVE ON</span>\n' + active.map(x => `${x.member} · ${x.platform} · ${x.title}\n${x.url || ""}`).join("\n\n");
-        }else{
-          box.innerHTML = '<span class="pill">OFF AIR</span>\n현재 공개 방송중 상태가 없습니다.';
-        }
-      }catch(e){
-        box.textContent = "상태 표시 실패: " + e.message;
-      }finally{
-        delete window[cb];
-        const tag = document.getElementById(cb);
-        if(tag) tag.remove();
-      }
-    };
-    const s = document.createElement("script");
-    s.id = cb;
-    s.src = SCRIPT_URL + "?callback=" + cb + "&t=" + Date.now();
-    s.onerror = function(){
-      box.textContent = "상태 불러오기 실패. Apps Script 배포/권한을 확인해주세요.";
-      delete window[cb];
-      s.remove();
-    };
-    document.body.appendChild(s);
+    document.getElementById("liveForm").submit();
+    document.getElementById("statusBox").textContent =
+      status === "on"
+      ? "LIVE ON 제출했어요. 구글시트에 type=live / status=on 줄이 들어갔는지 확인해주세요."
+      : "LIVE OFF 제출했어요. 구글시트에 type=live / status=off 줄이 들어갔는지 확인해주세요.";
   }
 </script>
 </body>
