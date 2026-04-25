@@ -280,6 +280,517 @@
       .multi-player-grid{grid-template-columns:1fr;}
     }
 
+  
+    /* ===== LIVE 카드 UI 보정: 이름 밀림/5개 이상 방송 대응 ===== */
+    .live-member-card{
+      min-width:0;
+    }
+    .live-member-top{
+      align-items:flex-start !important;
+    }
+    .member-chip{
+      min-width:0;
+      flex:1 1 auto;
+      line-height:1.35;
+      word-break:keep-all;
+    }
+    .platform-chip{
+      flex:0 0 auto;
+      white-space:nowrap;
+    }
+    .multi-player-grid{
+      grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)) !important;
+    }
+    .stream-tile-head{
+      min-height:76px;
+      align-items:flex-start !important;
+    }
+    .stream-tile-title{
+      flex:1 1 auto;
+      min-width:0;
+      white-space:normal;
+      word-break:keep-all;
+    }
+    .stream-tile-title small{
+      white-space:normal !important;
+      display:-webkit-box !important;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .stream-tile-platform{
+      white-space:nowrap;
+    }
+    @media(max-width:720px){
+      .multi-player-grid{
+        grid-template-columns:1fr !important;
+      }
+      .stream-tile-head{
+        min-height:auto;
+      }
+    }
+
+  
+    /* ===== STAFF ROOM 카드 ===== */
+    .staff-room-card{
+      margin-top:30px;
+      border:1px solid #f2d8e7;
+      border-radius:30px;
+      background:linear-gradient(135deg,#fff0f7 0%,#f3ebff 100%);
+      box-shadow:0 8px 24px rgba(232,191,211,.12);
+      padding:26px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      overflow:hidden;
+      position:relative;
+    }
+    .staff-room-card::before{
+      content:"";
+      position:absolute;
+      right:-64px;
+      top:-72px;
+      width:210px;
+      height:210px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(255,255,255,.82), rgba(255,138,194,.18), rgba(202,167,255,.12), transparent 72%);
+      pointer-events:none;
+    }
+    .staff-room-card > *{position:relative;z-index:1;}
+    .staff-room-card strong{
+      display:block;
+      color:#ff5aa6;
+      font-size:25px;
+      font-weight:900;
+      margin-bottom:6px;
+    }
+    .staff-room-card span{
+      display:block;
+      color:#8f7183;
+      font-size:14px;
+      font-weight:700;
+      line-height:1.65;
+      word-break:keep-all;
+    }
+    .staff-room-card .room-mini-note{
+      margin-top:7px;
+      color:#b28ea2;
+      font-size:12.5px;
+      font-weight:900;
+    }
+
+    /* ===== 예쁜 위로가기 버튼 ===== */
+    .lumi-top-button{
+      position:fixed;
+      right:22px;
+      bottom:22px;
+      width:64px;
+      height:64px;
+      border:0;
+      border-radius:50%;
+      background:linear-gradient(180deg,#ff86bb 0%,#ff5fa5 54%,#caa7ff 100%);
+      color:#fff;
+      box-shadow:0 14px 28px rgba(255,95,165,.28), 0 0 0 6px rgba(255,255,255,.58);
+      z-index:5000;
+      opacity:0;
+      visibility:hidden;
+      transform:translateY(10px) scale(.94);
+      transition:opacity .2s ease, visibility .2s ease, transform .2s ease, filter .2s ease;
+      cursor:pointer;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      font-family:"SUIT","Noto Sans KR",sans-serif;
+    }
+    .lumi-top-button.show{
+      opacity:1;
+      visibility:visible;
+      transform:translateY(0) scale(1);
+    }
+    .lumi-top-button:hover{
+      filter:brightness(1.04);
+      transform:translateY(-3px) scale(1.03);
+    }
+    .lumi-top-button::before{
+      content:"";
+      position:absolute;
+      inset:-70%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.75), transparent 16%),
+        conic-gradient(from 0deg, transparent, rgba(255,255,255,.42), transparent, rgba(255,255,255,.28), transparent);
+      animation:lumiTopSpin 5s linear infinite;
+    }
+    .lumi-top-button::after{
+      content:"✦";
+      position:absolute;
+      right:10px;
+      top:8px;
+      color:rgba(255,255,255,.78);
+      font-size:14px;
+      animation:lumiTopStar 1.8s ease-in-out infinite;
+    }
+    .lumi-top-button span,
+    .lumi-top-button em{
+      position:relative;
+      z-index:1;
+      line-height:1;
+      font-style:normal;
+      text-shadow:0 2px 8px rgba(148,64,112,.18);
+    }
+    .lumi-top-button span{
+      font-size:25px;
+      font-weight:900;
+      margin-top:1px;
+    }
+    .lumi-top-button em{
+      margin-top:4px;
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.08em;
+    }
+    @keyframes lumiTopSpin{to{transform:rotate(360deg)}}
+    @keyframes lumiTopStar{
+      0%,100%{transform:translateY(0) rotate(0deg);opacity:.58}
+      50%{transform:translateY(-3px) rotate(12deg);opacity:1}
+    }
+
+    @media(max-width:720px){
+      .staff-room-card{
+        flex-direction:column;
+        align-items:stretch;
+        text-align:center;
+      }
+      .staff-room-card .main-btn{width:100%;}
+      .lumi-top-button{
+        right:16px;
+        bottom:16px;
+        width:58px;
+        height:58px;
+      }
+    }
+
+  
+
+    /* ===== 2차 UI 조정 : 글씨 확대 + 오시마크 한 줄 ===== */
+    .section-heading h3{font-size:50px !important;}
+    .section-heading p{font-size:17px !important;}
+    .week-info{font-size:16px !important;}
+    .day{width:46px !important;height:46px !important;font-size:20px !important;}
+    .status-tag{font-size:11.5px !important;padding:7px 11px !important;}
+    .day-member{font-size:13.5px !important;}
+    .day-title{font-size:19px !important;line-height:1.45 !important;}
+    .day-time{font-size:31px !important;}
+    .day-note{font-size:14px !important;line-height:1.6 !important;}
+    .item-kicker{font-size:11px !important;padding:7px 10px !important;}
+    .info-item h4{font-size:22px !important;line-height:1.45 !important;}
+    .info-item p{font-size:15px !important;line-height:1.8 !important;}
+    .item-meta{font-size:13px !important;}
+    .member-channel h4{font-size:23px !important;}
+    .member-channel p{font-size:15px !important;line-height:1.75 !important;}
+    .channel-btn{font-size:13px !important;min-height:40px !important;padding:10px 14px !important;}
+    .guide-card h4{font-size:30px !important;}
+    .guide-list li{font-size:16px !important;line-height:1.8 !important;padding:15px 16px !important;}
+    .staff-room-card strong,.archive-cta strong{font-size:30px !important;}
+    .staff-room-card span,.archive-cta span{font-size:16px !important;line-height:1.75 !important;}
+    .room-mini-note{font-size:14px !important;}
+    .live-title{font-size:34px !important;line-height:1.3 !important;}
+    .live-sub{font-size:16px !important;line-height:1.75 !important;}
+    .member-chip{font-size:18px !important;gap:6px !important;white-space:nowrap !important;flex-wrap:nowrap !important;}
+    .live-member-card p{font-size:15px !important;line-height:1.75 !important;}
+    .oshimark-inline{display:inline-block;white-space:nowrap;letter-spacing:-0.14em;font-size:1em;line-height:1;vertical-align:baseline;transform:translateY(-.02em);}
+    .member-name-text{display:inline-block;white-space:nowrap;}
+    .stream-tile-title .oshimark-inline{margin-right:6px;}
+    @media(max-width:720px){
+      .section-heading h3{font-size:40px !important;}
+      .section-heading p{font-size:15px !important;}
+      .day-title{font-size:17px !important;}
+      .day-time{font-size:26px !important;}
+      .info-item h4{font-size:20px !important;}
+      .info-item p,.guide-list li,.member-channel p{font-size:14px !important;}
+      .guide-card h4{font-size:25px !important;}
+      .staff-room-card strong,.archive-cta strong{font-size:25px !important;}
+      .staff-room-card span,.archive-cta span{font-size:14px !important;}
+      .member-chip{font-size:17px !important;}
+    }
+
+  
+
+    /* ===== 3차 UI 조정 : ON AIR 멤버 오시마크 확대 ===== */
+    .member-chip .oshimark-inline,
+    .stream-tile-title .oshimark-inline{
+      font-size:1.32em !important;
+      letter-spacing:-0.18em !important;
+      margin-right:8px !important;
+      transform:translateY(.04em) !important;
+    }
+    .member-chip .member-name-text,
+    .stream-tile-title .member-name-text{
+      font-size:1.04em !important;
+      font-weight:900 !important;
+    }
+    .member-chip{
+      font-size:20px !important;
+      gap:4px !important;
+    }
+    .stream-tile-title{
+      font-size:19px !important;
+    }
+    .platform-chip,
+    .stream-tile-platform{
+      font-size:12.5px !important;
+      padding:8px 12px !important;
+    }
+    @media(max-width:720px){
+      .member-chip{font-size:18px !important;}
+      .stream-tile-title{font-size:17px !important;}
+      .member-chip .oshimark-inline,
+      .stream-tile-title .oshimark-inline{
+        font-size:1.24em !important;
+        margin-right:7px !important;
+      }
+    }
+
+  
+
+    /* ===== 4차 UI 조정 : 멤버 필터 버튼 오시마크 표시 ===== */
+    .tabs{
+      gap:12px !important;
+    }
+    .tab-btn{
+      display:inline-flex !important;
+      align-items:center !important;
+      justify-content:center !important;
+      gap:8px !important;
+      min-height:50px !important;
+      min-width:86px !important;
+      padding:12px 18px !important;
+      font-size:15px !important;
+      line-height:1 !important;
+      white-space:nowrap !important;
+    }
+    .tab-btn .tab-mark{
+      display:inline-block;
+      white-space:nowrap;
+      letter-spacing:-0.16em;
+      font-size:1.18em;
+      line-height:1;
+      transform:translateY(.02em);
+      margin-right:2px;
+    }
+    .tab-btn .tab-text{
+      display:inline-block;
+      white-space:nowrap;
+      font-weight:900;
+    }
+    .tab-btn.active .tab-mark{
+      filter:drop-shadow(0 2px 5px rgba(139,46,108,.14));
+    }
+    @media(max-width:720px){
+      .tabs{
+        gap:8px !important;
+      }
+      .tab-btn{
+        min-height:44px !important;
+        min-width:74px !important;
+        padding:10px 13px !important;
+        font-size:13.5px !important;
+        gap:6px !important;
+      }
+      .tab-btn .tab-mark{
+        font-size:1.08em;
+      }
+    }
+
+  
+
+    /* ===== 기준본 추가 보강 : 아이돌 일정 / 긴 후기 / 잠금 준비 ===== */
+    .tab-btn.locked{
+      opacity:.62;
+      cursor:not-allowed;
+      background:#fffafd !important;
+      color:#c0a2b4 !important;
+      border-style:dashed !important;
+      box-shadow:none !important;
+    }
+    .refresh-btn{
+      flex:0 0 auto;
+      background:#fff !important;
+    }
+    .idol-schedule-card{
+      border:1px solid #f2d8e7;
+      border-radius:30px;
+      background:linear-gradient(180deg,#fff7fc 0%,#fff1f8 100%);
+      box-shadow:0 8px 24px rgba(232,191,211,.12);
+      padding:24px;
+      overflow:hidden;
+      position:relative;
+    }
+    .idol-schedule-card::before{
+      content:"";
+      position:absolute;
+      right:-80px;
+      top:-90px;
+      width:230px;
+      height:230px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(255,255,255,.86), rgba(255,138,194,.16), rgba(202,167,255,.12), transparent 72%);
+      pointer-events:none;
+    }
+    .idol-schedule-grid{
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:14px;
+    }
+    .idol-item{
+      min-height:150px;
+      border:1px solid #f0dde8;
+      border-radius:24px;
+      background:linear-gradient(135deg,#fff 0%,#fffafe 68%,#fff0f8 100%);
+      padding:20px;
+      box-shadow:0 10px 22px rgba(232,191,211,.10);
+    }
+    .idol-kicker{
+      display:inline-flex;
+      margin-bottom:12px;
+      padding:7px 11px;
+      border-radius:999px;
+      background:#fff0f7;
+      border:1px solid #efc6dc;
+      color:#c97ca8;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.05em;
+    }
+    .idol-item strong{
+      display:block;
+      color:#d77ca7;
+      font-size:21px;
+      font-weight:900;
+      line-height:1.45;
+      margin-bottom:8px;
+    }
+    .idol-item p{
+      margin:0;
+      color:#8f7183;
+      font-size:14.5px;
+      font-weight:700;
+      line-height:1.75;
+      word-break:keep-all;
+    }
+    .diary-link-card{
+      background:linear-gradient(180deg,#fff7fc 0%,#fff1f8 100%);
+    }
+    .oshimark-inline{
+      font-size:.86em !important;
+      letter-spacing:-0.1em !important;
+      margin-right:6px !important;
+      opacity:.78 !important;
+      filter:saturate(.88);
+    }
+    .member-chip .oshimark-inline,
+    .stream-tile-title .oshimark-inline{
+      font-size:.88em !important;
+    }
+    .member-chip{
+      gap:4px !important;
+    }
+
+    @media(max-width:1100px){
+      .idol-schedule-grid{grid-template-columns:1fr;}
+    }
+    @media(max-width:720px){
+      .refresh-btn{width:100%;}
+      .idol-schedule-card{padding:18px;}
+      .idol-item{min-height:auto;}
+      .idol-item strong{font-size:19px;}
+      .idol-item p{font-size:14px;}
+    }
+
+  
+
+    /* ===== 정보 과다 방지 : 하단 부가정보 접기 ===== */
+    .extra-hub{
+      margin-top:32px;
+      border:1px solid #f2d8e7;
+      border-radius:30px;
+      background:linear-gradient(135deg,#fff7fc 0%,#f5efff 100%);
+      box-shadow:0 8px 24px rgba(232,191,211,.12);
+      overflow:hidden;
+    }
+    .extra-hub summary{
+      list-style:none;
+      cursor:pointer;
+      padding:24px 26px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      color:#ff5aa6;
+      font-size:27px;
+      font-weight:900;
+      line-height:1.25;
+      user-select:none;
+    }
+    .extra-hub summary::-webkit-details-marker{display:none;}
+    .extra-hub summary span{
+      display:block;
+      color:#8f7183;
+      font-size:14px;
+      font-weight:700;
+      line-height:1.65;
+      margin-top:6px;
+    }
+    .extra-hub summary::after{
+      content:"＋";
+      flex:0 0 auto;
+      width:44px;
+      height:44px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(180deg,#ff7eb3,#ff5fa5);
+      color:#fff;
+      box-shadow:0 10px 22px rgba(255,95,165,.20);
+      font-size:24px;
+      font-weight:900;
+    }
+    .extra-hub[open] summary::after{
+      content:"−";
+    }
+    .extra-hub-body{
+      padding:0 24px 24px;
+      display:grid;
+      gap:18px;
+    }
+    .extra-hub .two-column{
+      margin-top:0 !important;
+    }
+    .extra-hub .idol-schedule-card{
+      box-shadow:none;
+    }
+    @media(max-width:720px){
+      .extra-hub summary{
+        padding:21px 18px;
+        font-size:22px;
+        align-items:flex-start;
+      }
+      .extra-hub summary::after{
+        width:38px;
+        height:38px;
+        font-size:20px;
+      }
+      .extra-hub-body{
+        padding:0 16px 18px;
+      }
+    }
+
   </style>
 </head>
 
@@ -295,6 +806,7 @@
           <a href="../index.html">HOME</a>
           <a href="https://lumibellelove.github.io/Lumibelle/video.html">MORE VIDEO</a>
           <a href="../schedule.html">SCHEDULE</a>
+          <a href="../admin.html">🔒 ROOM</a>
         </nav>
       </div>
     </div>
@@ -328,6 +840,7 @@
             <h3 class="live-title" id="liveTitle">현재 방송이 없습니다</h3>
             <p class="live-sub" id="liveSub">이번 주 ON AIR 스케줄과 방송 공지를 확인해주세요.</p>
           </div>
+          <button class="main-btn refresh-btn" type="button" onclick="window.location.reload()">방송 상태 새로고침</button>
         </div>
         <div class="live-card-grid" id="liveCardGrid"></div>
         <div class="player-card" id="playerCard">
@@ -373,6 +886,7 @@
         </div>
       </section>
 
+
       <section>
         <div class="section-heading">
           <h3>MEMBER CHANNEL</h3>
@@ -390,8 +904,7 @@
         </div>
         <div class="channel-card">
           <p style="margin:0 0 16px;color:#8f7183;font-size:14px;font-weight:700;line-height:1.75;word-break:keep-all;text-align:center;">
-            방송 시작, 휴방, 시간 변경은 멤버별 X에서 가장 빠르게 안내됩니다.<br>
-            자주 보는 멤버의 X 알림을 켜두면 방송을 놓치지 않아요.
+            방송 시작, 휴방, 시간 변경은 멤버별 X에서 가장 빠르게 안내됩니다.
           </p>
 
           <div class="channel-list alert-channel-list">
@@ -439,6 +952,65 @@
         </div>
       </section>
 
+
+      <details class="extra-hub">
+        <summary>
+          더 많은 기록과 안내 보기
+          <span>아이돌 일정, 긴 후기, 플랫폼 안내, 방송 매너는 필요할 때만 펼쳐서 확인해요.</span>
+        </summary>
+        <div class="extra-hub-body">
+      <section>
+        <div class="section-heading">
+          <h3>IDOL SCHEDULE</h3>
+          <p>라이브 · 리허설 · 촬영 · 물판 일정</p>
+        </div>
+        <div class="idol-schedule-card">
+          <div class="idol-schedule-grid">
+            <article class="idol-item">
+              <span class="idol-kicker">LIVE</span>
+              <strong>다음 라이브 일정 확인</strong>
+              <p>오히로메, 리리이베, 특전회 등 아이돌 활동 일정은 이곳에 모아둘 수 있어요.</p>
+            </article>
+            <article class="idol-item">
+              <span class="idol-kicker">GOODS</span>
+              <strong>물판 / 굿즈 안내</strong>
+              <p>현장 판매, 예약, 수령 안내처럼 방송이 아닌 활동 공지도 함께 정리해요.</p>
+            </article>
+            <article class="idol-item">
+              <span class="idol-kicker">PHOTO</span>
+              <strong>촬영 / 비하인드</strong>
+              <p>프로필 촬영, 단체사진, 콘텐츠 촬영 같은 준비 기록도 남길 수 있어요.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="two-column" style="margin-top:38px;">
+        <article class="guide-card diary-link-card">
+          <h4>LONG DIARY</h4>
+          <ul class="guide-list">
+            <li><b>방송 긴 후기</b> · 짧은 한마디보다 긴 멤버별 후기를 모아볼 수 있어요.</li>
+            <li><b>라이브 후기</b> · 공연 후 멤버 코멘트와 비하인드를 따로 남길 수 있어요.</li>
+            <li><b>팬들에게 남기는 말</b> · 공지보다 부드러운 기록용 게시판으로 활용해요.</li>
+          </ul>
+          <div class="alert-buttons">
+            <a class="main-btn primary" href="diary.html">긴 후기 보러가기</a>
+          </div>
+        </article>
+        <article class="guide-card diary-link-card">
+          <h4>IDOL BOARD</h4>
+          <ul class="guide-list">
+            <li><b>아이돌 활동 공지</b> · 방송 외 활동을 루미들이 한눈에 볼 수 있어요.</li>
+            <li><b>현장 안내</b> · 입장, 물판, 특전회, 주의사항을 모아둘 수 있어요.</li>
+            <li><b>업데이트 예정</b> · 나중에 멤버 공개/잠금 해제식으로 확장 가능해요.</li>
+          </ul>
+          <div class="alert-buttons">
+            <a class="main-btn" href="../schedule.html">전체 스케줄 보기</a>
+          </div>
+        </article>
+      </section>
+
+
       <section class="two-column" style="margin-top:38px;">
         <article class="guide-card">
           <h4>RECENT ON AIR</h4>
@@ -469,6 +1041,20 @@
         </article>
       </section>
 
+
+
+        </div>
+      </details>
+
+      <section class="staff-room-card">
+        <div>
+          <strong>🔒 ON AIR ROOM</strong>
+          <span>방송 ON/OFF, 스케줄 확인, 공지와 후기를 작성하는 관계자용 공간이에요.</span>
+          <span class="room-mini-note">멤버와 스탭은 이곳에서 방송 상태가 잘 뜨는지도 바로 확인할 수 있어요.</span>
+        </div>
+        <a class="main-btn primary" href="../admin.html">ROOM 입장하기</a>
+      </section>
+
       <section class="archive-cta">
         <div>
           <strong>방송을 놓쳤다면?</strong>
@@ -478,6 +1064,8 @@
       </section>
     </div>
   </main>
+
+  <button class="lumi-top-button" id="lumiTopButton" type="button" aria-label="위로 올라가기"><span>↑</span><em>TOP</em></button>
 
   <footer>© 2026 Lumibelle All Rights Reserved.</footer>
 
@@ -489,6 +1077,15 @@
     { id:"iro", ko:"이로", en:"IRO" },
     { id:"lunar", ko:"루나", en:"LUNAR" }
   ];
+
+  // 공개 전 멤버 잠금 준비용.
+  // 지금은 false라서 4명 모두 보이고, 나중에 true로 바꾸면 이로/루나를 잠금 처리할 수 있어요.
+  const HIDE_SECRET_MEMBERS = false;
+  const SECRET_MEMBER_IDS = ["iro", "lunar"];
+
+  function isSecretMember(memberId){
+    return HIDE_SECRET_MEMBERS && SECRET_MEMBER_IDS.includes(memberId);
+  }
 
   const memberChannels = [
     { id:"mariring", name:"마리링", desc:"메인 방송과 동시송출 중심으로 운영됩니다.", links:[
@@ -702,7 +1299,22 @@
           mapSheetData(data.items || []);
           apiLoaded = true;
           renderLive();
-          renderTodayAndNext();
+        
+  function initLumiTopButton(){
+    const btn = document.getElementById("lumiTopButton");
+    if(!btn) return;
+    const toggle = () => {
+      btn.classList.toggle("show", window.scrollY > 420);
+    };
+    btn.addEventListener("click", () => {
+      window.scrollTo({ top:0, behavior:"smooth" });
+    });
+    window.addEventListener("scroll", toggle, { passive:true });
+    toggle();
+  }
+
+  initLumiTopButton();
+  renderTodayAndNext();
           renderSchedule();
           renderNotices();
           renderShortDiary();
@@ -794,6 +1406,21 @@
     }
     return DEFAULT_LIVE_LIST;
   }
+
+  function oshimarkForMember(nameOrId){
+    const value = String(nameOrId || "").toLowerCase();
+    if(value.includes("마리") || value.includes("mari") || value.includes("mariring")) return "🎀⭐";
+    if(value.includes("루루") || value.includes("lulu")) return "🍼🐰";
+    if(value.includes("이로") || value.includes("iro")) return "👼🏻💎";
+    if(value.includes("루나") || value.includes("luna") || value.includes("lunar")) return "🌙🐱";
+    return "✦";
+  }
+  function memberDisplayName(name, id){
+    const label = name || getMemberName(id) || "멤버";
+    const mark = oshimarkForMember(label || id);
+    return `<span class="oshimark-inline" aria-hidden="true">${mark}</span><span class="member-name-text">${label}</span>`;
+  }
+
   function getMemberName(id){
     const member = MEMBERS.find(m => m.id === id);
     return member ? member.ko : id;
@@ -851,14 +1478,14 @@
 
     if(!liveList || !liveList.length) return;
 
-    const targets = liveList.slice(0,4);
+    const targets = liveList;
     playerCard.classList.add("show","multi-show");
     playerFrame.innerHTML = `
       <div class="multi-player-grid">
         ${targets.map(item => {
           const live = getLiveEmbed(item);
-          const member = item.member || getMemberName(item.memberId) || "멤버";
-          const title = item.title || item.message || "ON AIR";
+          const member = memberDisplayName(item.member, item.memberId);
+          const title = item.message || `${platformName(item.platform)}에서 ON AIR 중이에요.`;
           const platform = platformName(item.platform);
 
           if(live.type === "embed"){
@@ -889,7 +1516,7 @@
       </div>
     `;
     playerCaption.textContent = targets.length > 1
-      ? "동시에 방송중인 플랫폼을 4개 카드로 모아볼 수 있어요. 트윗캐스가 재생되지 않으면 트윗캐스 버튼으로 이동해주세요."
+      ? "동시에 방송중인 플랫폼을 카드로 모아볼 수 있어요. 트윗캐스가 재생되지 않으면 트윗캐스 버튼으로 이동해주세요."
       : "유튜브/트윗캐스는 이 페이지 안에서 볼 수 있고, 씨미는 팝업으로 이동합니다.";
   }
 
@@ -917,14 +1544,20 @@
     badge.className = "live-badge on";
     badge.textContent = liveList.length > 1 ? `● LIVE · ${liveList.length}` : `● LIVE · ${platformName(liveList[0].platform).toUpperCase()}`;
     const uniqueMembers = [...new Set(liveList.map(item => item.member || getMemberName(item.memberId) || "멤버"))];
-    title.textContent = liveList.length > 1
-      ? (uniqueMembers.length === 1 ? `현재 ${uniqueMembers[0]} 동시송출 중입니다` : `현재 ${uniqueMembers.length}명의 멤버가 방송중입니다`)
-      : `현재 ${liveList[0].member || getMemberName(liveList[0].memberId) || "멤버"} 방송중입니다`;
-    sub.textContent = liveList.length > 1 ? "아래에서 플랫폼별 방송을 선택해서 볼 수 있어요." : "방송 플랫폼에 맞춰 시청 버튼이 표시됩니다.";
+    if(liveList.length > 1 && uniqueMembers.length === 1){
+      title.textContent = `현재 ${uniqueMembers[0]} 동시송출 중입니다`;
+    }else if(liveList.length > uniqueMembers.length){
+      title.textContent = `현재 ${uniqueMembers.length}명의 멤버 · ${liveList.length}개 플랫폼 방송중입니다`;
+    }else if(liveList.length > 1){
+      title.textContent = `현재 ${uniqueMembers.length}명의 멤버가 방송중입니다`;
+    }else{
+      title.textContent = `현재 ${liveList[0].member || getMemberName(liveList[0].memberId) || "멤버"} 방송중입니다`;
+    }
+    sub.textContent = liveList.length > 1 ? "아래에서 멤버별·플랫폼별 방송을 선택해서 볼 수 있어요." : "방송 플랫폼에 맞춰 시청 버튼이 표시됩니다.";
     grid.innerHTML = liveList.map(item => `
       <article class="live-member-card">
         <div class="live-member-top">
-          <span class="member-chip">${item.member || getMemberName(item.memberId) || "멤버"}</span>
+          <span class="member-chip">${memberDisplayName(item.member, item.memberId)}</span>
           <span class="platform-chip">${platformName(item.platform)}</span>
         </div>
         <p>${item.message || item.title || `${platformName(item.platform)}에서 방송중입니다.`}</p>
@@ -935,12 +1568,18 @@
   }
   function renderTabs(containerId, active, onClick){
     const wrap = document.getElementById(containerId);
-    wrap.innerHTML = MEMBERS.map(m => `<button type="button" class="tab-btn ${active === m.id ? 'active' : ''}" data-id="${m.id}">${m.ko}</button>`).join("");
+    wrap.innerHTML = MEMBERS.map(m => {
+      const label = m.id === "all"
+        ? `<span class="tab-text">ALL</span>`
+        : `<span class="tab-mark">${oshimarkForMember(m.ko)}</span><span class="tab-text">${m.ko}</span>`;
+      return `<button type="button" class="tab-btn ${active === m.id ? 'active' : ''}" data-id="${m.id}">${label}</button>`;
+    }).join("");
     wrap.querySelectorAll("button").forEach(btn => btn.addEventListener("click", () => onClick(btn.dataset.id)));
   }
   function filterByMember(list, filter){
-    if(filter === "all") return list;
-    return list.filter(item => item.memberId === filter || item.memberId === "all");
+    const visible = (list || []).filter(item => !isSecretMember(item.memberId));
+    if(filter === "all") return visible;
+    return visible.filter(item => item.memberId === filter || item.memberId === "all");
   }
   function renderSchedule(){
     document.getElementById("weekInfoText").textContent = weekInfo;
@@ -1011,7 +1650,12 @@
     const nextOnAirText = document.getElementById("nextOnAirText");
     const liveList = getLiveList();
     if(liveList.length){
-      todayStatusTitle.textContent = liveList.length > 1 ? `오늘 ${liveList.length}명 방송중` : `오늘 ${liveList[0].member || getMemberName(liveList[0].memberId)} 방송중`;
+      const uniqueMembers = [...new Set(liveList.map(item => item.member || getMemberName(item.memberId) || "멤버"))];
+      if(liveList.length > uniqueMembers.length){
+        todayStatusTitle.textContent = `오늘 ${uniqueMembers.length}명 · ${liveList.length}개 플랫폼 방송중`;
+      }else{
+        todayStatusTitle.textContent = liveList.length > 1 ? `오늘 ${uniqueMembers.length}명 방송중` : `오늘 ${liveList[0].member || getMemberName(liveList[0].memberId)} 방송중`;
+      }
       todayStatusText.textContent = "현재 방송중인 멤버가 있어요. 아래 ON AIR 카드에서 바로 이동할 수 있습니다.";
     }else{
       const upcoming = weeklySchedule.find(item => item.status === "live");
