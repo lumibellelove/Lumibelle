@@ -2800,6 +2800,40 @@ line-height:1.9 !important;
       }
     }
 
+
+    /* ===== MORE VIDEO 균형 강화 + ON AIR 칩 가독성 보정 ===== */
+    .video-mini-card{
+      background:
+        radial-gradient(circle at 18% 18%, rgba(255,255,255,.92) 0%, rgba(255,255,255,0) 28%),
+        linear-gradient(135deg, #fff5fb 0%, #fff0f8 52%, #f7f1ff 100%) !important;
+      border-color:#f2d8e7 !important;
+      isolation:isolate;
+    }
+    .video-mini-card::before{content:"✦";position:absolute;right:22px;bottom:18px;color:rgba(255,138,194,.28);font-size:42px;line-height:1;animation:videoStarFloat 3.2s ease-in-out infinite;pointer-events:none;z-index:0;}
+    .video-mini-card::after{content:"";position:absolute;inset:auto -80px -90px auto;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle, rgba(255,95,165,.18) 0%, rgba(202,167,255,.12) 45%, transparent 72%);pointer-events:none;z-index:0;}
+    .video-mini-card > *{position:relative;z-index:1;}
+    .video-feature-preview{display:grid;gap:14px;margin:0 24px 26px;}
+    .video-thumb-preview{position:relative;min-height:132px;border-radius:24px;overflow:hidden;border:1px solid #f0dde8;background:linear-gradient(135deg, rgba(255,138,194,.18), rgba(202,167,255,.18)),radial-gradient(circle at 25% 24%, rgba(255,255,255,.86), transparent 36%);box-shadow:0 8px 18px rgba(232,191,211,.12);}
+    .video-thumb-preview::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.58) 48%, rgba(255,255,255,.05)),repeating-linear-gradient(45deg, rgba(255,255,255,.18) 0 2px, rgba(255,255,255,0) 2px 16px);opacity:.8;}
+    .video-play-badge{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.94);box-shadow:0 12px 25px rgba(255,95,165,.22);display:flex;align-items:center;justify-content:center;color:#ff5fa5;font-size:28px;font-weight:900;}
+    .video-play-badge::before{content:"▶";margin-left:4px;}
+    .video-mini-meta{display:grid;gap:12px;padding:20px 22px;border-radius:24px;background:#fff;border:1px solid #f0dde8;box-shadow:0 8px 18px rgba(232,191,211,.10);}
+    .video-mini-meta strong{display:block;color:#ff59a5;font-size:24px;font-weight:900;line-height:1.2;}
+    .video-mini-meta em{display:block;color:#8f7183;font-size:15px;font-style:normal;font-weight:700;line-height:1.7;}
+    .video-mini-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+    .video-mini-chip{display:inline-flex;align-items:center;justify-content:center;padding:7px 12px;border-radius:999px;background:#fff0f7;border:1px solid #f0bfd4;color:#d77ca7;font-size:11px;font-weight:900;letter-spacing:.04em;line-height:1;}
+    .video-enter{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:17px 20px;border-radius:22px;background:linear-gradient(135deg, #ff5fa5 0%, #caa7ff 100%);color:#fff;box-shadow:0 13px 26px rgba(255,95,165,.26);overflow:hidden;position:relative;}
+    .video-enter::after{content:"";position:absolute;top:-40%;left:-50%;width:25%;height:180%;background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.42), rgba(255,255,255,0));transform:skewX(-22deg);opacity:0;pointer-events:none;}
+    .video-mini-card:hover .video-enter::after{animation:onairButtonShine 2.4s ease-in-out infinite;}
+    .video-enter strong{font-size:17px;font-weight:900;line-height:1.25;}
+    .video-enter span{font-size:12px;font-weight:800;opacity:.92;}
+    .video-enter .arrow{flex:0 0 auto;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.42);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;}
+    .video-mini-card:hover .video-enter .arrow{animation:onairArrowBounce 1.25s ease-in-out infinite;}
+    .onair-mini-chip{font-size:13px !important;padding:9px 15px !important;min-height:34px !important;letter-spacing:.02em !important;}
+    .onair-hero-line{gap:10px !important;margin-top:8px !important;}
+    @keyframes videoStarFloat{0%,100%{transform:translateY(0) rotate(0deg);opacity:.52;}50%{transform:translateY(-7px) rotate(12deg);opacity:.88;}}
+    @media (max-width:780px){.video-feature-preview{margin:0 16px 18px;}.video-thumb-preview{min-height:112px;}.video-play-badge{width:58px;height:58px;font-size:23px;}.video-mini-meta{padding:16px;}.video-mini-meta strong{font-size:21px;}.video-enter{padding:14px;}.video-enter .arrow{width:32px;height:32px;font-size:17px;}.onair-mini-chip{font-size:12px !important;padding:8px 12px !important;min-height:31px !important;}}
+
   </style>
 </head>
 
@@ -3057,10 +3091,31 @@ line-height:1.9 !important;
             <h3>MORE VIDEO</h3>
             <p>루미벨 영상 아카이브</p>
           </div>
-          <div class="media-preview-box">
-            <span class="media-pill">CLIP · LIVE · SHORTS</span>
-            <strong>영상 보러가기</strong>
-            <em>공연 직캠부터 방송 클립까지 한 번에 모아보기</em>
+
+          <div class="video-feature-preview">
+            <div class="video-thumb-preview" aria-hidden="true">
+              <span class="video-play-badge"></span>
+            </div>
+
+            <div class="video-mini-meta">
+              <div class="video-mini-row">
+                <span class="video-mini-chip">CLIP</span>
+                <span class="video-mini-chip">LIVE</span>
+                <span class="video-mini-chip">VOD</span>
+                <span class="video-mini-chip">SHORTS</span>
+              </div>
+              <div>
+                <strong>오늘의 영상 아카이브</strong>
+                <em>공연 직캠부터 방송 클립, 다시보기까지 한 번에 모아보는 공간이에요.</em>
+              </div>
+              <div class="video-enter" aria-hidden="true">
+                <div>
+                  <strong>영상 보러가기</strong>
+                  <span>클릭하면 MORE VIDEO로 이동합니다</span>
+                </div>
+                <div class="arrow">›</div>
+              </div>
+            </div>
           </div>
         </a>
 
@@ -3514,16 +3569,17 @@ document.addEventListener("click", function(e){
 
 <script>
   /* ===== ON AIR 홈 카드 상태 =====
-     공개 사이트에서 기본값을 바꾸려면 아래 DEFAULT_ONAIR만 수정하세요.
-     broadcast 페이지의 테스트 버튼은 내 브라우저(localStorage)에만 저장됩니다. */
+     liveList가 있으면 동시 방송을 여러 개까지 표시합니다.
+     기존 단일 상태(lumibelleLiveState)도 그대로 호환됩니다. */
   const DEFAULT_ONAIR = {
     isLive: false,
-    platform: "cime", // cime / youtube / twitcast
+    platform: "cime",
     member: "마리링",
     cimeUrl: "https://ci.me/@mariring_love",
     youtubeUrl: "",
     nextTitle: "다음 ON AIR 예정",
-    nextText: "이번 주 방송 스케줄과 후기를 확인해보세요."
+    nextText: "이번 주 방송 스케줄과 후기를 확인해보세요.",
+    liveList: []
   };
 
   function getOnairState(){
@@ -3540,8 +3596,36 @@ document.addEventListener("click", function(e){
     return "BROADCAST";
   }
 
+  function normalizeLiveList(state){
+    const list = Array.isArray(state.liveList) ? state.liveList : (Array.isArray(state.lives) ? state.lives : []);
+    const active = list.filter(item => item && item.isLive !== false).map(item => Object.assign({}, item, {
+      member: item.member || item.name || "멤버",
+      platform: item.platform || "cime"
+    }));
+    if(active.length > 0) return active;
+    if(state.isLive){
+      return [{
+        member: state.member || "마리링",
+        platform: state.platform || "cime",
+        message: state.message || `현재 ${state.member || "마리링"} 방송중입니다`,
+        cimeUrl: state.cimeUrl,
+        youtubeId: state.youtubeId,
+        youtubeUrl: state.youtubeUrl,
+        twitcastId: state.twitcastId,
+        twitcastUrl: state.twitcastUrl
+      }];
+    }
+    return [];
+  }
+
+  function compactMembers(members){
+    if(members.length <= 2) return members.join(" · ");
+    return `${members.slice(0,2).join(" · ")} +${members.length - 2}`;
+  }
+
   function renderHomeOnair(){
     const state = getOnairState();
+    const liveList = normalizeLiveList(state);
     const card = document.querySelector(".onair-card");
     const pill = document.getElementById("homeLivePill");
     const label = document.getElementById("homeOnairLabel");
@@ -3555,20 +3639,30 @@ document.addEventListener("click", function(e){
     const buttonText = document.getElementById("homeOnairButtonText");
     if(!card || !pill || !label || !title || !text || !platform) return;
 
-    const memberName = state.member || "마리링";
-    if(memberChip) memberChip.textContent = memberName.toUpperCase ? memberName.toUpperCase() : memberName;
-
-    if(state.isLive){
+    if(liveList.length > 0){
+      const members = liveList.map(item => item.member || "멤버");
+      const platforms = [...new Set(liveList.map(item => platformName(item.platform)))];
       card.classList.add("is-live");
-      pill.textContent = "LIVE NOW";
-      label.textContent = "LIVE";
-      title.textContent = `현재 ${memberName} 방송중입니다`;
-      text.textContent = `${platformName(state.platform)}에서 ON AIR 중이에요. 클릭하면 방송 페이지에서 바로 확인할 수 있어요.`;
-      platform.textContent = `${platformName(state.platform)} 연결 준비 완료`;
-      if(modeChip) modeChip.textContent = platformName(state.platform);
-      if(catchText) catchText.textContent = "지금 루미들과 만나는 중이에요 💗";
-      if(subText) subText.textContent = "방송 화면과 플랫폼 바로가기를 확인해요.";
-      if(buttonText) buttonText.textContent = "지금 방송 보러가기";
+      pill.textContent = liveList.length === 1 ? "LIVE NOW" : `LIVE NOW · ${liveList.length}`;
+      label.textContent = liveList.length === 1 ? "LIVE" : "MULTI";
+      if(liveList.length === 1){
+        const item = liveList[0];
+        title.textContent = item.message || `현재 ${item.member} 방송중입니다`;
+        text.textContent = `${platformName(item.platform)}에서 ON AIR 중이에요. 클릭하면 방송 페이지에서 바로 확인할 수 있어요.`;
+        platform.textContent = `${platformName(item.platform)} 연결 준비 완료`;
+        if(memberChip) memberChip.textContent = String(item.member).toUpperCase();
+        if(modeChip) modeChip.textContent = platformName(item.platform);
+        if(catchText) catchText.textContent = "지금 루미들과 만나는 중이에요 💗";
+      }else{
+        title.textContent = `현재 ${liveList.length}명의 멤버가 방송중입니다`;
+        text.textContent = `${members.join(" · ")} 각자 ON AIR 중이에요. 클릭하면 멤버별 방송을 선택해서 볼 수 있어요.`;
+        platform.textContent = `플랫폼 ${platforms.length}곳 연결 중`;
+        if(memberChip) memberChip.textContent = compactMembers(members).toUpperCase();
+        if(modeChip) modeChip.textContent = "MULTI LIVE";
+        if(catchText) catchText.textContent = "여러 멤버가 지금 루미들과 만나는 중이에요 💗";
+      }
+      if(subText) subText.textContent = "방송 화면과 플랫폼 바로가기를 멤버별로 확인해요.";
+      if(buttonText) buttonText.textContent = liveList.length === 1 ? "지금 방송 보러가기" : "방송 목록 보러가기";
     }else{
       card.classList.remove("is-live");
       pill.textContent = "OFF AIR";
@@ -3576,6 +3670,7 @@ document.addEventListener("click", function(e){
       title.textContent = state.nextTitle || DEFAULT_ONAIR.nextTitle;
       text.textContent = state.nextText || DEFAULT_ONAIR.nextText;
       platform.textContent = "BROADCAST HUB";
+      if(memberChip) memberChip.textContent = "MARIRING";
       if(modeChip) modeChip.textContent = "SCHEDULE";
       if(catchText) catchText.textContent = "루미들과 함께하는 ON AIR 기록";
       if(subText) subText.textContent = "스케줄 · 다시보기 · 방송 후기를 한 번에 확인해요.";
