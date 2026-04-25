@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STAFF QR SCAN | Lumibelle</title>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800;900&display=swap');
+
+    :root{
+      --panel:#fff5fb;
+      --line:#f2d8e7;
+      --pink:#ff5fa8;
+      --text:#7f6a77;
+      --muted:#b28ea2;
+      --purple:#a88cff;
+      --sky:#4fc3ff;
+      --shadow:0 10px 28px rgba(232,191,211,.18);
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      padding:0;
+    }
+
+    body{
+      min-height:100vh;
+      font-family:"SUIT","Noto Sans KR",Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(255,192,215,.34) 0%, rgba(255,192,215,0) 28%),
+        radial-gradient(circle at 88% 18%, rgba(202,167,255,.22) 0%, rgba(202,167,255,0) 26%),
+        linear-gradient(180deg,#fffafc 0%,#fff0f7 100%);
+      padding:18px;
+      letter-spacing:-.01em;
+    }
+
+    .wrap{
+      width:min(720px,100%);
+      margin:0 auto;
+    }
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:linear-gradient(135deg,#fff0f7 0%,#f7efff 100%);
+      box-shadow:var(--shadow);
+      padding:34px 22px 30px;
+      text-align:center;
+    }
+
+    .hero::after{
+      content:"✦";
+      position:absolute;
+      right:28px;
+      bottom:22px;
+      color:rgba(255,95,168,.22);
+      font-size:38px;
+      pointer-events:none;
+    }
+
+    .eyebrow{
+      color:var(--pink);
+      font-size:14px;
+      font-weight:900;
+      margin-bottom:8px;
+    }
+
+    h1{
+      margin:0;
+      font-family:"Cormorant Garamond",serif;
+      font-size:54px;
+      line-height:.92;
+      font-weight:700;
+      color:var(--pink);
+      text-shadow:0 1px 0 rgba(255,255,255,.98),0 0 10px rgba(255,120,178,.18);
+    }
+
+    .sub{
+      margin:14px 0 0;
+      color:#8f7183;
+      font-size:15px;
+      line-height:1.7;
+      font-weight:800;
+    }
+
+    .card{
+      margin-top:16px;
+      background:rgba(255,255,255,.92);
+      border:1px solid var(--line);
+      border-radius:26px;
+      padding:20px;
+      box-shadow:0 8px 22px rgba(255,95,165,.08);
+    }
+
+    label{
+      display:block;
+      color:#d77ca7;
+      font-size:16px;
+      font-weight:900;
+      margin:0 0 8px;
+    }
+
+    .hint{
+      margin:0 0 12px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+      font-weight:800;
+    }
+
+    input{
+      width:100%;
+      min-height:52px;
+      border:1px solid #f0bfd4;
+      border-radius:18px;
+      background:#fff;
+      color:var(--text);
+      font-size:18px;
+      font-weight:900;
+      padding:0 16px;
+      outline:none;
+    }
+
+    input:focus{
+      border-color:#ff8ac2;
+      box-shadow:0 0 0 4px rgba(255,138,194,.14);
+    }
+
+    .buttons{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    button,a.btn{
+      min-height:50px;
+      border:0;
+      border-radius:999px;
+      font-size:14px;
+      font-weight:900;
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:0 14px;
+      font-family:inherit;
+    }
+
+    .scan{
+      width:100%;
+      min-height:58px;
+      margin-top:12px;
+      background:linear-gradient(180deg,#78d6ff,#4fc3ff);
+      color:#fff;
+      box-shadow:0 9px 20px rgba(79,195,255,.25);
+      font-size:16px;
+    }
+
+    .primary{
+      background:linear-gradient(180deg,#ff7eb3,#ff5fa5);
+      color:#fff;
+      box-shadow:0 8px 18px rgba(255,95,165,.22);
+    }
+
+    .subbtn{
+      background:#fff0f7;
+      color:#d77ca7;
+      border:1px solid #f0bfd4;
+    }
+
+    .purple{
+      background:linear-gradient(180deg,#bca7ff,#a88cff);
+      color:#fff;
+      box-shadow:0 8px 18px rgba(168,140,255,.22);
+    }
+
+    .message{
+      margin-top:14px;
+      padding:14px;
+      border-radius:18px;
+      background:#fff0f7;
+      color:#d77ca7;
+      font-weight:900;
+      text-align:center;
+      line-height:1.65;
+      font-size:14px;
+    }
+
+    .success{
+      background:#e9fff0;
+      color:#21864a;
+    }
+
+    .danger{
+      background:#fff2e8;
+      color:#d36b36;
+    }
+
+    .scanner{
+      display:none;
+      margin-top:14px;
+      padding:14px;
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:#fff7fb;
+    }
+
+    .scanner.active{
+      display:block;
+    }
+
+    #qr-reader{
+      width:100%;
+      max-width:440px;
+      margin:0 auto;
+      overflow:hidden;
+      border-radius:18px;
+      background:#fff;
+    }
+
+    .small{
+      margin:12px 0 0;
+      color:#9a7a8c;
+      font-size:12.5px;
+      font-weight:800;
+      line-height:1.7;
+      text-align:center;
+    }
+
+    .manual{
+      margin-top:16px;
+      padding-top:16px;
+      border-top:1px solid var(--line);
+    }
+
+    .footer-note{
+      margin-top:14px;
+      color:#b28ea2;
+      font-size:12px;
+      line-height:1.7;
+      text-align:center;
+      font-weight:700;
+    }
+
+    @media(max-width:520px){
+      body{padding:14px}
+      h1{font-size:44px}
+      .buttons{grid-template-columns:1fr}
+      .hero{padding:30px 18px 26px}
+      .card{padding:18px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">STAFF ONLY</div>
+      <h1>QR Scan</h1>
+      <p class="sub">
+        팬의 입장 확인 QR을 스캔하면<br>
+        스탭 입장확인 페이지로 바로 이동해요.
+      </p>
+    </section>
+
+    <section class="card">
+      <button class="scan" type="button" onclick="openScanner()">QR 스캔 시작</button>
+
+      <div id="scannerBox" class="scanner">
+        <div id="qr-reader"></div>
+        <p class="small">
+          카메라 권한을 허용한 뒤 팬의 QR을 비춰주세요.<br>
+          QR에는 예약번호만 들어 있어요.
+        </p>
+        <button class="subbtn" style="width:100%;margin-top:10px;" type="button" onclick="closeScanner()">스캔 닫기</button>
+      </div>
+
+      <div class="manual">
+        <label for="manualInput">수동 입력</label>
+        <p class="hint">스캔이 안 되면 예약번호 끝 4자리, 루미ID 숫자, 입금자명, 닉네임을 입력해 주세요.</p>
+        <input id="manualInput" placeholder="예: 1180 또는 LBT-0712-1180" inputmode="text" />
+
+        <div class="buttons">
+          <button class="primary" type="button" onclick="goManualTicket()">예약번호 조회</button>
+          <button class="purple" type="button" onclick="goManualLumi()">LB- 루미ID</button>
+          <button class="subbtn" type="button" onclick="goManualSearch()">통합 조회</button>
+        </div>
+      </div>
+
+      <div id="msg" class="message">QR을 스캔하거나 직접 입력해 주세요.</div>
+
+      <p class="footer-note">
+        ※ 이 페이지는 스탭용입니다.<br>
+        ※ QR에는 개인정보가 아닌 예약번호만 들어 있습니다.
+      </p>
+    </section>
+  </div>
+
+  <script>
+    const CHECKIN_URL = "https://script.google.com/macros/s/AKfycbzan2-YWU9W7q5YKFN_gf7z7uYaWQlTGvrXcpTzobXPDfi3ZX969ARWsFb6VoExTyRHDA/exec";
+
+    let scanner = null;
+    let scannerRunning = false;
+
+    function setMsg(text, type){
+      const msg = document.getElementById("msg");
+      msg.className = "message" + (type ? " " + type : "");
+      msg.innerHTML = text;
+    }
+
+    function normalizeTicket(value){
+      let v = String(value || "").trim().toUpperCase().replace(/\s+/g, "");
+
+      try{
+        const url = new URL(v);
+        const id = url.searchParams.get("id");
+        if(id) v = id.trim().toUpperCase().replace(/\s+/g, "");
+      }catch(e){}
+
+      if(/^\d{4}$/.test(v)){
+        return "LBT-0712-" + v;
+      }
+
+      return v;
+    }
+
+    function normalizeLumi(value){
+      let v = String(value || "").trim().toUpperCase().replace(/\s+/g, "");
+
+      if(/^\d{4}$/.test(v)){
+        return "LB-" + v;
+      }
+
+      if(/^LB\d{4}$/.test(v)){
+        return "LB-" + v.replace("LB", "");
+      }
+
+      return v;
+    }
+
+    function goToCheckin(value){
+      const ticketId = normalizeTicket(value);
+
+      if(!ticketId){
+        setMsg("예약번호를 읽지 못했어요.", "danger");
+        return;
+      }
+
+      document.getElementById("manualInput").value = ticketId;
+      setMsg("QR 인식 완료!<br>" + escapeHtml(ticketId) + "<br>입장확인 페이지로 이동합니다.", "success");
+
+      setTimeout(function(){
+        location.href = CHECKIN_URL + "?id=" + encodeURIComponent(ticketId);
+      }, 450);
+    }
+
+    function goManualTicket(){
+      const value = document.getElementById("manualInput").value;
+      goToCheckin(value);
+    }
+
+    function goManualLumi(){
+      const value = normalizeLumi(document.getElementById("manualInput").value);
+
+      if(!value){
+        setMsg("루미ID 숫자 4자리를 입력해 주세요.", "danger");
+        return;
+      }
+
+      document.getElementById("manualInput").value = value;
+      setMsg("루미ID 조회로 이동합니다.<br>" + escapeHtml(value), "success");
+
+      setTimeout(function(){
+        location.href = CHECKIN_URL + "?id=" + encodeURIComponent(value);
+      }, 450);
+    }
+
+    function goManualSearch(){
+      const value = String(document.getElementById("manualInput").value || "").trim();
+
+      if(!value){
+        setMsg("입금자명, 닉네임, 예약번호, 루미ID 중 하나를 입력해 주세요.", "danger");
+        return;
+      }
+
+      setMsg("통합 조회로 이동합니다.<br>" + escapeHtml(value), "success");
+
+      setTimeout(function(){
+        location.href = CHECKIN_URL + "?id=" + encodeURIComponent(value);
+      }, 450);
+    }
+
+    function openScanner(){
+      const box = document.getElementById("scannerBox");
+      box.classList.add("active");
+
+      if(scannerRunning) return;
+
+      if(typeof Html5Qrcode === "undefined"){
+        setMsg("QR 스캔 라이브러리를 불러오지 못했어요.<br>인터넷 연결을 확인해 주세요.", "danger");
+        return;
+      }
+
+      scanner = new Html5Qrcode("qr-reader");
+
+      scanner.start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+          aspectRatio: 1.0
+        },
+        function(decodedText){
+          const ticketId = normalizeTicket(decodedText);
+
+          closeScanner().then(function(){
+            goToCheckin(ticketId);
+          });
+        },
+        function(errorMessage){}
+      ).then(function(){
+        scannerRunning = true;
+        setMsg("카메라가 켜졌어요.<br>팬의 QR을 비춰주세요.", "success");
+      }).catch(function(err){
+        scannerRunning = false;
+        setMsg("카메라를 열 수 없어요.<br>브라우저 카메라 권한을 허용해 주세요.", "danger");
+      });
+    }
+
+    function closeScanner(){
+      const box = document.getElementById("scannerBox");
+
+      if(scanner && scannerRunning){
+        return scanner.stop().then(function(){
+          scanner.clear();
+          scannerRunning = false;
+          box.classList.remove("active");
+        }).catch(function(){
+          scannerRunning = false;
+          box.classList.remove("active");
+        });
+      }
+
+      box.classList.remove("active");
+      return Promise.resolve();
+    }
+
+    function escapeHtml(value){
+      return String(value || "").replace(/[&<>"']/g, function(m){
+        return {
+          "&":"&amp;",
+          "<":"&lt;",
+          ">":"&gt;",
+          '"':"&quot;",
+          "'":"&#039;"
+        }[m];
+      });
+    }
+
+    document.getElementById("manualInput").addEventListener("keydown", function(e){
+      if(e.key === "Enter"){
+        e.preventDefault();
+        goManualTicket();
+      }
+    });
+  </script>
+</body>
+</html>
