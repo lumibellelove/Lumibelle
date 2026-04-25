@@ -449,6 +449,73 @@
       100%{ transform:translate(var(--x), var(--y)) scale(1.18) rotate(90deg); opacity:0; }
     }
 
+
+    .qr-card{
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+    .qr-card::before{
+      content:"✦";
+      position:absolute;
+      right:22px;
+      top:18px;
+      color:rgba(255,95,168,.22);
+      font-size:28px;
+      pointer-events:none;
+    }
+    .qr-card .qr-desc{
+      margin:0 0 14px;
+      color:#8f7183;
+      font-size:14px;
+      font-weight:750;
+      line-height:1.8;
+    }
+    .qr-frame{
+      width:210px;
+      height:210px;
+      margin:0 auto;
+      padding:14px;
+      border-radius:24px;
+      background:linear-gradient(180deg,#fffafd 0%,#fff0f7 100%);
+      border:1px solid #f0bfd4;
+      box-shadow:0 10px 22px rgba(255,95,165,.10);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .qr-frame img{
+      width:180px;
+      height:180px;
+      display:block;
+      border-radius:12px;
+      background:#fff;
+    }
+    .qr-number{
+      margin-top:14px;
+      color:#d77ca7;
+      font-size:15px;
+      font-weight:900;
+      word-break:break-word;
+    }
+    .qr-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      margin-top:12px;
+      min-height:40px;
+      padding:10px 16px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid #f0bfd4;
+      color:#d77ca7;
+      text-decoration:none;
+      font-size:13px;
+      font-weight:900;
+      box-shadow:0 4px 10px rgba(255,95,165,0.08);
+    }
+    .qr-link:hover{transform:translateY(-2px)}
+
   </style>
 </head>
 <body>
@@ -568,6 +635,31 @@
           </div>
         </div>
 
+
+        <div class="summary-grid" style="margin-top:18px;">
+          <div class="card-box qr-card" id="ticketQrCard">
+            <h3>입장 확인 QR</h3>
+            <p class="qr-desc">현장에서 스탭에게 이 QR을 보여주세요.<br>스캔하면 예매 정보가 바로 열려요.</p>
+            <div id="ticketQrArea">
+              <div class="goods-empty">QR을 불러오는 중이에요.</div>
+            </div>
+          </div>
+
+          <div class="card-box">
+            <h3>현장 안내</h3>
+            <div class="info-list">
+              <div class="info-item">
+                <strong>입장 확인</strong>
+                <span>예약번호 또는 QR 확인 후 입장이 진행됩니다.</span>
+              </div>
+              <div class="info-item">
+                <strong>예약번호 확인</strong>
+                <span>QR이 보이지 않을 경우 예약번호 끝 4자리, 입금자명, 닉네임으로도 확인할 수 있어요.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="cta-box">
           <a href="../index.html" class="cta-btn sub">메인으로 돌아가기</a>
           <a href="index.html" class="cta-btn primary">티켓으로 돌아가기</a>
@@ -586,6 +678,7 @@
   <script>
     const ORDER_KEY = 'lumibelle_ticket_last_order';
     const LEGACY_ORDER_KEYS = ['lumibelleTicketReservation', 'ticketReservation'];
+    const STAFF_CHECKIN_URL = 'https://script.google.com/macros/s/AKfycbzan2-YWU9W7q5YKFN_gf7z7uYaWQlTGvrXcpTzobXPDfi3ZX969ARWsFb6VoExTyRHDA/exec';
 
     function safe(v){
       return (v === undefined || v === null || String(v).trim() === '') ? '-' : String(v);
@@ -625,6 +718,29 @@
       return latest;
     }
 
+
+    function renderTicketQr(reservationNo){
+      const qrBox = document.getElementById('ticketQrArea');
+      if(!qrBox) return;
+
+      const ticketId = safe(reservationNo);
+      if(ticketId === '-'){
+        qrBox.innerHTML = '<div class="goods-empty">예약번호가 확인되면 QR이 표시됩니다.</div>';
+        return;
+      }
+
+      const checkinUrl = `${STAFF_CHECKIN_URL}?id=${encodeURIComponent(ticketId)}`;
+      const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data=${encodeURIComponent(checkinUrl)}`;
+
+      qrBox.innerHTML = `
+        <div class="qr-frame">
+          <img src="${qrImgUrl}" alt="입장 확인 QR" loading="eager" decoding="async">
+        </div>
+        <div class="qr-number">예약번호: ${ticketId}</div>
+        <a class="qr-link" href="${checkinUrl}" target="_blank" rel="noopener">입장 확인 링크 열기</a>
+      `;
+    }
+
     function renderComplete(){
       const order = readSavedOrder();
 
@@ -642,11 +758,12 @@
           <div class="line total"><span>결제상태</span><span>입금확인대기</span></div>
         `;
         infoBox.innerHTML = `
-          <div class="info-item"><strong>예매 상태</strong><span>접수 완료 / ${safe(paymentStatus)}</span></div>
+          <div class="info-item"><strong>예매 상태</strong><span>접수 완료 / 입금 확인 대기</span></div>
           <div class="info-item"><strong>닉네임</strong><span>정보를 찾지 못했어요.</span></div>
           <div class="info-item"><strong>이메일</strong><span>정보를 찾지 못했어요.</span></div>
           <div class="info-item"><strong>입금자명</strong><span>정보를 찾지 못했어요.</span></div>
         `;
+        renderTicketQr('');
         return;
       }
 
@@ -676,6 +793,8 @@
         <div class="info-item"><strong>입금자명</strong><span>${safe(depositor)}</span></div>
         <div class="info-item"><strong>메아테</strong><span>${safe(mate)}</span></div>
       `;
+
+      renderTicketQr(reservationNo);
     }
 
     renderComplete();
