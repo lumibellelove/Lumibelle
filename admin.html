@@ -1,117 +1,485 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>ON AIR Admin | Lumibelle</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lumibelle ON AIR Admin</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=SUIT:wght@500;700;800;900&display=swap');
-    *{box-sizing:border-box}
-    body{margin:0;background:#fffafc;color:#7f6a77;font-family:"SUIT","Noto Sans KR",sans-serif}
-    .wrap{max-width:880px;margin:40px auto;padding:0 18px}
-    .panel{border:1px solid #f2d8e7;border-radius:30px;background:#fff5fb;box-shadow:0 8px 24px rgba(232,191,211,.14);padding:28px}
-    h1{margin:0 0 8px;color:#d77ca7;font-size:46px;line-height:1;font-weight:900;text-align:center}
-    p{font-weight:800;color:#b28ea2;line-height:1.7}
-    .notice{background:#fff;border:1px solid #f0dde8;border-radius:20px;padding:16px;margin:20px 0}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    label{display:flex;flex-direction:column;gap:7px;color:#b57e9d;font-weight:900;font-size:13px}
-    input,select,textarea{width:100%;border:1px solid #efd4e2;background:#fff;border-radius:16px;padding:13px 14px;color:#846f81;font-weight:800;font-family:inherit}
-    textarea{min-height:86px;resize:vertical}
-    .actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
-    button,a.btn{border:0;border-radius:999px;min-height:52px;padding:13px 18px;font-weight:900;font-size:15px;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center}
-    .primary{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;box-shadow:0 10px 22px rgba(255,95,165,.24)}
-    .secondary{background:#fff;color:#c97ca8;border:1px solid #efc6dc}
-    .danger{background:#9b7d90;color:#fff}
-    .live-list{display:grid;gap:12px;margin-top:20px}
-    .live-item{background:#fff;border:1px solid #f0dde8;border-radius:20px;padding:16px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
-    .live-item strong{display:block;color:#d77ca7;font-size:19px;margin-bottom:5px}
-    .live-item span{color:#8f7183;font-weight:800}
-    .mini-actions{display:flex;gap:8px;flex-wrap:wrap}
-    .mini-actions button{min-height:38px;font-size:12px;padding:8px 12px}
-    .status{margin-top:16px;text-align:center;color:#ff59a5;font-weight:900}
-    @media(max-width:720px){.grid,.actions{grid-template-columns:1fr}.live-item{grid-template-columns:1fr}h1{font-size:36px}}
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=SUIT:wght@400;500;600;700;800;900&display=swap');
+
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    body{
+      min-height:100vh;
+      font-family:"SUIT","Noto Sans KR",sans-serif;
+      color:#7f6a77;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(255,192,215,.62), transparent 28%),
+        radial-gradient(circle at 88% 18%, rgba(202,167,255,.42), transparent 26%),
+        linear-gradient(180deg,#fff7fb 0%,#fffafc 62%,#f8f0ff 100%);
+      padding:22px;
+    }
+
+    .admin-shell{
+      width:min(1120px,100%);
+      margin:0 auto;
+    }
+
+    .admin-hero{
+      position:relative;
+      overflow:hidden;
+      border-radius:34px;
+      border:1px solid #f2d8e7;
+      background:rgba(255,255,255,.72);
+      box-shadow:0 18px 42px rgba(232,191,211,.22);
+      padding:32px 28px;
+      text-align:center;
+      backdrop-filter:blur(12px);
+    }
+    .admin-hero::before{
+      content:"";
+      position:absolute;
+      inset:-90% -20% auto auto;
+      width:360px;height:360px;border-radius:50%;
+      background:conic-gradient(from 20deg, rgba(255,255,255,0), rgba(255,138,194,.32), rgba(202,167,255,.30), rgba(255,255,255,0));
+      animation:spin 9s linear infinite;
+      pointer-events:none;
+    }
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .admin-hero > *{position:relative;z-index:1;}
+    .eyebrow{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      padding:8px 14px;border-radius:999px;
+      background:#fff0f7;border:1px solid #f0bfd4;color:#ff59a5;
+      font-size:12px;font-weight:900;letter-spacing:.06em;
+      box-shadow:0 8px 18px rgba(255,95,165,.10);
+    }
+    h1{
+      margin:16px 0 8px;
+      font-family:"Cormorant Garamond",serif;
+      font-size:56px;line-height:.92;color:#ff5aa6;font-weight:700;
+      text-shadow:0 2px 0 #fff,0 0 18px rgba(255,120,178,.20);
+    }
+    .admin-hero p{margin:0;color:#a9899b;font-size:15px;font-weight:700;line-height:1.7;}
+
+    .panel{
+      margin-top:18px;
+      border-radius:30px;
+      border:1px solid #f2d8e7;
+      background:rgba(255,255,255,.82);
+      box-shadow:0 14px 34px rgba(232,191,211,.18);
+      padding:22px;
+      overflow:hidden;
+    }
+
+    .panel-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:16px;}
+    .panel-title{margin:0;color:#d77ca7;font-size:28px;font-weight:900;line-height:1.1;}
+    .panel-sub{margin:6px 0 0;color:#b28ea2;font-size:14px;font-weight:700;line-height:1.6;}
+
+    .member-picker{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:14px;
+    }
+    .member-icon{
+      border:1px solid #f1d8e6;
+      background:#fff;
+      border-radius:24px;
+      padding:16px 14px;
+      cursor:pointer;
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+      min-height:124px;
+      box-shadow:0 8px 18px rgba(232,191,211,.10);
+      transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+    .member-icon:hover{transform:translateY(-3px);box-shadow:0 14px 28px rgba(232,191,211,.18);}
+    .member-icon::after{
+      content:"＋";
+      position:absolute;right:12px;top:10px;
+      width:26px;height:26px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      background:#fff0f7;color:#ff59a5;font-weight:900;
+      border:1px solid #f0bfd4;
+    }
+    .member-icon.active::after{content:"✓";background:#ff59a5;color:#fff;border-color:#ff59a5;}
+    .member-avatar{
+      width:56px;height:56px;border-radius:50%;
+      margin:0 auto 10px;
+      display:flex;align-items:center;justify-content:center;
+      color:#fff;font-weight:900;font-size:18px;
+      box-shadow:0 10px 20px rgba(255,95,165,.18);
+    }
+    .avatar-mariring{background:#ff59a5;}
+    .avatar-lulu{background:linear-gradient(180deg,#ffb8d3,#ffd9e8);color:#9b5a77;}
+    .avatar-iro{background:#8ecdf2;color:#4b7894;}
+    .avatar-lunar{background:#9f6de0;}
+    .member-icon strong{display:block;color:#846f81;font-size:16px;font-weight:900;margin-bottom:4px;}
+    .member-icon span{display:block;color:#b28ea2;font-size:12px;font-weight:800;}
+
+    .empty-live{
+      padding:38px 20px;text-align:center;border-radius:24px;
+      background:#fff8fc;border:1px dashed #efc6dc;color:#b28ea2;font-weight:800;line-height:1.7;
+    }
+
+    .live-list{display:grid;gap:14px;}
+    .live-card{
+      position:relative;
+      border-radius:26px;
+      border:1px solid #f1d8e6;
+      background:linear-gradient(135deg,#fff 0%,#fff7fb 100%);
+      box-shadow:0 10px 24px rgba(232,191,211,.12);
+      padding:18px;
+      overflow:hidden;
+    }
+    .live-card::before{
+      content:"";position:absolute;left:-80px;top:-100px;width:180px;height:180px;border-radius:50%;
+      background:radial-gradient(circle,rgba(255,138,194,.20),transparent 68%);
+      pointer-events:none;
+    }
+    .live-card-top{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;}
+    .live-member{display:flex;align-items:center;gap:12px;min-width:0;}
+    .mini-avatar{
+      width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+      color:#fff;font-weight:900;flex:0 0 auto;
+    }
+    .live-member strong{display:block;color:#846f81;font-size:18px;font-weight:900;line-height:1.1;}
+    .live-member span{display:block;color:#b28ea2;font-size:12px;font-weight:800;margin-top:3px;}
+    .remove-btn{
+      border:0;border-radius:999px;background:#fff0f7;color:#ff59a5;border:1px solid #f0bfd4;
+      font-weight:900;font-size:12px;padding:9px 12px;cursor:pointer;
+    }
+
+    .card-grid{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .field{display:grid;gap:7px;}
+    .field.full{grid-column:1/-1;}
+    label{font-size:12px;font-weight:900;color:#c184a5;letter-spacing:.03em;}
+    input,select,textarea{
+      width:100%;border:1px solid #efd4e2;background:#fff;border-radius:16px;
+      padding:13px 14px;outline:none;color:#846f81;font-weight:800;font-size:14px;
+      font-family:inherit;
+    }
+    textarea{min-height:78px;resize:vertical;line-height:1.6;}
+    input:focus,select:focus,textarea:focus{border-color:#e6aeca;box-shadow:0 0 0 4px rgba(255,171,211,.16);}
+
+    .platform-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+    .platform-btn{
+      border:1px solid #efd4e2;background:#fff;border-radius:18px;padding:12px 10px;cursor:pointer;
+      font-weight:900;color:#a88098;transition:transform .14s ease, box-shadow .14s ease, background .14s ease;
+    }
+    .platform-btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(232,191,211,.12);}
+    .platform-btn.active{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;border-color:transparent;box-shadow:0 10px 22px rgba(255,95,165,.24);}
+
+    .actions{
+      position:sticky;bottom:14px;z-index:5;
+      margin-top:18px;padding:14px;border-radius:24px;
+      background:rgba(255,255,255,.88);border:1px solid #f2d8e7;
+      box-shadow:0 14px 34px rgba(232,191,211,.20);backdrop-filter:blur(10px);
+      display:flex;gap:10px;justify-content:center;flex-wrap:wrap;
+    }
+    .main-btn,.sub-btn,.danger-btn{
+      border:0;border-radius:999px;padding:14px 20px;min-width:150px;cursor:pointer;
+      font-family:inherit;font-weight:900;font-size:14px;transition:transform .15s ease, filter .15s ease;
+    }
+    .main-btn{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;box-shadow:0 10px 22px rgba(255,95,165,.25);}
+    .sub-btn{background:#fff;color:#c97ca8;border:1px solid #efc6dc;}
+    .danger-btn{background:#fff0f4;color:#ff4d6d;border:1px solid #ffc2cf;}
+    .main-btn:hover,.sub-btn:hover,.danger-btn:hover{transform:translateY(-1px);filter:brightness(1.02);}
+
+    .toast{
+      position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
+      background:#30212b;color:#fff;border-radius:999px;padding:13px 18px;font-weight:900;font-size:14px;
+      box-shadow:0 12px 28px rgba(48,33,43,.22);opacity:0;pointer-events:none;transition:all .22s ease;z-index:9999;
+    }
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+    .notice{
+      margin-top:14px;padding:14px 16px;border-radius:20px;background:#fff8fc;border:1px solid #f3ddea;
+      color:#a9899b;font-size:13px;font-weight:700;line-height:1.7;
+    }
+    code{background:#fff0f7;border:1px solid #f0bfd4;border-radius:8px;padding:2px 6px;color:#d77ca7;font-weight:900;}
+
+    @media(max-width:860px){
+      body{padding:14px;}
+      h1{font-size:44px;}
+      .member-picker{grid-template-columns:repeat(2,1fr);}
+      .card-grid{grid-template-columns:1fr;}
+    }
+    @media(max-width:520px){
+      .member-picker{grid-template-columns:1fr;}
+      .platform-row{grid-template-columns:1fr;}
+      .main-btn,.sub-btn,.danger-btn{width:100%;}
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <section class="panel">
-      <h1>ON AIR ADMIN</h1>
-      <p style="text-align:center">멤버가 동시에 방송할 때는 아래에서 방송 카드를 여러 개 추가하면 됩니다.</p>
-      <div class="notice">※ 현재 버전은 브라우저 테스트용 localStorage 방식입니다. 실제 모든 팬에게 반영하려면 기존처럼 Apps Script 연결이 필요해요.</div>
-      <div class="grid">
-        <label>멤버명<input id="member" value="마리링" placeholder="예: 마리링 / 루나 / 이로"></label>
-        <label>플랫폼<select id="platform"><option value="cime">씨미</option><option value="youtube">유튜브</option><option value="twitcast">트윗캐스</option></select></label>
-        <label>씨미 링크<input id="cimeUrl" value="https://ci.me/@mariring_love"></label>
-        <label>유튜브 Live ID<input id="youtubeId" placeholder="유튜브 영상 ID"></label>
-        <label>유튜브 링크<input id="youtubeUrl" placeholder="선택: 유튜브 전체 링크"></label>
-        <label>트윗캐스 ID<input id="twitcastId" placeholder="예: mariring_love"></label>
-      </div>
-      <label style="margin-top:12px">상태 문구<textarea id="message" placeholder="예: 현재 마리링이 씨미에서 방송중입니다 💗"></textarea></label>
-      <div class="actions">
-        <button class="primary" onclick="addLive()">이 멤버 LIVE 추가</button>
-        <button class="secondary" onclick="saveAll()">현재 목록 저장</button>
-        <button class="danger" onclick="clearAll()">전체 LIVE OFF</button>
-        <a class="btn secondary" href="broadcast/">방송 페이지 보기</a>
-      </div>
-      <div class="status" id="statusText">준비 완료</div>
-      <div class="live-list" id="liveList"></div>
+  <main class="admin-shell">
+    <section class="admin-hero">
+      <div class="eyebrow">✦ LUMIBELLE LIVE CONTROL</div>
+      <h1>ON AIR Admin</h1>
+      <p>멤버 아이콘을 누르면 아래에 방송 카드가 추가돼요.<br>플랫폼/링크를 고르고 저장하면 홈과 broadcast 페이지에서 멤버별 LIVE로 표시됩니다.</p>
     </section>
-  </div>
-<script>
-  const KEY="lumibelleLiveState";
-  let lives=[];
-  function load(){
-    try{
-      const saved=JSON.parse(localStorage.getItem(KEY)||"{}");
-      lives=Array.isArray(saved.liveList)?saved.liveList:[];
-      if(!lives.length&&saved.isLive){
-        lives=[{isLive:true,member:saved.member,platform:saved.platform,message:saved.message,cimeUrl:saved.cimeUrl,youtubeId:saved.youtubeId,youtubeUrl:saved.youtubeUrl,twitcastId:saved.twitcastId,twitcastUrl:saved.twitcastUrl}];
-      }
-    }catch(e){lives=[]}
-    render();
-  }
-  function readForm(){
-    const member=document.getElementById('member').value.trim()||'멤버';
-    const platform=document.getElementById('platform').value;
-    return {
-      isLive:true,
-      member,
-      platform,
-      message:document.getElementById('message').value.trim()||`현재 ${member} 방송중입니다 💗`,
-      cimeUrl:document.getElementById('cimeUrl').value.trim(),
-      youtubeId:document.getElementById('youtubeId').value.trim(),
-      youtubeUrl:document.getElementById('youtubeUrl').value.trim(),
-      twitcastId:document.getElementById('twitcastId').value.trim()
-    };
-  }
-  function addLive(){
-    const item=readForm();
-    const idx=lives.findIndex(v=>v.member===item.member);
-    if(idx>=0) lives[idx]=item;
-    else lives.push(item);
-    saveAll('LIVE 추가 완료');
-  }
-  function removeLive(i){lives.splice(i,1);saveAll('삭제 완료')}
-  function saveAll(msg='저장 완료'){
-    localStorage.setItem(KEY,JSON.stringify({isLive:false,liveList:lives}));
-    document.getElementById('statusText').textContent=msg;
-    render();
-  }
-  function clearAll(){
-    lives=[];
-    localStorage.setItem(KEY,JSON.stringify({isLive:false,liveList:[]}));
-    document.getElementById('statusText').textContent='전체 OFF 완료';
-    render();
-  }
-  function render(){
-    const box=document.getElementById('liveList');
-    if(!lives.length){
-      box.innerHTML='<div class="live-item"><div><strong>현재 LIVE 없음</strong><span>멤버 방송을 추가하면 홈과 방송 페이지에 표시됩니다.</span></div></div>';
-      return;
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">방송 멤버 추가</h2>
+          <p class="panel-sub">현재 방송 중인 멤버를 선택해 주세요. 같은 멤버를 다시 누르면 카드가 제거됩니다.</p>
+        </div>
+      </div>
+      <div class="member-picker" id="memberPicker"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">현재 방송중인 멤버</h2>
+          <p class="panel-sub">동시에 여러 명 방송할 때도 카드가 각각 표시돼요.</p>
+        </div>
+      </div>
+      <div id="liveList" class="live-list"></div>
+      <div class="notice">
+        저장 방식: 기본은 <code>localStorage</code> 테스트 저장이에요. 팬 화면까지 완전 공유하려면 나중에 Google Apps Script의 <code>SCRIPT_URL</code> 연결이 필요해요.
+      </div>
+    </section>
+
+    <div class="actions">
+      <button class="main-btn" type="button" id="saveBtn">💾 저장하기</button>
+      <button class="sub-btn" type="button" id="previewBtn">📺 broadcast 보기</button>
+      <button class="danger-btn" type="button" id="clearBtn">LIVE 전체 끄기</button>
+    </div>
+  </main>
+
+  <div class="toast" id="toast">저장 완료</div>
+
+  <script>
+    // 팬 화면까지 공유하려면 여기에 Apps Script 배포 URL을 넣어야 해요.
+    const SCRIPT_URL = "";
+
+    const MEMBERS = [
+      { id:"mariring", name:"마리링", label:"MARIRING", short:"M", avatar:"avatar-mariring", color:"#ff59a5", defaultPlatform:"cime", defaultUrl:"https://ci.me/@mariring_love" },
+      { id:"lulu", name:"루루", label:"LULU", short:"L", avatar:"avatar-lulu", color:"#ffb8d3", defaultPlatform:"twitcast", defaultUrl:"" },
+      { id:"iro", name:"이로", label:"IRO", short:"I", avatar:"avatar-iro", color:"#8ecdf2", defaultPlatform:"twitcast", defaultUrl:"" },
+      { id:"lunar", name:"LUNAR", label:"LUNAR", short:"L", avatar:"avatar-lunar", color:"#9f6de0", defaultPlatform:"twitcast", defaultUrl:"" }
+    ];
+
+    let liveMembers = [];
+
+    const picker = document.getElementById("memberPicker");
+    const liveList = document.getElementById("liveList");
+    const toast = document.getElementById("toast");
+
+    function showToast(msg){
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(()=>toast.classList.remove("show"), 1600);
     }
-    box.innerHTML=lives.map((item,i)=>`<div class="live-item"><div><strong>${item.member} · ${String(item.platform).toUpperCase()}</strong><span>${item.message||''}</span></div><div class="mini-actions"><button class="secondary" onclick="removeLive(${i})">삭제</button></div></div>`).join('');
-  }
-  load();
-</script>
+
+    function getMember(id){ return MEMBERS.find(m => m.id === id); }
+
+    function normalizeLive(item){
+      const m = getMember(item.id || item.memberId) || MEMBERS[0];
+      return {
+        id: m.id,
+        name: item.name || m.name,
+        label: item.label || m.label,
+        platform: item.platform || m.defaultPlatform || "cime",
+        title: item.title || `${m.name} ON AIR`,
+        note: item.note || "지금 방송중입니다 💗",
+        url: item.url || item.cimeUrl || m.defaultUrl || "",
+        youtubeId: item.youtubeId || "",
+        twitcastId: item.twitcastId || "",
+        isLive: true
+      };
+    }
+
+    function loadState(){
+      try{
+        const saved = JSON.parse(localStorage.getItem("lumibelle_live_members") || "[]");
+        liveMembers = Array.isArray(saved) ? saved.map(normalizeLive) : [];
+      }catch(e){
+        liveMembers = [];
+      }
+    }
+
+    function saveLocal(){
+      localStorage.setItem("lumibelle_live_members", JSON.stringify(liveMembers));
+      localStorage.setItem("isLive", liveMembers.length ? "true" : "false");
+      localStorage.setItem("platform", liveMembers[0]?.platform || "cime");
+      localStorage.setItem("youtubeId", liveMembers[0]?.youtubeId || "");
+      localStorage.setItem("cimeUrl", liveMembers[0]?.url || "https://ci.me/@mariring_love");
+      localStorage.setItem("twitcastId", liveMembers[0]?.twitcastId || "");
+    }
+
+    async function saveRemote(){
+      if(!SCRIPT_URL) return false;
+      const payload = { isLive: liveMembers.length > 0, liveMembers };
+      const res = await fetch(SCRIPT_URL, {
+        method:"POST",
+        mode:"no-cors",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(payload)
+      });
+      return true;
+    }
+
+    function renderPicker(){
+      picker.innerHTML = "";
+      MEMBERS.forEach(m => {
+        const active = liveMembers.some(item => item.id === m.id);
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "member-icon" + (active ? " active" : "");
+        btn.innerHTML = `
+          <div class="member-avatar ${m.avatar}">${m.short}</div>
+          <strong>${m.name}</strong>
+          <span>${active ? "방송 카드 추가됨" : "눌러서 추가"}</span>
+        `;
+        btn.addEventListener("click", () => toggleMember(m.id));
+        picker.appendChild(btn);
+      });
+    }
+
+    function toggleMember(id){
+      const exists = liveMembers.some(item => item.id === id);
+      if(exists){
+        liveMembers = liveMembers.filter(item => item.id !== id);
+      }else{
+        const m = getMember(id);
+        liveMembers.push(normalizeLive({ id:m.id }));
+      }
+      renderAll();
+    }
+
+    function setPlatform(id, platform){
+      const item = liveMembers.find(x => x.id === id);
+      if(!item) return;
+      item.platform = platform;
+      if(platform === "cime" && !item.url){
+        const m = getMember(id);
+        item.url = m.defaultUrl || "";
+      }
+      renderAll(false);
+    }
+
+    function updateField(id, key, value){
+      const item = liveMembers.find(x => x.id === id);
+      if(!item) return;
+      item[key] = value;
+    }
+
+    function renderLiveList(){
+      liveList.innerHTML = "";
+      if(!liveMembers.length){
+        liveList.innerHTML = `<div class="empty-live">아직 방송중인 멤버가 없어요.<br>위에서 멤버 아이콘을 눌러 방송 카드를 추가해 주세요.</div>`;
+        return;
+      }
+
+      liveMembers.forEach(item => {
+        const m = getMember(item.id);
+        const card = document.createElement("article");
+        card.className = "live-card";
+        card.innerHTML = `
+          <div class="live-card-top">
+            <div class="live-member">
+              <div class="mini-avatar ${m.avatar}">${m.short}</div>
+              <div>
+                <strong>${m.name}</strong>
+                <span>${platformLabel(item.platform)} 방송 카드</span>
+              </div>
+            </div>
+            <button class="remove-btn" type="button" data-remove="${item.id}">제거</button>
+          </div>
+
+          <div class="card-grid">
+            <div class="field full">
+              <label>플랫폼</label>
+              <div class="platform-row">
+                <button type="button" class="platform-btn ${item.platform === "cime" ? "active" : ""}" data-platform="cime" data-id="${item.id}">💗 씨미</button>
+                <button type="button" class="platform-btn ${item.platform === "youtube" ? "active" : ""}" data-platform="youtube" data-id="${item.id}">▶ 유튜브</button>
+                <button type="button" class="platform-btn ${item.platform === "twitcast" ? "active" : ""}" data-platform="twitcast" data-id="${item.id}">💬 트윗캐스</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>방송 제목</label>
+              <input value="${escapeAttr(item.title)}" data-field="title" data-id="${item.id}" placeholder="마리링 ON AIR" />
+            </div>
+            <div class="field">
+              <label>한줄 문구</label>
+              <input value="${escapeAttr(item.note)}" data-field="note" data-id="${item.id}" placeholder="지금 방송중입니다 💗" />
+            </div>
+
+            <div class="field full">
+              <label>씨미/외부 링크</label>
+              <input value="${escapeAttr(item.url)}" data-field="url" data-id="${item.id}" placeholder="https://ci.me/@mariring_love" />
+            </div>
+            <div class="field">
+              <label>유튜브 ID</label>
+              <input value="${escapeAttr(item.youtubeId)}" data-field="youtubeId" data-id="${item.id}" placeholder="유튜브 라이브 ID" />
+            </div>
+            <div class="field">
+              <label>트윗캐스 ID</label>
+              <input value="${escapeAttr(item.twitcastId)}" data-field="twitcastId" data-id="${item.id}" placeholder="twitcasting 아이디" />
+            </div>
+          </div>
+        `;
+        liveList.appendChild(card);
+      });
+
+      liveList.querySelectorAll("[data-remove]").forEach(btn => {
+        btn.addEventListener("click", () => toggleMember(btn.dataset.remove));
+      });
+      liveList.querySelectorAll("[data-platform]").forEach(btn => {
+        btn.addEventListener("click", () => setPlatform(btn.dataset.id, btn.dataset.platform));
+      });
+      liveList.querySelectorAll("[data-field]").forEach(input => {
+        input.addEventListener("input", () => updateField(input.dataset.id, input.dataset.field, input.value));
+      });
+    }
+
+    function platformLabel(p){
+      if(p === "cime") return "씨미";
+      if(p === "youtube") return "유튜브";
+      if(p === "twitcast") return "트윗캐스";
+      return p;
+    }
+
+    function escapeAttr(str){
+      return String(str || "").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+
+    function renderAll(){
+      renderPicker();
+      renderLiveList();
+    }
+
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+      saveLocal();
+      try{
+        const remote = await saveRemote();
+        showToast(remote ? "저장 완료 · 사이트 반영 요청됨" : "저장 완료 · 테스트 모드");
+      }catch(e){
+        showToast("로컬 저장 완료 · 원격 저장 실패");
+      }
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      if(!confirm("현재 LIVE를 전부 끌까요?")) return;
+      liveMembers = [];
+      saveLocal();
+      renderAll();
+      showToast("LIVE 전체 OFF");
+    });
+
+    document.getElementById("previewBtn").addEventListener("click", () => {
+      saveLocal();
+      window.open("broadcast/index.html", "_blank");
+    });
+
+    loadState();
+    renderAll();
+  </script>
 </body>
 </html>
