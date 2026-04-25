@@ -1166,6 +1166,24 @@
   </footer>
   <script>
     const GOOGLE_FORM_ACTION = 'https://docs.google.com/forms/d/e/1FAIpQLSditmDvEROhZgBZIx6wL6j35d_nx4sqOZy2phlsX9EeyXXRIw/formResponse';
+    const ORDER_KEY = 'lumibelle_ticket_last_order';
+
+    function makeRandom4(){
+      if(window.crypto && window.crypto.getRandomValues){
+        const arr = new Uint32Array(1);
+        window.crypto.getRandomValues(arr);
+        return String(1000 + (arr[0] % 9000));
+      }
+      return String(Math.floor(1000 + Math.random() * 9000));
+    }
+
+    function makeReservationNo(){
+      return `LBT-0712-${makeRandom4()}`;
+    }
+
+    function makeLumiId(){
+      return `LB-${makeRandom4()}`;
+    }
 
     const ticketData = {
       pre: { title: '사전 예약 티켓', desc: '일반 입장권 / 입금 확인 후 예약 확정', price: '₩10,000', formValue: '사전 예약 (10,000원)' },
@@ -1232,17 +1250,24 @@
       formData.append('entry.1401101926', '안내사항을 모두 확인하였으며 동의합니다.');
 
       const reservationData = {
-        reservationNo: 'LMB-' + Date.now().toString().slice(-6),
+        reservationNo: makeReservationNo(),
+        lumiId: makeLumiId(),
         nickname: `${nickname}${pin}`,
+        rawNickname: nickname,
+        pin,
         email,
         depositor,
         meate,
         ticketType: ticket.formValue,
+        ticketDisplayName: ticket.title,
         paymentStatus: '입금확인대기',
+        entranceStatus: '미입장',
         agreement: '안내사항을 모두 확인하였으며 동의합니다.',
         submittedAt: new Date().toISOString()
       };
 
+      // complete.html이 읽는 대표 키. 예전 키도 같이 저장해서 기존 코드/북마크와 충돌을 줄여요.
+      localStorage.setItem(ORDER_KEY, JSON.stringify(reservationData));
       localStorage.setItem('lumibelleTicketReservation', JSON.stringify(reservationData));
       localStorage.setItem('ticketReservation', JSON.stringify(reservationData));
 
