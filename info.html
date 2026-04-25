@@ -409,6 +409,22 @@
       color:#7b5f70;
     }
 
+    .upload-emphasis{
+      margin:16px 0 10px !important;
+      padding:0 !important;
+      color:#7b5f70 !important;
+      font-size:17px !important;
+      line-height:1.8 !important;
+      font-weight:900 !important;
+    }
+
+    .upload-emphasis strong{
+      color:#c85f93 !important;
+      font-weight:900 !important;
+      background:linear-gradient(transparent 58%, rgba(255,192,215,.45) 58%);
+      padding:0 2px;
+    }
+
     .account-box{
       display:grid;
       gap:8px;
@@ -740,36 +756,133 @@
       .info-card h3{font-size:24px}
       .back-to-top{right:16px;bottom:16px;width:58px;height:58px}
     }
+
+    /* ===== INFO tab layout ===== */
+    .info-tabs{
+      display:flex;
+      gap:10px;
+      overflow-x:auto;
+      padding:12px 2px 4px;
+      margin-top:22px;
+      scrollbar-width:none;
+    }
+    .info-tabs::-webkit-scrollbar{display:none}
+    .tab-btn{
+      flex:0 0 auto;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:rgba(255,255,255,.82);
+      color:#b3839b;
+      min-height:48px;
+      padding:10px 18px;
+      font-family:"SUIT","Noto Sans KR",sans-serif;
+      font-size:14px;
+      font-weight:900;
+      cursor:pointer;
+      box-shadow:0 8px 20px rgba(232,191,211,.10);
+      transition:background .18s ease, color .18s ease, box-shadow .18s ease;
+      white-space:nowrap;
+    }
+    .tab-btn.active{
+      background:linear-gradient(180deg,var(--pink2),var(--pink));
+      color:#fff;
+      border-color:transparent;
+      box-shadow:0 12px 24px rgba(255,95,165,.18);
+    }
+    /* 탭 내용과 큰 제목 사이 여백: 과하지 않게 위아래만 정리 */
+    .tab-panel{display:none;margin-top:34px;}
+    .tab-panel.active{display:block;animation:tabFade .24s ease;}
+    .tab-intro{padding-top:0;}
+    @media (max-width:780px){
+      .tab-panel{margin-top:24px;}
+      .tab-intro{padding-top:0;margin-bottom:26px;}
+    }
+    @keyframes tabFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .tab-intro{text-align:center;margin:0 0 34px;}
+    .tab-intro h2{
+      margin:0;color:#d67faa;font-size:clamp(38px,5vw,62px);line-height:.95;font-weight:900;
+      text-shadow:0 6px 18px rgba(255,120,178,.10);
+    }
+    .tab-intro p{margin:10px 0 0;color:#c79bb3;font-size:16px;font-weight:700;line-height:1.65;}
+    .mini-guide-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px;}
+    .mini-guide{border:1px solid var(--line);border-radius:22px;background:#fff;padding:18px 16px;text-align:center;color:#8f7183;font-size:14px;line-height:1.75;font-weight:700;}
+    .mini-guide b{display:block;color:var(--pink);font-size:16px;margin-bottom:6px;}
+
+    .sub-card-title{
+      margin:26px 0 12px;
+      color:#ff59a5;
+      font-size:18px;
+      font-weight:900;
+      letter-spacing:.04em;
+      text-align:center;
+    }
+
+
+    /* 티켓/굿즈 탭: 왼쪽 3단 + 오른쪽 현장 메뉴 구조 */
+    .ticket-layout{
+      display:grid;
+      grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);
+      gap:22px;
+      align-items:stretch;
+    }
+    .ticket-layout > .info-card{height:100%;}
+    .ticket-stack{display:grid;gap:18px;}
+    .menu-section-title{
+      margin:20px 0 12px;
+      color:#ff59a5;
+      font-size:19px;
+      font-weight:900;
+      letter-spacing:.03em;
+    }
+    .menu-section-title:first-of-type{margin-top:18px;}
+    .menu-divider{
+      height:1px;
+      margin:24px 0 20px;
+      background:linear-gradient(90deg, transparent, #f0bfd4, transparent);
+    }
+    .price-card b{line-height:1.45; word-break:keep-all;}
+    .price-card span{line-height:1.75; word-break:keep-all;}
+    .live-menu-note{
+      margin-top:28px;
+      padding-top:4px;
+      color:#8f7183;
+      font-size:14px;
+      line-height:1.8;
+      font-weight:700;
+    }
+    @media (max-width:980px){.ticket-layout{grid-template-columns:1fr;}}
+
+    @media (max-width:860px){.mini-guide-grid{grid-template-columns:1fr}.tab-btn{font-size:13px;padding:10px 15px}}
   </style>
 </head>
 
 <body>
   <div class="top-lang-bar">
     <div class="lang-switch" aria-label="language switch">
-      <a href="#" class="active">KR</a>
-      <a href="#">JP</a>
-      <a href="#">EN</a>
+      <a href="info.html" class="active">KR</a>
+      <a href="jp/info.html">JP</a>
+      <a href="en/info.html">EN</a>
     </div>
   </div>
 
   <header>
     <div class="header-box">
       <div class="logo">
-        <a href="../index.html" aria-label="Lumibelle Home">
+        <a href="index.html" aria-label="Lumibelle Home">
           <span class="logo-main">Lumibelle</span>
           <span class="logo-sub">OFFICIAL</span>
         </a>
       </div>
 
       <nav aria-label="main navigation">
-        <a href="../index.html"><b>HOME</b><span>홈</span></a>
-        <a href="../notice.html"><b>NOTICE</b><span>공지</span></a>
-        <a href="../member.html"><b>MEMBER</b><span>멤버</span></a>
-        <a href="../schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
-        <a href="../ticket/"><b>TICKET</b><span>예매</span></a>
-        <a href="../goods/"><b>GOODS</b><span>굿즈</span></a>
-        <a href="../setlist.html"><b>SETLIST</b><span>응원가이드</span></a>
-        <a href="./" class="current"><b>INFO</b><span>안내</span></a>
+        <a href="index.html"><b>HOME</b><span>홈</span></a>
+        <a href="news.html"><b>NOTICE</b><span>공지</span></a>
+        <a href="member.html"><b>MEMBER</b><span>멤버</span></a>
+        <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
+        <a href="ticket/"><b>TICKET</b><span>예매</span></a>
+        <a href="goods/"><b>GOODS</b><span>굿즈</span></a>
+        <a href="setlist.html"><b>SETLIST</b><span>응원가이드</span></a>
+        <a href="info.html" class="current"><b>INFO</b><span>안내</span></a>
       </nav>
     </div>
   </header>
@@ -781,381 +894,235 @@
         <h1>INFO</h1>
         <p>
           루미벨의 티켓, 굿즈, 현장 물판, 특전회, 포인트, 선물·서포트, 2차 창작 및 문의 안내를 모아둔 페이지입니다.
-          각 항목은 운영 상황에 따라 수정될 수 있으며, 최신 안내는 공식 계정과 홈페이지 공지를 기준으로 확인해주세요.
+          필요한 항목을 탭으로 골라 확인해주세요.
         </p>
 
-        <div class="quick-grid">
-          <a class="quick-btn" href="#first"><b>처음 오신 분</b><span>기본 이용 안내</span></a>
-          <a class="quick-btn" href="#ticket"><b>티켓 / 굿즈</b><span>예매·배송·물판</span></a>
-          <a class="quick-btn" href="#rules"><b>현장 규정</b><span>라이브·특전회</span></a>
-          <a class="quick-btn" href="#contact"><b>문의하기</b><span>출연·섭외 포함</span></a>
+        <div class="info-tabs" role="tablist" aria-label="INFO 안내 탭">
+          <button class="tab-btn active" type="button" data-tab="first">처음 오신 분</button>
+          <button class="tab-btn" type="button" data-tab="ticket">티켓/굿즈</button>
+          <button class="tab-btn" type="button" data-tab="rules">현장/특전회</button>
+          <button class="tab-btn" type="button" data-tab="point">포인트</button>
+          <button class="tab-btn" type="button" data-tab="support">선물/창작</button>
+          <button class="tab-btn" type="button" data-tab="casting">출연/문의</button>
+          <button class="tab-btn" type="button" data-tab="faq">FAQ</button>
         </div>
       </section>
 
-      <section id="first" class="section-heading reveal">
-        <h2>Guide</h2>
-        <p>처음 방문한 팬도 바로 확인할 수 있는 기본 안내입니다.</p>
-      </section>
-
-      <section class="info-grid">
-        <article class="info-card reveal">
-          <span class="card-label">CONTACT</span>
-          <h3>문의 안내</h3>
-          <p>문의가 필요한 경우 루미벨 공식 DM 또는 홈페이지 문의폼을 이용해주세요.</p>
-          <p>예약번호, 주문번호, 루미 ID, 입금자명 등을 함께 남겨주시면 더 빠르게 확인할 수 있습니다.</p>
-          <div class="notice-box">
-            이메일: <strong>lumibelle.love@gmail.com</strong><br>
-            정식 출연·섭외·협업 문의는 홈페이지 문의폼 이용을 권장합니다.
-          </div>
-        </article>
-
-        <article class="info-card reveal">
-          <span class="card-label">ACCOUNT</span>
-          <h3>입금 및 결제 안내</h3>
-          <p>입금자명은 신청 시 작성한 이름과 동일하게 입금해주세요. 입금자명이 다를 경우 확인이 지연될 수 있습니다.</p>
-          <div class="account-box">
-            <strong>국민은행 0000-0000-0000</strong>
-            <span>예금주: 추후 공개</span>
-          </div>
-          <p>현재 계좌 정보는 임시 표기이며, 실제 오픈 전 수정 예정입니다.</p>
-        </article>
-
-        <article id="ticket" class="info-card reveal">
-          <span class="card-label">TICKET</span>
-          <h3>티켓 예매 안내</h3>
-          <p>티켓 예매는 신청 후 입금 확인이 완료되어야 최종 확정됩니다.</p>
-          <p>예매 완료 후 표시되는 예약번호와 QR 화면은 캡쳐 또는 저장해주세요. 현장 입장 시 예약번호, 닉네임, 입금자명, 루미 ID 등으로 확인할 수 있습니다.</p>
-          <div class="notice-box">QR코드는 보조 확인용이며, 예약번호 끝 4자리로도 확인할 수 있습니다.</div>
-        </article>
-
-        <article class="info-card reveal">
-          <span class="card-label">GOODS</span>
-          <h3>굿즈 / 배송 안내</h3>
-          <p>온라인 굿즈는 주문 후 입금 확인이 완료되면 순차적으로 준비 및 발송됩니다.</p>
-          <p>배송비는 기본 6,000원이며, 제주 및 도서산간 지역은 추가 배송비가 발생할 수 있습니다.</p>
-          <div class="notice-box">제작 상품은 단순 변심으로 인한 취소 및 환불이 어려울 수 있습니다.</div>
-        </article>
-
-        <article class="info-card full reveal">
-          <span class="card-label">LIVE GOODS</span>
-          <h3>현장 물판 및 특전권 안내</h3>
-          <p>현장 물판은 주문번호 또는 현장 안내에 따라 스탭 확인 후 진행됩니다. 특전권 및 굿즈 상품은 현장 안내에 따라 현금 또는 계좌이체로 구매할 수 있습니다.</p>
-          <div class="price-grid">
-            <div class="price-card">
-              <b>특전권 1매 7,000원</b>
-              <span>핀체키<br>교류시간 90초<br>데코 포함</span>
+      <section class="tab-panel active" id="tab-first">
+        <div class="tab-intro reveal">
+          <h2>First Guide</h2>
+          <p>처음 방문한 팬도 바로 확인할 수 있는 기본 안내입니다.</p>
+        </div>
+        <div class="info-grid">
+          <article class="info-card reveal full">
+            <span class="card-label">WELCOME</span>
+            <h3>처음 오신 분</h3>
+            <p>루미벨 홈페이지에서는 티켓 예매, 굿즈 확인, SETLIST / 응원가이드, INFO, 루미 ID 관련 안내를 확인할 수 있습니다.</p>
+            <div class="mini-guide-grid">
+              <div class="mini-guide"><b>티켓</b>예매 후 예약번호와 QR 화면을 저장해주세요.</div>
+              <div class="mini-guide"><b>굿즈</b>온라인 배송과 현장 물판 안내를 구분해 확인해주세요.</div>
+              <div class="mini-guide"><b>문의</b>예약번호, 주문번호, 입금자명을 함께 남기면 확인이 빨라요.</div>
             </div>
-            <div class="price-card">
-              <b>특전권 2매 10,000원</b>
-              <span>투샷체키<br>교류시간 120초<br>데코 포함</span>
+          </article>
+          <article class="info-card reveal">
+            <span class="card-label">CONTACT</span>
+            <h3>문의 안내</h3>
+            <p>문의가 필요한 경우 루미벨 공식 DM 또는 홈페이지 문의폼을 이용해주세요.</p>
+            <p>예약번호, 주문번호, 루미 ID, 입금자명 등을 함께 남겨주시면 더 빠르게 확인할 수 있습니다.</p>
+            <div class="notice-box">
+              이메일: <strong>lumibelle.love@gmail.com</strong><br>
+              정식 출연·섭외·협업 문의는 홈페이지 문의폼 이용을 권장합니다.
             </div>
-            <div class="price-card">
-              <b>특전권 4매 20,000원</b>
-              <span>숙제체키<br>다음 라이브에서 만나는 특별한 1장<br>교류시간 120초</span>
+          </article>
+          <article class="info-card reveal">
+            <span class="card-label">LUMI ID</span>
+            <h3>루미 ID 안내</h3>
+            <p>루미 ID는 루미벨과 함께한 기록을 모으는 팬 전용 ID입니다. 반짝 포인트, 업적, 출석, 운세, 카드 등과 연결될 예정입니다.</p>
+            <div class="notice-box">정식 발급 및 조회 기능은 추후 홈페이지와 공식 계정을 통해 안내됩니다.</div>
+          </article>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-ticket">
+        <div class="tab-intro reveal">
+          <h2>Ticket / Goods</h2>
+          <p>예매, 굿즈, 입금, 현장 물판 메뉴를 확인해주세요.</p>
+        </div>
+        <div class="ticket-layout">
+          <div class="ticket-stack">
+            <article class="info-card reveal">
+              <span class="card-label">TICKET</span>
+              <h3>티켓 예매 안내</h3>
+              <p>티켓 예매는 신청 후 입금 확인이 완료되어야 최종 확정됩니다.</p>
+              <p>예매 완료 후 표시되는 예약번호와 QR 화면은 캡쳐 또는 저장해주세요. 현장 입장 시 예약번호, 닉네임, 입금자명, 루미 ID 등으로 확인할 수 있습니다.</p>
+              <div class="notice-box">QR코드는 보조 확인용이며, 예약번호 끝 4자리로도 확인할 수 있습니다.</div>
+            </article>
+            <article class="info-card reveal">
+              <span class="card-label">GOODS</span>
+              <h3>굿즈 / 배송 안내</h3>
+              <p>온라인 굿즈는 주문 후 입금 확인이 완료되면 순차적으로 준비 및 발송됩니다.</p>
+              <p>배송비는 기본 6,000원이며, 제주 및 도서산간 지역은 추가 배송비가 발생할 수 있습니다.</p>
+              <div class="notice-box">제작 상품은 단순 변심으로 인한 취소 및 환불이 어려울 수 있습니다.</div>
+            </article>
+            <article class="info-card reveal">
+              <span class="card-label">PAYMENT</span>
+              <h3>입금 및 결제 안내</h3>
+              <p>입금자명은 신청 시 작성한 이름과 동일하게 입금해주세요. 입금자명이 다를 경우 확인이 지연될 수 있습니다.</p>
+              <p>계좌 정보는 각 티켓 예매 페이지와 굿즈 구매 페이지의 최신 안내를 기준으로 확인해주세요.</p>
+              <div class="notice-box">결제 전 반드시 해당 예매/구매 페이지의 최신 안내를 확인해주세요.</div>
+            </article>
+          </div>
+
+          <article class="info-card reveal">
+            <span class="card-label">LIVE GOODS</span>
+            <h3>현장 물판 및 특전회 안내</h3>
+            <p>현장 물판은 주문번호 또는 현장 안내에 따라 스탭 확인 후 진행됩니다.</p>
+            <p>루미벨 물판은 체키 메뉴와 디지털 메뉴로 나뉩니다. 체키 촬영이 부담스러운 분들을 위해 샤메권, 영상권 등 디지털 특전도 준비되어 있습니다.</p>
+
+            <h4 class="menu-section-title">CHEKI MENU · 체키 메뉴</h4>
+            <div class="price-grid">
+              <div class="price-card"><b>특전권 1매 7,000원</b><span>핀체키 · 아이돌 혼자<br>교류 90초 / 데코 포함</span></div>
+              <div class="price-card"><b>특전권 2매 10,000원</b><span>투샷체키 · 아이돌과 함께<br>교류 120초 / 데코 포함</span></div>
+              <div class="price-card"><b>특전권 4매 20,000원</b><span>숙제체키 · 다음 라이브에서 만나는 특별한 1장<br>교류 120초</span></div>
             </div>
-          </div>
-          <div class="notice-box">각 특전 메뉴는 구성과 교류 시간에 따라 금액이 다르게 책정됩니다. 현장 상황에 따라 구매 가능 수량이 제한될 수 있습니다.</div>
-        </article>
-      </section>
 
-      <section id="rules" class="section-heading reveal">
-        <h2>Rules</h2>
-        <p>모두가 즐겁게 공연을 즐길 수 있도록 현장 안내를 확인해주세요.</p>
-      </section>
+            <div class="menu-divider" aria-hidden="true"></div>
 
-      <section class="info-grid">
-        <article class="info-card reveal">
-          <span class="card-label">LIVE</span>
-          <h3>라이브 규정</h3>
-          <ul>
-            <li>다른 관객의 관람을 방해하지 않는 범위 내에서 사진 및 영상 촬영이 가능합니다.</li>
-            <li>플래시, 삼각대, 대형 촬영 장비, 소음 유발 장비 및 시야 방해 행위는 제한될 수 있습니다.</li>
-            <li>행사 장비에 손대거나 기대는 행위는 금지됩니다.</li>
-            <li>비상 상황 발생 시 현장 스탭의 안내를 따라주세요.</li>
-          </ul>
-        </article>
-
-        <article class="info-card reveal">
-          <span class="card-label">CHEKI TIME</span>
-          <h3>특전회 규정</h3>
-          <ul>
-            <li>멤버의 신체, 의상, 소품, 소지품에 접촉하거나 접촉을 요구하는 행위는 금지됩니다.</li>
-            <li>신체 접촉으로 오해될 수 있는 포즈, 앞뒤 서기, 지나치게 복잡한 포즈 요청은 제한될 수 있습니다.</li>
-            <li>사생활, 외모, 성적인 언급 등 멤버가 불편해할 수 있는 언행은 삼가주세요.</li>
-            <li>특전회 시간 외 멤버에게 접근하거나 말을 거는 행위는 삼가주세요.</li>
-          </ul>
-        </article>
-
-        <article class="info-card full reveal">
-          <span class="card-label">UPLOAD</span>
-          <h3>촬영 및 업로드 규정</h3>
-          <p>직캠 및 공연 영상 업로드는 가능합니다. 다만 멤버의 이미지 보호를 위해 아래 사항을 꼭 확인해주세요.</p>
-          <div class="notice-box important">
-            <strong>썸네일 및 사진 업로드 전 확인을 부탁드립니다.</strong>
-          </div>
-          <p>촬영물은 루미벨의 동의 없는 판매, 광고, 상업적 이용 또는 초상권 침해 없이 개인 SNS에 한해 비상업적으로 업로드할 수 있습니다.</p>
-        </article>
-      </section>
-
-      <section class="section-heading reveal">
-        <h2>Point</h2>
-        <p>물판 포인트와 홈페이지 포인트는 서로 다른 시스템입니다.</p>
-      </section>
-
-      <section class="info-grid">
-        <article class="info-card full reveal">
-          <span class="card-label">SPARKLE POINT</span>
-          <h3>반짝 포인트 레귤</h3>
-          <p>반짝 포인트는 현장 물판 및 특전권 구매 기준으로 적립되는 포인트 레귤레이션입니다.</p>
-          <p>루미 ID 업적과는 별도의 시스템이며, 포인트는 보상 교환용, 업적은 팬 활동 기록 달성용으로 운영됩니다.</p>
-          <div class="notice-box">
-            <strong>특전권 15장 구매 시 반짝 포인트 1P가 지급됩니다.</strong><br>
-            특전권 1장 7,000원 기준이며, 15장 구매 시 105,000원입니다.
-          </div>
-          <div class="pill-row">
-            <span class="pill">물판 전용</span>
-            <span class="pill">현장 기준</span>
-            <span class="pill">홈페이지 포인트와 별도</span>
-            <span class="pill">양도 / 복제 / 위조 불가</span>
-          </div>
-
-          <details>
-            <summary>포인트 보상표 보기</summary>
-            <div class="details-body">
-              <ul>
-                <li>1P : 샤메권 / 교류 30초</li>
-                <li>3P : 이벤트 특전권 1장</li>
-                <li>5P : 카고미 체키</li>
-                <li>7P : 물품 사인권</li>
-                <li>10P : 30초 영상 + 녹음권</li>
-                <li>15P : 물판 패스권</li>
-                <li>20P : 멤버 지정 숙제체키 1개</li>
-                <li>25P : 루미벨 굿즈 1개</li>
-                <li>30P : 라이브 무료 입장</li>
-                <li>35P : 세트리스트 지정권</li>
-                <li>40P : 오프회 무료 참가권</li>
-                <li>100P : 멤버 전원 프라이빗 감사회</li>
-              </ul>
-              <p>보상 내용은 운영 상황에 따라 변경될 수 있으며, 변경 시 공식 계정을 통해 안내됩니다.</p>
+            <h4 class="menu-section-title">DIGITAL MENU · 디지털 메뉴</h4>
+            <div class="price-grid">
+              <div class="price-card"><b>샤메권 1매 7,000원</b><span>솔로 또는 투샷 중 택 1<br>교류 90초 / 보정 어플 권장</span></div>
+              <div class="price-card"><b>영상권 1매 10,000원</b><span>틱톡 및 SNS 업로드용 짧은 영상<br>교류 60초 + 촬영 20초 내외</span></div>
+              <div class="price-card"><b>단체 촬영권 1매 30,000원</b><span>체키 또는 샤메 중 택 1<br>교류 180초 / 스탭에게 별도 문의</span></div>
             </div>
-          </details>
-        </article>
-
-        <article class="info-card full reveal">
-          <span class="card-label">LUMI XP</span>
-          <h3>홈페이지 전용 포인트 안내</h3>
-          <p>홈페이지에서 즐기는 출석, 운세, 미니게임, 이벤트 참여 등으로 얻는 포인트는 물판 반짝 포인트와 별도로 관리됩니다.</p>
-          <p>홈페이지 전용 포인트는 현금성 보상보다 카드, 배지, 디지털 메시지, 보이스, 손편지 이미지 등 가벼운 팬서비스 중심으로 운영될 예정입니다.</p>
-          <div class="notice-box">반짝 포인트와 홈페이지 포인트는 서로 합산되지 않습니다.</div>
-        </article>
+            <p class="live-menu-note">각 특전 메뉴는 구성과 교류 시간에 따라 금액이 다르게 책정됩니다. 영상 촬영 시 멤버에게 부담이 되는 포즈, 대사, 행동 요청은 제한될 수 있습니다.</p>
+          </article>
+        </div>
       </section>
 
-      <section class="section-heading reveal">
-        <h2>Support</h2>
-        <p>선물, 서포트, 2차 창작 관련 안내입니다.</p>
+      <section class="tab-panel" id="tab-rules">
+        <div class="tab-intro reveal">
+          <h2>Live Rules</h2>
+          <p>모두가 즐겁게 공연을 즐길 수 있도록 현장 안내를 확인해주세요.</p>
+        </div>
+        <div class="info-grid">
+          <article class="info-card reveal">
+            <span class="card-label">LIVE</span>
+            <h3>라이브 규정</h3>
+            <ul>
+              <li>다른 관객의 관람을 방해하지 않는 범위 내에서 사진 및 영상 촬영이 가능합니다.</li>
+              <li>플래시, 삼각대, 대형 촬영 장비, 소음 유발 장비 및 시야 방해 행위는 제한될 수 있습니다.</li>
+              <li>행사 장비에 손대거나 기대는 행위는 금지됩니다.</li>
+              <li>비상 상황 발생 시 현장 스탭의 안내를 따라주세요.</li>
+            </ul>
+          </article>
+          <article class="info-card reveal">
+            <span class="card-label">CHEKI TIME</span>
+            <h3>특전회 규정</h3>
+            <ul>
+              <li>멤버의 신체, 의상, 소품, 소지품에 접촉하거나 접촉을 요구하는 행위는 금지됩니다.</li>
+              <li>신체 접촉으로 오해될 수 있는 포즈, 앞뒤 서기, 지나치게 복잡한 포즈 요청은 제한될 수 있습니다.</li>
+              <li>사생활, 외모, 성적인 언급 등 멤버가 불편해할 수 있는 언행은 삼가주세요.</li>
+              <li>특전회 시간 외 멤버에게 접근하거나 말을 거는 행위는 삼가주세요.</li>
+            </ul>
+          </article>
+          <article class="info-card full reveal">
+            <span class="card-label">UPLOAD</span>
+            <h3>촬영 및 업로드 규정</h3>
+            <p>직캠 및 공연 영상 업로드는 가능합니다. 다만 멤버의 이미지 보호를 위해 아래 사항을 꼭 확인해주세요.</p>
+            <p class="upload-emphasis"><strong>썸네일 및 사진 업로드 전 확인을 부탁드립니다.</strong></p>
+            <p>촬영물은 루미벨의 동의 없는 판매, 광고, 상업적 이용 또는 초상권 침해 없이 개인 SNS에 한해 비상업적으로 업로드할 수 있습니다.</p>
+          </article>
+        </div>
       </section>
 
-      <section class="info-grid">
-        <article class="info-card reveal">
-          <span class="card-label">GIFT</span>
-          <h3>선물 · 편지 · 서포트 가이드</h3>
-          <p>루미벨 멤버들에게 보내주시는 따뜻한 마음에 항상 감사드립니다. 선물과 서포트가 안전하게 전달될 수 있도록 아래 안내를 확인해주세요.</p>
-          <details open>
-            <summary>전달 가능 품목</summary>
-            <div class="details-body">
-              <ul>
-                <li>팬레터 및 메시지 북</li>
-                <li>의류, 액세서리, 모자, 인형 등 패션 잡화</li>
-                <li>미개봉 상태의 화장품, 향수, 생활 소품</li>
-                <li>유통기한이 명확한 미개봉 완제품 식품</li>
-              </ul>
-            </div>
-          </details>
-          <details>
-            <summary>전달 불가능 품목</summary>
-            <div class="details-body">
-              <ul>
-                <li>직접 만든 음식, 변질 우려 식품, 냉장/냉동 보관 식품</li>
-                <li>현금, 상품권, 기프트 카드 등 현금성 선물</li>
-                <li>위험 물품, 인화성 물질, 생물</li>
-                <li>사회 통념상 과도하게 고가인 물품</li>
-                <li>멤버에게 부담이 될 수 있는 물품</li>
-              </ul>
-            </div>
-          </details>
-          <p>현장 전달은 지정된 선물함 또는 스탭을 이용해주세요. 사전 협의 없는 택배는 반송될 수 있습니다.</p>
-        </article>
-
-        <article class="info-card reveal">
-          <span class="card-label">FAN WORKS</span>
-          <h3>2차 창작 가이드</h3>
-          <p>루미벨을 향한 애정이 담긴 팬아트, 글, 만화, 영상 편집 등 비영리 2차 창작은 환영합니다.</p>
-          <details open>
-            <summary>가능한 활동</summary>
-            <div class="details-body">
-              <ul>
-                <li>비영리 목적의 그림, 글, 만화, 캘리그라피 등 2차 창작</li>
-                <li>개인 사용 목적의 굿즈 제작 및 나눔</li>
-                <li>원재료비 수준의 비영리 공동 구매</li>
-                <li>교류 목적의 동인 행사 참여</li>
-                <li>팬 편집 영상 및 클립 제작</li>
-              </ul>
-            </div>
-          </details>
-          <details>
-            <summary>제한되는 활동</summary>
-            <div class="details-body">
-              <ul>
-                <li>상업적 이윤을 목적으로 한 이용</li>
-                <li>공식 콘텐츠처럼 오해될 수 있는 제작물</li>
-                <li>공식 이미지, 로고, 사진, 영상의 무단 복제 / 리터칭 / 변형 사용</li>
-                <li>멤버 또는 팀의 이미지와 명예를 훼손하는 표현</li>
-                <li>타인의 권리를 침해하거나 특정 사상·종교·정치 메시지를 포함한 표현</li>
-                <li>과도한 폭력, 혐오, 선정적 표현</li>
-              </ul>
-            </div>
-          </details>
-          <div class="notice-box">AI 생성 이미지의 경우 팬아트, 서포트, 공식 활용 대상으로 접수하지 않을 수 있습니다.</div>
-        </article>
-
-        <article class="info-card full reveal">
-          <span class="card-label">CASTING</span>
-          <h3>출연 / 섭외 / 협업 문의</h3>
-          <p>루미벨의 공연 출연, 게스트 출연, 촬영, 협업 관련 문의는 공식 문의폼 또는 공식 DM을 통해 접수 가능합니다.</p>
-          <p>루미벨은 4인 팀으로 활동하고 있으나, 멤버별 일정에 따라 출연 인원과 구성이 조정될 수 있습니다. 섭외 확정 전 출연 가능 멤버와 무대 구성을 사전에 안내드리며, 팀 구성, 유닛 구성 또는 솔로 구성으로 공연이 진행될 수 있습니다.</p>
-          <ul>
-            <li>행사명 / 행사 날짜 / 행사 장소</li>
-            <li>희망 출연 형태와 최소 출연 인원</li>
-            <li>출연 희망 시간</li>
-            <li>페이 또는 조건</li>
-            <li>담당자명 및 연락처</li>
-          </ul>
-        </article>
+      <section class="tab-panel" id="tab-point">
+        <div class="tab-intro reveal"><h2>Point</h2><p>물판 포인트와 홈페이지 포인트는 서로 다른 시스템입니다.</p></div>
+        <div class="info-grid">
+          <article class="info-card full reveal">
+            <span class="card-label">SPARKLE POINT</span>
+            <h3>반짝 포인트 레귤</h3>
+            <p>반짝 포인트는 현장 물판 및 특전권 구매 기준으로 적립되는 포인트 레귤레이션입니다.</p>
+            <p>루미 ID 업적과는 별도의 시스템이며, 포인트는 보상 교환용, 업적은 팬 활동 기록 달성용으로 운영됩니다.</p>
+            <div class="notice-box"><strong>특전권 15장 구매 시 반짝 포인트 1P가 지급됩니다.</strong><br>특전권 1장 7,000원 기준이며, 15장 구매 시 105,000원입니다.</div>
+            <div class="pill-row"><span class="pill">물판 전용</span><span class="pill">현장 기준</span><span class="pill">홈페이지 포인트와 별도</span><span class="pill">양도 / 복제 / 위조 불가</span></div>
+            <details><summary>포인트 보상표 보기</summary><div class="details-body"><ul><li>1P : 샤메권 / 교류 30초</li><li>3P : 이벤트 특전권 1장</li><li>5P : 카고미 체키</li><li>7P : 물품 사인권</li><li>10P : 30초 영상 + 녹음권</li><li>15P : 물판 패스권</li><li>20P : 멤버 지정 숙제체키 1개</li><li>25P : 루미벨 굿즈 1개</li><li>30P : 라이브 무료 입장</li><li>35P : 세트리스트 지정권</li><li>40P : 오프회 무료 참가권</li><li>100P : 멤버 전원 프라이빗 감사회</li></ul><p>보상 내용은 운영 상황에 따라 변경될 수 있으며, 변경 시 공식 계정을 통해 안내됩니다.</p></div></details>
+          </article>
+          <article class="info-card full reveal">
+            <span class="card-label">LUMI XP</span>
+            <h3>홈페이지 전용 포인트 안내</h3>
+            <p>홈페이지에서 즐기는 출석, 운세, 미니게임, 이벤트 참여 등으로 얻는 포인트는 물판 반짝 포인트와 별도로 관리됩니다.</p>
+            <p>홈페이지 전용 포인트는 현금성 보상보다 카드, 배지, 디지털 메시지, 보이스, 손편지 이미지 등 가벼운 팬서비스 중심으로 운영될 예정입니다.</p>
+            <div class="notice-box">반짝 포인트와 홈페이지 포인트는 서로 합산되지 않습니다.</div>
+          </article>
+        </div>
       </section>
 
-      <section class="section-heading reveal">
-        <h2>FAQ</h2>
-        <p>자주 묻는 질문을 모았습니다.</p>
+      <section class="tab-panel" id="tab-support">
+        <div class="tab-intro reveal"><h2>Support</h2><p>선물, 서포트, 2차 창작 관련 안내입니다.</p></div>
+        <div class="info-grid">
+          <article class="info-card reveal">
+            <span class="card-label">GIFT</span>
+            <h3>선물 · 편지 · 서포트 가이드</h3>
+            <p>루미벨 멤버들에게 보내주시는 따뜻한 마음에 항상 감사드립니다. 선물과 서포트가 안전하게 전달될 수 있도록 아래 안내를 확인해주세요.</p>
+            <details open><summary>전달 가능 품목</summary><div class="details-body"><ul><li>팬레터 및 메시지 북</li><li>의류, 액세서리, 모자, 인형 등 패션 잡화</li><li>미개봉 상태의 화장품, 향수, 생활 소품</li><li>유통기한이 명확한 미개봉 완제품 식품</li></ul></div></details>
+            <details><summary>전달 불가능 품목</summary><div class="details-body"><ul><li>직접 만든 음식, 변질 우려 식품, 냉장/냉동 보관 식품</li><li>현금, 상품권, 기프트 카드 등 현금성 선물</li><li>위험 물품, 인화성 물질, 생물</li><li>사회 통념상 과도하게 고가인 물품</li><li>멤버에게 부담이 될 수 있는 물품</li></ul></div></details>
+            <p>현장 전달은 지정된 선물함 또는 스탭을 이용해주세요. 사전 협의 없는 택배는 반송될 수 있습니다.</p>
+          </article>
+          <article class="info-card reveal">
+            <span class="card-label">FAN WORKS</span>
+            <h3>2차 창작 가이드</h3>
+            <p>루미벨을 향한 애정이 담긴 팬아트, 글, 만화, 영상 편집 등 비영리 2차 창작은 환영합니다.</p>
+            <details open><summary>가능한 활동</summary><div class="details-body"><ul><li>비영리 목적의 그림, 글, 만화, 캘리그라피 등 2차 창작</li><li>개인 사용 목적의 굿즈 제작 및 나눔</li><li>원재료비 수준의 비영리 공동 구매</li><li>교류 목적의 동인 행사 참여</li><li>팬 편집 영상 및 클립 제작</li></ul></div></details>
+            <details><summary>제한되는 활동</summary><div class="details-body"><ul><li>상업적 이윤을 목적으로 한 이용</li><li>공식 콘텐츠처럼 오해될 수 있는 제작물</li><li>공식 이미지, 로고, 사진, 영상의 무단 복제 / 리터칭 / 변형 사용</li><li>멤버 또는 팀의 이미지와 명예를 훼손하는 표현</li><li>타인의 권리를 침해하거나 특정 사상·종교·정치 메시지를 포함한 표현</li><li>과도한 폭력, 혐오, 선정적 표현</li></ul></div></details>
+            <div class="notice-box">AI 생성 이미지의 경우 팬아트, 서포트, 공식 활용 대상으로 접수하지 않을 수 있습니다.</div>
+          </article>
+        </div>
       </section>
 
-      <section class="faq-list reveal">
-        <details>
-          <summary>입금자명을 다르게 보냈어요.</summary>
-          <div class="details-body"><p>닉네임, 예약번호 또는 주문번호, 실제 입금자명을 함께 공식 DM 또는 이메일로 보내주세요. 입금자명이 다를 경우 확인이 늦어질 수 있습니다.</p></div>
-        </details>
-        <details>
-          <summary>예약번호나 주문번호를 잊어버렸어요.</summary>
-          <div class="details-body"><p>닉네임, 입금자명, 이메일, 루미 ID 등으로 확인을 도와드릴 수 있습니다. 가능한 경우 예매/주문 완료 화면을 함께 보내주세요.</p></div>
-        </details>
-        <details>
-          <summary>QR코드가 꼭 필요한가요?</summary>
-          <div class="details-body"><p>QR코드는 보조 확인용입니다. 현장에서는 예약번호 끝 4자리, 닉네임, 입금자명, 루미 ID로도 확인할 수 있습니다.</p></div>
-        </details>
-        <details>
-          <summary>루미 ID는 어떻게 발급받나요?</summary>
-          <div class="details-body"><p>루미 ID는 추후 루미벨 홈페이지 또는 현장 안내를 통해 발급될 예정입니다. 발급이 시작되면 공식 계정과 홈페이지를 통해 안내드립니다.</p></div>
-        </details>
-        <details>
-          <summary>루미 ID 카드를 잃어버렸어요.</summary>
-          <div class="details-body"><p>닉네임, 루미 ID, 입금자명 등으로 본인 확인이 가능한 경우 기존 기록 조회를 도와드릴 수 있습니다. 실물 카드 재발급 시 제작비가 발생할 수 있으며, 재발급 후에는 분실된 기존 카드의 QR 및 카드 사용이 제한될 수 있습니다. 루미 ID 번호와 기존 포인트/기록은 유지됩니다.</p></div>
-        </details>
-        <details>
-          <summary>닉네임을 변경하고 싶어요.</summary>
-          <div class="details-body"><p>닉네임 변경이 필요한 경우 공식 DM 또는 현장 스탭에게 문의해주세요. 루미 ID 번호는 유지되며, 기존 포인트와 기록도 유지됩니다. 단, 잦은 닉네임 변경은 확인이 어려울 수 있어 제한될 수 있습니다.</p></div>
-        </details>
-        <details>
-          <summary>포인트가 누락된 것 같아요.</summary>
-          <div class="details-body"><p>구매일, 닉네임, 루미 ID, 구매한 특전권 수량, 담당 스탭 또는 결제 내역을 함께 보내주세요. 현장 확인 없이 시간이 지난 건은 정정이 어려울 수 있습니다.</p></div>
-        </details>
-        <details>
-          <summary>물판 포인트와 홈페이지 포인트는 같은 건가요?</summary>
-          <div class="details-body"><p>아닙니다. 반짝 포인트는 현장 물판용 포인트이고, 홈페이지 포인트는 홈페이지 안에서 즐기는 별도 시스템입니다. 두 포인트는 합산되지 않습니다.</p></div>
-        </details>
-        <details>
-          <summary>특전권은 양도할 수 있나요?</summary>
-          <div class="details-body"><p>특전권은 원칙적으로 양도, 복제, 위조, 재판매가 불가합니다. 현장 상황에 따라 본인 확인이 필요할 수 있습니다.</p></div>
-        </details>
-        <details>
-          <summary>숙제체키는 언제 받을 수 있나요?</summary>
-          <div class="details-body"><p>숙제체키는 다음 라이브 또는 지정된 일정에 전달됩니다. 수령 시 닉네임, 주문번호 또는 신청 정보를 확인할 수 있습니다.</p></div>
-        </details>
-        <details>
-          <summary>공연 사진이나 영상을 올려도 되나요?</summary>
-          <div class="details-body"><p>직캠 업로드는 가능합니다. 단, <strong>썸네일 및 사진 업로드 전 확인을 부탁드립니다.</strong> 멤버의 이미지 보호를 위해 공식 DM 또는 이메일로 확인 후 업로드해주세요.</p></div>
-        </details>
-        <details>
-          <summary>선물이나 편지를 직접 전달할 수 있나요?</summary>
-          <div class="details-body"><p>직접 전달은 어렵습니다. 선물과 편지는 지정된 선물함 또는 스탭을 통해 전달해주세요.</p></div>
-        </details>
-        <details>
-          <summary>2차 창작은 가능한가요?</summary>
-          <div class="details-body"><p>비영리 목적의 팬아트, 글, 만화, 영상 편집 등은 가능합니다. 단, 공식으로 오해될 수 있는 표현, 상업적 이용, 이미지 훼손 목적의 사용은 제한됩니다.</p></div>
-        </details>
+      <section class="tab-panel" id="tab-casting">
+        <div class="tab-intro reveal"><h2>Contact</h2><p>팬 문의부터 출연/섭외 문의까지 이곳에서 접수할 수 있습니다.</p></div>
+        <div class="info-grid">
+          <article class="info-card full reveal">
+            <span class="card-label">CASTING</span>
+            <h3>출연 / 섭외 / 협업 문의</h3>
+            <p>루미벨의 공연 출연, 게스트 출연, 촬영, 협업 관련 문의는 공식 문의폼 또는 공식 DM을 통해 접수 가능합니다.</p>
+            <p>루미벨은 4인 팀으로 활동하고 있으나, 멤버별 일정에 따라 출연 인원과 구성이 조정될 수 있습니다. 섭외 확정 전 출연 가능 멤버와 무대 구성을 사전에 안내드리며, 팀 구성, 유닛 구성 또는 솔로 구성으로 공연이 진행될 수 있습니다.</p>
+            <ul><li>행사명 / 행사 날짜 / 행사 장소</li><li>희망 출연 형태와 최소 출연 인원</li><li>출연 희망 시간</li><li>페이 또는 조건</li><li>담당자명 및 연락처</li></ul>
+          </article>
+        </div>
+        <section class="contact-card reveal">
+          <form class="contact-form" id="contactForm">
+            <div class="field"><label for="type">문의 유형</label><select id="type" name="문의유형" required><option value="">선택해주세요</option><option>티켓 문의</option><option>굿즈 / 배송 문의</option><option>입금 확인 문의</option><option>현장 물판 / 특전권 문의</option><option>반짝 포인트 / 루미 ID 문의</option><option>선물 / 서포트 문의</option><option>2차 창작 / 콘텐츠 문의</option><option>출연 / 섭외 문의</option><option>협업 / 제휴 문의</option><option>기타 문의</option></select></div>
+            <div class="field"><label for="name">이름 / 닉네임</label><input id="name" name="이름또는닉네임" type="text" placeholder="예: 루미벨" required></div>
+            <div class="field"><label for="email">이메일</label><input id="email" name="이메일" type="email" placeholder="reply@example.com" required></div>
+            <div class="field"><label for="contactWay">연락처 또는 SNS 계정</label><input id="contactWay" name="연락처또는SNS" type="text" placeholder="답변 가능한 연락처"></div>
+            <div class="field"><label for="code">예약번호 / 주문번호 / 루미 ID</label><input id="code" name="예약번호주문번호루미ID" type="text" placeholder="해당 시 작성"></div>
+            <div class="field"><label for="title">행사명 또는 문의 제목</label><input id="title" name="문의제목" type="text" placeholder="예: 2026.00.00 출연 문의"></div>
+            <div class="field full"><label for="message">문의 내용</label><textarea id="message" name="문의내용" placeholder="출연/섭외 문의의 경우 행사명, 날짜, 장소, 희망 출연 형태, 희망 시간, 페이 또는 조건, 담당자 연락처를 함께 남겨주세요." required></textarea></div>
+            <label class="checkbox-field"><input type="checkbox" required><span>문의 답변 및 확인을 위해 작성한 정보를 수집·이용하는 것에 동의합니다.</span></label>
+            <button type="submit" class="submit-btn">문의 접수하기</button>
+            <p class="form-note">현재는 임시 폼입니다. 실제 오픈 전 Google Forms 또는 Apps Script 연동 URL로 교체해주세요.</p>
+          </form>
+        </section>
       </section>
 
-      <section id="contact" class="section-heading reveal">
-        <h2>Contact</h2>
-        <p>팬 문의부터 출연/섭외 문의까지 이곳에서 접수할 수 있습니다.</p>
-      </section>
-
-      <section class="contact-card reveal">
-        <!-- TODO: Google Forms 또는 Apps Script 엔드포인트로 교체하면 실제 이메일/시트 접수가 가능합니다. -->
-        <form class="contact-form" id="contactForm">
-          <div class="field">
-            <label for="type">문의 유형</label>
-            <select id="type" name="문의유형" required>
-              <option value="">선택해주세요</option>
-              <option>티켓 문의</option>
-              <option>굿즈 / 배송 문의</option>
-              <option>입금 확인 문의</option>
-              <option>현장 물판 / 특전권 문의</option>
-              <option>반짝 포인트 / 루미 ID 문의</option>
-              <option>선물 / 서포트 문의</option>
-              <option>2차 창작 / 콘텐츠 문의</option>
-              <option>출연 / 섭외 문의</option>
-              <option>협업 / 제휴 문의</option>
-              <option>기타 문의</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="name">이름 / 닉네임</label>
-            <input id="name" name="이름또는닉네임" type="text" placeholder="예: 루미벨" required>
-          </div>
-
-          <div class="field">
-            <label for="email">이메일</label>
-            <input id="email" name="이메일" type="email" placeholder="reply@example.com" required>
-          </div>
-
-          <div class="field">
-            <label for="contactWay">연락처 또는 SNS 계정</label>
-            <input id="contactWay" name="연락처또는SNS" type="text" placeholder="답변 가능한 연락처">
-          </div>
-
-          <div class="field">
-            <label for="code">예약번호 / 주문번호 / 루미 ID</label>
-            <input id="code" name="예약번호주문번호루미ID" type="text" placeholder="해당 시 작성">
-          </div>
-
-          <div class="field">
-            <label for="title">행사명 또는 문의 제목</label>
-            <input id="title" name="문의제목" type="text" placeholder="예: 2026.00.00 출연 문의">
-          </div>
-
-          <div class="field full">
-            <label for="message">문의 내용</label>
-            <textarea id="message" name="문의내용" placeholder="출연/섭외 문의의 경우 행사명, 날짜, 장소, 희망 출연 형태, 희망 시간, 페이 또는 조건, 담당자 연락처를 함께 남겨주세요." required></textarea>
-          </div>
-
-          <label class="checkbox-field">
-            <input type="checkbox" required>
-            <span>문의 답변 및 확인을 위해 작성한 정보를 수집·이용하는 것에 동의합니다.</span>
-          </label>
-
-          <button type="submit" class="submit-btn">문의 접수하기</button>
-          <p class="form-note">현재는 임시 폼입니다. 실제 오픈 전 Google Forms 또는 Apps Script 연동 URL로 교체해주세요.</p>
-        </form>
+      <section class="tab-panel" id="tab-faq">
+        <div class="tab-intro reveal"><h2>FAQ</h2><p>자주 묻는 질문을 모았습니다.</p></div>
+        <div class="faq-list reveal">
+          <details><summary>입금자명을 다르게 보냈어요.</summary><div class="details-body"><p>닉네임, 예약번호 또는 주문번호, 실제 입금자명을 함께 공식 DM 또는 이메일로 보내주세요. 입금자명이 다를 경우 확인이 늦어질 수 있습니다.</p></div></details>
+          <details><summary>예약번호나 주문번호를 잊어버렸어요.</summary><div class="details-body"><p>닉네임, 입금자명, 이메일, 루미 ID 등으로 확인을 도와드릴 수 있습니다. 가능한 경우 예매/주문 완료 화면을 함께 보내주세요.</p></div></details>
+          <details><summary>QR코드가 꼭 필요한가요?</summary><div class="details-body"><p>QR코드는 보조 확인용입니다. 현장에서는 예약번호 끝 4자리, 닉네임, 입금자명, 루미 ID로도 확인할 수 있습니다.</p></div></details>
+          <details><summary>루미 ID는 어떻게 발급받나요?</summary><div class="details-body"><p>루미 ID는 추후 루미벨 홈페이지 또는 현장 안내를 통해 발급될 예정입니다. 발급이 시작되면 공식 계정과 홈페이지를 통해 안내드립니다.</p></div></details>
+          <details><summary>루미 ID 카드를 잃어버렸어요.</summary><div class="details-body"><p>닉네임, 루미 ID, 입금자명 등으로 본인 확인이 가능한 경우 기존 기록 조회를 도와드릴 수 있습니다. 실물 카드 재발급 시 제작비가 발생할 수 있으며, 재발급 후에는 분실된 기존 카드의 QR 및 카드 사용이 제한될 수 있습니다. 루미 ID 번호와 기존 포인트/기록은 유지됩니다.</p></div></details>
+          <details><summary>닉네임을 변경하고 싶어요.</summary><div class="details-body"><p>닉네임 변경이 필요한 경우 공식 DM 또는 현장 스탭에게 문의해주세요. 루미 ID 번호는 유지되며, 기존 포인트와 기록도 유지됩니다. 단, 잦은 닉네임 변경은 확인이 어려울 수 있어 제한될 수 있습니다.</p></div></details>
+          <details><summary>포인트가 누락된 것 같아요.</summary><div class="details-body"><p>구매일, 닉네임, 루미 ID, 구매한 특전권 수량, 담당 스탭 또는 결제 내역을 함께 보내주세요. 현장 확인 없이 시간이 지난 건은 정정이 어려울 수 있습니다.</p></div></details>
+          <details><summary>물판 포인트와 홈페이지 포인트는 같은 건가요?</summary><div class="details-body"><p>아닙니다. 반짝 포인트는 현장 물판용 포인트이고, 홈페이지 포인트는 홈페이지 안에서 즐기는 별도 시스템입니다. 두 포인트는 합산되지 않습니다.</p></div></details>
+          <details><summary>특전권은 양도할 수 있나요?</summary><div class="details-body"><p>특전권은 원칙적으로 양도, 복제, 위조, 재판매가 불가합니다. 현장 상황에 따라 본인 확인이 필요할 수 있습니다.</p></div></details>
+          <details><summary>숙제체키는 언제 받을 수 있나요?</summary><div class="details-body"><p>숙제체키는 다음 라이브 또는 지정된 일정에 전달됩니다. 수령 시 닉네임, 주문번호 또는 신청 정보를 확인할 수 있습니다.</p></div></details>
+          <details><summary>공연 사진이나 영상을 올려도 되나요?</summary><div class="details-body"><p>직캠 업로드는 가능합니다. 단, <strong>썸네일 및 사진 업로드 전 확인을 부탁드립니다.</strong> 멤버의 이미지 보호를 위해 공식 DM 또는 이메일로 확인 후 업로드해주세요.</p></div></details>
+          <details><summary>선물이나 편지를 직접 전달할 수 있나요?</summary><div class="details-body"><p>직접 전달은 어렵습니다. 선물과 편지는 지정된 선물함 또는 스탭을 통해 전달해주세요.</p></div></details>
+          <details><summary>2차 창작은 가능한가요?</summary><div class="details-body"><p>비영리 목적의 팬아트, 글, 만화, 영상 편집 등은 가능합니다. 단, 공식으로 오해될 수 있는 표현, 상업적 이용, 이미지 훼손 목적의 사용은 제한됩니다.</p></div></details>
+        </div>
       </section>
     </div>
   </main>
@@ -1170,6 +1137,32 @@
   </footer>
 
   <script>
+
+    // info tabs
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+    function activateTab(target, doScroll = true){
+      const btn = document.querySelector(`.tab-btn[data-tab="${target}"]`);
+      const panel = document.getElementById('tab-' + target);
+      if(!btn || !panel) return;
+      tabButtons.forEach(b=>b.classList.toggle('active', b === btn));
+      tabPanels.forEach(p=>p.classList.toggle('active', p === panel));
+      history.replaceState(null, '', '#' + target);
+      if(doScroll){
+        const y = panel.getBoundingClientRect().top + window.pageYOffset - 96;
+        window.scrollTo({top:y, behavior:'smooth'});
+      }
+    }
+
+    tabButtons.forEach(btn=>{
+      btn.addEventListener('click',()=>activateTab(btn.dataset.tab, true));
+    });
+
+    const initialTab = window.location.hash.replace('#','');
+    if(initialTab){
+      activateTab(initialTab, false);
+    }
+
     // reveal animation
     const revealEls = document.querySelectorAll('.reveal');
     const io = new IntersectionObserver((entries)=>{
