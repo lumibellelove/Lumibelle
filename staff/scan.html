@@ -2,15 +2,13 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Lumibelle Staff Scan</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=SUIT:wght@600;700;800;900&display=swap');
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     html, body {
       margin: 0;
@@ -22,9 +20,7 @@
       color: #7f6a77;
     }
 
-    body {
-      padding: 12px;
-    }
+    body { padding: 10px; }
 
     .wrap {
       width: 100%;
@@ -36,7 +32,7 @@
       background: linear-gradient(135deg, #fff0f7, #f7efff);
       border: 1px solid #f2d8e7;
       border-radius: 24px;
-      padding: 24px 16px;
+      padding: 22px 14px;
       text-align: center;
       box-shadow: 0 8px 22px rgba(232,191,211,.18);
     }
@@ -46,6 +42,7 @@
       color: #ff5fa8;
       font-weight: 900;
       margin-bottom: 8px;
+      font-size: 12px;
     }
 
     h1 {
@@ -69,17 +66,18 @@
       background: #fff;
       border: 1px solid #f2d8e7;
       border-radius: 22px;
-      padding: 14px;
+      padding: 12px;
       box-shadow: 0 8px 20px rgba(255,95,165,.08);
+      overflow: hidden;
     }
 
-    button, .btn {
+    button, a.btn {
       width: 100%;
-      min-height: 52px;
+      min-height: 50px;
       border: 0;
       border-radius: 999px;
       font-family: inherit;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 900;
       text-decoration: none;
       display: flex;
@@ -88,6 +86,7 @@
       cursor: pointer;
       text-align: center;
       padding: 0 12px;
+      line-height: 1.2;
     }
 
     .scan {
@@ -130,9 +129,7 @@
       overflow: hidden;
     }
 
-    .reader-box.on {
-      display: block;
-    }
+    .reader-box.on { display: block; }
 
     #reader {
       width: 100%;
@@ -155,15 +152,8 @@
       word-break: break-word;
     }
 
-    .msg.ok {
-      background: #e9fff0;
-      color: #21864a;
-    }
-
-    .msg.err {
-      background: #fff2e8;
-      color: #d36b36;
-    }
+    .msg.ok { background: #e9fff0; color: #21864a; }
+    .msg.err { background: #fff2e8; color: #d36b36; }
 
     .open-box {
       display: none;
@@ -174,9 +164,7 @@
       border: 1px solid #ccefd7;
     }
 
-    .open-box.on {
-      display: block;
-    }
+    .open-box.on { display: block; }
 
     .found {
       margin: 0 0 10px;
@@ -190,7 +178,7 @@
 
     label {
       display: block;
-      margin: 16px 0 8px;
+      margin: 14px 0 8px;
       color: #d77ca7;
       font-size: 15px;
       font-weight: 900;
@@ -215,9 +203,7 @@
       margin-top: 10px;
     }
 
-    .wide {
-      grid-column: 1 / -1;
-    }
+    .wide { grid-column: 1 / -1; }
 
     .note {
       margin: 12px 0 0;
@@ -228,16 +214,21 @@
       font-weight: 700;
     }
 
+    .raw-link {
+      display: block;
+      margin-top: 10px;
+      color: #8d75c9;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.5;
+      word-break: break-all;
+      text-align: center;
+    }
+
     @media (max-width: 360px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-      .wide {
-        grid-column: auto;
-      }
-      h1 {
-        font-size: 30px;
-      }
+      .grid { grid-template-columns: 1fr; }
+      .wide { grid-column: auto; }
+      h1 { font-size: 30px; }
     }
   </style>
 </head>
@@ -246,7 +237,7 @@
     <section class="hero">
       <small>STAFF ONLY</small>
       <h1>Lumibelle<br>QR Scan</h1>
-      <p>팬의 입장 확인 QR을 스캔하거나<br>번호/이름/닉네임으로 빠르게 조회해요.</p>
+      <p>QR을 스캔하거나<br>번호/이름/닉네임으로 빠르게 조회해요.</p>
     </section>
 
     <section class="card">
@@ -258,24 +249,26 @@
       </div>
 
       <div id="openBox" class="open-box">
-        <p id="foundText" class="found">예약번호를 읽었어요.</p>
-        <button class="green" type="button" onclick="openCheckin()">입장확인 페이지 열기</button>
+        <p id="foundText" class="found">조회 준비 완료</p>
+        <a id="openLink" class="btn green" href="#" target="_blank" rel="noopener">입장확인 페이지 열기</a>
+        <button class="sub" type="button" style="margin-top:8px;" onclick="copyLink()">링크 복사</button>
+        <a id="rawLink" class="raw-link" href="#" target="_blank" rel="noopener"></a>
       </div>
 
       <label for="q">수동 입력</label>
       <input id="q" placeholder="예: 1180 / 김민지 / 닉네임 / 8648">
 
       <div class="grid">
-        <button class="pink" type="button" onclick="manualTicket()">예약번호</button>
-        <button class="purple" type="button" onclick="manualLumi()">LB- ID</button>
-        <button class="sub wide" type="button" onclick="manualSearch()">입금자명/닉네임 조회</button>
+        <button class="pink" type="button" onclick="prepareTicket()">예약번호</button>
+        <button class="purple" type="button" onclick="prepareLumi()">LB- ID</button>
+        <button class="sub wide" type="button" onclick="prepareSearch()">입금자명/닉네임 조회</button>
       </div>
 
       <div id="msg" class="msg">QR을 스캔하거나 직접 입력해 주세요.</div>
 
       <p class="note">
-        ※ QR에는 개인정보가 아닌 예약번호만 들어 있습니다.<br>
-        ※ 크롬/사파리에서 사용을 권장합니다.
+        ※ 버튼을 눌렀는데 이동이 안 되면, 아래에 뜨는 주소를 길게 눌러 새 탭으로 열어주세요.<br>
+        ※ QR에는 개인정보가 아닌 예약번호만 들어 있습니다.
       </p>
     </section>
   </div>
@@ -285,7 +278,7 @@
 
     let qr = null;
     let running = false;
-    let lastValue = "";
+    let currentUrl = "";
 
     function msg(text, cls) {
       const el = document.getElementById("msg");
@@ -321,48 +314,52 @@
       return CHECKIN_URL + "?id=" + encodeURIComponent(v);
     }
 
-    function showOpen(v) {
-      lastValue = ticket(v);
-      document.getElementById("q").value = lastValue;
-      document.getElementById("foundText").innerHTML = "예약번호를 읽었어요.<br>" + escapeHtml(lastValue);
-      document.getElementById("openBox").classList.add("on");
-      msg("초록 버튼을 눌러 입장확인 페이지를 열어주세요.", "ok");
-    }
-
-    function openCheckin() {
-      const v = lastValue || document.getElementById("q").value;
+    function showOpen(v, label) {
       if (!v) {
         msg("조회할 값을 찾지 못했어요.", "err");
         return;
       }
-      window.location.href = href(v);
+
+      currentUrl = href(v);
+
+      document.getElementById("q").value = v;
+      document.getElementById("foundText").innerHTML =
+        (label || "조회 준비 완료") + "<br>" + escapeHtml(v);
+
+      const openLink = document.getElementById("openLink");
+      const rawLink = document.getElementById("rawLink");
+
+      openLink.href = currentUrl;
+      rawLink.href = currentUrl;
+      rawLink.textContent = currentUrl;
+
+      document.getElementById("openBox").classList.add("on");
+      msg("초록 버튼을 눌러 입장확인 페이지를 열어주세요.", "ok");
     }
 
-    function manualTicket() {
+    function prepareTicket() {
       const v = ticket(document.getElementById("q").value);
-      if (!v) {
-        msg("예약번호를 입력해 주세요.", "err");
-        return;
-      }
-      window.location.href = href(v);
+      showOpen(v, "예약번호 조회 준비 완료");
     }
 
-    function manualLumi() {
+    function prepareLumi() {
       const v = lumi(document.getElementById("q").value);
-      if (!v) {
-        msg("루미ID 숫자 4자리를 입력해 주세요.", "err");
-        return;
-      }
-      window.location.href = href(v);
+      showOpen(v, "루미ID 조회 준비 완료");
     }
 
-    function manualSearch() {
+    function prepareSearch() {
       const v = String(document.getElementById("q").value || "").trim();
-      if (!v) {
-        msg("입금자명, 닉네임, 예약번호, 루미ID 중 하나를 입력해 주세요.", "err");
-        return;
+      showOpen(v, "통합 조회 준비 완료");
+    }
+
+    async function copyLink() {
+      if (!currentUrl) return;
+      try {
+        await navigator.clipboard.writeText(currentUrl);
+        msg("링크를 복사했어요.", "ok");
+      } catch(e) {
+        msg("복사가 안 되면 아래 주소를 길게 눌러 복사해 주세요.", "err");
       }
-      window.location.href = href(v);
     }
 
     function startScan() {
@@ -383,7 +380,8 @@
         { fps: 10, qrbox: { width: 230, height: 230 } },
         function(decodedText) {
           stopScan().then(function() {
-            showOpen(decodedText);
+            const v = ticket(decodedText);
+            showOpen(v, "QR 인식 완료");
           });
         },
         function() {}
@@ -420,7 +418,7 @@
     document.getElementById("q").addEventListener("keydown", function(e) {
       if (e.key === "Enter") {
         e.preventDefault();
-        manualTicket();
+        prepareTicket();
       }
     });
   </script>
