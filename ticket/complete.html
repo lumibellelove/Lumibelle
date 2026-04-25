@@ -585,6 +585,7 @@
 
   <script>
     const ORDER_KEY = 'lumibelle_ticket_last_order';
+    const LEGACY_ORDER_KEYS = ['lumibelleTicketReservation', 'ticketReservation'];
 
     function safe(v){
       return (v === undefined || v === null || String(v).trim() === '') ? '-' : String(v);
@@ -598,13 +599,34 @@
       return `${nickname}-${suffix}`;
     }
 
+    function readSavedOrder(){
+      const candidates = [ORDER_KEY, ...LEGACY_ORDER_KEYS]
+        .map((key) => {
+          try{
+            const data = JSON.parse(localStorage.getItem(key));
+            return data ? { key, data } : null;
+          }catch(e){
+            return null;
+          }
+        })
+        .filter(Boolean);
+
+      if(!candidates.length) return null;
+
+      // 여러 키에 예전 테스트값이 남아 있으면, 제출 시간이 가장 최신인 데이터를 사용해요.
+      candidates.sort((a, b) => {
+        const at = Date.parse(a.data.submittedAt || '') || 0;
+        const bt = Date.parse(b.data.submittedAt || '') || 0;
+        return bt - at;
+      });
+
+      const latest = candidates[0].data;
+      localStorage.setItem(ORDER_KEY, JSON.stringify(latest));
+      return latest;
+    }
+
     function renderComplete(){
-      let order = null;
-      try{
-        order = JSON.parse(localStorage.getItem(ORDER_KEY));
-      }catch(e){
-        order = null;
-      }
+      const order = readSavedOrder();
 
       const summaryBox = document.getElementById('orderSummary');
       const infoBox = document.getElementById('orderInfo');
@@ -620,7 +642,7 @@
           <div class="line total"><span>결제상태</span><span>입금확인대기</span></div>
         `;
         infoBox.innerHTML = `
-          <div class="info-item"><strong>예매 상태</strong><span>접수 완료 / 입금 확인 대기</span></div>
+          <div class="info-item"><strong>예매 상태</strong><span>접수 완료 / ${safe(paymentStatus)}</span></div>
           <div class="info-item"><strong>닉네임</strong><span>정보를 찾지 못했어요.</span></div>
           <div class="info-item"><strong>이메일</strong><span>정보를 찾지 못했어요.</span></div>
           <div class="info-item"><strong>입금자명</strong><span>정보를 찾지 못했어요.</span></div>
@@ -629,17 +651,22 @@
       }
 
       const reservationNo = order.reservationNo || makeReservationNo(order);
+      const lumiId = order.lumiId || order.lumiID || order.lumi_id;
       const nickname = order.nickname || order.nickName || order.buyerName || order.name;
       const email = order.email || order.mail;
       const depositor = order.depositor || order.depositName || order.payerName;
       const mate = order.meate || order.maate || order.member || order.favoriteMember || order.oshimen;
       const ticketType = order.ticketType || order.ticketName || order.type || order.selectedTicket;
+      const paymentStatus = order.paymentStatus || '입금확인대기';
+      const entranceStatus = order.entranceStatus || '미입장';
 
       summaryBox.innerHTML = `
         <div class="line total"><span>예약번호</span><span>${safe(reservationNo)}</span></div>
+        <div class="line"><span>루미ID</span><span>${safe(lumiId)}</span></div>
         <div class="line"><span>티켓 종류</span><span>${safe(ticketType)}</span></div>
         <div class="line"><span>메아테</span><span>${safe(mate)}</span></div>
-        <div class="line total"><span>결제상태</span><span>입금확인대기</span></div>
+        <div class="line"><span>입장상태</span><span>${safe(entranceStatus)}</span></div>
+        <div class="line total"><span>결제상태</span><span>${safe(paymentStatus)}</span></div>
       `;
 
       infoBox.innerHTML = `
