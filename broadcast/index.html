@@ -447,6 +447,7 @@
 
   const BROADCAST_API_URL = "https://script.google.com/macros/s/AKfycbyTc3TdPD3KUrUHYciEAlZYNdYdVX8khT_BHAASCpejc86vTr-lORomb9lO2acPiurGDA/exec";
   let apiLoaded = false;
+  let sheetLiveList = [];
 
   function memberIdFromName(name){
     const value = String(name || "").trim().toLowerCase();
@@ -496,6 +497,22 @@
 
   function mapSheetData(items){
     const publicItems = (items || []).filter(item => String(item.visibility || "public").toLowerCase() === "public");
+
+    sheetLiveList = publicItems
+      .filter(item => String(item.type || "").toLowerCase() === "live")
+      .filter(item => ["on","live","방송중"].includes(String(item.status || "").trim().toLowerCase()))
+      .sort((a,b)=>String(b.createdAt || b.date || "").localeCompare(String(a.createdAt || a.date || "")))
+      .map(item => ({
+        memberId: memberIdFromName(item.member),
+        member: item.member || "멤버",
+        platform: String(normalizePlatform(item.platform)).includes("유튜브") ? "youtube" : String(normalizePlatform(item.platform)).includes("트윗") ? "twitcast" : "cime",
+        message: item.summary || item.body || item.title || "지금 ON AIR 중이에요.",
+        title: item.title || "현재 방송중입니다",
+        cimeUrl: String(normalizePlatform(item.platform)).includes("씨미") ? (item.url || "https://ci.me/@mariring_love") : "",
+        youtubeUrl: String(normalizePlatform(item.platform)).includes("유튜브") ? (item.url || "") : "",
+        twitcastUrl: String(normalizePlatform(item.platform)).includes("트윗") ? (item.url || "") : "",
+        url: item.url || ""
+      }));
 
     const schedules = publicItems
       .filter(item => item.type === "schedule")
@@ -562,6 +579,7 @@
         if(data && data.ok){
           mapSheetData(data.items || []);
           apiLoaded = true;
+          renderLive();
           renderTodayAndNext();
           renderSchedule();
           renderNotices();
@@ -609,6 +627,7 @@
     return [];
   }
   function getLiveList(){
+    if(Array.isArray(sheetLiveList) && sheetLiveList.length) return sheetLiveList;
     const keys = ["lumibelleMultiLiveState", "lumibelleLiveMembers", "lumibelleLiveState"];
     for(const key of keys){
       const saved = localStorage.getItem(key);
@@ -629,7 +648,7 @@
     const parts = [];
     const platform = item.platform || "cime";
     if(platform === "cime" || item.cimeUrl){
-      parts.push(`<a class="main-btn primary" href="${item.cimeUrl || 'https://ci.me/@mariring_love'}" target="_blank" rel="noopener noreferrer">씨미에서 보기</a>`);
+      parts.push(`<a class="main-btn primary" href="${item.cimeUrl || item.url || 'https://ci.me/@mariring_love'}" target="_blank" rel="noopener noreferrer">씨미에서 보기</a>`);
     }
     if(item.youtubeId || item.youtubeUrl){
       const url = item.youtubeUrl || `https://www.youtube.com/watch?v=${item.youtubeId}`;
