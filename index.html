@@ -2801,6 +2801,25 @@ line-height:1.9 !important;
     }
 
 
+
+
+    /* ===== ON AIR OFF 상태 문구 정리 ===== */
+    .onair-card.is-rest .onair-live-pill{
+      background:#fffafc;
+      color:#b78fa6;
+      border-color:#efc6dc;
+    }
+
+    .onair-card.is-archive .onair-live-pill{
+      background:#fff0f7;
+      color:#d77ca7;
+      border-color:#f0bfd4;
+    }
+
+    .onair-card:not(.is-live) .onair-mini-chip{
+      min-width:92px;
+    }
+
     /* ===== MORE VIDEO 균형 강화 + ON AIR 칩 가독성 보정 ===== */
     .video-mini-card{
       background:
@@ -3328,15 +3347,16 @@ line-height:1.9 !important;
           <div class="onair-preview" id="homeOnairPreview">
             <div class="onair-live-pill" id="homeLivePill">OFF AIR</div>
             <div class="onair-hero-line">
-              <span class="onair-mini-chip" id="homeOnairMember">MARIRING</span>
-              <span class="onair-mini-chip" id="homeOnairMode">BROADCAST</span>
+              <span class="onair-mini-chip" id="homeOnairMember">SCHEDULE</span>
+              <span class="onair-mini-chip" id="homeOnairMode">NOTICE</span>
+              <span class="onair-mini-chip" id="homeOnairThird">DIARY</span>
             </div>
-            <p class="onair-main-copy" id="homeOnairCatch">루미들과 함께하는 ON AIR 기록</p>
+            <p class="onair-main-copy" id="homeOnairCatch">다음 방송을 준비하고 있어요</p>
             <div class="onair-row recent">
               <span class="onair-label" id="homeOnairLabel">NEXT</span>
               <div>
                 <strong id="homeOnairTitle">다음 ON AIR 예정</strong>
-                <p id="homeOnairText">방송 일정과 기록은 이곳에서 확인해주세요.</p>
+                <p id="homeOnairText">이번 주 스케줄과 공지를 확인해주세요.</p>
               </div>
             </div>
             <div class="onair-row next">
@@ -3777,8 +3797,9 @@ document.addEventListener("click", function(e){
     member: "마리링",
     cimeUrl: "https://ci.me/@mariring_love",
     youtubeUrl: "",
+    homeStatus: "ready", // ready / rest / archive
     nextTitle: "다음 ON AIR 예정",
-    nextText: "이번 주 방송 스케줄과 후기를 확인해보세요.",
+    nextText: "이번 주 스케줄과 공지를 확인해주세요.",
     liveList: []
   };
 
@@ -3823,6 +3844,13 @@ document.addEventListener("click", function(e){
     return `${members.slice(0,2).join(" · ")} +${members.length - 2}`;
   }
 
+  function getHomeOffStatus(state){
+    const raw = String(state.homeStatus || state.statusMode || state.onairStatus || state.status || "ready").toLowerCase();
+    if(["rest", "restday", "dayoff", "off", "휴방", "쉬는날"].includes(raw)) return "rest";
+    if(["archive", "ended", "end", "done", "record", "기록", "종료"].includes(raw)) return "archive";
+    return "ready";
+  }
+
   function renderHomeOnair(){
     const state = getOnairState();
     const liveList = normalizeLiveList(state);
@@ -3834,6 +3862,7 @@ document.addEventListener("click", function(e){
     const platform = document.getElementById("homeOnairPlatform");
     const memberChip = document.getElementById("homeOnairMember");
     const modeChip = document.getElementById("homeOnairMode");
+    const thirdChip = document.getElementById("homeOnairThird");
     const catchText = document.getElementById("homeOnairCatch");
     const subText = document.getElementById("homeOnairSubText");
     const buttonText = document.getElementById("homeOnairButtonText");
@@ -3843,6 +3872,7 @@ document.addEventListener("click", function(e){
       const members = liveList.map(item => item.member || "멤버");
       const platforms = [...new Set(liveList.map(item => platformName(item.platform)))];
       card.classList.add("is-live");
+      card.classList.remove("is-rest", "is-archive", "is-ready");
       pill.textContent = liveList.length === 1 ? "LIVE NOW" : `LIVE NOW · ${liveList.length}`;
       label.textContent = liveList.length === 1 ? "LIVE" : "MULTI";
       if(liveList.length === 1){
@@ -3852,6 +3882,7 @@ document.addEventListener("click", function(e){
         platform.textContent = `${platformName(item.platform)} 연결 준비 완료`;
         if(memberChip) memberChip.textContent = String(item.member).toUpperCase();
         if(modeChip) modeChip.textContent = platformName(item.platform);
+        if(thirdChip) thirdChip.textContent = "LIVE";
         if(catchText) catchText.textContent = "지금 루미들과 만나는 중이에요 💗";
       }else{
         title.textContent = `현재 ${liveList.length}명의 멤버가 방송중입니다`;
@@ -3859,21 +3890,41 @@ document.addEventListener("click", function(e){
         platform.textContent = `플랫폼 ${platforms.length}곳 연결 중`;
         if(memberChip) memberChip.textContent = compactMembers(members).toUpperCase();
         if(modeChip) modeChip.textContent = "MULTI LIVE";
+        if(thirdChip) thirdChip.textContent = "LIVE NOW";
         if(catchText) catchText.textContent = "여러 멤버가 지금 루미들과 만나는 중이에요 💗";
       }
       if(subText) subText.textContent = "방송 화면과 플랫폼 바로가기를 멤버별로 확인해요.";
       if(buttonText) buttonText.textContent = liveList.length === 1 ? "지금 방송 보러가기" : "방송 목록 보러가기";
     }else{
-      card.classList.remove("is-live");
-      pill.textContent = "OFF AIR";
-      label.textContent = "NEXT";
-      title.textContent = state.nextTitle || DEFAULT_ONAIR.nextTitle;
-      text.textContent = state.nextText || DEFAULT_ONAIR.nextText;
+      card.classList.remove("is-live", "is-rest", "is-archive", "is-ready");
+      const offStatus = getHomeOffStatus(state);
+      card.classList.add(`is-${offStatus}`);
+
+      if(offStatus === "rest"){
+        pill.textContent = "REST DAY";
+        label.textContent = "REST";
+        title.textContent = "오늘은 쉬어가는 날이에요";
+        text.textContent = "다음 방송에서 다시 만나요. 스케줄 변동은 공지를 확인해주세요.";
+        if(catchText) catchText.textContent = "오늘은 루미벨도 충전 중이에요 💫";
+      }else if(offStatus === "archive"){
+        pill.textContent = "ARCHIVE";
+        label.textContent = "REPLAY";
+        title.textContent = "방송이 종료되었어요";
+        text.textContent = "후기와 다시보기, 최근 방송 기록을 확인해주세요.";
+        if(catchText) catchText.textContent = "방송 후 기록을 모아두었어요 💗";
+      }else{
+        pill.textContent = "NEXT ON AIR";
+        label.textContent = "NEXT";
+        title.textContent = state.nextTitle || DEFAULT_ONAIR.nextTitle;
+        text.textContent = state.nextText || DEFAULT_ONAIR.nextText;
+        if(catchText) catchText.textContent = "다음 방송을 준비하고 있어요";
+      }
+
       platform.textContent = "BROADCAST HUB";
-      if(memberChip) memberChip.textContent = "MARIRING";
-      if(modeChip) modeChip.textContent = "SCHEDULE";
-      if(catchText) catchText.textContent = "루미들과 함께하는 ON AIR 기록";
-      if(subText) subText.textContent = "스케줄 · 다시보기 · 방송 후기를 한 번에 확인해요.";
+      if(memberChip) memberChip.textContent = "SCHEDULE";
+      if(modeChip) modeChip.textContent = "NOTICE";
+      if(thirdChip) thirdChip.textContent = "DIARY";
+      if(subText) subText.textContent = "스케줄 · 공지 · 다시보기 · 방송 후기를 한 번에 확인해요.";
       if(buttonText) buttonText.textContent = "ON AIR 보러가기";
     }
   }
