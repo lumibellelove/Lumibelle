@@ -3791,6 +3791,9 @@ document.addEventListener("click", function(e){
   /* ===== ON AIR 홈 카드 상태 =====
      liveList가 있으면 동시 방송을 여러 개까지 표시합니다.
      기존 단일 상태(lumibelleLiveState)도 그대로 호환됩니다. */
+  const BROADCAST_API_URL = "https://script.google.com/macros/s/AKfycbyTc3TdPD3KUrUHYciEAlZYNdYdVX8khT_BHAASCpejc86vTr-lORomb9lO2acPiurGDA/exec";
+  let HOME_SHEET_LIVE_LIST = [];
+
   const DEFAULT_ONAIR = {
     isLive: false,
     platform: "cime",
@@ -3804,6 +3807,9 @@ document.addEventListener("click", function(e){
   };
 
   function getOnairState(){
+    if(Array.isArray(HOME_SHEET_LIVE_LIST) && HOME_SHEET_LIVE_LIST.length){
+      return Object.assign({}, DEFAULT_ONAIR, { isLive:true, liveList: HOME_SHEET_LIVE_LIST });
+    }
     const saved = localStorage.getItem("lumibelleLiveState");
     if(!saved) return DEFAULT_ONAIR;
     try{ return Object.assign({}, DEFAULT_ONAIR, JSON.parse(saved)); }
@@ -3928,7 +3934,73 @@ document.addEventListener("click", function(e){
       if(buttonText) buttonText.textContent = "ON AIR 보러가기";
     }
   }
+
+  function homeMemberIdFromName(name){
+    const value = String(name || "").trim().toLowerCase();
+    if(value.includes("마리") || value.includes("mari")) return "mariring";
+    if(value.includes("루루") || value.includes("lulu")) return "lulu";
+    if(value.includes("이로") || value.includes("iro")) return "iro";
+    if(value.includes("루나") || value.includes("luna") || value.includes("lunar")) return "lunar";
+    return value || "member";
+  }
+
+  function homeNormalizePlatform(value){
+    const v = String(value || "").trim().toLowerCase();
+    if(v.includes("youtube") || v.includes("유튜브")) return "youtube";
+    if(v.includes("twit") || v.includes("트윗")) return "twitcast";
+    return "cime";
+  }
+
+  function loadHomeBroadcastData(){
+    if(!BROADCAST_API_URL) return;
+    const callbackName = "lumibelleHomeBroadcastCallback_" + Date.now();
+
+    window[callbackName] = function(data){
+      try{
+        const publicItems = (data.items || []).filter(item => String(item.visibility || "public").toLowerCase() === "public");
+        const liveRows = publicItems
+          .filter(item => String(item.type || "").toLowerCase() === "live")
+          .sort((a,b)=>String(b.createdAt || b.date || "").localeCompare(String(a.createdAt || a.date || "")));
+
+        const latestByMember = {};
+        liveRows.forEach(item => {
+          const key = homeMemberIdFromName(item.member);
+          if(!latestByMember[key]) latestByMember[key] = item;
+        });
+
+        HOME_SHEET_LIVE_LIST = Object.values(latestByMember)
+          .filter(item => ["on","live","방송중"].includes(String(item.status || "").trim().toLowerCase()))
+          .map(item => ({
+            member: item.member || "멤버",
+            platform: homeNormalizePlatform(item.platform),
+            message: item.summary || item.body || item.title || "지금 ON AIR 중이에요.",
+            cimeUrl: item.url || "",
+            youtubeUrl: item.url || "",
+            twitcastUrl: item.url || ""
+          }));
+
+        renderHomeOnair();
+      }catch(err){
+        console.warn("home broadcast load failed", err);
+      }finally{
+        delete window[callbackName];
+        const tag = document.getElementById(callbackName);
+        if(tag) tag.remove();
+      }
+    };
+
+    const script = document.createElement("script");
+    script.id = callbackName;
+    script.src = BROADCAST_API_URL + "?callback=" + callbackName + "&t=" + Date.now();
+    script.onerror = function(){
+      delete window[callbackName];
+      script.remove();
+    };
+    document.body.appendChild(script);
+  }
+
   renderHomeOnair();
+  loadHomeBroadcastData();
 </script>
 
 </body>
