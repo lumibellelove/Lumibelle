@@ -498,21 +498,33 @@
   function mapSheetData(items){
     const publicItems = (items || []).filter(item => String(item.visibility || "public").toLowerCase() === "public");
 
-    sheetLiveList = publicItems
+    const liveRows = publicItems
       .filter(item => String(item.type || "").toLowerCase() === "live")
+      .sort((a,b)=>String(b.createdAt || b.date || "").localeCompare(String(a.createdAt || a.date || "")));
+
+    const latestByMember = {};
+    liveRows.forEach(item => {
+      const key = memberIdFromName(item.member);
+      if(!latestByMember[key]) latestByMember[key] = item;
+    });
+
+    sheetLiveList = Object.values(latestByMember)
       .filter(item => ["on","live","방송중"].includes(String(item.status || "").trim().toLowerCase()))
-      .sort((a,b)=>String(b.createdAt || b.date || "").localeCompare(String(a.createdAt || a.date || "")))
-      .map(item => ({
-        memberId: memberIdFromName(item.member),
-        member: item.member || "멤버",
-        platform: String(normalizePlatform(item.platform)).includes("유튜브") ? "youtube" : String(normalizePlatform(item.platform)).includes("트윗") ? "twitcast" : "cime",
-        message: item.summary || item.body || item.title || "지금 ON AIR 중이에요.",
-        title: item.title || "현재 방송중입니다",
-        cimeUrl: String(normalizePlatform(item.platform)).includes("씨미") ? (item.url || "https://ci.me/@mariring_love") : "",
-        youtubeUrl: String(normalizePlatform(item.platform)).includes("유튜브") ? (item.url || "") : "",
-        twitcastUrl: String(normalizePlatform(item.platform)).includes("트윗") ? (item.url || "") : "",
-        url: item.url || ""
-      }));
+      .map(item => {
+        const p = normalizePlatform(item.platform);
+        const platformKey = String(p).includes("유튜브") ? "youtube" : String(p).includes("트윗") ? "twitcast" : "cime";
+        return {
+          memberId: memberIdFromName(item.member),
+          member: item.member || "멤버",
+          platform: platformKey,
+          message: item.summary || item.body || item.title || "지금 ON AIR 중이에요.",
+          title: item.title || "현재 방송중입니다",
+          cimeUrl: platformKey === "cime" ? (item.url || "https://ci.me/@mariring_love") : "",
+          youtubeUrl: platformKey === "youtube" ? (item.url || "") : "",
+          twitcastUrl: platformKey === "twitcast" ? (item.url || "") : "",
+          url: item.url || ""
+        };
+      });
 
     const schedules = publicItems
       .filter(item => item.type === "schedule")
