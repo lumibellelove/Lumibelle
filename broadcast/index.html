@@ -408,6 +408,7 @@
   ];
 
   const DEFAULT_LIVE_LIST = [];
+  let sheetLiveList = [];
 
   const weekInfo = "2026.04.27 ~ 2026.05.03";
   let weeklySchedule = [
@@ -467,6 +468,19 @@
     return value || "기타";
   }
 
+  function platformKey(value){
+    const v = String(value || "").trim().toLowerCase();
+    if(v.includes("씨미") || v.includes("cime") || v.includes("ci.me")) return "cime";
+    if(v.includes("youtube") || v.includes("유튜브")) return "youtube";
+    if(v.includes("twit") || v.includes("트윗")) return "twitcast";
+    return "cime";
+  }
+
+  function isLiveOnStatus(value){
+    const v = String(value || "").trim().toLowerCase();
+    return ["on", "live", "방송중", "진행중", "켜짐"].includes(v);
+  }
+
   function scheduleClassFromStatus(status){
     const s = String(status || "").trim();
     if(["휴방","off","OFF"].includes(s)) return "off";
@@ -496,6 +510,23 @@
 
   function mapSheetData(items){
     const publicItems = (items || []).filter(item => String(item.visibility || "public").toLowerCase() === "public");
+
+    const lives = publicItems
+      .filter(item => item.type === "live" || item.type === "onair")
+      .filter(item => isLiveOnStatus(item.status))
+      .sort((a,b)=>String(b.createdAt || b.date).localeCompare(String(a.createdAt || a.date)))
+      .map(item => ({
+        isLive: true,
+        memberId: memberIdFromName(item.member),
+        member: item.member || "멤버",
+        platform: platformKey(item.platform),
+        title: item.title || `현재 ${item.member || "멤버"} 방송중입니다`,
+        message: item.summary || item.body || `${normalizePlatform(item.platform)}에서 ON AIR 중이에요.`,
+        cimeUrl: platformKey(item.platform) === "cime" ? (item.url || "https://ci.me/@mariring_love") : "https://ci.me/@mariring_love",
+        youtubeUrl: platformKey(item.platform) === "youtube" ? item.url : "",
+        twitcastUrl: platformKey(item.platform) === "twitcast" ? item.url : "",
+        url: item.url || ""
+      }));
 
     const schedules = publicItems
       .filter(item => item.type === "schedule")
@@ -548,6 +579,7 @@
         text: item.title || item.summary || (item.type === "schedule" ? "방송 스케줄 등록" : "방송 기록")
       }));
 
+    sheetLiveList = lives;
     if(schedules.length) weeklySchedule = schedules;
     if(notices.length) noticeList = notices;
     if(diaries.length) shortDiaryList = diaries;
@@ -609,6 +641,7 @@
     return [];
   }
   function getLiveList(){
+    if(sheetLiveList && sheetLiveList.length) return sheetLiveList;
     const keys = ["lumibelleMultiLiveState", "lumibelleLiveMembers", "lumibelleLiveState"];
     for(const key of keys){
       const saved = localStorage.getItem(key);
