@@ -174,6 +174,112 @@
       .notice-card .info-item,.short-card .info-item{min-height:auto !important;}
     }
 
+  
+    /* ===== MULTI LIVE 4 CARD PLAYER TEST ===== */
+    .player-card.multi-show{
+      display:block;
+      background:transparent;
+      border:0;
+      box-shadow:none;
+      overflow:visible;
+    }
+    .player-card.multi-show .player-frame{
+      aspect-ratio:auto;
+      background:transparent;
+      display:block;
+      padding:0;
+    }
+    .multi-player-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:14px;
+      align-items:stretch;
+    }
+    .stream-tile{
+      position:relative;
+      overflow:hidden;
+      border:1px solid #f0dde8;
+      border-radius:24px;
+      background:linear-gradient(135deg,#fff 0%,#fff7fc 70%,#f5efff 100%);
+      box-shadow:0 10px 22px rgba(232,191,211,.12);
+    }
+    .stream-tile-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:14px 16px;
+      border-bottom:1px solid #f5ddea;
+      background:rgba(255,255,255,.72);
+    }
+    .stream-tile-title{
+      min-width:0;
+      color:#d77ca7;
+      font-size:16px;
+      font-weight:900;
+      line-height:1.3;
+    }
+    .stream-tile-title small{
+      display:block;
+      margin-top:3px;
+      color:#9b7d90;
+      font-size:12px;
+      font-weight:800;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .stream-tile-platform{
+      flex:0 0 auto;
+      padding:7px 10px;
+      border-radius:999px;
+      background:#fff0f7;
+      border:1px solid #efc6dc;
+      color:#c97ca8;
+      font-size:11px;
+      font-weight:900;
+    }
+    .stream-frame{
+      aspect-ratio:16/9;
+      background:linear-gradient(135deg,#ffe8f3,#f3ebff);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      color:#b688a2;
+      font-weight:900;
+      line-height:1.65;
+    }
+    .stream-frame iframe{
+      width:100%;
+      height:100%;
+      border:0;
+      display:block;
+    }
+    .stream-link-box{
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      min-height:210px;
+    }
+    .stream-link-box p{
+      margin:0;
+      color:#8f7183;
+      font-size:14px;
+      font-weight:800;
+      line-height:1.7;
+      word-break:keep-all;
+    }
+    .stream-link-box .main-btn{
+      min-width:170px;
+    }
+    @media(max-width:900px){
+      .multi-player-grid{grid-template-columns:1fr;}
+    }
+
   </style>
 </head>
 
@@ -706,6 +812,85 @@
     }
     return parts.join("");
   }
+
+  function getLiveEmbed(item){
+    if(!item) return { type:"link", url:"#", label:"방송 보러가기", html:"" };
+    if(item.platform === "youtube"){
+      const embed = getYoutubeEmbed(item.youtubeId || item.youtubeUrl || item.url);
+      if(embed) return {
+        type:"embed",
+        label:"유튜브",
+        html:`<iframe src="${embed}" title="YouTube live" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`
+      };
+    }
+    if(item.platform === "twitcast"){
+      const embed = getTwitcastEmbed(item.twitcastId || item.twitcastUrl || item.url);
+      if(embed) return {
+        type:"embed",
+        label:"트윗캐스",
+        html:`<iframe src="${embed}" title="TwitCasting live" scrolling="no" frameborder="0" allowfullscreen></iframe>`
+      };
+    }
+    return {
+      type:"link",
+      label:platformName(item.platform),
+      url:item.cimeUrl || item.url || "https://ci.me/@mariring_love"
+    };
+  }
+
+  function renderMultiPlayers(liveList){
+    const playerCard = document.getElementById("playerCard");
+    const playerFrame = document.getElementById("playerFrame");
+    const playerCaption = document.getElementById("playerCaption");
+
+    playerCard.classList.remove("show","multi-show");
+    playerFrame.innerHTML = "";
+    playerCaption.textContent = "";
+
+    if(!liveList || !liveList.length) return;
+
+    const targets = liveList.slice(0,4);
+    playerCard.classList.add("show","multi-show");
+    playerFrame.innerHTML = `
+      <div class="multi-player-grid">
+        ${targets.map(item => {
+          const live = getLiveEmbed(item);
+          const member = item.member || getMemberName(item.memberId) || "멤버";
+          const title = item.title || item.message || "ON AIR";
+          const platform = platformName(item.platform);
+
+          if(live.type === "embed"){
+            return `
+              <article class="stream-tile">
+                <div class="stream-tile-head">
+                  <div class="stream-tile-title">${member}<small>${title}</small></div>
+                  <span class="stream-tile-platform">${platform}</span>
+                </div>
+                <div class="stream-frame">${live.html}</div>
+              </article>
+            `;
+          }
+
+          return `
+            <article class="stream-tile">
+              <div class="stream-tile-head">
+                <div class="stream-tile-title">${member}<small>${title}</small></div>
+                <span class="stream-tile-platform">${platform}</span>
+              </div>
+              <div class="stream-link-box">
+                <p>씨미 방송은 안정적인 시청을 위해<br>방송 페이지로 이동해서 확인해주세요.</p>
+                <a class="main-btn primary" href="${live.url}" target="_blank" rel="noopener noreferrer">씨미 팝업으로 보기</a>
+              </div>
+            </article>
+          `;
+        }).join("")}
+      </div>
+    `;
+    playerCaption.textContent = targets.length > 1
+      ? "동시에 방송중인 멤버를 4개 카드로 모아볼 수 있어요. 재생이 안 되는 플랫폼은 버튼으로 이동해주세요."
+      : "유튜브/트윗캐스는 이 페이지 안에서 볼 수 있고, 씨미는 팝업으로 이동합니다.";
+  }
+
   function renderLive(){
     const liveList = getLiveList();
     const badge = document.getElementById("liveBadge");
@@ -716,7 +901,7 @@
     const playerFrame = document.getElementById("playerFrame");
     const playerCaption = document.getElementById("playerCaption");
     grid.innerHTML = "";
-    playerCard.classList.remove("show");
+    playerCard.classList.remove("show","multi-show");
     playerFrame.innerHTML = "";
     playerCaption.textContent = "";
     if(!liveList.length){
@@ -741,24 +926,7 @@
         <div class="platform-buttons">${buildWatchButtons(item)}</div>
       </article>
     `).join("");
-    const youtubeLive = liveList.find(item => item.youtubeId || item.youtubeUrl);
-    const twitcastLive = liveList.find(item => item.platform === "twitcast" && (item.twitcastId || item.twitcastUrl || item.url));
-
-    if(youtubeLive){
-      const embedUrl = getYoutubeEmbed(youtubeLive.youtubeId || youtubeLive.youtubeUrl);
-      if(embedUrl){
-        playerCard.classList.add("show");
-        playerFrame.innerHTML = `<iframe src="${embedUrl}" title="YouTube live" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
-        playerCaption.textContent = "유튜브 송출이 있는 방송은 이 페이지 안에서도 바로 볼 수 있어요.";
-      }
-    }else if(twitcastLive){
-      const embedUrl = getTwitcastEmbed(twitcastLive.twitcastId || twitcastLive.twitcastUrl || twitcastLive.url);
-      if(embedUrl){
-        playerCard.classList.add("show");
-        playerFrame.innerHTML = `<iframe src="${embedUrl}" title="TwitCasting live" scrolling="no" frameborder="0" allowfullscreen></iframe>`;
-        playerCaption.textContent = "트윗캐스 방송도 이 페이지 안에서 바로 들을 수 있어요. 재생이 안 되면 트윗캐스 버튼으로 이동해주세요.";
-      }
-    }
+    renderMultiPlayers(liveList);
   }
   function renderTabs(containerId, active, onClick){
     const wrap = document.getElementById(containerId);
