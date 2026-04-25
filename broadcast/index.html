@@ -523,6 +523,7 @@
           youtubeUrl: platformKey === "youtube" ? (item.url || "") : "",
           youtubeId: platformKey === "youtube" ? extractYoutubeId(item.url || "") : "",
           twitcastUrl: platformKey === "twitcast" ? (item.url || "") : "",
+          twitcastId: platformKey === "twitcast" ? extractTwitcastId(item.url || "") : "",
           url: item.url || ""
         };
       });
@@ -649,6 +650,21 @@
     if(!id) return "";
     return `https://www.youtube.com/embed/${id}?autoplay=0&playsinline=1&rel=0`;
   }
+
+  function extractTwitcastId(url){
+    const raw = String(url || "").trim();
+    if(!raw) return "";
+    const match = raw.match(/twitcasting\.tv\/([^/?#]+)/i);
+    if(match && match[1]) return match[1].replace(/^@/, "");
+    if(!raw.includes("/") && !raw.includes("http")) return raw.replace(/^@/, "");
+    return "";
+  }
+
+  function getTwitcastEmbed(idOrUrl){
+    const id = extractTwitcastId(idOrUrl);
+    if(!id) return "";
+    return `https://twitcasting.tv/${id}/embeddedplayer?auto_play=false&default_mute=false`;
+  }
   function normalizeLiveState(raw){
     if(!raw) return [];
     if(Array.isArray(raw)) return raw.filter(item => item && item.isLive !== false);
@@ -686,7 +702,7 @@
     }
     if(platform === "twitcast" || item.twitcastUrl || item.twitcastId){
       const url = item.twitcastUrl || (item.twitcastId ? `https://twitcasting.tv/${item.twitcastId}` : "#");
-      parts.push(`<a class="main-btn primary" href="${url}" target="_blank" rel="noopener noreferrer">트윗캐스에서 보기</a>`);
+      parts.push(`<a class="main-btn primary" href="${url}" target="_blank" rel="noopener noreferrer">트윗캐스 듣기</a>`);
     }
     return parts.join("");
   }
@@ -726,12 +742,21 @@
       </article>
     `).join("");
     const youtubeLive = liveList.find(item => item.youtubeId || item.youtubeUrl);
+    const twitcastLive = liveList.find(item => item.platform === "twitcast" && (item.twitcastId || item.twitcastUrl || item.url));
+
     if(youtubeLive){
       const embedUrl = getYoutubeEmbed(youtubeLive.youtubeId || youtubeLive.youtubeUrl);
       if(embedUrl){
         playerCard.classList.add("show");
         playerFrame.innerHTML = `<iframe src="${embedUrl}" title="YouTube live" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
         playerCaption.textContent = "유튜브 송출이 있는 방송은 이 페이지 안에서도 바로 볼 수 있어요.";
+      }
+    }else if(twitcastLive){
+      const embedUrl = getTwitcastEmbed(twitcastLive.twitcastId || twitcastLive.twitcastUrl || twitcastLive.url);
+      if(embedUrl){
+        playerCard.classList.add("show");
+        playerFrame.innerHTML = `<iframe src="${embedUrl}" title="TwitCasting live" scrolling="no" frameborder="0" allowfullscreen></iframe>`;
+        playerCaption.textContent = "트윗캐스 방송도 이 페이지 안에서 바로 들을 수 있어요. 재생이 안 되면 트윗캐스 버튼으로 이동해주세요.";
       }
     }
   }
