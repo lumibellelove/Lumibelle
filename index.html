@@ -2652,6 +2652,154 @@ line-height:1.9 !important;
       .onair-main-copy{font-size:13.5px;}
     }
 
+
+    /* ===== ON AIR 최종 감성 강화 ===== */
+    .onair-card{
+      will-change:transform, box-shadow;
+    }
+
+    .onair-card:hover{
+      transform:translateY(-5px) !important;
+      box-shadow:0 18px 42px rgba(255,95,168,.20) !important;
+    }
+
+    .onair-preview{
+      position:relative;
+      overflow:hidden;
+    }
+
+    .onair-preview::before,
+    .onair-preview::after{
+      content:"♡";
+      position:absolute;
+      color:rgba(255,95,168,.20);
+      font-size:28px;
+      font-weight:900;
+      line-height:1;
+      pointer-events:none;
+      z-index:0;
+      animation:onairHeartFloat 4.2s ease-in-out infinite;
+    }
+
+    .onair-preview::before{
+      left:18px;
+      top:18px;
+    }
+
+    .onair-preview::after{
+      right:20px;
+      bottom:18px;
+      animation-delay:1.2s;
+      color:rgba(202,167,255,.24);
+    }
+
+    .onair-preview > *{
+      position:relative;
+      z-index:1;
+    }
+
+    .onair-card.is-live .onair-preview{
+      box-shadow:
+        0 14px 28px rgba(255,95,168,.16),
+        0 0 0 1px rgba(255,255,255,.92) inset !important;
+    }
+
+    .onair-card.is-live .onair-preview::before,
+    .onair-card.is-live .onair-preview::after{
+      opacity:1;
+      animation:onairHeartFloatLive 2.6s ease-in-out infinite;
+    }
+
+    .onair-card.is-live .onair-live-pill{
+      position:relative;
+      overflow:visible;
+    }
+
+    .onair-card.is-live .onair-live-pill::after{
+      content:"";
+      position:absolute;
+      inset:-8px;
+      border-radius:999px;
+      border:1px solid rgba(255,79,163,.30);
+      animation:onairLiveRing 1.45s ease-out infinite;
+      pointer-events:none;
+    }
+
+    .onair-enter{
+      position:relative;
+      overflow:hidden;
+    }
+
+    .onair-enter::after{
+      content:"";
+      position:absolute;
+      top:-45%;
+      left:-35%;
+      width:24%;
+      height:190%;
+      background:linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.42) 50%, rgba(255,255,255,0) 100%);
+      transform:skewX(-22deg) translateX(0);
+      opacity:0;
+      pointer-events:none;
+    }
+
+    .onair-card:hover .onair-enter::after,
+    .onair-card.is-live .onair-enter::after{
+      animation:onairButtonShine 2.4s ease-in-out infinite;
+    }
+
+    .onair-card.is-live .onair-enter .arrow{
+      animation:onairArrowBounce 1.25s ease-in-out infinite;
+    }
+
+    .onair-card.is-live .onair-main-copy{
+      color:#7c6073 !important;
+      text-shadow:0 2px 12px rgba(255,120,178,.16);
+    }
+
+    .onair-card.is-live .onair-mini-chip{
+      background:#fff;
+      border-color:#ffc0d7;
+      color:#d7649d;
+      box-shadow:0 6px 14px rgba(255,95,168,.10);
+    }
+
+    @keyframes onairHeartFloat{
+      0%,100%{transform:translateY(0) rotate(0deg); opacity:.45;}
+      50%{transform:translateY(-6px) rotate(8deg); opacity:.80;}
+    }
+
+    @keyframes onairHeartFloatLive{
+      0%,100%{transform:translateY(0) scale(1) rotate(0deg); opacity:.38;}
+      50%{transform:translateY(-8px) scale(1.08) rotate(10deg); opacity:.88;}
+    }
+
+    @keyframes onairLiveRing{
+      0%{transform:scale(.92); opacity:.70;}
+      100%{transform:scale(1.22); opacity:0;}
+    }
+
+    @keyframes onairButtonShine{
+      0%{opacity:0; transform:skewX(-22deg) translateX(0);}
+      16%{opacity:.85;}
+      42%,100%{opacity:0; transform:skewX(-22deg) translateX(620%);}
+    }
+
+    @keyframes onairArrowBounce{
+      0%,100%{transform:translateX(0);}
+      50%{transform:translateX(4px);}
+    }
+
+    @media (max-width:780px){
+      .onair-preview::before,
+      .onair-preview::after{
+        font-size:22px;
+      }
+      .onair-card:hover{
+        transform:none !important;
+      }
+    }
+
   </style>
 </head>
 
