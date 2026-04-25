@@ -472,31 +472,42 @@
       line-height:1.8;
     }
     .qr-frame{
-      width:210px;
-      height:210px;
+      width:300px;
+      max-width:82vw;
+      min-height:300px;
       margin:0 auto;
-      padding:14px;
+      padding:18px;
       border-radius:24px;
-      background:linear-gradient(180deg,#fffafd 0%,#fff0f7 100%);
-      border:1px solid #f0bfd4;
-      box-shadow:0 10px 22px rgba(255,95,165,.10);
+      background:#ffffff;
+      border:2px solid #f0bfd4;
+      box-shadow:none;
       display:flex;
       align-items:center;
       justify-content:center;
     }
     .qr-frame img{
-      width:180px;
-      height:180px;
+      width:260px;
+      max-width:72vw;
+      height:auto;
       display:block;
-      border-radius:12px;
-      background:#fff;
+      border-radius:0;
+      background:#ffffff;
+      image-rendering:pixelated;
+      box-shadow:none;
     }
     .qr-number{
-      margin-top:14px;
+      margin-top:16px;
       color:#d77ca7;
-      font-size:15px;
+      font-size:17px;
       font-weight:900;
       word-break:break-word;
+    }
+    .qr-read-guide{
+      margin-top:12px;
+      color:#8f7183;
+      font-size:14px;
+      font-weight:800;
+      line-height:1.8;
     }
     .qr-link{
       display:inline-flex;
@@ -639,7 +650,7 @@
         <div class="summary-grid" style="margin-top:18px;">
           <div class="card-box qr-card" id="ticketQrCard">
             <h3>입장 확인 QR</h3>
-            <p class="qr-desc">현장 입장 확인을 위해 이 화면을 캡쳐해 주세요.<br>QR에는 예약번호만 담겨 있으며, 캡쳐하지 못해도 입금자명/닉네임/루미ID로 확인할 수 있어요.</p>
+            <p class="qr-desc">현장 입장 확인을 위해 이 화면을 캡쳐해 주세요.<br>QR에는 예약번호만 담겨 있으며, 캡쳐하지 못해도 입금자명/닉네임/루미ID로 확인할 수 있어요.<br>QR 인식이 잘 안 되면 화면 밝기를 높여주세요.</p>
             <div id="ticketQrArea">
               <div class="goods-empty">QR을 불러오는 중이에요.</div>
             </div>
@@ -739,14 +750,14 @@
       }
 
       // 개인정보 보호를 위해 QR에는 스탭 페이지 링크가 아니라 예약번호만 담습니다.
-      const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data=${encodeURIComponent(ticketId)}`;
+      const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=420x420&margin=24&ecc=H&color=000000&bgcolor=FFFFFF&data=${encodeURIComponent(ticketId)}`;
 
       qrBox.innerHTML = `
         <div class="qr-frame">
           <img src="${qrImgUrl}" alt="입장 확인 QR" loading="eager" decoding="async">
         </div>
         <div class="qr-number">예약번호: ${ticketId}</div>
-        <div class="goods-empty" style="margin-top:12px;">QR에는 예약번호만 담겨 있어요.<br>현장에서는 이 QR 또는 예약번호 끝 4자리로 확인할 수 있어요.</div>
+        <div class="qr-read-guide">QR에는 예약번호만 담겨 있어요.<br>현장에서는 이 QR 또는 예약번호 끝 4자리로 확인할 수 있어요.</div>
       `;
     }
 
