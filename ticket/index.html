@@ -1,624 +1,266 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lumibelle Ticket</title>
-  <link rel="stylesheet" href="../style.css" />
-
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   TICKET | Lumibelle
+  </title>
+  <link href="../style.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800&display=swap');
+   :root{--panel:#fff5fb;--line:#f2d8e7;--pink:#ff5fa8;--text:#7f6a77;--muted:#b28ea2;--shadow:0 8px 24px rgba(232,191,211,.12)}
+    *{box-sizing:border-box} html,body{margin:0;padding:0} body{min-height:100vh;display:flex;flex-direction:column;background:linear-gradient(180deg,#fffafc 0%,#fff8fb 100%);color:var(--text);font-family:"SUIT","Noto Sans KR",sans-serif;letter-spacing:-.01em} main{flex:1}.wrap{width:min(1260px,calc(100% - 32px));margin:0 auto}
+    .top-lang-bar{width:100%;max-width:1260px;margin:16px auto 0;display:flex;justify-content:flex-end;padding:0 34px 0 18px}.lang-switch{display:flex;gap:10px}.lang-switch a{display:inline-flex;align-items:center;justify-content:center;min-width:42px;height:36px;padding:0 10px;border-radius:999px;background:#fff;border:1px solid #f0bfd4;color:#d27ca8;text-decoration:none;font-size:12px;font-weight:900;box-shadow:0 4px 10px rgba(255,95,165,.08)}.lang-switch a.active,.lang-switch a:hover{background:#fff0f7;color:#ff59a5}
+    .header-box{display:flex;align-items:center;gap:24px}.logo img{display:block;max-width:150px;height:auto}nav{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:18px;text-align:center;align-items:center;flex:1;margin:0 20px}nav a{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;position:relative;border-radius:22px;text-decoration:none;color:inherit}nav a b,nav a span{display:block;width:100%;text-align:center;white-space:nowrap}nav a b{font-size:1.2em;font-weight:700;color:#d97ca9}nav a span{margin-top:6px;font-size:.94em;font-weight:600;color:#c697b1}nav a.current b,nav a:hover b{color:#ff59a5}nav a.current span,nav a:hover span{color:#d88dad}nav a.current::before,nav a:hover::before{content:"";position:absolute;inset:0;border-radius:22px;background:linear-gradient(90deg,rgba(255,217,232,0) 0%,rgba(255,217,232,.14) 16%,rgba(255,192,215,.20) 50%,rgba(255,217,232,.14) 84%,rgba(255,217,232,0) 100%);z-index:-1}
+    .hero-mini{position:relative;margin-top:18px;border:1px solid var(--line);border-radius:32px;overflow:hidden;background:linear-gradient(135deg,#fff0f7 0%,#f3ebff 100%);box-shadow:var(--shadow);padding:62px 56px 56px}.hero-mini .sub{color:var(--pink);font-size:20px;font-weight:800;margin-bottom:10px}.hero-mini h1{margin:0;font-family:"Cormorant Garamond",serif;font-size:96px;line-height:.9;font-weight:600;color:var(--pink);text-shadow:0 1px 0 rgba(255,255,255,.98),0 0 10px rgba(255,120,178,.22)}.hero-mini p{margin:18px 0 0;color:#8f7183;font-size:17px;line-height:1.9;font-weight:700}.status-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.status-pill{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 13px;border-radius:999px;background:#fff;border:1px solid #f0bfd4;color:#d27ca8;font-size:12px;font-weight:900}.status-pill.strong{background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);color:#fff;border:none}
+    .ticket-layout{display:grid;grid-template-columns:.92fr 1.08fr;gap:24px;margin-top:28px;align-items:start}.left-stack{padding-top:62px}.poster-card,.ticket-card,.detail-card,.package-card{background:var(--panel);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);overflow:hidden}.poster-box{aspect-ratio:3/4;background:linear-gradient(135deg,#fff0f7 0%,#f4ebff 100%);display:flex;align-items:center;justify-content:center;padding:22px;text-align:center;color:#d77ca7;font-weight:900;font-size:22px;line-height:1.5}.poster-box img{width:100%;height:100%;object-fit:cover;border-radius:22px;display:block}.info-card{padding:28px}.info-card h2,.ticket-card h2,.detail-card h2,.package-card h2{margin:0 0 16px;color:#d77ca7;font-size:32px;font-weight:900;line-height:1.15}.info-card p{margin:0;color:#8f7183;line-height:1.85;font-weight:700;font-size:16px}.event-lines{display:grid;gap:12px;margin-top:18px}.event-line{display:grid;grid-template-columns:90px 1fr;gap:12px;padding:13px 14px;border:1px solid var(--line);border-radius:18px;background:#fff;line-height:1.65}.event-line strong{color:#d77ca7;font-weight:900}.event-line span{color:#7f6a77;font-weight:650;word-break:keep-all}.cast-box{margin-top:18px;padding:14px 0 0;border-top:1px solid #f2d8e7;background:transparent}.cast-title{margin:0 0 18px;color:#d77ca7 !important;font-family:"SUIT","Noto Sans KR",sans-serif !important;font-size:20px !important;font-weight:800 !important;letter-spacing:-.02em;line-height:1.2;text-shadow:0 1px 0 #fff}.info-card .cast-list{display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;margin-top:8px;padding-bottom:4px;-webkit-overflow-scrolling:touch}.cast-list::-webkit-scrollbar{height:6px}.cast-list::-webkit-scrollbar-thumb{background:#f0bfd4;border-radius:999px}.cast-pill{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border-radius:999px;background:#fff;border:1px solid #f0bfd4;color:#c182a5;font-size:14px;font-weight:900}
+    .right-stack{display:grid;gap:18px}.right-top-actions{display:flex;justify-content:flex-end}.quick-icon-btn,.package-btn,.reserve-btn,.sub-btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 18px;border-radius:999px;text-decoration:none;font-size:15px;font-weight:900;text-align:center;transition:transform .15s ease,filter .15s ease}.quick-icon-btn,.package-btn,.sub-btn{background:#fff;border:1px solid #f0bfd4;color:#d77ca7;box-shadow:0 4px 10px rgba(255,95,165,.08)}.quick-icon-btn{min-height:44px;font-size:14px}.package-btn:hover,.reserve-btn:hover,.sub-btn:hover,.quick-icon-btn:hover{transform:translateY(-2px);filter:brightness(1.03)}.package-card,.ticket-card,.detail-card{padding:24px}.package-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ticket-note{margin:16px 0 0;color:#8f7183;font-size:14px;line-height:1.85;font-weight:650}.ticket-card .ticket-note{margin:12px 0 16px}.ticket-card > .status-row{gap:12px;margin:4px 0 14px}.ticket-card > .status-row .status-pill{min-height:46px;padding:0 18px;font-size:15px;font-weight:900;letter-spacing:-.01em;color:#c96f9c;background:#fff;border-color:#f0bfd4}.ticket-price{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:20px;border-radius:22px;background:#fff;border:1px solid var(--line);margin-bottom:18px}.ticket-price strong{display:block;color:#d77ca7;font-size:22px;font-weight:900}.ticket-price span{display:block;margin-top:6px;color:var(--muted);font-size:13px;font-weight:800}.ticket-price b{color:var(--pink);font-size:28px;font-weight:900;white-space:nowrap}.reserve-btn{width:100%;background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);color:#fff;box-shadow:0 8px 18px rgba(255,95,165,.25)}
+    .reserve-form{margin-top:18px;display:grid;gap:13px;max-width:560px}.form-row{display:grid;grid-template-columns:1fr 130px;gap:10px}.field label{display:block;margin:0 0 7px;color:#d77ca7;font-size:18px;font-weight:900}.field input,.field select{width:100%;min-height:50px;border-radius:18px;border:1px solid #f0bfd4;background:#fff;color:#7f6a77;font-size:16px;font-weight:700;padding:0 16px;outline:none}.field input:focus,.field select:focus{border-color:#ff8ac2;box-shadow:0 0 0 4px rgba(255,138,194,.12)}.ticket-options{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0 0;align-items:center}.ticket-divider{height:1px;margin:28px 0 20px;background:linear-gradient(90deg,rgba(242,216,231,0),#f2d8e7 14%,#f2d8e7 86%,rgba(242,216,231,0))}.ticket-option{border:1px solid #f0bfd4;background:#fff;color:#d77ca7;border-radius:999px;min-height:46px;padding:0 18px;font-size:15px;font-weight:900;cursor:pointer;letter-spacing:-.01em;box-shadow:0 4px 10px rgba(255,95,165,.06)}.ticket-option.active{background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);color:#fff;border-color:transparent;box-shadow:0 6px 14px rgba(255,95,165,.18)}.meate-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.meate-option{border:1px solid #f0bfd4;background:#fff;color:#d77ca7;border-radius:999px;min-height:46px;padding:0 12px;font-size:15px;font-weight:900;cursor:pointer;letter-spacing:-.01em;box-shadow:0 4px 10px rgba(255,95,165,.06);transition:transform .15s ease,filter .15s ease}.meate-option:hover{transform:translateY(-2px);filter:brightness(1.03)}.meate-option.active{background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);color:#fff;border-color:transparent;box-shadow:0 6px 14px rgba(255,95,165,.18)}.agree-box{display:flex;align-items:center;gap:10px;min-height:42px;margin-top:8px;padding:9px 14px;border:1px solid #f0bfd4;border-radius:16px;background:#fff;color:#8f7183;font-size:14px;font-weight:750;line-height:1.45}.agree-box input{width:17px;height:17px;accent-color:#ff5fa8;flex:0 0 auto}.reserve-btn{border:none;cursor:pointer;max-width:280px;margin:4px auto 0;font-size:16px}.reserve-msg{display:none;margin-top:12px;padding:12px 14px;border-radius:16px;background:#fff0f7;border:1px solid #f0bfd4;color:#d77ca7;font-weight:900;text-align:center}
+    .notice-grid{display:grid;grid-template-columns:1fr;gap:14px}.notice-box{background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px 20px}.notice-box h3{margin:0 0 10px;color:#d77ca7;font-size:22px;font-weight:900}.notice-box ul{margin:0;padding-left:18px;color:#8f7183;line-height:1.75;font-weight:700;font-size:15.5px}.notice-box li{margin:4px 0}.notice-box strong{color:#d77ca7}footer{text-align:center;padding:28px 16px 40px;color:#c6a2b4;font-size:14px}
+    @media (max-width:1180px){nav{grid-template-columns:repeat(4,1fr);gap:16px;width:100%;margin:0}.header-box{flex-wrap:wrap;justify-content:center}.top-lang-bar{justify-content:center;margin-top:14px}}@media (max-width:980px){.ticket-layout{grid-template-columns:1fr}.left-stack{padding-top:0}.hero-mini h1{font-size:76px}}@media (max-width:780px){nav{grid-template-columns:repeat(2,1fr);gap:12px}.hero-mini{padding:42px 24px 40px}.hero-mini h1{font-size:62px}.hero-mini .sub{font-size:17px}.hero-mini p{font-size:14px}.info-card,.ticket-card,.detail-card,.package-card{padding:22px 18px}.event-line{grid-template-columns:1fr;gap:4px}.package-actions{grid-template-columns:1fr}.ticket-price{align-items:flex-start;flex-direction:column}.ticket-price b{font-size:24px}.form-row{grid-template-columns:1fr}.meate-options{grid-template-columns:repeat(2,1fr)}.reserve-form{max-width:100%}.reserve-btn{max-width:100%}}
 
-    *{box-sizing:border-box;}
+    .hero-mini .status-pill{min-height:44px;padding:0 18px;font-size:15px;font-weight:900}
+    .top-button{position:fixed;right:22px;bottom:24px;z-index:50;display:none;align-items:center;justify-content:center;min-width:78px;min-height:42px;padding:0 16px;border:1px solid #f0bfd4;border-radius:999px;background:rgba(255,255,255,.92);color:#d77ca7;font-family:"SUIT","Noto Sans KR",sans-serif;font-size:14px;font-weight:900;letter-spacing:-.01em;box-shadow:0 8px 18px rgba(255,95,165,.16);cursor:pointer;backdrop-filter:blur(6px);transition:transform .15s ease,filter .15s ease,opacity .15s ease}
+    .top-button.show{display:inline-flex}
+    .top-button:hover{transform:translateY(-2px);filter:brightness(1.03)}
+    @media (max-width:780px){.hero-mini .status-pill{min-height:40px;padding:0 15px;font-size:13px}.top-button{right:16px;bottom:18px;min-width:68px;min-height:38px;font-size:13px}}
 
-    html,body{
-      margin:0;
-      padding:0;
+
+    /* 일반 스마트폰 기준 모바일 최적화 */
+    @media (max-width:780px){
+      .wrap{width:min(100% - 24px,1260px)}
+      .top-lang-bar{padding:0 12px}
+      .lang-switch a{min-width:38px;height:34px;font-size:11px}
+      .header-box{gap:14px}
+      .logo img{max-width:132px}
+      nav{gap:10px}
+      nav a{padding:10px 4px;border-radius:18px}
+      nav a b{font-size:1.05em}
+      nav a span{margin-top:4px;font-size:.82em}
+      .hero-mini{margin-top:14px;padding:38px 20px 34px;border-radius:26px}
+      .hero-mini h1{font-size:58px}
+      .hero-mini .sub{font-size:16px}
+      .hero-mini p{font-size:14px;line-height:1.75}
+      .hero-mini .status-row{gap:8px;margin-top:16px}
+      .hero-mini .status-pill{min-height:38px;padding:0 14px;font-size:13px}
+      .ticket-layout{gap:18px;margin-top:20px}
+      .right-stack{gap:16px}
+      .poster-card,.ticket-card,.detail-card,.package-card{border-radius:24px}
+      .info-card,.ticket-card,.detail-card,.package-card{padding:20px 16px}
+      .info-card h2,.ticket-card h2,.detail-card h2,.package-card h2{font-size:28px}
+      .ticket-card > .status-row{gap:8px}
+      .ticket-card > .status-row .status-pill{min-height:42px;padding:0 14px;font-size:14px}
+      .ticket-price{padding:18px 16px;border-radius:20px}
+      .ticket-price strong{font-size:20px}
+      .ticket-price b{font-size:23px}
+      .ticket-options{gap:10px}
+      .ticket-option{min-height:44px;padding:0 14px;font-size:14px}
+      .ticket-divider{margin:26px 0 20px}
+      .field label{font-size:17px}
+      .field input,.field select{min-height:48px;border-radius:16px;font-size:15px}
+      .meate-options{gap:8px}
+      .meate-option{min-height:44px;padding:0 10px;font-size:14px}
+      .agree-box{align-items:flex-start;font-size:13.5px;line-height:1.45}
+      .agree-box input{margin-top:2px}
+      .top-button{right:14px;bottom:calc(16px + env(safe-area-inset-bottom))}
     }
 
+    /* 폭이 좁은 일반 안드로이드/소형 아이폰 보정 */
+    @media (max-width:390px){
+      .wrap{width:calc(100% - 20px)}
+      .hero-mini{padding:34px 18px 32px}
+      .hero-mini h1{font-size:52px}
+      .hero-mini .status-pill{min-height:36px;padding:0 12px;font-size:12px}
+      nav a b{font-size:1em}
+      nav a span{font-size:.78em}
+      .info-card h2,.ticket-card h2,.detail-card h2,.package-card h2{font-size:26px}
+      .ticket-card > .status-row .status-pill{width:100%;justify-content:center}
+      .ticket-option{padding:0 12px;font-size:13.5px}
+      .meate-option{font-size:13.5px}
+      .agree-box{font-size:13px}
+      .top-button{min-width:58px;min-height:36px;font-size:12px}
+    }
+
+
+
+    /* ===== 홈 index 기준 고급화 레이어 ===== */
     body{
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
       background:
-        radial-gradient(circle at 14% 7%, rgba(255, 196, 225, .35), transparent 28%),
-        radial-gradient(circle at 88% 12%, rgba(213, 190, 255, .34), transparent 30%),
-        linear-gradient(180deg, #fffafc 0%, #fff5fb 48%, #fffafc 100%);
-      color:#7f6a77;
-      font-family:"SUIT","Noto Sans KR",sans-serif;
-      letter-spacing:-.01em;
+        radial-gradient(circle at 12% 8%, rgba(255,192,215,.34) 0%, rgba(255,192,215,0) 28%),
+        radial-gradient(circle at 88% 18%, rgba(202,167,255,.20) 0%, rgba(202,167,255,0) 26%),
+        linear-gradient(180deg,#fffafc 0%,#fff8fb 100%);
     }
 
-    a{color:inherit;}
-
-    .wrap{
-      width:100%;
-      max-width:1260px;
-      margin:0 auto;
-      padding:0 34px 0 18px;
-      box-sizing:border-box;
-    }
-
-    main.page-shell{flex:1;}
-
-    /* ===== 홈 기준 상단 언어 영역 ===== */
-    .top-lang-bar{
-      width:100%;
-      max-width:1260px;
-      margin:16px auto 0;
-      display:flex;
-      justify-content:flex-end;
-      padding:0 34px 0 18px;
-      box-sizing:border-box;
-      overflow:visible !important;
-    }
-
-    .lang-switch{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex:0 0 auto;
-      padding-right:2px;
-      overflow:visible !important;
-    }
-
-    .lang-switch a{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-width:42px;
-      height:36px;
-      padding:0 10px;
-      border-radius:999px;
-      background:#fff;
-      border:1px solid #f0bfd4;
-      color:#d27ca8;
-      text-decoration:none;
-      font-size:12px;
-      font-weight:900;
-      box-shadow:0 4px 10px rgba(255,95,165,.08);
-      transition:background .18s ease, color .18s ease, opacity .18s ease;
-      transform:none !important;
-      -webkit-tap-highlight-color:transparent;
-    }
-
-    .lang-switch a:hover,
-    .lang-switch a.active{
-      background:#fff0f7;
-      color:#ff59a5;
-      transform:none !important;
-    }
-
-    /* ===== 홈 기준 헤더/1차 메뉴 ===== */
-    header{margin-top:8px;}
-
-    .header-box{
-      display:flex;
-      align-items:center;
-      gap:24px;
-      overflow:visible !important;
-      transform:none !important;
-    }
-
-    .logo{
-      flex:0 0 auto;
-      width:172px;
-    }
-
-    .logo a,
-    .logo picture,
-    .logo img{
-      display:block;
-    }
-
-    .logo img{
-      width:100%;
-      height:auto;
-    }
-
-    nav{
-      display:grid;
-      grid-template-columns:repeat(8, minmax(0, 1fr));
-      gap:18px;
-      text-align:center;
-      align-items:center;
-      flex:1;
-      margin:0 20px;
-      overflow:visible !important;
-      transform:none !important;
-    }
-
-    nav a{
+    .hero-mini,
+    .poster-card,
+    .ticket-card,
+    .detail-card,
+    .package-card{
       position:relative;
-      width:100%;
-      min-width:0;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      padding:12px 4px;
-      border-radius:18px;
-      text-decoration:none;
-      overflow:visible;
       isolation:isolate;
-      transform:none !important;
-      transition:color .18s ease, background .18s ease !important;
-      -webkit-tap-highlight-color:transparent;
     }
 
-    nav a b,
-    nav a span{
-      display:block;
-      width:100%;
-      text-align:center;
-      white-space:nowrap;
-      font-family:"SUIT","Noto Sans KR",sans-serif !important;
-    }
-
-    nav a b{
-      font-size:1.2em !important;
-      font-weight:700 !important;
-      color:#d97ca9 !important;
-      letter-spacing:-.03em !important;
-    }
-
-    nav a span{
-      margin-top:6px !important;
-      font-size:.94em !important;
-      color:#c697b1 !important;
-      font-weight:600 !important;
-      letter-spacing:-.01em !important;
-    }
-
-    nav a::before{
+    .hero-mini::before,
+    .ticket-card::before,
+    .detail-card::before,
+    .package-card::before,
+    .poster-card::before{
       content:"";
       position:absolute;
-      inset:0;
-      border-radius:18px;
-      background:linear-gradient(90deg,
-        rgba(255,217,232,0) 0%,
-        rgba(255,217,232,.14) 16%,
-        rgba(255,192,215,.16) 36%,
-        rgba(255,192,215,.20) 50%,
-        rgba(255,192,215,.16) 64%,
-        rgba(255,217,232,.14) 84%,
-        rgba(255,217,232,0) 100%);
-      opacity:0;
+      inset:-1px;
+      border-radius:inherit;
+      background:linear-gradient(135deg, rgba(255,255,255,.42), rgba(255,255,255,0) 34%, rgba(255,192,215,.14) 100%);
+      pointer-events:none;
       z-index:-1;
-      pointer-events:none;
-      transition:opacity .18s ease !important;
-      transform:none !important;
-      box-shadow:none !important;
     }
 
-    nav a.current::before,
-    nav a:hover::before,
-    nav a:focus::before,
-    nav a:focus-visible::before{opacity:1;}
-
-    nav a.current b,
-    nav a:hover b{color:#ff59a5 !important;}
-    nav a.current span,
-    nav a:hover span{color:#d88dad !important;}
-
-    nav a:focus,
-    nav a:focus-visible,
-    nav a:active{
-      outline:none !important;
-      transform:none !important;
-      box-shadow:none !important;
-    }
-
-    /* ===== 티켓 페이지 ===== */
-    .ticket-hero{
-      position:relative;
-      margin:26px auto 0;
-      min-height:360px;
-      border:1px solid #f2d8e7;
-      border-radius:34px;
-      overflow:hidden;
-      background:
-        radial-gradient(circle at 18% 22%, rgba(255,255,255,.86), transparent 20%),
-        radial-gradient(circle at 82% 16%, rgba(255, 214, 235, .72), transparent 28%),
-        linear-gradient(135deg, #fff0f7 0%, #f5efff 100%);
-      box-shadow:0 10px 34px rgba(232,191,211,.16);
-    }
-
-    .ticket-hero::before{
-      content:"";
-      position:absolute;
-      inset:-40%;
-      background:
-        radial-gradient(circle at 22% 30%, rgba(255,255,255,.60), transparent 9%),
-        radial-gradient(circle at 58% 24%, rgba(255,255,255,.50), transparent 8%),
-        conic-gradient(from 120deg, rgba(255,255,255,0), rgba(255,255,255,.32), rgba(255,138,194,.20), rgba(255,255,255,0));
-      animation:heroShine 9s linear infinite;
-      opacity:.7;
-      pointer-events:none;
-    }
-
-    .ticket-hero-inner{
-      position:relative;
-      z-index:1;
-      padding:62px 52px 58px;
-      display:grid;
-      grid-template-columns:1.1fr .9fr;
-      gap:28px;
-      align-items:center;
-    }
-
-    .eyebrow{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 13px;
-      border-radius:999px;
-      background:#fff;
-      border:1px solid #f0bfd4;
-      color:#ff59a5;
-      font-size:12px;
-      font-weight:900;
-      box-shadow:0 8px 18px rgba(255,95,165,.10);
-    }
-
-    .ticket-title{
-      margin:18px 0 12px;
-      color:#ff5aa6;
-      font-family:"Cormorant Garamond",serif;
-      font-size:86px;
-      line-height:.88;
-      font-weight:600;
-      letter-spacing:-.04em;
-      text-shadow:0 1px 0 rgba(255,255,255,.98), 0 0 18px rgba(255,120,178,.18);
-    }
-
-    .ticket-subtitle{
-      margin:0;
-      color:#8f7183;
-      font-size:18px;
-      line-height:1.85;
-      font-weight:700;
-      word-break:keep-all;
-    }
-
-    .hero-ticket-card{
-      position:relative;
-      padding:28px;
-      border-radius:30px;
-      background:rgba(255,255,255,.72);
-      border:1px solid rgba(242,216,231,.95);
-      box-shadow:0 16px 34px rgba(255,95,165,.12);
-      backdrop-filter:blur(10px);
-      overflow:hidden;
-    }
-
-    .hero-ticket-card::after{
+    .hero-mini::after{
       content:"✦";
       position:absolute;
-      right:22px;
-      top:18px;
-      color:#ff8ac2;
-      font-size:30px;
-      opacity:.72;
-      animation:starFloat 2.8s ease-in-out infinite;
-    }
-
-    .hero-ticket-card h2{
-      margin:0 0 16px;
-      color:#d67faa;
-      font-size:30px;
-      font-weight:900;
-      letter-spacing:-.03em;
-    }
-
-    .ticket-meta-list{
-      display:grid;
-      gap:12px;
-      margin:0;
-      padding:0;
-      list-style:none;
-    }
-
-    .ticket-meta-list li{
-      display:grid;
-      grid-template-columns:92px 1fr;
-      gap:12px;
-      align-items:start;
-      padding:13px 14px;
-      border-radius:18px;
-      background:#fff8fc;
-      border:1px solid #f3ddea;
-      color:#8a7481;
-      font-size:14px;
-      line-height:1.55;
-      font-weight:700;
-    }
-
-    .ticket-meta-list strong{
-      color:#ff5fa5;
-      font-weight:900;
-    }
-
-    .ticket-grid{
-      display:grid;
-      grid-template-columns:.9fr 1.1fr;
-      gap:24px;
-      align-items:start;
-      margin-top:24px;
-    }
-
-    .ticket-panel{
-      position:relative;
-      border:1px solid #f2d8e7;
-      border-radius:30px;
-      background:rgba(255,255,255,.82);
-      box-shadow:0 8px 24px rgba(232,191,211,.12);
-      overflow:hidden;
-    }
-
-    .ticket-panel-head{
-      padding:28px 28px 18px;
-      text-align:center;
-      background:linear-gradient(180deg, rgba(255,245,251,.88), rgba(255,255,255,.62));
-    }
-
-    .ticket-panel-head h2{
-      margin:0;
-      color:#d67faa;
-      font-size:38px;
-      font-weight:900;
+      right:34px;
+      bottom:24px;
+      color:rgba(255,95,168,.22);
+      font-size:42px;
       line-height:1;
-      letter-spacing:-.03em;
+      animation:lumiStarFloat 3s ease-in-out infinite;
+      pointer-events:none;
     }
 
-    .ticket-panel-head p{
-      margin:10px 0 0;
-      color:#c89fb5;
-      font-size:15px;
-      font-weight:700;
-      line-height:1.65;
-      word-break:keep-all;
+    @keyframes lumiStarFloat{
+      0%,100%{transform:translateY(0) rotate(0deg); opacity:.48;}
+      50%{transform:translateY(-6px) rotate(12deg); opacity:.88;}
     }
 
-    .ticket-panel-body{
-      padding:24px 28px 30px;
+    @media (hover:hover) and (pointer:fine){
+      .poster-card:hover,
+      .ticket-card:hover,
+      .detail-card:hover,
+      .package-card:hover{
+        transform:translateY(-3px);
+        box-shadow:0 16px 34px rgba(232,191,211,.20);
+      }
     }
 
-    .price-card{
-      padding:22px;
-      border-radius:24px;
-      background:linear-gradient(135deg, #fff0f7 0%, #f6f0ff 100%);
-      border:1px solid #f0dde8;
-      text-align:center;
+    .poster-card,
+    .ticket-card,
+    .detail-card,
+    .package-card{
+      transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
     }
 
-    .price-card small{
-      display:block;
-      color:#b28ea2;
-      font-size:13px;
-      font-weight:900;
-      letter-spacing:.04em;
-    }
-
-    .price-card strong{
-      display:block;
-      margin-top:6px;
-      color:#ff59a5;
-      font-size:34px;
-      font-weight:900;
-      letter-spacing:-.04em;
-    }
-
-    .notice-list{
-      display:grid;
-      gap:10px;
-      margin:18px 0 0;
-      padding:0;
-      list-style:none;
-    }
-
-    .notice-list li{
+    .ticket-price,
+    .notice-box,
+    .event-line,
+    .status-pill,
+    .ticket-option,
+    .meate-option,
+    .package-btn,
+    .quick-icon-btn,
+    .reserve-btn{
       position:relative;
-      padding:12px 14px 12px 36px;
-      border-radius:17px;
-      background:#fff8fc;
-      border:1px solid #f3ddea;
-      color:#8f7183;
-      font-size:14px;
-      line-height:1.6;
-      font-weight:700;
-      word-break:keep-all;
+      overflow:hidden;
+      isolation:isolate;
     }
 
-    .notice-list li::before{
-      content:"♡";
+    .ticket-price::after,
+    .status-pill::after,
+    .ticket-option::after,
+    .meate-option::after,
+    .package-btn::after,
+    .quick-icon-btn::after,
+    .reserve-btn::after{
+      content:"";
       position:absolute;
-      left:14px;
-      top:12px;
-      color:#ff7eb3;
-      font-weight:900;
+      top:-35%;
+      left:-44%;
+      width:24%;
+      height:170%;
+      background:linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.18) 35%, rgba(255,255,255,.45) 50%, rgba(255,255,255,.18) 65%, rgba(255,255,255,0) 100%);
+      transform:skewX(-22deg) translateX(0);
+      opacity:0;
+      pointer-events:none;
+      z-index:2;
     }
 
-    .account-box{
-      margin-top:18px;
-      padding:18px;
-      border-radius:22px;
-      background:#fff;
-      border:1px dashed #efbdd5;
-      color:#8a7481;
-      line-height:1.7;
-      font-size:14px;
-      font-weight:700;
-      word-break:keep-all;
+    .ticket-price:hover::after,
+    .status-pill:hover::after,
+    .ticket-option:hover::after,
+    .meate-option:hover::after,
+    .package-btn:hover::after,
+    .quick-icon-btn:hover::after,
+    .reserve-btn:hover::after{
+      animation:sweepShine .9s ease forwards;
     }
 
-    .account-box strong{
-      display:block;
-      margin-bottom:6px;
-      color:#ff59a5;
-      font-size:15px;
-      font-weight:900;
+    @keyframes sweepShine{
+      0%{opacity:0;transform:skewX(-22deg) translateX(0);}
+      15%{opacity:1;}
+      100%{opacity:0;transform:skewX(-22deg) translateX(560%);}
     }
 
-    .ticket-form{
-      display:grid;
-      gap:18px;
+    .ticket-price{
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.85), 0 6px 16px rgba(255,95,165,.05);
     }
 
-    .form-row{
-      display:grid;
-      gap:8px;
-    }
-
-    .form-row label{
-      color:#9a7f90;
-      font-size:14px;
-      font-weight:900;
-    }
-
-    .form-row input,
-    .form-row select{
-      width:100%;
-      min-height:52px;
-      padding:0 16px;
-      border-radius:17px;
-      border:1px solid #f0cfe0;
-      background:#fff;
-      color:#7f6a77;
-      font-family:"SUIT","Noto Sans KR",sans-serif;
-      font-size:15px;
-      font-weight:700;
-      outline:none;
-      box-shadow:0 4px 12px rgba(232,191,211,.08);
-      transition:border-color .18s ease, box-shadow .18s ease, background .18s ease;
-    }
-
-    .form-row input:focus,
-    .form-row select:focus{
-      border-color:#ff8ac2;
-      box-shadow:0 0 0 4px rgba(255,138,194,.14);
+    .notice-box:hover,
+    .event-line:hover{
       background:#fffafd;
     }
 
-    .form-row input::placeholder{color:#d0aabd;}
-
-    .field-help{
-      color:#b28ea2;
-      font-size:12px;
-      font-weight:700;
-      line-height:1.5;
+    .reserve-btn{
+      min-height:54px;
+      box-shadow:0 10px 22px rgba(255,95,165,.26);
     }
 
-    .agreement-box{
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      padding:16px;
-      border-radius:20px;
-      background:#fff8fc;
-      border:1px solid #f3ddea;
+    .reserve-btn:hover{
+      box-shadow:0 14px 28px rgba(255,95,165,.30);
     }
 
-    .agreement-box input{
-      width:20px;
-      height:20px;
-      margin-top:2px;
-      accent-color:#ff59a5;
-      flex:0 0 auto;
-    }
-
-    .agreement-box span{
-      color:#8f7183;
-      font-size:14px;
-      line-height:1.65;
-      font-weight:800;
-      word-break:keep-all;
-    }
-
-    .submit-btn{
-      position:relative;
-      width:100%;
-      min-height:58px;
-      border:none;
-      border-radius:999px;
-      background:linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%);
-      color:#fff;
-      font-family:"SUIT","Noto Sans KR",sans-serif;
-      font-size:17px;
-      font-weight:900;
-      letter-spacing:-.02em;
-      cursor:pointer;
-      box-shadow:0 12px 22px rgba(255,95,165,.28);
-      overflow:hidden;
-      transition:filter .18s ease, opacity .18s ease;
-    }
-
-    .submit-btn:hover{filter:brightness(1.03);}
-    .submit-btn:disabled{opacity:.68; cursor:wait;}
-
-    .mini-links{
-      display:flex;
-      justify-content:center;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-top:18px;
-    }
-
-    .mini-links a{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-height:42px;
-      padding:0 16px;
-      border-radius:999px;
-      background:#fff;
-      border:1px solid #f0cfe0;
-      color:#d27ca8;
-      text-decoration:none;
-      font-size:13px;
-      font-weight:900;
-    }
-
-    footer{
-      text-align:center;
-      padding:32px 16px 42px;
-      color:#c6a2b4;
-      font-size:14px;
-      font-weight:700;
-    }
-
-    .back-to-top{
-      position:fixed;
-      right:22px;
-      bottom:22px;
-      width:56px;
-      height:56px;
-      border:none;
-      border-radius:50%;
-      background:linear-gradient(180deg, #ff7eb3 0%, #ff5fa5 100%);
-      color:#fff;
-      font-size:22px;
-      font-weight:900;
-      cursor:pointer;
-      box-shadow:0 12px 22px rgba(255,95,165,.28);
-      z-index:1200;
+    /* 홈 index와 같은 원형 위로가기 버튼 */
+    .top-button{
+      position:fixed !important;
+      right:22px !important;
+      bottom:22px !important;
+      width:56px !important;
+      height:56px !important;
+      min-width:0 !important;
+      min-height:0 !important;
+      padding:0 !important;
+      border:none !important;
+      border-radius:50% !important;
+      background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%) !important;
+      color:#fff !important;
+      font-size:22px !important;
+      font-weight:900 !important;
+      box-shadow:0 12px 22px rgba(255,95,165,.28) !important;
+      z-index:1200 !important;
       opacity:0;
       visibility:hidden;
+      display:inline-flex !important;
+      align-items:center;
+      justify-content:center;
       transform:translateY(8px);
-      transition:all .2s ease;
+      transition:all .2s ease !important;
     }
 
-    .back-to-top.show{
-      opacity:1;
-      visibility:visible;
-      transform:translateY(0);
+    .top-button.show{
+      opacity:1 !important;
+      visibility:visible !important;
+      transform:translateY(0) !important;
     }
 
-    /* ===== reveal ===== */
+    .top-button:hover{
+      transform:translateY(-2px) !important;
+      filter:brightness(1.04);
+    }
+
     .reveal{
       opacity:0;
-      transform:translateY(30px);
-      transition:opacity .85s ease, transform .85s ease;
+      transform:translateY(26px);
+      transition:opacity .8s ease, transform .8s ease;
       will-change:opacity, transform;
     }
 
@@ -627,69 +269,84 @@
       transform:translateY(0);
     }
 
-    /* ===== 버튼 반짝 ===== */
-    nav a,
-    .mini-links a,
-    .submit-btn,
-    .back-to-top{
-      position:relative;
-      overflow:hidden;
-      isolation:isolate;
+    .burst-spark,
+    .burst-petal{
+      position:fixed;
+      pointer-events:none;
+      left:0;
+      top:0;
+      z-index:5000;
+      opacity:0;
     }
 
-    nav a::after,
-    .mini-links a::after,
-    .submit-btn::after,
-    .back-to-top::after{
+    .burst-spark{
+      width:16px;
+      height:16px;
+      animation:burstSpark .72s ease-out forwards;
+    }
+
+    .burst-spark::before,
+    .burst-spark::after{
       content:"";
       position:absolute;
-      top:-35%;
-      left:-42%;
-      width:22%;
-      height:170%;
-      background:linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.16) 35%, rgba(255,255,255,.36) 50%, rgba(255,255,255,.16) 65%, rgba(255,255,255,0) 100%);
-      transform:skewX(-22deg) translateX(0);
-      opacity:0;
-      pointer-events:none;
-      z-index:2;
+      background:#fff;
+      border-radius:999px;
+      box-shadow:0 0 10px rgba(255,255,255,.9),0 0 18px rgba(255,192,215,.7);
     }
 
-    nav a:hover::after,
-    .mini-links a:hover::after,
-    .submit-btn:hover::after,
-    .back-to-top:hover::after{
-      animation:sweepShine .9s ease forwards;
+    .burst-spark::before{width:3px;height:16px;left:6.5px;top:0;}
+    .burst-spark::after{width:16px;height:3px;left:0;top:6.5px;}
+
+    .burst-petal{
+      width:14px;
+      height:14px;
+      border-radius:999px;
+      background:radial-gradient(circle at 35% 35%, #fff 0%, #ffd9e8 42%, #ffc0d7 78%, rgba(255,192,215,0) 100%);
+      box-shadow:0 0 10px rgba(255,192,215,.55);
+      animation:burstPetal .78s ease-out forwards;
     }
 
-    @keyframes sweepShine{
-      0%{opacity:0; transform:skewX(-22deg) translateX(0);}
-      15%{opacity:1;}
-      100%{opacity:0; transform:skewX(-22deg) translateX(560%);}
+    @keyframes burstSpark{
+      0%{transform:translate(0,0) scale(.45) rotate(0deg);opacity:1;}
+      100%{transform:translate(var(--x), var(--y)) scale(1.15) rotate(90deg);opacity:0;}
     }
 
-    @keyframes heroShine{
-      0%{transform:rotate(0deg) scale(1);}
-      100%{transform:rotate(360deg) scale(1);}
+    @keyframes burstPetal{
+      0%{transform:translate(0,0) scale(.6);opacity:1;}
+      100%{transform:translate(var(--x), var(--y)) scale(1.2);opacity:0;}
     }
 
-    @keyframes starFloat{
-      0%,100%{transform:translateY(0) rotate(0deg); opacity:.62;}
-      50%{transform:translateY(-5px) rotate(12deg); opacity:1;}
+    @media (max-width:780px){
+      .hero-mini::after{font-size:30px;right:22px;bottom:18px;}
+      .top-button{right:16px !important;bottom:calc(18px + env(safe-area-inset-bottom)) !important;width:50px !important;height:50px !important;font-size:20px !important;}
+      .reveal{transform:translateY(18px);}
     }
 
-    /* ===== 루미벨 커서 효과 ===== */
+    @media (prefers-reduced-motion: reduce){
+      .reveal,
+      .poster-card,
+      .ticket-card,
+      .detail-card,
+      .package-card,
+      .top-button{
+        transition:none !important;
+        animation:none !important;
+      }
+      .hero-mini::after{animation:none !important;}
+    }
+
+
+
+    /* ===== 루미벨 나비 열쇠 커서 + 클릭 마법 효과 ===== */
     @media (hover:hover) and (pointer:fine){
-      a, button, input, select, label, .ticket-panel, .ticket-hero{
-        cursor:pointer;
+      a, button, .ticket-option, .meate-option, .package-btn, .quick-icon-btn, .reserve-btn, .top-button, .lang-switch a, nav a{
+        cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%3Cdefs%3E%0A%3ClinearGradient%20id%3D%22wingA%22%20x1%3D%224%22%20y1%3D%227%22%20x2%3D%2223%22%20y2%3D%2220%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%234FC3FF%22%2F%3E%3Cstop%20offset%3D%22.48%22%20stop-color%3D%22%237EE0FF%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23FF8AC2%22%2F%3E%3C%2FlinearGradient%3E%0A%3ClinearGradient%20id%3D%22rose%22%20x1%3D%2212%22%20y1%3D%224%22%20x2%3D%2223%22%20y2%3D%2230%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23FFE9F7%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23FFB1D5%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23F6D7FF%22%2F%3E%3C%2FlinearGradient%3E%0A%3Cfilter%20id%3D%22glow%22%20x%3D%22-40%25%22%20y%3D%22-40%25%22%20width%3D%22180%25%22%20height%3D%22180%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%22.9%22%20result%3D%22b%22%2F%3E%3CfeMerge%3E%3CfeMergeNode%20in%3D%22b%22%2F%3E%3CfeMergeNode%20in%3D%22SourceGraphic%22%2F%3E%3C%2FfeMerge%3E%3C%2Ffilter%3E%0A%3C%2Fdefs%3E%0A%3Cpath%20d%3D%22M17.5%204.4C13.9%202.8%209.4%205.5%209.7%209.8c.18%202.7%202.3%204.4%204.35%205.1%203.9%201.35%208.95-.98%209.75-5.13%22%20fill%3D%22none%22%20stroke%3D%22%23F3B6CF%22%20stroke-width%3D%221.55%22%20stroke-linecap%3D%22round%22%20filter%3D%22url%28%23glow%29%22%2F%3E%0A%3Cpath%20d%3D%22M22.6%204.1l.9%201.65%201.75.85-1.75.85-.9%201.65-.9-1.65-1.75-.85%201.75-.85.9-1.65z%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF9FCB%22%20stroke-width%3D%22.75%22%2F%3E%0A%3Cg%20filter%3D%22url%28%23glow%29%22%3E%0A%3Cpath%20d%3D%22M15.8%2011.9C10%206.1%204.9%207.4%205.2%2012c.2%203.15%203.65%204.55%207.3%203.2-2.7%203.2%201.5%205.7%203.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cpath%20d%3D%22M16.2%2011.9c5.8-5.8%2010.9-4.5%2010.6.1-.2%203.15-3.65%204.55-7.3%203.2%202.7%203.2-1.5%205.7-3.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cellipse%20cx%3D%2216%22%20cy%3D%2215.2%22%20rx%3D%221.25%22%20ry%3D%223.25%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.7%22%2F%3E%0A%3Ccircle%20cx%3D%2216%22%20cy%3D%2214%22%20r%3D%221.15%22%20fill%3D%22%23FFD8F0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.4%22%2F%3E%0A%3C%2Fg%3E%0A%3Cpath%20d%3D%22M16%2018.2v8.2%22%20stroke%3D%22url%28%23rose%29%22%20stroke-width%3D%222.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M16%2021.8h2.35M16%2024.3h3.3M18.5%2024.3v1.9%22%20stroke%3D%22%23D997AF%22%20stroke-width%3D%221.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M18.9%2019.5c1.2-1.15%202.95-.35%202.8%201.05-.18%201.8-2.18%202.7-2.8%203.2-.62-.5-2.62-1.4-2.8-3.2-.15-1.4%201.6-2.2%202.8-1.05z%22%20fill%3D%22%23FFD9F0%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.65%22%2F%3E%0A%3Cpath%20d%3D%22M8%2010.2l2.1%201.8M23.8%2010.2l-2.1%201.8%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22%2F%3E%0A%3C%2Fsvg%3E") 16 26, pointer;
       }
     }
 
     .lumi-magic-ring,
     .lumi-magic-star,
-    .lumi-magic-butterfly,
-    .lumi-cursor-glow,
-    .lumi-cursor-core,
-    .lumi-trail-spark{
+    .lumi-magic-butterfly{
       position:fixed;
       left:0;
       top:0;
@@ -700,42 +357,21 @@
       will-change:transform,opacity;
     }
 
-    .lumi-cursor-glow{
-      width:34px;
-      height:34px;
-      border-radius:50%;
-      background:radial-gradient(circle, rgba(255,138,194,.22) 0%, rgba(255,138,194,.09) 42%, transparent 70%);
-      filter:blur(.2px);
-      opacity:1;
-      transition:width .18s ease, height .18s ease, opacity .18s ease;
-    }
-
-    .lumi-cursor-core{
-      width:6px;
-      height:6px;
-      border-radius:50%;
-      background:#fff;
-      box-shadow:0 0 8px rgba(255,138,194,.8), 0 0 14px rgba(126,224,255,.35);
-      opacity:1;
-    }
-
-    .lumi-cursor-hover .lumi-cursor-glow{
-      width:46px;
-      height:46px;
-      background:radial-gradient(circle, rgba(255,138,194,.28) 0%, rgba(126,224,255,.10) 48%, transparent 72%);
-    }
-
+    /* 클릭 시 생기는 둥근 마법진/빛 고리 */
     .lumi-magic-ring{
       width:74px;
       height:74px;
       border-radius:50%;
-      background:conic-gradient(from 8deg, rgba(126,224,255,0), rgba(126,224,255,.55), rgba(255,255,255,.90), rgba(255,138,194,.62), rgba(126,224,255,0));
+      background:
+        radial-gradient(circle, rgba(255,255,255,.58) 0%, rgba(255,255,255,.28) 21%, rgba(255,138,194,.14) 34%, rgba(255,138,194,0) 62%),
+        conic-gradient(from 8deg, rgba(126,224,255,0), rgba(126,224,255,.55), rgba(255,255,255,.90), rgba(255,138,194,.62), rgba(126,224,255,0));
       -webkit-mask:radial-gradient(circle, transparent 0 38%, #000 41% 55%, transparent 58% 100%);
       mask:radial-gradient(circle, transparent 0 38%, #000 41% 55%, transparent 58% 100%);
-      filter:drop-shadow(0 0 10px rgba(255,138,194,.50));
+      filter:drop-shadow(0 0 10px rgba(255,138,194,.50)) drop-shadow(0 0 18px rgba(126,224,255,.25));
       animation:lumiRingPulse .92s ease-out forwards;
     }
 
+    /* 별 반짝: 점 덩어리가 아니라 십자 별 모양 */
     .lumi-magic-star{
       width:14px;
       height:14px;
@@ -757,11 +393,12 @@
     .lumi-magic-star::before{width:3px;height:14px;}
     .lumi-magic-star::after{width:14px;height:3px;}
 
+    /* 실제 나비 실루엣 */
     .lumi-magic-butterfly{
       width:18px;
       height:15px;
       animation:lumiButterflyFly .98s cubic-bezier(.16,.82,.34,1) forwards;
-      filter:drop-shadow(0 0 6px rgba(255,138,194,.38));
+      filter:drop-shadow(0 0 5px rgba(126,224,255,.45)) drop-shadow(0 0 7px rgba(255,138,194,.25));
     }
 
     .lumi-magic-butterfly::before,
@@ -770,306 +407,1192 @@
       position:absolute;
       top:2px;
       width:9px;
-      height:11px;
-      background:linear-gradient(135deg,#7ee0ff 0%,#ff8ac2 78%);
-      border-radius:70% 45% 70% 45%;
-      opacity:.88;
+      height:12px;
+      background:linear-gradient(135deg,#7ee0ff 0%,#4fc3ff 38%,#ff8ac2 100%);
+      border:1px solid rgba(255,255,255,.92);
+      box-shadow:inset 0 0 4px rgba(255,255,255,.75);
     }
 
-    .lumi-magic-butterfly::before{left:0; transform:rotate(-24deg);}
-    .lumi-magic-butterfly::after{right:0; transform:scaleX(-1) rotate(-24deg);}
+    .lumi-magic-butterfly::before{
+      left:0;
+      border-radius:10px 8px 9px 2px;
+      transform:rotate(-30deg);
+      transform-origin:100% 80%;
+    }
 
-    .lumi-trail-spark{
-      width:7px;
-      height:7px;
-      border-radius:50%;
-      background:radial-gradient(circle,#fff 0%,#ffd9e8 52%,transparent 75%);
-      animation:lumiTrail .92s ease-out forwards;
+    .lumi-magic-butterfly::after{
+      right:0;
+      border-radius:8px 10px 2px 9px;
+      transform:rotate(30deg);
+      transform-origin:0 80%;
     }
 
     @keyframes lumiRingPulse{
-      0%{transform:translate(-50%,-50%) scale(.25) rotate(0deg); opacity:0;}
-      18%{opacity:1;}
-      100%{transform:translate(-50%,-50%) scale(1.26) rotate(80deg); opacity:0;}
+      0%{opacity:0;transform:translate(-50%,-50%) scale(.28) rotate(0deg);}
+      18%{opacity:.95;}
+      100%{opacity:0;transform:translate(-50%,-50%) scale(1.5) rotate(22deg);}
     }
 
     @keyframes lumiStarPop{
-      0%{transform:translate(-50%,-50%) scale(.45) rotate(0deg); opacity:0;}
-      15%{opacity:1;}
-      100%{transform:translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1.1) rotate(var(--r)); opacity:0;}
+      0%{opacity:0; transform:translate(-50%,-50%) scale(.25) rotate(0deg);}
+      18%{opacity:1;}
+      100%{opacity:0; transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.18) rotate(var(--r));}
     }
 
     @keyframes lumiButterflyFly{
-      0%{transform:translate(-50%,-50%) scale(.55) rotate(0deg); opacity:0;}
+      0%{opacity:0; transform:translate(-50%,-50%) scale(.55) rotate(0deg);}
       12%{opacity:1;}
-      100%{transform:translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1.05) rotate(var(--r)); opacity:0;}
-    }
-
-    @keyframes lumiTrail{
-      0%{transform:translate(-50%,-50%) scale(.55); opacity:.92;}
-      100%{transform:translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1.1); opacity:0;}
-    }
-
-    @media (max-width:1180px){
-      nav{grid-template-columns:repeat(4,1fr); gap:16px;}
-    }
-
-    @media (max-width:980px){
-      .top-lang-bar{justify-content:center; margin-top:14px;}
-      .header-box{flex-wrap:wrap; justify-content:center;}
-      nav{width:100%; margin:0;}
-      .ticket-hero-inner{grid-template-columns:1fr; padding:48px 34px;}
-      .ticket-grid{grid-template-columns:1fr;}
-      .ticket-title{font-size:72px;}
+      100%{opacity:0; transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.08) rotate(var(--r));}
     }
 
     @media (max-width:780px){
-      .wrap,
-      .top-lang-bar{padding:0 16px;}
-      .logo{width:150px;}
-      nav{grid-template-columns:repeat(2,1fr); gap:12px;}
-      nav a b{font-size:1.12em !important;}
-      nav a span{font-size:.9em !important;}
-      .ticket-hero{border-radius:26px; min-height:auto;}
-      .ticket-hero-inner{padding:40px 22px;}
-      .ticket-title{font-size:56px;}
-      .ticket-subtitle{font-size:15px;}
-      .ticket-meta-list li{grid-template-columns:1fr; gap:4px;}
-      .ticket-panel-head{padding:24px 18px 14px;}
-      .ticket-panel-head h2{font-size:30px;}
-      .ticket-panel-body{padding:20px 18px 24px;}
-      .price-card strong{font-size:28px;}
-      .back-to-top{right:16px; bottom:16px; width:50px; height:50px;}
+      .lumi-magic-ring,.lumi-magic-star,.lumi-magic-butterfly{display:none;}
     }
 
-    /* ===== 홈 효과 추가 적용: 그라데이션 박스 + 반짝 효과 ===== */
-    .subnav-wrap{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:18px;max-width:1260px;margin:18px auto 8px;padding:0 34px 0 18px;box-sizing:border-box}
-    .subnav-card{position:relative;min-height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 30px;border-radius:24px;background:#fff5fb;border:1px solid #f2d8e7;box-shadow:0 8px 24px rgba(232,191,211,.12);text-decoration:none;text-align:center;overflow:hidden;isolation:isolate;transition:background .18s,box-shadow .18s}
-    .subnav-card:hover{background:#fff0f7;box-shadow:0 14px 30px rgba(232,191,211,.18)}
-    .subnav-card h3{position:relative;z-index:2;margin:0 0 8px;color:#ff59a5;font-size:21px;font-weight:900}
-    .subnav-card p{position:relative;z-index:2;margin:0;color:#b28ea2;font-size:15px;font-weight:800}
-    .subnav-card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 16%,rgba(255,255,255,.62),transparent 22%),linear-gradient(120deg,transparent,rgba(255,255,255,.36),transparent);opacity:.42}
-    .subnav-card:after,.ticket-panel:after,.hero-ticket-card:after,.price-card:after,.submit-btn:after{content:"";position:absolute;top:-35%;left:-42%;width:22%;height:170%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.38),transparent);transform:skewX(-22deg);opacity:0;pointer-events:none;z-index:3}
-    .subnav-card:hover:after,.ticket-panel:hover:after,.hero-ticket-card:hover:after,.price-card:hover:after,.submit-btn:hover:after,.click-shine:after{animation:sweepShine .9s ease forwards}
-    @keyframes sweepShine{0%{opacity:0;transform:skewX(-22deg) translateX(0)}15%{opacity:1}100%{opacity:0;transform:skewX(-22deg) translateX(560%)}}
-    .lumi-id-card{background:linear-gradient(135deg,#ff8ac2,#ff5fa8 58%,#caa7ff)!important;border-color:rgba(255,255,255,.72)!important;box-shadow:0 14px 34px rgba(255,95,168,.28)!important}
-    .lumi-id-card:before{content:""!important;position:absolute!important;inset:-70%!important;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.60),transparent 18%),radial-gradient(circle at 72% 58%,rgba(255,255,255,.35),transparent 16%),conic-gradient(from 0deg,transparent,rgba(255,255,255,.34),transparent,rgba(255,255,255,.22),transparent);animation:lumiIdShine 7s linear infinite!important;opacity:.9!important}
-    .lumi-id-card:after{content:"✦"!important;position:absolute!important;right:18px!important;bottom:12px!important;left:auto!important;top:auto!important;width:auto!important;height:auto!important;background:none!important;color:rgba(255,255,255,.72)!important;font-size:28px!important;opacity:1!important;animation:lumiStarFloat 2.6s ease-in-out infinite!important}
-    .lumi-id-card h3{color:#fff!important}.lumi-id-card p{color:#fff4fa!important}.enter-badge{position:absolute;top:10px;right:10px;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.88);color:#ff59a5;font-size:10px;font-weight:900;z-index:3}
-    @keyframes lumiIdShine{to{transform:rotate(360deg)}}@keyframes lumiStarFloat{50%{transform:translateY(-5px) rotate(12deg);opacity:1}}
-    .ticket-panel,.hero-ticket-card,.price-card,.submit-btn{position:relative;overflow:hidden;isolation:isolate}.ripple-effect{position:absolute;border-radius:50%;transform:scale(0);animation:ripple .65s ease-out forwards;background:rgba(255,255,255,.35);pointer-events:none;z-index:4}@keyframes ripple{to{transform:scale(4.2);opacity:0}}
-    .glitter-burst{position:absolute;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle,#fff 0%,#ffc0d7 60%,transparent 100%);pointer-events:none;z-index:5;animation:glitterPop .8s ease-out forwards}
-    .burst-spark,.burst-petal{position:fixed;pointer-events:none;z-index:5000;opacity:0}.burst-petal{width:14px;height:14px;border-radius:999px;background:radial-gradient(circle,#fff,#ffd9e8 45%,#ffc0d7 78%,transparent);animation:burstPetal .78s ease-out forwards}.burst-spark{width:16px;height:16px;animation:burstSpark .72s ease-out forwards}.burst-spark:before,.burst-spark:after{content:"";position:absolute;background:#fff;border-radius:999px;box-shadow:0 0 14px rgba(255,192,215,.8)}.burst-spark:before{width:3px;height:16px;left:6.5px}.burst-spark:after{width:16px;height:3px;top:6.5px}
-    @keyframes glitterPop{to{transform:translate(var(--x),var(--y)) scale(1.2);opacity:0}}@keyframes burstSpark{to{transform:translate(var(--x),var(--y)) scale(1.15) rotate(90deg);opacity:0}}@keyframes burstPetal{to{transform:translate(var(--x),var(--y)) scale(1.2);opacity:0}}
-    @media (hover:hover) and (pointer:fine){.lumi-cursor-glow{width:56px!important;height:56px!important;opacity:.82!important;filter:blur(9px)!important;background:radial-gradient(circle,rgba(255,255,255,.98) 0%,rgba(255,255,255,.72) 14%,rgba(255,231,244,.42) 28%,rgba(255,138,194,.30) 48%,rgba(126,224,255,.18) 62%,rgba(255,138,194,0) 78%)!important}.lumi-cursor-core{width:7px!important;height:7px!important;opacity:.95!important;box-shadow:0 0 10px rgba(255,255,255,1),0 0 18px rgba(255,138,194,.70),0 0 22px rgba(126,224,255,.45)!important}body.lumi-cursor-hover .lumi-cursor-glow{width:88px!important;height:88px!important;opacity:.96!important;filter:blur(8px)!important;background:radial-gradient(circle,rgba(255,255,255,.90) 0%,rgba(255,255,255,.56) 16%,rgba(255,235,247,.34) 27%,rgba(255,138,194,.26) 41%,rgba(255,255,255,.18) 52%,rgba(255,138,194,0) 72%),conic-gradient(from 12deg,rgba(255,255,255,0),rgba(255,255,255,.72),rgba(255,190,220,.54),rgba(255,255,255,.72),rgba(255,255,255,0))!important}.lumi-trail-spark{width:14px!important;height:14px!important;filter:drop-shadow(0 0 8px rgba(255,255,255,.76)) drop-shadow(0 0 10px rgba(255,138,194,.44))!important}}
-    @media(max-width:1180px){.subnav-wrap{grid-template-columns:repeat(3,minmax(180px,1fr))}}@media(max-width:780px){.subnav-wrap{grid-template-columns:1fr;padding:0 16px}.subnav-card{min-height:86px}}
+  
+
+    /* ===== 루미벨 나비 열쇠 커서: PC 전체 적용 ===== */
+    @media (hover:hover) and (pointer:fine){
+      html,
+      body,
+      body *:not(input):not(textarea):not(select):not(option){
+        cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2248%22%20height%3D%2248%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%3Cdefs%3E%0A%3ClinearGradient%20id%3D%22wingA%22%20x1%3D%224%22%20y1%3D%227%22%20x2%3D%2223%22%20y2%3D%2220%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%234FC3FF%22%2F%3E%3Cstop%20offset%3D%22.48%22%20stop-color%3D%22%237EE0FF%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23FF8AC2%22%2F%3E%3C%2FlinearGradient%3E%0A%3ClinearGradient%20id%3D%22rose%22%20x1%3D%2212%22%20y1%3D%224%22%20x2%3D%2223%22%20y2%3D%2230%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23FFE9F7%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23FFB1D5%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23F6D7FF%22%2F%3E%3C%2FlinearGradient%3E%0A%3Cfilter%20id%3D%22glow%22%20x%3D%22-40%25%22%20y%3D%22-40%25%22%20width%3D%22180%25%22%20height%3D%22180%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%22.9%22%20result%3D%22b%22%2F%3E%3CfeMerge%3E%3CfeMergeNode%20in%3D%22b%22%2F%3E%3CfeMergeNode%20in%3D%22SourceGraphic%22%2F%3E%3C%2FfeMerge%3E%3C%2Ffilter%3E%0A%3C%2Fdefs%3E%0A%3Cpath%20d%3D%22M17.5%204.4C13.9%202.8%209.4%205.5%209.7%209.8c.18%202.7%202.3%204.4%204.35%205.1%203.9%201.35%208.95-.98%209.75-5.13%22%20fill%3D%22none%22%20stroke%3D%22%23F3B6CF%22%20stroke-width%3D%221.55%22%20stroke-linecap%3D%22round%22%20filter%3D%22url%28%23glow%29%22%2F%3E%0A%3Cpath%20d%3D%22M22.6%204.1l.9%201.65%201.75.85-1.75.85-.9%201.65-.9-1.65-1.75-.85%201.75-.85.9-1.65z%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF9FCB%22%20stroke-width%3D%22.75%22%2F%3E%0A%3Cg%20filter%3D%22url%28%23glow%29%22%3E%0A%3Cpath%20d%3D%22M15.8%2011.9C10%206.1%204.9%207.4%205.2%2012c.2%203.15%203.65%204.55%207.3%203.2-2.7%203.2%201.5%205.7%203.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cpath%20d%3D%22M16.2%2011.9c5.8-5.8%2010.9-4.5%2010.6.1-.2%203.15-3.65%204.55-7.3%203.2%202.7%203.2-1.5%205.7-3.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cellipse%20cx%3D%2216%22%20cy%3D%2215.2%22%20rx%3D%221.25%22%20ry%3D%223.25%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.7%22%2F%3E%0A%3Ccircle%20cx%3D%2216%22%20cy%3D%2214%22%20r%3D%221.15%22%20fill%3D%22%23FFD8F0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.4%22%2F%3E%0A%3C%2Fg%3E%0A%3Cpath%20d%3D%22M16%2018.2v8.2%22%20stroke%3D%22url%28%23rose%29%22%20stroke-width%3D%222.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M16%2021.8h2.35M16%2024.3h3.3M18.5%2024.3v1.9%22%20stroke%3D%22%23D997AF%22%20stroke-width%3D%221.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M18.9%2019.5c1.2-1.15%202.95-.35%202.8%201.05-.18%201.8-2.18%202.7-2.8%203.2-.62-.5-2.62-1.4-2.8-3.2-.15-1.4%201.6-2.2%202.8-1.05z%22%20fill%3D%22%23FFD9F0%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.65%22%2F%3E%0A%3Cpath%20d%3D%22M8%2010.2l2.1%201.8M23.8%2010.2l-2.1%201.8%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22%2F%3E%0A%3C%2Fsvg%3E") 24 38, auto !important;
+      }
+
+      a, button,
+      .ticket-option, .meate-option,
+      .package-btn, .quick-icon-btn, .reserve-btn,
+      .top-button, .lang-switch a, nav a{
+        cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2248%22%20height%3D%2248%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%3Cdefs%3E%0A%3ClinearGradient%20id%3D%22wingA%22%20x1%3D%224%22%20y1%3D%227%22%20x2%3D%2223%22%20y2%3D%2220%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%234FC3FF%22%2F%3E%3Cstop%20offset%3D%22.48%22%20stop-color%3D%22%237EE0FF%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23FF8AC2%22%2F%3E%3C%2FlinearGradient%3E%0A%3ClinearGradient%20id%3D%22rose%22%20x1%3D%2212%22%20y1%3D%224%22%20x2%3D%2223%22%20y2%3D%2230%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20stop-color%3D%22%23FFE9F7%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23FFB1D5%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23F6D7FF%22%2F%3E%3C%2FlinearGradient%3E%0A%3Cfilter%20id%3D%22glow%22%20x%3D%22-40%25%22%20y%3D%22-40%25%22%20width%3D%22180%25%22%20height%3D%22180%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%22.9%22%20result%3D%22b%22%2F%3E%3CfeMerge%3E%3CfeMergeNode%20in%3D%22b%22%2F%3E%3CfeMergeNode%20in%3D%22SourceGraphic%22%2F%3E%3C%2FfeMerge%3E%3C%2Ffilter%3E%0A%3C%2Fdefs%3E%0A%3Cpath%20d%3D%22M17.5%204.4C13.9%202.8%209.4%205.5%209.7%209.8c.18%202.7%202.3%204.4%204.35%205.1%203.9%201.35%208.95-.98%209.75-5.13%22%20fill%3D%22none%22%20stroke%3D%22%23F3B6CF%22%20stroke-width%3D%221.55%22%20stroke-linecap%3D%22round%22%20filter%3D%22url%28%23glow%29%22%2F%3E%0A%3Cpath%20d%3D%22M22.6%204.1l.9%201.65%201.75.85-1.75.85-.9%201.65-.9-1.65-1.75-.85%201.75-.85.9-1.65z%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF9FCB%22%20stroke-width%3D%22.75%22%2F%3E%0A%3Cg%20filter%3D%22url%28%23glow%29%22%3E%0A%3Cpath%20d%3D%22M15.8%2011.9C10%206.1%204.9%207.4%205.2%2012c.2%203.15%203.65%204.55%207.3%203.2-2.7%203.2%201.5%205.7%203.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cpath%20d%3D%22M16.2%2011.9c5.8-5.8%2010.9-4.5%2010.6.1-.2%203.15-3.65%204.55-7.3%203.2%202.7%203.2-1.5%205.7-3.8%201.95z%22%20fill%3D%22url%28%23wingA%29%22%20stroke%3D%22%23B876CD%22%20stroke-width%3D%22.8%22%2F%3E%0A%3Cellipse%20cx%3D%2216%22%20cy%3D%2215.2%22%20rx%3D%221.25%22%20ry%3D%223.25%22%20fill%3D%22%23fff%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.7%22%2F%3E%0A%3Ccircle%20cx%3D%2216%22%20cy%3D%2214%22%20r%3D%221.15%22%20fill%3D%22%23FFD8F0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.4%22%2F%3E%0A%3C%2Fg%3E%0A%3Cpath%20d%3D%22M16%2018.2v8.2%22%20stroke%3D%22url%28%23rose%29%22%20stroke-width%3D%222.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M16%2021.8h2.35M16%2024.3h3.3M18.5%2024.3v1.9%22%20stroke%3D%22%23D997AF%22%20stroke-width%3D%221.15%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M18.9%2019.5c1.2-1.15%202.95-.35%202.8%201.05-.18%201.8-2.18%202.7-2.8%203.2-.62-.5-2.62-1.4-2.8-3.2-.15-1.4%201.6-2.2%202.8-1.05z%22%20fill%3D%22%23FFD9F0%22%20stroke%3D%22%23FF8AC2%22%20stroke-width%3D%22.65%22%2F%3E%0A%3Cpath%20d%3D%22M8%2010.2l2.1%201.8M23.8%2010.2l-2.1%201.8%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.9%22%2F%3E%0A%3C%2Fsvg%3E") 24 38, pointer !important;
+      }
+
+      input, textarea{
+        cursor:text !important;
+      }
+    }
+
+
+    /* ===== 루미벨 커서 고급화: 상시 반짝 / hover / 전체 클릭 ===== */
+    @media (hover:hover) and (pointer:fine){
+      .lumi-cursor-glow,
+      .lumi-cursor-core{
+        position:fixed;
+        left:0;
+        top:0;
+        pointer-events:none;
+        transform:translate(-50%,-50%);
+        z-index:10000;
+        opacity:0;
+        will-change:transform,left,top,opacity;
+      }
+
+      .lumi-cursor-glow{
+        width:34px;
+        height:34px;
+        border-radius:50%;
+        background:
+          radial-gradient(circle, rgba(255,255,255,.95) 0%, rgba(255,255,255,.55) 18%, rgba(126,224,255,.42) 36%, rgba(255,138,194,.34) 58%, rgba(255,138,194,0) 78%);
+        filter:blur(7px);
+        opacity:.52;
+        transition:width .16s ease,height .16s ease,opacity .16s ease,filter .16s ease,background .16s ease;
+      }
+
+      .lumi-cursor-core{
+        width:6px;
+        height:6px;
+        border-radius:50%;
+        background:#fff;
+        box-shadow:0 0 8px rgba(255,255,255,.95),0 0 14px rgba(126,224,255,.55),0 0 18px rgba(255,138,194,.45);
+        opacity:.78;
+        transition:width .16s ease,height .16s ease,opacity .16s ease,box-shadow .16s ease;
+      }
+
+      body.lumi-cursor-hover .lumi-cursor-glow{
+        width:64px;
+        height:64px;
+        opacity:.88;
+        filter:blur(8px);
+        background:
+          radial-gradient(circle, rgba(255,255,255,.88) 0%, rgba(255,255,255,.42) 22%, rgba(255,138,194,.30) 34%, rgba(126,224,255,.26) 47%, rgba(255,138,194,0) 70%),
+          conic-gradient(from 8deg, rgba(126,224,255,0), rgba(126,224,255,.34), rgba(255,255,255,.56), rgba(255,138,194,.36), rgba(126,224,255,0));
+      }
+
+      body.lumi-cursor-hover .lumi-cursor-core{
+        width:8px;
+        height:8px;
+        opacity:1;
+        box-shadow:0 0 10px rgba(255,255,255,1),0 0 18px rgba(126,224,255,.72),0 0 24px rgba(255,138,194,.62);
+      }
+
+      .lumi-trail-spark{
+        position:fixed;
+        left:0;
+        top:0;
+        width:10px;
+        height:10px;
+        pointer-events:none;
+        z-index:9998;
+        opacity:0;
+        transform:translate(-50%,-50%) scale(.55);
+        animation:lumiTrailFade 1.05s ease-out forwards;
+        filter:drop-shadow(0 0 7px rgba(255,138,194,.38));
+      }
+      .lumi-trail-spark::before,
+      .lumi-trail-spark::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        transform:translate(-50%,-50%);
+        border-radius:999px;
+        background:linear-gradient(180deg,#fff,#ffd9ef 54%,#7ee0ff);
+      }
+      .lumi-trail-spark::before{width:2px;height:10px;}
+      .lumi-trail-spark::after{width:10px;height:2px;}
+
+      @keyframes lumiTrailFade{
+        0%{opacity:.7;transform:translate(-50%,-50%) scale(.35) rotate(0deg);}
+        100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.05) rotate(38deg);}
+      }
+    }
+
+  
+
+    /* ===== 최종 보정: 핑크/화이트 원형 마법진 + 선명한 잔광 ===== */
+    @media (hover:hover) and (pointer:fine){
+      .lumi-magic-ring{
+        width:96px !important;
+        height:96px !important;
+        border-radius:50% !important;
+        background:
+          radial-gradient(circle, rgba(255,255,255,.98) 0%, rgba(255,255,255,.76) 11%, rgba(255,240,248,.42) 24%, rgba(255,138,194,.22) 42%, rgba(255,138,194,0) 70%) !important;
+        border:1px solid rgba(255,255,255,.84) !important;
+        box-shadow:
+          0 0 18px rgba(255,255,255,.72),
+          0 0 28px rgba(255,138,194,.42),
+          inset 0 0 18px rgba(255,255,255,.70) !important;
+        -webkit-mask:none !important;
+        mask:none !important;
+        filter:drop-shadow(0 0 16px rgba(255,138,194,.45)) !important;
+        animation:lumiRingPulseFinal .86s ease-out forwards !important;
+      }
+
+      .lumi-magic-ring::before,
+      .lumi-magic-ring::after{
+        content:"";
+        position:absolute;
+        border-radius:50%;
+        pointer-events:none;
+      }
+
+      .lumi-magic-ring::before{
+        inset:11px;
+        border:4px solid rgba(255,255,255,.78);
+        border-top-color:rgba(255,255,255,.96);
+        border-right-color:rgba(255,190,220,.54);
+        border-bottom-color:rgba(255,138,194,.38);
+        border-left-color:rgba(255,255,255,.42);
+        box-shadow:
+          0 0 16px rgba(255,255,255,.55),
+          0 0 20px rgba(255,138,194,.30),
+          inset 0 0 14px rgba(255,255,255,.42);
+      }
+
+      .lumi-magic-ring::after{
+        inset:24px;
+        border:2px solid rgba(255,255,255,.64);
+        border-top-color:rgba(255,183,216,.64);
+        border-right-color:rgba(255,255,255,.90);
+        box-shadow:0 0 14px rgba(255,230,245,.55);
+      }
+
+      .lumi-magic-star{
+        width:17px !important;
+        height:17px !important;
+        filter:drop-shadow(0 0 8px rgba(255,255,255,.80)) drop-shadow(0 0 10px rgba(255,138,194,.52)) !important;
+      }
+      .lumi-magic-star::before{width:3px !important;height:17px !important;background:linear-gradient(180deg,#fff 0%,#fff5fb 42%,#ff8ac2 100%) !important;}
+      .lumi-magic-star::after{width:17px !important;height:3px !important;background:linear-gradient(90deg,#fff 0%,#fff5fb 42%,#ff8ac2 100%) !important;}
+
+      .lumi-magic-butterfly{
+        width:23px !important;
+        height:19px !important;
+        filter:drop-shadow(0 0 7px rgba(126,224,255,.62)) drop-shadow(0 0 10px rgba(255,138,194,.36)) !important;
+        animation:lumiButterflyFlyFinal 1.12s cubic-bezier(.16,.82,.34,1) forwards !important;
+      }
+      .lumi-magic-butterfly::before,
+      .lumi-magic-butterfly::after{
+        top:2px !important;
+        width:11px !important;
+        height:15px !important;
+        background:linear-gradient(135deg,#ffffff 0%,#7ee0ff 24%,#4fc3ff 52%,#ff8ac2 100%) !important;
+        border:1px solid rgba(255,255,255,.96) !important;
+        box-shadow:inset 0 0 5px rgba(255,255,255,.78),0 0 6px rgba(126,224,255,.32) !important;
+      }
+
+      @keyframes lumiRingPulseFinal{
+        0%{opacity:0;transform:translate(-50%,-50%) scale(.34) rotate(0deg);}
+        14%{opacity:1;}
+        58%{opacity:.86;}
+        100%{opacity:0;transform:translate(-50%,-50%) scale(1.55) rotate(18deg);}
+      }
+
+      @keyframes lumiButterflyFlyFinal{
+        0%{opacity:0; transform:translate(-50%,-50%) scale(.45) rotate(0deg);}
+        10%{opacity:.95;}
+        100%{opacity:0; transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.16) rotate(var(--r));}
+      }
+
+      .lumi-cursor-glow{
+        width:56px !important;
+        height:56px !important;
+        opacity:.82 !important;
+        filter:blur(9px) !important;
+        background:
+          radial-gradient(circle, rgba(255,255,255,.98) 0%, rgba(255,255,255,.72) 14%, rgba(255,231,244,.42) 28%, rgba(255,138,194,.30) 48%, rgba(126,224,255,.18) 62%, rgba(255,138,194,0) 78%) !important;
+      }
+
+      .lumi-cursor-core{
+        width:7px !important;
+        height:7px !important;
+        opacity:.95 !important;
+        box-shadow:0 0 10px rgba(255,255,255,1),0 0 18px rgba(255,138,194,.70),0 0 22px rgba(126,224,255,.45) !important;
+      }
+
+      body.lumi-cursor-hover .lumi-cursor-glow{
+        width:88px !important;
+        height:88px !important;
+        opacity:.96 !important;
+        filter:blur(8px) !important;
+        background:
+          radial-gradient(circle, rgba(255,255,255,.90) 0%, rgba(255,255,255,.56) 16%, rgba(255,235,247,.34) 27%, rgba(255,138,194,.26) 41%, rgba(255,255,255,.18) 52%, rgba(255,138,194,0) 72%),
+          conic-gradient(from 12deg, rgba(255,255,255,0), rgba(255,255,255,.72), rgba(255,190,220,.54), rgba(255,255,255,.72), rgba(255,255,255,0)) !important;
+      }
+
+      .lumi-trail-spark{
+        width:14px !important;
+        height:14px !important;
+        filter:drop-shadow(0 0 8px rgba(255,255,255,.76)) drop-shadow(0 0 10px rgba(255,138,194,.44)) !important;
+        animation:lumiTrailFadeFinal .95s ease-out forwards !important;
+      }
+      .lumi-trail-spark::before{width:2.5px !important;height:14px !important;background:linear-gradient(180deg,#fff,#ffd9ef 58%,#ff8ac2) !important;}
+      .lumi-trail-spark::after{width:14px !important;height:2.5px !important;background:linear-gradient(90deg,#fff,#ffd9ef 58%,#7ee0ff) !important;}
+
+      @keyframes lumiTrailFadeFinal{
+        0%{opacity:.92;transform:translate(-50%,-50%) scale(.42) rotate(0deg);}
+        100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.22) rotate(42deg);}
+      }
+    }
+
+  
+
+    /* ===== 최종 수정: 위로가기 버튼 오른쪽 고정 + 티켓 박스 그라데이션 유지 ===== */
+    .top-button,
+    .back-to-top{
+      position:fixed !important;
+      left:auto !important;
+      right:22px !important;
+      bottom:22px !important;
+      width:56px !important;
+      height:56px !important;
+      min-width:0 !important;
+      min-height:0 !important;
+      padding:0 !important;
+      display:inline-flex !important;
+      align-items:center !important;
+      justify-content:center !important;
+      border:none !important;
+      border-radius:50% !important;
+      background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%) !important;
+      color:#fff !important;
+      font-size:22px !important;
+      font-weight:900 !important;
+      line-height:1 !important;
+      text-align:center !important;
+      box-shadow:0 12px 22px rgba(255,95,165,.28) !important;
+      z-index:1200 !important;
+      transform:translateY(8px);
+    }
+
+    .top-button.show,
+    .back-to-top.show{
+      opacity:1 !important;
+      visibility:visible !important;
+      transform:translateY(0) !important;
+    }
+
+    .hero-mini,
+    .poster-card,
+    .ticket-card,
+    .detail-card,
+    .package-card{
+      background:
+        radial-gradient(circle at 12% 10%, rgba(255,255,255,.90) 0%, rgba(255,255,255,0) 28%),
+        radial-gradient(circle at 88% 16%, rgba(241,220,255,.70) 0%, rgba(241,220,255,0) 34%),
+        linear-gradient(135deg, #fff0f7 0%, #fffafe 48%, #f3ebff 100%) !important;
+    }
+
+    .ticket-price,
+    .notice-box,
+    .event-line,
+    .field input,
+    .field select,
+    .agree-box{
+      background:
+        radial-gradient(circle at 12% 10%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 26%),
+        linear-gradient(135deg, #fff8fc 0%, #fff 54%, #f8f1ff 100%) !important;
+    }
+
+    @media (max-width:780px){
+      .top-button,
+      .back-to-top{
+        right:16px !important;
+        bottom:calc(18px + env(safe-area-inset-bottom)) !important;
+        width:50px !important;
+        height:50px !important;
+        font-size:20px !important;
+      }
+    }
 
   </style>
-</head>
+ 
 
-<body>
-  <div class="top-lang-bar">
-    <div class="lang-switch">
-      <a href="../index.html" class="active">KR</a>
-      <a href="../en/index.html">EN</a>
-      <a href="../jp/index.html">JP</a>
-      <a href="../cn/index.html">CN</a>
-    </div>
-  </div>
-
-  <header>
-    <div class="wrap header-box">
-      <div class="logo">
-        <a href="../index.html" aria-label="Lumibelle 홈으로 이동">
-          <picture>
-            <source srcset="../img/ui/logo.webp?v=3" type="image/webp">
-            <img src="../img/ui/logo.png?v=3" alt="Lumibelle 로고" loading="eager" decoding="async">
-          </picture>
-        </a>
-      </div>
-
-      <nav aria-label="주요 메뉴">
-        <a href="../index.html"><b>HOME</b><span>홈</span></a>
-        <a href="../news.html"><b>NEWS</b><span>공지사항</span></a>
-        <a href="../member.html"><b>MEMBER</b><span>멤버 소개</span></a>
-        <a href="../schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
-        <a href="./" class="current"><b>TICKET</b><span>예매</span></a>
-        <a href="../goods/"><b>GOODS</b><span>굿즈</span></a>
-        <a href="../setlist.html"><b>SETLIST</b><span>응원 가이드</span></a>
-        <a href="../info.html"><b>INFO</b><span>안내</span></a>
-      </nav>
-    </div>
-  </header>
-
-  <div class="subnav-wrap reveal ticket-effect-nav" aria-label="티켓 빠른 메뉴">
-    <a href="#ticket-info" class="subnav-card"><h3>GUIDE</h3><p>예매 안내</p></a>
-    <a href="#ticket-form-anchor" class="subnav-card"><h3>RESERVE</h3><p>예매 신청</p></a>
-    <a href="#ticket-account" class="subnav-card"><h3>PAYMENT</h3><p>입금 안내</p></a>
-    <a href="complete.html" class="subnav-card"><h3>COMPLETE</h3><p>접수 완료</p></a>
-    <a href="../lumi/index.html" class="subnav-card lumi-id-card"><span class="enter-badge">ENTER</span><h3>LUMI ID</h3><p>루미 ID 확인</p></a>
-  </div>
-
-  <main class="page-shell">
-    <div class="wrap">
-      <section class="ticket-hero reveal">
-        <div class="ticket-hero-inner">
-          <div>
-            <span class="eyebrow">LUMIBELLE OFFICIAL TICKET</span>
-            <h1 class="ticket-title">Ticket</h1>
-            <p class="ticket-subtitle">
-              루미벨 공연 예매 페이지입니다.<br>
-              예매 신청 후 입금 확인이 완료되면 예약이 확정됩니다.
-            </p>
-          </div>
-
-          <aside class="hero-ticket-card" aria-label="공연 정보 요약">
-            <h2>현재 공연 예매</h2>
-            <ul class="ticket-meta-list">
-              <li><strong>공연명</strong><span>Lumibelle</span></li>
-              <li><strong>티켓</strong><span>사전 예약 10,000원</span></li>
-              <li><strong>상태</strong><span>입금 확인 후 예약 확정</span></li>
-              <li><strong>안내</strong><span>입금자명은 폼에 작성한 이름과 동일하게 입력해주세요.</span></li>
-            </ul>
-          </aside>
-        </div>
-      </section>
-
-      <section class="ticket-grid reveal" aria-label="예매 정보와 신청 폼">
-        <aside id="ticket-info" class="ticket-panel">
-          <div class="ticket-panel-head">
-            <h2>INFORMATION</h2>
-            <p>예매 전 안내사항을 확인해주세요.</p>
-          </div>
-
-          <div class="ticket-panel-body">
-            <div class="price-card">
-              <small>ADVANCE RESERVATION</small>
-              <strong>10,000원</strong>
-            </div>
-
-            <ul class="notice-list">
-              <li>예매 신청만으로 예약이 확정되지 않으며, 입금 확인 후 확정됩니다.</li>
-              <li>입금자명은 신청서에 작성한 입금자명과 동일하게 입력해주세요.</li>
-              <li>예약 정보 확인을 위해 닉네임과 이메일을 정확히 작성해주세요.</li>
-              <li>현장 상황에 따라 입장 및 확인 절차가 변경될 수 있습니다.</li>
-            </ul>
-
-            <div id="ticket-account" class="account-box">
-              <strong>입금 계좌 안내</strong>
-              계좌 정보는 운영자가 사용하는 실제 계좌로 교체해주세요.<br>
-              예시: 은행명 000-0000-0000-00 / 예금주 루미벨
-            </div>
-          </div>
-        </aside>
-
-        <section class="ticket-panel">
-          <div class="ticket-panel-head">
-            <h2>RESERVATION</h2>
-            <p>아래 정보를 입력하면 예매가 접수됩니다.</p>
-          </div>
-
-          <div class="ticket-panel-body">
-            <div id="ticket-form-anchor"></div>
-            <form id="ticketForm" class="ticket-form" action="https://docs.google.com/forms/d/e/1FAIpQLSditmDvEROhZgBZIx6wL6j35d_nx4sqOZy2phlsX9EeyXXRIw/formResponse" method="POST" target="hidden_ticket_iframe">
-              <div class="form-row">
-                <label for="nickname">닉네임</label>
-                <input id="nickname" name="entry.307872462" type="text" placeholder="예: 테스트1234" required autocomplete="nickname">
-                <span class="field-help">예약 확인에 사용할 닉네임을 적어주세요.</span>
-              </div>
-
-              <div class="form-row">
-                <label for="email">이메일</label>
-                <input id="email" name="entry.1034926776" type="email" placeholder="example@gmail.com" required autocomplete="email">
-              </div>
-
-              <div class="form-row">
-                <label for="depositor">입금자명</label>
-                <input id="depositor" name="entry.65006488" type="text" placeholder="입금할 때 사용할 이름" required autocomplete="name">
-                <span class="field-help">실제 입금자명과 다르면 확인이 늦어질 수 있어요.</span>
-              </div>
-
-              <div class="form-row">
-                <label for="meate">메아테</label>
-                <input id="meate" name="entry.811873892" type="text" value="Lumibelle" required>
-              </div>
-
-              <div class="form-row">
-                <label for="ticketType">티켓 종류</label>
-                <select id="ticketType" name="entry.396376385" required>
-                  <option value="사전 예약 (10,000원)" selected>사전 예약 (10,000원)</option>
-                </select>
-              </div>
-
-              <label class="agreement-box" for="agree">
-                <input id="agree" type="checkbox" required>
-                <span>안내사항을 모두 확인하였으며 동의합니다.</span>
-              </label>
-              <input type="hidden" name="entry.1401101926" value="안내사항을 모두 확인하였으며 동의합니다.">
-
-              <button id="submitBtn" class="submit-btn" type="submit">예매 접수하기</button>
-            </form>
-
-            <iframe name="hidden_ticket_iframe" id="hidden_ticket_iframe" style="display:none;"></iframe>
-
-            <div class="mini-links">
-              <a href="../index.html">메인으로 돌아가기</a>
-              <a href="complete.html">완료 페이지 확인</a>
-            </div>
-          </div>
-        </section>
-      </section>
-    </div>
-  </main>
-
-  <button type="button" class="back-to-top" aria-label="위로 가기">↑</button>
-
-  <footer>
-    © Lumibelle. All Rights Reserved.
-  </footer>
-
-  <script>
-    const revealItems = document.querySelectorAll('.reveal');
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if(entry.isIntersecting){
-          entry.target.classList.add('show');
-          revealObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: .12 });
-    revealItems.forEach((item) => revealObserver.observe(item));
-
-    const topButton = document.querySelector('.back-to-top');
-    window.addEventListener('scroll', () => {
-      if(window.scrollY > 360){ topButton.classList.add('show'); }
-      else{ topButton.classList.remove('show'); }
-    }, { passive:true });
-    topButton.addEventListener('click', () => window.scrollTo({ top:0, behavior:'smooth' }));
-  </script>
-
-  <script>
-    const ticketForm = document.getElementById('ticketForm');
-    const submitBtn = document.getElementById('submitBtn');
-    let submitted = false;
-
-    function getField(entryName){
-      const field = ticketForm.querySelector(`[name="${entryName}"]`);
-      return field ? field.value.trim() : '';
+  <style>
+    /* ===== 티켓 본문 컴팩트 보정: 상단이 눌려 보이지 않게 전체 레이아웃 축소 ===== */
+    :root{
+      --ticket-compact-wrap:1120px;
     }
 
-    ticketForm.addEventListener('submit', function(){
-      if(submitted) return;
-      submitted = true;
-      submitBtn.disabled = true;
-      submitBtn.textContent = '접수 중이에요...';
+    main.page-shell,
+    main{
+      overflow-x:hidden;
+    }
+
+    .wrap{
+      width:min(var(--ticket-compact-wrap), calc(100% - 36px)) !important;
+    }
+
+    .hero-mini{
+      margin-top:16px !important;
+      padding:46px 44px 42px !important;
+      border-radius:28px !important;
+    }
+
+    .hero-mini .sub{
+      font-size:18px !important;
+      margin-bottom:8px !important;
+    }
+
+    .hero-mini h1{
+      font-size:78px !important;
+      line-height:.92 !important;
+    }
+
+    .hero-mini p{
+      margin-top:14px !important;
+      font-size:15.5px !important;
+      line-height:1.75 !important;
+    }
+
+    .status-row{
+      margin-top:14px !important;
+      gap:8px !important;
+    }
+
+    .status-pill,
+    .hero-mini .status-pill{
+      min-height:34px !important;
+      padding:0 12px !important;
+      font-size:12px !important;
+    }
+
+    .ticket-layout{
+      grid-template-columns:.88fr 1fr !important;
+      gap:18px !important;
+      margin-top:22px !important;
+    }
+
+    .left-stack{
+      padding-top:42px !important;
+    }
+
+    .poster-card,
+    .ticket-card,
+    .detail-card,
+    .package-card{
+      border-radius:24px !important;
+    }
+
+    .poster-box{
+      padding:16px !important;
+      font-size:18px !important;
+    }
+
+    .poster-box img{
+      border-radius:18px !important;
+    }
+
+    .info-card,
+    .ticket-card,
+    .detail-card,
+    .package-card{
+      padding:20px !important;
+    }
+
+    .info-card h2,
+    .ticket-card h2,
+    .detail-card h2,
+    .package-card h2{
+      margin-bottom:12px !important;
+      font-size:27px !important;
+      line-height:1.12 !important;
+    }
+
+    .info-card p,
+    .ticket-note{
+      font-size:14.5px !important;
+      line-height:1.72 !important;
+    }
+
+    .event-lines{
+      gap:9px !important;
+      margin-top:14px !important;
+    }
+
+    .event-line{
+      grid-template-columns:78px 1fr !important;
+      gap:10px !important;
+      padding:10px 12px !important;
+      border-radius:16px !important;
+      font-size:14px !important;
+      line-height:1.55 !important;
+    }
+
+    .cast-box{
+      margin-top:14px !important;
+      padding-top:12px !important;
+    }
+
+    .cast-title{
+      margin-bottom:12px !important;
+      font-size:18px !important;
+    }
+
+    .cast-pill{
+      padding:7px 10px !important;
+      font-size:13px !important;
+    }
+
+    .right-stack{
+      gap:14px !important;
+    }
+
+    .right-top-actions{
+      min-height:38px !important;
+    }
+
+    .quick-icon-btn,
+    .package-btn,
+    .sub-btn{
+      min-height:42px !important;
+      padding:10px 15px !important;
+      font-size:13.5px !important;
+    }
+
+    .package-actions{
+      gap:10px !important;
+    }
+
+    .ticket-card > .status-row{
+      margin:2px 0 12px !important;
+      gap:8px !important;
+    }
+
+    .ticket-card > .status-row .status-pill{
+      min-height:38px !important;
+      padding:0 14px !important;
+      font-size:13.5px !important;
+    }
+
+    .ticket-price{
+      margin-bottom:14px !important;
+      padding:16px !important;
+      border-radius:19px !important;
+    }
+
+    .ticket-price strong{
+      font-size:19px !important;
+    }
+
+    .ticket-price span{
+      margin-top:4px !important;
+      font-size:12.5px !important;
+    }
+
+    .ticket-price b{
+      font-size:24px !important;
+    }
+
+    .ticket-options{
+      margin-top:14px !important;
+      gap:9px !important;
+    }
+
+    .ticket-option,
+    .meate-option{
+      min-height:40px !important;
+      padding:0 14px !important;
+      font-size:13.5px !important;
+    }
+
+    .ticket-divider{
+      margin:22px 0 16px !important;
+    }
+
+    .reserve-form{
+      margin-top:14px !important;
+      gap:10px !important;
+      max-width:520px !important;
+    }
+
+    .field label{
+      margin-bottom:6px !important;
+      font-size:15.5px !important;
+    }
+
+    .field input,
+    .field select{
+      min-height:44px !important;
+      border-radius:15px !important;
+      padding:0 14px !important;
+      font-size:14.5px !important;
+    }
+
+    .form-row{
+      grid-template-columns:1fr 120px !important;
+      gap:9px !important;
+    }
+
+    .meate-options{
+      gap:8px !important;
+    }
+
+    .agree-box{
+      min-height:38px !important;
+      margin-top:6px !important;
+      padding:8px 12px !important;
+      border-radius:14px !important;
+      font-size:13px !important;
+    }
+
+    .reserve-btn{
+      min-height:48px !important;
+      max-width:250px !important;
+      margin-top:2px !important;
+      font-size:15px !important;
+    }
+
+    .notice-grid{
+      gap:10px !important;
+    }
+
+    .notice-box{
+      padding:15px 17px !important;
+      border-radius:18px !important;
+    }
+
+    .notice-box h3{
+      margin-bottom:8px !important;
+      font-size:19px !important;
+    }
+
+    .notice-box ul{
+      font-size:14px !important;
+      line-height:1.62 !important;
+    }
+
+    .top-button{
+      right:22px !important;
+      left:auto !important;
+      bottom:22px !important;
+      width:56px !important;
+      height:56px !important;
+      min-width:0 !important;
+      min-height:0 !important;
+      padding:0 !important;
+      border-radius:50% !important;
+    }
+
+    @media (max-width:1180px){
+      .wrap{
+        width:min(1060px, calc(100% - 32px)) !important;
+      }
+
+      .hero-mini h1{
+        font-size:72px !important;
+      }
+
+      .ticket-layout{
+        gap:16px !important;
+      }
+    }
+
+    @media (max-width:980px){
+      .wrap{
+        width:min(760px, calc(100% - 28px)) !important;
+      }
+
+      .ticket-layout{
+        grid-template-columns:1fr !important;
+      }
+
+      .left-stack{
+        padding-top:0 !important;
+      }
+
+      .hero-mini{
+        padding:38px 28px 34px !important;
+      }
+
+      .hero-mini h1{
+        font-size:64px !important;
+      }
+    }
+
+    @media (max-width:780px){
+      .wrap{
+        width:calc(100% - 24px) !important;
+      }
+
+      .hero-mini{
+        padding:34px 20px 30px !important;
+        border-radius:24px !important;
+      }
+
+      .hero-mini h1{
+        font-size:52px !important;
+      }
+
+      .hero-mini p{
+        font-size:13.5px !important;
+      }
+
+      .info-card,
+      .ticket-card,
+      .detail-card,
+      .package-card{
+        padding:18px 15px !important;
+      }
+
+      .form-row{
+        grid-template-columns:1fr !important;
+      }
+
+      .reserve-form{
+        max-width:100% !important;
+      }
+
+      .reserve-btn{
+        max-width:100% !important;
+      }
+
+      .event-line{
+        grid-template-columns:1fr !important;
+      }
+
+      .top-button{
+        right:16px !important;
+        left:auto !important;
+        bottom:calc(18px + env(safe-area-inset-bottom)) !important;
+        width:50px !important;
+        height:50px !important;
+      }
+    }
+  </style>
+
+</head>
+ <body>
+  <div class="top-lang-bar">
+   <div class="lang-switch">
+    <a class="active" href="../index.html">
+     KR
+    </a>
+    <a href="../en/index.html">
+     EN
+    </a>
+    <a href="../jp/index.html">
+     JP
+    </a>
+    <a href="../cn/index.html">
+     CN
+    </a>
+   </div>
+  </div>
+  <header>
+   <div class="wrap header-box">
+    <div class="logo">
+     <a href="../index.html">
+      <picture>
+       <source srcset="../img/ui/logo.webp?v=3" type="image/webp"/>
+       <img alt="Lumibelle 로고" decoding="async" loading="eager" src="../img/ui/logo.png?v=3"/>
+      </picture>
+     </a>
+    </div>
+    <nav>
+     <a href="../index.html">
+      <b>
+       HOME
+      </b>
+      <span>
+       홈
+      </span>
+     </a>
+     <a href="../news.html">
+      <b>
+       NEWS
+      </b>
+      <span>
+       공지사항
+      </span>
+     </a>
+     <a href="../member.html">
+      <b>
+       MEMBER
+      </b>
+      <span>
+       멤버 소개
+      </span>
+     </a>
+     <a href="../schedule.html">
+      <b>
+       SCHEDULE
+      </b>
+      <span>
+       스케줄
+      </span>
+     </a>
+     <a class="current" href="index.html">
+      <b>
+       TICKET
+      </b>
+      <span>
+       예매
+      </span>
+     </a>
+     <a href="../goods/">
+      <b>
+       GOODS
+      </b>
+      <span>
+       굿즈
+      </span>
+     </a>
+     <a href="../setlist.html">
+      <b>
+       SETLIST
+      </b>
+      <span>
+       응원 가이드
+      </span>
+     </a>
+     <a href="../info.html">
+      <b>
+       INFO
+      </b>
+      <span>
+       안내
+      </span>
+     </a>
+    </nav>
+   </div>
+  </header>
+  <main>
+   <div class="wrap">
+    <section class="hero-mini reveal">
+     <div class="sub">
+      루미벨 데뷔 라이브 티켓 예매
+     </div>
+     <h1>
+      Ticket
+     </h1>
+     <p>
+      Shine Me UP : 루미벨 데뷔 라이브 예매 페이지입니다.
+      <br/>
+      일반 사전 예약은 예매폼에서 신청하고, A/B 패키지는 굿즈 페이지에서 확인해 주세요.
+     </p>
+     <div class="status-row">
+      <span class="status-pill strong">
+       NOW OPEN
+      </span>
+      <span class="status-pill">
+       PRE-ORDER
+      </span>
+      <span class="status-pill">
+       입금 확인 후 예약 확정
+      </span>
+     </div>
+    </section>
+    <section class="ticket-layout reveal">
+     <div class="left-stack">
+      <article class="poster-card reveal">
+       <div class="poster-box">
+        <picture>
+         <source srcset="../img/poster/2026-07-12.webp" type="image/webp"/>
+         <img alt="Shine Me UP 루미벨 데뷔 라이브 포스터" onerror="this.closest('.poster-box').innerHTML='공연 포스터<br>2026.07.12<br>Shine Me UP';" src="../img/poster/2026-07-12.png"/>
+        </picture>
+       </div>
+       <div class="info-card">
+        <h2>
+         공연 정보
+        </h2>
+        <p>
+         빛나는 미소의 소녀들, Lumibelle의 첫 시작을 함께해 주세요.
+        </p>
+        <div class="cast-box">
+         <p class="cast-title">
+          CAST / 출연진 안내
+         </p>
+         <div class="cast-list">
+          <span class="cast-pill">
+           시로나
+          </span>
+          <span class="cast-pill">
+           옵시드
+          </span>
+          <span class="cast-pill">
+           너에게 닿기를
+          </span>
+          <span class="cast-pill">
+           스이타
+          </span>
+          <span class="cast-pill">
+           이토리
+          </span>
+          <span class="cast-pill">
+           Lumibelle
+          </span>
+         </div>
+        </div>
+        <div class="event-lines">
+         <div class="event-line">
+          <strong>
+           일시
+          </strong>
+          <span>
+           2026년 7월 12일 (일) 14:20 공연 시작
+          </span>
+         </div>
+         <div class="event-line">
+          <strong>
+           입장
+          </strong>
+          <span>
+           13:50부터 가능
+          </span>
+         </div>
+         <div class="event-line">
+          <strong>
+           장소
+          </strong>
+          <span>
+           KT&G 상상마당 라이브홀
+           <br/>
+           서울 마포구 어울마당로 65 B2F
+          </span>
+         </div>
+        </div>
+       </div>
+      </article>
+     </div>
+     <div class="right-stack">
+      <div class="right-top-actions">
+       <a class="quick-icon-btn" href="archive.html">
+        ♡ 지난 공연 보기
+       </a>
+      </div>
+      <article class="detail-card reveal">
+       <h2>
+        상세 안내
+       </h2>
+       <div class="notice-grid">
+        <div class="notice-box">
+         <h3>
+          입장 및 대기 규칙
+         </h3>
+         <ul>
+          <li>
+           줄 대기 시작:
+           <strong>
+            13:20부터 가능
+           </strong>
+           합니다.
+          </li>
+          <li>
+           13:20 이전 대기는 절대 불가합니다.
+          </li>
+          <li>
+           입장 순서: 사전 예약 입장(13:50~) ▶ 현장 입장
+          </li>
+          <li>
+           입장 시
+           <strong>
+            닉네임 + 숫자 4자리
+           </strong>
+           가 일치해야 합니다.
+          </li>
+          <li>
+           입금 확인이 완료된 예약자만 QR 체크인을 통해 입장할 수 있습니다.
+          </li>
+         </ul>
+        </div>
+        <div class="notice-box">
+         <h3>
+          취소 및 환불
+         </h3>
+         <ul>
+          <li>
+           한정 패키지:
+           <strong>
+            6/15 마감 후 환불 불가
+           </strong>
+          </li>
+          <li>
+           일반 예약:
+           <strong>
+            7/5(일) 23:59까지 가능
+           </strong>
+          </li>
+          <li>
+           정가 외 프리미엄 양도 적발 시 예약이 강제 취소될 수 있습니다.
+          </li>
+         </ul>
+        </div>
+        <div class="notice-box">
+         <h3>
+          관람 유의사항
+         </h3>
+         <ul>
+          <li>
+           500ml 생수 외 모든 음식물, 주류, 꽃다발 반입은 불가합니다.
+          </li>
+          <li>
+           코인락커는 500원짜리 동전만 사용 가능하며, 지폐에서 동전 교환은 불가합니다.
+          </li>
+          <li>
+           아티스트 선물은 로비 스태프를 통해서만 전달 가능합니다.
+          </li>
+          <li>
+           대관처 규정상 라이브홀 내 가벼운 간식 등도 반입이 불가능합니다. 해당 팀의 스태프를 통해 전달해 주세요.
+          </li>
+          <li>
+           공연장 내 주차가 불가하므로 대중교통 이용을 권장합니다.
+          </li>
+         </ul>
+        </div>
+       </div>
+      </article>
+      <article class="package-card reveal">
+       <h2>
+        한정 패키지 안내
+       </h2>
+       <p class="ticket-note" style="margin-top:0">
+        데뷔 기념 한정 A/B 패키지는 굿즈 상세 페이지에서 구성과 안내를 확인한 뒤 구매할 수 있어요.
+       </p>
+       <div class="package-actions">
+        <a class="package-btn" href="../goods/packages/package-a.html">
+         A 패키지 보러가기
+        </a>
+        <a class="package-btn" href="../goods/packages/package-b.html">
+         B 패키지 보러가기
+        </a>
+       </div>
+      </article>
+      <article class="ticket-card reveal">
+       <h2>
+        예매 정보 입력
+       </h2>
+       <div class="status-row">
+        <span class="status-pill">
+         계좌 : 국민은행 000000-00-000000
+        </span>
+        <span class="status-pill">
+         예금주 : 루미벨
+        </span>
+       </div>
+       <div class="ticket-price" id="ticketDisplay">
+        <div>
+         <strong>
+          사전 예약 티켓
+         </strong>
+         <span>
+          일반 입장권 / 입금 확인 후 예약 확정
+         </span>
+        </div>
+        <b>
+         ₩10,000
+        </b>
+       </div>
+       <div aria-label="티켓 종류 선택" class="ticket-options">
+        <button class="ticket-option active" data-ticket="pre" type="button">
+         사전 예약
+        </button>
+        <button class="ticket-option" data-ticket="s" type="button">
+         S 티켓
+        </button>
+        <button class="ticket-option" data-ticket="vip" type="button">
+         VIP 티켓
+        </button>
+       </div>
+       <div class="ticket-divider"></div>
+       <form class="reserve-form" id="reserveForm">
+        <div class="form-row">
+         <div class="field">
+          <label for="nickname">
+           닉네임
+          </label>
+          <input id="nickname" name="nickname" placeholder="예: 유리링" required="" type="text"/>
+         </div>
+         <div class="field">
+          <label for="pin">
+           숫자 4자리
+          </label>
+          <input id="pin" inputmode="numeric" maxlength="4" name="pin" placeholder="1234" required="" type="text"/>
+         </div>
+        </div>
+        <div class="field">
+         <label for="email">
+          이메일
+         </label>
+         <input id="email" name="email" placeholder="example@email.com" required="" type="email"/>
+        </div>
+        <div class="field">
+         <label for="depositor">
+          입금자명
+         </label>
+         <input id="depositor" name="depositor" placeholder="입금 시 사용할 이름" required="" type="text"/>
+        </div>
+        <div class="field">
+         <label>
+          메아테
+         </label>
+         <div aria-label="메아테 선택" class="meate-options">
+          <button class="meate-option" data-meate="시로나" type="button">
+           시로나
+          </button>
+          <button class="meate-option" data-meate="옵시드" type="button">
+           옵시드
+          </button>
+          <button class="meate-option" data-meate="너에게 닿기를" type="button">
+           너에게 닿기를
+          </button>
+          <button class="meate-option" data-meate="스이타" type="button">
+           스이타
+          </button>
+          <button class="meate-option" data-meate="이토리" type="button">
+           이토리
+          </button>
+          <button class="meate-option" data-meate="Lumibelle" type="button">
+           Lumibelle
+          </button>
+         </div>
+         <input id="meate" name="meate" required="" type="hidden"/>
+        </div>
+        <label class="agree-box">
+         <input id="agree" required="" type="checkbox"/>
+         <span>
+          취소/환불/입장 규칙을 모두 확인하였으며 안내사항에 동의합니다.
+         </span>
+        </label>
+        <button class="reserve-btn" type="submit">
+         예매하기
+        </button>
+        <div class="reserve-msg" id="reserveMsg">
+         예매 정보가 입력되었어요. 다음 단계에서 접수 시스템과 연결됩니다.
+        </div>
+       </form>
+      </article>
+     </div>
+    </section>
+   </div>
+  </main>
+  <button class="top-button" id="topButton" type="button" aria-label="위로 올라가기">↑</button>
+  <footer>
+   © 2026 Lumibelle All Rights Reserved.
+  </footer>
+  <script>
+    const GOOGLE_FORM_ACTION = 'https://docs.google.com/forms/d/e/1FAIpQLSditmDvEROhZgBZIx6wL6j35d_nx4sqOZy2phlsX9EeyXXRIw/formResponse';
+
+    const ticketData = {
+      pre: { title: '사전 예약 티켓', desc: '일반 입장권 / 입금 확인 후 예약 확정', price: '₩10,000', formValue: '사전 예약 (10,000원)' },
+      s: { title: 'S 티켓', desc: '추후 공개 예정 / 특전 포함 예정', price: '추후 공개', formValue: 'S 티켓' },
+      vip: { title: 'VIP 티켓', desc: '추후 공개 예정 / 우선 입장 및 특전 예정', price: '추후 공개', formValue: 'VIP 티켓' }
+    };
+
+    let selectedTicket = 'pre';
+
+    document.querySelectorAll('.ticket-option').forEach((button) => {
+      button.addEventListener('click', () => {
+        selectedTicket = button.dataset.ticket;
+        const data = ticketData[selectedTicket];
+        document.getElementById('ticketDisplay').innerHTML = `<div><strong>${data.title}</strong><span>${data.desc}</span></div><b>${data.price}</b>`;
+        document.querySelectorAll('.ticket-option').forEach((btn) => btn.classList.remove('active'));
+        button.classList.add('active');
+      });
+    });
+
+    document.querySelectorAll('.meate-option').forEach((button) => {
+      button.addEventListener('click', () => {
+        document.getElementById('meate').value = button.dataset.meate;
+        document.querySelectorAll('.meate-option').forEach((btn) => btn.classList.remove('active'));
+        button.classList.add('active');
+      });
+    });
+
+    const reserveForm = document.getElementById('reserveForm');
+    const reserveMsg = document.getElementById('reserveMsg');
+    const reserveButton = reserveForm.querySelector('.reserve-btn');
+    let ticketSubmitting = false;
+
+    reserveForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if(ticketSubmitting) return;
+
+      const nickname = document.getElementById('nickname').value.trim();
+      const pin = document.getElementById('pin').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const depositor = document.getElementById('depositor').value.trim();
+      const meate = document.getElementById('meate').value.trim();
+      const agree = document.getElementById('agree').checked;
+      const ticket = ticketData[selectedTicket] || ticketData.pre;
+
+      if(!nickname){ alert('닉네임을 입력해 주세요.'); return; }
+      if(!/^\d{4}$/.test(pin)){ alert('숫자 4자리를 정확히 입력해 주세요.'); return; }
+      if(!email){ alert('이메일을 입력해 주세요.'); return; }
+      if(!depositor){ alert('입금자명을 입력해 주세요.'); return; }
+      if(!meate){ alert('메아테를 선택해 주세요.'); return; }
+      if(!agree){ alert('안내사항 동의가 필요합니다.'); return; }
+
+      ticketSubmitting = true;
+      reserveButton.disabled = true;
+      reserveButton.textContent = '접수 중...';
+      reserveMsg.style.display = 'block';
+      reserveMsg.textContent = '예매 정보를 접수하고 있어요.';
+
+      const formData = new FormData();
+      formData.append('entry.307872462', `${nickname}${pin}`);
+      formData.append('entry.1034926776', email);
+      formData.append('entry.65006488', depositor);
+      formData.append('entry.811873892', meate);
+      formData.append('entry.396376385', ticket.formValue);
+      formData.append('entry.1401101926', '안내사항을 모두 확인하였으며 동의합니다.');
 
       const reservationData = {
         reservationNo: 'LMB-' + Date.now().toString().slice(-6),
-        nickname: getField('entry.307872462'),
-        email: getField('entry.1034926776'),
-        depositor: getField('entry.65006488'),
-        meate: getField('entry.811873892'),
-        ticketType: getField('entry.396376385'),
+        nickname: `${nickname}${pin}`,
+        email,
+        depositor,
+        meate,
+        ticketType: ticket.formValue,
         paymentStatus: '입금확인대기',
         agreement: '안내사항을 모두 확인하였으며 동의합니다.',
         submittedAt: new Date().toISOString()
@@ -1078,14 +1601,69 @@
       localStorage.setItem('lumibelleTicketReservation', JSON.stringify(reservationData));
       localStorage.setItem('ticketReservation', JSON.stringify(reservationData));
 
-      setTimeout(() => {
+      try{
+        await fetch(GOOGLE_FORM_ACTION, {
+          method: 'POST',
+          mode: 'no-cors',
+          body: formData
+        });
         window.location.href = 'complete.html';
-      }, 900);
+      }catch(error){
+        console.error(error);
+        ticketSubmitting = false;
+        reserveButton.disabled = false;
+        reserveButton.textContent = '예매하기';
+        reserveMsg.textContent = '접수 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.';
+        alert('접수 중 오류가 발생했어요. 다시 시도해주세요.');
+      }
+    });
+
+    const topButton = document.getElementById('topButton');
+    window.addEventListener('scroll', () => {
+      if(window.scrollY > 360){
+        topButton.classList.add('show');
+      }else{
+        topButton.classList.remove('show');
+      }
+    }, { passive:true });
+    topButton.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   </script>
 
   <script>
+    const revealItems = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if(entry.isIntersecting){
+          entry.target.classList.add('show');
+        }
+      });
+    }, { threshold: 0.08 });
+    revealItems.forEach((el) => revealObserver.observe(el));
+
+    function createBurst(x, y){
+      const pieces = 9;
+      for(let i=0; i<pieces; i++){
+        const el = document.createElement('span');
+        el.className = i % 3 === 0 ? 'burst-spark' : 'burst-petal';
+        const angle = (Math.PI * 2 * i) / pieces;
+        const distance = 24 + Math.random() * 18;
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        el.style.setProperty('--x', Math.cos(angle) * distance + 'px');
+        el.style.setProperty('--y', Math.sin(angle) * distance + 'px');
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 850);
+      }
+    }
+
+    // click burst is now handled globally below, including empty spaces.
+  </script>
+
+  <script>
     function createLumibelleCursorMagic(x, y){
+      // 1) 먼저 둥근 빛 고리부터 크게 퍼지게
       const ring = document.createElement('span');
       ring.className = 'lumi-magic-ring';
       ring.style.left = x + 'px';
@@ -1093,6 +1671,7 @@
       document.body.appendChild(ring);
       setTimeout(() => ring.remove(), 980);
 
+      // 2) 별빛은 점 덩어리처럼 보이지 않게 6개만, 십자 별로 퍼짐
       const starCount = 8;
       for(let i=0; i<starCount; i++){
         const star = document.createElement('span');
@@ -1108,11 +1687,12 @@
         setTimeout(() => star.remove(), 900);
       }
 
+      // 3) 나비는 2~3개만 위/옆으로 날아가게
       const butterflyCount = 2;
       for(let i=0; i<butterflyCount; i++){
         const butterfly = document.createElement('span');
         butterfly.className = 'lumi-magic-butterfly';
-        const angle = -Math.PI / 2 + (i - .5) * .42 + (Math.random() * .22 - .11);
+        const angle = -Math.PI / 2 + (i - 1) * .42 + (Math.random() * .22 - .11);
         const distance = 54 + Math.random() * 38;
         butterfly.style.left = x + 'px';
         butterfly.style.top = y + 'px';
@@ -1124,6 +1704,11 @@
       }
     }
 
+    // click magic is now handled globally below, including empty spaces.
+  </script>
+
+  <script>
+    // 루미벨 커서 최종 효과: 허공 클릭 / 마우스 잔광 / hover 상태
     (() => {
       const canUseMagicCursor = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
       if(!canUseMagicCursor) return;
@@ -1170,18 +1755,19 @@
       }, { passive:true });
 
       document.addEventListener('pointerover', (event) => {
-        if(event.target.closest('a, button, input, select, label')){
+        if(event.target.closest('a, button, .ticket-option, .meate-option, .package-btn, .quick-icon-btn, .reserve-btn, .top-button, .lang-switch a, nav a')){
           document.body.classList.add('lumi-cursor-hover');
         }
       });
 
       document.addEventListener('pointerout', (event) => {
-        if(event.target.closest('a, button, input, select, label')){
+        if(event.target.closest('a, button, .ticket-option, .meate-option, .package-btn, .quick-icon-btn, .reserve-btn, .top-button, .lang-switch a, nav a')){
           document.body.classList.remove('lumi-cursor-hover');
         }
       });
 
       document.addEventListener('click', (event) => {
+        // 클릭 가능한 곳뿐 아니라 허공 클릭도 전부 마법 효과 발생
         createLumibelleCursorMagic(event.clientX, event.clientY);
       });
 
@@ -1198,9 +1784,5 @@
     })();
   </script>
 
-  <script>
-  document.querySelectorAll('nav a,.subnav-card,.submit-btn,.ticket-btn,.back-to-top').forEach(el=>el.addEventListener('click',function(e){this.classList.remove('click-shine');void this.offsetWidth;this.classList.add('click-shine');setTimeout(()=>this.classList.remove('click-shine'),900);const r=document.createElement('span');r.className='ripple-effect';const rect=this.getBoundingClientRect(),s=Math.max(rect.width,rect.height)*.72;r.style.width=r.style.height=s+'px';r.style.left=e.clientX-rect.left-s/2+'px';r.style.top=e.clientY-rect.top-s/2+'px';this.appendChild(r);r.addEventListener('animationend',()=>r.remove());for(let i=0;i<10;i++){const d=document.createElement('span');d.className='glitter-burst';const a=Math.random()*Math.PI*2,dist=35+Math.random()*35;d.style.setProperty('--x',Math.cos(a)*dist+'px');d.style.setProperty('--y',Math.sin(a)*dist+'px');d.style.left=e.clientX-rect.left+'px';d.style.top=e.clientY-rect.top+'px';this.appendChild(d);setTimeout(()=>d.remove(),900)}}));
-  document.addEventListener('pointerdown',e=>{const t=e.target.closest('nav a,button,.subnav-card,.ticket-panel,.hero-ticket-card,.price-card,.ticket-btn,.back-to-top');if(!t)return;const big=t.classList.contains('subnav-card')||t.classList.contains('submit-btn');const make=(cls,n,min,max)=>{for(let i=0;i<n;i++){const el=document.createElement('span');el.className=cls;const a=Math.PI*2/n*i+(Math.random()*.35-.175),dist=min+Math.random()*(max-min);el.style.left=e.clientX+'px';el.style.top=e.clientY+'px';el.style.setProperty('--x',Math.cos(a)*dist+'px');el.style.setProperty('--y',Math.sin(a)*dist+'px');document.body.appendChild(el);setTimeout(()=>el.remove(),850)}};make('burst-petal',big?12:8,big?26:18,big?72:56);make('burst-spark',big?6:4,big?36:26,big?92:70);});
-  </script>
-</body>
+ </body>
 </html>
