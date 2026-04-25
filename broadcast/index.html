@@ -5,90 +5,122 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ON AIR | Lumibelle</title>
   <link rel="stylesheet" href="../style.css" />
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800;900&display=swap');
     *{box-sizing:border-box;}
     html,body{margin:0;padding:0;scroll-behavior:smooth;}
-    body{min-height:100vh;background:#fffafc;color:#7f6a77;font-family:"SUIT","Noto Sans KR",sans-serif;}
+    body{min-height:100vh;background:#fffafc;color:#7f6a77;font-family:"SUIT","Noto Sans KR",sans-serif;letter-spacing:-0.01em;}
+    a{-webkit-tap-highlight-color:transparent;}
     .wrap{max-width:1260px;margin:0 auto;padding:0 18px;}
     header{padding:22px 0 8px;}
     .simple-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 26px;border:1px solid #f2d8e7;border-radius:30px;background:#fff5fb;box-shadow:0 8px 24px rgba(232,191,211,.12);}
-    .brand h1{margin:0;color:#ff5aa6;font-size:36px;line-height:1;font-family:"Cormorant Garamond",serif;font-weight:700;}
-    .brand p{margin:6px 0 0;color:#c697b1;font-size:14px;font-weight:800;}
+    .brand h1{margin:0;color:#ff5aa6;font-size:38px;line-height:1;font-family:"Cormorant Garamond",serif;font-weight:700;letter-spacing:-.02em;}
+    .brand p{margin:7px 0 0;color:#c697b1;font-size:14px;font-weight:800;}
     .nav-mini{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
-    .nav-mini a{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:10px 15px;border-radius:999px;background:#fff;border:1px solid #f0d5e4;color:#d27ca8;text-decoration:none;font-size:13px;font-weight:900;}
-
-    .hero{position:relative;margin-top:18px;padding:46px 28px 38px;text-align:center;border:1px solid #f2d8e7;border-radius:34px;background:linear-gradient(180deg,#fff1f8 0%,#fff8fc 100%);box-shadow:0 8px 24px rgba(232,191,211,.12);overflow:hidden;}
-    .hero::before{content:"";position:absolute;inset:-60%;background:radial-gradient(circle at 25% 32%,rgba(255,255,255,.8),transparent 18%),radial-gradient(circle at 70% 60%,rgba(202,167,255,.22),transparent 17%),conic-gradient(from 0deg,rgba(255,255,255,0),rgba(255,138,194,.18),rgba(255,255,255,0));animation:spin 9s linear infinite;pointer-events:none;}
+    .nav-mini a{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:10px 15px;border-radius:999px;background:#fff;border:1px solid #f0d5e4;color:#d27ca8;text-decoration:none;font-size:13px;font-weight:900;transition:background .16s ease, transform .16s ease;}
+    .nav-mini a:hover{background:#fff0f7;transform:translateY(-1px);}
+    .hero{position:relative;margin-top:18px;padding:48px 28px 40px;text-align:center;border:1px solid #f2d8e7;border-radius:34px;background:linear-gradient(180deg,#fff1f8 0%,#fff8fc 100%);box-shadow:0 8px 24px rgba(232,191,211,.12);overflow:hidden;}
+    .hero::before{content:"";position:absolute;inset:-60%;background:radial-gradient(circle at 25% 32%,rgba(255,255,255,.82),transparent 18%),radial-gradient(circle at 70% 60%,rgba(202,167,255,.22),transparent 17%),conic-gradient(from 0deg,rgba(255,255,255,0),rgba(255,138,194,.18),rgba(255,255,255,0));animation:spin 10s linear infinite;pointer-events:none;}
     @keyframes spin{to{transform:rotate(360deg)}}
     .hero>*{position:relative;z-index:1;}
-    .hero h2{margin:0;color:#d77ca7;font-size:62px;line-height:.95;font-weight:900;letter-spacing:-.04em;}
-    .hero p{margin:13px 0 0;color:#c99ab2;font-size:17px;font-weight:700;line-height:1.75;}
-
-    .status-panel{margin-top:22px;border:1px solid #f2d8e7;border-radius:32px;background:#fff5fb;box-shadow:0 8px 24px rgba(232,191,211,.12);padding:22px;}
-    .live-header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px;}
+    .hero h2{margin:0;color:#d77ca7;font-size:66px;line-height:.95;font-weight:900;letter-spacing:-.045em;}
+    .hero p{margin:14px auto 0;max-width:760px;color:#c99ab2;font-size:17px;font-weight:700;line-height:1.75;word-break:keep-all;}
+    .tiny-note{display:inline-flex;margin-top:18px;padding:8px 14px;border-radius:999px;background:#fff;border:1px solid #f0d5e4;color:#b688a2;font-size:12px;font-weight:900;}
+    .section-heading{text-align:center;margin:42px 0 18px;}
+    .section-heading h3{margin:0;color:#d77ca7;font-size:42px;line-height:1;font-weight:900;letter-spacing:-.035em;}
+    .section-heading p{margin:9px 0 0;color:#c99ab2;font-size:15px;font-weight:700;}
+    .status-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px;}
+    .mini-status-card{position:relative;overflow:hidden;border:1px solid #f2d8e7;border-radius:28px;background:#fff5fb;box-shadow:0 8px 24px rgba(232,191,211,.12);padding:24px;}
+    .mini-status-card::after{content:"";position:absolute;right:-42px;top:-42px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.8),rgba(255,138,194,.16),transparent 70%);pointer-events:none;}
+    .mini-kicker{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:999px;background:#fff;border:1px solid #efc6dc;color:#c97ca8;font-size:11px;font-weight:900;letter-spacing:.06em;}
+    .mini-status-card h3{position:relative;margin:12px 0 8px;color:#d77ca7;font-size:27px;font-weight:900;line-height:1.35;z-index:1;}
+    .mini-status-card p{position:relative;margin:0;color:#8f7183;font-size:14px;font-weight:700;line-height:1.65;z-index:1;word-break:keep-all;}
+    .status-panel{position:relative;margin-top:22px;border:1px solid #f2d8e7;border-radius:32px;background:linear-gradient(135deg,#fff5fb 0%,#f7f1ff 100%);box-shadow:0 8px 24px rgba(232,191,211,.12);padding:24px;overflow:hidden;}
+    .status-panel::before{content:"";position:absolute;right:-100px;top:-110px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.78),rgba(255,138,194,.22),rgba(202,167,255,.14),transparent 72%);animation:glowMove 6s ease-in-out infinite;}
+    @keyframes glowMove{50%{transform:translate(-20px,18px) scale(1.08);}}
+    .live-header{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px;}
     .live-badge{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;background:#fff;border:1px solid #efc6dc;color:#c97ca8;font-size:12px;font-weight:900;letter-spacing:.06em;}
     .live-badge.on{background:linear-gradient(180deg,#ff6fae,#ff4fa3);color:#fff;border-color:transparent;animation:pulse 1.25s ease-in-out infinite;}
     @keyframes pulse{50%{transform:scale(1.035);box-shadow:0 0 20px rgba(255,79,163,.25)}}
-    .live-title{margin:0;color:#d77ca7;font-size:30px;font-weight:900;line-height:1.35;}
-    .live-sub{margin:7px 0 0;color:#9b7d90;font-size:15px;font-weight:700;line-height:1.65;}
-    .platform-buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
-    .main-btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:13px 20px;border-radius:999px;text-decoration:none;border:1px solid #efc6dc;background:#fff;color:#c97ca8;font-size:14px;font-weight:900;box-shadow:0 6px 14px rgba(255,95,168,.10);}
+    .live-title{margin:10px 0 0;color:#d77ca7;font-size:30px;font-weight:900;line-height:1.35;}
+    .live-sub{margin:7px 0 0;color:#9b7d90;font-size:15px;font-weight:700;line-height:1.65;word-break:keep-all;}
+    .live-card-grid{position:relative;z-index:1;display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:16px;}
+    .live-member-card{border:1px solid #f0dde8;border-radius:24px;background:#fff;padding:18px;box-shadow:0 8px 18px rgba(232,191,211,.10);}
+    .live-member-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+    .member-chip{display:inline-flex;align-items:center;gap:8px;color:#d77ca7;font-size:17px;font-weight:900;}
+    .platform-chip{display:inline-flex;padding:7px 10px;border-radius:999px;background:#fff0f7;border:1px solid #efc6dc;color:#c97ca8;font-size:11px;font-weight:900;}
+    .live-member-card p{margin:0;color:#8f7183;font-size:14px;font-weight:700;line-height:1.65;}
+    .platform-buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+    .main-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:12px 18px;border-radius:999px;text-decoration:none;border:1px solid #efc6dc;background:#fff;color:#c97ca8;font-size:13px;font-weight:900;box-shadow:0 6px 14px rgba(255,95,168,.10);transition:transform .16s ease, filter .16s ease;}
+    .main-btn:hover{transform:translateY(-1px);filter:brightness(1.02);}
     .main-btn.primary{background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);color:#fff;border-color:transparent;box-shadow:0 10px 22px rgba(255,95,165,.24);}
-    .player-card{margin-top:18px;border:1px solid #f0dde8;border-radius:26px;background:#fff;overflow:hidden;display:none;}
+    .player-card{position:relative;z-index:1;margin-top:18px;border:1px solid #f0dde8;border-radius:26px;background:#fff;overflow:hidden;display:none;}
     .player-card.show{display:block;}
-    .player-frame{aspect-ratio:16/9;background:linear-gradient(135deg,#ffe8f3,#f3ebff);display:flex;align-items:center;justify-content:center;color:#c99ab2;font-weight:900;text-align:center;}
+    .player-frame{aspect-ratio:16/9;background:linear-gradient(135deg,#ffe8f3,#f3ebff);display:flex;align-items:center;justify-content:center;color:#c99ab2;font-weight:900;text-align:center;line-height:1.7;}
     .player-frame iframe{width:100%;height:100%;border:0;display:block;}
     .player-caption{padding:14px 18px;color:#a9879b;font-size:13px;font-weight:700;line-height:1.65;}
-
-    .admin-panel{margin-top:18px;padding:16px;border:1px dashed #efc6dc;border-radius:24px;background:#fffafc;}
-    .admin-panel summary{cursor:pointer;color:#d77ca7;font-weight:900;}
-    .admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px;}
-    .admin-grid label{display:flex;flex-direction:column;gap:6px;color:#9b7d90;font-size:12px;font-weight:900;}
-    .admin-grid input,.admin-grid select{width:100%;border:1px solid #efd4e2;background:#fff;border-radius:14px;padding:11px 12px;color:#846f81;font-weight:700;}
-    .admin-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
-    .admin-actions button{border:0;border-radius:999px;padding:11px 15px;background:#ff70af;color:#fff;font-weight:900;cursor:pointer;}
-    .admin-actions button.secondary{background:#fff;color:#c97ca8;border:1px solid #efc6dc;}
-    .admin-note{margin:10px 0 0;color:#b28ea2;font-size:12px;font-weight:700;line-height:1.6;}
-
-    .section-heading{text-align:center;margin:38px 0 18px;}
-    .section-heading h3{margin:0;color:#d77ca7;font-size:42px;line-height:1;font-weight:900;}
-    .section-heading p{margin:9px 0 0;color:#c99ab2;font-size:15px;font-weight:700;}
-    .week-card{border:1px solid #f2d8e7;border-radius:30px;background:#fff5fb;box-shadow:0 8px 24px rgba(232,191,211,.12);padding:22px;}
+    .tabs{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin:0 0 18px;}
+    .tab-btn{border:1px solid #efd4e2;background:#fff;color:#b57e9d;border-radius:999px;padding:10px 14px;font-size:13px;font-weight:900;cursor:pointer;transition:transform .16s ease, background .16s ease;}
+    .tab-btn:hover{transform:translateY(-1px);background:#fff0f7;}
+    .tab-btn.active{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);border-color:transparent;color:#fff;box-shadow:0 8px 18px rgba(255,95,165,.18);}
+    .week-card,.notice-card,.short-card,.channel-card,.guide-card{border:1px solid #f2d8e7;border-radius:30px;background:#fff5fb;box-shadow:0 8px 24px rgba(232,191,211,.12);padding:22px;}
     .week-info{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;color:#b688a2;font-size:14px;font-weight:900;}
     .schedule-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:12px;}
-    .day-card{position:relative;min-height:178px;padding:16px 13px;border-radius:24px;background:#fff;border:1px solid #f0dde8;text-align:center;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;gap:8px;}
+    .day-card{position:relative;min-height:188px;padding:16px 13px;border-radius:24px;background:#fff;border:1px solid #f0dde8;text-align:center;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;gap:8px;}
     .day-card.live{border:2px solid #ff90be;box-shadow:0 12px 24px rgba(255,95,165,.14);background:linear-gradient(180deg,#fff 0%,#fff0f7 100%);}
-    .day-card.off{opacity:.67;background:#fffafd;}
+    .day-card.off{opacity:.72;background:#fffafd;}
     .day-card.cancel{border:2px dashed #ff7fa7;background:#fff5f8;}
     .day-card.notice{border-color:#d6c0ff;background:#f8f2ff;}
     .day{display:inline-flex;align-self:center;justify-content:center;align-items:center;width:42px;height:42px;border-radius:50%;background:#fff0f7;color:#ff59a5;font-weight:900;font-size:18px;}
     .day-card.live .day{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;}
     .status-tag{align-self:center;padding:6px 10px;border-radius:999px;background:#fbe8f4;color:#c97ca8;font-size:10px;font-weight:900;letter-spacing:.04em;}
+    .day-member{color:#ba8ce7;font-size:12px;font-weight:900;}
     .day-title{color:#846f81;font-size:16px;font-weight:900;line-height:1.35;word-break:keep-all;}
     .day-time{color:#ff5fa5;font-size:20px;font-weight:900;line-height:1;}
     .day-note{color:#a9879b;font-size:12.5px;font-weight:700;line-height:1.55;word-break:keep-all;}
-
-    .diary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-    .diary-card{display:block;text-decoration:none;border:1px solid #f2d8e7;border-radius:26px;background:#fff5fb;box-shadow:0 8px 24px rgba(232,191,211,.12);padding:22px;transition:transform .18s ease, box-shadow .18s ease;}
-    .diary-card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(232,191,211,.18);}
-    .diary-date{color:#c99ab2;font-size:13px;font-weight:900;margin-bottom:9px;}
-    .diary-title{margin:0;color:#d77ca7;font-size:21px;font-weight:900;line-height:1.4;}
-    .diary-text{margin:10px 0 0;color:#8f7183;font-size:14px;font-weight:700;line-height:1.7;}
-
+    .list-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+    .info-item{position:relative;display:block;text-decoration:none;color:inherit;border:1px solid #f0dde8;border-radius:24px;background:#fff;padding:18px;min-height:154px;overflow:hidden;}
+    .info-item::after{content:"";position:absolute;right:-34px;bottom:-44px;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,rgba(255,217,232,.7),transparent 72%);pointer-events:none;}
+    .item-kicker{display:inline-flex;margin-bottom:10px;padding:6px 9px;border-radius:999px;background:#fff0f7;border:1px solid #efc6dc;color:#c97ca8;font-size:10px;font-weight:900;letter-spacing:.04em;}
+    .info-item h4{position:relative;margin:0 0 8px;color:#d77ca7;font-size:19px;font-weight:900;line-height:1.42;z-index:1;word-break:keep-all;}
+    .info-item p{position:relative;margin:0;color:#8f7183;font-size:13.5px;font-weight:700;line-height:1.7;z-index:1;word-break:keep-all;}
+    .item-meta{position:relative;margin-top:12px;color:#b688a2;font-size:12px;font-weight:900;z-index:1;}
+    .channel-list{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+    .member-channel{border:1px solid #f0dde8;border-radius:24px;background:#fff;padding:18px;}
+    .member-channel h4{margin:0 0 5px;color:#d77ca7;font-size:20px;font-weight:900;}
+    .member-channel p{margin:0 0 13px;color:#9b7d90;font-size:13px;font-weight:700;line-height:1.65;}
+    .channel-buttons{display:flex;gap:8px;flex-wrap:wrap;}
+    .channel-btn{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:9px 12px;border-radius:999px;border:1px solid #efc6dc;background:#fff;color:#c97ca8;text-decoration:none;font-size:12px;font-weight:900;}
+    .channel-btn.ready{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;border-color:transparent;}
+    .channel-btn.disabled{opacity:.5;pointer-events:none;background:#fffafd;color:#bfa1b2;}
+    .two-column{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+    .guide-card h4{margin:0 0 12px;color:#d77ca7;font-size:24px;font-weight:900;}
+    .guide-list{display:grid;gap:10px;margin:0;padding:0;list-style:none;}
+    .guide-list li{padding:13px 14px;border-radius:18px;background:#fff;border:1px solid #f0dde8;color:#8f7183;font-size:14px;font-weight:700;line-height:1.65;}
+    .guide-list b{color:#ff5fa5;}
+    .alert-buttons{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px;}
+    .archive-cta{margin-top:30px;border:1px solid #f2d8e7;border-radius:30px;background:linear-gradient(135deg,#fff0f7 0%,#f3ebff 100%);box-shadow:0 8px 24px rgba(232,191,211,.12);padding:26px;display:flex;align-items:center;justify-content:space-between;gap:18px;overflow:hidden;}
+    .archive-cta strong{display:block;color:#ff5aa6;font-size:25px;font-weight:900;margin-bottom:6px;}
+    .archive-cta span{display:block;color:#8f7183;font-size:14px;font-weight:700;line-height:1.65;}
+    .empty{padding:28px;border-radius:22px;background:#fff;border:1px dashed #efc6dc;color:#b688a2;text-align:center;font-size:14px;font-weight:800;line-height:1.7;}
     footer{text-align:center;padding:34px 16px 42px;color:#c6a2b4;font-size:14px;}
-    @media(max-width:1100px){.schedule-grid{grid-template-columns:repeat(2,1fr)}.diary-grid{grid-template-columns:1fr 1fr}.admin-grid{grid-template-columns:1fr}}
-    @media(max-width:720px){.wrap{padding:0 14px}.simple-header{justify-content:center;text-align:center;flex-direction:column}.hero h2{font-size:42px}.live-title{font-size:24px}.schedule-grid,.diary-grid{grid-template-columns:1fr}.day-card{min-height:auto}.platform-buttons .main-btn{width:100%}}
+    @media(max-width:1100px){.schedule-grid{grid-template-columns:repeat(2,1fr)}.list-grid{grid-template-columns:1fr 1fr}.live-card-grid,.status-grid,.two-column,.channel-list{grid-template-columns:1fr}}
+    @media(max-width:720px){.wrap{padding:0 14px}.simple-header{justify-content:center;text-align:center;flex-direction:column}.nav-mini{justify-content:center}.hero{padding:38px 18px 32px;border-radius:28px}.hero h2{font-size:44px}.hero p{font-size:14px}.live-title{font-size:24px}.schedule-grid,.list-grid{grid-template-columns:1fr}.day-card{min-height:auto}.platform-buttons .main-btn,.alert-buttons .main-btn{width:100%}.archive-cta{flex-direction:column;text-align:center;align-items:stretch}.archive-cta .main-btn{width:100%}.section-heading h3{font-size:34px}}
   </style>
 </head>
+
 <body>
   <header>
     <div class="wrap">
       <div class="simple-header">
-        <div class="brand"><h1>Lumibelle</h1><p>ON AIR · 방송 허브</p></div>
+        <div class="brand">
+          <h1>Lumibelle</h1>
+          <p>ON AIR · 방송 허브</p>
+        </div>
         <nav class="nav-mini">
           <a href="../index.html">HOME</a>
-          <a href="../video.html">MORE VIDEO</a>
+          <a href="https://lumibellelove.github.io/Lumibelle/video.html">MORE VIDEO</a>
           <a href="../schedule.html">SCHEDULE</a>
         </nav>
       </div>
@@ -99,7 +131,21 @@
     <div class="wrap">
       <section class="hero">
         <h2>ON AIR</h2>
-        <p>루미벨 멤버들의 방송 스케줄, 실시간 방송, 방송 후기를 모아보는 공간입니다.<br>실시간은 씨미·유튜브·트윗캐스 상태에 맞춰 안내됩니다.</p>
+        <p>루미벨 멤버들의 실시간 방송, 이번 주 스케줄, 갑작스러운 공지와 짧은 방송 기록을 한곳에서 확인해요.</p>
+        <span class="tiny-note">모든 방송 시간은 KST 기준입니다 💫</span>
+      </section>
+
+      <section class="status-grid" aria-label="오늘 방송 상태와 다음 방송">
+        <article class="mini-status-card">
+          <span class="mini-kicker">TODAY STATUS</span>
+          <h3 id="todayStatusTitle">오늘 방송 상태 확인중</h3>
+          <p id="todayStatusText">이번 주 방송 스케줄을 기준으로 오늘의 방송 여부를 안내합니다.</p>
+        </article>
+        <article class="mini-status-card">
+          <span class="mini-kicker">NEXT ON AIR</span>
+          <h3 id="nextOnAirTitle">다음 방송 준비중</h3>
+          <p id="nextOnAirText">가장 가까운 다음 방송 일정이 여기에 표시됩니다.</p>
+        </article>
       </section>
 
       <section class="status-panel" id="liveStatusPanel">
@@ -107,111 +153,234 @@
           <div>
             <div class="live-badge" id="liveBadge">OFF AIR</div>
             <h3 class="live-title" id="liveTitle">현재 방송이 없습니다</h3>
-            <p class="live-sub" id="liveSub">이번 주 ON AIR 스케줄과 방송 후기를 확인해주세요.</p>
+            <p class="live-sub" id="liveSub">이번 주 ON AIR 스케줄과 방송 공지를 확인해주세요.</p>
           </div>
         </div>
-        <div class="platform-buttons" id="platformButtons"></div>
+        <div class="live-card-grid" id="liveCardGrid"></div>
         <div class="player-card" id="playerCard">
           <div class="player-frame" id="playerFrame"></div>
           <div class="player-caption" id="playerCaption"></div>
         </div>
-
-        <details class="admin-panel">
-          <summary>관리용 버튼 열기</summary>
-          <div class="admin-grid">
-            <label>LIVE 상태
-              <select id="adminIsLive"><option value="false">OFF</option><option value="true">LIVE ON</option></select>
-            </label>
-            <label>플랫폼
-              <select id="adminPlatform"><option value="cime">씨미</option><option value="youtube">유튜브</option><option value="twitcast">트윗캐스</option></select>
-            </label>
-            <label>멤버명
-              <input id="adminMember" placeholder="마리링">
-            </label>
-            <label>트윗캐스 ID
-              <input id="adminTwitcast" placeholder="twitcasting ID">
-            </label>
-            <label>유튜브 Live ID
-              <input id="adminYoutubeId" placeholder="YouTube video/live ID">
-            </label>
-            <label>유튜브 URL
-              <input id="adminYoutubeUrl" placeholder="https://www.youtube.com/watch?v=...">
-            </label>
-            <label>씨미 URL
-              <input id="adminCime" placeholder="https://ci.me/@mariring_love">
-            </label>
-            <label>안내 문구
-              <input id="adminMessage" placeholder="현재 마리링이 방송중입니다 💗">
-            </label>
-          </div>
-          <div class="admin-actions">
-            <button type="button" onclick="saveAdminState()">저장 / 반영</button>
-            <button type="button" onclick="quickLive('cime')">씨미 LIVE</button>
-            <button type="button" onclick="quickLive('youtube')">유튜브 LIVE</button>
-            <button type="button" onclick="quickLive('twitcast')">트윗캐스 LIVE</button>
-            <button type="button" class="secondary" onclick="setOffline()">OFF AIR</button>
-            <button type="button" class="secondary" onclick="resetAdminState()">초기화</button>
-          </div>
-          <p class="admin-note">※ 이 버튼은 현재 브라우저에서 바로 테스트/운영하기 위한 스위치입니다. 모든 방문자에게 동일하게 보이게 하려면 파일 맨 아래 DEFAULT_LIVE_STATE 값을 바꿔서 업로드해야 합니다. 트윗캐스 자동 감지는 ID가 설정되어 있으면 썸네일 엔드포인트로 시도합니다.</p>
-        </details>
       </section>
 
       <section>
-        <div class="section-heading"><h3>WEEKLY SCHEDULE</h3><p>이번 주 방송 스케줄</p></div>
+        <div class="section-heading">
+          <h3>WEEKLY SCHEDULE</h3>
+          <p>이번 주 방송 스케줄</p>
+        </div>
+        <div class="tabs" id="scheduleTabs"></div>
         <div class="week-card">
-          <div class="week-info"><span id="weekInfoText">2026.04.27 ~ 2026.05.03</span><span>상태는 변동될 수 있어요 💫</span></div>
+          <div class="week-info">
+            <span id="weekInfoText">2026.04.27 ~ 2026.05.03</span>
+            <span>휴방·시간 변경은 NOTICE를 확인해주세요 💫</span>
+          </div>
           <div class="schedule-grid" id="weeklyScheduleGrid"></div>
         </div>
       </section>
 
       <section>
-        <div class="section-heading"><h3>ON AIR DIARY</h3><p>방송 후기 · 기록</p></div>
-        <div class="diary-grid">
-          <a class="diary-card" href="#"><div class="diary-date">COMING SOON</div><h4 class="diary-title">첫 방송 후기 준비중</h4><p class="diary-text">루미들과 함께한 방송의 반짝이는 순간을 이곳에 기록할 예정입니다.</p></a>
-          <a class="diary-card" href="../video.html"><div class="diary-date">VIDEO</div><h4 class="diary-title">다시보기는 MORE VIDEO에서</h4><p class="diary-text">유튜브 다시보기, 클립, 하이라이트는 영상 아카이브에서 확인할 수 있어요.</p></a>
-          <a class="diary-card" href="https://ci.me/@mariring_love" target="_blank" rel="noopener noreferrer"><div class="diary-date">CI.ME</div><h4 class="diary-title">마리링 씨미 채널</h4><p class="diary-text">실시간 방송과 채팅은 씨미에서 함께해주세요.</p></a>
+        <div class="section-heading">
+          <h3>NOTICE</h3>
+          <p>휴방 · 시간 변경 · 긴급 공지</p>
         </div>
+        <div class="tabs" id="noticeTabs"></div>
+        <div class="notice-card">
+          <div class="list-grid" id="noticeGrid"></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <h3>SHORT DIARY</h3>
+          <p>짧은 방송 후기 · 한마디 기록</p>
+        </div>
+        <div class="tabs" id="diaryTabs"></div>
+        <div class="short-card">
+          <div class="list-grid" id="shortDiaryGrid"></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <h3>MEMBER CHANNEL</h3>
+          <p>멤버별 방송 채널 모음</p>
+        </div>
+        <div class="channel-card">
+          <div class="channel-list" id="memberChannelList"></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <h3>LIVE ALERT</h3>
+          <p>멤버별 방송 알림 받기</p>
+        </div>
+        <div class="channel-card">
+          <p style="margin:0 0 16px;color:#8f7183;font-size:14px;font-weight:700;line-height:1.75;word-break:keep-all;text-align:center;">
+            방송 시작, 휴방, 시간 변경은 멤버별 X에서 가장 빠르게 안내됩니다.<br>
+            자주 보는 멤버의 X 알림을 켜두면 방송을 놓치지 않아요.
+          </p>
+
+          <div class="channel-list alert-channel-list">
+            <article class="member-channel">
+              <h4>마리링</h4>
+              <p>메인 방송과 씨미/유튜브 동시송출 안내를 확인해요.</p>
+              <div class="channel-buttons">
+                <a class="channel-btn ready" href="#" target="_blank" rel="noopener noreferrer">X 알림 보기</a>
+                <a class="channel-btn ready" href="https://ci.me/@mariring_love" target="_blank" rel="noopener noreferrer">씨미 팔로우</a>
+                <a class="channel-btn ready" href="https://lumibellelove.github.io/Lumibelle/video.html">다시보기</a>
+              </div>
+            </article>
+
+            <article class="member-channel">
+              <h4>루루</h4>
+              <p>개별 방송 시작/변경 공지는 루루 X에서 확인해요.</p>
+              <div class="channel-buttons">
+                <a class="channel-btn ready" href="#" target="_blank" rel="noopener noreferrer">X 알림 보기</a>
+                <a class="channel-btn disabled" href="#">플랫폼 준비중</a>
+              </div>
+            </article>
+
+            <article class="member-channel">
+              <h4>이로</h4>
+              <p>게릴라 방송과 방송 공지는 이로 X에서 확인해요.</p>
+              <div class="channel-buttons">
+                <a class="channel-btn ready" href="#" target="_blank" rel="noopener noreferrer">X 알림 보기</a>
+                <a class="channel-btn disabled" href="#">플랫폼 준비중</a>
+              </div>
+            </article>
+
+            <article class="member-channel">
+              <h4>루나</h4>
+              <p>밤 방송/소통 방송 공지는 루나 X에서 확인해요.</p>
+              <div class="channel-buttons">
+                <a class="channel-btn ready" href="#" target="_blank" rel="noopener noreferrer">X 알림 보기</a>
+                <a class="channel-btn disabled" href="#">플랫폼 준비중</a>
+              </div>
+            </article>
+          </div>
+
+          <p style="margin:16px 0 0;color:#b28ea2;font-size:12.5px;font-weight:800;line-height:1.6;text-align:center;">
+            ※ X 버튼의 href="#" 부분만 각 멤버 X 링크로 교체하면 됩니다.
+          </p>
+        </div>
+      </section>
+
+      <section class="two-column" style="margin-top:38px;">
+        <article class="guide-card">
+          <h4>RECENT ON AIR</h4>
+          <ul class="guide-list" id="recentLogList"></ul>
+        </article>
+        <article class="guide-card">
+          <h4>MEMBER STYLE</h4>
+          <ul class="guide-list" id="memberStyleList"></ul>
+        </article>
+      </section>
+
+      <section class="two-column" style="margin-top:18px;">
+        <article class="guide-card">
+          <h4>PLATFORM GUIDE</h4>
+          <ul class="guide-list">
+            <li><b>CI.ME</b> · 메인 생방송과 채팅을 함께 즐기는 공간이에요.</li>
+            <li><b>YouTube</b> · 동시송출 화면, 다시보기, 클립과 하이라이트를 확인해요.</li>
+            <li><b>TwitCasting</b> · 짧은 게릴라 방송이나 편한 근황 방송에 사용돼요.</li>
+          </ul>
+        </article>
+        <article class="guide-card">
+          <h4>LUMIBELLE LIVE MANNER</h4>
+          <ul class="guide-list">
+            <li>멤버와 다른 루미에게 상처가 되는 말은 삼가주세요.</li>
+            <li>멤버의 사생활, 개인정보, 민감한 질문은 피해 주세요.</li>
+            <li>방송 내용 무단 녹화·재업로드는 하지 말아주세요.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="archive-cta">
+        <div>
+          <strong>방송을 놓쳤다면?</strong>
+          <span>MORE VIDEO에서 다시보기, 클립, 하이라이트를 확인할 수 있어요.</span>
+        </div>
+        <a class="main-btn primary" href="https://lumibellelove.github.io/Lumibelle/video.html">MORE VIDEO로 이동</a>
       </section>
     </div>
   </main>
+
   <footer>© 2026 Lumibelle All Rights Reserved.</footer>
 
 <script>
-  /* ===== 기본 LIVE 상태: 공개 사이트 전체에 적용하려면 여기 값을 바꿔 업로드 ===== */
-  const DEFAULT_LIVE_STATE = {
-    isLive: false,
-    platform: "cime", // cime / youtube / twitcast
-    member: "마리링",
-    message: "현재 마리링이 방송중입니다 💗",
-    cimeUrl: "https://ci.me/@mariring_love",
-    youtubeId: "",
-    youtubeUrl: "",
-    twitcastId: "TWITCAST_ID_HERE",
-    twitcastUrl: ""
-  };
-
-  /* ===== 이번 주 스케줄: 매주 여기만 대충 수정 ===== */
-  const weekInfo = "2026.04.27 ~ 2026.05.03";
-  const weeklySchedule = [
-    { day:"월", status:"off", title:"휴방 💫", note:"다음 방송 준비하는 날" },
-    { day:"화", status:"off", title:"휴방 💫", note:"충전하는 날" },
-    { day:"수", status:"off", title:"휴방 💫" },
-    { day:"목", status:"notice", title:"방송 공지", note:"변동 사항은 이곳에서 확인해주세요" },
-    { day:"금", status:"live", title:"루미들이랑 수다 💗", time:"22:00", note:"오늘은 편하게 이야기하는 날" },
-    { day:"토", status:"off", title:"휴방 💫" },
-    { day:"일", status:"live", title:"주간 마무리 방송 💫", time:"20:00", note:"같이 한 주 마무리하자" }
+  const MEMBERS = [
+    { id:"all", ko:"ALL", en:"ALL" },
+    { id:"mariring", ko:"마리링", en:"MARIRING" },
+    { id:"lulu", ko:"루루", en:"LULU" },
+    { id:"iro", ko:"이로", en:"IRO" },
+    { id:"lunar", ko:"루나", en:"LUNAR" }
   ];
 
-  function getSavedState(){
-    const saved = localStorage.getItem("lumibelleLiveState");
-    if(!saved) return {...DEFAULT_LIVE_STATE};
-    try{ return Object.assign({}, DEFAULT_LIVE_STATE, JSON.parse(saved)); }
-    catch(e){ return {...DEFAULT_LIVE_STATE}; }
-  }
+  const memberChannels = [
+    { id:"mariring", name:"마리링", desc:"메인 방송과 동시송출 중심으로 운영됩니다.", links:[
+      { label:"CI.ME", url:"https://ci.me/@mariring_love", ready:true },
+      { label:"YouTube", url:"https://lumibellelove.github.io/Lumibelle/video.html", ready:true },
+      { label:"TwitCasting", url:"#", ready:false }
+    ]},
+    { id:"lulu", name:"루루", desc:"방송 채널 준비중입니다.", links:[
+      { label:"CI.ME", url:"#", ready:false },
+      { label:"YouTube", url:"https://lumibellelove.github.io/Lumibelle/video.html", ready:true },
+      { label:"TwitCasting", url:"#", ready:false }
+    ]},
+    { id:"iro", name:"이로", desc:"방송 채널 준비중입니다.", links:[
+      { label:"CI.ME", url:"#", ready:false },
+      { label:"YouTube", url:"https://lumibellelove.github.io/Lumibelle/video.html", ready:true },
+      { label:"TwitCasting", url:"#", ready:false }
+    ]},
+    { id:"lunar", name:"루나", desc:"방송 채널 준비중입니다.", links:[
+      { label:"CI.ME", url:"#", ready:false },
+      { label:"YouTube", url:"https://lumibellelove.github.io/Lumibelle/video.html", ready:true },
+      { label:"TwitCasting", url:"#", ready:false }
+    ]}
+  ];
 
-  function saveState(state){
-    localStorage.setItem("lumibelleLiveState", JSON.stringify(state));
-  }
+  const DEFAULT_LIVE_LIST = [];
+
+  const weekInfo = "2026.04.27 ~ 2026.05.03";
+  const weeklySchedule = [
+    { day:"월", memberId:"all", member:"전체", status:"off", title:"휴방", note:"다음 방송 준비하는 날" },
+    { day:"화", memberId:"mariring", member:"마리링", status:"notice", title:"방송 여부 확인중", note:"X 공지와 NOTICE를 확인해주세요" },
+    { day:"수", memberId:"lulu", member:"루루", status:"off", title:"휴방", note:"개별 방송 준비중" },
+    { day:"목", memberId:"iro", member:"이로", status:"notice", title:"게릴라 가능성", note:"변동 사항은 NOTICE에 올라와요" },
+    { day:"금", memberId:"mariring", member:"마리링", status:"live", title:"루미들이랑 수다", time:"22:00", note:"씨미 중심 / 유튜브 송출 가능" },
+    { day:"토", memberId:"lunar", member:"루나", status:"off", title:"휴방", note:"다음 방송을 기다려주세요" },
+    { day:"일", memberId:"mariring", member:"마리링", status:"live", title:"주간 마무리 방송", time:"20:00", note:"같이 한 주 마무리하자" }
+  ];
+
+  const noticeList = [
+    { memberId:"all", member:"전체", type:"NOTICE", title:"방송 공지 자동화 준비중", text:"앞으로 휴방, 시간 변경, 긴급 공지는 이곳에 자동으로 표시될 예정입니다.", date:"2026.04.25" },
+    { memberId:"mariring", member:"마리링", type:"INFO", title:"마리링 씨미 채널 준비", text:"씨미 방송과 유튜브 송출을 함께 안내하는 구조로 운영됩니다.", date:"2026.04.25" },
+    { memberId:"all", member:"전체", type:"GUIDE", title:"모든 시간은 KST 기준", text:"방송 스케줄은 한국 시간 기준으로 안내됩니다.", date:"2026.04.25" }
+  ];
+
+  const shortDiaryList = [
+    { memberId:"all", member:"전체", type:"COMING SOON", title:"짧은 방송 후기 준비중", text:"방송 후 멤버의 짧은 한마디와 소감을 이곳에 모을 예정입니다.", date:"SOON" },
+    { memberId:"mariring", member:"마리링", type:"DIARY", title:"마리링 한마디 자리", text:"오늘 방송 와준 루미들 고마워요♡ 같은 짧은 후기가 들어갈 수 있어요.", date:"예시" },
+    { memberId:"lulu", member:"루루", type:"DIARY", title:"루루 한마디 자리", text:"트윗캐스나 짧은 방송 후기까지 멤버별로 볼 수 있게 준비중입니다.", date:"예시" }
+  ];
+
+  const recentLogs = [
+    { member:"마리링", date:"04.25", text:"ON AIR 페이지 정리" },
+    { member:"루미벨", date:"04.25", text:"씨미 · 유튜브 · 트윗캐스 구조 준비" },
+    { member:"루미벨", date:"SOON", text:"짧은 방송 기록 자동 등록 예정" }
+  ];
+
+  const memberStyles = [
+    { member:"마리링", text:"수다 / 기획 / 씨미 중심 / 유튜브 동시송출" },
+    { member:"루루", text:"짧은 근황 / 편한 캐스 / 메시지형 방송" },
+    { member:"이로", text:"게릴라 / 게임 / 활발한 소통" },
+    { member:"루나", text:"밤 방송 / 차분한 소통 / 클립형 기록" }
+  ];
+
+  let scheduleFilter = "all";
+  let noticeFilter = "all";
+  let diaryFilter = "all";
 
   function platformName(p){
     if(p === "cime") return "씨미";
@@ -219,182 +388,187 @@
     if(p === "twitcast") return "트윗캐스";
     return "방송";
   }
-
   function getYoutubeEmbed(id){
     if(!id) return "";
     return `https://www.youtube.com/embed/${id}?autoplay=0&playsinline=1&rel=0`;
   }
-
-  function twitcastEmbedUrl(id){
-    if(!id || id === "TWITCAST_ID_HERE") return "";
-    return `https://twitcasting.tv/${id}/embed`;
+  function normalizeLiveState(raw){
+    if(!raw) return [];
+    if(Array.isArray(raw)) return raw.filter(item => item && item.isLive !== false);
+    if(raw.members && Array.isArray(raw.members)) return raw.members.filter(item => item && item.isLive !== false);
+    if(raw.isLive) return [raw];
+    return [];
   }
-
-  function twitcastWatchUrl(id, explicit){
-    if(explicit) return explicit;
-    if(!id || id === "TWITCAST_ID_HERE") return "";
-    return `https://twitcasting.tv/${id}`;
+  function getLiveList(){
+    const keys = ["lumibelleMultiLiveState", "lumibelleLiveMembers", "lumibelleLiveState"];
+    for(const key of keys){
+      const saved = localStorage.getItem(key);
+      if(!saved) continue;
+      try{
+        const parsed = JSON.parse(saved);
+        const list = normalizeLiveState(parsed);
+        if(list.length) return list;
+      }catch(e){}
+    }
+    return DEFAULT_LIVE_LIST;
   }
-
-  function renderLive(state){
+  function getMemberName(id){
+    const member = MEMBERS.find(m => m.id === id);
+    return member ? member.ko : id;
+  }
+  function buildWatchButtons(item){
+    const parts = [];
+    const platform = item.platform || "cime";
+    if(platform === "cime" || item.cimeUrl){
+      parts.push(`<a class="main-btn primary" href="${item.cimeUrl || 'https://ci.me/@mariring_love'}" target="_blank" rel="noopener noreferrer">씨미에서 보기</a>`);
+    }
+    if(item.youtubeId || item.youtubeUrl){
+      const url = item.youtubeUrl || `https://www.youtube.com/watch?v=${item.youtubeId}`;
+      parts.push(`<a class="main-btn" href="${url}" target="_blank" rel="noopener noreferrer">유튜브로 보기</a>`);
+    }
+    if(platform === "twitcast" || item.twitcastUrl || item.twitcastId){
+      const url = item.twitcastUrl || (item.twitcastId ? `https://twitcasting.tv/${item.twitcastId}` : "#");
+      parts.push(`<a class="main-btn primary" href="${url}" target="_blank" rel="noopener noreferrer">트윗캐스에서 보기</a>`);
+    }
+    return parts.join("");
+  }
+  function renderLive(){
+    const liveList = getLiveList();
     const badge = document.getElementById("liveBadge");
     const title = document.getElementById("liveTitle");
     const sub = document.getElementById("liveSub");
-    const buttons = document.getElementById("platformButtons");
+    const grid = document.getElementById("liveCardGrid");
     const playerCard = document.getElementById("playerCard");
     const playerFrame = document.getElementById("playerFrame");
     const playerCaption = document.getElementById("playerCaption");
-
-    buttons.innerHTML = "";
+    grid.innerHTML = "";
     playerCard.classList.remove("show");
     playerFrame.innerHTML = "";
     playerCaption.textContent = "";
-
-    if(!state.isLive){
+    if(!liveList.length){
       badge.className = "live-badge";
       badge.textContent = "OFF AIR";
       title.textContent = "현재 방송이 없습니다";
-      sub.textContent = "이번 주 ON AIR 스케줄과 방송 후기를 확인해주세요.";
+      sub.textContent = "오늘 방송 상태, 다음 방송 예정, 공지를 확인해주세요.";
+      grid.innerHTML = `<div class="empty" style="grid-column:1/-1;">현재 진행중인 방송이 없습니다.<br>다음 ON AIR에서 만나요♡</div>`;
       return;
     }
-
     badge.className = "live-badge on";
-    badge.textContent = `● LIVE · ${platformName(state.platform).toUpperCase()}`;
-    title.textContent = state.message || `현재 ${state.member || "멤버"} 방송중입니다 💗`;
-    sub.textContent = `${platformName(state.platform)}로 연결됩니다. 유튜브 송출이 있으면 이 페이지에서 바로 볼 수 있어요.`;
-
-    if(state.platform === "cime"){
-      buttons.insertAdjacentHTML("beforeend", `<a class="main-btn primary" href="${state.cimeUrl}" target="_blank" rel="noopener noreferrer">씨미에서 채팅하기 💗</a>`);
-      if(state.youtubeId){
-        buttons.insertAdjacentHTML("beforeend", `<a class="main-btn" href="${state.youtubeUrl || 'https://www.youtube.com/watch?v=' + state.youtubeId}" target="_blank" rel="noopener noreferrer">유튜브에서 보기 🎬</a>`);
-        playerCard.classList.add("show");
-        playerFrame.innerHTML = `<iframe src="${getYoutubeEmbed(state.youtubeId)}" title="YouTube live" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
-        playerCaption.textContent = "홈페이지에서는 유튜브 화면으로 보고, 채팅과 소통은 씨미에서 함께하는 구조입니다.";
-      }else{
-        playerCard.classList.add("show");
-        playerFrame.innerHTML = `<div>유튜브 Live ID를 넣으면<br>이곳에 방송 화면이 표시됩니다.</div>`;
-        playerCaption.textContent = "씨미는 링크 이동 방식으로 연결됩니다.";
-      }
-    }
-
-    if(state.platform === "youtube"){
-      const youtubeLink = state.youtubeUrl || (state.youtubeId ? `https://www.youtube.com/watch?v=${state.youtubeId}` : "#");
-      buttons.insertAdjacentHTML("beforeend", `<a class="main-btn primary" href="${youtubeLink}" target="_blank" rel="noopener noreferrer">유튜브에서 보기 🎬</a>`);
-      if(state.cimeUrl) buttons.insertAdjacentHTML("beforeend", `<a class="main-btn" href="${state.cimeUrl}" target="_blank" rel="noopener noreferrer">씨미 채널도 보기 💗</a>`);
+    badge.textContent = liveList.length > 1 ? `● LIVE · ${liveList.length}` : `● LIVE · ${platformName(liveList[0].platform).toUpperCase()}`;
+    title.textContent = liveList.length > 1 ? `현재 ${liveList.length}명의 멤버가 방송중입니다` : `현재 ${liveList[0].member || getMemberName(liveList[0].memberId) || "멤버"} 방송중입니다`;
+    sub.textContent = liveList.length > 1 ? "아래에서 멤버별 방송을 선택해서 볼 수 있어요." : "방송 플랫폼에 맞춰 시청 버튼이 표시됩니다.";
+    grid.innerHTML = liveList.map(item => `
+      <article class="live-member-card">
+        <div class="live-member-top">
+          <span class="member-chip">${item.member || getMemberName(item.memberId) || "멤버"}</span>
+          <span class="platform-chip">${platformName(item.platform)}</span>
+        </div>
+        <p>${item.message || item.title || `${platformName(item.platform)}에서 방송중입니다.`}</p>
+        <div class="platform-buttons">${buildWatchButtons(item)}</div>
+      </article>
+    `).join("");
+    const youtubeLive = liveList.find(item => item.youtubeId);
+    if(youtubeLive){
       playerCard.classList.add("show");
-      playerFrame.innerHTML = state.youtubeId ? `<iframe src="${getYoutubeEmbed(state.youtubeId)}" title="YouTube live" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>` : `<div>유튜브 Live ID를 넣어주세요.</div>`;
-      playerCaption.textContent = "유튜브는 홈페이지 안에서 바로 시청할 수 있습니다.";
-    }
-
-    if(state.platform === "twitcast"){
-      const embed = twitcastEmbedUrl(state.twitcastId);
-      const watch = twitcastWatchUrl(state.twitcastId, state.twitcastUrl);
-      if(watch) buttons.insertAdjacentHTML("beforeend", `<a class="main-btn primary" href="${watch}" target="_blank" rel="noopener noreferrer">트윗캐스에서 보기 🟡</a>`);
-      playerCard.classList.add("show");
-      playerFrame.innerHTML = embed ? `<iframe src="${embed}" title="TwitCasting live" allowfullscreen></iframe>` : `<div>트윗캐스 ID를 넣으면<br>이곳에 플레이어가 표시됩니다.</div>`;
-      playerCaption.textContent = "트윗캐스는 멤버별 단독/게릴라 방송용으로 사용할 수 있습니다.";
+      playerFrame.innerHTML = `<iframe src="${getYoutubeEmbed(youtubeLive.youtubeId)}" title="YouTube live" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+      playerCaption.textContent = "유튜브 송출이 있는 방송은 이 페이지 안에서도 바로 볼 수 있어요.";
     }
   }
-
+  function renderTabs(containerId, active, onClick){
+    const wrap = document.getElementById(containerId);
+    wrap.innerHTML = MEMBERS.map(m => `<button type="button" class="tab-btn ${active === m.id ? 'active' : ''}" data-id="${m.id}">${m.ko}</button>`).join("");
+    wrap.querySelectorAll("button").forEach(btn => btn.addEventListener("click", () => onClick(btn.dataset.id)));
+  }
+  function filterByMember(list, filter){
+    if(filter === "all") return list;
+    return list.filter(item => item.memberId === filter || item.memberId === "all");
+  }
   function renderSchedule(){
     document.getElementById("weekInfoText").textContent = weekInfo;
-    const grid = document.getElementById("weeklyScheduleGrid");
+    renderTabs("scheduleTabs", scheduleFilter, id => { scheduleFilter = id; renderSchedule(); });
     const labels = {live:"ON AIR", off:"OFF", cancel:"CANCEL", notice:"NOTICE"};
-    grid.innerHTML = weeklySchedule.map(item => `
+    const items = filterByMember(weeklySchedule, scheduleFilter);
+    const grid = document.getElementById("weeklyScheduleGrid");
+    grid.innerHTML = items.map(item => `
       <article class="day-card ${item.status || 'off'}">
         <div class="day">${item.day}</div>
         <div class="status-tag">${labels[item.status] || 'INFO'}</div>
+        <div class="day-member">${item.member || ''}</div>
         <div class="day-title">${item.title || ''}</div>
         ${item.time ? `<div class="day-time">${item.time}</div>` : ''}
         ${item.note ? `<div class="day-note">${item.note}</div>` : ''}
       </article>
+    `).join("") || `<div class="empty" style="grid-column:1/-1;">해당 멤버의 스케줄이 아직 없습니다.</div>`;
+  }
+  function renderNotices(){
+    renderTabs("noticeTabs", noticeFilter, id => { noticeFilter = id; renderNotices(); });
+    const items = filterByMember(noticeList, noticeFilter);
+    document.getElementById("noticeGrid").innerHTML = items.map(item => `
+      <article class="info-item">
+        <span class="item-kicker">${item.type} · ${item.member}</span>
+        <h4>${item.title}</h4>
+        <p>${item.text}</p>
+        <div class="item-meta">${item.date}</div>
+      </article>
+    `).join("") || `<div class="empty" style="grid-column:1/-1;">아직 공지가 없습니다.</div>`;
+  }
+  function renderShortDiary(){
+    renderTabs("diaryTabs", diaryFilter, id => { diaryFilter = id; renderShortDiary(); });
+    const items = filterByMember(shortDiaryList, diaryFilter);
+    document.getElementById("shortDiaryGrid").innerHTML = items.map(item => `
+      <article class="info-item">
+        <span class="item-kicker">${item.type} · ${item.member}</span>
+        <h4>${item.title}</h4>
+        <p>${item.text}</p>
+        <div class="item-meta">${item.date}</div>
+      </article>
+    `).join("") || `<div class="empty" style="grid-column:1/-1;">아직 짧은 후기가 없습니다.</div>`;
+  }
+  function renderChannels(){
+    document.getElementById("memberChannelList").innerHTML = memberChannels.map(member => `
+      <article class="member-channel">
+        <h4>${member.name}</h4>
+        <p>${member.desc}</p>
+        <div class="channel-buttons">
+          ${member.links.map(link => `<a class="channel-btn ${link.ready ? 'ready' : 'disabled'}" href="${link.url}" ${link.ready ? 'target="_blank" rel="noopener noreferrer"' : ''}>${link.ready ? link.label : link.label + ' 준비중'}</a>`).join("")}
+        </div>
+      </article>
     `).join("");
   }
-
-  function fillAdmin(state){
-    document.getElementById("adminIsLive").value = String(!!state.isLive);
-    document.getElementById("adminPlatform").value = state.platform || "cime";
-    document.getElementById("adminMember").value = state.member || "";
-    document.getElementById("adminTwitcast").value = state.twitcastId || "";
-    document.getElementById("adminYoutubeId").value = state.youtubeId || "";
-    document.getElementById("adminYoutubeUrl").value = state.youtubeUrl || "";
-    document.getElementById("adminCime").value = state.cimeUrl || "";
-    document.getElementById("adminMessage").value = state.message || "";
+  function renderLogs(){
+    document.getElementById("recentLogList").innerHTML = recentLogs.map(item => `<li><b>${item.date}</b> · ${item.member} · ${item.text}</li>`).join("");
+    document.getElementById("memberStyleList").innerHTML = memberStyles.map(item => `<li><b>${item.member}</b> · ${item.text}</li>`).join("");
   }
-
-  function readAdmin(){
-    return Object.assign({}, getSavedState(), {
-      isLive: document.getElementById("adminIsLive").value === "true",
-      platform: document.getElementById("adminPlatform").value,
-      member: document.getElementById("adminMember").value,
-      twitcastId: document.getElementById("adminTwitcast").value,
-      youtubeId: document.getElementById("adminYoutubeId").value,
-      youtubeUrl: document.getElementById("adminYoutubeUrl").value,
-      cimeUrl: document.getElementById("adminCime").value,
-      message: document.getElementById("adminMessage").value
-    });
+  function renderTodayAndNext(){
+    const todayStatusTitle = document.getElementById("todayStatusTitle");
+    const todayStatusText = document.getElementById("todayStatusText");
+    const nextOnAirTitle = document.getElementById("nextOnAirTitle");
+    const nextOnAirText = document.getElementById("nextOnAirText");
+    const liveList = getLiveList();
+    if(liveList.length){
+      todayStatusTitle.textContent = liveList.length > 1 ? `오늘 ${liveList.length}명 방송중` : `오늘 ${liveList[0].member || getMemberName(liveList[0].memberId)} 방송중`;
+      todayStatusText.textContent = "현재 방송중인 멤버가 있어요. 아래 ON AIR 카드에서 바로 이동할 수 있습니다.";
+    }else{
+      const upcoming = weeklySchedule.find(item => item.status === "live");
+      todayStatusTitle.textContent = upcoming ? `${upcoming.member} · ${upcoming.time || '시간 확인중'} 예정` : "오늘 방송 확인중";
+      todayStatusText.textContent = upcoming ? `${upcoming.title} · ${upcoming.note || '공지 확인 필요'}` : "오늘 방송 여부는 NOTICE에서 확인해주세요.";
+    }
+    const next = weeklySchedule.find(item => item.status === "live");
+    if(next){
+      nextOnAirTitle.textContent = `${next.day} · ${next.member} · ${next.time || '시간 확인중'}`;
+      nextOnAirText.textContent = `${next.title} · ${next.note || '자세한 내용은 NOTICE를 확인해주세요.'}`;
+    }else{
+      nextOnAirTitle.textContent = "다음 방송 준비중";
+      nextOnAirText.textContent = "새로운 스케줄이 정해지면 이곳에 표시됩니다.";
+    }
   }
-
-  function saveAdminState(){
-    const state = readAdmin();
-    saveState(state);
-    renderLive(state);
-    fillAdmin(state);
-  }
-
-  function quickLive(platform){
-    const state = readAdmin();
-    state.isLive = true;
-    state.platform = platform;
-    state.message = state.message || `현재 ${state.member || "멤버"} 방송중입니다 💗`;
-    saveState(state);
-    renderLive(state);
-    fillAdmin(state);
-  }
-
-  function setOffline(){
-    const state = readAdmin();
-    state.isLive = false;
-    saveState(state);
-    renderLive(state);
-    fillAdmin(state);
-  }
-
-  function resetAdminState(){
-    localStorage.removeItem("lumibelleLiveState");
-    const state = {...DEFAULT_LIVE_STATE};
-    renderLive(state);
-    fillAdmin(state);
-  }
-
-  function tryAutoDetectTwitcast(){
-    const state = getSavedState();
-    const id = state.twitcastId;
-    if(!id || id === "TWITCAST_ID_HERE") return;
-    const test = new Image();
-    test.onload = () => {
-      // 트윗캐스 라이브 썸네일이 정상 로드되면 LIVE로 간주
-      const liveState = Object.assign({}, state, {
-        isLive: true,
-        platform: "twitcast",
-        message: `현재 ${state.member || "멤버"} 트윗캐스 방송중입니다 💗`
-      });
-      saveState(liveState);
-      renderLive(liveState);
-      fillAdmin(liveState);
-    };
-    test.onerror = () => {
-      // 오프라인일 때는 씨미/유튜브 수동 LIVE를 함부로 끄지 않음
-    };
-    test.src = `https://apiv2.twitcasting.tv/users/${encodeURIComponent(id)}/live/thumbnail?size=small&position=latest&t=${Date.now()}`;
-  }
-
-  const initialState = getSavedState();
+  renderTodayAndNext();
+  renderLive();
   renderSchedule();
-  renderLive(initialState);
-  fillAdmin(initialState);
-  tryAutoDetectTwitcast();
-  setInterval(tryAutoDetectTwitcast, 60000);
+  renderNotices();
+  renderShortDiary();
+  renderChannels();
+  renderLogs();
 </script>
 </body>
 </html>
