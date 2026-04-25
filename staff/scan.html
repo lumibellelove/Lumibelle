@@ -7,244 +7,151 @@
   <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=SUIT:wght@600;700;800;900&display=swap');
-
     * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; width: 100%; overflow-x: hidden; }
-
+    html, body { margin:0; padding:0; width:100%; overflow-x:hidden; }
     body {
-      min-height: 100vh;
-      font-family: "SUIT", "Noto Sans KR", sans-serif;
-      background: linear-gradient(180deg, #fffafc 0%, #fff0f7 100%);
-      color: #7f6a77;
-      padding: 10px;
+      min-height:100vh;
+      font-family:"SUIT","Noto Sans KR",sans-serif;
+      background:linear-gradient(180deg,#fffafc 0%,#fff0f7 100%);
+      color:#7f6a77;
+      padding:10px;
     }
-
-    .wrap { width: 100%; max-width: 560px; margin: 0 auto; }
-
+    .wrap { width:100%; max-width:560px; margin:0 auto; }
     .hero {
-      background: linear-gradient(135deg, #fff0f7, #f7efff);
-      border: 1px solid #f2d8e7;
-      border-radius: 24px;
-      padding: 22px 14px;
-      text-align: center;
-      box-shadow: 0 8px 22px rgba(232,191,211,.18);
+      background:linear-gradient(135deg,#fff0f7,#f7efff);
+      border:1px solid #f2d8e7;
+      border-radius:24px;
+      padding:22px 14px;
+      text-align:center;
+      box-shadow:0 8px 22px rgba(232,191,211,.18);
     }
-
-    .hero small {
-      display: block;
-      color: #ff5fa8;
-      font-size: 12px;
-      font-weight: 900;
-      margin-bottom: 8px;
-    }
-
-    h1 {
-      margin: 0;
-      color: #ff5fa8;
-      font-size: 32px;
-      line-height: 1.12;
-      font-weight: 900;
-    }
-
-    .hero p {
-      margin: 12px 0 0;
-      color: #8f7183;
-      font-size: 13px;
-      line-height: 1.6;
-      font-weight: 800;
-    }
-
+    .hero small { display:block; color:#ff5fa8; font-size:12px; font-weight:900; margin-bottom:8px; }
+    h1 { margin:0; color:#ff5fa8; font-size:32px; line-height:1.12; font-weight:900; }
+    .hero p { margin:12px 0 0; color:#8f7183; font-size:13px; line-height:1.6; font-weight:800; }
     .card {
-      margin-top: 12px;
-      background: #fff;
-      border: 1px solid #f2d8e7;
-      border-radius: 22px;
-      padding: 12px;
-      box-shadow: 0 8px 20px rgba(255,95,165,.08);
-      overflow: hidden;
+      margin-top:12px;
+      background:#fff;
+      border:1px solid #f2d8e7;
+      border-radius:22px;
+      padding:12px;
+      box-shadow:0 8px 20px rgba(255,95,165,.08);
+      overflow:hidden;
     }
-
     button {
-      width: 100%;
-      min-height: 50px;
-      border: 0;
-      border-radius: 999px;
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 900;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      text-align: center;
-      padding: 0 12px;
-      line-height: 1.2;
+      width:100%;
+      min-height:50px;
+      border:0;
+      border-radius:999px;
+      font-family:inherit;
+      font-size:14px;
+      font-weight:900;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      text-align:center;
+      padding:0 12px;
+      line-height:1.2;
     }
-
-    .scan { background: linear-gradient(180deg, #78d6ff, #4fc3ff); color: white; box-shadow: 0 8px 18px rgba(79,195,255,.25); }
-    .pink { background: linear-gradient(180deg, #ff7eb3, #ff5fa5); color: white; box-shadow: 0 8px 18px rgba(255,95,165,.22); }
-    .purple { background: linear-gradient(180deg, #bca7ff, #a88cff); color: white; box-shadow: 0 8px 18px rgba(168,140,255,.22); }
-    .green { background: linear-gradient(180deg, #6edb91, #31b765); color: white; box-shadow: 0 8px 18px rgba(49,183,101,.22); }
-    .sub { background: #fff0f7; color: #d77ca7; border: 1px solid #f0bfd4; }
-    .gray { background: #f4f0f4; color: #8f7183; border: 1px solid #e5d8e0; }
-
+    .scan { background:linear-gradient(180deg,#78d6ff,#4fc3ff); color:#fff; box-shadow:0 8px 18px rgba(79,195,255,.25); }
+    .pink { background:linear-gradient(180deg,#ff7eb3,#ff5fa5); color:#fff; box-shadow:0 8px 18px rgba(255,95,165,.22); }
+    .purple { background:linear-gradient(180deg,#bca7ff,#a88cff); color:#fff; box-shadow:0 8px 18px rgba(168,140,255,.22); }
+    .sub { background:#fff0f7; color:#d77ca7; border:1px solid #f0bfd4; }
     .reader-box {
-      display: none;
-      margin-top: 12px;
-      padding: 10px;
-      border-radius: 18px;
-      border: 1px solid #f2d8e7;
-      background: #fff7fb;
-      overflow: hidden;
+      display:none;
+      margin-top:12px;
+      padding:10px;
+      border-radius:18px;
+      border:1px solid #f2d8e7;
+      background:#fff7fb;
+      overflow:hidden;
     }
-
-    .reader-box.on { display: block; }
-
-    #reader {
-      width: 100%;
-      max-width: 100%;
-      border-radius: 14px;
-      overflow: hidden;
-      background: #fff;
-    }
-
-    label {
-      display: block;
-      margin: 14px 0 8px;
-      color: #d77ca7;
-      font-size: 15px;
-      font-weight: 900;
-    }
-
+    .reader-box.on { display:block; }
+    #reader { width:100%; max-width:100%; border-radius:14px; overflow:hidden; background:#fff; }
+    label { display:block; margin:14px 0 8px; color:#d77ca7; font-size:15px; font-weight:900; }
     input {
-      width: 100%;
-      min-height: 50px;
-      border: 1px solid #f0bfd4;
-      border-radius: 16px;
-      padding: 0 14px;
-      font-size: 17px;
-      font-weight: 900;
-      color: #7f6a77;
-      outline: none;
+      width:100%;
+      min-height:50px;
+      border:1px solid #f0bfd4;
+      border-radius:16px;
+      padding:0 14px;
+      font-size:17px;
+      font-weight:900;
+      color:#7f6a77;
+      outline:none;
     }
-
-    input:focus {
-      border-color: #ff8ac2;
-      box-shadow: 0 0 0 4px rgba(255,138,194,.14);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .wide { grid-column: 1 / -1; }
-
+    input:focus { border-color:#ff8ac2; box-shadow:0 0 0 4px rgba(255,138,194,.14); }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+    .wide { grid-column:1 / -1; }
     .msg {
-      margin-top: 12px;
-      padding: 12px;
-      border-radius: 16px;
-      background: #fff0f7;
-      color: #d77ca7;
-      font-size: 13px;
-      font-weight: 900;
-      line-height: 1.6;
-      text-align: center;
-      word-break: break-word;
+      margin-top:12px;
+      padding:12px;
+      border-radius:16px;
+      background:#fff0f7;
+      color:#d77ca7;
+      font-size:13px;
+      font-weight:900;
+      line-height:1.6;
+      text-align:center;
+      word-break:break-word;
     }
-
-    .msg.ok { background: #e9fff0; color: #21864a; }
-    .msg.err { background: #fff2e8; color: #d36b36; }
-
-    .list {
-      display: grid;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
+    .msg.ok { background:#e9fff0; color:#21864a; }
+    .msg.err { background:#fff2e8; color:#d36b36; }
+    .list { display:grid; gap:10px; margin-top:12px; }
     .result-btn {
-      width: 100%;
-      min-height: auto;
-      border-radius: 18px;
-      background: linear-gradient(180deg, #fffafd, #fff4fa);
-      border: 1px solid #f2d8e7;
-      color: #7f6a77;
-      padding: 14px;
-      display: block;
-      text-align: left;
-      box-shadow: none;
+      width:100%;
+      min-height:auto;
+      border-radius:18px;
+      background:linear-gradient(180deg,#fffafd,#fff4fa);
+      border:1px solid #f2d8e7;
+      color:#7f6a77;
+      padding:14px;
+      display:block;
+      text-align:left;
+      box-shadow:none;
     }
-
-    .result-btn strong {
-      display: block;
-      color: #d77ca7;
-      font-size: 15px;
-      margin-bottom: 6px;
-    }
-
-    .result-btn p {
-      margin: 4px 0;
-      font-size: 12.5px;
-      line-height: 1.45;
-      font-weight: 800;
-    }
-
-    .result-btn b { color: #d77ca7; }
-
+    .result-btn strong { display:block; color:#d77ca7; font-size:15px; margin-bottom:6px; }
+    .result-btn p { margin:4px 0; font-size:12.5px; line-height:1.45; font-weight:800; }
+    .result-btn b { color:#d77ca7; }
     .detail {
-      margin-top: 12px;
-      border: 1px solid #f2d8e7;
-      border-radius: 20px;
-      padding: 12px;
-      background: #fffafd;
+      margin-top:12px;
+      border:1px solid #f2d8e7;
+      border-radius:20px;
+      padding:12px;
+      background:#fffafd;
     }
-
     .line {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 10px 0;
-      border-bottom: 1px solid #f2d8e7;
-      font-size: 13.5px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 0;
+      border-bottom:1px solid #f2d8e7;
+      font-size:13.5px;
     }
-
-    .line:last-child { border-bottom: 0; }
-    .line strong { color: #d77ca7; flex: 0 0 auto; }
-    .line span { text-align: right; font-weight: 900; word-break: break-word; }
-
+    .line:last-child { border-bottom:0; }
+    .line strong { color:#d77ca7; flex:0 0 auto; }
+    .line span { text-align:right; font-weight:900; word-break:break-word; }
     .status {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 30px;
-      padding: 0 10px;
-      border-radius: 999px;
-      font-size: 12.5px;
-      font-weight: 900;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:30px;
+      padding:0 10px;
+      border-radius:999px;
+      font-size:12.5px;
+      font-weight:900;
     }
-
-    .ok-pill { background: #e5f8eb; color: #208846; }
-    .wait-pill { background: #fff7d6; color: #9c7a00; }
-    .gray-pill { background: #f0edf0; color: #8a7b85; }
-    .bad-pill { background: #ffe6e6; color: #c84242; }
-
-    .note {
-      margin: 12px 0 0;
-      text-align: center;
-      font-size: 11.5px;
-      line-height: 1.6;
-      color: #b28ea2;
-      font-weight: 700;
-    }
-
-    @media (max-width: 360px) {
-      .grid { grid-template-columns: 1fr; }
-      .wide { grid-column: auto; }
-      h1 { font-size: 28px; }
-      .line { flex-direction: column; }
-      .line span { text-align: left; }
+    .ok-pill { background:#e5f8eb; color:#208846; }
+    .wait-pill { background:#fff7d6; color:#9c7a00; }
+    .gray-pill { background:#f0edf0; color:#8a7b85; }
+    .bad-pill { background:#ffe6e6; color:#c84242; }
+    .note { margin:12px 0 0; text-align:center; font-size:11.5px; line-height:1.6; color:#b28ea2; font-weight:700; }
+    @media (max-width:360px) {
+      .grid { grid-template-columns:1fr; }
+      .wide { grid-column:auto; }
+      h1 { font-size:28px; }
+      .line { flex-direction:column; }
+      .line span { text-align:left; }
     }
   </style>
 </head>
@@ -253,7 +160,7 @@
     <section class="hero">
       <small>STAFF ONLY</small>
       <h1>Lumibelle<br>Check-in</h1>
-      <p>페이지 이동 없이 이 화면에서<br>조회와 입장완료 처리를 진행해요.</p>
+      <p>스캔 후에도 페이지 이동 없이<br>이 화면에서 바로 조회해요.</p>
     </section>
 
     <section class="card">
@@ -278,7 +185,7 @@
 
       <p class="note">
         ※ QR에는 개인정보가 아닌 예약번호만 들어 있습니다.<br>
-        ※ 입장완료를 누르면 시트의 입장상태와 입장시간이 업데이트됩니다.
+        ※ 이번 버전은 스캔 인식 즉시 조회를 먼저 실행하고, 카메라는 뒤에서 닫아요.
       </p>
     </section>
   </div>
@@ -288,6 +195,7 @@
 
     let qr = null;
     let running = false;
+    let scanLocked = false;
     let selectedTicketId = "";
 
     function msg(text, cls) {
@@ -404,7 +312,6 @@
 
     function renderList(items) {
       msg("검색 결과가 " + items.length + "건 있어요.<br>메아테와 닉네임을 확인하고 선택해 주세요.", "ok");
-
       let html = '<div class="list">';
 
       items.forEach(function(item, index) {
@@ -418,7 +325,6 @@
       });
 
       html += '</div>';
-
       window.__searchItems = items;
       document.getElementById("results").innerHTML = html;
     }
@@ -428,7 +334,7 @@
       if (item) renderDetail(item);
     }
 
-    function statusClass(value, type) {
+    function statusClass(value) {
       if (value === "입금확인완료" || value === "입장완료") return "ok-pill";
       if (value === "입금확인대기") return "wait-pill";
       if (value === "미입장") return "gray-pill";
@@ -496,6 +402,7 @@
     }
 
     function startScan() {
+      scanLocked = false;
       document.getElementById("readerBox").classList.add("on");
 
       if (running) return;
@@ -511,11 +418,20 @@
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 230, height: 230 } },
         function(decodedText) {
-          stopScan().then(function() {
-            const value = ticket(decodedText);
-            document.getElementById("q").value = value;
-            search(value);
-          });
+          if (scanLocked) return;
+          scanLocked = true;
+
+          const value = ticket(decodedText);
+          document.getElementById("q").value = value;
+          msg("QR 인식 완료!<br>" + escapeHtml(value) + "<br>조회 중이에요...", "ok");
+
+          // 중요: 모바일에서 stop() Promise가 멈추는 경우가 있어서,
+          // 카메라를 닫기 전에 먼저 조회를 실행해요.
+          search(value);
+
+          setTimeout(function() {
+            stopScan();
+          }, 250);
         },
         function() {}
       ).then(function() {
