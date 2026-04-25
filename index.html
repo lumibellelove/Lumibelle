@@ -2424,6 +2424,41 @@ line-height:1.9 !important;
             100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.22) rotate(42deg);}
           }
         }
+  
+
+    /* ===== ON AIR LIVE 상태 표시 ===== */
+    .onair-live-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:max-content;
+      margin:0 auto 12px;
+      padding:7px 13px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid #efc6dc;
+      color:#c97ca8;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.06em;
+      box-shadow:0 6px 14px rgba(255,95,168,.10);
+    }
+    .onair-card.is-live{
+      background:linear-gradient(135deg,#fff0f7 0%,#fff8fc 42%,#f3ebff 100%) !important;
+      border-color:#ff9ac8 !important;
+      box-shadow:0 16px 36px rgba(255,95,168,.20) !important;
+    }
+    .onair-card.is-live .onair-live-pill{
+      background:linear-gradient(180deg,#ff6fae 0%,#ff4fa3 100%);
+      color:#fff;
+      border-color:transparent;
+      animation:onairPulse 1.25s ease-in-out infinite;
+    }
+    @keyframes onairPulse{
+      0%,100%{transform:scale(1); box-shadow:0 0 0 rgba(255,79,163,0);}
+      50%{transform:scale(1.04); box-shadow:0 0 18px rgba(255,79,163,.30);}
+    }
+
   </style>
 </head>
 
@@ -2694,19 +2729,20 @@ line-height:1.9 !important;
             <h3>ON AIR</h3>
             <p>방송 스케줄 · 후기</p>
           </div>
-          <div class="onair-preview">
+          <div class="onair-preview" id="homeOnairPreview">
+            <div class="onair-live-pill" id="homeLivePill">OFF AIR</div>
             <div class="onair-row recent">
-              <span class="onair-label">RECENT</span>
+              <span class="onair-label" id="homeOnairLabel">NEXT</span>
               <div>
-                <strong>마리링 LIVE 기록</strong>
-                <p>루미들과 함께한 방송의 반짝이는 순간…♡</p>
+                <strong id="homeOnairTitle">다음 ON AIR 예정</strong>
+                <p id="homeOnairText">방송 일정과 기록은 이곳에서 확인해주세요.</p>
               </div>
             </div>
             <div class="onair-row next">
-              <span class="onair-label">NEXT</span>
+              <span class="onair-label">LINK</span>
               <div>
-                <strong>다음 ON AIR 예정</strong>
-                <p>방송 일정은 이곳에서 확인해주세요.</p>
+                <strong id="homeOnairPlatform">BROADCAST HUB</strong>
+                <p>클릭하면 방송 페이지로 이동합니다.</p>
               </div>
             </div>
           </div>
@@ -3121,6 +3157,64 @@ document.addEventListener("click", function(e){
       });
     })();
   </script>
+
+
+<script>
+  /* ===== ON AIR 홈 카드 상태 =====
+     공개 사이트에서 기본값을 바꾸려면 아래 DEFAULT_ONAIR만 수정하세요.
+     broadcast 페이지의 테스트 버튼은 내 브라우저(localStorage)에만 저장됩니다. */
+  const DEFAULT_ONAIR = {
+    isLive: false,
+    platform: "cime", // cime / youtube / twitcast
+    member: "마리링",
+    cimeUrl: "https://ci.me/@mariring_love",
+    youtubeUrl: "",
+    nextTitle: "다음 ON AIR 예정",
+    nextText: "이번 주 방송 스케줄과 후기를 확인해보세요."
+  };
+
+  function getOnairState(){
+    const saved = localStorage.getItem("lumibelleLiveState");
+    if(!saved) return DEFAULT_ONAIR;
+    try{ return Object.assign({}, DEFAULT_ONAIR, JSON.parse(saved)); }
+    catch(e){ return DEFAULT_ONAIR; }
+  }
+
+  function platformName(p){
+    if(p === "cime") return "CI.ME";
+    if(p === "youtube") return "YOUTUBE";
+    if(p === "twitcast") return "TWITCAST";
+    return "BROADCAST";
+  }
+
+  function renderHomeOnair(){
+    const state = getOnairState();
+    const card = document.querySelector(".onair-card");
+    const pill = document.getElementById("homeLivePill");
+    const label = document.getElementById("homeOnairLabel");
+    const title = document.getElementById("homeOnairTitle");
+    const text = document.getElementById("homeOnairText");
+    const platform = document.getElementById("homeOnairPlatform");
+    if(!card || !pill || !label || !title || !text || !platform) return;
+
+    if(state.isLive){
+      card.classList.add("is-live");
+      pill.textContent = "● LIVE NOW";
+      label.textContent = "LIVE";
+      title.textContent = `현재 ${state.member || "멤버"} 방송중입니다`;
+      text.textContent = `${platformName(state.platform)}에서 ON AIR 중이에요. 클릭하면 방송 페이지로 이동합니다.`;
+      platform.textContent = `${platformName(state.platform)} 연결 준비 완료`;
+    }else{
+      card.classList.remove("is-live");
+      pill.textContent = "OFF AIR";
+      label.textContent = "NEXT";
+      title.textContent = state.nextTitle || DEFAULT_ONAIR.nextTitle;
+      text.textContent = state.nextText || DEFAULT_ONAIR.nextText;
+      platform.textContent = "BROADCAST HUB";
+    }
+  }
+  renderHomeOnair();
+</script>
 
 </body>
 </html>
