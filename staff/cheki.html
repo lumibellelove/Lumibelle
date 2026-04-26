@@ -74,6 +74,73 @@ textarea{padding:14px;min-height:120px}
   .tabs{top:104px}
   .tab-btn{font-size:13px;min-height:50px}
 }
+
+/* === member independent timers v5 === */
+.member-timer-grid{
+  display:grid;
+  gap:10px;
+  margin-top:12px;
+}
+.member-timer-card{
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:#fff;
+  padding:14px;
+  color:#7f6a77;
+}
+.member-timer-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  font-weight:1000;
+  color:var(--pink2);
+}
+.member-timer-time{
+  font-size:34px;
+  font-weight:1000;
+  letter-spacing:-.04em;
+  color:#6f5d68;
+  margin:8px 0 4px;
+}
+.member-timer-meta{
+  font-size:13px;
+  font-weight:900;
+  line-height:1.55;
+  color:#8d7585;
+  margin-bottom:10px;
+}
+.member-timer-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+}
+.member-timer-actions button{
+  min-height:42px;
+  border-radius:16px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--pink2);
+  font-weight:900;
+}
+.member-timer-actions button.primary-mini{
+  background:linear-gradient(180deg,#ff72b0,#ff5ca6);
+  color:#fff;
+  border-color:transparent;
+}
+.member-timer-card.running{
+  background:#fff0f7;
+  border-color:#ffb7d6;
+}
+.member-timer-card.warning{
+  background:#fff8df;
+  border-color:#f0d987;
+}
+.member-timer-card.done{
+  background:#ffecec;
+  border-color:#ffb3b3;
+}
+
 </style>
 </head>
 <body>
@@ -203,18 +270,28 @@ textarea{padding:14px;min-height:120px}
     <section class="panel" id="tab-timer">
       <article class="card timer-card">
         <span class="label">TIMER</span>
-        <h2>특전회 타이머</h2>
-        <p>현장 시작 전 소리 테스트와 화면 켜짐 유지를 확인해 주세요.</p>
-        <div class="field"><label>교류 멤버</label><select id="timerMember"><option>공용</option><option>마리링</option><option>루루</option><option>이로</option><option>루나</option></select></div>
-        <div class="field"><label>직접 입력 초</label><input id="timerSeconds" inputmode="numeric" value="120"></div>
-        <div class="timer-display" id="timerDisplay">02:00</div>
-        <div class="timer-state" id="timerState">대기 중</div>
+        <h2>멤버별 타이머</h2>
+        <p>마리링 / 루루 / 이로 / 루나가 각각 따로 돌아가요. 빠른 촬영 저장 후 해당 멤버 타이머를 시작할 수도 있어요.</p>
+
+        <div class="field"><label>기본 시간</label><input id="timerSeconds" inputmode="numeric" value="120"></div>
         <div class="grid2">
-          <button class="ghost" data-time="60">60초</button><button class="ghost" data-time="90">90초</button>
-          <button class="ghost" data-time="120">120초</button><button class="ghost" data-time="180">180초</button>
-          <button class="btn" id="btnTimerStart">▶ 시작</button><button class="ghost" id="btnTimerPause">일시정지</button>
-          <button class="ghost" id="btnTimerReset">리셋</button><button class="danger" id="btnSoundTest">소리 테스트</button>
+          <button class="ghost" data-time="60">60초</button>
+          <button class="ghost" data-time="90">90초</button>
+          <button class="ghost" data-time="120">120초</button>
+          <button class="ghost" data-time="180">180초</button>
+          <button class="danger" id="btnSoundTest">종료음 테스트</button>
+          <button class="ghost" id="btnSoundWarn">마무리음 테스트</button>
         </div>
+
+        <div class="note" style="background:rgba(255,255,255,.25);color:#fff;border:1px solid rgba(255,255,255,.45)">
+          마무리 알림은 남은 50초 기준으로 1회만 울리고, 종료 알림은 더 길게 울려요.
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="label">MEMBER TIMER</span>
+        <h2>진행 중 타이머</h2>
+        <div class="member-timer-grid" id="memberTimerGrid"></div>
       </article>
     </section>
 
@@ -274,8 +351,15 @@ textarea{padding:14px;min-height:120px}
     counts:{mariring:0,lulu:0,iro:0,lunar:0},
     nextTodayNo:1,
     nextLumiNo:48,
-    timer:{endAt:null,total:120,remaining:120,running:false,interval:null,muted:false}
+    timer:{interval:null}, memberTimers:{}
   };
+
+
+  Object.keys(members).forEach(k=>{
+    state.memberTimers[k] = {
+      member:k, fan:null, total:120, remaining:120, endAt:null, running:false, warned:false, done:false
+    };
+  });
 
   function pad(n,len=3){ return String(n).padStart(len,'0'); }
   function saveLocal(){
@@ -474,7 +558,7 @@ textarea{padding:14px;min-height:120px}
     const mem = members[state.selectedMember];
     addHistory('빠른 촬영 저장', `${pass} / ${mem.name} ${mem.mark} 1장 사용 완료`, true);
     state.selectedPass='normal';
-    $('#quickSummary').innerHTML = `<b>저장 완료</b><br>${state.currentFan.todayNo} / ${esc(state.currentFan.nick)} · ${esc(mem.name)} 1장 저장 완료<br>같은 팬이면 계속 저장, 바뀌면 “다음 팬”을 눌러주세요.`;
+    $('#quickSummary').innerHTML = `<b>저장 완료</b><br>${state.currentFan.todayNo} / ${esc(state.currentFan.nick)} · ${esc(mem.name)} 1장 저장 완료<br><button class="btn" style="width:100%;margin-top:10px" data-member-start="${state.selectedMember}">${esc(mem.name)} 타이머 시작</button><br>같은 팬이면 계속 저장, 바뀌면 “다음 팬”을 눌러주세요.`;
     renderChoices();
   }
   function saveDetail(){
@@ -491,62 +575,140 @@ textarea{padding:14px;min-height:120px}
     }
   }
 
-  function sound(){
+  function soundEnd(){
     try{
       const C=window.AudioContext||window.webkitAudioContext; const ctx=new C();
-
-      // 종료 알림: 현장 소음에 묻히지 않도록 약 3.6초 패턴으로 길게 울림
       const pattern = [
-        [0.00, 950, .16],
-        [0.24, 950, .16],
-        [0.48, 950, .16],
-        [0.78, 1250, .55],
-
-        [1.45, 950, .16],
-        [1.69, 950, .16],
-        [1.93, 950, .16],
-        [2.23, 1250, .60],
-
-        [3.00, 1100, .18],
-        [3.25, 1350, .70]
+        [0.00, 950, .16],[0.24, 950, .16],[0.48, 950, .16],[0.78, 1250, .55],
+        [1.45, 950, .16],[1.69, 950, .16],[1.93, 950, .16],[2.23, 1250, .60],
+        [3.00, 1100, .18],[3.25, 1350, .70]
       ];
-
       pattern.forEach(([s,f,d])=>{
         const o=ctx.createOscillator(), g=ctx.createGain();
-        o.type='square';
-        o.frequency.value=f;
+        o.type='square'; o.frequency.value=f;
         g.gain.setValueAtTime(.0001,ctx.currentTime+s);
         g.gain.exponentialRampToValueAtTime(.62,ctx.currentTime+s+.02);
         g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+s+d);
-        o.connect(g);
-        g.connect(ctx.destination);
-        o.start(ctx.currentTime+s);
-        o.stop(ctx.currentTime+s+d+.04);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(ctx.currentTime+s); o.stop(ctx.currentTime+s+d+.04);
       });
-
       if(navigator.vibrate) navigator.vibrate([260,110,260,110,520,180,260,110,260,110,650]);
     }catch(e){}
   }
-  function setTimer(sec){ state.timer.total=sec; state.timer.remaining=sec; state.timer.running=false; clearInterval(state.timer.interval); updateTimerUI(); }
-  function startTimer(){
-    const sec=parseInt($('#timerSeconds').value,10)||state.timer.total||120;
-    state.timer.total=sec; state.timer.endAt=Date.now()+sec*1000; state.timer.running=true;
-    clearInterval(state.timer.interval); state.timer.interval=setInterval(tick,250); tick();
+
+  function soundWarn(){
+    try{
+      const C=window.AudioContext||window.webkitAudioContext; const ctx=new C();
+      [[0,720,.12],[.22,920,.18]].forEach(([s,f,d])=>{
+        const o=ctx.createOscillator(), g=ctx.createGain();
+        o.type='sine'; o.frequency.value=f;
+        g.gain.setValueAtTime(.0001,ctx.currentTime+s);
+        g.gain.exponentialRampToValueAtTime(.38,ctx.currentTime+s+.02);
+        g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+s+d);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(ctx.currentTime+s); o.stop(ctx.currentTime+s+d+.03);
+      });
+      if(navigator.vibrate) navigator.vibrate([120]);
+    }catch(e){}
   }
-  function tick(){
-    if(!state.timer.running) return;
-    state.timer.remaining=Math.max(0,Math.ceil((state.timer.endAt-Date.now())/1000));
-    updateTimerUI();
-    if(state.timer.remaining<=0){ state.timer.running=false; clearInterval(state.timer.interval); $('#timerState').textContent='TIME'; $('#miniText').textContent='TIME'; sound(); }
+
+  function sound(){ soundEnd(); }
+
+  function getBaseSeconds(){
+    return parseInt($('#timerSeconds')?.value,10) || 120;
   }
-  function updateTimerUI(){
-    const r=state.timer.remaining ?? state.timer.total ?? 120;
-    const mm=pad(Math.floor(r/60),2), ss=pad(r%60,2);
-    $('#timerDisplay').textContent=`${mm}:${ss}`;
-    $('#timerState').textContent=state.timer.running?'진행 중':'대기 중';
-    $('#miniText').textContent=`⏱ ${mm}:${ss}`;
-    $('#miniTimer').classList.toggle('show', state.timer.running);
+  function fmt(sec){
+    sec=Math.max(0, Math.ceil(sec||0));
+    return `${pad(Math.floor(sec/60),2)}:${pad(sec%60,2)}`;
   }
+  function memberTimerCard(key,t){
+    const m=members[key];
+    const status = t.done ? 'TIME' : (t.running ? (t.remaining<=50 ? '마무리 안내' : '진행 중') : '대기');
+    const cls = t.done ? 'done' : (t.running && t.remaining<=50 ? 'warning' : (t.running ? 'running' : ''));
+    const fan = t.fan ? `${t.fan.todayNo} / ${t.fan.nick}` : '팬 미지정';
+    return `<div class="member-timer-card ${cls}">
+      <div class="member-timer-head"><span>${m.name} ${m.mark}</span><span>${status}</span></div>
+      <div class="member-timer-time">${fmt(t.remaining)}</div>
+      <div class="member-timer-meta">현재 팬: ${esc(fan)}<br>기본 ${t.total}초 · 50초 전 마무리 알림</div>
+      <div class="member-timer-actions">
+        <button class="primary-mini" data-member-start="${key}">시작</button>
+        <button data-member-pause="${key}">정지</button>
+        <button data-member-reset="${key}">리셋</button>
+      </div>
+    </div>`;
+  }
+  function renderMemberTimers(){
+    const box = $('#memberTimerGrid');
+    if(!box) return;
+    box.innerHTML = Object.entries(state.memberTimers).map(([k,t])=>memberTimerCard(k,t)).join('');
+    updateMiniTimer();
+  }
+  function startMemberTimer(key, fan=null){
+    const t=state.memberTimers[key];
+    t.total = getBaseSeconds();
+    t.remaining = t.total;
+    t.endAt = Date.now() + t.total*1000;
+    t.running = true;
+    t.warned = false;
+    t.done = false;
+    t.fan = fan || state.currentFan || t.fan;
+    ensureTimerInterval();
+    renderMemberTimers();
+  }
+  function pauseMemberTimer(key){
+    const t=state.memberTimers[key];
+    t.running = false;
+    t.done = false;
+    renderMemberTimers();
+  }
+  function resetMemberTimer(key){
+    const t=state.memberTimers[key];
+    t.running=false; t.done=false; t.warned=false; t.total=getBaseSeconds(); t.remaining=t.total; t.endAt=null; t.fan=null;
+    renderMemberTimers();
+  }
+  function ensureTimerInterval(){
+    if(state.timer.interval) return;
+    state.timer.interval = setInterval(tickMemberTimers, 250);
+  }
+  function tickMemberTimers(){
+    let any=false;
+    Object.values(state.memberTimers).forEach(t=>{
+      if(!t.running) return;
+      any=true;
+      t.remaining=Math.max(0, Math.ceil((t.endAt-Date.now())/1000));
+      if(t.remaining<=50 && !t.warned && t.remaining>0){
+        t.warned=true;
+        soundWarn();
+      }
+      if(t.remaining<=0){
+        t.running=false;
+        t.done=true;
+        t.remaining=0;
+        soundEnd();
+      }
+    });
+    renderMemberTimers();
+    if(!any){
+      clearInterval(state.timer.interval);
+      state.timer.interval=null;
+    }
+  }
+  function updateMiniTimer(){
+    const running = Object.entries(state.memberTimers).filter(([,t])=>t.running);
+    const mini = $('#miniTimer');
+    if(!mini) return;
+    if(!running.length){
+      mini.classList.remove('show');
+      return;
+    }
+    mini.classList.add('show');
+    if(running.length <= 2){
+      $('#miniText').textContent = '⏱ ' + running.map(([k,t])=>`${members[k].name} ${fmt(t.remaining)}`).join(' / ');
+    }else{
+      $('#miniText').textContent = `⏱ 진행 중 ${running.length}명`;
+    }
+  }
+  function updateTimerUI(){ renderMemberTimers(); }
 
   document.addEventListener('click', e => {
     const tabBtn=e.target.closest('[data-tab]');
@@ -576,7 +738,21 @@ textarea{padding:14px;min-height:120px}
     const collapse=e.target.closest('[data-collapse]');
     if(collapse){ $('#'+collapse.dataset.collapse).classList.toggle('open'); return; }
     const time=e.target.closest('[data-time]');
-    if(time){ setTimer(parseInt(time.dataset.time,10)); return; }
+    if(time){
+      const sec=parseInt(time.dataset.time,10);
+      $('#timerSeconds').value = sec;
+      Object.values(state.memberTimers).forEach(t=>{
+        if(!t.running){ t.total=sec; t.remaining=sec; }
+      });
+      renderMemberTimers();
+      return;
+    }
+    const memberStart=e.target.closest('[data-member-start]');
+    if(memberStart){ startMemberTimer(memberStart.dataset.memberStart); return; }
+    const memberPause=e.target.closest('[data-member-pause]');
+    if(memberPause){ pauseMemberTimer(memberPause.dataset.memberPause); return; }
+    const memberReset=e.target.closest('[data-member-reset]');
+    if(memberReset){ resetMemberTimer(memberReset.dataset.memberReset); return; }
     const newToggle=e.target.closest('[data-new-toggle]');
     if(newToggle){ const k=newToggle.dataset.newToggle; state.newFan[k]=!state.newFan[k]; renderAll(); return; }
 
@@ -604,10 +780,8 @@ textarea{padding:14px;min-height:120px}
   $('#btnResetCounts').addEventListener('click', ()=>{state.counts={mariring:0,lulu:0,iro:0,lunar:0};renderCounts();});
   $('#btnSaveDetail').addEventListener('click', saveDetail);
   $('#btnToggleHistory').addEventListener('click', ()=>{ const b=$('#recordBox'); b.classList.toggle('show-all'); $('#btnToggleHistory').textContent=b.classList.contains('show-all')?'전체 기록 접기':'전체 기록 보기'; });
-  $('#btnTimerStart').addEventListener('click', startTimer);
-  $('#btnTimerPause').addEventListener('click', ()=>{state.timer.running=false;clearInterval(state.timer.interval);updateTimerUI();});
-  $('#btnTimerReset').addEventListener('click', ()=>setTimer(parseInt($('#timerSeconds').value,10)||120));
-  $('#btnSoundTest').addEventListener('click', sound);
+  $('#btnSoundTest').addEventListener('click', soundEnd);
+  $('#btnSoundWarn').addEventListener('click', soundWarn);
   document.addEventListener('visibilitychange', tick);
 
   loadLocal(); renderAll();
