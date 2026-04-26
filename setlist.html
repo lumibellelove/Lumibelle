@@ -3595,6 +3595,134 @@ audio::-webkit-media-controls-mute-button{
 .song-card:active{transform:translateY(-2px) scale(.985) !important;}
 </style>
 
+<style>
+/* === audio rights-safe practice patch === */
+.audio-practice-card{
+  display:none;
+  width:100%;
+  border:1px solid #f1d4e3;
+  border-radius:22px;
+  background:
+    radial-gradient(circle at 86% 14%, rgba(202,167,255,.14), transparent 24%),
+    linear-gradient(180deg,#fff9fc,#fff0f7);
+  padding:20px 20px 18px;
+  box-shadow:0 8px 18px rgba(255,89,165,.06);
+  text-align:center;
+}
+.audio-practice-kicker{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:28px;
+  padding:6px 12px;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid #f1d4e3;
+  color:#d08cab;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.12em;
+  margin-bottom:10px;
+}
+.audio-practice-title{
+  color:#ff59a5;
+  font-size:20px;
+  line-height:1.25;
+  font-weight:900;
+  letter-spacing:-.03em;
+  margin-bottom:8px;
+}
+.audio-practice-desc{
+  margin:0 auto 15px;
+  max-width:560px;
+  color:#946f84;
+  font-size:13.5px;
+  line-height:1.75;
+  font-weight:750;
+  word-break:keep-all;
+}
+.audio-practice-actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+}
+.audio-practice-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  padding:10px 16px;
+  border-radius:999px;
+  border:1px solid #f1d4e3;
+  background:#fff;
+  color:#aa7a93;
+  font-size:13px;
+  font-weight:900;
+  cursor:pointer;
+  transition:transform .18s ease, border-color .18s ease, color .18s ease;
+}
+.audio-practice-btn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(255,89,165,.34);
+  color:#ff59a5;
+}
+.audio-practice-btn.primary{
+  border-color:transparent;
+  background:linear-gradient(180deg,#ff8bbe,#ff59a5);
+  color:#fff;
+  box-shadow:0 10px 18px rgba(255,89,165,.14);
+}
+.audio-practice-btn.disabled{
+  opacity:.52;
+  cursor:default;
+  pointer-events:none;
+}
+.audio-rights-note{
+  margin:14px auto 0;
+  max-width:680px;
+  color:#b18da0;
+  font-size:12.5px;
+  line-height:1.7;
+  font-weight:750;
+}
+#audioEmbedBox{
+  width:100%;
+  min-height:160px;
+  border:1px dashed #f1d4e3;
+  border-radius:20px;
+  background:#fff;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:#9a7489;
+  font-size:14px;
+  line-height:1.8;
+  font-weight:800;
+  padding:20px;
+}
+#audioEmbedBox iframe{
+  width:100%;
+  min-height:352px;
+  border:0;
+  display:block;
+}
+.audio-modal-actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+  margin-top:14px;
+}
+@media (max-width:720px){
+  .audio-practice-card{padding:17px 14px 16px;}
+  .audio-practice-actions{flex-direction:column;}
+  .audio-practice-btn{width:100%;}
+}
+</style>
+
 </head>
 <body>
 
@@ -3745,16 +3873,22 @@ audio::-webkit-media-controls-mute-button{
 
         <div class="guide-body">
           <div class="guide-block" id="trackBlock">
-            <h3>TRACK / VIDEO</h3>
+            <h3>TRACK / AUDIO</h3>
             <div class="guide-mini">
-              영상은 이해용, 오디오는 반복 연습용으로 생각하면 좋아요.<br>용어 GUIDE에서는 콜, 믹스, 나마콜 같은 기본 용어를 확인할 수 있어요.
+              오리곡은 홈페이지 재생바로, 외부 곡은 공식 음원 링크와 루미 응원 연습바로 연습해요.<br>용어 GUIDE에서는 콜, 믹스, 나마콜 같은 기본 용어를 확인할 수 있어요.
             </div>
 
-            <div class="audio-wrap">
+            <div class="audio-wrap" id="audioWrap">
               <audio id="guideAudio" controls></audio>
               <div class="audio-empty" id="audioEmpty">
                 이 곡은 아직 음원 파일이 연결되지 않았어요.<br>
                 오디오가 준비되면 바로 재생 가능하게 바뀝니다.
+              </div>
+              <div class="audio-practice-card" id="audioPracticeCard">
+                <div class="audio-practice-kicker">AUDIO PRACTICE</div>
+                <div class="audio-practice-title">공식 음원으로 연습하기</div>
+                <p class="audio-practice-desc">외부 곡은 저작권 보호를 위해 루미벨 홈페이지 내 음원 파일을 직접 제공하지 않습니다.<br>공식 음원/영상을 열고, 루미 응원 연습바와 함께 타이밍을 맞춰 연습해주세요.</p>
+                <div class="audio-practice-actions" id="audioPracticeActions"></div>
               </div>
             </div>
 
@@ -3856,6 +3990,26 @@ audio::-webkit-media-controls-mute-button{
       </div>
     </div>
   </div>
+  <div class="modal-overlay" id="audioModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div class="modal-title" id="audioModalTitle">공식 음원으로 연습하기</div>
+        <button class="modal-close" id="audioModalClose" type="button" aria-label="닫기">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="audioEmbedBox">
+          공식 음원 플레이어가 준비되면 이 영역에서 바로 확인할 수 있어요.<br>
+          현재는 공식 음원 링크 또는 공식 영상 링크로 연결됩니다.
+        </div>
+        <div class="audio-modal-actions" id="audioModalActions"></div>
+        <p class="audio-rights-note">
+          외부 곡의 음원·영상·가사·안무 등은 각 권리자에게 귀속됩니다. 루미벨은 공식 플랫폼 링크 또는 권리자가 허용한 임베드 방식으로만 안내합니다.
+        </p>
+      </div>
+    </div>
+  </div>
+
+
 
   <script>
     const songs = [
@@ -3867,7 +4021,10 @@ audio::-webkit-media-controls-mute-button{
         thumb: 'img/tmb/mariring-tmb.png',
         status: ['응원가이드 일부', '영상 준비중'],
         lyrics: 'Stardust Magical 가사지 준비중',
-        meta: ['팀용 지원', '솔로용 지원', '음원 미연결'],
+        meta: ['팀용 지원', '솔로용 지원', '오리곡 음원 준비중'],
+        audioPolicy: 'original',
+        officialAudio: '',
+        officialAudioEmbed: '',
         audio: '',
         video: '',
         support: {
@@ -3907,7 +4064,10 @@ audio::-webkit-media-controls-mute-button{
         thumb: 'img/tmb/mariring01-tmb.jpg',
         status: ['응원가이드 준비중'],
         lyrics: '스토리베리 러브 가사지 준비중',
-        meta: ['팀용 예정', '솔로용 예정'],
+        meta: ['팀용 예정', '솔로용 예정', '오리곡 음원 준비중'],
+        audioPolicy: 'original',
+        officialAudio: '',
+        officialAudioEmbed: '',
         audio: '',
         video: '',
         support: {
@@ -4376,7 +4536,10 @@ We are Sweetie pie! 루미베르 데스~
 
 같이 
 We are Sweetie pie! 루미베르 데스~`,
-        meta: ['팀용 지원', '솔로용 가능', '리스폰스형'],
+        meta: ['팀용 지원', '솔로용 가능', '외부곡 공식 링크'],
+        audioPolicy: 'external',
+        officialAudio: '',
+        officialAudioEmbed: '',
         audio: '',
         video: 'https://youtu.be/az9mkI9C2f4',
         support: {
@@ -4789,8 +4952,11 @@ We are Sweetie pie! 루미베르 데스~`,
 奏でようよ
 카나데요-요
 함께 만들어가자`,
-        meta: ['팀용 지원', '솔로용 지원', '감성형'],
-        audio: 'audio/canaria.mp3',
+        meta: ['팀용 지원', '솔로용 지원', '외부곡 공식 링크'],
+        audioPolicy: 'external',
+        officialAudio: '',
+        officialAudioEmbed: '',
+        audio: '',
         video: 'https://youtu.be/bAxU3DizH90',
         support: {
           team: {
@@ -4957,6 +5123,8 @@ We are Sweetie pie! 루미베르 데스~`,
     const levelButtons = document.getElementById('levelButtons');
     const guideAudio = document.getElementById('guideAudio');
     const audioEmpty = document.getElementById('audioEmpty');
+    const audioPracticeCard = document.getElementById('audioPracticeCard');
+    const audioPracticeActions = document.getElementById('audioPracticeActions');
     const linkRow = document.getElementById('linkRow');
     const noteMode = document.getElementById('noteMode');
     const noteLevel = document.getElementById('noteLevel');
@@ -4984,6 +5152,11 @@ We are Sweetie pie! 루미베르 데스~`,
     const termModalClose = document.getElementById('termModalClose');
     const lyricsModal = document.getElementById('lyricsModal');
     const lyricsModalClose = document.getElementById('lyricsModalClose');
+    const audioModal = document.getElementById('audioModal');
+    const audioModalClose = document.getElementById('audioModalClose');
+    const audioModalTitle = document.getElementById('audioModalTitle');
+    const audioEmbedBox = document.getElementById('audioEmbedBox');
+    const audioModalActions = document.getElementById('audioModalActions');
 
     function getComingSoonSong(){
       const slotNumber = (state.comingSoonIndex ?? 0) + 1;
@@ -5250,29 +5423,63 @@ We are Sweetie pie! 루미베르 데스~`,
       });
     }
 
+    function isExternalAudio(song){
+      return song.audioPolicy === 'external';
+    }
+
     function renderAudio(song){
+      guideAudio.pause();
+      guideAudio.removeAttribute('src');
+      guideAudio.load();
+      guideAudio.style.display = 'none';
+      audioEmpty.style.display = 'none';
+      if(audioPracticeCard) audioPracticeCard.style.display = 'none';
+
       if(song.audio){
         guideAudio.style.display = 'block';
-        audioEmpty.style.display = 'none';
         guideAudio.src = song.audio;
-      }else{
-        guideAudio.pause();
-        guideAudio.removeAttribute('src');
-        guideAudio.load();
-        guideAudio.style.display = 'none';
-        audioEmpty.style.display = 'flex';
+        return;
       }
+
+      if(isExternalAudio(song)){
+        if(audioPracticeCard) audioPracticeCard.style.display = 'block';
+        if(audioPracticeActions){
+          const officialAudioBtn = song.officialAudio || song.officialAudioEmbed
+            ? '<button class="audio-practice-btn primary" type="button" id="openAudioModalBtn">공식 음원 열기</button>'
+            : '<span class="audio-practice-btn disabled">공식 음원 준비중</span>';
+          const officialVideoBtn = song.video
+            ? `<a class="audio-practice-btn" href="${song.video}" target="_blank" rel="noopener noreferrer">공식 영상 열기</a>`
+            : '<span class="audio-practice-btn disabled">공식 영상 준비중</span>';
+          const practiceBtn = '<button class="audio-practice-btn" type="button" onclick="alert(\'루미 응원 연습바 START!\')">루미 응원 연습바 START</button>';
+          audioPracticeActions.innerHTML = officialAudioBtn + officialVideoBtn + practiceBtn;
+          const openAudioModalBtn = document.getElementById('openAudioModalBtn');
+          if(openAudioModalBtn){
+            openAudioModalBtn.addEventListener('click', () => openAudioModal(song));
+          }
+        }
+        return;
+      }
+
+      audioEmpty.style.display = 'flex';
+      audioEmpty.innerHTML = song.audioPolicy === 'original'
+        ? '루미벨 오리지널곡 음원은 준비되는 대로 홈페이지 재생바에 연결됩니다.<br>현재는 응원 타이밍 가이드와 영상으로 먼저 연습해주세요.'
+        : '이 곡은 아직 음원 파일이 연결되지 않았어요.<br>오디오가 준비되면 바로 재생 가능하게 바뀝니다.';
     }
 
     function renderLinks(song){
       const videoBtn = song.video
-        ? `<a class="link-btn" href="${song.video}" target="_blank" rel="noopener noreferrer">영상 보러가기</a>`
+        ? `<a class="link-btn" href="${song.video}" target="_blank" rel="noopener noreferrer">공식 영상 보기</a>`
         : `<span class="link-btn disabled">영상 준비중</span>`;
 
+      const audioBtn = isExternalAudio(song)
+        ? (song.officialAudio || song.officialAudioEmbed
+          ? '<button class="link-btn secondary" type="button" id="openAudioModalBtn2">공식 음원</button>'
+          : '<span class="link-btn disabled">공식 음원 준비중</span>')
+        : '';
       const termBtn = `<button class="link-btn secondary" type="button" id="openTermGuideBtn">용어 가이드</button>`;
       const lyricBtn = `<button class="link-btn secondary" type="button" id="openLyricsBtn">가사지</button>`;
       const mixGuideBtn = `<a class="link-btn secondary" href="https://www.youtube.com/watch?v=R6aAdr7Mmg4&list=PLzNFNPqZTy9fdpKtTbHAInQyYy3MV8YhS" target="_blank" rel="noopener noreferrer">믹스콜 가이드</a>`;
-      linkRow.innerHTML = videoBtn + termBtn + lyricBtn + mixGuideBtn;
+      linkRow.innerHTML = videoBtn + audioBtn + termBtn + lyricBtn + mixGuideBtn;
 
       const openBtn = document.getElementById('openTermGuideBtn');
       if(openBtn){
@@ -5283,9 +5490,11 @@ We are Sweetie pie! 루미베르 데스~`,
       }
       const lyricOpenBtn = document.getElementById('openLyricsBtn');
       if(lyricOpenBtn){
-        lyricOpenBtn.addEventListener('click', () => {
-          openLyricsModal(song);
-        });
+        lyricOpenBtn.addEventListener('click', () => openLyricsModal(song));
+      }
+      const openAudioBtn2 = document.getElementById('openAudioModalBtn2');
+      if(openAudioBtn2){
+        openAudioBtn2.addEventListener('click', () => openAudioModal(song));
       }
     }
 
@@ -5388,6 +5597,25 @@ We are Sweetie pie! 루미베르 데스~`,
       requestAnimationFrame(syncGuideColumns);
     }
 
+    function openAudioModal(song){
+      if(!audioModal) return;
+      audioModalTitle.textContent = `${song.title} · 공식 음원`;
+      if(song.officialAudioEmbed){
+        audioEmbedBox.innerHTML = song.officialAudioEmbed;
+      }else{
+        audioEmbedBox.innerHTML = '공식 음원 플레이어가 준비되면 이 영역에서 바로 확인할 수 있어요.<br>현재는 공식 음원 링크 또는 공식 영상 링크로 연결됩니다.';
+      }
+      const audioLink = song.officialAudio
+        ? `<a class="audio-practice-btn primary" href="${song.officialAudio}" target="_blank" rel="noopener noreferrer">공식 음원으로 듣기</a>`
+        : '<span class="audio-practice-btn disabled">공식 음원 링크 준비중</span>';
+      const videoLink = song.video
+        ? `<a class="audio-practice-btn" href="${song.video}" target="_blank" rel="noopener noreferrer">공식 영상으로 보기</a>`
+        : '<span class="audio-practice-btn disabled">공식 영상 준비중</span>';
+      audioModalActions.innerHTML = audioLink + videoLink;
+      audioModal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
     // modal
     function closeTermModal(){
       termModal.classList.remove('open');
@@ -5397,17 +5625,30 @@ We are Sweetie pie! 루미베르 데스~`,
       lyricsModal.classList.remove('open');
       document.body.style.overflow = '';
     }
+    function closeAudioModal(){
+      if(!audioModal) return;
+      audioModal.classList.remove('open');
+      document.body.style.overflow = '';
+      if(audioEmbedBox) audioEmbedBox.innerHTML = '공식 음원 플레이어가 준비되면 이 영역에서 바로 확인할 수 있어요.<br>현재는 공식 음원 링크 또는 공식 영상 링크로 연결됩니다.';
+    }
     termModalClose.addEventListener('click', closeTermModal);
     lyricsModalClose.addEventListener('click', closeLyricsModal);
+    if(audioModalClose) audioModalClose.addEventListener('click', closeAudioModal);
     termModal.addEventListener('click', (e) => {
       if(e.target === termModal) closeTermModal();
     });
     lyricsModal.addEventListener('click', (e) => {
       if(e.target === lyricsModal) closeLyricsModal();
     });
+    if(audioModal){
+      audioModal.addEventListener('click', (e) => {
+        if(e.target === audioModal) closeAudioModal();
+      });
+    }
     window.addEventListener('keydown', (e) => {
       if(e.key === 'Escape' && termModal.classList.contains('open')) closeTermModal();
       if(e.key === 'Escape' && lyricsModal.classList.contains('open')) closeLyricsModal();
+      if(audioModal && e.key === 'Escape' && audioModal.classList.contains('open')) closeAudioModal();
     });
 
     // top button
