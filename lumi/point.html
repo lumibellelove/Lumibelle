@@ -1,168 +1,818 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LUMI ID</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>루미벨 물판 포인트 관리</title>
+  <style>
+    *{box-sizing:border-box;}
 
-<style>
-body{
-  margin:0;
-  font-family:sans-serif;
-  background:#fff7fb;
-}
+    :root{
+      --bg1:#fff8fc;
+      --bg2:#fffdfd;
+      --panel:rgba(255,255,255,.95);
+      --line:#f3d9e7;
+      --text:#7d5c6d;
+      --soft:#b992a7;
+      --pink:#ff79b5;
+      --pink-deep:#ff5fa8;
+      --shadow:0 18px 40px rgba(255,95,168,.12);
+    }
 
-/* 전체 */
-.wrap{
-  max-width:720px;
-  margin:auto;
-  padding:20px;
-}
+    body{
+      margin:0;
+      font-family:"Noto Sans KR", system-ui, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top, rgba(255,185,220,.22), transparent 35%),
+        linear-gradient(180deg,var(--bg1),var(--bg2));
+      min-height:100vh;
+    }
 
-/* 카드 */
-.card{
-  background:white;
-  border-radius:20px;
-  padding:20px;
-  box-shadow:0 10px 25px rgba(255,95,168,0.15);
-  margin-bottom:16px;
-}
+    .hidden{display:none !important;}
 
-/* 프로필 */
-.profile{
-  display:flex;
-  align-items:center;
-  gap:16px;
-}
+    .gate-box{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
 
-.profile img{
-  width:70px;
-  height:70px;
-  border-radius:50%;
-  object-fit:cover;
-  border:3px solid #ff8ac2;
-}
+    .gate-card,
+    .card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:26px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
 
-.name{
-  font-size:18px;
-  font-weight:bold;
-}
+    .gate-card{
+      width:min(100%,420px);
+      padding:28px 22px;
+      text-align:center;
+    }
 
-.point{
-  font-size:14px;
-  color:#ff5fa8;
-}
+    .gate-sub,
+    .head .sub{
+      font-size:12px;
+      letter-spacing:.18em;
+      color:var(--pink-deep);
+      font-weight:800;
+    }
 
-/* 게이지 */
-.bar{
-  margin-top:10px;
-  height:10px;
-  background:#ffe6f1;
-  border-radius:10px;
-  overflow:hidden;
-}
+    .gate-sub{margin-bottom:10px;}
 
-.bar-fill{
-  width:60%;
-  height:100%;
-  background:linear-gradient(90deg,#ff8ac2,#ff5fa8);
-}
+    .gate-card h1{
+      margin:0 0 10px;
+      font-size:28px;
+      color:#8a6377;
+    }
 
-/* 업적 */
-.badge-list{
-  display:flex;
-  gap:10px;
-  overflow-x:auto;
-}
+    .gate-card p{
+      margin:0 0 18px;
+      font-size:14px;
+      line-height:1.6;
+      color:var(--soft);
+    }
 
-.badge{
-  min-width:70px;
-  height:70px;
-  background:#fff0f7;
-  border-radius:14px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:12px;
-}
+    .gate-error{
+      display:none;
+      margin:12px 0 0;
+      color:#b45d6e;
+      font-size:13px;
+    }
 
-/* 메뉴 */
-.menu{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
-}
+    .wrap{
+      width:min(100%,680px);
+      margin:0 auto;
+      padding:30px 16px 44px;
+    }
 
-.menu a{
-  text-decoration:none;
-  background:#ffe6f1;
-  padding:14px;
-  border-radius:14px;
-  text-align:center;
-  color:#ff5fa8;
-  font-weight:600;
-}
+    .head{
+      padding:24px 22px 18px;
+      background:linear-gradient(135deg, rgba(255,138,194,.22), rgba(255,95,168,.10));
+      border-bottom:1px solid var(--line);
+    }
 
-/* 메시지 */
-.msg{
-  background:#fff0f7;
-  padding:12px;
-  border-radius:14px;
-  margin-bottom:8px;
-}
-</style>
+    .head .sub{margin-bottom:8px;}
+
+    .head h1{
+      margin:0;
+      font-size:26px;
+      line-height:1.2;
+      color:#8a6377;
+    }
+
+    .head p{
+      margin:8px 0 0;
+      font-size:14px;
+      color:var(--soft);
+      line-height:1.6;
+    }
+
+    .mini-bar{
+      margin-top:14px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .mini-pill{
+      border:1px solid #f3d9e7;
+      background:#fff7fb;
+      color:#a26f87;
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:12px;
+      font-weight:700;
+      line-height:1;
+    }
+
+    form{
+      padding:20px;
+      display:grid;
+      gap:14px;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+
+    .field{
+      display:grid;
+      gap:7px;
+    }
+
+    label{
+      font-size:13px;
+      font-weight:800;
+      color:#9a7187;
+    }
+
+    input, select, textarea, button, a{
+      font:inherit;
+    }
+
+    input, select, textarea{
+      width:100%;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--text);
+      border-radius:18px;
+      padding:15px 16px;
+      outline:none;
+      transition:.2s ease;
+      font-size:16px;
+    }
+
+    input::placeholder,
+    textarea::placeholder{
+      color:#b89cad;
+    }
+
+    input:focus, select:focus, textarea:focus{
+      border-color:#f4a4ca;
+      box-shadow:0 0 0 4px rgba(255,121,181,.12);
+    }
+
+    textarea{
+      min-height:128px;
+      resize:vertical;
+    }
+
+    .member{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    .member-prefix{
+      flex:0 0 auto;
+      padding:15px 16px;
+      border-radius:18px;
+      background:#fff0f7;
+      border:1px solid #f3d9e7;
+      color:#ff5fa8;
+      font-weight:800;
+      min-width:72px;
+      text-align:center;
+      font-size:16px;
+    }
+
+    .member input{
+      flex:1;
+      min-width:0;
+    }
+
+    .quick{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin-top:6px;
+    }
+
+    .chip{
+      padding:13px 8px;
+      border-radius:16px;
+      border:1px solid #f3d9e7;
+      background:#fff;
+      color:#ff5fa8;
+      font-weight:800;
+      font-size:16px;
+      cursor:pointer;
+      transition:all .2s ease;
+    }
+
+    .chip:hover{
+      background:#ffe7f3;
+      border-color:#f4a4ca;
+      transform:translateY(-1px);
+    }
+
+    .chip.use{
+      background:#fff7fb;
+      color:#a0617f;
+    }
+
+    .actions,
+    .sub-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .btn{
+      display:block;
+      width:100%;
+      text-align:center;
+      text-decoration:none;
+      border:none;
+      border-radius:18px;
+      padding:16px;
+      font-weight:800;
+      font-size:16px;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,var(--pink),var(--pink-deep));
+      color:#fff;
+      box-shadow:0 12px 24px rgba(255,95,168,.22);
+    }
+
+    .btn-secondary{
+      background:#fff;
+      color:#a26f87;
+      border:1px solid var(--line);
+    }
+
+    .btn:hover{transform:translateY(-1px);}
+
+    .note{
+      padding:0 20px 20px;
+      color:#b08ba0;
+      font-size:12px;
+      line-height:1.85;
+    }
+
+    .status{
+      margin-top:14px;
+      padding:14px 16px;
+      border-radius:16px;
+      font-size:14px;
+      display:none;
+    }
+
+    .status.show{display:block;}
+
+    .status.ok{
+      background:#fff7fb;
+      border:1px solid #f4cade;
+      color:#a0617f;
+    }
+
+    .status.error{
+      background:#fff7f7;
+      border:1px solid #f3caca;
+      color:#b45d6e;
+    }
+
+    iframe{display:none;}
+
+
+    .guide-box{
+      margin:0 20px 20px;
+      padding:14px 16px;
+      border-radius:18px;
+      border:1px solid #f3d9e7;
+      background:linear-gradient(180deg,#fff9fc 0%,#fff4fa 100%);
+      color:#8f7183;
+      font-size:13px;
+      line-height:1.75;
+      font-weight:750;
+    }
+    .guide-box strong{color:#ff5fa8;}
+    .reason-now{
+      padding:14px 16px;
+      border-radius:18px;
+      border:1px solid #f3d9e7;
+      background:#fff7fb;
+      color:#a0617f;
+      font-size:14px;
+      line-height:1.65;
+      font-weight:800;
+    }
+    .quick.ops{
+      grid-template-columns:1fr;
+    }
+    .chip.reason{
+      text-align:left;
+      min-height:58px;
+      line-height:1.45;
+      padding:14px 16px;
+      display:block;
+    }
+    .chip.reason b{
+      display:block;
+      color:#ff5fa8;
+      font-size:15px;
+      margin-bottom:3px;
+    }
+    .chip.reason span{
+      display:block;
+      color:#9a7187;
+      font-size:12.5px;
+      font-weight:750;
+    }
+    .chip.reason.active{
+      background:linear-gradient(135deg,#ff79b5,#ff5fa8);
+      color:#fff;
+      border-color:transparent;
+      box-shadow:0 10px 18px rgba(255,95,168,.18);
+    }
+    .chip.reason.active b,
+    .chip.reason.active span{color:#fff;}
+    .danger-soft{
+      background:#fff2e8 !important;
+      color:#c87536 !important;
+    }
+    .manager-box{
+      display:none;
+      margin-top:10px;
+      padding:12px;
+      border-radius:18px;
+      background:#fff8ef;
+      border:1px solid #f4d7c5;
+    }
+    .manager-box.show{display:block;}
+
+    @media (max-width:640px){
+      .head h1,
+      .gate-card h1{font-size:24px;}
+      .row,
+      .actions,
+      .sub-actions{grid-template-columns:1fr;}
+      .quick{grid-template-columns:repeat(2,1fr);}
+      .wrap{width:min(100%,640px); padding:20px 12px 36px;}
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="wrap">
+  <div id="gate" class="gate-box">
+    <div class="gate-card">
+      <div class="gate-sub">LUMIBELLE STAFF</div>
+      <h1>스탭 전용 입장</h1>
+      <p>비밀번호를 입력하면 스탭 페이지가 열려요.</p>
 
-  <!-- 프로필 -->
-  <div class="card">
-    <div class="profile">
-      <img src="img/member/mariring/mariring-01.webp">
-      <div>
-        <div class="name">마리링</div>
-        <div class="point">현재 포인트: 1200P</div>
+      <input id="passwordInput" type="password" placeholder="비밀번호 입력" />
+
+      <button id="loginBtn" class="btn btn-primary" type="button" style="margin-top:12px;">
+        입장하기
+      </button>
+
+      <p id="gateError" class="gate-error">비밀번호가 맞지 않아.</p>
+    </div>
+  </div>
+
+  <div id="staffPage" class="hidden">
+    <div class="wrap">
+      <div class="card">
+        <div class="head">
+          <div class="sub">LUMIBELLE STAFF</div>
+          <h1>물판 포인트 관리</h1>
+          <p>물판 포인트 적립/사용/정정을 기록하는 페이지예요.<br>반짝 XP, 홈페이지 포인트, 루미 체크인, 스탬프와는 별도입니다.</p>
+
+          <div class="mini-bar">
+            <div class="mini-pill">물판 포인트 전용</div>
+            <div class="mini-pill">구글폼 자동 기록</div>
+            <div class="mini-pill">정정은 메모 필수</div>
+          </div>
+        </div>
+
+        <form
+          id="staffForm"
+          action="https://docs.google.com/forms/d/e/1FAIpQLSfXJcfw9a5AxnR9W9YvNO7ppvr0-YSG7Lf_87gB_eJkHPnwzg/formResponse"
+          method="POST"
+          target="hidden_iframe"
+        >
+          <div class="row">
+            <div class="field">
+              <label for="staffSelect">스탭 선택</label>
+              <select id="staffSelect" name="entry.1058201571" required>
+                <option value="">스탭 선택</option>
+                <option value="마리링">마리링</option>
+                <option value="루루">루루</option>
+                <option value="이로">이로</option>
+                <option value="루나">루나</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="memberInput">회원번호</label>
+              <div class="member">
+                <div class="member-prefix">LB-</div>
+                <input
+                  id="memberInput"
+                  name="entry.1210333147"
+                  type="text"
+                  placeholder="예: 001"
+                  autocomplete="off"
+                  inputmode="numeric"
+                  pattern="[0-9]+"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="type">구분</label>
+              <select id="type" name="entry.1858622901" required>
+                <option value="적립" selected>적립</option>
+                <option value="사용">사용</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="point">포인트</label>
+              <input
+                id="point"
+                name="entry.29331453"
+                type="number"
+                min="1"
+                step="1"
+                placeholder="예: 1"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="memo">메모</label>
+            <textarea
+              id="memo"
+              name="entry.1484560740"
+              placeholder="예: 굿즈 구매 / 포인트 사용 / 현장 응대"
+            ></textarea>
+          </div>
+
+          <div class="field">
+            <label>처리 사유 선택</label>
+            <div class="quick ops" id="reasonButtons">
+              <button type="button" class="chip reason" data-type="적립" data-point="1" data-reason="특전권 15장 구매" data-memo="[특전권 15장 구매] 15장 구매 확인">
+                <b>특전권 15장 구매 +1P</b>
+                <span>7,000원 × 15장 = 105,000원 기준</span>
+              </button>
+
+              <button type="button" class="chip reason" data-type="적립" data-point="1" data-reason="메아테 지정" data-memo="[메아테 지정] 메아테 포인트 적립">
+                <b>메아테 지정 +1P</b>
+                <span>일반 메아테 지명 감사 포인트</span>
+              </button>
+
+              <button type="button" class="chip reason" data-type="적립" data-point="2" data-reason="주최 라이브 메아테 지정" data-memo="[주최 라이브 메아테] 주최 라이브 메아테 2P 적립">
+                <b>주최 라이브 메아테 +2P</b>
+                <span>주최 라이브 메아테 지정 보너스</span>
+              </button>
+
+              <button type="button" class="chip reason" data-type="사용" data-point="" data-reason="포인트 사용" data-memo="[포인트 사용] 사용 사유 입력 필요">
+                <b>포인트 사용</b>
+                <span>사용 포인트를 직접 입력하고 메모 필수</span>
+              </button>
+
+              <button type="button" class="chip reason danger-soft" data-type="적립" data-point="" data-reason="정정 적립" data-memo="[정정 적립] 정정 사유 입력 필요">
+                <b>정정 적립</b>
+                <span>실수 보정용. 포인트 직접 입력 + 메모 필수</span>
+              </button>
+
+              <button type="button" class="chip reason danger-soft" data-type="사용" data-point="" data-reason="정정 차감" data-memo="[정정 차감] 정정 사유 입력 필요">
+                <b>정정 차감</b>
+                <span>실수 보정용. 포인트 직접 입력 + 메모 필수</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>현재 선택</label>
+            <div id="reasonNow" class="reason-now">
+              처리 사유를 선택해 주세요.
+            </div>
+          </div>
+
+          <div class="field">
+            <button type="button" class="btn btn-secondary" id="managerToggleBtn">책임자용 수동 입력 열기</button>
+            <div id="managerBox" class="manager-box">
+              <div class="quick">
+                <button type="button" class="chip" data-add="1">수동 +1</button>
+                <button type="button" class="chip" data-add="2">수동 +2</button>
+                <button type="button" class="chip" data-add="3">수동 +3</button>
+                <button type="button" class="chip" data-add="5">수동 +5</button>
+                <button type="button" class="chip" data-add="10">수동 +10</button>
+                <button type="button" class="chip use" id="use100Btn">사용 100</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-primary" type="submit">저장하기</button>
+            <button type="button" class="btn btn-secondary" id="resetBtn">초기화</button>
+          </div>
+
+          <div class="sub-actions">
+            <a
+              class="btn btn-secondary"
+              id="recordViewBtn"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              기록 보기
+            </a>
+            <button type="button" class="btn btn-secondary" id="logoutBtn">스탭 변경</button>
+          </div>
+        </form>
+
+        <div class="guide-box">
+          <strong>물판 포인트 기준</strong><br>
+          · 특전권 15장 구매 = 1P<br>
+          · 메아테 지정 = 1P<br>
+          · 주최 라이브 메아테 지정 = 2P<br>
+          · 루미 체크인 / 스탬프 / 반짝 XP / 홈페이지 포인트와는 별도입니다.
+        </div>
+
+        <div class="note">
+          ※ 처리 사유 버튼을 먼저 누르면 구분/포인트/메모가 자동 입력돼요.<br />
+          ※ 포인트 사용 및 정정은 메모를 반드시 확인해 주세요.<br />
+          ※ 사용 100과 수동 + 버튼은 책임자용으로 접어두었어요.<br />
+          ※ 실수한 경우 반대 내용으로 정정 기록을 남겨 맞춰주세요.
+        </div>
       </div>
-    </div>
 
-    <div class="bar">
-      <div class="bar-fill"></div>
-    </div>
-    <small>다음 등급까지 300P 남음</small>
-  </div>
-
-  <!-- 업적 -->
-  <div class="card">
-    <h3>업적</h3>
-    <div class="badge-list">
-      <div class="badge">★</div>
-      <div class="badge">★</div>
-      <div class="badge">★</div>
+      <div id="statusBox" class="status"></div>
     </div>
   </div>
 
-  <!-- 메뉴 -->
-  <div class="card">
-    <div class="menu">
-      <a href="#">프로필</a>
-      <a href="#">프레임</a>
-      <a href="#">칭호</a>
-      <a href="#">우편함</a>
-      <a href="#">메시지</a>
-      <a href="#">기록</a>
-    </div>
-  </div>
+  <iframe name="hidden_iframe"></iframe>
 
-  <!-- 메시지 -->
-  <div class="card">
-    <h3>최근 메시지</h3>
-    <div class="msg">마리링: 오늘도 와줘서 고마워 💕</div>
-    <div class="msg">루루: 다음 공연 기대해!</div>
-  </div>
+  <script>
+    const STAFF_PASSWORD = "lmb0712";
+    const STAFF_NAME_KEY = "lb_staff_name";
 
-</div>
+    // 응답 시트 링크가 생기면 여기만 바꿔주면 돼요.
+    const RECORD_SHEET_URL = "https://docs.google.com/spreadsheets/d/1zXDDktS4iKmQoSYip5BCBNnfPMfiPjBGyIwu6JNRcRg/edit?usp=sharing";
 
+    const gate = document.getElementById("gate");
+    const staffPage = document.getElementById("staffPage");
+    const passwordInput = document.getElementById("passwordInput");
+    const loginBtn = document.getElementById("loginBtn");
+    const gateError = document.getElementById("gateError");
+
+    const form = document.getElementById("staffForm");
+    const staffSelect = document.getElementById("staffSelect");
+    const memberInput = document.getElementById("memberInput");
+    const typeInput = document.getElementById("type");
+    const pointInput = document.getElementById("point");
+    const memoInput = document.getElementById("memo");
+    const resetBtn = document.getElementById("resetBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const recordViewBtn = document.getElementById("recordViewBtn");
+    const statusBox = document.getElementById("statusBox");
+    const quickButtons = document.querySelectorAll(".chip[data-add]");
+    const reasonButtons = document.querySelectorAll(".chip.reason");
+    const reasonNow = document.getElementById("reasonNow");
+    const managerToggleBtn = document.getElementById("managerToggleBtn");
+    const managerBox = document.getElementById("managerBox");
+    const use100Btn = document.getElementById("use100Btn");
+    const hiddenIframe = document.querySelector('iframe[name="hidden_iframe"]');
+
+    let submitStarted = false;
+    let firstIframeLoad = true;
+
+    recordViewBtn.href = RECORD_SHEET_URL;
+    staffSelect.value = localStorage.getItem(STAFF_NAME_KEY) || "";
+
+    staffSelect.addEventListener("change", () => {
+      localStorage.setItem(STAFF_NAME_KEY, staffSelect.value);
+    });
+
+    let selectedReason = "";
+
+    function setReason(btn) {
+      selectedReason = btn.dataset.reason || "";
+      typeInput.value = btn.dataset.type || "적립";
+      pointInput.value = btn.dataset.point || "";
+      memoInput.value = btn.dataset.memo || "";
+
+      reasonButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      reasonNow.innerHTML =
+        "<strong>" + escapeHtml(selectedReason || "처리 사유") + "</strong><br>" +
+        "구분: " + escapeHtml(typeInput.value) + " / 포인트: " + escapeHtml(pointInput.value || "직접 입력") + "<br>" +
+        escapeHtml(memoInput.value || "메모를 입력해 주세요.");
+    }
+
+    function clearReasonActive() {
+      selectedReason = "";
+      reasonButtons.forEach(b => b.classList.remove("active"));
+      reasonNow.innerHTML = "처리 사유를 선택해 주세요.";
+    }
+
+
+    function openStaffPage() {
+      gate.classList.add("hidden");
+      staffPage.classList.remove("hidden");
+      setTimeout(() => {
+        if (staffSelect.value) memberInput.focus();
+        else staffSelect.focus();
+      }, 50);
+    }
+
+    function checkPassword() {
+      const input = passwordInput.value.trim();
+      if (input === STAFF_PASSWORD) {
+        sessionStorage.setItem("lb_staff_auth", "yes");
+        gateError.style.display = "none";
+        openStaffPage();
+      } else {
+        gateError.style.display = "block";
+      }
+    }
+
+    function showStatus(message, type = "ok") {
+      statusBox.textContent = message;
+      statusBox.className = `status show ${type}`;
+    }
+
+    loginBtn.addEventListener("click", checkPassword);
+
+    passwordInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") checkPassword();
+    });
+
+    reasonButtons.forEach(btn => {
+      btn.addEventListener("click", () => setReason(btn));
+    });
+
+    quickButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        selectedReason = "책임자 수동 입력";
+        typeInput.value = "적립";
+        pointInput.value = (Number(pointInput.value) || 0) + Number(btn.dataset.add);
+        if (!memoInput.value.trim()) memoInput.value = "[책임자 수동 입력] 사유 입력 필요";
+        reasonNow.innerHTML =
+          "<strong>책임자 수동 입력</strong><br>구분: 적립 / 포인트: " + escapeHtml(pointInput.value) + "<br>" +
+          escapeHtml(memoInput.value);
+      });
+    });
+
+    use100Btn.addEventListener("click", () => {
+      selectedReason = "100P 사용";
+      typeInput.value = "사용";
+      pointInput.value = 100;
+      memoInput.value = "[100P 사용] 프라이빗 콘서트 & 1:1 비전 만찬 사용";
+      reasonNow.innerHTML =
+        "<strong>100P 사용</strong><br>구분: 사용 / 포인트: 100<br>" +
+        escapeHtml(memoInput.value);
+    });
+
+    managerToggleBtn.addEventListener("click", () => {
+      managerBox.classList.toggle("show");
+      managerToggleBtn.textContent = managerBox.classList.contains("show")
+        ? "책임자용 수동 입력 닫기"
+        : "책임자용 수동 입력 열기";
+    });
+
+    typeInput.addEventListener("change", () => {
+      if (typeInput.value === "사용" && !pointInput.value) pointInput.value = 100;
+    });
+
+    form.addEventListener("submit", (e) => {
+      const member = memberInput.value.trim();
+
+      if (!staffSelect.value || !member || !pointInput.value) {
+        e.preventDefault();
+        showStatus("스탭, 회원번호, 포인트 입력을 확인해줘.", "error");
+        return;
+      }
+
+      if (!selectedReason && !memoInput.value.trim().startsWith("[")) {
+        e.preventDefault();
+        showStatus("처리 사유를 선택하거나 메모에 사유를 적어줘.", "error");
+        return;
+      }
+
+      if (!/^\d+$/.test(member)) {
+        e.preventDefault();
+        showStatus("회원번호는 숫자만 입력해줘.", "error");
+        memberInput.focus();
+        return;
+      }
+
+      if ((typeInput.value === "사용" || selectedReason.includes("정정")) && !memoInput.value.trim()) {
+        e.preventDefault();
+        showStatus("사용/정정일 때는 메모를 입력해줘.", "error");
+        memoInput.focus();
+        return;
+      }
+
+      if (!confirm("이대로 저장할까요?")) {
+        e.preventDefault();
+        return;
+      }
+
+      submitStarted = true;
+      showStatus("저장 중...", "ok");
+
+      setTimeout(() => {
+        if (!submitStarted) return;
+        submitStarted = false;
+        showStatus("저장 완료! 구글폼으로 전송됐어요.", "ok");
+        pointInput.value = "";
+        memoInput.value = "";
+        typeInput.value = "적립";
+        clearReasonActive();
+        memberInput.value = "";
+        memberInput.focus();
+      }, 1200);
+    });
+
+    hiddenIframe.addEventListener("load", () => {
+      if (firstIframeLoad) {
+        firstIframeLoad = false;
+        return;
+      }
+
+      if (!submitStarted) return;
+      submitStarted = false;
+
+      showStatus("저장 완료! 구글폼으로 전송됐어요.", "ok");
+      pointInput.value = "";
+      memoInput.value = "";
+      typeInput.value = "적립";
+      clearReasonActive();
+      memberInput.value = "";
+      memberInput.focus();
+    });
+
+    resetBtn.addEventListener("click", () => {
+      pointInput.value = "";
+      memoInput.value = "";
+      typeInput.value = "적립";
+      memberInput.value = "";
+      statusBox.className = "status";
+      statusBox.textContent = "";
+      memberInput.focus();
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem(STAFF_NAME_KEY);
+      sessionStorage.removeItem("lb_staff_auth");
+      location.reload();
+    });
+
+    recordViewBtn.addEventListener("click", (e) => {
+      if (RECORD_SHEET_URL === "#") {
+        e.preventDefault();
+        showStatus("기록 보기 버튼은 응답 시트 링크를 넣은 뒤 사용할 수 있어요.", "error");
+      }
+    });
+
+    window.addEventListener("load", () => {
+      if (sessionStorage.getItem("lb_staff_auth") === "yes") openStaffPage();
+    });
+  
+    function escapeHtml(value){
+      return String(value || "").replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
+    }
+  </script>
 </body>
 </html>
