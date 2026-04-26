@@ -3723,6 +3723,246 @@ audio::-webkit-media-controls-mute-button{
 }
 </style>
 
+
+<style>
+/* === Spotify/audio modal side-by-side practice layout === */
+.audio-practice-title{font-size:21px !important;}
+.audio-practice-desc{max-width:620px !important;}
+.audio-modal-layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(280px,.92fr);gap:16px;align-items:stretch;}
+.audio-modal-player,.audio-modal-practice{border:1px solid #f1d4e3;border-radius:22px;background:#fff;padding:16px;box-shadow:0 8px 18px rgba(255,89,165,.06);}
+.audio-modal-player{background:linear-gradient(180deg,#fff,#fff8fc);}
+.audio-modal-practice{background:linear-gradient(180deg,#fff8fc,#fff0f7);display:flex;flex-direction:column;justify-content:center;text-align:center;}
+.audio-modal-kicker{display:inline-flex;align-self:center;align-items:center;justify-content:center;min-height:28px;padding:6px 12px;border-radius:999px;background:#fff;border:1px solid #f1d4e3;color:#d08cab;font-size:11px;font-weight:900;letter-spacing:.12em;margin-bottom:10px;}
+.audio-modal-practice h4{margin:0 0 8px;color:#ff59a5;font-size:20px;font-weight:900;letter-spacing:-.03em;}
+.audio-modal-practice p{margin:0 0 14px;color:#946f84;font-size:13.5px;line-height:1.75;font-weight:750;word-break:keep-all;}
+.audio-modal-practice .audio-practice-btn{width:100%;margin-top:8px;}
+#audioEmbedBox{min-height:0 !important;border:none !important;padding:0 !important;background:transparent !important;display:block !important;}
+#audioEmbedBox iframe{min-height:152px !important;border-radius:14px;}
+.audio-modal-placeholder{min-height:154px;border:1px dashed #f1d4e3;border-radius:18px;background:#fff;color:#9a7489;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;font-size:14px;line-height:1.75;font-weight:800;}
+@media (max-width:760px){.audio-modal-layout{grid-template-columns:1fr;}}
+</style>
+
+
+
+<style>
+/* === Lumi practice modal tabs patch === */
+.audio-modal-layout{
+  display:grid !important;
+  grid-template-columns:minmax(0,1.02fr) minmax(280px,.98fr) !important;
+  gap:16px !important;
+  align-items:stretch !important;
+}
+.audio-modal-player,
+.audio-modal-practice{
+  min-height:210px;
+}
+.audio-modal-practice-quick{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin-top:10px;
+}
+.audio-modal-practice-quick .audio-practice-btn{
+  margin-top:0 !important;
+  width:100%;
+  min-height:40px;
+  padding:9px 12px;
+  font-size:12.5px;
+}
+.audio-modal-tabs{
+  margin-top:18px;
+  border:1px solid #f1d4e3;
+  border-radius:24px;
+  background:linear-gradient(180deg,#fff,#fff8fc);
+  padding:16px;
+  box-shadow:0 8px 18px rgba(255,89,165,.06);
+}
+.audio-tab-nav{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+  margin-bottom:14px;
+}
+.audio-tab-btn{
+  border:1px solid #f1d4e3;
+  background:#fff;
+  color:#aa7a93;
+  border-radius:999px;
+  min-height:36px;
+  padding:8px 13px;
+  font-size:12.5px;
+  font-weight:900;
+  cursor:pointer;
+  transition:transform .18s ease, color .18s ease, border-color .18s ease, background .18s ease;
+}
+.audio-tab-btn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(255,89,165,.34);
+  color:#ff59a5;
+}
+.audio-tab-btn.active{
+  border-color:transparent;
+  background:linear-gradient(180deg,#ff8bbe,#ff59a5);
+  color:#fff;
+  box-shadow:0 8px 16px rgba(255,89,165,.12);
+}
+.audio-tab-panel{
+  display:none;
+}
+.audio-tab-panel.active{
+  display:block;
+  animation:audioTabFade .2s ease;
+}
+@keyframes audioTabFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.audio-tab-title{
+  text-align:center;
+  color:#ff59a5;
+  font-size:20px;
+  font-weight:900;
+  letter-spacing:-.03em;
+  margin:2px 0 10px;
+}
+.audio-tab-desc{
+  text-align:center;
+  color:#946f84;
+  font-size:13.5px;
+  line-height:1.75;
+  font-weight:750;
+  margin:0 auto 14px;
+  max-width:640px;
+  word-break:keep-all;
+}
+.audio-mini-lines{
+  display:grid;
+  gap:10px;
+}
+.audio-mini-line{
+  border:1px solid #f1d4e3;
+  border-radius:18px;
+  background:#fff;
+  padding:14px 16px;
+  box-shadow:0 6px 16px rgba(255,120,178,.05);
+}
+.audio-mini-top{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin-bottom:8px;
+}
+.audio-mini-time{
+  color:#d088aa;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.audio-mini-stage{
+  color:#b2899f;
+  font-size:12px;
+  font-weight:900;
+  text-align:right;
+}
+.audio-mini-lyric{
+  color:#7d6172;
+  font-size:14.5px;
+  line-height:1.75;
+  font-weight:800;
+  margin-bottom:8px;
+  word-break:keep-all;
+}
+.audio-mini-call{
+  color:#946f84;
+  font-size:13px;
+  line-height:1.75;
+  font-weight:750;
+}
+.audio-mini-tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin:8px 0;
+}
+.audio-mini-tag{
+  display:inline-flex;
+  align-items:center;
+  min-height:27px;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(255,89,165,.08);
+  color:#ff59a5;
+  font-size:11px;
+  font-weight:900;
+}
+.audio-mini-empty{
+  border:1px dashed #f1d4e3;
+  border-radius:18px;
+  background:#fff;
+  padding:24px 18px;
+  color:#9a7489;
+  text-align:center;
+  font-size:14px;
+  line-height:1.8;
+  font-weight:800;
+}
+.audio-lyrics-box{
+  border:1px solid #f1d4e3;
+  border-radius:18px;
+  background:#fff;
+  padding:18px;
+  color:#7d6172;
+  font-size:14px;
+  line-height:1.9;
+  font-weight:750;
+  white-space:pre-line;
+  max-height:360px;
+  overflow:auto;
+}
+.audio-term-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.audio-term-box{
+  border:1px solid #f1d4e3;
+  border-radius:16px;
+  background:#fff;
+  padding:14px;
+}
+.audio-term-box h5{
+  margin:0 0 7px;
+  color:#ff59a5;
+  font-size:14px;
+  font-weight:900;
+}
+.audio-term-box p{
+  margin:0;
+  color:#946f84;
+  font-size:12.8px;
+  line-height:1.75;
+  font-weight:750;
+}
+@media (max-width:760px){
+  .audio-modal-layout{grid-template-columns:1fr !important;}
+  .audio-modal-practice-quick{grid-template-columns:1fr;}
+  .audio-term-grid{grid-template-columns:1fr;}
+  .audio-tab-btn{flex:1 1 calc(50% - 8px);}
+  .audio-mini-top{flex-direction:column;align-items:flex-start;}
+  .audio-mini-stage{text-align:left;}
+}
+</style>
+
+
+<style>
+/* === official audio platform selector patch === */
+.audio-platform-intro{ text-align:center; color:#946f84; font-size:13.5px; line-height:1.75; font-weight:750; margin:2px auto 14px; max-width:520px; word-break:keep-all; }
+.audio-platform-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; width:100%; }
+.audio-platform-btn{ display:flex; align-items:center; justify-content:center; min-height:44px; padding:10px 12px; border-radius:999px; border:1px solid #f1d4e3; background:linear-gradient(180deg,#fff,#fff7fb); color:#a87692; font-size:13px; font-weight:900; text-decoration:none; transition:transform .18s ease, border-color .18s ease, color .18s ease; }
+.audio-platform-btn:hover{ transform:translateY(-1px); border-color:rgba(255,89,165,.35); color:#ff59a5; }
+.audio-platform-empty{ border:1px dashed #f1d4e3; border-radius:18px; background:#fff; color:#b18da0; padding:18px 16px; line-height:1.8; font-weight:800; text-align:center; word-break:keep-all; }
+.audio-modal-notice{ margin-top:14px; padding:12px 14px; border-radius:16px; background:#fff7fb; border:1px solid #f1d4e3; color:#9a7489; font-size:12.5px; line-height:1.7; font-weight:750; text-align:center; word-break:keep-all; }
+@media (max-width:720px){ .audio-platform-grid{grid-template-columns:1fr;} }
+</style>
 </head>
 <body>
 
@@ -3875,7 +4115,7 @@ audio::-webkit-media-controls-mute-button{
           <div class="guide-block" id="trackBlock">
             <h3>TRACK / AUDIO</h3>
             <div class="guide-mini">
-              오리곡은 홈페이지 재생바로, 외부 곡은 공식 음원 링크와 루미 응원 연습바로 연습해요.<br>용어 GUIDE에서는 콜, 믹스, 나마콜 같은 기본 용어를 확인할 수 있어요.
+              오리곡은 홈페이지 재생바로, 외부 곡은 Spotify 등 공식 음원 모달과 루미 응원 연습바로 연습해요.<br>용어 GUIDE에서는 콜, 믹스, 나마콜 같은 기본 용어를 확인할 수 있어요.
             </div>
 
             <div class="audio-wrap" id="audioWrap">
@@ -3887,7 +4127,7 @@ audio::-webkit-media-controls-mute-button{
               <div class="audio-practice-card" id="audioPracticeCard">
                 <div class="audio-practice-kicker">AUDIO PRACTICE</div>
                 <div class="audio-practice-title">공식 음원으로 연습하기</div>
-                <p class="audio-practice-desc">외부 곡은 저작권 보호를 위해 루미벨 홈페이지 내 음원 파일을 직접 제공하지 않습니다.<br>공식 음원/영상을 열고, 루미 응원 연습바와 함께 타이밍을 맞춰 연습해주세요.</p>
+                <p class="audio-practice-desc">외부 곡은 저작권 보호를 위해 루미벨 홈페이지 내 음원 파일을 직접 제공하지 않습니다.<br>공식 음원 플랫폼을 선택한 뒤, 루미 응원 연습바와 함께 타이밍을 맞춰 연습해주세요.</p>
                 <div class="audio-practice-actions" id="audioPracticeActions"></div>
               </div>
             </div>
@@ -3998,12 +4238,11 @@ audio::-webkit-media-controls-mute-button{
       </div>
       <div class="modal-body">
         <div id="audioEmbedBox">
-          공식 음원 플레이어가 준비되면 이 영역에서 바로 확인할 수 있어요.<br>
-          현재는 공식 음원 링크 또는 공식 영상 링크로 연결됩니다.
+          Spotify 등 공식 음원 플레이어가 준비되면 이 영역에서 바로 확인할 수 있어요.<br>현재는 공식 음원 링크 연결 전입니다.
         </div>
         <div class="audio-modal-actions" id="audioModalActions"></div>
         <p class="audio-rights-note">
-          외부 곡의 음원·영상·가사·안무 등은 각 권리자에게 귀속됩니다. 루미벨은 공식 플랫폼 링크 또는 권리자가 허용한 임베드 방식으로만 안내합니다.
+          외부 곡의 음원·영상·가사·안무 등은 각 권리자에게 귀속됩니다. 루미벨은 MP3 파일을 직접 제공하지 않고, 공식 플랫폼 링크 또는 권리자가 허용한 임베드 방식으로만 안내합니다.
         </p>
       </div>
     </div>
@@ -4025,6 +4264,7 @@ audio::-webkit-media-controls-mute-button{
         audioPolicy: 'original',
         officialAudio: '',
         officialAudioEmbed: '',
+        officialAudioLinks: [],
         audio: '',
         video: '',
         support: {
@@ -4068,6 +4308,7 @@ audio::-webkit-media-controls-mute-button{
         audioPolicy: 'original',
         officialAudio: '',
         officialAudioEmbed: '',
+        officialAudioLinks: [],
         audio: '',
         video: '',
         support: {
@@ -4540,6 +4781,7 @@ We are Sweetie pie! 루미베르 데스~`,
         audioPolicy: 'external',
         officialAudio: '',
         officialAudioEmbed: '',
+        officialAudioLinks: [],
         audio: '',
         video: 'https://youtu.be/az9mkI9C2f4',
         support: {
@@ -4956,6 +5198,7 @@ We are Sweetie pie! 루미베르 데스~`,
         audioPolicy: 'external',
         officialAudio: '',
         officialAudioEmbed: '',
+        officialAudioLinks: [],
         audio: '',
         video: 'https://youtu.be/bAxU3DizH90',
         support: {
@@ -5444,17 +5687,33 @@ We are Sweetie pie! 루미베르 데스~`,
       if(isExternalAudio(song)){
         if(audioPracticeCard) audioPracticeCard.style.display = 'block';
         if(audioPracticeActions){
-          const officialAudioBtn = song.officialAudio || song.officialAudioEmbed
-            ? '<button class="audio-practice-btn primary" type="button" id="openAudioModalBtn">공식 음원 열기</button>'
-            : '<span class="audio-practice-btn disabled">공식 음원 준비중</span>';
-          const officialVideoBtn = song.video
-            ? `<a class="audio-practice-btn" href="${song.video}" target="_blank" rel="noopener noreferrer">공식 영상 열기</a>`
-            : '<span class="audio-practice-btn disabled">공식 영상 준비중</span>';
+          const officialAudioBtn = '<button class="audio-practice-btn primary" type="button" id="openAudioModalBtn">공식 음원 선택</button>';
           const practiceBtn = '<button class="audio-practice-btn" type="button" onclick="alert(\'루미 응원 연습바 START!\')">루미 응원 연습바 START</button>';
-          audioPracticeActions.innerHTML = officialAudioBtn + officialVideoBtn + practiceBtn;
+          const guideBtn = '<button class="audio-practice-btn" type="button" id="openAudioGuideBtn">연습 자료 보기</button>';
+          audioPracticeActions.innerHTML = officialAudioBtn + practiceBtn + guideBtn;
           const openAudioModalBtn = document.getElementById('openAudioModalBtn');
           if(openAudioModalBtn){
-            openAudioModalBtn.addEventListener('click', () => openAudioModal(song));
+            openAudioModalBtn.addEventListener('click', () => openAudioModal(song, 'timing'));
+          }
+          const openAudioGuideBtn = document.getElementById('openAudioGuideBtn');
+          if(openAudioGuideBtn){
+            openAudioGuideBtn.addEventListener('click', () => openAudioModal(song, 'beginner'));
+          }
+          const openAudioBeginnerBtn = document.getElementById('openAudioBeginnerBtn');
+          if(openAudioBeginnerBtn){
+            openAudioBeginnerBtn.addEventListener('click', () => openAudioModal(song, 'beginner'));
+          }
+          const openAudioAdvancedBtn = document.getElementById('openAudioAdvancedBtn');
+          if(openAudioAdvancedBtn){
+            openAudioAdvancedBtn.addEventListener('click', () => openAudioModal(song, 'advanced'));
+          }
+          const openAudioMixBtn = document.getElementById('openAudioMixBtn');
+          if(openAudioMixBtn){
+            openAudioMixBtn.addEventListener('click', () => openAudioModal(song, 'mix'));
+          }
+          const openAudioLyricsBtn = document.getElementById('openAudioLyricsBtn');
+          if(openAudioLyricsBtn){
+            openAudioLyricsBtn.addEventListener('click', () => openAudioModal(song, 'lyrics'));
           }
         }
         return;
@@ -5467,34 +5726,41 @@ We are Sweetie pie! 루미베르 데스~`,
     }
 
     function renderLinks(song){
-      const videoBtn = song.video
-        ? `<a class="link-btn" href="${song.video}" target="_blank" rel="noopener noreferrer">공식 영상 보기</a>`
-        : `<span class="link-btn disabled">영상 준비중</span>`;
-
       const audioBtn = isExternalAudio(song)
-        ? (song.officialAudio || song.officialAudioEmbed
-          ? '<button class="link-btn secondary" type="button" id="openAudioModalBtn2">공식 음원</button>'
-          : '<span class="link-btn disabled">공식 음원 준비중</span>')
+        ? '<button class="link-btn secondary" type="button" id="openAudioModalBtn2">공식 음원 선택</button>'
         : '';
       const termBtn = `<button class="link-btn secondary" type="button" id="openTermGuideBtn">용어 가이드</button>`;
       const lyricBtn = `<button class="link-btn secondary" type="button" id="openLyricsBtn">가사지</button>`;
-      const mixGuideBtn = `<a class="link-btn secondary" href="https://www.youtube.com/watch?v=R6aAdr7Mmg4&list=PLzNFNPqZTy9fdpKtTbHAInQyYy3MV8YhS" target="_blank" rel="noopener noreferrer">믹스콜 가이드</a>`;
-      linkRow.innerHTML = videoBtn + audioBtn + termBtn + lyricBtn + mixGuideBtn;
+      const mixGuideBtn = isExternalAudio(song)
+        ? `<button class="link-btn secondary" type="button" id="openAudioMixGuideBtn">믹스콜 가이드</button>`
+        : `<a class="link-btn secondary" href="https://www.youtube.com/watch?v=R6aAdr7Mmg4&list=PLzNFNPqZTy9fdpKtTbHAInQyYy3MV8YhS" target="_blank" rel="noopener noreferrer">믹스콜 가이드</a>`;
+      linkRow.innerHTML = audioBtn + termBtn + lyricBtn + mixGuideBtn;
 
       const openBtn = document.getElementById('openTermGuideBtn');
       if(openBtn){
         openBtn.addEventListener('click', () => {
-          termModal.classList.add('open');
-          document.body.style.overflow = 'hidden';
+          if(isExternalAudio(song)){
+            openAudioModal(song, 'terms');
+          }else{
+            termModal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+          }
         });
       }
       const lyricOpenBtn = document.getElementById('openLyricsBtn');
       if(lyricOpenBtn){
-        lyricOpenBtn.addEventListener('click', () => openLyricsModal(song));
+        lyricOpenBtn.addEventListener('click', () => {
+          if(isExternalAudio(song)) openAudioModal(song, 'lyrics');
+          else openLyricsModal(song);
+        });
       }
       const openAudioBtn2 = document.getElementById('openAudioModalBtn2');
       if(openAudioBtn2){
-        openAudioBtn2.addEventListener('click', () => openAudioModal(song));
+        openAudioBtn2.addEventListener('click', () => openAudioModal(song, 'timing'));
+      }
+      const openAudioMixGuideBtn = document.getElementById('openAudioMixGuideBtn');
+      if(openAudioMixGuideBtn){
+        openAudioMixGuideBtn.addEventListener('click', () => openAudioModal(song, 'mix'));
       }
     }
 
@@ -5597,21 +5863,172 @@ We are Sweetie pie! 루미베르 데스~`,
       requestAnimationFrame(syncGuideColumns);
     }
 
-    function openAudioModal(song){
+    function openAudioModal(song, initialTab = 'timing'){
       if(!audioModal) return;
-      audioModalTitle.textContent = `${song.title} · 공식 음원`;
-      if(song.officialAudioEmbed){
-        audioEmbedBox.innerHTML = song.officialAudioEmbed;
-      }else{
-        audioEmbedBox.innerHTML = '공식 음원 플레이어가 준비되면 이 영역에서 바로 확인할 수 있어요.<br>현재는 공식 음원 링크 또는 공식 영상 링크로 연결됩니다.';
+      audioModalTitle.textContent = `${song.title} · LUMI PRACTICE`;
+
+      const currentSupport = song.support?.[state.mode] || {};
+      const currentGuide = currentSupport?.[state.level] || null;
+      const beginnerGuide = currentSupport?.beginner || null;
+      const advancedGuide = currentSupport?.advanced || null;
+      const activeTab = initialTab || 'timing';
+
+      function guideCards(guide, emptyText){
+        if(!guide || !guide.lines || !guide.lines.length){
+          return `<div class="audio-mini-empty">${emptyText}</div>`;
+        }
+        return `<div class="audio-mini-lines">${guide.lines.map(line => {
+          const tags = (line.tags || []).map(tag => `<span class="audio-mini-tag">${tag}</span>`).join('');
+          return `
+            <article class="audio-mini-line">
+              <div class="audio-mini-top">
+                <span class="audio-mini-time">${line.time || ''}</span>
+                <span class="audio-mini-stage">${line.stage || ''}</span>
+              </div>
+              <div class="audio-mini-lyric">${line.lyric || ''}</div>
+              ${tags ? `<div class="audio-mini-tags">${tags}</div>` : ''}
+              <div class="audio-mini-call">${line.call || ''}</div>
+            </article>
+          `;
+        }).join('')}</div>`;
       }
-      const audioLink = song.officialAudio
-        ? `<a class="audio-practice-btn primary" href="${song.officialAudio}" target="_blank" rel="noopener noreferrer">공식 음원으로 듣기</a>`
-        : '<span class="audio-practice-btn disabled">공식 음원 링크 준비중</span>';
-      const videoLink = song.video
-        ? `<a class="audio-practice-btn" href="${song.video}" target="_blank" rel="noopener noreferrer">공식 영상으로 보기</a>`
-        : '<span class="audio-practice-btn disabled">공식 영상 준비중</span>';
-      audioModalActions.innerHTML = audioLink + videoLink;
+
+      function mixCards(){
+        const guides = [beginnerGuide, advancedGuide].filter(Boolean);
+        const mixLines = [];
+        guides.forEach(guide => {
+          (guide.lines || []).forEach(line => {
+            const isMix = (line.tags || []).some(tag => String(tag).toUpperCase().includes('MIX') || String(tag).includes('믹스')) || /MIX|믹스/i.test(line.call || '') || /믹스/i.test(line.lyric || '');
+            if(isMix) mixLines.push(line);
+          });
+        });
+        if(!mixLines.length){
+          return `<div class="audio-mini-empty">이 곡은 아직 별도 믹스콜 포인트가 정리되지 않았어요.<br>초보용/고급용 탭의 응원 포인트를 먼저 확인해주세요.</div>`;
+        }
+        return `<div class="audio-mini-lines">${mixLines.map(line => {
+          const tags = (line.tags || []).map(tag => `<span class="audio-mini-tag">${tag}</span>`).join('');
+          return `
+            <article class="audio-mini-line">
+              <div class="audio-mini-top"><span class="audio-mini-time">${line.time || ''}</span><span class="audio-mini-stage">MIX POINT</span></div>
+              <div class="audio-mini-lyric">${line.lyric || ''}</div>
+              ${tags ? `<div class="audio-mini-tags">${tags}</div>` : ''}
+              <div class="audio-mini-call">${line.call || ''}</div>
+            </article>
+          `;
+        }).join('')}</div>`;
+      }
+
+      const platformLinks = Array.isArray(song.officialAudioLinks) ? [...song.officialAudioLinks] : [];
+      if(song.officialAudio && !platformLinks.length){
+        platformLinks.push({ label: '공식 음원', url: song.officialAudio });
+      }
+      const platformButtons = platformLinks.length
+        ? `<div class="audio-platform-grid">${platformLinks.map(link => `<a class="audio-platform-btn" href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label}</a>`).join('')}</div>`
+        : '<div class="audio-platform-empty">공식 음원 링크 준비중입니다.<br>현재는 응원 타이밍과 연습 자료를 먼저 확인해주세요.</div>';
+      const embedHtml = song.officialAudioEmbed
+        ? song.officialAudioEmbed
+        : `
+          <div class="audio-platform-intro">
+            공식 음원은 각 플랫폼에서 재생됩니다.<br>
+            원하는 플랫폼에서 곡을 재생한 뒤, 이 창으로 돌아와 루미 응원 연습바를 시작해주세요.
+          </div>
+          ${platformButtons}
+          <div class="audio-modal-notice">
+            플랫폼별 로그인·앱 설치·지역 제한·미리듣기 제한 등이 적용될 수 있습니다.
+          </div>
+        `;
+
+      const lyricText = song.lyrics || `${song.title} 가사지 준비중`;
+
+      audioEmbedBox.innerHTML = `
+        <div class="audio-modal-layout">
+          <div class="audio-modal-player">
+            ${embedHtml}
+          </div>
+          <div class="audio-modal-practice">
+            <span class="audio-modal-kicker">LUMI PRACTICE</span>
+            <h4>응원 연습바</h4>
+            <p>공식 음원을 재생한 뒤, 카운트에 맞춰 루미벨 응원 타이밍을 연습해주세요.</p>
+            <button class="audio-practice-btn primary" type="button" onclick="alert('루미 응원 연습바 START!')">루미 응원 연습바 START</button>
+            <div class="audio-modal-practice-quick">
+              <button class="audio-practice-btn audio-tab-jump" type="button" data-audio-tab="beginner">초보용</button>
+              <button class="audio-practice-btn audio-tab-jump" type="button" data-audio-tab="advanced">고급용</button>
+              <button class="audio-practice-btn audio-tab-jump" type="button" data-audio-tab="mix">믹스콜</button>
+              <button class="audio-practice-btn audio-tab-jump" type="button" data-audio-tab="lyrics">가사지</button>
+            </div>
+          </div>
+        </div>
+
+        <section class="audio-modal-tabs" aria-label="루미 응원 연습 자료">
+          <div class="audio-tab-nav" role="tablist">
+            <button class="audio-tab-btn" type="button" data-audio-tab="timing">응원 타이밍</button>
+            <button class="audio-tab-btn" type="button" data-audio-tab="beginner">초보용</button>
+            <button class="audio-tab-btn" type="button" data-audio-tab="advanced">고급용</button>
+            <button class="audio-tab-btn" type="button" data-audio-tab="mix">믹스콜</button>
+            <button class="audio-tab-btn" type="button" data-audio-tab="terms">용어</button>
+            <button class="audio-tab-btn" type="button" data-audio-tab="lyrics">가사지</button>
+          </div>
+
+          <div class="audio-tab-panel" data-audio-panel="timing">
+            <h4 class="audio-tab-title">응원 타이밍</h4>
+            <p class="audio-tab-desc">현재 선택된 모드와 난이도의 응원 흐름이에요. 공식 음원을 켜고 같은 타이밍에 맞춰 확인해주세요.</p>
+            ${guideCards(currentGuide, '현재 선택한 모드/난이도의 응원 타이밍은 준비중이에요.')}
+          </div>
+
+          <div class="audio-tab-panel" data-audio-panel="beginner">
+            <h4 class="audio-tab-title">초보용 응원</h4>
+            <p class="audio-tab-desc">처음 보는 팬도 따라오기 쉬운 기본 콜, 박수, 감상 포인트 중심으로 정리했어요.</p>
+            ${guideCards(beginnerGuide, '초보용 응원 가이드는 준비중이에요.')}
+          </div>
+
+          <div class="audio-tab-panel" data-audio-panel="advanced">
+            <h4 class="audio-tab-title">고급용 응원</h4>
+            <p class="audio-tab-desc">익숙한 팬을 위한 믹스, 리스폰스, 곡명콜 등 고급 응원 포인트를 정리하는 영역이에요.</p>
+            ${guideCards(advancedGuide, '고급용 응원 가이드는 준비중이에요.')}
+          </div>
+
+          <div class="audio-tab-panel" data-audio-panel="mix">
+            <h4 class="audio-tab-title">믹스콜 GUIDE</h4>
+            <p class="audio-tab-desc">곡 분위기를 해치지 않도록 짧고 정확하게 넣는 믹스 타이밍만 따로 모아둔 영역이에요.</p>
+            ${mixCards()}
+          </div>
+
+          <div class="audio-tab-panel" data-audio-panel="terms">
+            <h4 class="audio-tab-title">용어 GUIDE</h4>
+            <p class="audio-tab-desc">콜, 믹스, 리스폰스처럼 처음 보면 헷갈릴 수 있는 용어를 간단히 정리했어요.</p>
+            <div class="audio-term-grid">
+              <div class="audio-term-box"><h5>CALL</h5><p>공연 중 팬들이 함께 외치는 구호예요. 곡명, 팀명, 특정 단어, 리스폰스 형태가 들어가요.</p></div>
+              <div class="audio-term-box"><h5>MIX</h5><p>특정 타이밍에 넣는 응원 구호 세트예요. 곡 분위기를 해치지 않게 짧고 정확하게 넣는 게 중요해요.</p></div>
+              <div class="audio-term-box"><h5>리스폰스</h5><p>무대에서 먼저 부르면 관객이 받아치는 형태예요. 참여형 곡에서 특히 많이 쓰여요.</p></div>
+              <div class="audio-term-box"><h5>나마콜</h5><p>멤버 이름을 직접 외치거나 멤버 파트에 맞춰 이름을 넣는 콜이에요.</p></div>
+              <div class="audio-term-box"><h5>감상</h5><p>큰 콜보다 곡 분위기를 듣고 박수나 리액션 위주로 따라가는 구간이에요.</p></div>
+              <div class="audio-term-box"><h5>초보자 팁</h5><p>처음이면 초보용만 따라가도 충분해요. 박수, 곡명콜, 팀명콜부터 익히면 좋아요.</p></div>
+            </div>
+          </div>
+
+          <div class="audio-tab-panel" data-audio-panel="lyrics">
+            <h4 class="audio-tab-title">가사지 / 파트 메모</h4>
+            <p class="audio-tab-desc">외부 곡은 가사 전문 공개가 아니라 응원 연습에 필요한 파트 메모와 타이밍 중심으로 정리합니다.</p>
+            <div class="audio-lyrics-box">${lyricText}</div>
+          </div>
+        </section>
+      `;
+
+      audioModalActions.innerHTML = platformLinks.length
+        ? '<span class="audio-rights-note">공식 음원은 각 플랫폼 정책에 따라 재생됩니다. 루미벨은 음원 파일을 직접 제공하지 않습니다.</span>'
+        : '<span class="audio-rights-note">공식 음원 링크가 준비되기 전에도 응원 타이밍과 연습 자료는 확인할 수 있습니다.</span>';
+
+      function activateAudioTab(tabName){
+        const tab = tabName || 'timing';
+        audioModal.querySelectorAll('.audio-tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.audioTab === tab));
+        audioModal.querySelectorAll('.audio-tab-panel').forEach(panel => panel.classList.toggle('active', panel.dataset.audioPanel === tab));
+      }
+
+      audioModal.querySelectorAll('[data-audio-tab]').forEach(btn => {
+        btn.addEventListener('click', () => activateAudioTab(btn.dataset.audioTab));
+      });
+      activateAudioTab(activeTab);
+
       audioModal.classList.add('open');
       document.body.style.overflow = 'hidden';
     }
@@ -5629,7 +6046,7 @@ We are Sweetie pie! 루미베르 데스~`,
       if(!audioModal) return;
       audioModal.classList.remove('open');
       document.body.style.overflow = '';
-      if(audioEmbedBox) audioEmbedBox.innerHTML = '공식 음원 플레이어가 준비되면 이 영역에서 바로 확인할 수 있어요.<br>현재는 공식 음원 링크 또는 공식 영상 링크로 연결됩니다.';
+      if(audioEmbedBox) audioEmbedBox.innerHTML = 'Spotify 등 공식 음원 플레이어가 준비되면 이 영역에서 바로 확인할 수 있어요.<br>현재는 공식 음원 링크 연결 전입니다.';
     }
     termModalClose.addEventListener('click', closeTermModal);
     lyricsModalClose.addEventListener('click', closeLyricsModal);
