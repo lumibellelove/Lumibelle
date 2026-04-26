@@ -494,12 +494,37 @@ textarea{padding:14px;min-height:120px}
   function sound(){
     try{
       const C=window.AudioContext||window.webkitAudioContext; const ctx=new C();
-      [[0,950,.13],[.2,950,.13],[.4,950,.13],[.68,1250,.42],[1.25,950,.13],[1.45,1250,.35]].forEach(([s,f,d])=>{
-        const o=ctx.createOscillator(), g=ctx.createGain(); o.type='square'; o.frequency.value=f;
-        g.gain.setValueAtTime(.0001,ctx.currentTime+s); g.gain.exponentialRampToValueAtTime(.55,ctx.currentTime+s+.02); g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+s+d);
-        o.connect(g); g.connect(ctx.destination); o.start(ctx.currentTime+s); o.stop(ctx.currentTime+s+d+.03);
+
+      // 종료 알림: 현장 소음에 묻히지 않도록 약 3.6초 패턴으로 길게 울림
+      const pattern = [
+        [0.00, 950, .16],
+        [0.24, 950, .16],
+        [0.48, 950, .16],
+        [0.78, 1250, .55],
+
+        [1.45, 950, .16],
+        [1.69, 950, .16],
+        [1.93, 950, .16],
+        [2.23, 1250, .60],
+
+        [3.00, 1100, .18],
+        [3.25, 1350, .70]
+      ];
+
+      pattern.forEach(([s,f,d])=>{
+        const o=ctx.createOscillator(), g=ctx.createGain();
+        o.type='square';
+        o.frequency.value=f;
+        g.gain.setValueAtTime(.0001,ctx.currentTime+s);
+        g.gain.exponentialRampToValueAtTime(.62,ctx.currentTime+s+.02);
+        g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+s+d);
+        o.connect(g);
+        g.connect(ctx.destination);
+        o.start(ctx.currentTime+s);
+        o.stop(ctx.currentTime+s+d+.04);
       });
-      if(navigator.vibrate) navigator.vibrate([250,120,250,120,500]);
+
+      if(navigator.vibrate) navigator.vibrate([260,110,260,110,520,180,260,110,260,110,650]);
     }catch(e){}
   }
   function setTimer(sec){ state.timer.total=sec; state.timer.remaining=sec; state.timer.running=false; clearInterval(state.timer.interval); updateTimerUI(); }
