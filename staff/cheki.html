@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -27,6 +26,96 @@
     .mini-timer{position:fixed;left:50%;bottom:14px;transform:translateX(-50%) translateY(130%);z-index:200;width:min(720px,calc(100% - 24px));min-height:58px;border-radius:999px;background:rgba(255,255,255,.94);border:1px solid #f0bfd4;box-shadow:0 14px 34px rgba(255,95,165,.22);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 10px 9px 18px;transition:transform .2s ease;backdrop-filter:blur(10px)}.mini-timer.show{transform:translateX(-50%) translateY(0)}.mini-info{font-size:14px;font-weight:900;color:#7f6a77;line-height:1.25}.mini-info b{color:#ff5fa8;font-size:18px;margin-right:5px}.mini-timer.timeup{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);border-color:transparent}.mini-timer.timeup .mini-info{color:#fff}.mini-timer.timeup .mini-info b{color:#fff}
     @media(max-width:900px){.grid-2{grid-template-columns:1fr}.pending-summary{grid-template-columns:1fr}.hero{padding:24px 18px 20px}.tab-bar{grid-template-columns:repeat(2,minmax(0,1fr))}.quick-actions{grid-template-columns:1fr}.timer-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(max-width:560px){.wrap{width:calc(100% - 22px);padding-top:14px}.hero h1{font-size:44px}.card{padding:20px 16px;border-radius:24px}.card h2{font-size:26px}.small-grid,.check-grid,.ticket-actions,.ticket-actions.three,.save-actions,.timer-controls,.member-timers{grid-template-columns:1fr}.member-row{grid-template-columns:1fr 48px 48px 48px}.round-btn{width:48px;height:48px}.timer-grid{grid-template-columns:1fr}.time-display{font-size:62px}.mini-timer{border-radius:22px;align-items:flex-start}.tab-btn{font-size:12px}}
+    /* ===== 모바일 현장용 타이머 압축 패치 ===== */
+    @media(max-width:560px){
+      .timer-card{
+        padding:18px 14px !important;
+        border-radius:22px !important;
+      }
+      .timer-card h2{
+        font-size:32px !important;
+        line-height:1.12 !important;
+        margin-bottom:10px !important;
+      }
+      .timer-card p{
+        font-size:15px !important;
+        line-height:1.65 !important;
+        margin-bottom:18px !important;
+      }
+      .timer-controls{
+        grid-template-columns:1fr 1fr !important;
+        gap:8px !important;
+        margin-top:10px !important;
+      }
+      .timer-controls label{
+        font-size:13px !important;
+        margin-bottom:6px !important;
+      }
+      .timer-select,
+      .timer-input{
+        min-height:54px !important;
+        border-radius:18px !important;
+        font-size:17px !important;
+        padding:0 14px !important;
+      }
+      .time-display{
+        font-size:56px !important;
+        margin:14px 0 0 !important;
+        letter-spacing:-.06em !important;
+      }
+      .timer-state{
+        font-size:15px !important;
+        min-height:24px !important;
+        margin-top:4px !important;
+      }
+      .timer-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+        gap:8px !important;
+        margin-top:14px !important;
+      }
+      .timer-btn{
+        min-height:48px !important;
+        border-radius:18px !important;
+        font-size:14.5px !important;
+      }
+      .timer-btn.start{
+        color:#ff2f96 !important;
+        border:2px solid #fff !important;
+        box-shadow:0 8px 18px rgba(139,46,108,.18) !important;
+      }
+      .member-timers{
+        grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+        gap:8px !important;
+        margin-top:12px !important;
+      }
+      .member-timer{
+        padding:10px 8px !important;
+        border-radius:16px !important;
+      }
+      .member-timer b{
+        margin-bottom:6px !important;
+        font-size:14px !important;
+      }
+      .member-timer button{
+        min-height:34px !important;
+        font-size:13px !important;
+        border-radius:12px !important;
+      }
+      .mini-timer{
+        width:calc(100% - 18px) !important;
+        min-height:54px !important;
+        padding:8px 9px 8px 14px !important;
+        bottom:10px !important;
+      }
+      .mini-info{font-size:12.5px !important;}
+      .mini-info b{font-size:16px !important;}
+      .mini-timer .primary-btn{
+        min-height:40px !important;
+        padding:0 13px !important;
+        font-size:12.5px !important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -48,7 +137,7 @@
     function lookupFan(){const q=document.getElementById('fanQuery').value.trim();const pin=document.getElementById('pinInput').value.trim();const status=document.getElementById('fanStatus');if(!q){status.textContent='루미 ID 또는 닉네임을 입력해 주세요.';return}status.innerHTML=`<b>${escapeHtml(q)}</b> 조회 준비 완료${pin?' · PIN 확인 입력됨':''}<br>현재 버전은 시트 연동 전 화면 확인용입니다.`;updatePendingSummary()}
     function renderMemberRows(){document.getElementById('memberRows').innerHTML=Object.entries(members).map(([key,m])=>`<div class="member-row"><div><strong>${m.name}</strong><span>${m.mark}</span></div><button class="round-btn" type="button" onclick="changeCount('${key}',-1)">−</button><div class="count" id="count-${key}">${counts[key]}</div><button class="round-btn plus" type="button" onclick="changeCount('${key}',1)">+</button></div>`).join('')}function changeCount(key,delta){counts[key]=Math.max(0,counts[key]+delta);renderMemberRows();updatePendingSummary()}function fullLoop(keys){keys.forEach(k=>counts[k]+=1);renderMemberRows();updatePendingSummary()}function resetCounts(){Object.keys(counts).forEach(k=>counts[k]=0);renderMemberRows();updatePendingSummary()}
     function setTicket(type,value){ticketState[type]=value;document.getElementById('ticketStatus').innerHTML=`Welcome Ticket: <b>${ticketState.welcome}</b><br>Join Welcome Ticket: <b>${ticketState.join}</b>`;updatePendingSummary()}
-    function formatTime(s){s=Math.max(0,Number(s)||0);const m=Math.floor(s/60),sec=s%60;return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`}function updateTimerUI(){document.getElementById('timeDisplay').textContent=formatTime(timerLeft);const member=document.getElementById('timerMember').value;const state=document.getElementById('timerState');if(timerLeft===0)state.textContent=`${member} TIME!`;else if(timerLeft<=10)state.textContent='10초 이하 · 마무리 준비';else if(timerRunning)state.textContent=`${member} 진행 중`;else state.textContent='대기 중';updateMiniTimer()}function updateMiniTimer(){const mini=document.getElementById('miniTimer'),info=document.getElementById('miniInfo');const member=document.getElementById('timerMember').value;if(timerRunning||timerLeft!==timerTotal){mini.classList.add('show');mini.classList.toggle('timeup',timerLeft===0);info.innerHTML=`<b>${formatTime(timerLeft)}</b> ${escapeHtml(member)} ${timerLeft===0?'TIME!':'진행 중'}`}else{mini.classList.remove('show');mini.classList.remove('timeup')}}function setTimer(sec){timerTotal=Math.max(1,Number(sec)||120);timerLeft=timerTotal;timerRunning=false;clearInterval(timerInterval);updateTimerUI()}function startTimer(){ensureAudio();if(timerRunning)return;timerRunning=true;updateTimerUI();clearInterval(timerInterval);timerInterval=setInterval(()=>{timerLeft=Math.max(0,timerLeft-1);if(alertsOn&&(timerLeft===30||timerLeft===10))beep(timerLeft===10?2:1);if(timerLeft===0){timerRunning=false;clearInterval(timerInterval);if(alertsOn){beep(4);vibrate([220,90,220,90,360])}}updateTimerUI()},1000)}function pauseTimer(){timerRunning=false;clearInterval(timerInterval);updateTimerUI()}function resetTimer(){timerRunning=false;clearInterval(timerInterval);timerLeft=timerTotal;updateTimerUI()}function adjustTimer(delta){timerLeft=Math.max(0,timerLeft+delta);timerTotal=Math.max(timerTotal,timerLeft);updateTimerUI()}function startMemberTimer(name){document.getElementById('timerMember').value=name;setTimer(120);startTimer()}function toggleAlerts(){alertsOn=!alertsOn;document.getElementById('alertToggle').textContent=alertsOn?'알림 끄기':'알림 켜기'}function ensureAudio(){if(!audioCtx){audioCtx=new(window.AudioContext||window.webkitAudioContext)()}if(audioCtx.state==='suspended')audioCtx.resume()}function beep(times=1){try{ensureAudio();for(let i=0;i<times;i++){const osc=audioCtx.createOscillator();const gain=audioCtx.createGain();osc.type='sine';osc.frequency.setValueAtTime(i%2?980:760,audioCtx.currentTime+i*.16);gain.gain.setValueAtTime(.0001,audioCtx.currentTime+i*.16);gain.gain.exponentialRampToValueAtTime(.75,audioCtx.currentTime+i*.16+.02);gain.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+i*.16+.13);osc.connect(gain);gain.connect(audioCtx.destination);osc.start(audioCtx.currentTime+i*.16);osc.stop(audioCtx.currentTime+i*.16+.14)}}catch(e){}}function soundTest(){beep(3);vibrate([120,50,120])}function vibrate(pattern){if(navigator.vibrate)navigator.vibrate(pattern)}
+    function formatTime(s){s=Math.max(0,Number(s)||0);const m=Math.floor(s/60),sec=s%60;return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`}function updateTimerUI(){document.getElementById('timeDisplay').textContent=formatTime(timerLeft);const member=document.getElementById('timerMember').value;const state=document.getElementById('timerState');if(timerLeft===0)state.textContent=`${member} TIME!`;else if(timerLeft<=10)state.textContent='10초 이하 · 마무리 준비';else if(timerRunning)state.textContent=`${member} 진행 중`;else state.textContent='대기 중';updateMiniTimer()}function updateMiniTimer(){const mini=document.getElementById('miniTimer'),info=document.getElementById('miniInfo');const member=document.getElementById('timerMember').value;if(timerRunning||timerLeft!==timerTotal){mini.classList.add('show');mini.classList.toggle('timeup',timerLeft===0);info.innerHTML=`<b>${formatTime(timerLeft)}</b> ${escapeHtml(member)} ${timerLeft===0?'TIME!':'진행 중'}`}else{mini.classList.remove('show');mini.classList.remove('timeup')}}function setTimer(sec){timerTotal=Math.max(1,Number(sec)||120);timerLeft=timerTotal;timerRunning=false;clearInterval(timerInterval);updateTimerUI()}function startTimer(){ensureAudio();if(timerRunning)return;timerRunning=true;updateTimerUI();clearInterval(timerInterval);timerInterval=setInterval(()=>{timerLeft=Math.max(0,timerLeft-1);if(alertsOn&&(timerLeft===30||timerLeft===10))beep(timerLeft===10?2:1);if(timerLeft===0){timerRunning=false;clearInterval(timerInterval);if(alertsOn){beep(4);vibrate([220,90,220,90,360])}}updateTimerUI()},1000)}function pauseTimer(){timerRunning=false;clearInterval(timerInterval);updateTimerUI()}function resetTimer(){timerRunning=false;clearInterval(timerInterval);timerLeft=timerTotal;updateTimerUI()}function adjustTimer(delta){timerLeft=Math.max(0,timerLeft+delta);timerTotal=Math.max(timerTotal,timerLeft);updateTimerUI()}function startMemberTimer(name){document.getElementById('timerMember').value=name;setTimer(120);startTimer()}function toggleAlerts(){alertsOn=!alertsOn;document.getElementById('alertToggle').textContent=alertsOn?'알림 끄기':'알림 켜기'}function ensureAudio(){if(!audioCtx){audioCtx=new(window.AudioContext||window.webkitAudioContext)()}if(audioCtx.state==='suspended')audioCtx.resume()}function beep(times=1){playStrongAlarm(times)}function playStrongAlarm(repeat=1){try{ensureAudio();const base=audioCtx.currentTime;const one=[[0,1050,.12],[.18,1050,.12],[.36,1050,.12],[.62,1350,.38]];for(let r=0;r<repeat;r++){one.forEach(([start,freq,dur])=>{const osc=audioCtx.createOscillator();const gain=audioCtx.createGain();osc.type='square';osc.frequency.setValueAtTime(freq,base+r*1.18+start);gain.gain.setValueAtTime(.0001,base+r*1.18+start);gain.gain.exponentialRampToValueAtTime(.95,base+r*1.18+start+.018);gain.gain.exponentialRampToValueAtTime(.0001,base+r*1.18+start+dur);osc.connect(gain);gain.connect(audioCtx.destination);osc.start(base+r*1.18+start);osc.stop(base+r*1.18+start+dur+.04)})}}catch(e){}}function soundTest(){playStrongAlarm(2);vibrate([220,80,220,80,420,140,220,80,420])}function vibrate(pattern){if(navigator.vibrate)navigator.vibrate(pattern)}
     function updatePendingSummary(){const box=document.getElementById('pendingSummary');if(!box)return;const fan=document.getElementById('fanQuery')?.value.trim()||'팬 미입력';const checks=[];if(document.getElementById('chkJoin')?.checked)checks.push('특전회 참가');if(document.getElementById('chkCheckin')?.checked)checks.push('루미 체크인');if(document.getElementById('chkStamp')?.checked)checks.push('스탬프');if(document.getElementById('chkMeate')?.checked)checks.push('메아테');const used=Object.entries(counts).filter(([,v])=>v>0).map(([k,v])=>`${members[k].name} ${v}`).join(', ')||'없음';box.innerHTML=`<div class="summary-card"><b>팬/체크</b>${escapeHtml(fan)}<br>${escapeHtml(checks.join(', ')||'체크 없음')}</div><div class="summary-card"><b>이벤트권</b>Welcome: ${escapeHtml(ticketState.welcome)}<br>Join: ${escapeHtml(ticketState.join)}</div><div class="summary-card"><b>특전 사용</b>${escapeHtml(used)}</div>`}function selectedCautions(){return Array.from(document.querySelectorAll('.caution:checked')).map(x=>x.value)}function saveRecord(){const q=document.getElementById('fanQuery').value.trim()||'팬 미입력';const record={time:new Date().toLocaleString('ko-KR'),fan:q,oshi:document.getElementById('oshiSelect').value,checks:{join:chkJoin.checked,checkin:chkCheckin.checked,stamp:chkStamp.checked,meate:chkMeate.checked,late:chkLate.checked,eventDay:chkEventDay.checked},tickets:{...ticketState},counts:{...counts},cautions:selectedCautions(),memo:document.getElementById('staffMemo').value.trim()};const records=JSON.parse(localStorage.getItem('lumibelle_cheki_records')||'[]');records.unshift(record);localStorage.setItem('lumibelle_cheki_records',JSON.stringify(records.slice(0,30)));document.getElementById('saveStatus').textContent='기록 저장 완료 ✦ 이벤트권/특전 수량/체크가 함께 저장됐어요.';renderHistory();updatePendingSummary()}function renderHistory(){const records=JSON.parse(localStorage.getItem('lumibelle_cheki_records')||'[]');const box=document.getElementById('history');if(!records.length){box.innerHTML='기록 없음<br>아직 저장된 처리 내역이 없어요.';return}box.innerHTML=records.map(r=>{const used=Object.entries(r.counts).filter(([,v])=>v>0).map(([k,v])=>`${members[k].name} ${v}`).join(', ')||'특전 사용 없음';return `<div class="history-item"><b>${escapeHtml(r.time)} · ${escapeHtml(r.fan)}</b><br>${escapeHtml(used)}<br>Welcome: ${escapeHtml(r.tickets.welcome)} / Join: ${escapeHtml(r.tickets.join)}${r.cautions.length?'<br>주의: '+escapeHtml(r.cautions.join(', ')):''}</div>`}).join('')}function clearCurrent(){document.getElementById('fanQuery').value='';document.getElementById('pinInput').value='';document.getElementById('fanStatus').textContent='팬 정보를 입력하고 조회해 주세요.';['chkJoin','chkCheckin','chkStamp','chkEventDay','chkMeate','chkLate'].forEach(id=>document.getElementById(id).checked=false);ticketState={welcome:'미처리',join:'미처리'};document.getElementById('ticketStatus').textContent='이벤트권 처리 상태가 여기에 표시됩니다.';resetCounts();clearCaution();document.getElementById('saveStatus').textContent='처리 내역을 저장하면 아래 기록에 남아요.';updatePendingSummary()}function clearCaution(){document.querySelectorAll('.caution').forEach(c=>c.checked=false);document.getElementById('staffMemo').value=''}function escapeHtml(value){return String(value||'').replace(/[&<>"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]))}
     renderMemberRows();renderHistory();updateTimerUI();updatePendingSummary();
   </script>
