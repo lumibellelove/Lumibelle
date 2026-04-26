@@ -30,13 +30,14 @@ button,input,select,textarea{font-family:inherit}
 .current-no{display:inline-flex;min-width:92px;padding:8px 18px;border-radius:999px;border:1px solid var(--line);background:var(--soft);font-weight:1000;color:#7b6574}
 .current-info{font-weight:900;margin-top:6px}
 .current-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.current-actions button{min-height:42px;border-radius:16px;border:1px solid var(--line);background:#fff;color:var(--pink2);font-weight:900}
-.tabs{position:sticky;top:96px;z-index:19;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:rgba(255,247,251,.95);padding:8px 0;margin-bottom:10px}
+.tabs{position:sticky;top:96px;z-index:19;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;background:rgba(255,247,251,.95);padding:8px 0;margin-bottom:10px}
 .tab-btn.active{background:linear-gradient(180deg,#ff72b0,#ff5ca6);color:#fff;border-color:transparent}
 .card{background:var(--card);border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow);padding:20px;margin:12px 0}
 .card h2{font-size:32px;color:var(--pink2);margin:12px 0 10px}
 .card p{font-size:15px;font-weight:800;line-height:1.75;margin:0 0 14px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .grid4{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.booth-result{margin-top:12px;padding:14px 16px;border:1px solid var(--line);border-radius:18px;background:#fff7fb;color:#a0617f;font-weight:900;line-height:1.65;font-size:13px}.booth-note{margin-top:10px;padding:12px 14px;border-radius:16px;background:#f7efff;color:#8066d0;font-weight:900;line-height:1.6;font-size:12.5px}.booth-history .history-item:nth-child(n+4){display:none}.booth-history.show-all .history-item:nth-child(n+4){display:block}
 .choice{min-height:54px;border-radius:20px;border:1px solid var(--line);background:#fff;color:var(--pink2);font-weight:1000;font-size:14px}
 .choice.active{background:linear-gradient(180deg,#ff72b0,#ff5ca6);color:#fff;border-color:transparent;box-shadow:0 10px 18px rgba(255,95,165,.20)}
 .field{margin:12px 0}
@@ -72,7 +73,7 @@ textarea{padding:14px;min-height:120px}
   .hero{padding:18px}.hero h1{font-size:40px}
   .card{padding:18px}.card h2{font-size:30px}
   .tabs{top:104px}
-  .tab-btn{font-size:13px;min-height:50px}
+  .tab-btn{font-size:12px;min-height:50px;padding:4px}
 }
 
 /* === member independent timers v5 === */
@@ -233,7 +234,8 @@ textarea{padding:14px;min-height:120px}
 
   <nav class="tabs">
     <button class="tab-btn active" data-tab="check">팬 조회<br>/ 체크</button>
-    <button class="tab-btn" data-tab="use">이벤트권<br>/ 특전 사용</button>
+    <button class="tab-btn" data-tab="booth">물판<br>처리</button>
+    <button class="tab-btn" data-tab="use">특전 사용<br>/ 촬영</button>
     <button class="tab-btn" data-tab="timer">타이머</button>
     <button class="tab-btn" data-tab="caution">주의<br>체크</button>
   </nav>
@@ -270,23 +272,55 @@ textarea{padding:14px;min-height:120px}
         <span class="label">TODAY CHECK</span>
         <h2>방문 / 체크</h2>
         <div class="grid2">
-          <button class="choice check" data-check="visit">방문 기록</button>
-          <button class="choice check" data-check="meate">메아테 지급</button>
-          <button class="choice check" data-check="meatePoint">메아테 포인트</button>
-          <button class="choice check" data-check="buyPoint">특전권 구매 포인트</button>
+          <button class="choice check" data-check="visit">루미 방문 기록</button>
+          <button class="choice check" data-check="meate">메아테 처리 확인</button>
           <button class="choice check" data-check="fullLoop">풀루프 참여자</button>
           <button class="choice check" data-check="eventDay">이벤트 데이</button>
         </div>
         <button class="btn" id="btnStartCheki2" style="width:100%;margin-top:12px">특전회 참가 처리 시작</button>
-        <div class="note">이 버튼은 촬영/교류 처리 탭으로 넘어가는 빠른 버튼이에요. 루미 체크인/스탬프는 실제 촬영·교류 특전이 저장될 때 기록합니다.</div>
+        <div class="note">이 버튼은 특전 사용/촬영 탭으로 넘어가는 빠른 버튼이에요. 메아테·구매 포인트는 물판 처리 탭에서 따로 기록합니다.</div>
+      </article>
+    </section>
+
+
+    <section class="panel" id="tab-booth">
+      <article class="card">
+        <span class="label">BOOTH</span>
+        <h2>물판 처리</h2>
+        <p>A 스탭용 처리 화면이에요. 메아테 처리, 주최 메아테 처리, 특전권 15장 구매 포인트를 한 번에 기록합니다.</p>
+
+        <div class="summary" id="boothFanSummary">
+          먼저 팬 조회/선택 후 처리해 주세요.
+        </div>
+
+        <div class="grid2">
+          <button class="choice" data-booth-action="meate">메아테 처리 완료 +1P<br><small>특전권 지급 + 방문 + 포인트</small></button>
+          <button class="choice" data-booth-action="hostMeate">주최 메아테 처리 완료 +2P<br><small>특전권 지급 + 방문 + 주최 포인트</small></button>
+          <button class="choice" data-booth-action="ticket15">특전권 15장 구매 +1P<br><small>구매 포인트 적립</small></button>
+          <a class="choice" href="point.html" style="display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;">포인트 상세/정정<br><small>point.html</small></a>
+        </div>
+
+        <div class="booth-note">
+          메아테 처리는 “메아테 특전권 지급 + 루미 방문 기록 + 물판 포인트 적립”을 한 세트로 봅니다.
+          루미 체크인/스탬프는 실제 촬영·교류 저장 시 기록합니다.
+        </div>
+
+        <div class="booth-result" id="boothStatus">처리 결과가 여기에 표시됩니다.</div>
+      </article>
+
+      <article class="card booth-history" id="boothHistoryBox">
+        <span class="label">BOOTH LOG</span>
+        <h2>물판 처리 기록</h2>
+        <div class="list" id="boothHistoryList"></div>
+        <button class="toggle" id="btnToggleBoothHistory" style="width:100%;margin-top:10px">전체 기록 보기</button>
       </article>
     </section>
 
     <section class="panel" id="tab-use">
       <article class="card">
-        <span class="label">FAST CHEKI</span>
-        <h2>빠른 촬영 처리</h2>
-        <p>현장 메인 동선: <b>권종 → 멤버 → 오늘 번호 → 1장 저장</b></p>
+        <span class="label">CHEKI USE</span>
+        <h2>특전 사용 / 촬영</h2>
+        <p>B 스탭용 촬영 처리 동선: <b>권종 → 멤버 → 오늘 번호 → 1장 저장</b></p>
 
         <div class="field"><label>1. 사용 권종</label><div class="grid4" id="passGrid"></div></div>
         <div class="field"><label>2. 이번 호출 멤버</label><div class="grid4" id="memberGrid"></div></div>
@@ -416,7 +450,8 @@ textarea{padding:14px;min-height:120px}
     selectedMember:'mariring',
     recent:[],
     history:[],
-    checks:{visit:false,meate:false,meatePoint:false,buyPoint:false,fullLoop:false,eventDay:false},
+    boothHistory:[],
+    checks:{visit:false,meate:false,fullLoop:false,eventDay:false},
     cautions:{},
     newFan:{follow:false,welcome:false},
     counts:{mariring:0,lulu:0,iro:0,lunar:0},
@@ -435,7 +470,7 @@ textarea{padding:14px;min-height:120px}
   function pad(n,len=3){ return String(n).padStart(len,'0'); }
   function saveLocal(){
     localStorage.setItem('lumi_cheki_clean_test', JSON.stringify({
-      recent:state.recent, history:state.history, nextTodayNo:state.nextTodayNo, nextLumiNo:state.nextLumiNo
+      recent:state.recent, history:state.history, boothHistory:state.boothHistory, nextTodayNo:state.nextTodayNo, nextLumiNo:state.nextLumiNo
     }));
   }
   function loadLocal(){
@@ -443,6 +478,7 @@ textarea{padding:14px;min-height:120px}
       const d=JSON.parse(localStorage.getItem('lumi_cheki_clean_test')||'{}');
       if(Array.isArray(d.recent)) state.recent=d.recent;
       if(Array.isArray(d.history)) state.history=d.history;
+      if(Array.isArray(d.boothHistory)) state.boothHistory=d.boothHistory;
       if(d.nextTodayNo) state.nextTodayNo=d.nextTodayNo;
       if(d.nextLumiNo) state.nextLumiNo=d.nextLumiNo;
     }catch(e){}
@@ -521,8 +557,77 @@ textarea{padding:14px;min-height:120px}
     $$('.caution').forEach(b=>b.classList.toggle('active', !!state.cautions[b.dataset.caution]));
     $$('[data-new-toggle]').forEach(b=>b.classList.toggle('active', !!state.newFan[b.dataset.newToggle]));
   }
+  function renderBooth(){
+    const sum = $('#boothFanSummary');
+    if(sum){
+      if(state.currentFan){
+        sum.innerHTML = `<b>현재 팬</b><br>${esc(state.currentFan.todayNo)} / ${esc(state.currentFan.nick)} / ${esc(state.currentFan.id)}`;
+      }else{
+        sum.innerHTML = '먼저 팬 조회/선택 후 처리해 주세요.';
+      }
+    }
+    const box = $('#boothHistoryList');
+    if(box){
+      box.innerHTML = state.boothHistory.length ? state.boothHistory.map(h => `
+        <div class="history-item">
+          <b>${esc(h.time)} · ${esc(h.todayNo)} ${esc(h.nick)} / ${esc(h.id)}</b><br>
+          ${esc(h.detail)}<br>
+          ${esc(h.flags)}
+        </div>
+      `).join('') : `<div class="note">아직 물판 처리 기록이 없어요.</div>`;
+    }
+  }
+  function boothAction(type){
+    if(!state.currentFan){
+      alert('먼저 팬을 조회하거나 선택해 주세요.');
+      return;
+    }
+    const d = new Date();
+    const base = {
+      time:`${d.getHours()}:${pad(d.getMinutes(),2)}:${pad(d.getSeconds(),2)}`,
+      todayNo:state.currentFan.todayNo,
+      nick:state.currentFan.nick,
+      id:state.currentFan.id,
+      flags:''
+    };
+
+    let detail = '';
+    if(type === 'meate'){
+      state.checks.visit = true;
+      state.checks.meate = true;
+      detail = '메아테 처리 완료 +1P · 메아테 특전권 지급 + 루미 방문 + 물판 포인트 1P';
+    }
+    if(type === 'hostMeate'){
+      state.checks.visit = true;
+      state.checks.meate = true;
+      detail = '주최 메아테 처리 완료 +2P · 메아테 특전권 지급 + 루미 방문 + 물판 포인트 2P';
+    }
+    if(type === 'ticket15'){
+      detail = '특전권 15장 구매 +1P · 구매 포인트 1P';
+    }
+
+    base.detail = detail;
+    base.flags = commonFlags(false);
+    state.boothHistory.unshift(base);
+
+    // Also leave a simple combined record in main history for today overview.
+    state.history.unshift({
+      time:base.time,
+      todayNo:base.todayNo,
+      nick:base.nick,
+      id:base.id,
+      type:'물판 처리',
+      detail,
+      flags:base.flags
+    });
+
+    saveLocal();
+    renderAll();
+    $('#boothStatus').innerHTML = `<b>처리 완료</b><br>${esc(base.todayNo)} / ${esc(base.nick)}<br>${esc(detail)}`;
+  }
+
   function renderAll(){
-    renderCurrentFan(); renderChoices(); renderCounts(); renderRecent(); renderHistory(); updateSummary(); renderCheckButtons(); updateTimerUI();
+    renderCurrentFan(); renderChoices(); renderCounts(); renderRecent(); renderHistory(); renderBooth(); updateSummary(); renderCheckButtons(); updateTimerUI();
   }
 
 
@@ -541,7 +646,7 @@ textarea{padding:14px;min-height:120px}
     state.selectedPass = 'normal';
     state.selectedMember = 'mariring';
     // 방문/메아테/주의 체크는 다음 팬으로 넘어갈 때 기본 초기화
-    state.checks = {visit:false,meate:false,meatePoint:false,buyPoint:false,fullLoop:false,eventDay:false};
+    state.checks = {visit:false,meate:false,fullLoop:false,eventDay:false};
     renderAll();
     document.querySelector('[data-tab="check"]').click();
   }
@@ -598,10 +703,8 @@ textarea{padding:14px;min-height:120px}
   }
   function commonFlags(hasCheki){
     const arr=[];
-    if(state.checks.visit) arr.push('방문');
-    if(state.checks.meate) arr.push('메아테 지급');
-    if(state.checks.meatePoint) arr.push('메아테P');
-    if(state.checks.buyPoint) arr.push('구매P');
+    if(state.checks.visit) arr.push('루미 방문');
+    if(state.checks.meate) arr.push('메아테 처리');
     if(state.checks.fullLoop) arr.push('풀루프');
     if(hasCheki) arr.push('루미 체크인/스탬프');
     return arr.join(' / ') || '운영 체크 없음';
@@ -881,6 +984,8 @@ textarea{padding:14px;min-height:120px}
     if(caution){ const k=caution.dataset.caution; state.cautions[k]=!state.cautions[k]; renderAll(); return; }
     const count=e.target.closest('[data-count]');
     if(count){ const k=count.dataset.count, d=parseInt(count.dataset.delta,10); state.counts[k]=Math.max(0,(state.counts[k]||0)+d); renderCounts(); return; }
+    const booth=e.target.closest('[data-booth-action]');
+    if(booth){ boothAction(booth.dataset.boothAction); return; }
     const collapse=e.target.closest('[data-collapse]');
     if(collapse){ $('#'+collapse.dataset.collapse).classList.toggle('open'); return; }
     const time=e.target.closest('[data-time]');
@@ -930,6 +1035,7 @@ textarea{padding:14px;min-height:120px}
   $('#btnResetCounts').addEventListener('click', ()=>{state.counts={mariring:0,lulu:0,iro:0,lunar:0};renderCounts();});
   $('#btnSaveDetail').addEventListener('click', saveDetail);
   $('#btnToggleHistory').addEventListener('click', ()=>{ const b=$('#recordBox'); b.classList.toggle('show-all'); $('#btnToggleHistory').textContent=b.classList.contains('show-all')?'전체 기록 접기':'전체 기록 보기'; });
+  $('#btnToggleBoothHistory').addEventListener('click', ()=>{ const b=$('#boothHistoryBox'); b.classList.toggle('show-all'); $('#btnToggleBoothHistory').textContent=b.classList.contains('show-all')?'전체 기록 접기':'전체 기록 보기'; });
   $('#btnSoundTest').addEventListener('click', soundEnd);
   $('#btnSoundWarn').addEventListener('click', soundWarn);
   $('#warnMode').addEventListener('change', renderMemberTimers);
