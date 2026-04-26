@@ -29,7 +29,7 @@ button,input,select,textarea{font-family:inherit}
 .current-title{font-weight:1000;color:var(--pink2);font-size:15px;margin-bottom:6px}
 .current-no{display:inline-flex;min-width:92px;padding:8px 18px;border-radius:999px;border:1px solid var(--line);background:var(--soft);font-weight:1000;color:#7b6574}
 .current-info{font-weight:900;margin-top:6px}
-.current-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.current-actions button{min-height:42px;border-radius:16px;border:1px solid var(--line);background:#fff;color:var(--pink2);font-weight:900}
+.current-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.current-actions button{min-height:42px;border-radius:16px;border:1px solid var(--line);background:#fff;color:var(--pink2);font-weight:900}.event-box{border:1px solid var(--line);background:#fff;border-radius:22px;padding:14px;margin:10px 0;box-shadow:0 8px 18px rgba(255,95,165,.06)}.event-row{display:grid;grid-template-columns:1fr 130px;gap:8px}.event-row input{text-align:left;font-size:14px}.event-label{font-size:12px;font-weight:1000;color:var(--pink2);margin-bottom:7px}.event-note{font-size:12px;font-weight:850;color:#b28ea2;line-height:1.55;margin-top:8px}
 .tabs{position:sticky;top:96px;z-index:19;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;background:rgba(255,247,251,.95);padding:8px 0;margin-bottom:10px}
 .tab-btn.active{background:linear-gradient(180deg,#ff72b0,#ff5ca6);color:#fff;border-color:transparent}
 .card{background:var(--card);border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow);padding:20px;margin:12px 0}
@@ -37,7 +37,7 @@ button,input,select,textarea{font-family:inherit}
 .card p{font-size:15px;font-weight:800;line-height:1.75;margin:0 0 14px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .grid4{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.booth-result{margin-top:12px;padding:14px 16px;border:1px solid var(--line);border-radius:18px;background:#fff7fb;color:#a0617f;font-weight:900;line-height:1.65;font-size:13px}.booth-note{margin-top:10px;padding:12px 14px;border-radius:16px;background:#f7efff;color:#8066d0;font-weight:900;line-height:1.6;font-size:12.5px}.booth-history .history-item:nth-child(n+4){display:none}.booth-history.show-all .history-item:nth-child(n+4){display:block}
+.booth-result{margin-top:12px;padding:14px 16px;border:1px solid var(--line);border-radius:18px;background:#fff7fb;color:#a0617f;font-weight:900;line-height:1.65;font-size:13px}.booth-note{margin-top:10px;padding:12px 14px;border-radius:16px;background:#f7efff;color:#8066d0;font-weight:900;line-height:1.6;font-size:12.5px}.booth-history .history-item:nth-child(n+4){display:none}.booth-history.show-all .history-item:nth-child(n+4){display:block}.caution-save-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.caution-history .history-item:nth-child(n+4){display:none}.caution-history.show-all .history-item:nth-child(n+4){display:block}
 .choice{min-height:54px;border-radius:20px;border:1px solid var(--line);background:#fff;color:var(--pink2);font-weight:1000;font-size:14px}
 .choice.active{background:linear-gradient(180deg,#ff72b0,#ff5ca6);color:#fff;border-color:transparent;box-shadow:0 10px 18px rgba(255,95,165,.20)}
 .field{margin:12px 0}
@@ -232,6 +232,15 @@ textarea{padding:14px;min-height:120px}
     </div>
   </section>
 
+  <section class="event-box">
+    <div class="event-label">오늘 이벤트 관리</div>
+    <div class="event-row">
+      <input id="eventName" placeholder="예: 2026-07-12 Debut Live">
+      <button class="danger" id="btnResetToday" type="button">오늘 시작</button>
+    </div>
+    <div class="event-note" id="eventInfo">오늘 번호는 이벤트/날짜별 임시 번호예요. 운영 시작 전 한 번만 초기화해 주세요.</div>
+  </section>
+
   <nav class="tabs">
     <button class="tab-btn active" data-tab="check">팬 조회<br>/ 체크</button>
     <button class="tab-btn" data-tab="booth">물판<br>처리</button>
@@ -404,6 +413,7 @@ textarea{padding:14px;min-height:120px}
       <article class="card">
         <span class="label">CAUTION</span>
         <h2>주의 체크</h2>
+        <p>주의 체크는 선택만으로 저장되지 않아요. 체크 후 반드시 저장 버튼을 눌러 기록을 남겨 주세요.</p>
         <div class="grid2">
           <button class="choice caution" data-caution="재확인 거부">재확인 거부</button>
           <button class="choice caution" data-caution="책임자 확인">책임자 확인</button>
@@ -413,6 +423,18 @@ textarea{padding:14px;min-height:120px}
           <button class="choice caution" data-caution="중복 수령 확인">중복 수령 확인</button>
         </div>
         <div class="field"><label>스탭 메모</label><textarea id="memo" placeholder="종료 후 반영 필요 / 책임자 확인 필요"></textarea></div>
+        <div class="summary" id="cautionSummary">현재 팬과 체크 항목을 확인한 뒤 저장해 주세요.</div>
+        <div class="caution-save-row">
+          <button class="btn" id="btnSaveCaution" type="button">주의 기록 저장</button>
+          <button class="ghost" id="btnResetCaution" type="button">주의 체크 초기화</button>
+        </div>
+      </article>
+
+      <article class="card caution-history" id="cautionHistoryBox">
+        <span class="label">CAUTION LOG</span>
+        <h2>주의 기록</h2>
+        <div class="list" id="cautionHistoryList"></div>
+        <button class="toggle" id="btnToggleCautionHistory" style="width:100%;margin-top:10px">전체 기록 보기</button>
       </article>
     </section>
   </main>
@@ -451,12 +473,15 @@ textarea{padding:14px;min-height:120px}
     recent:[],
     history:[],
     boothHistory:[],
+    cautionHistory:[],
     checks:{visit:false,meate:false,fullLoop:false,eventDay:false},
     cautions:{},
     newFan:{follow:false,welcome:false},
     counts:{mariring:0,lulu:0,iro:0,lunar:0},
     nextTodayNo:1,
     nextLumiNo:48,
+    eventName:'',
+    eventDateKey:'',
     timer:{interval:null}, memberTimers:{}
   };
 
@@ -470,7 +495,7 @@ textarea{padding:14px;min-height:120px}
   function pad(n,len=3){ return String(n).padStart(len,'0'); }
   function saveLocal(){
     localStorage.setItem('lumi_cheki_clean_test', JSON.stringify({
-      recent:state.recent, history:state.history, boothHistory:state.boothHistory, nextTodayNo:state.nextTodayNo, nextLumiNo:state.nextLumiNo
+      recent:state.recent, history:state.history, boothHistory:state.boothHistory, cautionHistory:state.cautionHistory, nextTodayNo:state.nextTodayNo, nextLumiNo:state.nextLumiNo, eventName:state.eventName, eventDateKey:state.eventDateKey
     }));
   }
   function loadLocal(){
@@ -479,8 +504,11 @@ textarea{padding:14px;min-height:120px}
       if(Array.isArray(d.recent)) state.recent=d.recent;
       if(Array.isArray(d.history)) state.history=d.history;
       if(Array.isArray(d.boothHistory)) state.boothHistory=d.boothHistory;
+      if(Array.isArray(d.cautionHistory)) state.cautionHistory=d.cautionHistory;
       if(d.nextTodayNo) state.nextTodayNo=d.nextTodayNo;
       if(d.nextLumiNo) state.nextLumiNo=d.nextLumiNo;
+      if(d.eventName) state.eventName=d.eventName;
+      if(d.eventDateKey) state.eventDateKey=d.eventDateKey;
     }catch(e){}
   }
 
@@ -498,6 +526,62 @@ textarea{padding:14px;min-height:120px}
   function addRecent(fan){
     state.recent = [fan, ...state.recent.filter(f => f.id !== fan.id)].slice(0,20);
     saveLocal();
+  }
+
+
+  function todayKey(){
+    const d = new Date();
+    return `${d.getFullYear()}-${pad(d.getMonth()+1,2)}-${pad(d.getDate(),2)}`;
+  }
+  function renderEventInfo(){
+    const input = $('#eventName');
+    if(input && input.value !== state.eventName) input.value = state.eventName || '';
+    const info = $('#eventInfo');
+    if(info){
+      const name = state.eventName || '이벤트명 미입력';
+      const key = state.eventDateKey || todayKey();
+      info.textContent = `오늘 이벤트: ${name} / 기준일: ${key} / 다음 오늘 번호: ${pad(state.nextTodayNo)}`;
+    }
+  }
+  function resetTodayEvent(){
+    const typedName = ($('#eventName')?.value || '').trim();
+    const name = typedName || prompt('오늘 이벤트명을 입력해 주세요. 예: Debut Live') || '';
+    if(!name.trim()){
+      alert('이벤트명이 없어서 초기화하지 않았어요.');
+      return;
+    }
+    const ok = confirm(
+      '정말 오늘 번호와 임시 기록을 초기화할까요?\\n\\n' +
+      '초기화 내용:\\n' +
+      '- 오늘 번호 001부터 시작\\n' +
+      '- 최근 팬 목록 초기화\\n' +
+      '- 오늘 처리 기록 초기화\\n' +
+      '- 물판 처리 기록 초기화\\n' +
+      '- 주의 기록 초기화\\n' +
+      '- 현재 처리 중 팬 초기화\\n\\n' +
+      '이미 운영 중이면 누르지 마세요.'
+    );
+    if(!ok) return;
+
+    state.eventName = name.trim();
+    state.eventDateKey = todayKey();
+    state.currentFan = null;
+    state.recent = [];
+    state.history = [];
+    state.boothHistory = [];
+    state.cautionHistory = [];
+    state.counts = {mariring:0,lulu:0,iro:0,lunar:0};
+    state.checks = {visit:false,meate:false,fullLoop:false,eventDay:false};
+    state.cautions = {};
+    state.nextTodayNo = 1;
+    Object.values(state.memberTimers || {}).forEach(t=>{
+      t.fan=null; t.running=false; t.done=false; t.warned=false; t.notice=''; t.remaining=t.total||120; t.endAt=null;
+    });
+    const memo = $('#memo');
+    if(memo) memo.value = '';
+    saveLocal();
+    renderAll();
+    alert('오늘 이벤트 시작 완료! 오늘 번호는 001부터 시작해요.');
   }
 
   function renderCurrentFan(){
@@ -626,8 +710,70 @@ textarea{padding:14px;min-height:120px}
     $('#boothStatus').innerHTML = `<b>처리 완료</b><br>${esc(base.todayNo)} / ${esc(base.nick)}<br>${esc(detail)}`;
   }
 
+  function selectedCautions(){
+    return Object.keys(state.cautions || {}).filter(k => state.cautions[k]);
+  }
+  function renderCaution(){
+    const summary = $('#cautionSummary');
+    const selected = selectedCautions();
+    const fan = state.currentFan ? `${state.currentFan.todayNo} / ${state.currentFan.nick} / ${state.currentFan.id}` : '팬 미선택';
+    if(summary){
+      summary.innerHTML = `<b>현재 팬</b><br>${esc(fan)}<br><b>체크</b><br>${esc(selected.join(' / ') || '선택 없음')}`;
+    }
+    const box = $('#cautionHistoryList');
+    if(box){
+      box.innerHTML = state.cautionHistory.length ? state.cautionHistory.map(h => `
+        <div class="history-item">
+          <b>${esc(h.time)} · ${esc(h.todayNo)} ${esc(h.nick)} / ${esc(h.id)}</b><br>
+          ${esc(h.items)}<br>
+          메모: ${esc(h.memo || '-')}
+        </div>
+      `).join('') : `<div class="note">아직 주의 기록이 없어요.</div>`;
+    }
+  }
+  function saveCaution(){
+    if(!state.currentFan){
+      alert('먼저 팬을 조회하거나 선택해 주세요.');
+      return;
+    }
+    const selected = selectedCautions();
+    const memo = ($('#memo')?.value || '').trim();
+    if(!selected.length && !memo){
+      alert('주의 항목을 선택하거나 메모를 입력해 주세요.');
+      return;
+    }
+    const d = new Date();
+    const record = {
+      time:`${d.getHours()}:${pad(d.getMinutes(),2)}:${pad(d.getSeconds(),2)}`,
+      todayNo:state.currentFan.todayNo,
+      nick:state.currentFan.nick,
+      id:state.currentFan.id,
+      items:selected.join(' / ') || '메모만 기록',
+      memo
+    };
+    state.cautionHistory.unshift(record);
+    state.history.unshift({
+      time:record.time,
+      todayNo:record.todayNo,
+      nick:record.nick,
+      id:record.id,
+      type:'주의 기록',
+      detail:record.items,
+      flags:memo ? `메모: ${memo}` : '메모 없음'
+    });
+    saveLocal();
+    renderAll();
+    alert('주의 기록 저장 완료');
+  }
+  function resetCaution(){
+    state.cautions = {};
+    const memo = $('#memo');
+    if(memo) memo.value = '';
+    renderAll();
+  }
+
   function renderAll(){
-    renderCurrentFan(); renderChoices(); renderCounts(); renderRecent(); renderHistory(); renderBooth(); updateSummary(); renderCheckButtons(); updateTimerUI();
+    renderEventInfo(); renderCurrentFan(); renderChoices(); renderCounts(); renderRecent(); renderHistory(); renderBooth(); renderCaution(); updateSummary(); renderCheckButtons(); updateTimerUI();
   }
 
 
@@ -1023,6 +1169,8 @@ textarea{padding:14px;min-height:120px}
     }
   });
 
+  $('#btnResetToday').addEventListener('click', resetTodayEvent);
+  $('#eventName').addEventListener('change', ()=>{ state.eventName = $('#eventName').value.trim(); state.eventDateKey = state.eventDateKey || todayKey(); saveLocal(); renderEventInfo(); });
   $('#btnStartCheki').addEventListener('click', startChekiFlow);
   $('#btnStartCheki2').addEventListener('click', startChekiFlow);
   $('#btnNextFan').addEventListener('click', clearForNextFan);
@@ -1036,12 +1184,15 @@ textarea{padding:14px;min-height:120px}
   $('#btnSaveDetail').addEventListener('click', saveDetail);
   $('#btnToggleHistory').addEventListener('click', ()=>{ const b=$('#recordBox'); b.classList.toggle('show-all'); $('#btnToggleHistory').textContent=b.classList.contains('show-all')?'전체 기록 접기':'전체 기록 보기'; });
   $('#btnToggleBoothHistory').addEventListener('click', ()=>{ const b=$('#boothHistoryBox'); b.classList.toggle('show-all'); $('#btnToggleBoothHistory').textContent=b.classList.contains('show-all')?'전체 기록 접기':'전체 기록 보기'; });
+  $('#btnSaveCaution').addEventListener('click', saveCaution);
+  $('#btnResetCaution').addEventListener('click', resetCaution);
+  $('#btnToggleCautionHistory').addEventListener('click', ()=>{ const b=$('#cautionHistoryBox'); b.classList.toggle('show-all'); $('#btnToggleCautionHistory').textContent=b.classList.contains('show-all')?'전체 기록 접기':'전체 기록 보기'; });
   $('#btnSoundTest').addEventListener('click', soundEnd);
   $('#btnSoundWarn').addEventListener('click', soundWarn);
   $('#warnMode').addEventListener('change', renderMemberTimers);
   document.addEventListener('visibilitychange', tick);
 
-  loadLocal(); renderAll();
+  loadLocal(); if(!state.eventDateKey) state.eventDateKey = todayKey(); renderAll();
 })();
 </script>
 </body>
