@@ -141,9 +141,70 @@ textarea{padding:14px;min-height:120px}
   border-color:#ffb3b3;
 }
 
+
+/* === v6 global timer alerts + extension === */
+.global-alert{
+  position:fixed;
+  left:12px;
+  right:12px;
+  top:10px;
+  z-index:60;
+  display:none;
+  border-radius:20px;
+  padding:14px 16px;
+  box-shadow:0 14px 30px rgba(120,60,90,.22);
+  border:1px solid rgba(255,255,255,.65);
+  font-weight:1000;
+  line-height:1.55;
+}
+.global-alert.show{display:block;animation:alertPop .18s ease-out}
+.global-alert.warn{
+  background:#fff7d9;
+  color:#8a6b00;
+}
+.global-alert.time{
+  background:#ffe6ec;
+  color:#b7355f;
+}
+@keyframes alertPop{
+  from{transform:translateY(-10px);opacity:0}
+  to{transform:translateY(0);opacity:1}
+}
+.member-timer-actions{
+  grid-template-columns:1fr 1fr 1fr !important;
+}
+.member-timer-extra{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+  margin-top:8px;
+}
+.member-timer-extra button{
+  min-height:40px;
+  border-radius:16px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--pink2);
+  font-weight:900;
+}
+.member-timer-extra .done-btn{
+  background:#fff0f7;
+  color:#ff5ca6;
+}
+.warn-select{
+  min-height:52px;
+  border-radius:18px;
+  border:1px solid var(--line);
+  background:#fff;
+  padding:0 14px;
+  font-weight:900;
+  color:#6f5d68;
+}
+
 </style>
 </head>
 <body>
+<div class="global-alert" id="globalAlert"></div>
 <div class="wrap">
   <section class="hero">
     <span class="label">TEST CLEAN</span>
@@ -274,6 +335,16 @@ textarea{padding:14px;min-height:120px}
         <p>마리링 / 루루 / 이로 / 루나가 각각 따로 돌아가요. 빠른 촬영 저장 후 해당 멤버 타이머를 시작할 수도 있어요.</p>
 
         <div class="field"><label>기본 시간</label><input id="timerSeconds" inputmode="numeric" value="120"></div>
+        <div class="field"><label>마무리 알림</label>
+          <select id="warnMode" class="warn-select">
+            <option value="auto">자동 60초→25초 / 90초→35초 / 120초→50초 / 180초→60초</option>
+            <option value="25">25초 전</option>
+            <option value="35">35초 전</option>
+            <option value="50">50초 전</option>
+            <option value="60">60초 전</option>
+            <option value="off">OFF</option>
+          </select>
+        </div>
         <div class="grid2">
           <button class="ghost" data-time="60">60초</button>
           <button class="ghost" data-time="90">90초</button>
@@ -284,7 +355,7 @@ textarea{padding:14px;min-height:120px}
         </div>
 
         <div class="note" style="background:rgba(255,255,255,.25);color:#fff;border:1px solid rgba(255,255,255,.45)">
-          마무리 알림은 남은 50초 기준으로 1회만 울리고, 종료 알림은 더 길게 울려요.
+          마무리 알림은 시간별 자동 기준으로 1회만 울리고, 종료 알림은 더 길게 울려요. 종료 후 +30초 / +60초 연장이 가능합니다.
         </div>
       </article>
 
@@ -357,7 +428,7 @@ textarea{padding:14px;min-height:120px}
 
   Object.keys(members).forEach(k=>{
     state.memberTimers[k] = {
-      member:k, fan:null, total:120, remaining:120, endAt:null, running:false, warned:false, done:false
+      member:k, fan:null, total:120, remaining:120, endAt:null, running:false, warned:false, done:false, notice:''
     };
   });
 
@@ -614,6 +685,43 @@ textarea{padding:14px;min-height:120px}
 
   function sound(){ soundEnd(); }
 
+  function warnAt(total){
+    const mode = $('#warnMode')?.value || 'auto';
+    if(mode === 'off') return 0;
+    if(mode !== 'auto') return parseInt(mode,10) || 0;
+    if(total <= 60) return 25;
+    if(total <= 90) return 35;
+    if(total <= 120) return 50;
+    return 60;
+  }
+  let alertTimer = null;
+  let lastEndSoundAt = 0;
+  function showGlobalAlert(kind, lines){
+    const box = $('#globalAlert');
+    if(!box) return;
+    box.className = `global-alert show ${kind}`;
+    box.innerHTML = lines.map(esc).join('<br>');
+    clearTimeout(alertTimer);
+    alertTimer = setTimeout(()=>box.classList.remove('show'), kind === 'time' ? 6500 : 4200);
+  }
+  function clearMemberDone(key){
+    const t = state.memberTimers[key];
+    t.running=false; t.done=false; t.warned=false; t.notice=''; t.remaining=t.total; t.endAt=null; t.fan=null;
+    renderMemberTimers();
+  }
+  function extendMemberTimer(key, sec){
+    const t = state.memberTimers[key];
+    t.total = (t.remaining || 0) + sec;
+    t.remaining = t.total;
+    t.endAt = Date.now() + t.remaining*1000;
+    t.running = true;
+    t.done = false;
+    t.warned = false;
+    t.notice = `${sec}초 연장`;
+    ensureTimerInterval();
+    showGlobalAlert('warn', [`${members[key].name} ${sec}초 연장`, t.fan ? `${t.fan.todayNo} / ${t.fan.nick}` : '팬 미지정']);
+    renderMemberTimers();
+  }
   function getBaseSeconds(){
     return parseInt($('#timerSeconds')?.value,10) || 120;
   }
@@ -623,17 +731,23 @@ textarea{padding:14px;min-height:120px}
   }
   function memberTimerCard(key,t){
     const m=members[key];
-    const status = t.done ? 'TIME' : (t.running ? (t.remaining<=50 ? '마무리 안내' : '진행 중') : '대기');
-    const cls = t.done ? 'done' : (t.running && t.remaining<=50 ? 'warning' : (t.running ? 'running' : ''));
+    const status = t.done ? 'TIME' : (t.running ? (t.warned ? '마무리 안내' : '진행 중') : '대기');
+    const cls = t.done ? 'done' : (t.running && t.warned ? 'warning' : (t.running ? 'running' : ''));
     const fan = t.fan ? `${t.fan.todayNo} / ${t.fan.nick}` : '팬 미지정';
+    const notice = t.notice ? `<br><b>${esc(t.notice)}</b>` : '';
     return `<div class="member-timer-card ${cls}">
       <div class="member-timer-head"><span>${m.name} ${m.mark}</span><span>${status}</span></div>
       <div class="member-timer-time">${fmt(t.remaining)}</div>
-      <div class="member-timer-meta">현재 팬: ${esc(fan)}<br>기본 ${t.total}초 · 50초 전 마무리 알림</div>
+      <div class="member-timer-meta">현재 팬: ${esc(fan)}<br>기본 ${t.total}초 · 마무리 알림 ${warnAt(t.total)}초 전${notice}</div>
       <div class="member-timer-actions">
         <button class="primary-mini" data-member-start="${key}">시작</button>
         <button data-member-pause="${key}">정지</button>
         <button data-member-reset="${key}">리셋</button>
+      </div>
+      <div class="member-timer-extra">
+        <button data-member-plus="${key}" data-plus-sec="30">+30초</button>
+        <button data-member-plus="${key}" data-plus-sec="60">+60초</button>
+        <button class="done-btn" data-member-done="${key}">확인 완료</button>
       </div>
     </div>`;
   }
@@ -652,6 +766,7 @@ textarea{padding:14px;min-height:120px}
     t.warned = false;
     t.done = false;
     t.fan = fan || state.currentFan || t.fan;
+    t.notice = '';
     ensureTimerInterval();
     renderMemberTimers();
   }
@@ -663,7 +778,7 @@ textarea{padding:14px;min-height:120px}
   }
   function resetMemberTimer(key){
     const t=state.memberTimers[key];
-    t.running=false; t.done=false; t.warned=false; t.total=getBaseSeconds(); t.remaining=t.total; t.endAt=null; t.fan=null;
+    t.running=false; t.done=false; t.warned=false; t.done=false; t.notice=''; t.total=getBaseSeconds(); t.remaining=t.total; t.endAt=null; t.fan=null;
     renderMemberTimers();
   }
   function ensureTimerInterval(){
@@ -672,21 +787,41 @@ textarea{padding:14px;min-height:120px}
   }
   function tickMemberTimers(){
     let any=false;
-    Object.values(state.memberTimers).forEach(t=>{
+    const endedNow=[];
+    Object.entries(state.memberTimers).forEach(([key,t])=>{
       if(!t.running) return;
       any=true;
       t.remaining=Math.max(0, Math.ceil((t.endAt-Date.now())/1000));
-      if(t.remaining<=50 && !t.warned && t.remaining>0){
+      const w = warnAt(t.total);
+      if(w > 0 && t.remaining<=w && !t.warned && t.remaining>0){
         t.warned=true;
+        t.notice='마무리 안내';
         soundWarn();
+        showGlobalAlert('warn', [`⚠️ ${members[key].name} 마무리 안내`, t.fan ? `${t.fan.todayNo} / ${t.fan.nick}` : '팬 미지정', '슬슬 마무리 안내해주세요.']);
       }
       if(t.remaining<=0){
         t.running=false;
         t.done=true;
         t.remaining=0;
-        soundEnd();
+        t.notice='TIME';
+        endedNow.push(key);
       }
     });
+
+    if(endedNow.length){
+      const now=Date.now();
+      if(now - lastEndSoundAt > 2200){
+        soundEnd();
+        lastEndSoundAt = now;
+      }
+      const names = endedNow.map(k=>members[k].name).join(' / ');
+      const fans = endedNow.map(k=>{
+        const f=state.memberTimers[k].fan;
+        return f ? `${f.todayNo} ${f.nick}` : '팬 미지정';
+      }).join(' · ');
+      showGlobalAlert('time', [`⏰ ${names} TIME`, fans, '교류 시간이 종료되었습니다.']);
+    }
+
     renderMemberTimers();
     if(!any){
       clearInterval(state.timer.interval);
@@ -694,14 +829,25 @@ textarea{padding:14px;min-height:120px}
     }
   }
   function updateMiniTimer(){
-    const running = Object.entries(state.memberTimers).filter(([,t])=>t.running);
+    const active = Object.entries(state.memberTimers).filter(([,t])=>t.running || t.done);
     const mini = $('#miniTimer');
     if(!mini) return;
-    if(!running.length){
+    if(!active.length){
       mini.classList.remove('show');
       return;
     }
     mini.classList.add('show');
+    const done = active.filter(([,t])=>t.done);
+    if(done.length){
+      $('#miniText').textContent = '⏰ ' + done.map(([k])=>`${members[k].name} TIME`).join(' / ');
+      return;
+    }
+    const warn = active.filter(([,t])=>t.warned);
+    if(warn.length){
+      $('#miniText').textContent = '⚠️ ' + warn.map(([k,t])=>`${members[k].name} ${fmt(t.remaining)}`).join(' / ');
+      return;
+    }
+    const running = active.filter(([,t])=>t.running);
     if(running.length <= 2){
       $('#miniText').textContent = '⏱ ' + running.map(([k,t])=>`${members[k].name} ${fmt(t.remaining)}`).join(' / ');
     }else{
@@ -753,6 +899,10 @@ textarea{padding:14px;min-height:120px}
     if(memberPause){ pauseMemberTimer(memberPause.dataset.memberPause); return; }
     const memberReset=e.target.closest('[data-member-reset]');
     if(memberReset){ resetMemberTimer(memberReset.dataset.memberReset); return; }
+    const memberPlus=e.target.closest('[data-member-plus]');
+    if(memberPlus){ extendMemberTimer(memberPlus.dataset.memberPlus, parseInt(memberPlus.dataset.plusSec,10)); return; }
+    const memberDone=e.target.closest('[data-member-done]');
+    if(memberDone){ clearMemberDone(memberDone.dataset.memberDone); return; }
     const newToggle=e.target.closest('[data-new-toggle]');
     if(newToggle){ const k=newToggle.dataset.newToggle; state.newFan[k]=!state.newFan[k]; renderAll(); return; }
 
@@ -782,6 +932,7 @@ textarea{padding:14px;min-height:120px}
   $('#btnToggleHistory').addEventListener('click', ()=>{ const b=$('#recordBox'); b.classList.toggle('show-all'); $('#btnToggleHistory').textContent=b.classList.contains('show-all')?'전체 기록 접기':'전체 기록 보기'; });
   $('#btnSoundTest').addEventListener('click', soundEnd);
   $('#btnSoundWarn').addEventListener('click', soundWarn);
+  $('#warnMode').addEventListener('change', renderMemberTimers);
   document.addEventListener('visibilitychange', tick);
 
   loadLocal(); renderAll();
