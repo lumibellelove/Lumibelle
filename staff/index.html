@@ -1,395 +1,510 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>STAFF HUB | Lumibelle</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800;900&display=swap');
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>STAFF HUB | Lumibelle</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=SUIT:wght@500;600;700;800;900&display=swap');
 
-    :root{
-      --line:#f2d8e7; --pink:#ff5fa8; --text:#7f6a77; --muted:#b28ea2;
-      --shadow:0 8px 24px rgba(232,191,211,.14);
-      --strong-shadow:0 16px 34px rgba(255,95,165,.14);
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;width:100%;min-height:100%}
-    body{
-      min-height:100vh;
-      font-family:"SUIT","Noto Sans KR",Arial,sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(circle at 12% 8%, rgba(255,192,215,.34) 0%, rgba(255,192,215,0) 28%),
-        radial-gradient(circle at 88% 18%, rgba(202,167,255,.22) 0%, rgba(202,167,255,0) 26%),
-        linear-gradient(180deg,#fffafc 0%,#fff0f7 100%);
-      letter-spacing:-.01em;
-      overflow-x:hidden;
-    }
-    a{color:inherit;text-decoration:none}
-    .wrap{width:min(1120px, calc(100% - 32px));margin:0 auto;padding:22px 0 42px}
+:root{
+  --bg:#fff7fb;
+  --card:#ffffff;
+  --soft:#fff0f7;
+  --purple:#f7efff;
+  --line:#f2d8e7;
+  --pink:#ff5fa8;
+  --pink2:#d77ca7;
+  --text:#7f6a77;
+  --muted:#b28ea2;
+  --blue:#4fc3ff;
+  --lav:#a88cff;
+  --gold:#ffb75f;
+  --shadow:0 12px 28px rgba(232,191,211,.16);
+  --strong:0 18px 38px rgba(255,95,165,.16);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100%}
+body{
+  font-family:"SUIT","Noto Sans KR",system-ui,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 12% 8%, rgba(255,192,215,.34) 0%, rgba(255,192,215,0) 28%),
+    radial-gradient(circle at 88% 18%, rgba(202,167,255,.22) 0%, rgba(202,167,255,0) 26%),
+    linear-gradient(180deg,#fffafc 0%,#fff0f7 100%);
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+button,a,input{font-family:inherit}
+.wrap{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:22px 0 42px}
 
-    .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-    .login-card{
-      width:min(520px,100%);position:relative;overflow:hidden;border:1px solid var(--line);
-      border-radius:34px;background:rgba(255,255,255,.78);box-shadow:var(--shadow);
-      padding:38px 28px 30px;text-align:center;backdrop-filter:blur(10px);
-    }
-    .login-card::before{
-      content:"";position:absolute;inset:-90px -90px auto auto;width:220px;height:220px;border-radius:50%;
-      background:radial-gradient(circle, rgba(255,255,255,.86) 0%, rgba(255,138,194,.26) 42%, transparent 72%);
-      pointer-events:none;
-    }
-    .login-card::after{
-      content:"✦";position:absolute;right:30px;top:28px;color:rgba(255,95,168,.24);font-size:34px;
-      animation:floatStar 2.8s ease-in-out infinite;
-    }
-    .eyebrow{
-      display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:0 12px;border-radius:999px;
-      background:#fff0f7;border:1px solid #f0bfd4;color:#d77ca7;font-size:12px;font-weight:900;
-      letter-spacing:.04em;margin-bottom:14px;
-    }
-    h1{
-      margin:0;font-family:"Cormorant Garamond",serif;font-size:64px;line-height:.9;font-weight:700;color:var(--pink);
-      text-shadow:0 1px 0 rgba(255,255,255,.98),0 0 10px rgba(255,120,178,.18);
-    }
-    .login-title-ko{margin-top:12px;color:#8f7183;font-size:16px;line-height:1.8;font-weight:800}
-    .password-box{margin-top:24px;display:grid;gap:12px}
-    input{
-      width:100%;min-height:54px;border:1px solid #f0bfd4;border-radius:18px;background:#fff;color:var(--text);
-      font-family:inherit;font-size:17px;font-weight:900;padding:0 16px;outline:none;text-align:center;
-    }
-    input:focus{border-color:#ff8ac2;box-shadow:0 0 0 4px rgba(255,138,194,.14)}
-    button,.hub-btn{
-      border:0;min-height:54px;border-radius:999px;font-family:inherit;font-size:15px;font-weight:900;cursor:pointer;
-      display:inline-flex;align-items:center;justify-content:center;text-align:center;padding:0 18px;
-      transition:transform .16s ease, filter .16s ease, box-shadow .16s ease;
-    }
-    button:hover,.hub-btn:hover{transform:translateY(-2px);filter:brightness(1.03)}
-    .primary-btn{width:100%;background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);color:#fff;box-shadow:0 10px 22px rgba(255,95,165,.25)}
-    .sub-btn{background:#fff;color:#d77ca7;border:1px solid #f0bfd4;box-shadow:0 4px 10px rgba(255,95,165,.08)}
-    .login-msg{display:none;margin-top:10px;padding:12px;border-radius:16px;background:#fff2e8;color:#d36b36;font-size:13px;font-weight:900;line-height:1.6}
-    .login-note{margin:16px 0 0;color:#b28ea2;font-size:12px;line-height:1.75;font-weight:700}
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.login-card,.panel,.hero,.role-card,.menu-card{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.82);
+  box-shadow:var(--shadow);
+}
+.login-card{
+  width:min(520px,100%);
+  border-radius:34px;
+  padding:38px 26px 30px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.login-card::after,.hero::after{
+  content:"✦";
+  position:absolute;
+  right:28px;
+  top:24px;
+  color:rgba(255,95,168,.24);
+  font-size:36px;
+  animation:floatStar 3s ease-in-out infinite;
+}
+@keyframes floatStar{0%,100%{transform:translateY(0) rotate(0);opacity:.55}50%{transform:translateY(-6px) rotate(12deg);opacity:1}}
+.eyebrow{
+  display:inline-flex;
+  min-height:30px;
+  padding:0 13px;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid #f0bfd4;
+  color:var(--pink2);
+  font-size:12px;
+  font-weight:1000;
+  letter-spacing:.04em;
+}
+h1{
+  margin:14px 0 10px;
+  font-family:"Cormorant Garamond",serif;
+  font-size:62px;
+  line-height:.88;
+  font-weight:700;
+  color:var(--pink);
+  text-shadow:0 1px 0 rgba(255,255,255,.98),0 0 10px rgba(255,120,178,.18);
+}
+.login-card p,.hero p,.role-card p,.menu-card p,.panel p{
+  font-size:14px;
+  line-height:1.75;
+  font-weight:800;
+  color:#8f7183;
+}
+.password-box{margin-top:22px;display:grid;gap:10px}
+input{
+  width:100%;
+  min-height:54px;
+  border:1px solid #f0bfd4;
+  border-radius:18px;
+  background:#fff;
+  color:var(--text);
+  font-size:17px;
+  font-weight:900;
+  padding:0 16px;
+  text-align:center;
+  outline:none;
+}
+input:focus{border-color:#ff8ac2;box-shadow:0 0 0 4px rgba(255,138,194,.14)}
+.btn{
+  min-height:52px;
+  border:0;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:0 18px;
+  font-size:15px;
+  font-weight:1000;
+  cursor:pointer;
+  transition:.16s ease;
+}
+.btn:hover,.menu-card:hover,.role-card:hover{transform:translateY(-2px)}
+.primary{background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);color:#fff;box-shadow:0 10px 22px rgba(255,95,165,.24)}
+.sub{background:#fff;color:var(--pink2);border:1px solid #f0bfd4;box-shadow:0 4px 10px rgba(255,95,165,.08)}
+.login-msg{display:none;margin-top:10px;padding:12px;border-radius:16px;background:#fff2e8;color:#d36b36;font-size:13px;font-weight:900;line-height:1.6}
+.note{margin-top:14px;font-size:12px;line-height:1.75;font-weight:800;color:var(--muted)}
 
-    .hub{display:none}.hub.show{display:block}
-    .hero{
-      position:relative;overflow:hidden;border:1px solid var(--line);border-radius:34px;
-      background:linear-gradient(135deg,#fff0f7 0%,#f7efff 100%);box-shadow:var(--shadow);padding:52px 46px 46px;
-    }
-    .hero::after{
-      content:"✦";position:absolute;right:36px;bottom:28px;color:rgba(255,95,168,.22);font-size:46px;
-      animation:floatStar 3s ease-in-out infinite;pointer-events:none;
-    }
-    @keyframes floatStar{0%,100%{transform:translateY(0) rotate(0deg);opacity:.55}50%{transform:translateY(-6px) rotate(12deg);opacity:1}}
-    .hero h2{
-      margin:0;font-family:"Cormorant Garamond",serif;font-size:82px;line-height:.88;font-weight:700;color:var(--pink);
-      text-shadow:0 1px 0 rgba(255,255,255,.98),0 0 10px rgba(255,120,178,.18);
-    }
-    .hero p{margin:18px 0 0;color:#8f7183;font-size:16px;line-height:1.9;font-weight:800}
-    .status-row{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap}
-    .pill{
-      display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 13px;border-radius:999px;
-      background:#fff;border:1px solid #f0bfd4;color:#d27ca8;font-size:12px;font-weight:900;box-shadow:0 4px 10px rgba(255,95,165,.08);
-    }
-    .pill.strong{background:linear-gradient(180deg,#ff7eb3 0%,#ff5fa5 100%);color:#fff;border:none}
-    .section-title{margin:34px 0 16px;text-align:center}
-    .section-title h3{margin:0;color:#d77ca7;font-size:38px;line-height:1.1;font-weight:900}
-    .section-title p{margin:8px 0 0;color:#b28ea2;font-size:14px;line-height:1.7;font-weight:800}
+.hub{display:none}
+.hub.show{display:block}
+.hero{
+  position:relative;
+  overflow:hidden;
+  border-radius:34px;
+  background:linear-gradient(135deg,#fff0f7 0%,#f7efff 100%);
+  padding:46px 42px 40px;
+}
+.hero h2{
+  margin:14px 0 0;
+  font-family:"Cormorant Garamond",serif;
+  font-size:78px;
+  line-height:.88;
+  color:var(--pink);
+}
+.status-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.pill{
+  display:inline-flex;
+  min-height:36px;
+  align-items:center;
+  justify-content:center;
+  padding:0 13px;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid #f0bfd4;
+  color:#d27ca8;
+  font-size:12px;
+  font-weight:1000;
+}
+.pill.strong{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);border:0;color:#fff}
 
-    .quest-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
-    .quest-card{
-      position:relative;overflow:hidden;min-height:190px;border:1px solid var(--line);border-radius:28px;
-      background:rgba(255,255,255,.78);box-shadow:var(--shadow);padding:24px;transition:transform .18s ease, box-shadow .18s ease, background .18s ease;isolation:isolate;
-    }
-    .quest-card:hover{transform:translateY(-3px);box-shadow:var(--strong-shadow);background:#fffafd}
-    .quest-card::before{
-      content:"";position:absolute;inset:-1px;border-radius:inherit;
-      background:linear-gradient(135deg,rgba(255,255,255,.52),rgba(255,255,255,0) 36%,rgba(255,192,215,.16));
-      pointer-events:none;z-index:-1;
-    }
-    .quest-card::after{
-      content:"";position:absolute;right:-70px;top:-90px;width:210px;height:210px;border-radius:50%;
-      background:radial-gradient(circle,rgba(255,255,255,.72) 0%,rgba(255,138,194,.18) 42%,transparent 72%);
-      pointer-events:none;
-    }
-    .quest-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px;position:relative;z-index:1}
-    .quest-icon{
-      width:52px;height:52px;border-radius:18px;display:flex;align-items:center;justify-content:center;
-      background:linear-gradient(135deg,#fff0f7,#f7efff);border:1px solid #f0bfd4;font-size:24px;
-      box-shadow:0 8px 18px rgba(255,95,165,.10);flex:0 0 auto;
-    }
-    .quest-badge{
-      display:inline-flex;min-height:28px;padding:0 10px;align-items:center;justify-content:center;border-radius:999px;
-      background:#fff0f7;border:1px solid #f0bfd4;color:#d77ca7;font-size:11px;font-weight:900;letter-spacing:.03em;
-    }
-    .quest-card h4{position:relative;z-index:1;margin:0;color:#d77ca7;font-size:24px;line-height:1.2;font-weight:900}
-    .quest-card p{position:relative;z-index:1;margin:10px 0 18px;color:#8f7183;font-size:14px;line-height:1.75;font-weight:750}
-    .hub-btn{position:relative;z-index:1;width:100%}
-    .btn-ticket{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;box-shadow:0 8px 18px rgba(255,95,165,.22)}
-    .btn-point{background:linear-gradient(180deg,#caa7ff,#a88cff);color:#fff;box-shadow:0 8px 18px rgba(168,140,255,.22)}
-    .btn-goods{background:linear-gradient(180deg,#78d6ff,#4fc3ff);color:#fff;box-shadow:0 8px 18px rgba(79,195,255,.22)}
-    .btn-guide{background:#fff;color:#d77ca7;border:1px solid #f0bfd4;box-shadow:0 4px 10px rgba(255,95,165,.08)}
-    .btn-attend{background:linear-gradient(180deg,#ffd27e,#ffb75f);color:#fff;box-shadow:0 8px 18px rgba(255,183,95,.22)}
+.top-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.top-actions .btn{min-height:42px;font-size:13px;padding:0 14px}
 
-    .dashboard{margin-top:22px;display:grid;grid-template-columns:1.05fr .95fr;gap:18px;align-items:stretch}
-    .panel{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:28px;background:rgba(255,255,255,.78);box-shadow:var(--shadow);padding:24px}
-    .panel h4{margin:0 0 14px;color:#d77ca7;font-size:24px;font-weight:900;line-height:1.2}
-    .manual-list{display:grid;gap:10px}
-    .manual-item{padding:14px 16px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,#fff9fc 0%,#fff4fa 100%)}
-    .manual-item strong{display:block;margin-bottom:5px;color:#d77ca7;font-size:14px;font-weight:900}
-    .manual-item span{display:block;color:#8f7183;font-size:13px;line-height:1.7;font-weight:750}
-    .player-card{background:linear-gradient(135deg,#ff8ac2 0%,#ff5fa8 55%,#caa7ff 100%);color:#fff;border-color:rgba(255,255,255,.72);box-shadow:0 16px 34px rgba(255,95,168,.23)}
-    .player-card h4{color:#fff;text-shadow:0 2px 12px rgba(139,46,108,.20)}
-    .player-name{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;border-radius:22px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.42);margin-bottom:14px}
-    .player-name strong{display:block;font-size:22px;line-height:1.2}
-    .player-name span{display:block;margin-top:4px;color:#fff4fa;font-size:13px;line-height:1.5;font-weight:800}
-    .npc-mark{flex:0 0 auto;width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.92);color:#ff5fa8;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 8px 18px rgba(139,46,108,.12)}
-    .stat-grid{display:grid;gap:10px}
-    .stat{padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.34)}
-    .stat-top{display:flex;justify-content:space-between;gap:10px;font-size:12px;font-weight:900;color:#fff4fa;margin-bottom:8px}
-    .bar{height:10px;border-radius:999px;background:rgba(255,255,255,.24);overflow:hidden}
-    .bar i{display:block;height:100%;border-radius:999px;background:#fff;box-shadow:0 0 12px rgba(255,255,255,.55)}
-    .mission{margin-top:14px;padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.34);color:#fff;font-size:13px;line-height:1.8;font-weight:800}
-    .bottom-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:24px}
-    .danger-note{margin-top:18px;text-align:center;color:#b28ea2;font-size:12px;line-height:1.7;font-weight:700}
-    footer{text-align:center;padding:24px 16px 36px;color:#c6a2b4;font-size:13px;font-weight:700}
-    .reveal{opacity:0;transform:translateY(24px);transition:opacity .75s ease, transform .75s ease}
-    .reveal.show{opacity:1;transform:translateY(0)}
+.section-title{text-align:center;margin:28px 0 14px}
+.section-title h3{margin:0;color:var(--pink2);font-size:34px;font-weight:1000}
+.section-title p{margin:8px 0 0;color:var(--muted);font-size:14px;font-weight:800}
 
-    @media(max-width:860px){
-      .hero{padding:40px 24px 34px;border-radius:28px}.hero h2{font-size:62px}
-      .quest-grid{grid-template-columns:1fr}.dashboard{grid-template-columns:1fr}.section-title h3{font-size:32px}
-    }
-    @media(max-width:480px){
-      .wrap{width:calc(100% - 22px);padding-top:14px}.login-screen{padding:16px}.login-card{padding:34px 18px 24px;border-radius:28px}
-      h1{font-size:52px}.hero{padding:34px 18px 30px}.hero h2{font-size:54px}.hero p{font-size:14px}
-      .quest-card{padding:20px;border-radius:24px}.quest-card h4{font-size:22px}.panel{padding:20px;border-radius:24px}.player-name{align-items:flex-start}
-    }
-  </style>
+.role-grid,.menu-grid{display:grid;gap:16px}
+.role-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.role-card,.menu-card,.panel{
+  border-radius:28px;
+  padding:22px;
+  position:relative;
+  overflow:hidden;
+}
+.role-card{cursor:pointer;min-height:186px}
+.role-card.active{
+  background:linear-gradient(135deg,#fff0f7,#fff,#f7efff);
+  border-color:#ffb7d6;
+  box-shadow:var(--strong);
+}
+.role-icon,.menu-icon{
+  width:52px;height:52px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;background:linear-gradient(135deg,#fff0f7,#f7efff);
+  border:1px solid #f0bfd4;
+  box-shadow:0 8px 18px rgba(255,95,165,.10);
+}
+.role-card h4,.menu-card h4,.panel h4{
+  margin:14px 0 8px;color:var(--pink2);font-size:22px;line-height:1.2;font-weight:1000;
+}
+.role-card .role-badge,.menu-badge{
+  display:inline-flex;min-height:28px;padding:0 10px;align-items:center;border-radius:999px;
+  background:var(--soft);border:1px solid #f0bfd4;color:var(--pink2);font-size:11px;font-weight:1000;letter-spacing:.03em;
+}
+.menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.menu-card{min-height:190px;transition:.16s ease}
+.menu-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.menu-card p{margin-bottom:16px}
+.menu-card .btn{width:100%}
+.menu-card.is-hidden{display:none}
+.btn-ticket{background:linear-gradient(180deg,#78d6ff,#4fc3ff);color:#fff;box-shadow:0 8px 18px rgba(79,195,255,.22)}
+.btn-cheki{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;box-shadow:0 8px 18px rgba(255,95,165,.22)}
+.btn-point{background:linear-gradient(180deg,#caa7ff,#a88cff);color:#fff;box-shadow:0 8px 18px rgba(168,140,255,.22)}
+.btn-attend{background:linear-gradient(180deg,#ffd27e,#ffb75f);color:#fff;box-shadow:0 8px 18px rgba(255,183,95,.22)}
+.btn-guide{background:#fff;color:var(--pink2);border:1px solid #f0bfd4;box-shadow:0 4px 10px rgba(255,95,165,.08)}
+
+.dashboard{display:grid;grid-template-columns:1.05fr .95fr;gap:16px;margin-top:18px}
+.manual-list{display:grid;gap:10px}
+.manual-item{padding:13px 15px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,#fff9fc 0%,#fff4fa 100%)}
+.manual-item strong{display:block;color:var(--pink2);font-size:14px;margin-bottom:5px;font-weight:1000}
+.manual-item span{display:block;color:#8f7183;font-size:13px;line-height:1.65;font-weight:800}
+.warning-box{background:#fff8ef;border-color:#f4d7c5}
+.warning-box h4{color:#c87536}
+.footer{text-align:center;padding:24px 16px 36px;color:#c6a2b4;font-size:13px;font-weight:800}
+
+@media(max-width:860px){
+  .hero{padding:38px 24px 32px;border-radius:28px}.hero h2{font-size:58px}
+  .role-grid,.menu-grid,.dashboard{grid-template-columns:1fr}
+  .section-title h3{font-size:30px}
+}
+@media(max-width:520px){
+  .wrap{width:calc(100% - 22px);padding-top:14px}
+  .login-card{padding:34px 18px 24px;border-radius:28px}
+  h1{font-size:52px}
+  .hero{padding:32px 18px 28px}.hero h2{font-size:52px}
+  .role-card,.menu-card,.panel{padding:19px;border-radius:24px}
+}
+</style>
 </head>
 <body>
 
-  <div id="loginScreen" class="login-screen">
-    <section class="login-card">
-      <div class="eyebrow">STAFF ONLY</div>
-      <h1>Lumibelle<br>Staff Hub</h1>
-      <div class="login-title-ko">
-        루미벨 스탭 전용 운영 허브입니다.<br>
-        비밀번호를 입력하면 입장할 수 있어요 ✦
-      </div>
+<div id="loginScreen" class="login-screen">
+  <section class="login-card">
+    <div class="eyebrow">STAFF ONLY</div>
+    <h1>Lumibelle<br>Staff Hub</h1>
+    <p>루미벨 스탭 전용 운영 허브입니다.<br>비밀번호 입력 후 오늘 담당 역할을 선택해 주세요 ✦</p>
+    <div class="password-box">
+      <input id="staffPassword" type="password" placeholder="비밀번호 입력" autocomplete="off">
+      <button class="btn primary" id="loginBtn" type="button">입장하기</button>
+    </div>
+    <div id="loginMsg" class="login-msg">비밀번호가 맞지 않아요.</div>
+    <p class="note">※ 이 페이지는 현장 실수 방지용 허브입니다.<br>※ 시트 원본 링크나 개인정보는 필요할 때만 책임자가 확인해 주세요.</p>
+  </section>
+</div>
 
-      <div class="password-box">
-        <input id="staffPassword" type="password" placeholder="비밀번호 입력" autocomplete="off">
-        <button class="primary-btn" type="button" onclick="enterHub()">입장하기</button>
-      </div>
-
-      <div id="loginMsg" class="login-msg">비밀번호가 맞지 않아요.</div>
-
-      <p class="login-note">
-        ※ 이 페이지는 간단한 출입 제한용입니다.<br>
-        ※ 민감한 시트 원본 링크나 개인정보는 공유하지 마세요.
+<div id="hub" class="hub">
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">STAFF QUEST BOARD</div>
+      <h2>Lumibelle<br>Staff Hub</h2>
+      <p>
+        오늘 담당 역할에 맞는 메뉴만 크게 보여주는 스탭 허브입니다.<br>
+        입장 스탭, 물판/특전회 스탭, 책임자 모드를 선택해 주세요.
       </p>
+      <div class="status-row">
+        <span class="pill strong" id="roleStatus">ROLE: 미선택</span>
+        <span class="pill">ONE LOGIN</span>
+        <span class="pill">STAFF MODE</span>
+      </div>
+      <div class="top-actions">
+        <button class="btn sub" type="button" id="switchRoleBtn">역할 다시 선택</button>
+        <button class="btn sub" type="button" id="logoutBtn">로그아웃</button>
+      </div>
+    </section>
+
+    <div class="section-title">
+      <h3>오늘 담당 역할</h3>
+      <p>선택한 역할에 따라 현장 메뉴가 정리되어 보여요.</p>
+    </div>
+
+    <section class="role-grid" id="roleGrid">
+      <article class="role-card" data-role="entry">
+        <span class="role-badge">GATE</span>
+        <div class="role-icon">🎫</div>
+        <h4>입장 스탭</h4>
+        <p>예약번호, QR, 입금자명, 닉네임, 루미ID로 입장 확인을 진행해요.</p>
+      </article>
+
+      <article class="role-card" data-role="booth">
+        <span class="role-badge">BOOTH</span>
+        <div class="role-icon">🪄</div>
+        <h4>물판 / 특전회 스탭</h4>
+        <p>루미ID, 오늘 번호, 권종, 멤버별 특전 사용, 타이머를 처리해요.</p>
+      </article>
+
+      <article class="role-card" data-role="manager">
+        <span class="role-badge">MANAGER</span>
+        <div class="role-icon">👑</div>
+        <h4>책임자</h4>
+        <p>입장, 특전회, 포인트 관리, 정정, 기록 확인 메뉴를 모두 확인해요.</p>
+      </article>
+    </section>
+
+    <div class="section-title">
+      <h3>운영 메뉴</h3>
+      <p id="menuSub">역할을 선택하면 필요한 메뉴가 크게 표시됩니다.</p>
+    </div>
+
+    <section class="menu-grid" id="menuGrid">
+      <article class="menu-card" data-roles="entry manager">
+        <div class="menu-top">
+          <div class="menu-icon">🎫</div><span class="menu-badge">GATE</span>
+        </div>
+        <h4>입장 확인</h4>
+        <p>QR, 예약번호 끝 4자리, 입금자명, 닉네임, 루미ID로 예매 내역을 확인하고 입장 처리합니다.</p>
+        <a class="btn btn-ticket" href="scan.html">입장 확인 열기</a>
+      </article>
+
+      <article class="menu-card" data-roles="booth manager">
+        <div class="menu-top">
+          <div class="menu-icon">📸</div><span class="menu-badge">CHEKI</span>
+        </div>
+        <h4>특전회 체크</h4>
+        <p>팬 조회, 신규 발급, 오늘 번호, 권종→멤버→1장 저장, 멤버별 타이머를 처리합니다.</p>
+        <a class="btn btn-cheki" href="cheki.html">특전회 체크 열기</a>
+      </article>
+
+      <article class="menu-card" data-roles="booth manager">
+        <div class="menu-top">
+          <div class="menu-icon">💎</div><span class="menu-badge">POINT</span>
+        </div>
+        <h4>포인트 관리</h4>
+        <p>물판 포인트 상세 적립, 사용, 정정, 기록 확인용 메뉴입니다. 일반 현장 처리는 cheki에서 빠르게 처리합니다.</p>
+        <a class="btn btn-point" href="point.html">포인트 관리 열기</a>
+      </article>
+
+      <article class="menu-card" data-roles="entry booth manager">
+        <div class="menu-top">
+          <div class="menu-icon">🕒</div><span class="menu-badge">CHECK</span>
+        </div>
+        <h4>스탭 출석</h4>
+        <p>스탭 이름과 담당 역할을 남겨 출석/퇴근 기록을 관리합니다.</p>
+        <a class="btn btn-attend" href="attendance.html">출석 체크 열기</a>
+      </article>
+
+      <article class="menu-card" data-roles="entry booth manager">
+        <div class="menu-top">
+          <div class="menu-icon">📘</div><span class="menu-badge">GUIDE</span>
+        </div>
+        <h4>공통 스탭 가이드</h4>
+        <p>모든 스탭이 알아야 하는 기본 태도, 루미ID 원칙, 기록 기준, 문제 대응을 확인합니다.</p>
+        <a class="btn btn-guide" href="guide-common.html">공통 가이드 열기</a>
+      </article>
+
+      <article class="menu-card" data-roles="entry manager">
+        <div class="menu-top">
+          <div class="menu-icon">🚪</div><span class="menu-badge">ENTRY GUIDE</span>
+        </div>
+        <h4>입장 스탭 가이드</h4>
+        <p>입장 처리, QR/예약번호 조회, 메아테 확인, 루미ID 자동 발급 금지 기준을 확인합니다.</p>
+        <a class="btn btn-guide" href="guide-entry.html">입장 가이드 열기</a>
+      </article>
+
+      <article class="menu-card" data-roles="booth manager">
+        <div class="menu-top">
+          <div class="menu-icon">🛍️</div><span class="menu-badge">BOOTH GUIDE</span>
+        </div>
+        <h4>물판 / 특전회 가이드</h4>
+        <p>루미ID, 오늘 번호, 메아테, 물판 포인트, 루미 체크인, 스탬프, 타이머 기준을 확인합니다.</p>
+        <a class="btn btn-guide" href="guide-booth.html">물판 가이드 열기</a>
+      </article>
+
+      <article class="menu-card" data-roles="manager">
+        <div class="menu-top">
+          <div class="menu-icon">🗂️</div><span class="menu-badge">RECORD</span>
+        </div>
+        <h4>기록 / 정정 확인</h4>
+        <p>책임자용 기록 확인 메뉴입니다. 시트 원본 링크나 정정 처리는 일반 스탭 화면에 크게 노출하지 않습니다.</p>
+        <button class="btn btn-guide" type="button" onclick="alert('기록 확인은 point.html 또는 책임자 전용 시트에서 진행해 주세요 ✦')">책임자 안내</button>
+      </article>
+    </section>
+
+    <section class="dashboard">
+      <article class="panel">
+        <h4>오늘 운영 핵심</h4>
+        <div class="manual-list">
+          <div class="manual-item">
+            <strong>루미 ID 자동 발급 금지</strong>
+            <span>루미벨 메아테, 물판/특전회 방문, 팬 본인 요청처럼 루미벨 접점이 있을 때만 발급 안내합니다.</span>
+          </div>
+          <div class="manual-item">
+            <strong>입장 기록 ≠ 루미 체크인</strong>
+            <span>루미 체크인과 스탬프는 촬영·교류 특전에 실제 참여한 경우에만 기록합니다.</span>
+          </div>
+          <div class="manual-item">
+            <strong>포인트 기준 분리</strong>
+            <span>물판 포인트는 특전권 15장 구매, 메아테 지정, 주최 라이브 메아테 지정 기준입니다.</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel warning-box">
+        <h4>권한 안내</h4>
+        <p>이 역할 선택은 현장 실수 방지용입니다. 완전한 보안 기능은 아니므로, 시트 원본 링크와 개인정보는 책임자만 관리해 주세요.</p>
+        <div class="manual-list">
+          <div class="manual-item">
+            <strong>입장 스탭</strong>
+            <span>입장 확인과 입장 가이드 중심으로 사용합니다.</span>
+          </div>
+          <div class="manual-item">
+            <strong>물판 스탭</strong>
+            <span>특전회 체크, 포인트 빠른 처리, 타이머 중심으로 사용합니다.</span>
+          </div>
+          <div class="manual-item">
+            <strong>책임자</strong>
+            <span>전체 메뉴, 정정, 기록 확인을 담당합니다.</span>
+          </div>
+        </div>
+      </article>
     </section>
   </div>
 
-  <div id="hub" class="hub">
-    <div class="wrap">
-      <section class="hero reveal">
-        <div class="eyebrow">STAFF QUEST BOARD</div>
-        <h2>Lumibelle<br>Staff Hub</h2>
-        <p>
-          오늘도 루미벨 운영을 부탁해요.<br>
-          입장 확인, 루미ID 포인트, 물판 확인, 스탭 출석, 운영 안내를 한 곳에서 확인할 수 있어요.
-        </p>
-        <div class="status-row">
-          <span class="pill strong">STAFF MODE</span>
-          <span class="pill">NPC READY</span>
-          <span class="pill">OPERATION HUB</span>
-        </div>
-      </section>
+  <div class="footer">© 2026 Lumibelle Staff Hub</div>
+</div>
 
-      <div class="section-title reveal">
-        <h3>운영 메뉴</h3>
-        <p>현장에서 필요한 메뉴를 선택해 주세요.</p>
-      </div>
+<script>
+const STAFF_PASSWORD = "lmb0712";
+const AUTH_KEY = "lb_staff_auth";
+const ROLE_KEY = "lb_staff_role";
 
-      <section class="quest-grid">
-        <article class="quest-card reveal">
-          <div class="quest-top">
-            <div class="quest-icon">🎫</div>
-            <span class="quest-badge">GATE</span>
-          </div>
-          <h4>입장 확인</h4>
-          <p>예약번호 끝 4자리, 입금자명, 닉네임, 루미ID로 예매 내역을 조회하고 입장완료 처리해요.</p>
-          <a class="hub-btn btn-ticket" href="scan.html">입장 확인 열기</a>
-        </article>
+const loginScreen = document.getElementById("loginScreen");
+const hub = document.getElementById("hub");
+const passwordInput = document.getElementById("staffPassword");
+const loginBtn = document.getElementById("loginBtn");
+const loginMsg = document.getElementById("loginMsg");
+const roleStatus = document.getElementById("roleStatus");
+const menuSub = document.getElementById("menuSub");
 
-        <article class="quest-card reveal">
-          <div class="quest-top">
-            <div class="quest-icon">💎</div>
-            <span class="quest-badge">LUMI ID</span>
-          </div>
-          <h4>루미ID · 포인트</h4>
-          <p>팬의 루미ID를 확인하고 물판 포인트 적립/사용 내역을 관리하는 메뉴예요.</p>
-          <a class="hub-btn btn-point" href="point.html">포인트 메뉴 열기</a>
-        </article>
+const ROLE_LABELS = {
+  entry: "입장 스탭",
+  booth: "물판 / 특전회 스탭",
+  manager: "책임자"
+};
 
-        <article class="quest-card reveal">
-          <div class="quest-top">
-            <div class="quest-icon">🛍️</div>
-            <span class="quest-badge">SHOP</span>
-          </div>
-          <h4>굿즈 · 물판 확인</h4>
-          <p>주문번호 확인, 현장 수령, 현금 결제 대응 등 물판 운영 흐름을 확인해요.</p>
-          <a class="hub-btn btn-goods" href="../goods/">굿즈 페이지 보기</a>
-        </article>
+function openHub(){
+  loginScreen.style.display = "none";
+  hub.classList.add("show");
+  applyRole(sessionStorage.getItem(ROLE_KEY) || "");
+}
 
-        <article class="quest-card reveal">
-          <div class="quest-top">
-            <div class="quest-icon">📘</div>
-            <span class="quest-badge">GUIDE</span>
-          </div>
-          <h4>스탭 안내</h4>
-          <p>입장 기준, 양도 대응, 중복 입장, 팬 안내 멘트 등 운영 매뉴얼을 별도 페이지에서 확인해요.</p>
-          <a class="hub-btn btn-guide" href="guide.html">스탭 안내 열기</a>
-        </article>
+function login(){
+  const value = passwordInput.value.trim();
+  if(value === STAFF_PASSWORD){
+    sessionStorage.setItem(AUTH_KEY, "yes");
+    loginMsg.style.display = "none";
+    openHub();
+  }else{
+    loginMsg.style.display = "block";
+  }
+}
 
-        <article class="quest-card reveal">
-          <div class="quest-top">
-            <div class="quest-icon">🕒</div>
-            <span class="quest-badge">CHECK</span>
-          </div>
-          <h4>스탭 출석 체크</h4>
-          <p>현장 스탭 이름과 담당 역할을 남겨 출석/퇴근 기록을 관리하는 메뉴예요.</p>
-          <a class="hub-btn btn-attend" href="attendance.html">출석 체크 열기</a>
-        </article>
+function logout(){
+  sessionStorage.removeItem(AUTH_KEY);
+  sessionStorage.removeItem(ROLE_KEY);
+  location.reload();
+}
 
-        <article class="quest-card reveal">
-          <div class="quest-top">
-            <div class="quest-icon">🪄</div>
-            <span class="quest-badge">COMING</span>
-          </div>
-          <h4>추가 메뉴 예정</h4>
-          <p>리허설 체크, 분실물, 현장 이슈 기록, 스탭 배치표 같은 메뉴를 나중에 추가할 수 있어요.</p>
-          <button class="hub-btn btn-guide" type="button" onclick="alert('추가 메뉴는 나중에 패치할 수 있어요 ✦')">준비 중</button>
-        </article>
-      </section>
+function applyRole(role){
+  document.querySelectorAll(".role-card").forEach(card => {
+    card.classList.toggle("active", card.dataset.role === role);
+  });
 
-      <section class="dashboard">
-        <article class="panel player-card reveal">
-          <h4>STAFF PLAYER CARD</h4>
-          <div class="player-name">
-            <div>
-              <strong>입장 게이트 NPC</strong>
-              <span>칭호: 빠른 확인의 요정<br>상태: 속도전 준비 완료</span>
-            </div>
-            <div class="npc-mark">🎀</div>
-          </div>
+  if(!role){
+    roleStatus.textContent = "ROLE: 미선택";
+    menuSub.textContent = "역할을 선택하면 필요한 메뉴가 크게 표시됩니다.";
+    document.querySelectorAll(".menu-card").forEach(card => card.classList.remove("is-hidden"));
+    return;
+  }
 
-          <div class="stat-grid">
-            <div class="stat">
-              <div class="stat-top"><span>친절도</span><span>MAX</span></div>
-              <div class="bar"><i style="width:100%"></i></div>
-            </div>
-            <div class="stat">
-              <div class="stat-top"><span>확인 속도</span><span>92%</span></div>
-              <div class="bar"><i style="width:92%"></i></div>
-            </div>
-            <div class="stat">
-              <div class="stat-top"><span>침착함</span><span>88%</span></div>
-              <div class="bar"><i style="width:88%"></i></div>
-            </div>
-          </div>
+  roleStatus.textContent = "ROLE: " + ROLE_LABELS[role];
+  menuSub.textContent = ROLE_LABELS[role] + "에게 필요한 메뉴를 우선 표시합니다.";
 
-          <div class="mission">
-            오늘의 미션 ✦<br>
-            1. 출석 체크 후 담당 역할 확인하기<br>
-            2. 예약번호/입금자명/닉네임으로 빠르게 조회하기<br>
-            3. 중복 입장 여부 확인하기
-          </div>
-        </article>
+  document.querySelectorAll(".menu-card").forEach(card => {
+    const roles = (card.dataset.roles || "").split(/\s+/);
+    card.classList.toggle("is-hidden", !roles.includes(role));
+  });
+}
 
-        <article class="panel reveal">
-          <h4>빠른 안내</h4>
-          <div class="manual-list">
-            <div class="manual-item">
-              <strong>입장 확인</strong>
-              <span>기본은 예약번호 끝 4자리 조회예요. 캡쳐가 없으면 입금자명/닉네임/루미ID로 조회해 주세요.</span>
-            </div>
-            <div class="manual-item">
-              <strong>동명이인 대응</strong>
-              <span>검색 결과가 여러 명이면 메아테와 닉네임을 확인한 뒤 선택해 주세요.</span>
-            </div>
-            <div class="manual-item">
-              <strong>스탭 안내 전체 보기</strong>
-              <span>자세한 운영 공지는 스탭 안내 페이지에서 확인해 주세요.</span>
-            </div>
-          </div>
-        </article>
-      </section>
+function selectRole(role){
+  sessionStorage.setItem(ROLE_KEY, role);
+  applyRole(role);
+  window.scrollTo({top:0, behavior:"smooth"});
+}
 
-      <div class="bottom-actions reveal">
-        <button class="sub-btn" type="button" onclick="lockHub()">허브 잠그기</button>
-        <a class="sub-btn" href="../index.html">홈으로 돌아가기</a>
-      </div>
+loginBtn.addEventListener("click", login);
+passwordInput.addEventListener("keydown", e => {
+  if(e.key === "Enter") login();
+});
 
-      <p class="danger-note reveal">
-        ※ 스탭 허브 비밀번호는 완전한 보안 장치가 아니라 간단한 출입 제한용입니다.<br>
-        ※ 링크와 비밀번호는 외부 공유하지 말아 주세요.
-      </p>
-    </div>
+document.querySelectorAll(".role-card").forEach(card => {
+  card.addEventListener("click", () => selectRole(card.dataset.role));
+});
 
-    <footer>© 2026 Lumibelle Staff Hub</footer>
-  </div>
+document.getElementById("switchRoleBtn").addEventListener("click", () => {
+  sessionStorage.removeItem(ROLE_KEY);
+  applyRole("");
+  document.getElementById("roleGrid").scrollIntoView({behavior:"smooth", block:"center"});
+});
 
-  <script>
-    const STAFF_PASSWORD = "lumibelle0712";
-    const SESSION_KEY = "lumibelle_staff_hub_unlocked";
+document.getElementById("logoutBtn").addEventListener("click", logout);
 
-    function enterHub(){
-      const input = document.getElementById("staffPassword");
-      const msg = document.getElementById("loginMsg");
-      const value = input.value.trim();
-
-      if(value === STAFF_PASSWORD){
-        sessionStorage.setItem(SESSION_KEY, "1");
-        showHub();
-        return;
-      }
-
-      msg.style.display = "block";
-      input.value = "";
-      input.focus();
-    }
-
-    function showHub(){
-      document.getElementById("loginScreen").style.display = "none";
-      document.getElementById("hub").classList.add("show");
-      setTimeout(revealAll, 80);
-    }
-
-    function lockHub(){
-      sessionStorage.removeItem(SESSION_KEY);
-      location.reload();
-    }
-
-    function revealAll(){
-      const targets = document.querySelectorAll(".reveal");
-      targets.forEach((el, idx) => {
-        setTimeout(() => el.classList.add("show"), idx * 70);
-      });
-    }
-
-    document.getElementById("staffPassword").addEventListener("keydown", function(e){
-      if(e.key === "Enter"){
-        e.preventDefault();
-        enterHub();
-      }
-    });
-
-    if(sessionStorage.getItem(SESSION_KEY) === "1"){
-      showHub();
-    }
-  </script>
-
+if(sessionStorage.getItem(AUTH_KEY) === "yes"){
+  openHub();
+}else{
+  setTimeout(() => passwordInput.focus(), 50);
+}
+</script>
 </body>
 </html>
