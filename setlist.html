@@ -1628,6 +1628,15 @@ audio::-webkit-media-controls-mute-button{
   line-height:1.7 !important;
 }
 
+
+.audio-modal-practice-hint{
+  margin:12px 0 0;
+  color:#a6788f;
+  font-size:13px;
+  line-height:1.7;
+  font-weight:800;
+}
+
 </style>
 
 <style>
@@ -3595,23 +3604,669 @@ audio::-webkit-media-controls-mute-button{
 .song-card:active{transform:translateY(-2px) scale(.985) !important;}
 </style>
 
+<style>
+/* === audio rights-safe practice patch === */
+.audio-practice-card{
+  display:none;
+  width:100%;
+  border:1px solid #f1d4e3;
+  border-radius:22px;
+  background:
+    radial-gradient(circle at 86% 14%, rgba(202,167,255,.14), transparent 24%),
+    linear-gradient(180deg,#fff9fc,#fff0f7);
+  padding:20px 20px 18px;
+  box-shadow:0 8px 18px rgba(255,89,165,.06);
+  text-align:center;
+}
+.audio-practice-kicker{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:28px;
+  padding:6px 12px;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid #f1d4e3;
+  color:#d08cab;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.12em;
+  margin-bottom:10px;
+}
+.audio-practice-title{
+  color:#ff59a5;
+  font-size:20px;
+  line-height:1.25;
+  font-weight:900;
+  letter-spacing:-.03em;
+  margin-bottom:8px;
+}
+.audio-practice-desc{
+  margin:0 auto 15px;
+  max-width:560px;
+  color:#946f84;
+  font-size:13.5px;
+  line-height:1.75;
+  font-weight:750;
+  word-break:keep-all;
+}
+.audio-practice-actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+}
+.audio-practice-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  padding:10px 16px;
+  border-radius:999px;
+  border:1px solid #f1d4e3;
+  background:#fff;
+  color:#aa7a93;
+  font-size:13px;
+  font-weight:900;
+  cursor:pointer;
+  transition:transform .18s ease, border-color .18s ease, color .18s ease;
+}
+.audio-practice-btn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(255,89,165,.34);
+  color:#ff59a5;
+}
+.audio-practice-btn.primary{
+  border-color:transparent;
+  background:linear-gradient(180deg,#ff8bbe,#ff59a5);
+  color:#fff;
+  box-shadow:0 10px 18px rgba(255,89,165,.14);
+}
+.audio-practice-btn.disabled{
+  opacity:.52;
+  cursor:default;
+  pointer-events:none;
+}
+.audio-rights-note{
+  margin:14px auto 0;
+  max-width:680px;
+  color:#b18da0;
+  font-size:12.5px;
+  line-height:1.7;
+  font-weight:750;
+}
+#audioEmbedBox{
+  width:100%;
+  min-height:160px;
+  border:1px dashed #f1d4e3;
+  border-radius:20px;
+  background:#fff;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:#9a7489;
+  font-size:14px;
+  line-height:1.8;
+  font-weight:800;
+  padding:20px;
+}
+#audioEmbedBox iframe{
+  width:100%;
+  min-height:352px;
+  border:0;
+  display:block;
+}
+.audio-modal-actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+  margin-top:14px;
+}
+@media (max-width:720px){
+  .audio-practice-card{padding:17px 14px 16px;}
+  .audio-practice-actions{flex-direction:column;}
+  .audio-practice-btn{width:100%;}
+}
+</style>
+
+
+<style>
+/* === Spotify/audio modal side-by-side practice layout === */
+.audio-practice-title{font-size:21px !important;}
+.audio-practice-desc{max-width:620px !important;}
+.audio-modal-layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(280px,.92fr);gap:16px;align-items:stretch;}
+.audio-modal-player,.audio-modal-practice{border:1px solid #f1d4e3;border-radius:22px;background:#fff;padding:16px;box-shadow:0 8px 18px rgba(255,89,165,.06);}
+.audio-modal-player{background:linear-gradient(180deg,#fff,#fff8fc);}
+.audio-modal-practice{background:linear-gradient(180deg,#fff8fc,#fff0f7);display:flex;flex-direction:column;justify-content:center;text-align:center;}
+.audio-modal-kicker{display:inline-flex;align-self:center;align-items:center;justify-content:center;min-height:28px;padding:6px 12px;border-radius:999px;background:#fff;border:1px solid #f1d4e3;color:#d08cab;font-size:11px;font-weight:900;letter-spacing:.12em;margin-bottom:10px;}
+.audio-modal-practice h4{margin:0 0 8px;color:#ff59a5;font-size:20px;font-weight:900;letter-spacing:-.03em;}
+.audio-modal-practice p{margin:0 0 14px;color:#946f84;font-size:13.5px;line-height:1.75;font-weight:750;word-break:keep-all;}
+.audio-modal-practice .audio-practice-btn{width:100%;margin-top:8px;}
+#audioEmbedBox{min-height:0 !important;border:none !important;padding:0 !important;background:transparent !important;display:block !important;}
+#audioEmbedBox iframe{min-height:152px !important;border-radius:14px;}
+.audio-modal-placeholder{min-height:154px;border:1px dashed #f1d4e3;border-radius:18px;background:#fff;color:#9a7489;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;font-size:14px;line-height:1.75;font-weight:800;}
+@media (max-width:760px){.audio-modal-layout{grid-template-columns:1fr;}}
+</style>
+
+
+
+<style>
+/* === Lumi practice modal tabs patch === */
+.audio-modal-layout{
+  display:grid !important;
+  grid-template-columns:minmax(0,1.02fr) minmax(280px,.98fr) !important;
+  gap:16px !important;
+  align-items:stretch !important;
+}
+.audio-modal-player,
+.audio-modal-practice{
+  min-height:210px;
+}
+.audio-modal-practice-quick{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin-top:10px;
+}
+.audio-modal-practice-quick .audio-practice-btn{
+  margin-top:0 !important;
+  width:100%;
+  min-height:40px;
+  padding:9px 12px;
+  font-size:12.5px;
+}
+.audio-modal-tabs{
+  margin-top:18px;
+  border:1px solid #f1d4e3;
+  border-radius:24px;
+  background:linear-gradient(180deg,#fff,#fff8fc);
+  padding:16px;
+  box-shadow:0 8px 18px rgba(255,89,165,.06);
+}
+.audio-tab-nav{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+  margin-bottom:14px;
+}
+.audio-tab-btn{
+  border:1px solid #f1d4e3;
+  background:#fff;
+  color:#aa7a93;
+  border-radius:999px;
+  min-height:36px;
+  padding:8px 13px;
+  font-size:12.5px;
+  font-weight:900;
+  cursor:pointer;
+  transition:transform .18s ease, color .18s ease, border-color .18s ease, background .18s ease;
+}
+.audio-tab-btn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(255,89,165,.34);
+  color:#ff59a5;
+}
+.audio-tab-btn.active{
+  border-color:transparent;
+  background:linear-gradient(180deg,#ff8bbe,#ff59a5);
+  color:#fff;
+  box-shadow:0 8px 16px rgba(255,89,165,.12);
+}
+.audio-tab-panel{
+  display:none;
+}
+.audio-tab-panel.active{
+  display:block;
+  animation:audioTabFade .2s ease;
+}
+@keyframes audioTabFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.audio-tab-title{
+  text-align:center;
+  color:#ff59a5;
+  font-size:20px;
+  font-weight:900;
+  letter-spacing:-.03em;
+  margin:2px 0 10px;
+}
+.audio-tab-desc{
+  text-align:center;
+  color:#946f84;
+  font-size:13.5px;
+  line-height:1.75;
+  font-weight:750;
+  margin:0 auto 14px;
+  max-width:640px;
+  word-break:keep-all;
+}
+.audio-mini-lines{
+  display:grid;
+  gap:10px;
+}
+.audio-mini-line{
+  border:1px solid #f1d4e3;
+  border-radius:18px;
+  background:#fff;
+  padding:14px 16px;
+  box-shadow:0 6px 16px rgba(255,120,178,.05);
+}
+.audio-mini-top{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin-bottom:8px;
+}
+.audio-mini-time{
+  color:#d088aa;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.audio-mini-stage{
+  color:#b2899f;
+  font-size:12px;
+  font-weight:900;
+  text-align:right;
+}
+.audio-mini-lyric{
+  color:#7d6172;
+  font-size:14.5px;
+  line-height:1.75;
+  font-weight:800;
+  margin-bottom:8px;
+  word-break:keep-all;
+}
+.audio-mini-call{
+  color:#946f84;
+  font-size:13px;
+  line-height:1.75;
+  font-weight:750;
+}
+.audio-mini-tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin:8px 0;
+}
+.audio-mini-tag{
+  display:inline-flex;
+  align-items:center;
+  min-height:27px;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(255,89,165,.08);
+  color:#ff59a5;
+  font-size:11px;
+  font-weight:900;
+}
+.audio-mini-empty{
+  border:1px dashed #f1d4e3;
+  border-radius:18px;
+  background:#fff;
+  padding:24px 18px;
+  color:#9a7489;
+  text-align:center;
+  font-size:14px;
+  line-height:1.8;
+  font-weight:800;
+}
+.audio-lyrics-box{
+  border:1px solid #f1d4e3;
+  border-radius:18px;
+  background:#fff;
+  padding:18px;
+  color:#7d6172;
+  font-size:14px;
+  line-height:1.9;
+  font-weight:750;
+  white-space:pre-line;
+  max-height:360px;
+  overflow:auto;
+}
+.audio-term-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.audio-term-box{
+  border:1px solid #f1d4e3;
+  border-radius:16px;
+  background:#fff;
+  padding:14px;
+}
+.audio-term-box h5{
+  margin:0 0 7px;
+  color:#ff59a5;
+  font-size:14px;
+  font-weight:900;
+}
+.audio-term-box p{
+  margin:0;
+  color:#946f84;
+  font-size:12.8px;
+  line-height:1.75;
+  font-weight:750;
+}
+@media (max-width:760px){
+  .audio-modal-layout{grid-template-columns:1fr !important;}
+  .audio-modal-practice-quick{grid-template-columns:1fr;}
+  .audio-term-grid{grid-template-columns:1fr;}
+  .audio-tab-btn{flex:1 1 calc(50% - 8px);}
+  .audio-mini-top{flex-direction:column;align-items:flex-start;}
+  .audio-mini-stage{text-align:left;}
+}
+</style>
+
+
+<style>
+/* === official audio platform selector patch === */
+.audio-platform-intro{ text-align:center; color:#946f84; font-size:13.5px; line-height:1.75; font-weight:750; margin:2px auto 14px; max-width:520px; word-break:keep-all; }
+.audio-platform-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; width:100%; }
+.audio-platform-btn{ display:flex; align-items:center; justify-content:center; min-height:44px; padding:10px 12px; border-radius:999px; border:1px solid #f1d4e3; background:linear-gradient(180deg,#fff,#fff7fb); color:#a87692; font-size:13px; font-weight:900; text-decoration:none; transition:transform .18s ease, border-color .18s ease, color .18s ease; }
+.audio-platform-btn:hover{ transform:translateY(-1px); border-color:rgba(255,89,165,.35); color:#ff59a5; }
+.audio-platform-empty{ border:1px dashed #f1d4e3; border-radius:18px; background:#fff; color:#b18da0; padding:18px 16px; line-height:1.8; font-weight:800; text-align:center; word-break:keep-all; }
+.audio-modal-notice{ margin-top:14px; padding:12px 14px; border-radius:16px; background:#fff7fb; border:1px solid #f1d4e3; color:#9a7489; font-size:12.5px; line-height:1.7; font-weight:750; text-align:center; word-break:keep-all; }
+@media (max-width:720px){ .audio-platform-grid{grid-template-columns:1fr;} }
+</style>
+
+
+<style>
+/* --- inline lyrics + left official audio box tidy fix --- */
+.audio-modal-layout{
+  align-items:start !important;
+}
+.audio-modal-player{
+  min-height:0 !important;
+  height:auto !important;
+  align-self:start !important;
+}
+.audio-modal-side{
+  align-self:start !important;
+}
+.audio-inline-lyrics-panel{
+  display:none;
+  margin-top:18px;
+  padding-top:16px;
+  border-top:1px solid #f1d4e3;
+}
+.audio-inline-lyrics-panel.open{
+  display:block;
+  animation:audioTabFade .2s ease;
+}
+.audio-lyrics-jump-btn.active{
+  border-color:transparent !important;
+  background:linear-gradient(180deg,#ff8bbe,#ff59a5) !important;
+  color:#fff !important;
+  box-shadow:0 8px 16px rgba(255,89,165,.12) !important;
+}
+</style>
+
+
+
+  <style id="home-header-sync-setlist-only">
+    /* ===== HOME 기준 상단바 동기화: 본문/기능/효과는 유지 ===== */
+    .top-lang-bar{
+      width:100% !important;
+      max-width:1260px !important;
+      margin:16px auto 0 !important;
+      display:flex !important;
+      justify-content:flex-end !important;
+      padding:0 34px 0 18px !important;
+      box-sizing:border-box !important;
+    }
+
+    .lang-switch{
+      display:flex !important;
+      align-items:center !important;
+      gap:10px !important;
+      flex:0 0 auto !important;
+      padding-right:2px !important;
+    }
+
+    .lang-switch a{
+      display:inline-flex !important;
+      align-items:center !important;
+      justify-content:center !important;
+      min-width:42px !important;
+      height:36px !important;
+      padding:0 10px !important;
+      border-radius:999px !important;
+      background:#fff !important;
+      border:1px solid #f0bfd4 !important;
+      color:#d27ca8 !important;
+      text-decoration:none !important;
+      font-size:12px !important;
+      font-weight:900 !important;
+      box-shadow:0 4px 10px rgba(255,95,165,0.08) !important;
+      transform:none !important;
+      transition:background .18s ease, color .18s ease, box-shadow .18s ease !important;
+    }
+
+    .lang-switch a:hover,
+    .lang-switch a.active{
+      background:#fff0f7 !important;
+      color:#ff59a5 !important;
+      transform:none !important;
+    }
+
+    header{
+      position:static !important;
+      top:auto !important;
+      z-index:auto !important;
+      background:transparent !important;
+      backdrop-filter:none !important;
+      -webkit-backdrop-filter:none !important;
+      border-bottom:none !important;
+      box-shadow:none !important;
+    }
+
+    .header-box{
+      width:min(1260px, calc(100% - 28px)) !important;
+      margin:12px auto 0 !important;
+      padding:18px 24px !important;
+      display:flex !important;
+      align-items:center !important;
+      gap:24px !important;
+      min-height:auto !important;
+      border:1px solid #f2d8e7 !important;
+      border-radius:28px !important;
+      background:rgba(255,255,255,.72) !important;
+      box-shadow:0 8px 24px rgba(232,191,211,.12) !important;
+      backdrop-filter:blur(12px) !important;
+      -webkit-backdrop-filter:blur(12px) !important;
+    }
+
+    .logo{
+      flex:0 0 auto !important;
+      min-width:130px !important;
+      display:flex !important;
+      align-items:center !important;
+      justify-content:center !important;
+    }
+
+    .logo a{
+      display:flex !important;
+      flex-direction:column !important;
+      align-items:center !important;
+      justify-content:center !important;
+      line-height:1 !important;
+    }
+
+    .logo picture{
+      display:block !important;
+    }
+
+    .logo img{
+      height:120px !important;
+      width:auto !important;
+      display:block !important;
+      object-fit:contain !important;
+    }
+
+    nav{
+      display:grid !important;
+      grid-template-columns:repeat(8, minmax(0, 1fr)) !important;
+      gap:18px !important;
+      text-align:center !important;
+      align-items:center !important;
+      flex:1 !important;
+      margin:0 20px !important;
+    }
+
+    nav a{
+      position:relative !important;
+      width:100% !important;
+      min-width:0 !important;
+      display:flex !important;
+      flex-direction:column !important;
+      align-items:center !important;
+      justify-content:center !important;
+      padding:12px 6px !important;
+      border-radius:18px !important;
+      overflow:hidden !important;
+      isolation:isolate !important;
+      background:transparent !important;
+      box-shadow:none !important;
+      transform:none !important;
+      -webkit-tap-highlight-color:transparent !important;
+    }
+
+    nav a::before{
+      content:"" !important;
+      position:absolute !important;
+      inset:0 !important;
+      border-radius:18px !important;
+      background:linear-gradient(90deg,
+        rgba(255,217,232,0) 0%,
+        rgba(255,217,232,.14) 16%,
+        rgba(255,192,215,.20) 50%,
+        rgba(255,217,232,.14) 84%,
+        rgba(255,217,232,0) 100%) !important;
+      opacity:0 !important;
+      z-index:-1 !important;
+      pointer-events:none !important;
+      transition:opacity .18s ease !important;
+    }
+
+    nav a.current::before,
+    nav a:hover::before{
+      opacity:1 !important;
+    }
+
+    nav a b{
+      display:block !important;
+      width:100% !important;
+      text-align:center !important;
+      white-space:nowrap !important;
+      font-family:"SUIT","Noto Sans KR",sans-serif !important;
+      font-size:1.2em !important;
+      font-weight:700 !important;
+      color:#d97ca9 !important;
+      letter-spacing:-.03em !important;
+      margin:0 !important;
+    }
+
+    nav a span{
+      display:block !important;
+      width:100% !important;
+      text-align:center !important;
+      white-space:nowrap !important;
+      margin-top:6px !important;
+      font-family:"SUIT","Noto Sans KR",sans-serif !important;
+      font-size:.94em !important;
+      font-weight:600 !important;
+      color:#c697b1 !important;
+    }
+
+    nav a.current b,
+    nav a:hover b{
+      color:#ff59a5 !important;
+    }
+
+    nav a.current span,
+    nav a:hover span{
+      color:#d88dad !important;
+    }
+
+    @media (max-width:1180px){
+      nav{
+        grid-template-columns:repeat(4,1fr) !important;
+        gap:16px !important;
+        margin:0 !important;
+      }
+      .header-box{
+        flex-wrap:wrap !important;
+        justify-content:center !important;
+      }
+      .logo{
+        width:100% !important;
+        min-width:0 !important;
+      }
+    }
+
+    @media (max-width:980px){
+      .top-lang-bar{
+        justify-content:center !important;
+        margin-top:14px !important;
+        padding:0 14px !important;
+      }
+    }
+
+    @media (max-width:780px){
+      .header-box{
+        padding:16px 14px !important;
+        gap:16px !important;
+      }
+      .logo img{
+        height:88px !important;
+      }
+      nav{
+        grid-template-columns:repeat(2,1fr) !important;
+        gap:12px !important;
+      }
+      nav a b{
+        font-size:1.12em !important;
+      }
+      nav a span{
+        font-size:.9em !important;
+      }
+    }
+  </style>
+
 </head>
 <body>
+  <div class="top-lang-bar">
+    <div class="lang-switch">
+      <a href="setlist.html" class="active">KR</a>
+      <a href="en/setlist.html">EN</a>
+      <a href="jp/setlist.html">JP</a>
+      <a href="cn/setlist.html">CN</a>
+    </div>
+  </div>
 
   <header>
     <div class="wrap header-box">
-      <a href="index.html" class="logo" aria-label="Lumibelle home">
-        <img src="img/logo.png" alt="Lumibelle">
-      </a>
+      <div class="logo">
+        <a href="index.html" aria-label="Lumibelle home">
+          <picture>
+            <source srcset="img/ui/logo.webp?v=3" type="image/webp">
+            <img src="img/ui/logo.png?v=3" alt="Lumibelle 로고" loading="eager" decoding="async">
+          </picture>
+        </a>
+      </div>
 
       <nav>
         <a href="index.html"><b>HOME</b><span>홈</span></a>
-        <a href="news.html"><b>NEWS</b><span>공지</span></a>
-        <a href="member.html"><b>MEMBER</b><span>멤버</span></a>
+        <a href="news.html"><b>NEWS</b><span>공지사항</span></a>
+        <a href="member.html"><b>MEMBER</b><span>멤버 소개</span></a>
         <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
-        <a href="music.html"><b>MUSIC</b><span>음원</span></a>
-        <a href="setlist.html" class="current"><b>SETLIST</b><span>응원가이드</span></a>
-        <a href="fanname.html"><b>FANNAME</b><span>팬네임</span></a>
+        <a href="ticket/"><b>TICKET</b><span>예매</span></a>
+        <a href="goods/"><b>GOODS</b><span>굿즈</span></a>
+        <a href="setlist.html" class="current"><b>SETLIST</b><span>응원 가이드</span></a>
         <a href="info.html"><b>INFO</b><span>안내</span></a>
       </nav>
     </div>
@@ -3745,16 +4400,22 @@ audio::-webkit-media-controls-mute-button{
 
         <div class="guide-body">
           <div class="guide-block" id="trackBlock">
-            <h3>TRACK / VIDEO</h3>
+            <h3>TRACK / AUDIO</h3>
             <div class="guide-mini">
-              영상은 이해용, 오디오는 반복 연습용으로 생각하면 좋아요.<br>용어 GUIDE에서는 콜, 믹스, 나마콜 같은 기본 용어를 확인할 수 있어요.
+              오리곡은 홈페이지 재생바로, 외부 곡은 Spotify 등 공식 음원 모달과 루미 응원 연습바로 연습해요.<br>용어 GUIDE에서는 콜, 믹스, 나마콜 같은 기본 용어를 확인할 수 있어요.
             </div>
 
-            <div class="audio-wrap">
+            <div class="audio-wrap" id="audioWrap">
               <audio id="guideAudio" controls></audio>
               <div class="audio-empty" id="audioEmpty">
                 이 곡은 아직 음원 파일이 연결되지 않았어요.<br>
                 오디오가 준비되면 바로 재생 가능하게 바뀝니다.
+              </div>
+              <div class="audio-practice-card" id="audioPracticeCard">
+                <div class="audio-practice-kicker">AUDIO PRACTICE</div>
+                <div class="audio-practice-title">공식 음원으로 연습하기</div>
+                <p class="audio-practice-desc">외부 곡은 저작권 보호를 위해 루미벨 홈페이지 내 음원 파일을 직접 제공하지 않습니다.<br>공식 음원 플랫폼을 선택한 뒤, 루미 응원 연습바와 함께 타이밍을 맞춰 연습해주세요.</p>
+                <div class="audio-practice-actions" id="audioPracticeActions"></div>
               </div>
             </div>
 
@@ -3856,6 +4517,25 @@ audio::-webkit-media-controls-mute-button{
       </div>
     </div>
   </div>
+  <div class="modal-overlay" id="audioModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div class="modal-title" id="audioModalTitle">공식 음원으로 연습하기</div>
+        <button class="modal-close" id="audioModalClose" type="button" aria-label="닫기">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="audioEmbedBox">
+          Spotify 등 공식 음원 플레이어가 준비되면 이 영역에서 바로 확인할 수 있어요.<br>현재는 공식 음원 링크 연결 전입니다.
+        </div>
+        <div class="audio-modal-actions" id="audioModalActions"></div>
+        <p class="audio-rights-note">
+          외부 곡의 음원·영상·가사·안무 등은 각 권리자에게 귀속됩니다. 루미벨은 MP3 파일을 직접 제공하지 않고, 공식 플랫폼 링크 또는 권리자가 허용한 임베드 방식으로만 안내합니다.
+        </p>
+      </div>
+    </div>
+  </div>
+
+
 
   <script>
     const songs = [
@@ -3867,7 +4547,11 @@ audio::-webkit-media-controls-mute-button{
         thumb: 'img/tmb/mariring-tmb.png',
         status: ['응원가이드 일부', '영상 준비중'],
         lyrics: 'Stardust Magical 가사지 준비중',
-        meta: ['팀용 지원', '솔로용 지원', '음원 미연결'],
+        meta: ['팀용 지원', '솔로용 지원', '오리곡 음원 준비중'],
+        audioPolicy: 'original',
+        officialAudio: '',
+        officialAudioEmbed: '',
+        officialAudioLinks: [],
         audio: '',
         video: '',
         support: {
@@ -3907,7 +4591,11 @@ audio::-webkit-media-controls-mute-button{
         thumb: 'img/tmb/mariring01-tmb.jpg',
         status: ['응원가이드 준비중'],
         lyrics: '스토리베리 러브 가사지 준비중',
-        meta: ['팀용 예정', '솔로용 예정'],
+        meta: ['팀용 예정', '솔로용 예정', '오리곡 음원 준비중'],
+        audioPolicy: 'original',
+        officialAudio: '',
+        officialAudioEmbed: '',
+        officialAudioLinks: [],
         audio: '',
         video: '',
         support: {
@@ -4376,7 +5064,11 @@ We are Sweetie pie! 루미베르 데스~
 
 같이 
 We are Sweetie pie! 루미베르 데스~`,
-        meta: ['팀용 지원', '솔로용 가능', '리스폰스형'],
+        meta: ['팀용 지원', '솔로용 가능', '외부곡 공식 링크'],
+        audioPolicy: 'external',
+        officialAudio: '',
+        officialAudioEmbed: '',
+        officialAudioLinks: [],
         audio: '',
         video: 'https://youtu.be/az9mkI9C2f4',
         support: {
@@ -4789,8 +5481,12 @@ We are Sweetie pie! 루미베르 데스~`,
 奏でようよ
 카나데요-요
 함께 만들어가자`,
-        meta: ['팀용 지원', '솔로용 지원', '감성형'],
-        audio: 'audio/canaria.mp3',
+        meta: ['팀용 지원', '솔로용 지원', '외부곡 공식 링크'],
+        audioPolicy: 'external',
+        officialAudio: '',
+        officialAudioEmbed: '',
+        officialAudioLinks: [],
+        audio: '',
         video: 'https://youtu.be/bAxU3DizH90',
         support: {
           team: {
@@ -4957,6 +5653,8 @@ We are Sweetie pie! 루미베르 데스~`,
     const levelButtons = document.getElementById('levelButtons');
     const guideAudio = document.getElementById('guideAudio');
     const audioEmpty = document.getElementById('audioEmpty');
+    const audioPracticeCard = document.getElementById('audioPracticeCard');
+    const audioPracticeActions = document.getElementById('audioPracticeActions');
     const linkRow = document.getElementById('linkRow');
     const noteMode = document.getElementById('noteMode');
     const noteLevel = document.getElementById('noteLevel');
@@ -4984,6 +5682,11 @@ We are Sweetie pie! 루미베르 데스~`,
     const termModalClose = document.getElementById('termModalClose');
     const lyricsModal = document.getElementById('lyricsModal');
     const lyricsModalClose = document.getElementById('lyricsModalClose');
+    const audioModal = document.getElementById('audioModal');
+    const audioModalClose = document.getElementById('audioModalClose');
+    const audioModalTitle = document.getElementById('audioModalTitle');
+    const audioEmbedBox = document.getElementById('audioEmbedBox');
+    const audioModalActions = document.getElementById('audioModalActions');
 
     function getComingSoonSong(){
       const slotNumber = (state.comingSoonIndex ?? 0) + 1;
@@ -5250,29 +5953,49 @@ We are Sweetie pie! 루미베르 데스~`,
       });
     }
 
+    function isExternalAudio(song){
+      return song.audioPolicy === 'external';
+    }
+
     function renderAudio(song){
+      guideAudio.pause();
+      guideAudio.removeAttribute('src');
+      guideAudio.load();
+      guideAudio.style.display = 'none';
+      audioEmpty.style.display = 'none';
+      if(audioPracticeCard) audioPracticeCard.style.display = 'none';
+
       if(song.audio){
         guideAudio.style.display = 'block';
-        audioEmpty.style.display = 'none';
         guideAudio.src = song.audio;
-      }else{
-        guideAudio.pause();
-        guideAudio.removeAttribute('src');
-        guideAudio.load();
-        guideAudio.style.display = 'none';
-        audioEmpty.style.display = 'flex';
+        return;
       }
+
+      if(isExternalAudio(song)){
+        if(audioPracticeCard) audioPracticeCard.style.display = 'block';
+        if(audioPracticeActions){
+          const officialAudioBtn = '<button class="audio-practice-btn primary" type="button" id="openAudioModalBtn">공식 음원 선택</button>';
+          const practiceBtn = '<button class="audio-practice-btn" type="button" onclick="alert(\'루미 응원 연습바 START!\')">루미 응원 연습바 START</button>';
+          audioPracticeActions.innerHTML = officialAudioBtn + practiceBtn;
+          const openAudioModalBtn = document.getElementById('openAudioModalBtn');
+          if(openAudioModalBtn){
+            openAudioModalBtn.addEventListener('click', () => openAudioModal(song));
+          }
+        }
+        return;
+      }
+
+      audioEmpty.style.display = 'flex';
+      audioEmpty.innerHTML = song.audioPolicy === 'original'
+        ? '루미벨 오리지널곡 음원은 준비되는 대로 홈페이지 재생바에 연결됩니다.<br>현재는 응원 타이밍 가이드와 영상으로 먼저 연습해주세요.'
+        : '이 곡은 아직 음원 파일이 연결되지 않았어요.<br>오디오가 준비되면 바로 재생 가능하게 바뀝니다.';
     }
 
     function renderLinks(song){
-      const videoBtn = song.video
-        ? `<a class="link-btn" href="${song.video}" target="_blank" rel="noopener noreferrer">영상 보러가기</a>`
-        : `<span class="link-btn disabled">영상 준비중</span>`;
-
       const termBtn = `<button class="link-btn secondary" type="button" id="openTermGuideBtn">용어 가이드</button>`;
-      const lyricBtn = `<button class="link-btn secondary" type="button" id="openLyricsBtn">가사지</button>`;
       const mixGuideBtn = `<a class="link-btn secondary" href="https://www.youtube.com/watch?v=R6aAdr7Mmg4&list=PLzNFNPqZTy9fdpKtTbHAInQyYy3MV8YhS" target="_blank" rel="noopener noreferrer">믹스콜 가이드</a>`;
-      linkRow.innerHTML = videoBtn + termBtn + lyricBtn + mixGuideBtn;
+      const lyricBtn = `<button class="link-btn secondary" type="button" id="openLyricsBtn">가사지</button>`;
+      linkRow.innerHTML = termBtn + mixGuideBtn + lyricBtn;
 
       const openBtn = document.getElementById('openTermGuideBtn');
       if(openBtn){
@@ -5281,11 +6004,10 @@ We are Sweetie pie! 루미베르 데스~`,
           document.body.style.overflow = 'hidden';
         });
       }
+
       const lyricOpenBtn = document.getElementById('openLyricsBtn');
       if(lyricOpenBtn){
-        lyricOpenBtn.addEventListener('click', () => {
-          openLyricsModal(song);
-        });
+        lyricOpenBtn.addEventListener('click', () => openLyricsModal(song));
       }
     }
 
@@ -5388,6 +6110,162 @@ We are Sweetie pie! 루미베르 데스~`,
       requestAnimationFrame(syncGuideColumns);
     }
 
+    function openAudioModal(song){
+      if(!audioModal) return;
+      audioModalTitle.textContent = `${song.title} · LUMI PRACTICE`;
+
+      const currentSupport = song.support?.[state.mode] || {};
+      const beginnerGuide = currentSupport?.beginner || null;
+      const advancedGuide = currentSupport?.advanced || null;
+
+      function practiceCards(guide, emptyText){
+        if(!guide || !(guide.lines || []).length){
+          return `<div class="audio-mini-empty">${emptyText}</div>`;
+        }
+
+        return `<div class="audio-mini-lines">${(guide.lines || []).map(line => {
+          const tags = (line.tags || []).map(tag => `<span class="audio-mini-tag">${tag}</span>`).join('');
+          return `
+            <article class="audio-mini-line">
+              <div class="audio-mini-top">
+                <span class="audio-mini-time">${line.time || ''}</span>
+                <span class="audio-mini-stage">${line.stage || ''}</span>
+              </div>
+              <div class="audio-mini-lyric">${line.lyric || ''}</div>
+              ${tags ? `<div class="audio-mini-tags">${tags}</div>` : ''}
+              <div class="audio-mini-call">${line.call || ''}</div>
+            </article>
+          `;
+        }).join('')}</div>`;
+      }
+
+      const platformLinks = Array.isArray(song.officialAudioLinks) ? [...song.officialAudioLinks] : [];
+      if(song.officialAudio && !platformLinks.length){
+        platformLinks.push({ label: '공식 음원', url: song.officialAudio });
+      }
+
+      const platformButtons = platformLinks.length
+        ? `<div class="audio-platform-grid">${platformLinks.map(link => `<a class="audio-platform-btn" href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label}</a>`).join('')}</div>`
+        : '<div class="audio-platform-empty">공식 음원 링크 준비중입니다.<br>현재는 가사지와 연습 안내를 먼저 확인해주세요.</div>';
+
+      const embedHtml = song.officialAudioEmbed
+        ? song.officialAudioEmbed
+        : `
+          <div class="audio-platform-intro">
+            공식 음원은 각 플랫폼에서 재생됩니다.<br>
+            원하는 플랫폼에서 곡을 재생한 뒤, 이 창으로 돌아와 루미 응원 연습바를 시작해주세요.
+          </div>
+          ${platformButtons}
+          <div class="audio-modal-notice">
+            플랫폼별 로그인·앱 설치·지역 제한·미리듣기 제한 등이 적용될 수 있습니다.
+          </div>
+        `;
+
+      const lyricText = song.lyrics || `${song.title} 가사지 준비중`;
+      const modalMetaItems = [song.subtitle, ...(song.meta || [])].filter(Boolean);
+      const modalMetaHtml = modalMetaItems.length
+        ? `<div class="audio-modal-meta-row">${modalMetaItems.map(item => `<span class="audio-modal-meta-chip">${item}</span>`).join('')}</div>`
+        : '';
+      const modalChoiceHtml = `
+        <div class="audio-modal-choice-grid" aria-label="응원 모드와 난이도 선택">
+          <button class="audio-modal-choice ${state.mode === 'team' ? 'active' : ''} ${song.support?.team ? '' : 'disabled'}" type="button" data-modal-mode="team">팀 응원</button>
+          <button class="audio-modal-choice ${state.mode === 'solo' ? 'active' : ''} ${song.support?.solo ? '' : 'disabled'}" type="button" data-modal-mode="solo">솔로 응원</button>
+          <button class="audio-modal-choice ${state.level === 'beginner' ? 'active' : ''} ${song.support?.[state.mode]?.beginner ? '' : 'disabled'}" type="button" data-modal-level="beginner">초보용</button>
+          <button class="audio-modal-choice ${state.level === 'advanced' ? 'active' : ''} ${song.support?.[state.mode]?.advanced ? '' : 'disabled'}" type="button" data-modal-level="advanced">고급용</button>
+        </div>
+      `;
+
+      const selectedGuide = currentSupport?.[state.level] || null;
+      const selectedGuideLabel = state.level === 'advanced' ? '고급용' : '초보용';
+      const selectedModeLabel = state.mode === 'solo' ? '솔로 응원' : '팀 응원';
+
+      audioEmbedBox.innerHTML = `
+        <div class="audio-modal-layout">
+          <div class="audio-modal-player">
+            ${embedHtml}
+          </div>
+
+          <div class="audio-modal-side">
+            <div class="audio-modal-song-info">
+              <h4 class="audio-modal-song-title">${song.title}</h4>
+              <p class="audio-modal-song-desc">${song.desc || ''}</p>
+              ${modalMetaHtml}
+              ${modalChoiceHtml}
+            </div>
+            <div class="audio-modal-mix-card">
+              <div class="mix-practice-title">🎧 MIX PRACTICE</div>
+              <div class="mix-practice-desc">타이밍에 맞춰 콜을 넣어보세요!</div>
+              <button class="mix-practice-btn" type="button" onclick="alert('루미 응원 연습바 START!')">START</button>
+            </div>
+          </div>
+        </div>
+
+        <section class="audio-modal-tabs audio-modal-practice-detail" aria-label="연습 가이드와 가사지">
+          <article class="audio-tab-panel active" data-audio-panel="practice">
+            <div class="audio-practice-content-head">
+              <div>
+                <h4 class="audio-tab-title" id="audioPracticeContentTitle">${selectedModeLabel} · ${selectedGuideLabel} 연습 가이드</h4>
+                <p class="audio-tab-desc" id="audioPracticeContentDesc">모달 상단에서 팀/솔로 응원과 초보용/고급용을 선택하면 이 영역의 연습 가이드가 함께 바뀝니다.</p>
+              </div>
+              <button class="audio-tab-btn audio-lyrics-jump-btn" type="button" data-audio-open-lyrics="true">가사지</button>
+            </div>
+            <div id="audioPracticeContentBody">
+              ${practiceCards(selectedGuide, `${selectedModeLabel} ${selectedGuideLabel} 연습 가이드가 아직 준비되지 않았어요.`)}
+            </div>
+          </article>
+        </section>
+      `;
+
+      const audioTabButtons = audioEmbedBox.querySelectorAll('.audio-tab-btn');
+      const audioTabPanels = audioEmbedBox.querySelectorAll('.audio-tab-panel');
+      audioTabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.dataset.audioTab;
+          audioTabButtons.forEach(item => item.classList.toggle('active', item === btn));
+          audioTabPanels.forEach(panel => panel.classList.toggle('active', panel.dataset.audioPanel === target));
+        });
+      });
+
+      audioEmbedBox.querySelectorAll('[data-audio-open-lyrics]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const contentTitle = audioEmbedBox.querySelector('#audioPracticeContentTitle');
+          const contentDesc = audioEmbedBox.querySelector('#audioPracticeContentDesc');
+          const contentBody = audioEmbedBox.querySelector('#audioPracticeContentBody');
+          if(!contentTitle || !contentDesc || !contentBody) return;
+          contentTitle.textContent = '가사지';
+          contentDesc.textContent = '공식 음원을 재생하면서 필요한 가사/파트 메모를 이 창 안에서 확인할 수 있어요.';
+          contentBody.innerHTML = `<div class="audio-lyrics-box">${lyricText}</div>`;
+          btn.classList.add('active');
+          contentBody.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+      });
+
+      audioEmbedBox.querySelectorAll('[data-modal-mode]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if(btn.classList.contains('disabled')) return;
+          state.mode = btn.dataset.modalMode;
+          render(false);
+          openAudioModal(getSong());
+        });
+      });
+
+      audioEmbedBox.querySelectorAll('[data-modal-level]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if(btn.classList.contains('disabled')) return;
+          state.level = btn.dataset.modalLevel;
+          render(false);
+          openAudioModal(getSong());
+        });
+      });
+
+      audioModalActions.innerHTML = platformLinks.length
+        ? '<span class="audio-rights-note">공식 음원은 각 플랫폼 정책에 따라 재생됩니다. 루미벨은 음원 파일을 직접 제공하지 않습니다.</span>'
+        : '<span class="audio-rights-note">공식 음원 링크가 준비되기 전에도 가사지와 연습 안내는 확인할 수 있습니다.</span>';
+
+      audioModal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
     // modal
     function closeTermModal(){
       termModal.classList.remove('open');
@@ -5397,17 +6275,30 @@ We are Sweetie pie! 루미베르 데스~`,
       lyricsModal.classList.remove('open');
       document.body.style.overflow = '';
     }
+    function closeAudioModal(){
+      if(!audioModal) return;
+      audioModal.classList.remove('open');
+      document.body.style.overflow = '';
+      if(audioEmbedBox) audioEmbedBox.innerHTML = 'Spotify 등 공식 음원 플레이어가 준비되면 이 영역에서 바로 확인할 수 있어요.<br>현재는 공식 음원 링크 연결 전입니다.';
+    }
     termModalClose.addEventListener('click', closeTermModal);
     lyricsModalClose.addEventListener('click', closeLyricsModal);
+    if(audioModalClose) audioModalClose.addEventListener('click', closeAudioModal);
     termModal.addEventListener('click', (e) => {
       if(e.target === termModal) closeTermModal();
     });
     lyricsModal.addEventListener('click', (e) => {
       if(e.target === lyricsModal) closeLyricsModal();
     });
+    if(audioModal){
+      audioModal.addEventListener('click', (e) => {
+        if(e.target === audioModal) closeAudioModal();
+      });
+    }
     window.addEventListener('keydown', (e) => {
       if(e.key === 'Escape' && termModal.classList.contains('open')) closeTermModal();
       if(e.key === 'Escape' && lyricsModal.classList.contains('open')) closeLyricsModal();
+      if(audioModal && e.key === 'Escape' && audioModal.classList.contains('open')) closeAudioModal();
     });
 
     // top button
@@ -5536,8 +6427,89 @@ We are Sweetie pie! 루미베르 데스~`,
     min-width:calc(50% - 8px) !important;
   }
 }
+
+
+/* --- audio practice modal: selected guide + lyrics only patch --- */
+.audio-modal-practice-detail{display:grid;gap:16px;}
+.audio-tab-nav-single{margin:2px auto 0 !important;}
+.audio-tab-nav-single .audio-tab-btn{min-width:132px;cursor:default;}
+.audio-lyrics-panel{display:block !important;}
+.audio-modal-practice-detail .audio-tab-panel{display:block;}
+
+/* --- audio practice modal: song mode icons inside right box --- */
+.audio-modal-meta-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:4px auto 14px;}
+.audio-modal-meta-chip{display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:6px 11px;border-radius:999px;background:#fff;border:1px solid #f1d4e3;color:#b3839b;font-size:11px;font-weight:900;letter-spacing:.04em;white-space:nowrap;}
+.audio-modal-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;width:100%;margin:12px auto 2px;}
+.audio-modal-choice{min-height:42px;border-radius:999px;border:1px solid #f1d4e3;background:#fff;color:#a87692;font-size:13px;font-weight:900;cursor:pointer;transition:transform .18s ease,border-color .18s ease,background .18s ease,color .18s ease;}
+.audio-modal-choice:hover{transform:translateY(-1px);border-color:rgba(255,89,165,.35);color:#ff59a5;}
+.audio-modal-choice.active{border-color:transparent;background:linear-gradient(180deg,#ff8bbe,#ff59a5);color:#fff;box-shadow:0 10px 18px rgba(255,89,165,.14);}
+.audio-modal-choice.disabled{opacity:.42;cursor:not-allowed;transform:none;}
+@media (max-width:520px){.audio-modal-choice-grid{grid-template-columns:1fr;}}
+
+
+/* --- lyrics icon only inside LUMI PRACTICE modal --- */
+.audio-quick-icon-row{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  margin:0 auto 16px;
+}
+.audio-lyrics-jump-btn{
+  min-width:132px !important;
+}
 </style>
 
+
+
+<style>
+/* --- userfix: LUMI PRACTICE modal right card matches song info + mix card --- */
+.audio-modal-side{display:flex !important;flex-direction:column !important;gap:16px !important;}
+.audio-modal-song-info{border:1px solid #f1d4e3 !important;border-radius:26px !important;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(255,247,251,.92)) !important;padding:26px 24px 22px !important;text-align:center !important;box-shadow:0 8px 18px rgba(255,89,165,.06) !important;}
+.audio-modal-song-title{margin:0 0 16px !important;color:#ff59a5 !important;font-size:38px !important;line-height:1.05 !important;font-weight:900 !important;letter-spacing:-.05em !important;}
+.audio-modal-song-desc{margin:0 auto 18px !important;max-width:520px !important;color:#9c778d !important;font-size:15px !important;line-height:1.9 !important;font-weight:800 !important;word-break:keep-all !important;}
+.audio-modal-song-info .audio-modal-meta-row{margin:0 auto 18px !important;}
+.audio-modal-song-info .audio-modal-choice-grid{width:min(420px,100%) !important;margin:0 auto !important;gap:16px 18px !important;}
+.audio-modal-mix-card{border:1px solid #f1d4e3 !important;border-radius:24px !important;background:linear-gradient(180deg,#fff8fc,#ffeef7) !important;padding:16px 18px 18px !important;box-shadow:0 10px 24px rgba(255,89,165,.08) !important;text-align:center !important;}
+.audio-modal-mix-card .mix-practice-title{font-size:14px !important;margin-bottom:6px !important;}
+.audio-modal-mix-card .mix-practice-desc{font-size:13px !important;line-height:1.6 !important;margin-bottom:12px !important;}
+.audio-modal-mix-card .mix-practice-btn{width:86% !important;min-height:42px !important;margin:0 auto !important;display:block !important;}
+.audio-modal-practice-detail{display:grid !important;gap:16px !important;}
+.audio-modal-practice-detail article[data-audio-panel="practice"]{order:1;}
+.audio-modal-practice-detail .audio-tab-nav-single{order:2;}
+.audio-modal-practice-detail .audio-lyrics-panel{order:3;}
+@media (max-width:760px){.audio-modal-song-title{font-size:32px !important;}.audio-modal-song-info .audio-modal-choice-grid{grid-template-columns:1fr !important;}}
+
+
+/* --- final user fix: official audio box centered, lyrics switches content instead of appending --- */
+.audio-modal-player{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+  min-height:360px !important;
+}
+.audio-modal-player .audio-platform-intro,
+.audio-modal-player .audio-platform-empty,
+.audio-modal-player .audio-modal-notice{
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+.audio-practice-content-head{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  margin-bottom:14px;
+  text-align:center;
+}
+.audio-practice-content-head .audio-tab-title{margin-bottom:8px !important;}
+.audio-practice-content-head .audio-tab-desc{margin-bottom:0 !important;}
+.audio-lyrics-jump-btn{min-width:132px !important;}
+@media (max-width:760px){.audio-modal-player{min-height:260px !important;}}
+</style>
 
 <script>
 function triggerCardShineEffect(){
@@ -5552,3 +6524,64 @@ function triggerCardShineEffect(){
 
 </body>
 </html>
+<!-- final patch: keep official audio box large, only center its contents -->
+<style>
+  .audio-modal-layout{
+    align-items:stretch !important;
+  }
+  .audio-modal-player{
+    align-self:stretch !important;
+    height:auto !important;
+    min-height:520px !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+    text-align:center !important;
+    padding:28px !important;
+  }
+  .audio-modal-player .audio-platform-intro,
+  .audio-modal-player .audio-platform-empty,
+  .audio-modal-player .audio-modal-notice,
+  .audio-modal-player .audio-platform-grid{
+    margin-left:auto !important;
+    margin-right:auto !important;
+  }
+  .audio-modal-player .audio-platform-grid{
+    max-width:520px !important;
+  }
+  @media (max-width:760px){
+    .audio-modal-player{
+      min-height:360px !important;
+    }
+  }
+</style>
+
+<!-- final patch: modal meta chips 2x2 layout -->
+<style>
+  .audio-modal-song-info .audio-modal-meta-row{
+    display:grid !important;
+    grid-template-columns:repeat(2, max-content) !important;
+    justify-content:center !important;
+    align-items:center !important;
+    gap:10px 12px !important;
+    width:fit-content !important;
+    max-width:100% !important;
+    margin:0 auto 22px !important;
+  }
+  .audio-modal-song-info .audio-modal-meta-chip{
+    min-width:112px !important;
+    min-height:34px !important;
+    padding:8px 16px !important;
+    text-align:center !important;
+  }
+  @media (max-width:520px){
+    .audio-modal-song-info .audio-modal-meta-row{
+      grid-template-columns:1fr !important;
+      width:min(260px,100%) !important;
+    }
+    .audio-modal-song-info .audio-modal-meta-chip{
+      width:100% !important;
+    }
+  }
+</style>
