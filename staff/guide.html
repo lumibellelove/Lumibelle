@@ -1,697 +1,137 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>STAFF GUIDE | Lumibelle</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800;900&display=swap');
-
-    :root{
-      --bg:#fffafc;
-      --panel:#fff5fb;
-      --line:#f2d8e7;
-      --pink:#ff5fa8;
-      --pink2:#ff7eb3;
-      --purple:#caa7ff;
-      --text:#7f6a77;
-      --muted:#b28ea2;
-      --warn:#d36b36;
-      --ok:#21864a;
-      --shadow:0 8px 24px rgba(232,191,211,.14);
-      --strong-shadow:0 14px 30px rgba(255,95,165,.14);
-    }
-
-    *{box-sizing:border-box}
-
-    html,body{
-      margin:0;
-      padding:0;
-      width:100%;
-      min-height:100%;
-      scroll-behavior:smooth;
-    }
-
-    body{
-      min-height:100vh;
-      font-family:"SUIT","Noto Sans KR",Arial,sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(circle at 12% 8%, rgba(255,192,215,.34) 0%, rgba(255,192,215,0) 28%),
-        radial-gradient(circle at 88% 18%, rgba(202,167,255,.22) 0%, rgba(202,167,255,0) 26%),
-        linear-gradient(180deg,#fffafc 0%,#fff0f7 100%);
-      letter-spacing:-.01em;
-      overflow-x:hidden;
-    }
-
-    a{
-      color:inherit;
-      text-decoration:none;
-    }
-
-    .wrap{
-      width:min(720px, calc(100% - 22px));
-      margin:0 auto;
-      padding:14px 0 42px;
-    }
-
-    .hero{
-      position:relative;
-      overflow:hidden;
-      border:1px solid var(--line);
-      border-radius:30px;
-      background:linear-gradient(135deg,#fff0f7 0%,#f7efff 100%);
-      box-shadow:var(--shadow);
-      padding:34px 20px 28px;
-    }
-
-    .hero::after{
-      content:"✦";
-      position:absolute;
-      right:22px;
-      bottom:18px;
-      color:rgba(255,95,168,.22);
-      font-size:34px;
-      animation:floatStar 3s ease-in-out infinite;
-      pointer-events:none;
-    }
-
-    @keyframes floatStar{
-      0%,100%{transform:translateY(0) rotate(0deg);opacity:.55}
-      50%{transform:translateY(-6px) rotate(12deg);opacity:1}
-    }
-
-    .eyebrow{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-height:30px;
-      padding:0 12px;
-      border-radius:999px;
-      background:#fff;
-      border:1px solid #f0bfd4;
-      color:#d77ca7;
-      font-size:12px;
-      font-weight:900;
-      letter-spacing:.04em;
-      margin-bottom:12px;
-      box-shadow:0 4px 10px rgba(255,95,165,.08);
-    }
-
-    h1{
-      margin:0;
-      font-family:"Cormorant Garamond",serif;
-      font-size:56px;
-      line-height:.9;
-      font-weight:700;
-      color:var(--pink);
-      text-shadow:0 1px 0 rgba(255,255,255,.98),0 0 10px rgba(255,120,178,.18);
-    }
-
-    .hero p{
-      margin:16px 0 0;
-      color:#8f7183;
-      font-size:16px;
-      line-height:1.8;
-      font-weight:800;
-      word-break:keep-all;
-    }
-
-    .top-actions{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:9px;
-      margin-top:18px;
-    }
-
-    .btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-height:48px;
-      padding:0 14px;
-      border-radius:999px;
-      background:#fff;
-      border:1px solid #f0bfd4;
-      color:#d77ca7;
-      font-size:14px;
-      font-weight:900;
-      box-shadow:0 4px 10px rgba(255,95,165,.08);
-      text-align:center;
-    }
-
-    .btn.primary{
-      background:linear-gradient(180deg,#ff7eb3,#ff5fa5);
-      color:#fff;
-      border:none;
-      box-shadow:0 8px 18px rgba(255,95,165,.22);
-    }
-
-    .quick-nav{
-      margin-top:12px;
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:8px;
-    }
-
-    .quick-nav a{
-      min-height:44px;
-      padding:9px 8px;
-      border-radius:16px;
-      background:rgba(255,255,255,.86);
-      border:1px solid var(--line);
-      color:#d77ca7;
-      font-size:13px;
-      font-weight:900;
-      text-align:center;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow:0 6px 14px rgba(255,95,165,.06);
-    }
-
-    .section-title{
-      margin:26px 0 12px;
-      text-align:center;
-    }
-
-    .section-title h2{
-      margin:0;
-      color:#d77ca7;
-      font-size:28px;
-      line-height:1.15;
-      font-weight:900;
-    }
-
-    .section-title p{
-      margin:8px 0 0;
-      color:#b28ea2;
-      font-size:15px;
-      line-height:1.7;
-      font-weight:800;
-    }
-
-    .card{
-      position:relative;
-      overflow:hidden;
-      background:rgba(255,255,255,.88);
-      border:1px solid var(--line);
-      border-radius:24px;
-      box-shadow:var(--shadow);
-      padding:20px 16px;
-      margin-top:12px;
-    }
-
-    .card::after{
-      content:"";
-      position:absolute;
-      right:-80px;
-      top:-100px;
-      width:210px;
-      height:210px;
-      border-radius:50%;
-      background:radial-gradient(circle, rgba(255,255,255,.72) 0%, rgba(255,138,194,.14) 42%, transparent 72%);
-      pointer-events:none;
-    }
-
-    .card > *{
-      position:relative;
-      z-index:1;
-    }
-
-    .card h3{
-      margin:0 0 13px;
-      color:#d77ca7;
-      font-size:23px;
-      line-height:1.25;
-      font-weight:900;
-    }
-
-    .item{
-      padding:15px 14px;
-      border:1px solid var(--line);
-      border-radius:18px;
-      background:linear-gradient(180deg,#fff9fc 0%,#fff4fa 100%);
-      margin-top:10px;
-    }
-
-    .item strong{
-      display:block;
-      color:#d77ca7;
-      font-size:16px;
-      line-height:1.4;
-      font-weight:900;
-      margin-bottom:6px;
-    }
-
-    .item span,
-    .item p{
-      display:block;
-      margin:0;
-      color:#8f7183;
-      font-size:15.5px;
-      line-height:1.75;
-      font-weight:750;
-      word-break:keep-all;
-    }
-
-    .item ul{
-      margin:0;
-      padding-left:18px;
-      color:#8f7183;
-      font-size:15.5px;
-      line-height:1.75;
-      font-weight:750;
-    }
-
-    .item li{
-      margin:3px 0;
-    }
-
-    .danger{
-      background:#fff2e8;
-      border-color:#ffd7bd;
-    }
-
-    .danger strong{color:#d36b36}
-    .danger span,
-    .danger p,
-    .danger ul{color:#9a6548}
-
-    .ok{
-      background:#e9fff0;
-      border-color:#ccefd7;
-    }
-
-    .ok strong{color:#21864a}
-    .ok span,
-    .ok p,
-    .ok ul{color:#477b58}
-
-    .core{
-      background:linear-gradient(135deg,#ff8ac2 0%,#ff5fa8 58%,#caa7ff 100%);
-      border-color:rgba(255,255,255,.72);
-      box-shadow:var(--strong-shadow);
-      color:#fff;
-    }
-
-    .core h3,
-    .core .item strong{
-      color:#fff;
-      text-shadow:0 2px 10px rgba(139,46,108,.18);
-    }
-
-    .core .item{
-      background:rgba(255,255,255,.18);
-      border-color:rgba(255,255,255,.36);
-    }
-
-    .core .item span,
-    .core .item p,
-    .core .item ul{
-      color:#fff7fb;
-    }
-
-    .timeline{
-      display:grid;
-      gap:9px;
-    }
-
-    .time-row{
-      display:grid;
-      grid-template-columns:92px 1fr;
-      gap:10px;
-      padding:14px 12px;
-      border:1px solid var(--line);
-      border-radius:18px;
-      background:linear-gradient(180deg,#fff9fc 0%,#fff4fa 100%);
-    }
-
-    .time-row strong{
-      color:#ff5fa8;
-      font-size:15px;
-      line-height:1.5;
-      font-weight:900;
-    }
-
-    .time-row span{
-      color:#8f7183;
-      font-size:15.5px;
-      line-height:1.65;
-      font-weight:750;
-      word-break:keep-all;
-    }
-
-    .line-list{
-      display:grid;
-      gap:9px;
-    }
-
-    .line{
-      padding:14px 12px;
-      border:1px solid var(--line);
-      border-radius:18px;
-      background:#fff9fc;
-    }
-
-    .line b{
-      display:block;
-      color:#d77ca7;
-      font-size:15.5px;
-      line-height:1.4;
-      font-weight:900;
-      margin-bottom:4px;
-    }
-
-    .line em{
-      display:block;
-      color:#8f7183;
-      font-style:normal;
-      font-size:15px;
-      line-height:1.65;
-      font-weight:750;
-    }
-
-    .checklist{
-      list-style:none;
-      padding:0;
-      margin:0;
-      display:grid;
-      gap:9px;
-    }
-
-    .checklist li{
-      padding:14px 12px;
-      border:1px solid var(--line);
-      border-radius:16px;
-      background:#fff9fc;
-      color:#8f7183;
-      font-size:15.5px;
-      line-height:1.7;
-      font-weight:750;
-    }
-
-    .checklist li::before{
-      content:"□";
-      color:#ff5fa8;
-      font-weight:900;
-      margin-right:8px;
-    }
-
-    .sticky-bottom{
-      position:sticky;
-      bottom:0;
-      z-index:50;
-      margin:20px -11px -42px;
-      padding:10px 11px calc(10px + env(safe-area-inset-bottom));
-      background:linear-gradient(180deg, rgba(255,240,247,0), rgba(255,240,247,.96) 24%, rgba(255,240,247,.98) 100%);
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:8px;
-    }
-
-    .sticky-bottom .btn{
-      min-height:46px;
-      font-size:13.5px;
-    }
-
-    footer{
-      text-align:center;
-      padding:26px 16px 84px;
-      color:#c6a2b4;
-      font-size:13px;
-      font-weight:700;
-    }
-
-    @media(min-width:760px){
-      .wrap{padding-top:24px}
-      h1{font-size:72px}
-      .hero{padding:44px 38px 38px}
-      .quick-nav{grid-template-columns:repeat(4,minmax(0,1fr))}
-      .top-actions{display:flex}
-      .card{padding:24px;margin-top:16px}
-      .card h3{font-size:26px}
-      .item span,.item p,.item ul,.time-row span,.checklist li{font-size:16px}
-      .section-title h2{font-size:36px}
-      .sticky-bottom{display:none}
-      footer{padding-bottom:36px}
-    }
-
-    @media(max-width:360px){
-      h1{font-size:50px}
-      .top-actions{grid-template-columns:1fr}
-      .quick-nav{grid-template-columns:1fr}
-      .time-row{grid-template-columns:1fr;gap:4px}
-      .card{padding:18px 14px}
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>STAFF GUIDE | Lumibelle Staff</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=SUIT:wght@500;600;700;800;900&display=swap');
+:root{
+  --bg:#fff7fb;--card:#fff;--soft:#fff0f7;--purple:#f7efff;--line:#f2d8e7;
+  --pink:#ff5fa8;--pink2:#d77ca7;--text:#7f6a77;--muted:#b28ea2;
+  --blue:#4fc3ff;--lav:#a88cff;--gold:#ffb75f;--warn:#fff8ef;
+  --shadow:0 12px 28px rgba(232,191,211,.16);--strong:0 18px 38px rgba(255,95,165,.16);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100%}
+body{
+  font-family:"SUIT","Noto Sans KR",system-ui,sans-serif;color:var(--text);
+  background:
+    radial-gradient(circle at 12% 8%, rgba(255,192,215,.34) 0%, rgba(255,192,215,0) 28%),
+    radial-gradient(circle at 88% 18%, rgba(202,167,255,.22) 0%, rgba(202,167,255,0) 26%),
+    linear-gradient(180deg,#fffafc 0%,#fff0f7 100%);
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+.wrap{width:min(1040px,calc(100% - 32px));margin:0 auto;padding:22px 0 48px}
+.hero,.card,.guide-card{
+  border:1px solid var(--line);background:rgba(255,255,255,.84);box-shadow:var(--shadow);border-radius:30px;
+}
+.hero{
+  position:relative;overflow:hidden;background:linear-gradient(135deg,#fff0f7 0%,#f7efff 100%);
+  padding:42px 38px 36px;margin-bottom:18px;
+}
+.hero::after{content:"✦";position:absolute;right:30px;top:24px;color:rgba(255,95,168,.24);font-size:40px;animation:floatStar 3s ease-in-out infinite}
+@keyframes floatStar{0%,100%{transform:translateY(0) rotate(0);opacity:.55}50%{transform:translateY(-6px) rotate(12deg);opacity:1}}
+.eyebrow{
+  display:inline-flex;min-height:30px;padding:0 13px;align-items:center;justify-content:center;border-radius:999px;
+  background:#fff;border:1px solid #f0bfd4;color:var(--pink2);font-size:12px;font-weight:1000;letter-spacing:.04em;
+}
+h1{
+  margin:14px 0 8px;font-family:"Cormorant Garamond",serif;font-size:72px;line-height:.88;font-weight:700;color:var(--pink);
+  text-shadow:0 1px 0 rgba(255,255,255,.98),0 0 10px rgba(255,120,178,.18);
+}
+.hero p,.card p,.guide-card p{font-size:14px;line-height:1.75;font-weight:800;color:#8f7183;margin:10px 0 0}
+.top-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.btn{
+  min-height:46px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;text-align:center;
+  padding:0 16px;font-size:14px;font-weight:1000;transition:.16s ease;border:0;cursor:pointer;
+}
+.btn:hover,.guide-card:hover{transform:translateY(-2px)}
+.btn-primary{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;box-shadow:0 8px 18px rgba(255,95,165,.22)}
+.btn-sub{background:#fff;color:var(--pink2);border:1px solid #f0bfd4;box-shadow:0 4px 10px rgba(255,95,165,.08)}
+.section-title{text-align:center;margin:28px 0 14px}
+.section-title h2{margin:0;color:var(--pink2);font-size:34px;line-height:1.15;font-weight:1000}
+.section-title p{margin:8px 0 0;color:var(--muted);font-size:14px;font-weight:800}
+.guide-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.guide-card{padding:22px;min-height:220px;display:flex;flex-direction:column;justify-content:space-between}
+.guide-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.icon{width:54px;height:54px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:26px;background:linear-gradient(135deg,#fff0f7,#f7efff);border:1px solid #f0bfd4;box-shadow:0 8px 18px rgba(255,95,165,.10)}
+.badge{display:inline-flex;min-height:28px;padding:0 10px;align-items:center;border-radius:999px;background:var(--soft);border:1px solid #f0bfd4;color:var(--pink2);font-size:11px;font-weight:1000;letter-spacing:.03em}
+.guide-card h3,.card h2{margin:14px 0 8px;color:var(--pink2);font-size:23px;line-height:1.2;font-weight:1000}
+.card{padding:24px;margin:14px 0}
+.check-list{display:grid;gap:10px;margin-top:12px}
+.item{padding:14px 16px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,#fff9fc 0%,#fff4fa 100%)}
+.item strong{display:block;color:var(--pink2);font-size:14px;margin-bottom:5px;font-weight:1000}
+.item span{display:block;color:#8f7183;font-size:13px;line-height:1.65;font-weight:800}
+.warning{background:var(--warn);border-color:#f4d7c5}
+.warning h2,.warning strong{color:#c87536}
+.quick-table{display:grid;gap:8px;margin-top:12px}
+.row{display:grid;grid-template-columns:.9fr 1.35fr;gap:8px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:#fff}
+.row b{color:var(--pink2)}
+.row span{font-size:13px;line-height:1.55;font-weight:800;color:#8f7183}
+.footer{text-align:center;padding:24px 16px 36px;color:#c6a2b4;font-size:13px;font-weight:800}
+@media(max-width:900px){.guide-grid{grid-template-columns:1fr}.hero{padding:36px 24px 30px}h1{font-size:58px}.section-title h2{font-size:30px}.row{grid-template-columns:1fr}}
+@media(max-width:520px){.wrap{width:calc(100% - 22px);padding-top:14px}.hero,.card,.guide-card{border-radius:24px;padding:20px}h1{font-size:50px}.top-actions .btn{width:100%}}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <section class="hero">
-      <div class="eyebrow">MOBILE STAFF GUIDE</div>
-      <h1>Shine Me UP<br>Staff Guide</h1>
-      <p>
-        현장에서 폰으로 바로 보는 루미벨 데뷔 라이브 운영 안내입니다.<br>
-        세부 상황은 총괄/부총괄 지시를 우선 적용해 주세요.
-      </p>
 
-      <div class="top-actions">
-        <a class="btn primary" href="index.html">스탭 허브</a>
-        <a class="btn" href="scan.html">입장 확인</a>
-        <a class="btn" href="point.html">포인트</a>
-        <a class="btn" href="attendance.html">출석</a>
-      </div>
-
-      <nav class="quick-nav">
-        <a href="#core">오늘 핵심</a>
-        <a href="#call">호출 기준</a>
-        <a href="#entry">입장 확인</a>
-        <a href="#goods">물판/포인트</a>
-        <a href="#rules">대관처 규정</a>
-        <a href="#talk">현장 멘트</a>
-        <a href="#trouble">문제 대응</a>
-        <a href="#close">퇴관 체크</a>
-      </nav>
-    </section>
-
-    <div class="section-title" id="core">
-      <h2>오늘의 핵심</h2>
-      <p>현장에서 가장 먼저 확인해야 하는 기준입니다.</p>
+<div class="wrap">
+  <section class="hero">
+    <div class="eyebrow">STAFF GUIDE</div>
+    <h1>Lumibelle<br>Guide</h1>
+    <p>스탭 역할에 따라 필요한 가이드를 선택해 주세요.<br>공통 가이드를 먼저 확인하고, 담당 역할별 가이드를 보면 좋아요.</p>
+    <div class="top-actions">
+      <a class="btn btn-sub" href="index.html">스탭 허브로 돌아가기</a>
+      <a class="btn btn-sub" href="attendance.html">스탭 출석 체크</a>
     </div>
+  </section>
 
-    <section class="card core">
-      <h3>Shine Me UP 기본 정보</h3>
-      <div class="item">
-        <strong>공연 정보</strong>
-        <span>2026년 7월 12일 (일) / KT&amp;G 상상마당 홍대 라이브홀</span>
-      </div>
-      <div class="item">
-        <strong>실무 책임</strong>
-        <span>총괄: 페리 / 부총괄: 연</span>
-      </div>
-      <div class="item">
-        <strong>운영 원칙</strong>
-        <span>스탭 단독 판단이 애매한 상황은 바로 총괄 또는 부총괄에게 공유합니다.</span>
-      </div>
-    </section>
-
-    <section class="card" id="call">
-      <h3>긴급 호출 기준</h3>
-      <div class="item danger">
-        <strong>총괄 호출</strong>
-        <ul>
-          <li>대관처 / 외부 관계자 응대</li>
-          <li>큰 클레임 또는 안전 문제</li>
-          <li>공연 시간 변경 / 진행 변경</li>
-          <li>멤버 관련 긴급 상황</li>
-          <li>최종 의사결정이 필요한 상황</li>
-        </ul>
-      </div>
-      <div class="item ok">
-        <strong>부총괄 호출</strong>
-        <ul>
-          <li>스탭 배치 변경</li>
-          <li>출연진 대기 / 순서 문제</li>
-          <li>물판 정산 / 재고 문제</li>
-          <li>식사 / 물품 수량 문제</li>
-          <li>실무 조정이 필요한 상황</li>
-        </ul>
-      </div>
-      <div class="item">
-        <strong>스탭 자체 처리 가능</strong>
-        <span>단순 안내, 예약번호 조회, 입장 줄 정리, 팔찌 확인, QR/캡쳐 확인.</span>
-      </div>
-    </section>
-
-    <section class="card">
-      <h3>당일 큰 흐름</h3>
-      <div class="timeline">
-        <div class="time-row"><strong>10:00</strong><span>사전 준비 / 무대 세팅 / 스탭 명찰 / 무전 교육</span></div>
-        <div class="time-row"><strong>11:20</strong><span>리허설 진행. 각 팀은 정해진 시간 확인</span></div>
-        <div class="time-row"><strong>12:50</strong><span>점심 식사 및 입장 준비. 식사 후 제자리 대기</span></div>
-        <div class="time-row"><strong>13:50</strong><span>관객 입장. 반입 금지 물품 확인</span></div>
-        <div class="time-row"><strong>14:20</strong><span>본 공연. 지각 관객 대응 위해 판매처 2인 상주</span></div>
-        <div class="time-row"><strong>16:55</strong><span>특전회 준비. 관객 퇴장 유도 및 물판 세팅</span></div>
-        <div class="time-row"><strong>17:10</strong><span>특전회 / 물판 진행</span></div>
-        <div class="time-row"><strong>18:40</strong><span>철수 / 원상복구 / 정산 / 분실물 확인</span></div>
-        <div class="time-row"><strong>20:00</strong><span>완전 퇴관</span></div>
-      </div>
-    </section>
-
-    <section class="card" id="entry">
-      <h3>입장 확인 루틴</h3>
-      <div class="item">
-        <strong>조회 순서</strong>
-        <span>예약번호 끝 4자리 → 입금자명 → 닉네임 → 루미ID 순서로 확인합니다.</span>
-      </div>
-      <div class="item">
-        <strong>기본 처리</strong>
-        <ul>
-          <li>예매 정보 확인</li>
-          <li>입금확인완료 여부 확인</li>
-          <li>입장완료 처리</li>
-          <li>이미 입장완료면 재입장 불가 안내</li>
-        </ul>
-      </div>
-      <div class="item danger">
-        <strong>입금확인대기 상태</strong>
-        <span>바로 입장 처리하지 말고 담당자 확인 후 진행해 주세요.</span>
-      </div>
-      <div class="item">
-        <strong>동명이인 대응</strong>
-        <span>검색 결과가 여러 명이면 메아테, 닉네임, 예약번호를 함께 확인해 선택합니다.</span>
-      </div>
-    </section>
-
-    <section class="card">
-      <h3>양도 / 현장판매</h3>
-      <div class="item">
-        <strong>양도 입장</strong>
-        <span>양도는 가능하지만 개인 간 거래 및 분쟁은 루미벨이 책임지지 않습니다.</span>
-      </div>
-      <div class="item danger">
-        <strong>양도 확인 3종</strong>
-        <span>원 예매자 성함 + 숫자 4자리 + 예매 확인 메일 또는 캡쳐.</span>
-      </div>
-      <div class="item">
-        <strong>현장 판매</strong>
-        <span>20,000원 / 현금 또는 계좌이체만 가능 / 카드 불가.</span>
-      </div>
-    </section>
-
-    <section class="card" id="goods">
-      <h3>물판 · 포인트 루틴</h3>
-      <div class="item">
-        <strong>물판 확인</strong>
-        <ul>
-          <li>구매 상품 / 수량 확인</li>
-          <li>현금 또는 계좌이체 확인</li>
-          <li>주문번호나 구매 내역 확인</li>
-          <li>문제 발생 시 부총괄 호출</li>
-        </ul>
-      </div>
-      <div class="item">
-        <strong>루미ID 포인트</strong>
-        <span>팬의 루미ID 카드/번호를 확인하고 포인트 메뉴에서 적립 또는 조회합니다.</span>
-      </div>
-      <div class="item danger">
-        <strong>정산 주의</strong>
-        <span>판매한 권 수량과 현금/계좌이체 매출이 맞는지 계속 확인해 주세요.</span>
-      </div>
-    </section>
-
-    <section class="card">
-      <h3>특전회 타이머</h3>
-      <div class="item">
-        <strong>필수</strong>
-        <span>멤버 옆 담당자는 반드시 소리 나는 타이머를 사용합니다.</span>
-      </div>
-      <div class="item">
-        <strong>알람 시 안내</strong>
-        <span>“시간 다 되셨습니다, 이동 부탁드릴게요.”라고 정중하게 안내합니다.</span>
-      </div>
-      <div class="item">
-        <strong>대기열</strong>
-        <span>줄이 밀리면 담당자에게 공유하고, 다음 팬을 빠르게 안내합니다.</span>
-      </div>
-    </section>
-
-    <section class="card" id="rules">
-      <h3>대관처 기본 규정</h3>
-      <div class="item danger">
-        <strong>식음료 반입</strong>
-        <span>홀 내부 식음료 반입은 기본적으로 금지입니다. 생수만 허용되는 경우가 많으므로 당일 대관처 기준을 우선 적용합니다.</span>
-      </div>
-      <div class="item danger">
-        <strong>반입 제한</strong>
-        <ul>
-          <li>주류 반입 금지</li>
-          <li>커피 / 쿠키 등 식음료 반입 금지</li>
-          <li>꽃다발 / 큰 선물은 제한될 수 있음</li>
-        </ul>
-      </div>
-      <div class="item">
-        <strong>취식 구역</strong>
-        <span>취식은 지정된 공간 또는 대기실에서만 가능합니다. 로비/홀 취식은 안내해 주세요.</span>
-      </div>
-      <div class="item">
-        <strong>쓰레기</strong>
-        <span>음식물 쓰레기, 일반 쓰레기, 분리수거를 구분하고 퇴관 전 원상복구합니다.</span>
-      </div>
-    </section>
-
-    <section class="card" id="talk">
-      <h3>팬 응대 멘트</h3>
-      <div class="line-list">
-        <div class="line"><b>입장 확인</b><em>“예약번호 끝 4자리 알려주세요.”</em></div>
-        <div class="line"><b>기본 응대</b><em>“확인 도와드릴게요.”</em></div>
-        <div class="line"><b>동명이인</b><em>“동명이인이 있어 메아테도 확인 부탁드려요.”</em></div>
-        <div class="line"><b>대기 요청</b><em>“잠시만 기다려주시면 담당자 확인 후 안내드릴게요.”</em></div>
-        <div class="line"><b>반입 금지</b><em>“생수 외 식음료는 홀 반입이 어려워요.”</em></div>
-        <div class="line"><b>특전회 종료</b><em>“시간 다 되셨습니다, 이동 부탁드릴게요.”</em></div>
-      </div>
-    </section>
-
-    <section class="card" id="trouble">
-      <h3>문제 상황 대응</h3>
-      <div class="item danger">
-        <strong>클레임</strong>
-        <span>바로 논쟁하지 말고 “담당자 확인 후 안내드리겠습니다.”라고 말한 뒤 총괄/부총괄을 호출합니다.</span>
-      </div>
-      <div class="item">
-        <strong>분실물</strong>
-        <span>발견 즉시 총괄/부총괄에게 전달합니다. 스탭 개인 보관이나 개인 연락은 하지 않습니다.</span>
-      </div>
-      <div class="item danger">
-        <strong>응급 상황</strong>
-        <span>주변 공간을 확보하고 총괄/대관처 직원을 호출합니다. 혼자 판단하지 않습니다.</span>
-      </div>
-      <div class="item">
-        <strong>촬영/녹음</strong>
-        <span>공연별 공지를 우선 적용합니다. 금지 구역/금지 시간에는 즉시 안내하고, 팬 기기는 직접 만지지 않습니다.</span>
-      </div>
-    </section>
-
-    <section class="card" id="close">
-      <h3>퇴관 체크</h3>
-      <ul class="checklist">
-        <li>쓰레기 수거 및 분리수거 완료</li>
-        <li>대기실 개인 물품 확인</li>
-        <li>남은 굿즈 / 특전권 회수</li>
-        <li>금고 / 현금 / 계좌 정산 확인</li>
-        <li>분실물 확인 및 담당자 전달</li>
-        <li>대관처 비품 원상복구</li>
-        <li>전 스탭 퇴근 여부 확인</li>
-      </ul>
-    </section>
-
-    <div class="sticky-bottom">
-      <a class="btn primary" href="index.html">허브</a>
-      <a class="btn" href="scan.html">입장 확인</a>
-    </div>
+  <div class="section-title">
+    <h2>가이드 선택</h2>
+    <p>현장에서 바로 보기 쉽도록 역할별로 분리했어요.</p>
   </div>
 
-  <footer>© 2026 Lumibelle Staff Guide</footer>
+  <section class="guide-grid">
+    <article class="guide-card">
+      <div>
+        <div class="guide-top"><div class="icon">📘</div><span class="badge">COMMON</span></div>
+        <h3>공통 스탭 가이드</h3>
+        <p>모든 스탭이 알아야 하는 기본 태도, 루미ID 원칙, 기록 기준, 개인정보/보안, 문제 대응 기준입니다.</p>
+      </div>
+      <a class="btn btn-primary" href="guide-common.html">공통 가이드 열기</a>
+    </article>
+
+    <article class="guide-card">
+      <div>
+        <div class="guide-top"><div class="icon">🎫</div><span class="badge">ENTRY</span></div>
+        <h3>입장 스탭 가이드</h3>
+        <p>QR, 예약번호, 입금자명, 닉네임, 루미ID로 입장 확인하는 기준과 루미ID 자동 발급 금지 기준입니다.</p>
+      </div>
+      <a class="btn btn-primary" href="guide-entry.html">입장 가이드 열기</a>
+    </article>
+
+    <article class="guide-card">
+      <div>
+        <div class="guide-top"><div class="icon">🛍️</div><span class="badge">BOOTH</span></div>
+        <h3>물판 / 특전회 가이드</h3>
+        <p>팬 조회, 오늘 번호, 메아테, 물판 포인트, 루미 체크인, 스탬프, 특전권 사용, 타이머 기준입니다.</p>
+      </div>
+      <a class="btn btn-primary" href="guide-booth.html">물판 가이드 열기</a>
+    </article>
+  </section>
+
+  <section class="card warning">
+    <h2>빠른 기준</h2>
+    <div class="check-list">
+      <div class="item"><strong>공통</strong><span>모르는 내용은 단정하지 말고 책임자에게 확인합니다.</span></div>
+      <div class="item"><strong>입장</strong><span>입장 확인은 공연 입장 처리이며, 루미ID는 자동 발급하지 않습니다.</span></div>
+      <div class="item"><strong>물판/특전회</strong><span>루미 체크인과 스탬프는 촬영·교류 특전에 실제 참여한 경우에만 기록합니다.</span></div>
+    </div>
+  </section>
+</div>
+<div class="footer">© 2026 Lumibelle Staff Guide</div>
+
 </body>
 </html>
