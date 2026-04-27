@@ -1,258 +1,1448 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LUMI ID</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lumibelle | LUMI PHONE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
+:root{
+  --bg:#fffafc;
+  --panel:#fff5fb;
+  --panel2:#fff0f7;
+  --white:#fff;
+  --line:#f2d8e7;
+  --line2:#f0bfd4;
+  --pink:#ff59a5;
+  --pink2:#ff7eb3;
+  --purple:#caa7ff;
+  --blue:#8ecdf2;
+  --mint:#a6e7d8;
+  --text:#7f6a77;
+  --muted:#b28ea2;
+  --strong:#846f81;
+  --shadow:0 8px 24px rgba(232,191,211,.12);
+  --shadow2:0 16px 34px rgba(255,95,165,.16);
+  --radius:28px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
 body{
   margin:0;
-  font-family:sans-serif;
-  background:linear-gradient(180deg,#fff8fb,#ffeef6);
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(255,217,232,.62), transparent 25%),
+    radial-gradient(circle at 100% 0%, rgba(243,235,255,.72), transparent 28%),
+    linear-gradient(180deg,#fffafd 0%,#fffafc 100%);
+  color:var(--text);
+  font-family:"SUIT","Noto Sans KR",sans-serif;
+  letter-spacing:-.01em;
 }
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font-family:inherit}
+.wrap{width:min(1260px,calc(100% - 28px));margin:0 auto}
 
-.wrap{
-  max-width:720px;
-  margin:auto;
-  padding:20px;
+/* ===== HOME HEADER ONLY ===== */
+.top-lang-bar{
+  width:100%;
+  max-width:1260px;
+  margin:16px auto 0;
+  display:flex;
+  justify-content:flex-end;
+  padding:0 34px 0 18px;
 }
-
-.card{
-  background:white;
-  border-radius:20px;
-  padding:20px;
-  box-shadow:0 10px 25px rgba(255,95,168,0.15);
-  margin-bottom:16px;
-}
-
-.profile{
+.lang-switch{
   display:flex;
   align-items:center;
-  gap:16px;
+  gap:10px;
+  flex:0 0 auto;
+}
+.lang-switch a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:42px;
+  height:36px;
+  padding:0 10px;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid var(--line2);
+  color:#d27ca8;
+  font-size:13px;
+  font-weight:900;
+  box-shadow:0 4px 10px rgba(255,95,165,.08);
+}
+.lang-switch a.active,
+.lang-switch a:hover{
+  background:#fff0f7;
+  color:var(--pink);
+}
+header{margin-top:12px}
+.header-box{
+  width:min(1260px,calc(100% - 28px));
+  margin:0 auto;
+  padding:18px 24px;
+  display:flex;
+  align-items:center;
+  gap:24px;
+  border:1px solid var(--line);
+  border-radius:28px;
+  background:rgba(255,255,255,.72);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(12px);
+}
+.logo{
+  flex:0 0 auto;
+  min-width:130px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.logo a{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+}
+.logo-main{
+  font-family:"Cormorant Garamond",serif;
+  font-size:34px;
+  font-weight:700;
+  color:var(--pink);
+  letter-spacing:-.03em;
+}
+.logo-sub{
+  margin-top:4px;
+  font-size:11px;
+  font-weight:900;
+  color:#c697b1;
+  letter-spacing:.18em;
+}
+nav{
+  display:grid;
+  grid-template-columns:repeat(8,minmax(0,1fr));
+  gap:18px;
+  text-align:center;
+  align-items:center;
+  flex:1;
+  margin:0 20px;
+}
+nav a{
+  position:relative;
+  width:100%;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:12px 6px;
+  border-radius:18px;
+  overflow:hidden;
+  isolation:isolate;
+  -webkit-tap-highlight-color:transparent;
+}
+nav a::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:18px;
+  background:linear-gradient(90deg,
+    rgba(255,217,232,0) 0%,
+    rgba(255,217,232,.14) 16%,
+    rgba(255,192,215,.20) 50%,
+    rgba(255,217,232,.14) 84%,
+    rgba(255,217,232,0) 100%);
+  opacity:0;
+  z-index:-1;
+}
+nav a.current::before,
+nav a:hover::before{opacity:1}
+nav a b{
+  display:block;
+  width:100%;
+  text-align:center;
+  white-space:nowrap;
+  font-size:1.2em;
+  font-weight:700;
+  color:#d97ca9;
+  letter-spacing:-.03em;
+}
+nav a span{
+  display:block;
+  width:100%;
+  text-align:center;
+  white-space:nowrap;
+  margin-top:6px;
+  font-size:.94em;
+  font-weight:600;
+  color:#c697b1;
+}
+nav a.current b,
+nav a:hover b{color:var(--pink)}
+
+/* ===== PAGE ===== */
+main{padding:22px 0 52px}
+.hero{
+  margin-top:10px;
+  padding:48px 46px 42px;
+  border:1px solid var(--line);
+  border-radius:34px;
+  background:
+    radial-gradient(circle at 88% 12%, rgba(202,167,255,.22), transparent 26%),
+    radial-gradient(circle at 18% 16%, rgba(255,126,179,.15), transparent 28%),
+    linear-gradient(135deg,#fff5fb 0%,#fff 48%,#f8f0ff 100%);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  position:relative;
+}
+.hero::after{
+  content:"✦";
+  position:absolute;
+  right:34px;
+  top:28px;
+  color:rgba(255,89,165,.28);
+  font-size:42px;
+  animation:floatStar 2.8s ease-in-out infinite;
+}
+@keyframes floatStar{
+  0%,100%{transform:translateY(0) rotate(0deg)}
+  50%{transform:translateY(-6px) rotate(8deg)}
+}
+.hero-kicker{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:8px 14px;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid var(--line2);
+  color:var(--pink);
+  font-size:13px;
+  font-weight:900;
+  box-shadow:0 6px 14px rgba(255,95,165,.08);
+}
+.hero h1{
+  margin:18px 0 10px;
+  font-family:"Cormorant Garamond",serif;
+  font-size:clamp(64px,9vw,112px);
+  line-height:.86;
+  color:var(--pink);
+  font-weight:700;
+  letter-spacing:-.045em;
+  text-shadow:0 0 18px rgba(255,120,178,.16);
+}
+.hero p{
+  margin:0;
+  max-width:840px;
+  color:#8f7183;
+  font-size:17px;
+  line-height:1.9;
+  font-weight:700;
 }
 
-.profile img{
-  width:70px;
-  height:70px;
+.lumi-layout{
+  display:grid;
+  grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);
+  gap:22px;
+  margin-top:24px;
+  align-items:start;
+}
+.panel{
+  border:1px solid var(--line);
+  border-radius:30px;
+  background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(255,245,251,.92));
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.panel-head{
+  padding:22px 24px 18px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,#fff,#fff8fc);
+}
+.panel-label{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:28px;
+  padding:6px 11px;
+  border-radius:999px;
+  background:#fff0f7;
+  border:1px solid var(--line2);
+  color:#d77ca7;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.06em;
+}
+.panel-title{
+  margin:12px 0 0;
+  color:#d67faa;
+  font-size:31px;
+  font-weight:900;
+  letter-spacing:-.04em;
+  line-height:1.08;
+}
+.panel-sub{
+  margin:8px 0 0;
+  color:#b28ea2;
+  font-size:14px;
+  font-weight:800;
+  line-height:1.65;
+}
+.panel-body{padding:22px 24px 24px}
+
+/* ===== PHONE ===== */
+.phone-shell{
+  border:1px solid rgba(255,255,255,.9);
+  border-radius:42px;
+  padding:16px;
+  background:
+    linear-gradient(135deg,#ff8ac2 0%,#ff5fa8 58%,#caa7ff 100%);
+  box-shadow:0 22px 46px rgba(255,95,168,.22);
+  position:relative;
+  overflow:hidden;
+}
+.phone-shell::before{
+  content:"";
+  position:absolute;
+  inset:-80%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,.42), transparent 16%),
+    radial-gradient(circle at 72% 58%, rgba(255,255,255,.22), transparent 17%),
+    conic-gradient(from 0deg, transparent, rgba(255,255,255,.28), transparent, rgba(255,255,255,.18), transparent);
+  animation:phoneGlow 9s linear infinite;
+  pointer-events:none;
+}
+@keyframes phoneGlow{to{transform:rotate(360deg)}}
+.phone-screen{
+  position:relative;
+  z-index:1;
+  border-radius:32px;
+  background:linear-gradient(180deg,#fffafd,#fff0f7);
+  padding:18px;
+  min-height:720px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.8);
+}
+.phone-status{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  color:#b3839b;
+  font-size:12px;
+  font-weight:900;
+  margin-bottom:14px;
+}
+.phone-profile{
+  display:grid;
+  grid-template-columns:82px 1fr;
+  gap:14px;
+  align-items:center;
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:26px;
+  background:#fff;
+  box-shadow:0 8px 18px rgba(232,191,211,.10);
+}
+.profile-photo{
+  width:82px;
+  height:82px;
   border-radius:50%;
-  object-fit:cover;
+  overflow:hidden;
   border:3px solid #ff8ac2;
   background:#fff;
 }
-
-.point{
-  color:#ff5fa8;
-  font-weight:700;
-  line-height:1.6;
+.profile-photo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
 }
-
-.bar{
+.profile-name{
+  color:#76586a;
+  font-size:21px;
+  font-weight:900;
+  line-height:1.1;
+}
+.profile-id{
+  margin-top:6px;
+  color:#c183a2;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.04em;
+}
+.profile-badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
   margin-top:10px;
-  height:10px;
+}
+.mini-chip{
+  display:inline-flex;
+  align-items:center;
+  min-height:25px;
+  padding:5px 9px;
+  border-radius:999px;
+  background:#fff0f7;
+  color:#d77ca7;
+  font-size:11px;
+  font-weight:900;
+}
+.level-card{
+  margin-top:12px;
+  padding:15px;
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:#fff;
+}
+.level-top{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+  color:#ff59a5;
+  font-weight:900;
+}
+.level-title{font-size:16px;line-height:1.5}
+.level-point{font-size:20px}
+.progress{
+  height:11px;
+  margin-top:12px;
+  border-radius:999px;
   background:#ffe6f1;
-  border-radius:10px;
   overflow:hidden;
 }
-
-.bar-fill{
+.progress-fill{
   height:100%;
   width:0%;
-  background:linear-gradient(90deg,#ff8ac2,#ff5fa8);
+  border-radius:999px;
+  background:linear-gradient(90deg,#ff8ac2,#ff59a5,#caa7ff);
 }
-
-#nextText{
+.next-text{
   display:block;
   margin-top:8px;
+  color:#9b7a8f;
+  font-size:12px;
+  font-weight:800;
 }
-
-.menu{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
-}
-
-.menu a{
-  text-decoration:none;
-  background:#ffe6f1;
-  padding:14px;
-  border-radius:14px;
-  text-align:center;
-  color:#ff5fa8;
-  font-weight:700;
-}
-
-.msg{
-  background:#fff0f7;
-  padding:12px;
-  border-radius:14px;
-  margin-bottom:8px;
-}
-
-.locked{
-  opacity:0.38;
-  filter:blur(2px);
-}
-
 .profile-select{
   display:flex;
-  gap:10px;
+  gap:9px;
   overflow-x:auto;
-  margin-top:18px;
-  padding-bottom:4px;
+  padding:12px 0 2px;
+  scrollbar-width:none;
 }
-
+.profile-select::-webkit-scrollbar{display:none}
 .profile-select img{
-  width:60px;
-  height:60px;
+  flex:0 0 auto;
+  width:52px;
+  height:52px;
   border-radius:50%;
-  cursor:pointer;
   border:2px solid transparent;
   object-fit:cover;
   background:#fff;
+  cursor:pointer;
+}
+.profile-select img.active{border-color:#ff59a5}
+
+.app-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin-top:16px;
+}
+.app{
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:#fff;
+  min-height:86px;
+  padding:11px 8px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  text-align:center;
+  cursor:pointer;
+  box-shadow:0 8px 16px rgba(232,191,211,.08);
+  transition:transform .16s ease, box-shadow .16s ease, background .16s ease;
+}
+.app:hover{
+  transform:translateY(-2px);
+  background:#fff7fb;
+  box-shadow:0 12px 22px rgba(255,95,165,.10);
+}
+.app-icon{
+  width:42px;
+  height:42px;
+  border-radius:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  background:linear-gradient(180deg,#ffedf6,#fff);
+  border:1px solid #f3ddea;
+}
+.app b{
+  color:#8d6b7e;
+  font-size:12px;
+  font-weight:900;
+  line-height:1.2;
+}
+.app.locked{
+  opacity:.48;
+  filter:grayscale(.1);
+}
+.app.glow .app-icon{
+  color:#fff;
+  background:linear-gradient(135deg,#ff8ac2,#ff59a5,#caa7ff);
+  border-color:rgba(255,255,255,.82);
+  box-shadow:0 10px 18px rgba(255,89,165,.18);
 }
 
-.profile-select img.active{
-  border:2px solid #ff5fa8;
+.phone-section{
+  margin-top:16px;
+  padding:15px;
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:#fff;
 }
-
+.section-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+}
 .section-title{
+  color:#76586a;
   font-size:16px;
+  font-weight:900;
+}
+.more-link{
+  color:#d77ca7;
+  font-size:12px;
+  font-weight:900;
+}
+.message-list{
+  display:grid;
+  gap:8px;
+}
+.message{
+  padding:11px 12px;
+  border-radius:16px;
+  background:#fff0f7;
+  color:#8f7183;
+  font-size:13px;
+  line-height:1.55;
+  font-weight:750;
+}
+.message.locked{
+  opacity:.45;
+  filter:blur(1px);
+}
+.inventory{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+}
+.inv-card{
+  min-height:84px;
+  padding:10px 8px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:linear-gradient(180deg,#fffafd,#fff0f7);
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+.inv-card .emoji{font-size:25px;margin-bottom:6px}
+.inv-card b{
+  color:#8d6b7e;
+  font-size:11px;
+  line-height:1.3;
+}
+.empty-note{
+  padding:14px;
+  border:1px dashed #f0bfd4;
+  border-radius:16px;
+  color:#b3839b;
+  font-size:13px;
+  line-height:1.6;
   font-weight:800;
-  margin-bottom:12px;
+  text-align:center;
+  background:#fffafd;
+}
+
+/* ===== GAME ZONE ===== */
+.game-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+.game-card{
+  border:1px solid var(--line);
+  border-radius:24px;
+  background:#fff;
+  padding:18px;
+  box-shadow:0 8px 18px rgba(232,191,211,.08);
+}
+.game-card h3{
+  margin:0 0 8px;
+  color:#d67faa;
+  font-size:21px;
+  font-weight:900;
+  letter-spacing:-.03em;
+}
+.game-card p{
+  margin:0 0 14px;
+  color:#8f7183;
+  font-size:14px;
+  line-height:1.7;
+  font-weight:700;
+}
+.lumi-btn{
+  border:none;
+  min-height:42px;
+  padding:10px 15px;
+  border-radius:999px;
+  background:linear-gradient(180deg,#ff7eb3,#ff59a5);
+  color:#fff;
+  font-size:13px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 10px 18px rgba(255,95,165,.18);
+}
+.lumi-btn.secondary{
+  background:#fff;
+  color:#d77ca7;
+  border:1px solid var(--line2);
+  box-shadow:none;
+}
+.result-box{
+  display:none;
+  margin-top:14px;
+  padding:13px 14px;
+  border-radius:18px;
+  background:#fff0f7;
+  border:1px solid #f3ddea;
+  color:#7f6a77;
+  font-size:14px;
+  line-height:1.65;
+  font-weight:800;
+}
+.result-box.show{display:block}
+.mission-list{
+  display:grid;
+  gap:9px;
+}
+.mission{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:11px 12px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#fffafd;
+}
+.mission span{
+  color:#8f7183;
+  font-size:13px;
+  font-weight:850;
+}
+.mission.done{
+  background:#fff0f7;
+}
+.mission.done span::before{
+  content:"✓ ";
+  color:#ff59a5;
+}
+
+.notice{
+  margin-top:16px;
+  padding:15px 16px;
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:#fff;
+  color:#8f7183;
+  font-size:14px;
+  line-height:1.75;
+  font-weight:750;
+}
+.notice.important{
+  background:linear-gradient(135deg,#fff0f7,#f8f0ff);
+  border-color:#f0bfd4;
+}
+
+/* ===== MODAL ===== */
+.modal{
+  position:fixed;
+  inset:0;
+  z-index:2000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(100,55,80,.35);
+  backdrop-filter:blur(7px);
+}
+.modal.open{display:flex}
+.modal-card{
+  width:min(920px,100%);
+  max-height:min(88vh,900px);
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius:30px;
+  background:linear-gradient(180deg,#fffdfd,#fff6fa);
+  box-shadow:0 24px 50px rgba(80,40,60,.18);
+}
+.modal-head{
+  position:sticky;
+  top:0;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:18px 20px;
+  border-bottom:1px solid var(--line);
+  background:rgba(255,252,253,.96);
+  backdrop-filter:blur(8px);
+}
+.modal-title{
+  color:#ff59a5;
+  font-size:25px;
+  font-weight:900;
+  letter-spacing:-.03em;
+}
+.modal-close{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  border:1px solid var(--line);
+  background:#fff;
+  color:#b57f99;
+  cursor:pointer;
+  font-size:18px;
+  font-weight:900;
+}
+.modal-body{padding:20px}
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+.field.full{grid-column:1 / -1}
+.field label{
+  color:#8f7183;
+  font-size:13px;
+  font-weight:900;
+}
+.field input,
+.field select,
+.field textarea{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:#fff;
+  color:#6f5264;
+  font-size:15px;
+  font-weight:700;
+  padding:13px 14px;
+  outline:none;
+}
+.field textarea{min-height:96px;line-height:1.65;resize:vertical}
+.chat-box{
+  margin-top:16px;
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:#fff;
+  padding:16px;
+  display:none;
+}
+.chat-box.show{display:block}
+.bubble{
+  max-width:76%;
+  padding:12px 14px;
+  border-radius:18px;
+  margin:9px 0;
+  font-size:14px;
+  line-height:1.7;
+  font-weight:750;
+}
+.bubble.ai{
+  background:#fff0f7;
+  color:#7f6a77;
+  border-top-left-radius:6px;
+}
+.bubble.user{
+  margin-left:auto;
+  background:linear-gradient(180deg,#ff7eb3,#ff59a5);
+  color:#fff;
+  border-top-right-radius:6px;
+}
+.reject-box{
+  display:none;
+  margin-top:14px;
+  padding:14px 15px;
+  border-radius:18px;
+  background:#fff0f7;
+  border:1px solid #f0bfd4;
+  color:#7f6a77;
+  font-size:14px;
+  line-height:1.7;
+  font-weight:800;
+}
+.reject-box.show{display:block}
+
+/* ===== utilities ===== */
+footer{
+  text-align:center;
+  padding:28px 16px 40px;
+  color:#c6a2b4;
+  font-size:14px;
+  font-weight:700;
+}
+.back-to-top{
+  position:fixed;
+  right:22px;
+  bottom:22px;
+  width:64px;
+  height:64px;
+  border:none;
+  border-radius:50%;
+  background:linear-gradient(180deg,#ff86bb 0%,#ff5fa5 54%,#caa7ff 100%);
+  color:#fff;
+  cursor:pointer;
+  box-shadow:0 14px 28px rgba(255,95,165,.28),0 0 0 6px rgba(255,255,255,.58),0 0 24px rgba(202,167,255,.18);
+  z-index:1200;
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(10px) scale(.94);
+  transition:opacity .2s ease, visibility .2s ease, transform .2s ease;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  font-family:"SUIT","Noto Sans KR",sans-serif;
+}
+.back-to-top.show{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0) scale(1);
+}
+.back-to-top::before{
+  content:"";
+  position:absolute;
+  inset:-70%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,.75), transparent 16%),
+    radial-gradient(circle at 68% 62%, rgba(255,255,255,.34), transparent 18%),
+    conic-gradient(from 0deg, transparent, rgba(255,255,255,.42), transparent, rgba(255,255,255,.28), transparent);
+  animation:lumiTopSpin 5s linear infinite;
+}
+.back-to-top .top-arrow,
+.back-to-top .top-label{
+  position:relative;
+  z-index:1;
+  line-height:1;
+  font-style:normal;
+  text-shadow:0 2px 8px rgba(148,64,112,.18);
+}
+.back-to-top .top-arrow{font-size:25px;font-weight:900;margin-top:1px}
+.back-to-top .top-label{margin-top:4px;font-size:10px;font-weight:900;letter-spacing:.08em}
+@keyframes lumiTopSpin{to{transform:rotate(360deg)}}
+
+@media (max-width:1180px){
+  nav{grid-template-columns:repeat(4,1fr);gap:14px;margin:0}
+  .header-box{flex-wrap:wrap;justify-content:center}
+  .logo{width:100%;min-width:0}
+  .lumi-layout{grid-template-columns:1fr}
+}
+@media (max-width:860px){
+  .game-grid{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .field.full{grid-column:1}
+}
+@media (max-width:780px){
+  nav{grid-template-columns:repeat(2,1fr);gap:10px}
+  nav a b{font-size:1.08em}
+  nav a span{font-size:.88em}
+  .top-lang-bar{justify-content:center;margin-top:14px;padding:0 14px}
+  .hero{padding:38px 24px 32px;border-radius:28px}
+  .app-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .phone-screen{min-height:auto}
+  .inventory{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 </style>
 </head>
 
 <body>
-
-<div class="wrap">
-
-  <div class="card">
-    <div class="profile">
-      <img id="mainProfile" src="profile/mariring-01.webp" alt="프로필 이미지">
-      <div class="point" id="pointText"></div>
-    </div>
-
-    <div class="bar">
-      <div class="bar-fill" id="barFill"></div>
-    </div>
-
-    <small id="nextText"></small>
-
-    <div class="profile-select" id="profileSelect"></div>
+<div class="top-lang-bar">
+  <div class="lang-switch" aria-label="language switch">
+    <a href="#" class="active">KR</a>
+    <a href="#">JP</a>
+    <a href="#">EN</a>
   </div>
-
-  <div class="card">
-    <div class="section-title">MENU</div>
-    <div class="menu">
-      <a href="profile.html">프로필</a>
-      <a href="frame.html">프레임</a>
-      <a href="badge.html">업적</a>
-      <a href="point.html">포인트</a>
-      <a href="letter.html">우편함</a>
-      <a href="message.html">메시지</a>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="section-title">최근 메시지</div>
-    <div class="msg">마리링: 오늘도 와줘서 고마워 💕</div>
-    <div class="msg">루루: 다음 공연 기대해!</div>
-    <div class="msg locked" id="iroMsg">🔒 이로 (선으로 이어지면 만날 수 있어)</div>
-    <div class="msg locked" id="lunaMsg">🔒 루나 (빛을 나누면 만날 수 있어)</div>
-  </div>
-
 </div>
 
+<header>
+  <div class="header-box">
+    <div class="logo">
+      <a href="../index.html" aria-label="Lumibelle Home">
+        <span class="logo-main">Lumibelle</span>
+        <span class="logo-sub">OFFICIAL</span>
+      </a>
+    </div>
+
+    <nav aria-label="main navigation">
+      <a href="../index.html"><b>HOME</b><span>홈</span></a>
+      <a href="../news.html"><b>NOTICE</b><span>공지</span></a>
+      <a href="../member.html"><b>MEMBER</b><span>멤버</span></a>
+      <a href="../schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
+      <a href="../ticket/"><b>TICKET</b><span>예매</span></a>
+      <a href="../goods/"><b>GOODS</b><span>굿즈</span></a>
+      <a href="../setlist.html"><b>SETLIST</b><span>응원가이드</span></a>
+      <a href="../info.html"><b>INFO</b><span>안내</span></a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <section class="hero">
+      <span class="hero-kicker">LUMI ID · FAN PHONE</span>
+      <h1>LUMI PHONE</h1>
+      <p>
+        루미폰은 루미 ID로 연결되는 팬 전용 기록 공간입니다.
+        프로필, 포인트, 체크인, 업적, 이벤트권, 카드 앨범, 우편함, 게임존 결과를 한곳에서 확인할 수 있어요.
+      </p>
+    </section>
+
+    <section class="lumi-layout">
+      <div class="phone-shell">
+        <div class="phone-screen">
+          <div class="phone-status">
+            <span>09:12</span>
+            <span>LUMIBELLE ✦ 100%</span>
+          </div>
+
+          <div class="phone-profile">
+            <div class="profile-photo">
+              <img id="mainProfile" src="profile/mariring-01.webp" alt="프로필 이미지">
+            </div>
+            <div>
+              <div class="profile-name" id="profileName">루미나</div>
+              <div class="profile-id">LB-0712 · PIN 확인형</div>
+              <div class="profile-badges">
+                <span class="mini-chip">팀 오시</span>
+                <span class="mini-chip">마리링 🎀⭐️</span>
+                <span class="mini-chip">Beta</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="level-card">
+            <div class="level-top">
+              <div class="level-title" id="levelTitle">Lv.3 선으로 이어진 루미나 ✨</div>
+              <div class="level-point" id="pointNum">32P</div>
+            </div>
+            <div class="progress"><div class="progress-fill" id="barFill"></div></div>
+            <small class="next-text" id="nextText">다음 단계까지 28P 남음</small>
+            <div class="profile-select" id="profileSelect"></div>
+          </div>
+
+          <div class="app-grid" aria-label="LUMI PHONE 앱 메뉴">
+            <button class="app" data-app="profile"><span class="app-icon">👤</span><b>프로필</b></button>
+            <button class="app" data-app="point"><span class="app-icon">💖</span><b>포인트</b></button>
+            <button class="app" data-app="checkin"><span class="app-icon">✨</span><b>체크인</b></button>
+            <button class="app" data-app="badge"><span class="app-icon">🏅</span><b>업적</b></button>
+            <button class="app" data-app="ticket"><span class="app-icon">🎫</span><b>티켓함</b></button>
+            <button class="app" data-app="event"><span class="app-icon">🎁</span><b>이벤트권</b></button>
+            <button class="app" data-app="inbox"><span class="app-icon">💌</span><b>우편함</b></button>
+            <button class="app" data-app="message"><span class="app-icon">💬</span><b>메시지</b></button>
+            <button class="app glow" data-app="game"><span class="app-icon">🎮</span><b>게임존</b></button>
+            <button class="app" data-app="card"><span class="app-icon">🃏</span><b>카드앨범</b></button>
+            <button class="app" data-app="today"><span class="app-icon">🌙</span><b>오늘기록</b></button>
+            <button class="app glow" data-app="talk"><span class="app-icon">🪄</span><b>루미톡</b></button>
+          </div>
+
+          <div class="phone-section">
+            <div class="section-row">
+              <div class="section-title">최근 메시지</div>
+              <a class="more-link" href="#">더보기</a>
+            </div>
+            <div class="message-list">
+              <div class="message">마리링: 오늘도 와줘서 고마워 💕</div>
+              <div class="message">루루: 다음 공연 기대해!</div>
+              <div class="message" id="iroMsg">이로: 이제 우리가 이어졌네 💙</div>
+              <div class="message locked" id="lunaMsg">🔒 루나 (빛을 나누면 만날 수 있어)</div>
+            </div>
+          </div>
+
+          <div class="phone-section">
+            <div class="section-row">
+              <div class="section-title">카드 앨범</div>
+              <button class="more-link lumi-btn secondary" type="button" id="clearCards">초기화</button>
+            </div>
+            <div id="cardAlbum" class="inventory"></div>
+          </div>
+
+          <div class="phone-section">
+            <div class="section-row">
+              <div class="section-title">오늘의 기록</div>
+              <span class="more-link">localStorage 저장</span>
+            </div>
+            <div id="todayLog" class="message-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-label">GAME ZONE · 1차</span>
+          <div class="panel-title">놀고, 뽑고, 루미폰에 저장하기</div>
+          <p class="panel-sub">
+            지금은 팬 기기 안에 저장되는 1차 버전입니다. 나중에 루미 ID + PIN 확인 후 Google Sheets에 저장하는 구조로 확장할 수 있어요.
+          </p>
+        </div>
+        <div class="panel-body">
+          <div class="game-grid">
+            <article class="game-card">
+              <h3>오늘의 운세</h3>
+              <p>오늘의 럭키송과 응원 미션을 뽑아요.</p>
+              <button class="lumi-btn" type="button" id="drawFortune">운세 보기</button>
+              <div class="result-box" id="fortuneResult"></div>
+            </article>
+
+            <article class="game-card">
+              <h3>랜덤 대사</h3>
+              <p>멤버별 랜덤 한마디를 받아요.</p>
+              <button class="lumi-btn" type="button" id="drawLine">대사 뽑기</button>
+              <div class="result-box" id="lineResult"></div>
+            </article>
+
+            <article class="game-card">
+              <h3>무료 카드 뽑기</h3>
+              <p>오늘의 루미벨 카드를 뽑고 카드 앨범에 저장해요.</p>
+              <button class="lumi-btn" type="button" id="drawCard">카드 뽑기</button>
+              <div class="result-box" id="cardResult"></div>
+            </article>
+
+            <article class="game-card">
+              <h3>미션 보드</h3>
+              <p>온라인 팬도 가볍게 참여할 수 있는 미션이에요.</p>
+              <div class="mission-list">
+                <button class="mission" type="button" data-mission="응원가이드 보기"><span>응원가이드 보기</span><b>+1</b></button>
+                <button class="mission" type="button" data-mission="오늘의 운세 확인"><span>오늘의 운세 확인</span><b>+1</b></button>
+                <button class="mission" type="button" data-mission="카드 1회 뽑기"><span>카드 1회 뽑기</span><b>+1</b></button>
+              </div>
+            </article>
+          </div>
+
+          <div class="notice important">
+            GAME ZONE은 누구나 가볍게 즐기는 공개형 놀이 공간이고, LUMI PHONE은 내가 얻은 기록을 보관하는 개인 공간입니다.
+            1차는 브라우저 저장, 2차는 루미 ID + PIN, 3차는 Google Sheets 연동으로 확장합니다.
+          </div>
+
+          <div class="notice">
+            Coming Soon: 팬 투표 · 룰렛 데이 · 쿠지 · 미니게임 · 리듬게임 · 시즌 이벤트 · 이스터에그
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div class="modal" id="appModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div class="modal-title" id="appModalTitle">LUMI PHONE</div>
+      <button class="modal-close" type="button" data-close-modal>×</button>
+    </div>
+    <div class="modal-body" id="appModalBody"></div>
+  </div>
+</div>
+
+<div class="modal" id="talkModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div class="modal-title">루미톡 · LUMI TALK</div>
+      <button class="modal-close" type="button" data-close-talk>×</button>
+    </div>
+    <div class="modal-body">
+      <div class="notice important">
+        루미톡은 루미벨 세계관 기반 AI 팬서비스 콘텐츠입니다. 실제 멤버의 직접 발언이 아니며, 대화 속 관계와 설정은 가상 서사입니다.
+      </div>
+
+      <div class="form-grid" style="margin-top:16px">
+        <div class="field">
+          <label>닉네임</label>
+          <input id="talkNick" value="루미나" />
+        </div>
+        <div class="field">
+          <label>대화 상대</label>
+          <select id="talkMember">
+            <option>마리링</option>
+            <option>루루</option>
+            <option>이로</option>
+            <option>루나</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>세계관</label>
+          <input id="talkWorld" value="마법학교" placeholder="예: 로판 왕국, 별빛 우편함, 공연 끝난 밤" />
+        </div>
+        <div class="field">
+          <label>관계 설정</label>
+          <select id="talkRelation">
+            <option>마법학교 동급생</option>
+            <option>공연을 응원하는 팬</option>
+            <option>별빛 우편함 친구</option>
+            <option>루미벨 세계의 조력자</option>
+            <option>왕실 무도회 동행자</option>
+            <option>계약으로 이어진 파트너</option>
+            <option>운명의 별빛 파트너</option>
+            <option>비밀 임무를 함께하는 동료</option>
+            <option>직접 입력</option>
+          </select>
+        </div>
+        <div class="field full" id="customRelationWrap" style="display:none">
+          <label>직접 입력 관계 설정</label>
+          <input id="customRelation" placeholder="위험하거나 과도한 설정은 사용할 수 없어요." />
+        </div>
+        <div class="field">
+          <label>분위기</label>
+          <select id="talkMood">
+            <option>설레지만 과하지 않게</option>
+            <option>귀엽고 다정하게</option>
+            <option>공연 전 응원</option>
+            <option>로판 서사</option>
+            <option>청춘물</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>피하고 싶은 요소</label>
+          <input id="talkAvoid" placeholder="예: 집착, 무서운 분위기" />
+        </div>
+      </div>
+
+      <div class="reject-box" id="rejectBox"></div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+        <button class="lumi-btn" type="button" id="startTalk">샘플 대화 시작</button>
+        <button class="lumi-btn secondary" type="button" id="safeSuggest">안전한 설정 추천</button>
+      </div>
+
+      <div class="chat-box" id="chatBox"></div>
+    </div>
+  </div>
+</div>
+
+<button class="back-to-top" id="backToTop" type="button" aria-label="맨 위로">
+  <span class="top-arrow">↑</span>
+  <span class="top-label">TOP</span>
+</button>
+
+<footer>© 2026 Lumibelle All Rights Reserved.</footer>
+
 <script>
+const STORAGE = {
+  cards:"lumibelle_cards_v1",
+  logs:"lumibelle_today_logs_v1",
+  missions:"lumibelle_missions_v1",
+  profile:"lumiProfile"
+};
+
 const point = 32;
+const profiles = ["mariring-01.webp","mariring-02.webp","mariring-03.webp"];
+const profileBasePath = "profile/";
 
-let level = 1;
-let title = "점을 찍은 루미나 🌱";
-let prev = 0;
-let next = 10;
-
-if(point >= 100){
-  level = 5;
-  title = "구원의 별, 루미나 👑";
-  prev = 100;
-  next = 100;
-}else if(point >= 60){
-  level = 4;
-  title = "빛을 나누는 루미나 💖";
-  prev = 60;
-  next = 100;
-}else if(point >= 30){
-  level = 3;
-  title = "선으로 이어진 루미나 ✨";
-  prev = 30;
-  next = 60;
-}else if(point >= 10){
-  level = 2;
-  title = "길을 비추는 루미나 💕";
-  prev = 10;
-  next = 30;
-}
-
-let percent = ((point - prev) / (next - prev)) * 100;
-if(level === 5) percent = 100;
-
-document.getElementById("pointText").innerText = `Lv.${level} ${title} · ${point}P`;
-document.getElementById("barFill").style.width = percent + "%";
-
-if(level === 5){
-  document.getElementById("nextText").innerText = "체인 서사의 완성 👑";
-}else{
-  document.getElementById("nextText").innerText = `다음 단계까지 ${next - point}P 남음`;
-}
-
-if(level >= 3){
-  const iro = document.getElementById("iroMsg");
-  iro.classList.remove("locked");
-  iro.innerText = "이로: 이제 우리가 이어졌네 💙";
-}
-
-if(level >= 4){
-  const luna = document.getElementById("lunaMsg");
-  luna.classList.remove("locked");
-  luna.innerText = "루나: …기다리고 있었어 🌙";
-}
-
-const profiles = [
-  "mariring-01.webp",
-  "mariring-02.webp",
-  "mariring-03.webp"
+const cardPool = [
+  {id:"MR-SR-001", name:"마리링 · Stardust Wink", grade:"SR", emoji:"🎀"},
+  {id:"LU-R-001", name:"루루 · Milk Bunny", grade:"R", emoji:"🍼"},
+  {id:"IRO-R-001", name:"이로 · Angel Blue", grade:"R", emoji:"💎"},
+  {id:"LUNAR-SR-001", name:"루나 · Moon Cat", grade:"SR", emoji:"🌙"},
+  {id:"TEAM-SSR-001", name:"Lumibelle · Magical Stage", grade:"SSR", emoji:"⭐"}
 ];
 
-const profileBasePath = "profile/";
-const container = document.getElementById("profileSelect");
-const main = document.getElementById("mainProfile");
+const fortunes = [
+  "오늘의 럭키송은 카나리아. 조용히 빛나는 응원이 행운을 불러와요.",
+  "오늘의 럭키컬러는 핑크. 좋아하는 멤버에게 마음을 전하기 좋은 날이에요.",
+  "오늘의 미션은 응원가이드 1곡 보기. 다음 현장에서 더 즐거워질 거예요.",
+  "오늘은 별빛 운이 좋아요. 카드 뽑기에서 특별한 기운이 느껴져요."
+];
 
-let saved = localStorage.getItem("lumiProfile") || profiles[0];
-main.src = profileBasePath + saved;
+const randomLines = [
+  "마리링: 오늘도 반짝이는 마음으로 와줘서 고마워 💕",
+  "루루: 다음 무대에서 또 만나자. 기다리고 있을게 🐰",
+  "이로: 이제 우리가 이어졌네. 그러니까 도망가지 마 💙",
+  "루나: 밤이 깊어질수록, 네 응원이 더 선명하게 보여 🌙"
+];
 
-profiles.forEach(file => {
-  const img = document.createElement("img");
-  img.src = profileBasePath + file;
-  img.alt = "프로필 선택";
+function getLevelInfo(p){
+  let level=1, title="점을 찍은 루미나 🌱", prev=0, next=10;
+  if(p>=100){level=5;title="구원의 별, 루미나 👑";prev=100;next=100}
+  else if(p>=60){level=4;title="빛을 나누는 루미나 💖";prev=60;next=100}
+  else if(p>=30){level=3;title="선으로 이어진 루미나 ✨";prev=30;next=60}
+  else if(p>=10){level=2;title="길을 비추는 루미나 💕";prev=10;next=30}
+  const percent = level===5 ? 100 : Math.max(0, Math.min(100, ((p-prev)/(next-prev))*100));
+  return {level,title,prev,next,percent};
+}
 
-  if(file === saved) img.classList.add("active");
+function loadJSON(key, fallback){
+  try{return JSON.parse(localStorage.getItem(key)) ?? fallback}
+  catch(e){return fallback}
+}
+function saveJSON(key, value){
+  localStorage.setItem(key, JSON.stringify(value));
+}
+function addLog(text){
+  const logs = loadJSON(STORAGE.logs, []);
+  logs.unshift({text, date:new Date().toLocaleString("ko-KR")});
+  saveJSON(STORAGE.logs, logs.slice(0,8));
+  renderLogs();
+}
+function renderLevel(){
+  const info = getLevelInfo(point);
+  document.getElementById("levelTitle").textContent = `Lv.${info.level} ${info.title}`;
+  document.getElementById("pointNum").textContent = `${point}P`;
+  document.getElementById("barFill").style.width = info.percent + "%";
+  document.getElementById("nextText").textContent = info.level === 5 ? "체인 서사의 완성 👑" : `다음 단계까지 ${info.next - point}P 남음`;
 
-  img.onclick = () => {
-    main.src = profileBasePath + file;
-    localStorage.setItem("lumiProfile", file);
+  if(info.level >= 4){
+    const luna = document.getElementById("lunaMsg");
+    luna.classList.remove("locked");
+    luna.textContent = "루나: …기다리고 있었어 🌙";
+  }
+}
+function renderProfiles(){
+  const container = document.getElementById("profileSelect");
+  const main = document.getElementById("mainProfile");
+  let saved = localStorage.getItem(STORAGE.profile) || profiles[0];
+  main.src = profileBasePath + saved;
+  container.innerHTML = "";
+  profiles.forEach(file => {
+    const img = document.createElement("img");
+    img.src = profileBasePath + file;
+    img.alt = "프로필 선택";
+    if(file === saved) img.classList.add("active");
+    img.onclick = () => {
+      main.src = profileBasePath + file;
+      localStorage.setItem(STORAGE.profile, file);
+      document.querySelectorAll(".profile-select img").forEach(i => i.classList.remove("active"));
+      img.classList.add("active");
+    };
+    container.appendChild(img);
+  });
+}
+function renderCards(){
+  const cards = loadJSON(STORAGE.cards, []);
+  const album = document.getElementById("cardAlbum");
+  if(cards.length === 0){
+    album.innerHTML = `<div class="empty-note" style="grid-column:1/-1">아직 보유 카드가 없어요.<br>게임존에서 무료 카드 뽑기를 해보세요.</div>`;
+    return;
+  }
+  album.innerHTML = cards.slice(0,6).map(card => `
+    <div class="inv-card">
+      <div class="emoji">${card.emoji}</div>
+      <b>${card.grade}<br>${card.name}</b>
+    </div>
+  `).join("");
+}
+function renderLogs(){
+  const logs = loadJSON(STORAGE.logs, []);
+  const box = document.getElementById("todayLog");
+  if(logs.length === 0){
+    box.innerHTML = `<div class="empty-note">아직 오늘 기록이 없어요.<br>게임존을 플레이하면 여기에 남아요.</div>`;
+    return;
+  }
+  box.innerHTML = logs.slice(0,4).map(log => `<div class="message">${log.text}<br><small>${log.date}</small></div>`).join("");
+}
+function renderMissions(){
+  const done = loadJSON(STORAGE.missions, []);
+  document.querySelectorAll(".mission").forEach(btn => {
+    if(done.includes(btn.dataset.mission)) btn.classList.add("done");
+  });
+}
 
-    document.querySelectorAll(".profile-select img").forEach(i => {
-      i.classList.remove("active");
-    });
-
-    img.classList.add("active");
-  };
-
-  container.appendChild(img);
+document.getElementById("drawFortune").addEventListener("click", () => {
+  const text = fortunes[Math.floor(Math.random()*fortunes.length)];
+  const box = document.getElementById("fortuneResult");
+  box.textContent = text;
+  box.classList.add("show");
+  addLog("오늘의 운세: " + text);
 });
-</script>
 
+document.getElementById("drawLine").addEventListener("click", () => {
+  const text = randomLines[Math.floor(Math.random()*randomLines.length)];
+  const box = document.getElementById("lineResult");
+  box.textContent = text;
+  box.classList.add("show");
+  addLog("랜덤 대사: " + text);
+});
+
+document.getElementById("drawCard").addEventListener("click", () => {
+  const card = cardPool[Math.floor(Math.random()*cardPool.length)];
+  const cards = loadJSON(STORAGE.cards, []);
+  cards.unshift({...card, obtainedAt:new Date().toISOString()});
+  saveJSON(STORAGE.cards, cards);
+  const box = document.getElementById("cardResult");
+  box.textContent = `${card.grade} ${card.name} 카드를 획득했어요!`;
+  box.classList.add("show");
+  addLog(`카드 획득: ${card.grade} ${card.name}`);
+  renderCards();
+});
+
+document.querySelectorAll(".mission").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const done = loadJSON(STORAGE.missions, []);
+    const name = btn.dataset.mission;
+    if(!done.includes(name)){
+      done.push(name);
+      saveJSON(STORAGE.missions, done);
+      btn.classList.add("done");
+      addLog(`미션 완료: ${name}`);
+    }
+  });
+});
+
+document.getElementById("clearCards").addEventListener("click", () => {
+  localStorage.removeItem(STORAGE.cards);
+  renderCards();
+});
+
+const appModal = document.getElementById("appModal");
+const appModalTitle = document.getElementById("appModalTitle");
+const appModalBody = document.getElementById("appModalBody");
+const talkModal = document.getElementById("talkModal");
+
+const appContent = {
+  profile:["프로필", "닉네임, 루미 ID, 오시 선택, 대표 카드, 대표 업적, 프로필 헤더를 관리하는 공간입니다."],
+  point:["포인트", "반짝 포인트와 홈페이지 포인트를 분리해서 보여줄 예정입니다. 현재는 샘플 표시 상태입니다."],
+  checkin:["루미 체크인", "특전회 실제 참여 기록이 모이는 공간입니다. 라이브만 관람하거나 물판 방문만 한 경우에는 기록되지 않습니다."],
+  badge:["업적", "획득 업적 / 미획득 업적 / 진행 중 업적을 보여줄 예정입니다."],
+  ticket:["티켓함", "예매한 티켓, 예약번호, QR, 입금 확인 상태를 확인하는 공간입니다."],
+  event:["이벤트권", "Welcome Ticket, 신규 이벤트권, 이로/루나 합류 이벤트권 등을 보여줄 예정입니다."],
+  inbox:["우편함", "이벤트 보상 편지, 시즌 메시지, 업적 보상 메시지가 도착하는 공간입니다."],
+  message:["메시지", "멤버별 짧은 메시지와 해금 메시지를 보여주는 공간입니다."],
+  game:["게임존", "오른쪽 GAME ZONE에서 운세, 랜덤 대사, 카드 뽑기, 미션 보드를 먼저 플레이해보세요."],
+  card:["카드앨범", "게임존에서 획득한 카드가 저장되는 공간입니다. 1차는 현재 기기에만 저장됩니다."],
+  today:["오늘기록", "오늘의 운세, 랜덤 대사, 카드 획득, 미션 완료 기록이 남습니다."]
+};
+
+document.querySelectorAll(".app").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const app = btn.dataset.app;
+    if(app === "talk"){
+      talkModal.classList.add("open");
+      talkModal.setAttribute("aria-hidden","false");
+      return;
+    }
+    const content = appContent[app] || ["Coming Soon", "준비 중인 기능입니다."];
+    appModalTitle.textContent = content[0];
+    appModalBody.innerHTML = `
+      <div class="notice important">${content[1]}</div>
+      <div class="notice">지금은 1차 시안입니다. 추후 루미 ID + PIN 조회와 Google Sheets 연동으로 확장할 수 있어요.</div>
+    `;
+    appModal.classList.add("open");
+    appModal.setAttribute("aria-hidden","false");
+  });
+});
+
+document.querySelector("[data-close-modal]").addEventListener("click", () => {
+  appModal.classList.remove("open");
+  appModal.setAttribute("aria-hidden","true");
+});
+document.querySelector("[data-close-talk]").addEventListener("click", () => {
+  talkModal.classList.remove("open");
+  talkModal.setAttribute("aria-hidden","true");
+});
+document.querySelectorAll(".modal").forEach(modal => {
+  modal.addEventListener("click", e => {
+    if(e.target === modal){
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden","true");
+    }
+  });
+});
+
+const riskyWords = ["연인","남편","아내","약혼","비밀연애","성적","스킨십","감금","납치","강압","집착","소유","사생활","연락처","개인 일정","현실 만남","데이트"];
+const relationSelect = document.getElementById("talkRelation");
+const customWrap = document.getElementById("customRelationWrap");
+relationSelect.addEventListener("change", () => {
+  customWrap.style.display = relationSelect.value === "직접 입력" ? "flex" : "none";
+});
+
+function getRelation(){
+  return relationSelect.value === "직접 입력" ? document.getElementById("customRelation").value : relationSelect.value;
+}
+function hasRisky(text){
+  const lower = String(text || "").toLowerCase();
+  return riskyWords.some(w => lower.includes(w.toLowerCase()));
+}
+document.getElementById("safeSuggest").addEventListener("click", () => {
+  document.getElementById("talkWorld").value = "별빛 무도회";
+  relationSelect.value = "운명의 별빛 파트너";
+  customWrap.style.display = "none";
+  document.getElementById("talkMood").value = "설레지만 과하지 않게";
+  document.getElementById("talkAvoid").value = "집착, 과한 수위";
+});
+
+document.getElementById("startTalk").addEventListener("click", () => {
+  const nick = document.getElementById("talkNick").value.trim() || "루미나";
+  const member = document.getElementById("talkMember").value;
+  const world = document.getElementById("talkWorld").value.trim();
+  const relation = getRelation().trim();
+  const mood = document.getElementById("talkMood").value;
+  const avoid = document.getElementById("talkAvoid").value.trim();
+
+  const rejectBox = document.getElementById("rejectBox");
+  const chatBox = document.getElementById("chatBox");
+  rejectBox.classList.remove("show");
+  chatBox.classList.remove("show");
+
+  if(hasRisky(world) || hasRisky(relation) || hasRisky(avoid)){
+    rejectBox.innerHTML = `
+      별빛 대화방에서는 이 설정을 열 수 없어요.<br>
+      현실의 멤버와 사적 관계로 오해될 수 있거나, 불편한 상황이 될 수 있는 설정은 제한됩니다.<br>
+      <strong>운명의 별빛 파트너 / 비밀 임무를 함께하는 동료 / 왕실 무도회 동행자</strong>처럼 안전한 세계관 설정으로 바꿔주세요 ✦
+    `;
+    rejectBox.classList.add("show");
+    return;
+  }
+
+  chatBox.innerHTML = `
+    <div class="bubble user">${nick} · ${world} · ${relation} · ${mood}</div>
+    <div class="bubble ai">${member}: ${nick}, 오늘도 별빛 대화방에 와줬구나. 이 세계에서 우리는 같은 빛을 따라 걷는 ${relation}야.</div>
+    <div class="bubble ai">${member}: 현실의 약속은 아니지만, 이 이야기 안에서는 네 마음이 무대까지 닿을 수 있게 내가 옆에서 응원해줄게 ✦</div>
+  `;
+  chatBox.classList.add("show");
+  addLog(`루미톡 샘플 대화 시작: ${member} / ${world}`);
+});
+
+const topBtn = document.getElementById("backToTop");
+window.addEventListener("scroll", () => {
+  topBtn.classList.toggle("show", window.scrollY > 360);
+});
+topBtn.addEventListener("click", () => window.scrollTo({top:0, behavior:"smooth"}));
+
+renderLevel();
+renderProfiles();
+renderCards();
+renderLogs();
+renderMissions();
+</script>
 </body>
 </html>
