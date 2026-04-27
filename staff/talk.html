@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>STAFF MEMO TALK | Lumibelle</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=SUIT:wght@500;600;700;800;900&display=swap');
+
+:root{
+  --bg:#fff7fb;
+  --card:#ffffff;
+  --soft:#fff0f7;
+  --purple:#f7efff;
+  --line:#f2d8e7;
+  --pink:#ff5fa8;
+  --pink2:#d77ca7;
+  --text:#7f6a77;
+  --muted:#b28ea2;
+  --lav:#a88cff;
+  --blue:#4fc3ff;
+  --gold:#ffb75f;
+  --warn:#fff8ef;
+  --shadow:0 12px 28px rgba(232,191,211,.16);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100%}
+body{
+  font-family:"SUIT","Noto Sans KR",system-ui,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 12% 8%, rgba(255,192,215,.34) 0%, rgba(255,192,215,0) 28%),
+    radial-gradient(circle at 88% 18%, rgba(202,167,255,.22) 0%, rgba(202,167,255,0) 26%),
+    linear-gradient(180deg,#fffafc 0%,#fff0f7 100%);
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font-family:inherit}
+.wrap{width:min(980px,calc(100% - 28px));margin:0 auto;padding:18px 0 44px}
+
+.hero,.card,.memo-card{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.86);
+  box-shadow:var(--shadow);
+  border-radius:30px;
+}
+.hero{
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(135deg,#fff0f7 0%,#f7efff 100%);
+  padding:38px 32px 32px;
+}
+.hero::after{
+  content:"✦";
+  position:absolute;
+  right:28px;
+  top:24px;
+  color:rgba(255,95,168,.24);
+  font-size:38px;
+  animation:floatStar 3s ease-in-out infinite;
+}
+@keyframes floatStar{0%,100%{transform:translateY(0) rotate(0);opacity:.55}50%{transform:translateY(-6px) rotate(12deg);opacity:1}}
+.eyebrow{
+  display:inline-flex;
+  min-height:30px;
+  padding:0 13px;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid #f0bfd4;
+  color:var(--pink2);
+  font-size:12px;
+  font-weight:1000;
+  letter-spacing:.04em;
+}
+h1{
+  margin:14px 0 8px;
+  font-family:"Cormorant Garamond",serif;
+  font-size:68px;
+  line-height:.88;
+  font-weight:700;
+  color:var(--pink);
+  text-shadow:0 1px 0 rgba(255,255,255,.98),0 0 10px rgba(255,120,178,.18);
+}
+.hero p,.card p,.memo-card p{
+  font-size:14px;
+  line-height:1.75;
+  font-weight:800;
+  color:#8f7183;
+  margin:10px 0 0;
+}
+.top-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.btn{
+  min-height:46px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:0 16px;
+  font-size:14px;
+  font-weight:1000;
+  transition:.16s ease;
+  border:0;
+  cursor:pointer;
+}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;box-shadow:0 8px 18px rgba(255,95,165,.22)}
+.btn-sub{background:#fff;color:var(--pink2);border:1px solid #f0bfd4;box-shadow:0 4px 10px rgba(255,95,165,.08)}
+.btn-warn{background:#fff8ef;color:#c87536;border:1px solid #f4d7c5}
+
+.grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:16px;margin-top:16px}
+.card{padding:22px}
+.card h2{
+  margin:0 0 14px;
+  color:var(--pink2);
+  font-size:25px;
+  line-height:1.2;
+  font-weight:1000;
+}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field{display:grid;gap:7px;margin-bottom:12px}
+label{font-size:13px;font-weight:1000;color:#9a7187}
+input,select,textarea{
+  width:100%;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--text);
+  border-radius:18px;
+  padding:14px 15px;
+  outline:none;
+  transition:.2s ease;
+  font-size:15px;
+  font-weight:800;
+}
+textarea{min-height:118px;resize:vertical;line-height:1.65}
+input:focus,select:focus,textarea:focus{border-color:#f4a4ca;box-shadow:0 0 0 4px rgba(255,121,181,.12)}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.status{
+  display:none;
+  margin-top:12px;
+  padding:13px 14px;
+  border-radius:18px;
+  font-size:13px;
+  line-height:1.6;
+  font-weight:900;
+  background:#fff0f7;
+  color:#d77ca7;
+}
+.status.show{display:block}
+.status.err{background:#fff2e8;color:#c87536}
+.status.ok{background:#e9fff0;color:#21864a}
+
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.filter-chip{
+  min-height:36px;
+  padding:0 12px;
+  border-radius:999px;
+  border:1px solid #f0bfd4;
+  background:#fff;
+  color:#d77ca7;
+  font-size:12px;
+  font-weight:1000;
+  cursor:pointer;
+}
+.filter-chip.active{background:#fff0f7;color:#ff5fa8;border-color:#ffb7d6}
+.memo-list{display:grid;gap:10px;max-height:620px;overflow:auto;padding-right:3px}
+.memo-card{
+  padding:15px 15px 14px;
+  border-radius:22px;
+  box-shadow:0 8px 18px rgba(255,95,165,.08);
+}
+.memo-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
+.memo-title{font-weight:1000;color:#d77ca7;font-size:14px;line-height:1.4}
+.memo-time{font-size:11px;color:#b28ea2;font-weight:900;white-space:nowrap}
+.memo-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.badge{
+  display:inline-flex;
+  min-height:25px;
+  align-items:center;
+  justify-content:center;
+  padding:0 9px;
+  border-radius:999px;
+  background:#fff0f7;
+  color:#d77ca7;
+  border:1px solid #f0bfd4;
+  font-size:11px;
+  font-weight:1000;
+}
+.badge.high{background:#fff2e8;color:#c87536;border-color:#f4d7c5}
+.badge.done{background:#e9fff0;color:#21864a;border-color:#c8efd4}
+.memo-body{font-size:14px;line-height:1.75;color:#7f6a77;font-weight:800;white-space:pre-wrap}
+.memo-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.memo-actions button{
+  min-height:34px;
+  border-radius:999px;
+  padding:0 11px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--pink2);
+  font-size:12px;
+  font-weight:1000;
+  cursor:pointer;
+}
+.note-box{
+  margin-top:12px;
+  padding:13px 15px;
+  border-radius:18px;
+  background:#fff8ef;
+  border:1px solid #f4d7c5;
+  color:#a36b33;
+  font-size:12.5px;
+  line-height:1.65;
+  font-weight:850;
+}
+.quick-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.quick-buttons button{
+  min-height:40px;
+  border-radius:16px;
+  border:1px solid #f0bfd4;
+  background:#fff;
+  color:#d77ca7;
+  font-size:12px;
+  font-weight:1000;
+  cursor:pointer;
+}
+.footer{text-align:center;padding:24px 16px 36px;color:#c6a2b4;font-size:13px;font-weight:800}
+
+@media(max-width:840px){
+  .grid{grid-template-columns:1fr}
+  h1{font-size:56px}
+}
+@media(max-width:520px){
+  .wrap{width:calc(100% - 22px)}
+  .hero,.card{border-radius:24px;padding:20px}
+  h1{font-size:48px}
+  .form-grid,.actions,.quick-buttons{grid-template-columns:1fr}
+  .top-actions .btn{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div class="eyebrow">STAFF MEMO TALK</div>
+    <h1>Staff<br>Memo Talk</h1>
+    <p>
+      입장, 물판, 특전회, 정정, 주의 상황을 남기는 오늘 현장 메모보드입니다.<br>
+      완전 실시간 채팅이 아니라 기록이 남는 스탭 전달사항 보드로 사용해 주세요.
+    </p>
+    <div class="top-actions">
+      <a class="btn btn-sub" href="index.html">스탭 허브로</a>
+      <button class="btn btn-sub" id="btnRefresh" type="button">새로고침</button>
+      <button class="btn btn-warn" id="btnClearLocal" type="button">로컬 기록 초기화</button>
+    </div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h2>새 메모 남기기</h2>
+
+      <div class="form-grid">
+        <div class="field">
+          <label for="staffName">작성자</label>
+          <input id="staffName" placeholder="스탭명 / 닉네임">
+        </div>
+        <div class="field">
+          <label for="role">담당 역할</label>
+          <select id="role">
+            <option value="공통">공통</option>
+            <option value="입장">입장</option>
+            <option value="물판">물판</option>
+            <option value="특전회">특전회</option>
+            <option value="책임자">책임자</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label for="type">메모 종류</label>
+          <select id="type">
+            <option value="일반">일반</option>
+            <option value="입장 확인">입장 확인</option>
+            <option value="물판 처리">물판 처리</option>
+            <option value="루미 체크인">루미 체크인</option>
+            <option value="포인트 정정">포인트 정정</option>
+            <option value="주의">주의</option>
+            <option value="분실물">분실물</option>
+            <option value="책임자 확인 필요">책임자 확인 필요</option>
+            <option value="처리 완료">처리 완료</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="priority">중요도</label>
+          <select id="priority">
+            <option value="보통">보통</option>
+            <option value="중요">중요</option>
+            <option value="긴급">긴급</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="memo">메모 내용</label>
+        <textarea id="memo" placeholder="예: 예약번호 0048 입금자명 확인 필요 / LB-8648 메아테 처리 완료 / 검정 파우치 물판 보관 중"></textarea>
+      </div>
+
+      <div class="quick-buttons">
+        <button type="button" data-template="[입장] 예약번호 0000 입금/닉네임 확인 필요">입장 확인 필요</button>
+        <button type="button" data-template="[물판] LB-0000 메아테 처리 완료">메아테 처리 완료</button>
+        <button type="button" data-template="[정정] 포인트/특전권 정정 필요. 책임자 확인 필요">정정 필요</button>
+        <button type="button" data-template="[분실물] 물판 보관 중: ">분실물</button>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="btnSave" type="button">메모 저장</button>
+        <button class="btn btn-sub" id="btnReset" type="button">입력 초기화</button>
+      </div>
+
+      <div class="status" id="statusBox"></div>
+
+      <div class="note-box">
+        ※ Apps Script API_URL을 연결하면 구글시트에 공유 저장됩니다.<br>
+        ※ API_URL이 비어 있으면 이 기기 안에만 임시 저장됩니다.<br>
+        ※ 개인정보는 필요한 최소 내용만 적어 주세요.
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>오늘 메모</h2>
+      <div class="filters">
+        <button class="filter-chip active" data-filter="전체">전체</button>
+        <button class="filter-chip" data-filter="입장 확인">입장</button>
+        <button class="filter-chip" data-filter="물판 처리">물판</button>
+        <button class="filter-chip" data-filter="루미 체크인">체크인</button>
+        <button class="filter-chip" data-filter="포인트 정정">정정</button>
+        <button class="filter-chip" data-filter="주의">주의</button>
+        <button class="filter-chip" data-filter="책임자 확인 필요">책임자</button>
+        <button class="filter-chip" data-filter="분실물">분실물</button>
+      </div>
+      <div class="memo-list" id="memoList"></div>
+    </article>
+  </section>
+</div>
+
+<div class="footer">© 2026 Lumibelle Staff Memo Talk</div>
+
+<script>
+/**
+ * 공유 구글시트 연결 시 Apps Script 웹앱 URL을 넣어 주세요.
+ * 예: const TALK_API_URL = "https://script.google.com/macros/s/XXXX/exec";
+ */
+const TALK_API_URL = "";
+const LOCAL_KEY = "lb_staff_memo_talk_v1";
+const STAFF_NAME_KEY = "lb_staff_name";
+
+const $ = (id) => document.getElementById(id);
+let memos = [];
+let currentFilter = "전체";
+
+function nowText(){
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+function showStatus(text, type="ok"){
+  const box = $("statusBox");
+  box.textContent = text;
+  box.className = "status show " + (type === "err" ? "err" : "ok");
+}
+
+function safe(v){
+  if(v === null || v === undefined || v === "") return "";
+  return String(v).replace(/[&<>"']/g, (m) => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[m]));
+}
+
+function loadLocal(){
+  try{
+    memos = JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]");
+  }catch(e){
+    memos = [];
+  }
+}
+
+function saveLocal(){
+  localStorage.setItem(LOCAL_KEY, JSON.stringify(memos));
+}
+
+function jsonp(params){
+  return new Promise((resolve, reject) => {
+    if(!TALK_API_URL){
+      reject(new Error("TALK_API_URL이 비어 있어 로컬 저장으로 처리합니다."));
+      return;
+    }
+
+    const cbName = "__lumi_talk_cb_" + Date.now() + "_" + Math.floor(Math.random()*100000);
+    params.callback = cbName;
+
+    const qs = Object.keys(params).map(k => encodeURIComponent(k) + "=" + encodeURIComponent(params[k])).join("&");
+    const script = document.createElement("script");
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error("요청 시간이 초과됐어요."));
+    }, 15000);
+
+    function cleanup(){
+      clearTimeout(timer);
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[cbName] = (data) => {
+      cleanup();
+      resolve(data);
+    };
+
+    script.onerror = () => {
+      cleanup();
+      reject(new Error("API 호출에 실패했어요."));
+    };
+
+    script.src = TALK_API_URL + "?" + qs;
+    document.body.appendChild(script);
+  });
+}
+
+function getFormData(){
+  return {
+    id: "local-" + Date.now(),
+    time: nowText(),
+    staff: $("staffName").value.trim(),
+    role: $("role").value,
+    type: $("type").value,
+    priority: $("priority").value,
+    memo: $("memo").value.trim(),
+    status: "open"
+  };
+}
+
+async function saveMemo(){
+  const data = getFormData();
+
+  if(!data.staff){
+    showStatus("작성자를 입력해 주세요.", "err");
+    $("staffName").focus();
+    return;
+  }
+
+  if(!data.memo){
+    showStatus("메모 내용을 입력해 주세요.", "err");
+    $("memo").focus();
+    return;
+  }
+
+  localStorage.setItem(STAFF_NAME_KEY, data.staff);
+
+  if(TALK_API_URL){
+    try{
+      showStatus("공유 메모 저장 중...");
+      const res = await jsonp({
+        action:"add",
+        staff:data.staff,
+        role:data.role,
+        type:data.type,
+        priority:data.priority,
+        memo:data.memo
+      });
+      if(!res || !res.ok) throw new Error(res && res.error ? res.error : "저장 실패");
+      showStatus("공유 메모 저장 완료!");
+      await refreshMemos();
+      resetForm(false);
+      return;
+    }catch(err){
+      showStatus("공유 저장 실패. 이 기기 안에 임시 저장했어요.", "err");
+    }
+  }
+
+  memos.unshift(data);
+  saveLocal();
+  renderMemos();
+  showStatus("로컬 메모 저장 완료!");
+  resetForm(false);
+}
+
+function resetForm(clearStaff=false){
+  if(clearStaff) $("staffName").value = "";
+  $("memo").value = "";
+  $("type").value = "일반";
+  $("priority").value = "보통";
+}
+
+async function refreshMemos(){
+  if(TALK_API_URL){
+    try{
+      const res = await jsonp({action:"list", limit:"80"});
+      if(res && res.ok && Array.isArray(res.items)){
+        memos = res.items;
+        saveLocal();
+        renderMemos();
+        showStatus("메모를 새로 불러왔어요.");
+        return;
+      }
+    }catch(err){
+      showStatus("공유 메모 불러오기 실패. 로컬 기록을 표시해요.", "err");
+    }
+  }
+
+  loadLocal();
+  renderMemos();
+}
+
+function renderMemos(){
+  const list = $("memoList");
+  let items = memos.slice();
+
+  if(currentFilter !== "전체"){
+    items = items.filter(m => m.type === currentFilter || m.role === currentFilter);
+  }
+
+  if(!items.length){
+    list.innerHTML = `<div class="memo-card"><p>표시할 메모가 없어요.</p></div>`;
+    return;
+  }
+
+  list.innerHTML = items.map((m, idx) => {
+    const isHigh = m.priority === "긴급" || m.priority === "중요";
+    const isDone = m.status === "done" || m.type === "처리 완료";
+    return `
+      <div class="memo-card">
+        <div class="memo-head">
+          <div class="memo-title">${safe(m.staff || "스탭")} · ${safe(m.type || "일반")}</div>
+          <div class="memo-time">${safe(m.time || "")}</div>
+        </div>
+        <div class="memo-meta">
+          <span class="badge">${safe(m.role || "공통")}</span>
+          <span class="badge ${isHigh ? "high" : ""}">${safe(m.priority || "보통")}</span>
+          ${isDone ? '<span class="badge done">처리 완료</span>' : ''}
+        </div>
+        <div class="memo-body">${safe(m.memo || "")}</div>
+        <div class="memo-actions">
+          <button type="button" data-copy="${idx}">복사</button>
+          <button type="button" data-done="${idx}">처리 완료 표시</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function markDone(index){
+  const visible = currentFilter === "전체" ? memos : memos.filter(m => m.type === currentFilter || m.role === currentFilter);
+  const target = visible[index];
+  if(!target) return;
+
+  target.status = "done";
+  if(!String(target.memo || "").includes("[처리 완료]")){
+    target.memo = "[처리 완료] " + target.memo;
+  }
+
+  saveLocal();
+  renderMemos();
+}
+
+function copyMemo(index){
+  const visible = currentFilter === "전체" ? memos : memos.filter(m => m.type === currentFilter || m.role === currentFilter);
+  const target = visible[index];
+  if(!target) return;
+
+  const text = `[${target.role}/${target.type}] ${target.memo}`;
+  navigator.clipboard?.writeText(text).then(
+    () => showStatus("메모를 복사했어요."),
+    () => showStatus("복사에 실패했어요.", "err")
+  );
+}
+
+document.addEventListener("click", (e) => {
+  const filter = e.target.closest("[data-filter]");
+  if(filter){
+    currentFilter = filter.dataset.filter;
+    document.querySelectorAll(".filter-chip").forEach(b => b.classList.remove("active"));
+    filter.classList.add("active");
+    renderMemos();
+    return;
+  }
+
+  const tmpl = e.target.closest("[data-template]");
+  if(tmpl){
+    $("memo").value = tmpl.dataset.template;
+    $("memo").focus();
+    return;
+  }
+
+  const done = e.target.closest("[data-done]");
+  if(done){
+    markDone(parseInt(done.dataset.done, 10));
+    return;
+  }
+
+  const copy = e.target.closest("[data-copy]");
+  if(copy){
+    copyMemo(parseInt(copy.dataset.copy, 10));
+    return;
+  }
+});
+
+$("btnSave").addEventListener("click", saveMemo);
+$("btnReset").addEventListener("click", () => resetForm(false));
+$("btnRefresh").addEventListener("click", refreshMemos);
+$("btnClearLocal").addEventListener("click", () => {
+  if(!confirm("이 기기 안의 로컬 메모 기록을 초기화할까요? 공유 시트 기록은 삭제되지 않습니다.")) return;
+  localStorage.removeItem(LOCAL_KEY);
+  memos = [];
+  renderMemos();
+});
+
+$("staffName").value = localStorage.getItem(STAFF_NAME_KEY) || "";
+
+loadLocal();
+renderMemos();
+</script>
+</body>
+</html>
