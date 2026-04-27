@@ -1,1 +1,495 @@
 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LUMI LOG | Lumibelle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fffafc;
+  --white:#fff;
+  --soft:#fff0f7;
+  --purple:#f7efff;
+  --line:#f2d8e7;
+  --line2:#f0bfd4;
+  --pink:#ff59a5;
+  --pink2:#ff7eb3;
+  --text:#7f6a77;
+  --muted:#b28ea2;
+  --strong:#846f81;
+  --shadow:0 8px 24px rgba(232,191,211,.12);
+  --shadow2:0 14px 32px rgba(255,95,165,.16);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(255,217,232,.62), transparent 24%),
+    radial-gradient(circle at 100% 0%, rgba(243,235,255,.72), transparent 28%),
+    linear-gradient(180deg,#fffafd 0%,#fffafc 100%);
+  color:var(--text);
+  font-family:"SUIT","Noto Sans KR",sans-serif;
+  letter-spacing:-.01em;
+}
+a{color:inherit;text-decoration:none}
+strong{font-weight:900;color:#6f5264}
+.wrap{width:min(1260px,calc(100% - 28px));margin:0 auto}
+
+.top-lang-bar{
+  width:min(1260px, calc(100% - 28px));
+  max-width:1260px;
+  margin:16px auto 0;
+  display:flex;
+  justify-content:flex-end;
+  padding:0 34px 0 18px;
+}
+.lang-switch{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.lang-switch a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:42px;
+  height:36px;
+  padding:0 10px;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid var(--line2);
+  color:#d27ca8;
+  font-size:13px;
+  font-weight:900;
+  box-shadow:0 4px 10px rgba(255,95,165,.08);
+}
+.lang-switch a.active,.lang-switch a:hover{background:#fff0f7;color:var(--pink)}
+
+header{margin-top:12px}
+.header-box{
+  width:100%;
+  max-width:1260px;
+  margin:0 auto;
+  padding:18px 24px;
+  display:flex;
+  align-items:center;
+  gap:24px;
+  border:1px solid var(--line);
+  border-radius:28px;
+  background:rgba(255,255,255,.72);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(12px);
+}
+.logo{flex:0 0 130px;min-width:130px;display:flex;align-items:center;justify-content:center}
+.logo a,.logo picture{display:block;width:130px;line-height:0}
+.logo img{display:block;width:130px;max-width:100%;height:auto}
+.logo-fallback{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  width:130px;
+  line-height:1;
+}
+.logo-main{font-family:"Cormorant Garamond",serif;font-size:34px;font-weight:700;color:var(--pink);letter-spacing:-.03em}
+.logo-sub{margin-top:4px;font-size:11px;font-weight:900;color:#c697b1;letter-spacing:.18em}
+nav{
+  display:grid;
+  grid-template-columns:repeat(8,minmax(0,1fr));
+  gap:18px;
+  text-align:center;
+  align-items:center;
+  flex:1;
+  margin:0 20px;
+  min-width:0;
+}
+nav a{
+  position:relative;
+  width:100%;
+  min-height:66px;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:12px 6px;
+  border-radius:22px;
+  overflow:visible;
+  isolation:isolate;
+  -webkit-tap-highlight-color:transparent;
+}
+nav a::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:22px;
+  background:linear-gradient(90deg,
+    rgba(255,217,232,0) 0%,
+    rgba(255,217,232,.14) 16%,
+    rgba(255,192,215,.20) 50%,
+    rgba(255,217,232,.14) 84%,
+    rgba(255,217,232,0) 100%);
+  opacity:0;
+  z-index:-1;
+}
+nav a.current::before,nav a:hover::before{opacity:1}
+nav a b{display:block;width:100%;text-align:center;white-space:nowrap;font-size:1.18em;font-weight:700;color:#d97ca9;letter-spacing:-.03em}
+nav a span{display:block;width:100%;text-align:center;white-space:nowrap;margin-top:2px;font-size:.9em;font-weight:600;color:#c697b1}
+nav a.current b,nav a:hover b{color:var(--pink)}
+
+main{padding:22px 0 54px}
+.hero{
+  margin-top:10px;
+  padding:56px 46px 44px;
+  border:1px solid var(--line);
+  border-radius:34px;
+  background:
+    radial-gradient(circle at 88% 12%, rgba(202,167,255,.20), transparent 26%),
+    radial-gradient(circle at 18% 16%, rgba(255,126,179,.14), transparent 28%),
+    linear-gradient(135deg,#fff5fb 0%,#fff 48%,#f8f0ff 100%);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  position:relative;
+}
+.hero::after{
+  content:"✦";
+  position:absolute;
+  right:34px;
+  top:28px;
+  color:rgba(255,89,165,.28);
+  font-size:42px;
+  animation:floatStar 2.8s ease-in-out infinite;
+}
+@keyframes floatStar{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-6px) rotate(8deg)}}
+.kicker{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:8px 14px;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid var(--line2);
+  color:var(--pink);
+  font-size:13px;
+  font-weight:900;
+  box-shadow:0 6px 14px rgba(255,95,165,.08);
+}
+.hero h1{
+  margin:18px 0 10px;
+  font-family:"Cormorant Garamond",serif;
+  font-size:clamp(64px,9vw,112px);
+  line-height:.86;
+  color:var(--pink);
+  font-weight:700;
+  letter-spacing:-.045em;
+  text-shadow:0 0 18px rgba(255,120,178,.16);
+}
+.hero p{
+  margin:0;
+  max-width:860px;
+  color:#8f7183;
+  font-size:17px;
+  line-height:1.9;
+  font-weight:700;
+  word-break:keep-all;
+}
+.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:46px;
+  padding:0 18px;
+  border-radius:999px;
+  font-size:14px;
+  font-weight:900;
+  transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{background:linear-gradient(180deg,var(--pink2),var(--pink));color:#fff;box-shadow:0 10px 20px rgba(255,95,165,.22)}
+.btn-sub{background:#fff;color:#d27ca8;border:1px solid var(--line2);box-shadow:0 6px 14px rgba(255,95,165,.08)}
+
+.section-heading{text-align:center;margin:46px 0 20px}
+.section-heading h2{margin:0;color:#d67faa;font-size:clamp(38px,5vw,62px);line-height:.95;font-weight:900;text-shadow:0 6px 18px rgba(255,120,178,.10)}
+.section-heading p{margin:10px 0 0;color:#c79bb3;font-size:16px;font-weight:700;line-height:1.65;word-break:keep-all}
+
+.log-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;align-items:start}
+.card{
+  border:1px solid var(--line);
+  border-radius:28px;
+  background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(255,245,251,.92));
+  box-shadow:var(--shadow);
+  padding:26px 26px 24px;
+  overflow:hidden;
+}
+.card.full{grid-column:1 / -1}
+.label{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:7px 12px;
+  border-radius:999px;
+  background:#fff0f7;
+  border:1px solid var(--line2);
+  color:#d77ca7;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.05em;
+  margin-bottom:14px;
+}
+.card h3{margin:0 0 12px;color:#d67faa;font-size:28px;line-height:1.18;font-weight:900;letter-spacing:-.03em}
+.card p,.card li{color:#7f6a77;font-size:16px;line-height:1.86;font-weight:650;word-break:keep-all}
+.card p{margin:0 0 14px}
+.card ul{margin:10px 0 0;padding-left:20px}
+.notice{
+  margin-top:14px;
+  padding:15px 17px;
+  border-radius:18px;
+  background:#fff;
+  border:1px solid var(--line);
+  color:#8f7183;
+  font-size:15.5px;
+  line-height:1.78;
+  font-weight:750;
+  word-break:keep-all;
+}
+.notice.important{background:linear-gradient(135deg,#fff0f7,#f8f0ff);border-color:#f0bfd4;color:#7b5f70}
+.pill-row{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px}
+.pill{display:inline-flex;align-items:center;justify-content:center;padding:8px 13px;min-height:34px;border-radius:999px;background:#fff;border:1px solid var(--line);color:#b3839b;font-size:13px;font-weight:900}
+.status{color:#ff5fa5;background:#fff0f7;border-color:#f0bfd4}
+
+.log-card{
+  position:relative;
+  border:1px solid var(--line);
+  border-radius:30px;
+  background:
+    radial-gradient(circle at 92% 12%, rgba(255,126,179,.16), transparent 24%),
+    radial-gradient(circle at 8% 8%, rgba(202,167,255,.14), transparent 26%),
+    linear-gradient(180deg,#fff,#fff5fb);
+  box-shadow:var(--shadow2);
+  padding:28px;
+  overflow:hidden;
+}
+.log-card::after{content:"✧";position:absolute;right:28px;top:24px;color:rgba(255,95,165,.22);font-size:38px}
+.log-date{font-family:"Cormorant Garamond",serif;font-size:50px;line-height:.9;color:var(--pink);font-weight:700;margin:2px 0 12px;letter-spacing:-.04em}
+.log-card h3{font-size:32px;margin:0 0 10px;color:#d67faa}
+.meta-list{display:grid;gap:8px;margin:16px 0}
+.meta-item{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:18px;background:#fff;font-size:14.5px;line-height:1.6;word-break:keep-all}
+.meta-item b{color:#d67faa;font-weight:900}
+.meta-item span{font-weight:750;color:#806978}
+.log-message{padding:16px 17px;border-radius:20px;background:#fff0f7;border:1px solid var(--line2);color:#7b5f70;font-size:15.5px;line-height:1.8;font-weight:800;word-break:keep-all}
+.log-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.log-actions .btn{min-height:44px}
+.disabled{opacity:.58;pointer-events:none}
+
+.timeline{display:grid;gap:12px}
+.timeline-item{display:grid;grid-template-columns:90px 1fr;gap:12px;padding:16px;border:1px solid var(--line);border-radius:22px;background:#fff;box-shadow:0 8px 20px rgba(232,191,211,.08)}
+.timeline-date{color:var(--pink);font-weight:900;font-size:14px;line-height:1.45}
+.timeline-body b{display:block;color:#d67faa;font-size:17px;margin-bottom:5px}
+.timeline-body span{display:block;color:#8f7183;font-size:14px;line-height:1.65;font-weight:750}
+
+.guide-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.guide-card{border:1px solid var(--line);border-radius:24px;background:#fff;padding:20px 18px;text-align:center;box-shadow:0 8px 20px rgba(232,191,211,.08)}
+.guide-card b{display:block;color:var(--pink);font-size:18px;margin-bottom:8px}
+.guide-card span{display:block;color:#8f7183;font-size:14.5px;line-height:1.65;font-weight:750;word-break:keep-all}
+
+footer{text-align:center;padding:28px 16px 40px;color:#c6a2b4;font-size:14px;font-weight:700}
+.footer-links{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 14px;margin-bottom:12px}
+.footer-links a{color:#b3839b;font-size:13px;font-weight:900;border-bottom:1px solid rgba(179,131,155,.32)}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .75s ease, transform .75s ease}
+.reveal.show{opacity:1;transform:translateY(0)}
+
+@media (max-width:1180px){
+  .header-box{flex-wrap:wrap;justify-content:center}
+  .logo{width:100%;flex-basis:100%}
+  nav{width:100%;grid-template-columns:repeat(4,1fr);gap:16px;margin:0}
+  .log-grid{grid-template-columns:1fr}
+}
+@media (max-width:860px){
+  .hero{padding:38px 24px 32px;border-radius:28px}
+  .card,.log-card{padding:22px 18px;border-radius:24px}
+  .guide-grid{grid-template-columns:1fr}
+  .timeline-item{grid-template-columns:1fr}
+  .meta-item{grid-template-columns:1fr;gap:4px}
+}
+@media (max-width:780px){
+  .top-lang-bar{justify-content:center;margin-top:14px;padding:0 14px}
+  .header-box{padding:16px}
+  nav{grid-template-columns:repeat(2,1fr);gap:12px}
+  nav a{min-height:62px}
+  nav a b{font-size:1.12em}
+  nav a span{font-size:.9em}
+  .hero h1{font-size:64px}
+  .log-date{font-size:42px}
+}
+</style>
+</head>
+<body>
+  <div class="top-lang-bar">
+    <div class="lang-switch" aria-label="language switch">
+      <a href="../info.html" class="active">KR</a>
+      <a href="../en/info.html">EN</a>
+      <a href="../jp/info.html">JP</a>
+      <a href="../cn/info.html">CN</a>
+    </div>
+  </div>
+
+  <header>
+    <div class="wrap header-box">
+      <div class="logo">
+        <a href="../index.html" aria-label="Lumibelle Home">
+          <picture>
+            <source srcset="../img/ui/logo.webp?v=3" type="image/webp">
+            <img src="../img/ui/logo.png?v=3" alt="Lumibelle 로고" loading="eager" decoding="async" onerror="this.style.display='none'; this.closest('.logo').insertAdjacentHTML('beforeend','<div class=&quot;logo-fallback&quot;><span class=&quot;logo-main&quot;>Lumibelle</span><span class=&quot;logo-sub&quot;>OFFICIAL</span></div>')">
+          </picture>
+        </a>
+      </div>
+      <nav aria-label="main navigation">
+        <a href="../index.html"><b>HOME</b><span>홈</span></a>
+        <a href="../news.html"><b>NEWS</b><span>공지사항</span></a>
+        <a href="../member.html"><b>MEMBER</b><span>멤버 소개</span></a>
+        <a href="../schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
+        <a href="../ticket/"><b>TICKET</b><span>예매</span></a>
+        <a href="../goods/"><b>GOODS</b><span>굿즈</span></a>
+        <a href="../setlist.html"><b>SETLIST</b><span>응원 가이드</span></a>
+        <a href="../info.html"><b>INFO</b><span>안내</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <section class="hero reveal">
+        <span class="kicker">LUMIBELLE ARCHIVE</span>
+        <h1>LUMI<br>LOG</h1>
+        <p>
+          루미로그는 루미벨의 무대, 셋리스트, 사진, 멤버의 한마디, 루미나의 후기를 오래 보관하는 공식 기록장입니다.
+          빠르게 사라지는 후기 대신, 공연의 반짝임을 천천히 모아두는 공간이에요.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#latest">첫 루미로그 보기</a>
+          <a class="btn btn-sub" href="../setlist.html">응원가이드 보기</a>
+          <a class="btn btn-sub" href="../schedule.html">스케줄 보기</a>
+        </div>
+      </section>
+
+      <section class="section-heading reveal">
+        <h2>Latest Log</h2>
+        <p>첫 번째 루미로그는 2026.07.12 데뷔 라이브 이후 순차적으로 채워질 예정입니다.</p>
+      </section>
+
+      <section class="log-grid" id="latest">
+        <article class="log-card reveal">
+          <span class="label status">PREPARING</span>
+          <div class="log-date">2026.07.12</div>
+          <h3>Lumibelle Debut Live</h3>
+          <p>
+            첫 번째 점이 찍히는 날.
+            마리링과 루루가 루미벨의 이름으로 처음 무대에 서는 데뷔 라이브입니다.
+          </p>
+          <div class="meta-list">
+            <div class="meta-item"><b>장소</b><span>KT&G 상상마당 라이브홀</span></div>
+            <div class="meta-item"><b>출연</b><span>마리링 🎀⭐ · 루루 🐰🍼</span></div>
+            <div class="meta-item"><b>상태</b><span>공연 전 준비 중 · 셋리스트/사진/코멘트는 공연 후 공개</span></div>
+          </div>
+          <div class="log-message">
+            오늘의 루미로그가 준비 중이에요.<br>
+            멤버들의 마음과 무대의 반짝임은 천천히 도착할 예정입니다.
+          </div>
+          <div class="log-actions">
+            <a class="btn btn-sub disabled" href="2026-07-12.html" aria-disabled="true">개별 로그 준비 중</a>
+            <a class="btn btn-primary" href="../ticket/">데뷔 라이브 예매 보기</a>
+          </div>
+        </article>
+
+        <article class="card reveal">
+          <span class="label">HOW TO JOIN</span>
+          <h3>루미로그에 마음 남기기</h3>
+          <p>
+            라이브 후기와 체키 사진은 공식 라이브 태그와 멤버별 호출 태그를 함께 사용해 주세요.
+            루미로그에 소개되길 원하는 후기는 <strong>#루미로그</strong>를 함께 붙여주시면 운영진이 확인할 수 있습니다.
+          </p>
+          <div class="pill-row">
+            <span class="pill">#LUMIBELLE_LIVE</span>
+            <span class="pill">#루미로그</span>
+            <span class="pill">#나만의아이돌링링</span>
+            <span class="pill">#아기토끼루루뿅</span>
+          </div>
+          <div class="notice important">
+            모든 후기가 소개되거나 모든 게시물에 답변이 달리는 것은 아니지만, 남겨주신 따뜻한 마음은 천천히 전달됩니다.
+          </div>
+        </article>
+      </section>
+
+      <section class="section-heading reveal">
+        <h2>What We Keep</h2>
+        <p>루미로그는 공연 후기가 밀리지 않게, 공식 기록을 천천히 채워가는 공간입니다.</p>
+      </section>
+
+      <section class="guide-grid">
+        <article class="guide-card reveal"><b>SETLIST</b><span>공연별 셋리스트와 응원 포인트를 기록합니다.</span></article>
+        <article class="guide-card reveal"><b>MEMBER COMMENT</b><span>멤버의 한 줄 코멘트와 공연 후 마음을 남깁니다.</span></article>
+        <article class="guide-card reveal"><b>FAN MEMORY</b><span>루미나가 남겨준 후기와 태그를 기록 후보로 모읍니다.</span></article>
+      </section>
+
+      <section class="section-heading reveal">
+        <h2>Archive Road</h2>
+        <p>루미벨의 이야기는 점이 아닌 선으로 이어집니다.</p>
+      </section>
+
+      <section class="card full reveal">
+        <span class="label">TIMELINE</span>
+        <h3>루미로그 예정 기록</h3>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-date">2026.07.12</div>
+            <div class="timeline-body">
+              <b>첫 번째 점 · 데뷔 라이브</b>
+              <span>마리링과 루루 2인 체제로 루미벨의 첫 공식 무대가 시작됩니다.</span>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">2026.10.18</div>
+            <div class="timeline-body">
+              <b>점에서 선으로 · Join Event</b>
+              <span>이로와 루나가 합류하며, 흩어진 점들이 하나의 선으로 이어지는 날입니다.</span>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">COMING</div>
+            <div class="timeline-body">
+              <b>Stardust Magical</b>
+              <span>발매 일정과 공식 정보가 확정되면 루미로그와 루미폰에 순차적으로 기록됩니다.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-links">
+      <a href="../index.html">HOME</a>
+      <a href="../schedule.html">SCHEDULE</a>
+      <a href="../setlist.html">SETLIST</a>
+      <a href="../info.html">INFO</a>
+    </div>
+    © 2026 Lumibelle. All rights reserved.
+  </footer>
+
+<script>
+const reveals = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add('show');
+      io.unobserve(entry.target);
+    }
+  });
+},{threshold:.12});
+reveals.forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
