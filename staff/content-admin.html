@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Content Admin | Lumibelle</title>
+  <style>
+    :root{--bg:#fff8fb;--line:#f2d8e7;--pink:#ff59a5;--deep:#d77ca7;--text:#846f81;--soft:#b28ea2;--lav:#f4ebff;--blue:#eaf4ff}
+    *{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#fffafd,#fff7fb);font-family:"Noto Sans KR",sans-serif;color:var(--text)}
+    .wrap{width:min(1040px,calc(100% - 28px));margin:0 auto;padding:28px 0 60px}.hero{padding:28px;border:1px solid var(--line);border-radius:28px;background:#fff5fb;box-shadow:0 12px 28px rgba(232,191,211,.14);text-align:center;margin-bottom:18px}.hero h1{margin:0;color:var(--pink);font-size:40px}.hero p{margin:8px 0 0;color:var(--soft);font-weight:800;line-height:1.7}
+    .panel{border:1px solid var(--line);border-radius:24px;background:#fff;box-shadow:0 8px 24px rgba(232,191,211,.10);overflow:hidden;margin-top:16px}.tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line)}.tab{border:0;background:#fff5fb;color:var(--soft);font-weight:900;font-size:18px;padding:18px;cursor:pointer}.tab.active{background:#fff;color:var(--pink)}
+    form{padding:24px;display:grid;gap:16px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}label{display:grid;gap:8px;font-weight:900;color:#9d7c8f;font-size:14px}input,select,textarea{width:100%;border:1px solid #efd2e3;border-radius:16px;background:#fff8fc;padding:13px 14px;color:#7b6071;font:inherit;font-weight:700;outline:none}textarea{min-height:150px;resize:vertical;line-height:1.7}.badge-options{display:flex;gap:8px;flex-wrap:wrap}.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid #efd2e3;border-radius:999px;background:#fff8fc;padding:9px 12px;font-weight:900;color:#b27b98}.chip input{width:auto}.help{font-size:12px;color:#b796a9;font-weight:700;line-height:1.6;margin:0}.actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:10px}button.primary{border:0;border-radius:999px;background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;font-size:16px;font-weight:900;padding:14px 34px;cursor:pointer;box-shadow:0 8px 18px rgba(255,95,165,.22)}button.ghost{border:1px solid #efbfd4;border-radius:999px;background:#fff8fc;color:#d77ca7;font-size:16px;font-weight:900;padding:14px 24px;cursor:pointer}.status{padding:16px 24px;border-top:1px solid var(--line);background:#fff8fc;color:#9d7c8f;font-weight:800;line-height:1.6;white-space:pre-wrap}.hidden{display:none!important}.mini-preview{margin:0 24px 24px;padding:18px;border:1px dashed #efd2e3;border-radius:18px;background:#fff8fc;color:#9d7c8f;line-height:1.7;font-weight:700}
+    @media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr}.hero h1{font-size:30px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero"><h1>CONTENT ADMIN</h1><p>공지사항과 스케줄을 계속 추가하는 루미벨 관리자 페이지</p></section>
+    <section class="panel">
+      <div class="tabs"><button class="tab active" data-tab="news">NEWS 작성</button><button class="tab" data-tab="schedule">SCHEDULE 작성</button></div>
+      <form id="commonForm">
+        <div class="grid2"><label>Apps Script Web App URL<input id="apiUrl" placeholder="https://script.google.com/macros/s/.../exec" required /></label><label>Admin Key<input id="adminKey" type="password" placeholder="Apps Script의 ADMIN_KEY" required /></label></div>
+        <p class="help">URL/키는 이 브라우저에만 저장됩니다. 공개 PC에서는 저장하지 마세요. HTML 안에는 관리자 키를 넣지 않습니다.</p>
+      </form>
+      <form id="newsForm" data-pane="news">
+        <div class="grid3"><label>날짜<input name="date" type="date" required /></label><label>공지 분류<select name="category"><option value="auto">자동 분류</option><option value="recent">최근 공지</option><option value="mid">조금 지난 공지</option><option value="old">옛날 공지</option></select></label><label>NEW 표시 종료일<input name="newUntil" type="date" /></label></div>
+        <label>공지 제목<input name="title" placeholder="예: 루미벨 데뷔라이브 안내" required /></label>
+        <label>아이콘/뱃지 선택<div class="badge-options"><label class="chip"><input type="checkbox" name="badges" value="NEW" /> NEW</label><label class="chip"><input type="checkbox" name="badges" value="INFO" /> INFO</label><label class="chip"><input type="checkbox" name="badges" value="LIVE" /> LIVE</label><label class="chip"><input type="checkbox" name="badges" value="DEBUT" /> DEBUT</label><label class="chip"><input type="checkbox" name="badges" value="MEDIA" /> MEDIA</label><label class="chip"><input type="checkbox" name="badges" value="PATCH" /> PATCH</label><label class="chip"><input type="checkbox" name="badges" value="GOODS" /> GOODS</label></div></label>
+        <div class="grid2"><label>클릭 방식<select name="linkMode"><option value="inline">제목 클릭 시 내용 펼치기</option><option value="internal">내부 페이지로 이동</option><option value="external">외부 링크 새 창</option></select></label><label>링크<input name="link" placeholder="news-debut.html 또는 외부 링크 / 펼침이면 비워도 됨" /></label></div>
+        <label>공지 내용<textarea name="content" placeholder="제목을 눌렀을 때 열릴 내용. 줄바꿈 유지됩니다."></textarea></label>
+        <div class="grid2"><label>상단 고정<select name="isPinned"><option value="false">아니오</option><option value="true">예</option></select></label><label>공개 여부<select name="isVisible"><option value="true">공개</option><option value="false">숨김</option></select></label></div>
+        <div class="actions"><button class="primary" type="submit">NEWS 저장</button><button class="ghost" type="reset">초기화</button></div>
+      </form>
+      <form id="scheduleForm" data-pane="schedule" class="hidden">
+        <div class="grid3"><label>날짜<input name="date" type="date" required /></label><label>표시 날짜<input name="displayDate" placeholder="예: 07.12(일)" /></label><label>종류<select name="type"><option>LIVE</option><option>DEBUT</option><option>EVENT</option><option>RELEASE</option><option>ONLINE</option></select></label></div>
+        <label>일정명<input name="title" placeholder="예: 루미벨 데뷔라이브" required /></label>
+        <div class="grid2"><label>장소<input name="place" placeholder="예: KT&G 상상마당 라이브홀 / 미정" /></label><label>출연 멤버<input name="members" placeholder="예: 마리링 / 루루" /></label></div>
+        <div class="grid3"><label>티켓 버튼 문구<input name="ticketLabel" placeholder="TICKET / COMING SOON" /></label><label>티켓 버튼 방식<select name="ticketMode"><option value="none">이동 없음</option><option value="internal">내부 티켓 페이지</option><option value="external">외부 링크</option></select></label><label>티켓 링크<input name="ticketUrl" placeholder="ticket/current.html 또는 외부 링크" /></label></div>
+        <div class="grid2"><label>상세 링크<input name="detailUrl" placeholder="선택: news-xxx.html 등" /></label><label>NEW 표시 종료일<input name="newUntil" type="date" /></label></div>
+        <div class="grid2"><label>공개 여부<select name="isVisible"><option value="true">공개</option><option value="false">숨김</option></select></label><label>메모<textarea name="memo" placeholder="관리용 메모. 공개 페이지에는 표시하지 않아도 됨."></textarea></label></div>
+        <div class="actions"><button class="primary" type="submit">SCHEDULE 저장</button><button class="ghost" type="reset">초기화</button></div>
+      </form>
+      <div class="mini-preview">처음 추천 데이터: 2026.07.12 데뷔라이브 / 2026.10.18 라이브 예정. Apps Script에서 seedSampleData_()를 한 번 실행하면 자동 입력됩니다.</div>
+      <div id="status" class="status">대기 중</div>
+    </section>
+  </main>
+<script>
+const $ = (s, root=document) => root.querySelector(s);
+const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+const apiUrlInput = $('#apiUrl'); const adminKeyInput = $('#adminKey'); const statusBox = $('#status');
+apiUrlInput.value = localStorage.getItem('lumiContentApiUrl') || ''; adminKeyInput.value = localStorage.getItem('lumiContentAdminKey') || '';
+apiUrlInput.addEventListener('change',()=>localStorage.setItem('lumiContentApiUrl',apiUrlInput.value.trim()));
+adminKeyInput.addEventListener('change',()=>localStorage.setItem('lumiContentAdminKey',adminKeyInput.value.trim()));
+$$('.tab').forEach(btn=>btn.addEventListener('click',()=>{ $$('.tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); const tab=btn.dataset.tab; $$('[data-pane]').forEach(p=>p.classList.toggle('hidden',p.dataset.pane!==tab)); }));
+function formToObject(form){ const fd=new FormData(form); const obj={}; for (const [k,v] of fd.entries()){ if(k==='badges'){ if(!obj.badges)obj.badges=[]; obj.badges.push(v); } else obj[k]=v; } if(!obj.badges)obj.badges=[]; return obj; }
+async function submit(kind, form){ const apiUrl=apiUrlInput.value.trim(); const adminKey=adminKeyInput.value.trim(); if(!apiUrl||!adminKey){statusBox.textContent='Apps Script URL과 Admin Key를 먼저 입력해 주세요.';return;} localStorage.setItem('lumiContentApiUrl',apiUrl); localStorage.setItem('lumiContentAdminKey',adminKey); const payload={kind,adminKey,...formToObject(form)}; statusBox.textContent='저장 중...'; try{ const res=await fetch(apiUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}); const data=await res.json(); if(!data.ok) throw new Error(data.error||'저장 실패'); statusBox.textContent=`저장 완료!\n종류: ${kind}\nID: ${data.id}`; form.reset(); }catch(err){ statusBox.textContent='저장 실패: '+err.message+'\n배포 권한/URL/ADMIN_KEY를 확인해 주세요.'; }}
+$('#newsForm').addEventListener('submit',e=>{e.preventDefault();submit('news',e.currentTarget)}); $('#scheduleForm').addEventListener('submit',e=>{e.preventDefault();submit('schedule',e.currentTarget)});
+</script>
+</body>
+</html>
