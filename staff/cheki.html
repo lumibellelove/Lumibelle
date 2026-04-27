@@ -1,537 +1,1199 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Lumibelle Staff Entry Check</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lumibelle Cheki Check TEST CLEAN</title>
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=SUIT:wght@600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=SUIT:wght@500;600;700;800;900&display=swap');
+:root{
+  --bg:#fff7fb;--card:#fff;--soft:#fff0f7;--line:#f2cfe0;--pink:#ff5ca6;
+  --pink2:#d77ca7;--text:#796877;--purple:#8c72d6;--warn:#fff2e8;
+  --shadow:0 14px 30px rgba(255,95,165,.10);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:linear-gradient(180deg,#fff7fb,#fff0f7);font-family:"SUIT",sans-serif;color:var(--text)}
+button,input,select,textarea{font-family:inherit}
+.wrap{width:min(760px,calc(100% - 24px));margin:0 auto;padding:14px 0 90px}
+.hero{border:1px solid var(--line);border-radius:28px;background:linear-gradient(135deg,#fff,#fff0f8 55%,#f7efff);box-shadow:var(--shadow);padding:22px;margin-bottom:12px}
+.hero .label,.card .label{display:inline-flex;border:1px solid #f0bfd4;border-radius:999px;padding:8px 14px;color:var(--pink2);background:#fff;font-weight:900;font-size:12px;letter-spacing:.04em}
+.hero h1{font-family:"Cormorant Garamond",serif;color:var(--pink);font-size:48px;line-height:.9;margin:14px 0 10px}
+.hero p{font-weight:800;line-height:1.7;margin:0;font-size:14px}
+.testbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.testbar button,.tab-btn,.btn,.ghost,.danger,.toggle{
+  min-height:48px;border-radius:20px;border:1px solid var(--line);background:#fff;color:var(--pink2);font-weight:900;font-size:14px;
+  box-shadow:0 5px 12px rgba(255,95,165,.05)
+}
+.testbar button{background:#fff8fc}
+.current{position:sticky;top:0;z-index:20;background:rgba(255,247,251,.94);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:22px;padding:12px;margin:10px 0;box-shadow:0 8px 18px rgba(255,95,165,.08)}
+.current-title{font-weight:1000;color:var(--pink2);font-size:15px;margin-bottom:6px}
+.current-no{display:inline-flex;min-width:92px;padding:8px 18px;border-radius:999px;border:1px solid var(--line);background:var(--soft);font-weight:1000;color:#7b6574}
+.current-info{font-weight:900;margin-top:6px}
+.current-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.current-actions button{min-height:42px;border-radius:16px;border:1px solid var(--line);background:#fff;color:var(--pink2);font-weight:900}.event-box{border:1px solid var(--line);background:#fff;border-radius:22px;padding:14px;margin:10px 0;box-shadow:0 8px 18px rgba(255,95,165,.06)}.event-row{display:grid;grid-template-columns:1fr 130px;gap:8px}.event-row input{text-align:left;font-size:14px}.event-label{font-size:12px;font-weight:1000;color:var(--pink2);margin-bottom:7px}.event-note{font-size:12px;font-weight:850;color:#b28ea2;line-height:1.55;margin-top:8px}
+.tabs{position:sticky;top:96px;z-index:19;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;background:rgba(255,247,251,.95);padding:8px 0;margin-bottom:10px}
+.tab-btn.active{background:linear-gradient(180deg,#ff72b0,#ff5ca6);color:#fff;border-color:transparent}
+.card{background:var(--card);border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow);padding:20px;margin:12px 0}
+.card h2{font-size:32px;color:var(--pink2);margin:12px 0 10px}
+.card p{font-size:15px;font-weight:800;line-height:1.75;margin:0 0 14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid4{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.booth-result{margin-top:12px;padding:14px 16px;border:1px solid var(--line);border-radius:18px;background:#fff7fb;color:#a0617f;font-weight:900;line-height:1.65;font-size:13px}.booth-note{margin-top:10px;padding:12px 14px;border-radius:16px;background:#f7efff;color:#8066d0;font-weight:900;line-height:1.6;font-size:12.5px}.booth-history .history-item:nth-child(n+4){display:none}.booth-history.show-all .history-item:nth-child(n+4){display:block}.caution-save-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.caution-history .history-item:nth-child(n+4){display:none}.caution-history.show-all .history-item:nth-child(n+4){display:block}
+.choice{min-height:54px;border-radius:20px;border:1px solid var(--line);background:#fff;color:var(--pink2);font-weight:1000;font-size:14px}
+.choice.active{background:linear-gradient(180deg,#ff72b0,#ff5ca6);color:#fff;border-color:transparent;box-shadow:0 10px 18px rgba(255,95,165,.20)}
+.field{margin:12px 0}
+.field label{display:block;font-size:13px;font-weight:1000;color:#9a7086;margin-bottom:8px}
+input,select,textarea{width:100%;min-height:52px;border-radius:18px;border:1px solid var(--line);background:#fff;padding:0 14px;font-size:16px;font-weight:900;color:#6f5d68}
+textarea{padding:14px;min-height:120px}
+.search{display:grid;grid-template-columns:1fr 96px;gap:8px}
+.btn{background:linear-gradient(180deg,#ff72b0,#ff5ca6);color:#fff;border:none}
+.ghost{background:#fff}
+.danger{background:#fff2e8;color:#c87536;border-color:#f4d7c5}
+.note{border-radius:18px;background:#f7efff;color:#8066d0;font-weight:900;line-height:1.65;padding:13px 14px;margin-top:12px}
+.summary{border:1px solid var(--line);background:#fff0f7;border-radius:20px;padding:14px 16px;font-weight:900;line-height:1.7;margin:12px 0}
+.list{display:grid;gap:9px;margin-top:10px}
+.fan-card,.history-item,.candidate-card{border:1px solid var(--line);border-radius:20px;background:#fff;padding:13px 14px;font-weight:900;line-height:1.55}
+.fan-card button,.candidate-card button{width:100%;text-align:left;border:0;background:transparent;color:inherit;font:inherit;padding:0}
+.badge{display:inline-flex;border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:5px 10px;color:var(--pink);font-weight:1000;margin-right:6px}
+.panel{display:none}.panel.active{display:block}
+.collapse{display:none}.collapse.open{display:block}
+.record-box .history-item:nth-child(n+4){display:none}
+.record-box.show-all .history-item:nth-child(n+4){display:block}
+.count-row{display:grid;grid-template-columns:1fr 54px 46px 54px;gap:8px;align-items:center;border:1px solid var(--line);border-radius:20px;padding:12px;margin:8px 0}
+.count-name{font-weight:1000;color:var(--pink2);font-size:17px}
+.count-num{text-align:center;font-size:24px;font-weight:1000}
+.count-row button{min-height:46px;border-radius:16px;border:1px solid var(--line);background:#fff;color:var(--pink);font-weight:1000;font-size:22px}
+.timer-card{background:linear-gradient(135deg,#ff5ca6,#f09be2);color:#fff;border:none}
+.timer-card h2,.timer-card .label{color:#fff}
+.timer-display{text-align:center;font-size:58px;font-weight:1000;letter-spacing:-.04em;margin:14px 0 4px}
+.timer-state{text-align:center;font-weight:1000;margin-bottom:12px}
+.mini-timer{position:fixed;left:12px;right:12px;bottom:12px;z-index:30;display:none;background:#fff;border:1px solid var(--line);box-shadow:0 12px 24px rgba(255,95,165,.18);border-radius:18px;padding:10px 12px;font-weight:1000;color:#7f6a77}
+.mini-timer.show{display:flex;align-items:center;justify-content:space-between;gap:8px}
+@media(max-width:520px){
+  .wrap{width:calc(100% - 20px)}
+  .hero{padding:18px}.hero h1{font-size:40px}
+  .card{padding:18px}.card h2{font-size:30px}
+  .tabs{top:104px}
+  .tab-btn{font-size:12px;min-height:50px;padding:4px}
+}
 
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;width:100%;overflow-x:hidden}
-
-    body{
-      min-height:100vh;
-      font-family:"SUIT","Noto Sans KR",sans-serif;
-      background:
-        radial-gradient(circle at 12% 8%,rgba(255,192,215,.30) 0%,rgba(255,192,215,0) 28%),
-        radial-gradient(circle at 88% 18%,rgba(202,167,255,.20) 0%,rgba(202,167,255,0) 26%),
-        linear-gradient(180deg,#fffafc 0%,#fff0f7 100%);
-      color:#7f6a77;
-      padding:10px;
-    }
-
-    .wrap{width:100%;max-width:560px;margin:0 auto}
-
-    .hero{
-      background:linear-gradient(135deg,#fff0f7,#f7efff);
-      border:1px solid #f2d8e7;
-      border-radius:24px;
-      padding:22px 14px;
-      text-align:center;
-      box-shadow:0 8px 22px rgba(232,191,211,.18);
-    }
-
-    .hero small{display:block;color:#ff5fa8;font-size:12px;font-weight:900;margin-bottom:8px}
-    h1{margin:0;color:#ff5fa8;font-size:32px;line-height:1.12;font-weight:900}
-    .hero p{margin:12px 0 0;color:#8f7183;font-size:13px;line-height:1.6;font-weight:800}
-
-    .card{
-      margin-top:12px;
-      background:#fff;
-      border:1px solid #f2d8e7;
-      border-radius:22px;
-      padding:12px;
-      box-shadow:0 8px 20px rgba(255,95,165,.08);
-      overflow:hidden;
-    }
-
-    button,label.file-btn{
-      width:100%;
-      min-height:50px;
-      border:0;
-      border-radius:999px;
-      font-family:inherit;
-      font-size:14px;
-      font-weight:900;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      cursor:pointer;
-      text-align:center;
-      padding:0 12px;
-      line-height:1.2;
-      text-decoration:none;
-    }
-
-    .scan{background:linear-gradient(180deg,#78d6ff,#4fc3ff);color:#fff;box-shadow:0 8px 18px rgba(79,195,255,.25)}
-    .pink{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;box-shadow:0 8px 18px rgba(255,95,165,.22)}
-    .purple{background:linear-gradient(180deg,#bca7ff,#a88cff);color:#fff;box-shadow:0 8px 18px rgba(168,140,255,.22)}
-    .sub{background:#fff0f7;color:#d77ca7;border:1px solid #f0bfd4}
-
-    label.text-label{display:block;margin:14px 0 8px;color:#d77ca7;font-size:15px;font-weight:900}
-
-    input[type="text"]{
-      width:100%;
-      min-height:50px;
-      border:1px solid #f0bfd4;
-      border-radius:16px;
-      padding:0 14px;
-      font-size:17px;
-      font-weight:900;
-      color:#7f6a77;
-      outline:none;
-    }
-
-    input[type="text"]:focus{
-      border-color:#ff8ac2;
-      box-shadow:0 0 0 4px rgba(255,138,194,.14);
-    }
-
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-    .wide{grid-column:1 / -1}
-
-    .msg{
-      margin-top:12px;
-      padding:12px;
-      border-radius:16px;
-      background:#fff0f7;
-      color:#d77ca7;
-      font-size:13px;
-      font-weight:900;
-      line-height:1.6;
-      text-align:center;
-      word-break:break-word;
-    }
-
-    .msg.ok{background:#e9fff0;color:#21864a}
-    .msg.err{background:#fff2e8;color:#d36b36}
-
-    .list{display:grid;gap:10px;margin-top:12px}
-
-    .result-btn{
-      width:100%;
-      min-height:auto;
-      border-radius:18px;
-      background:linear-gradient(180deg,#fffafd,#fff4fa);
-      border:1px solid #f2d8e7;
-      color:#7f6a77;
-      padding:14px;
-      display:block;
-      text-align:left;
-      box-shadow:none;
-    }
-
-    .result-btn strong{display:block;color:#d77ca7;font-size:15px;margin-bottom:6px}
-    .result-btn p{margin:4px 0;font-size:12.5px;line-height:1.45;font-weight:800}
-    .result-btn b{color:#d77ca7}
-
-    .detail{
-      margin-top:12px;
-      border:1px solid #f2d8e7;
-      border-radius:20px;
-      padding:12px;
-      background:#fffafd;
-    }
-
-    .line{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      padding:10px 0;
-      border-bottom:1px solid #f2d8e7;
-      font-size:13.5px;
-    }
-
-    .line:last-child{border-bottom:0}
-    .line strong{color:#d77ca7;flex:0 0 auto}
-    .line span{text-align:right;font-weight:900;word-break:break-word}
-
-    .status{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-height:30px;
-      padding:0 10px;
-      border-radius:999px;
-      font-size:12.5px;
-      font-weight:900;
-    }
-
-    .ok-pill{background:#e5f8eb;color:#208846}
-    .wait-pill{background:#fff7d6;color:#9c7a00}
-    .gray-pill{background:#f0edf0;color:#8a7b85}
-    .bad-pill{background:#ffe6e6;color:#c84242}
-
-    .note{margin:12px 0 0;text-align:center;font-size:11.5px;line-height:1.6;color:#b28ea2;font-weight:700}
+/* === member independent timers v5 === */
+.member-timer-grid{
+  display:grid;
+  gap:10px;
+  margin-top:12px;
+}
+.member-timer-card{
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:#fff;
+  padding:14px;
+  color:#7f6a77;
+}
+.member-timer-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  font-weight:1000;
+  color:var(--pink2);
+}
+.member-timer-time{
+  font-size:34px;
+  font-weight:1000;
+  letter-spacing:-.04em;
+  color:#6f5d68;
+  margin:8px 0 4px;
+}
+.member-timer-meta{
+  font-size:13px;
+  font-weight:900;
+  line-height:1.55;
+  color:#8d7585;
+  margin-bottom:10px;
+}
+.member-timer-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+}
+.member-timer-actions button{
+  min-height:42px;
+  border-radius:16px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--pink2);
+  font-weight:900;
+}
+.member-timer-actions button.primary-mini{
+  background:linear-gradient(180deg,#ff72b0,#ff5ca6);
+  color:#fff;
+  border-color:transparent;
+}
+.member-timer-card.running{
+  background:#fff0f7;
+  border-color:#ffb7d6;
+}
+.member-timer-card.warning{
+  background:#fff8df;
+  border-color:#f0d987;
+}
+.member-timer-card.done{
+  background:#ffecec;
+  border-color:#ffb3b3;
+}
 
 
-    .handoff{
-      margin-top:12px;
-      padding:13px;
-      border-radius:18px;
-      border:1px solid #f2d8e7;
-      background:linear-gradient(180deg,#fff9fc,#fff4fa);
-      color:#8f7183;
-      font-size:12.5px;
-      line-height:1.65;
-      font-weight:800;
-    }
+/* === v6 global timer alerts + extension === */
+.global-alert{
+  position:fixed;
+  left:12px;
+  right:12px;
+  top:10px;
+  z-index:60;
+  display:none;
+  border-radius:20px;
+  padding:14px 16px;
+  box-shadow:0 14px 30px rgba(120,60,90,.22);
+  border:1px solid rgba(255,255,255,.65);
+  font-weight:1000;
+  line-height:1.55;
+}
+.global-alert.show{display:block;animation:alertPop .18s ease-out}
+.global-alert.warn{
+  background:#fff7d9;
+  color:#8a6b00;
+}
+.global-alert.time{
+  background:#ffe6ec;
+  color:#b7355f;
+}
+@keyframes alertPop{
+  from{transform:translateY(-10px);opacity:0}
+  to{transform:translateY(0);opacity:1}
+}
+.member-timer-actions{
+  grid-template-columns:1fr 1fr 1fr !important;
+}
+.member-timer-extra{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+  margin-top:8px;
+}
+.member-timer-extra button{
+  min-height:40px;
+  border-radius:16px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--pink2);
+  font-weight:900;
+}
+.member-timer-extra .done-btn{
+  background:#fff0f7;
+  color:#ff5ca6;
+}
+.warn-select{
+  min-height:52px;
+  border-radius:18px;
+  border:1px solid var(--line);
+  background:#fff;
+  padding:0 14px;
+  font-weight:900;
+  color:#6f5d68;
+}
 
-    .handoff strong{
-      display:block;
-      color:#d77ca7;
-      font-size:14px;
-      margin-bottom:5px;
-    }
-
-    .handoff.warn{
-      background:#fff8ef;
-      border-color:#f4d7c5;
-      color:#a36b33;
-    }
-
-    .handoff-actions{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:8px;
-      margin-top:10px;
-    }
-
-    .copy{
-      background:#fff;
-      color:#d77ca7;
-      border:1px solid #f0bfd4;
-      box-shadow:0 4px 10px rgba(255,95,165,.08);
-    }
-
-    @media(max-width:360px){
-      .handoff-actions{grid-template-columns:1fr}
-    }
-
-    @media(max-width:360px){
-      .grid{grid-template-columns:1fr}
-      .wide{grid-column:auto}
-      h1{font-size:28px}
-      .line{flex-direction:column}
-      .line span{text-align:left}
-    }
-  </style>
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <section class="hero">
-      <small>STAFF ONLY</small>
-      <h1>Lumibelle<br>Check-in</h1>
-      <p>예약번호 끝 4자리 / 입금자명 / 닉네임 / 루미ID로 입장 확인해요.<br>QR은 사용하지 않고 수동 조회를 메인으로 운영합니다.</p>
-    </section>
+<div class="global-alert" id="globalAlert"></div>
+<div class="wrap">
+  <section class="hero">
+    <span class="label">TEST CLEAN</span>
+    <h1>Lumibelle<br>Cheki Check</h1>
+    <p>버그 확인용으로 중복 코드를 정리한 테스트본이에요. 현장 흐름은 권종 → 멤버 → 팬 → 1장 저장 기준입니다.</p>
+  </section>
 
-    <section class="card">
-      <div class="handoff">
-        <strong>입장 스탭 기준</strong>
-        입장 스탭은 입장 확인과 입장완료 처리까지만 진행합니다.<br>
-        루미벨/멤버 메아테가 확인되면 팬분께 “루미벨 물판에서 메아테 처리 받아주세요”라고 안내해 주세요.
-      </div>
-
-      <div class="handoff warn">
-        <strong>입장 확인 메인</strong>
-        팬 완료 화면의 입장 확인용 번호 4자리, 예약번호, 입금자명, 닉네임, 루미ID로 조회해 주세요.<br>
-        QR/카메라 인식은 현장 안정성이 낮아 현재 버전에서는 제외했습니다.
-      </div>
-
-      <label class="text-label" for="q">검색어</label>
-      <input id="q" type="text" placeholder="예: 0048 / 입금자명 / 닉네임 / LB-0048">
-
-      <div class="grid">
-        <button class="pink" type="button" onclick="searchTicket()">예약번호 4자리</button>
-        <button class="purple" type="button" onclick="searchLumi()">LB- ID</button>
-        <button class="sub wide" type="button" onclick="searchRaw()">입금자명/닉네임 조회</button>
-      </div>
-
-      <div id="msg" class="msg">예약번호 끝 4자리, 입금자명, 닉네임, 루미ID 중 하나를 입력해 주세요.</div>
-      <div id="results"></div>
-
-      <p class="note">
-        ※ 현장 메인은 예약번호 끝 4자리 / 입금자명 / 닉네임 / 루미ID 조회예요.<br>
-        ※ 루미벨/멤버 메아테 혜택은 입장 스탭이 직접 지급하지 않고, 물판 스탭에게 안내해 주세요.<br>
-        ※ QR/카메라 인식은 현장 안정성이 낮아 현재 버전에서는 제외했습니다.
-      </p>
-      <a class="sub" href="index.html" style="margin-top:10px;width:100%;min-height:46px;border-radius:999px;display:flex;align-items:center;justify-content:center;text-decoration:none;font-weight:900;">스탭 허브로 돌아가기</a>
-    </section>
+  <div class="testbar">
+    <button data-test="existing">기존 팬 선택</button>
+    <button data-test="candidates">팬 확인/선택 테스트</button>
+    <button data-test="newfan">신규 발급 열기</button>
+    <button data-test="recent">최근 팬 샘플</button>
+    <button data-test="one">루루 +1 저장 테스트</button>
+    <button data-test="clear">테스트 기록 초기화</button>
   </div>
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwJRbaZDXnquhBTYaa4R1Onaq0pkDLUWPip0pjzoAcdkcUVNYCCZ2wHWtzCyQLZ0sboJQ/exec";
+  <section class="current">
+    <div class="current-title">현재 처리 중 팬</div>
+    <span class="current-no" id="currentNo">미선택</span>
+    <div class="current-info" id="currentInfo">팬 조회/선택 후 처리할 수 있어요.</div>
+    <div class="current-actions">
+      <button id="btnStartCheki">특전회 참가 처리</button>
+      <button id="btnNextFan">다음 팬</button>
+    </div>
+  </section>
 
-    let selectedTicketId = "";
+  <section class="event-box">
+    <div class="event-label">오늘 이벤트 관리</div>
+    <div class="event-row">
+      <input id="eventName" placeholder="예: 2026-07-12 Debut Live">
+      <button class="danger" id="btnResetToday" type="button">오늘 시작</button>
+    </div>
+    <div class="event-note" id="eventInfo">오늘 번호는 이벤트/날짜별 임시 번호예요. 운영 시작 전 한 번만 초기화해 주세요.</div>
+  </section>
 
-    function msg(text, cls) {
-      const el = document.getElementById("msg");
-      el.className = "msg" + (cls ? " " + cls : "");
-      el.innerHTML = text;
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="check">팬 조회<br>/ 체크</button>
+    <button class="tab-btn" data-tab="booth">물판<br>처리</button>
+    <button class="tab-btn" data-tab="use">특전 사용<br>/ 촬영</button>
+    <button class="tab-btn" data-tab="timer">타이머</button>
+    <button class="tab-btn" data-tab="caution">주의<br>체크</button>
+  </nav>
+
+  <main>
+    <section class="panel active" id="tab-check">
+      <article class="card">
+        <span class="label">LUMI ID</span>
+        <h2>팬 조회</h2>
+        <p>오늘 번호는 “이 팬으로 처리 시작” 또는 신규 발급 완료 시 자동으로 붙어요.</p>
+        <div class="search">
+          <input id="fanSearch" placeholder="루미 ID / 닉네임 / 오늘 번호">
+          <button class="btn" id="btnSearch">조회</button>
+        </div>
+        <div id="candidateArea" class="list"></div>
+      </article>
+
+      <article class="card" id="newFanBox" style="display:none">
+        <span class="label">NEW FAN</span>
+        <h2>신규 루미 ID 발급</h2>
+        <p>조회 결과가 없거나 신규 팬일 때만 사용해요. 자동 발급이 아니라 스탭 확인 후 발급입니다.</p>
+        <div class="field"><label>닉네임</label><input id="newNick" placeholder="닉네임"></div>
+        <div class="field"><label>PIN 4자리</label><input id="newPin" inputmode="numeric" maxlength="4" placeholder="1234"></div>
+        <div class="field"><label>오시</label><select id="newOshi"><option>아직 고민 중</option><option>마리링</option><option>루루</option><option>이로</option><option>루나</option><option>팀 오시</option><option>DD</option></select></div>
+        <div class="grid2">
+          <button class="choice" id="newFollow" data-new-toggle="follow">공식 계정 팔로우 확인</button>
+          <button class="choice" id="newWelcome" data-new-toggle="welcome">Welcome 지급</button>
+        </div>
+        <button class="btn" id="btnIssue" style="width:100%;margin-top:12px">신규 루미 ID 발급</button>
+        <div id="issueResult" class="summary" style="display:none"></div>
+      </article>
+
+      <article class="card">
+        <span class="label">TODAY CHECK</span>
+        <h2>방문 / 체크</h2>
+        <div class="grid2">
+          <button class="choice check" data-check="visit">루미 방문 기록</button>
+          <button class="choice check" data-check="meate">메아테 처리 확인</button>
+          <button class="choice check" data-check="fullLoop">풀루프 참여자</button>
+          <button class="choice check" data-check="eventDay">이벤트 데이</button>
+        </div>
+        <button class="btn" id="btnStartCheki2" style="width:100%;margin-top:12px">특전회 참가 처리 시작</button>
+        <div class="note">이 버튼은 특전 사용/촬영 탭으로 넘어가는 빠른 버튼이에요. 메아테·구매 포인트는 물판 처리 탭에서 따로 기록합니다.</div>
+      </article>
+    </section>
+
+
+    <section class="panel" id="tab-booth">
+      <article class="card">
+        <span class="label">BOOTH</span>
+        <h2>물판 처리</h2>
+        <p>A 스탭용 처리 화면이에요. 메아테 처리, 주최 메아테 처리, 특전권 15장 구매 포인트를 한 번에 기록합니다.</p>
+
+        <div class="summary" id="boothFanSummary">
+          먼저 팬 조회/선택 후 처리해 주세요.
+        </div>
+
+        <div class="grid2">
+          <button class="choice" data-booth-action="meate">메아테 처리 완료 +1P<br><small>특전권 지급 + 방문 + 포인트</small></button>
+          <button class="choice" data-booth-action="hostMeate">주최 메아테 처리 완료 +2P<br><small>특전권 지급 + 방문 + 주최 포인트</small></button>
+          <button class="choice" data-booth-action="ticket15">특전권 15장 구매 +1P<br><small>구매 포인트 적립</small></button>
+          <a class="choice" href="point.html" style="display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;">포인트 상세/정정<br><small>point.html</small></a>
+        </div>
+
+        <div class="booth-note">
+          메아테 처리는 “메아테 특전권 지급 + 루미 방문 기록 + 물판 포인트 적립”을 한 세트로 봅니다.
+          루미 체크인/스탬프는 실제 촬영·교류 저장 시 기록합니다.
+        </div>
+
+        <div class="booth-result" id="boothStatus">처리 결과가 여기에 표시됩니다.</div>
+      </article>
+
+      <article class="card booth-history" id="boothHistoryBox">
+        <span class="label">BOOTH LOG</span>
+        <h2>물판 처리 기록</h2>
+        <div class="list" id="boothHistoryList"></div>
+        <button class="toggle" id="btnToggleBoothHistory" style="width:100%;margin-top:10px">전체 기록 보기</button>
+      </article>
+    </section>
+
+    <section class="panel" id="tab-use">
+      <article class="card">
+        <span class="label">CHEKI USE</span>
+        <h2>특전 사용 / 촬영</h2>
+        <p>B 스탭용 촬영 처리 동선: <b>권종 → 멤버 → 오늘 번호 → 1장 저장</b></p>
+
+        <div class="field"><label>1. 사용 권종</label><div class="grid4" id="passGrid"></div></div>
+        <div class="field"><label>2. 이번 호출 멤버</label><div class="grid4" id="memberGrid"></div></div>
+        <div class="field">
+          <label>3. 팬 찾기</label>
+          <div class="search">
+            <input id="quickFanSearch" inputmode="numeric" placeholder="오늘 번호">
+            <button class="btn" id="btnQuickFind">찾기</button>
+          </div>
+        </div>
+
+        <div class="summary" id="quickSummary">권종, 멤버, 팬을 선택하면 바로 저장할 수 있어요.</div>
+        <button class="btn" id="btnQuickSave" style="width:100%;min-height:60px;font-size:18px">1장 사용 저장</button>
+        <div class="grid2" style="margin-top:10px">
+          <button class="ghost" id="btnKeepFanUse">현재 팬 유지</button>
+          <button class="ghost" id="btnNextFanUse">다음 팬</button>
+        </div>
+
+        <div class="grid2" style="margin-top:10px">
+          <button class="toggle" data-collapse="recentBox">최근 팬 열기</button>
+          <button class="toggle" data-collapse="detailBox">상세/정정 열기</button>
+        </div>
+        <div class="collapse" id="recentBox"><div class="list" id="recentListUse"></div></div>
+        <div class="collapse" id="detailBox">
+          <div class="note">빠른 촬영 처리로 해결하기 어려운 경우만 사용해요.</div>
+          <div id="countRows"></div>
+          <div class="grid2">
+            <button class="danger" id="btnResetCounts">수량 초기화</button>
+            <button class="btn" id="btnSaveDetail">상세 입력 저장</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="card record-box" id="recordBox">
+        <span class="label">HISTORY</span>
+        <h2>오늘 처리 기록</h2>
+        <div class="list" id="historyList"></div>
+        <button class="toggle" id="btnToggleHistory" style="width:100%;margin-top:10px">전체 기록 보기</button>
+      </article>
+    </section>
+
+    <section class="panel" id="tab-timer">
+      <article class="card timer-card">
+        <span class="label">TIMER</span>
+        <h2>멤버별 타이머</h2>
+        <p>마리링 / 루루 / 이로 / 루나가 각각 따로 돌아가요. 빠른 촬영 저장 후 해당 멤버 타이머를 시작할 수도 있어요.</p>
+
+        <div class="field"><label>기본 시간</label><input id="timerSeconds" inputmode="numeric" value="120"></div>
+        <div class="field"><label>마무리 알림</label>
+          <select id="warnMode" class="warn-select">
+            <option value="auto">자동 60초→25초 / 90초→35초 / 120초→50초 / 180초→60초</option>
+            <option value="25">25초 전</option>
+            <option value="35">35초 전</option>
+            <option value="50">50초 전</option>
+            <option value="60">60초 전</option>
+            <option value="off">OFF</option>
+          </select>
+        </div>
+        <div class="grid2">
+          <button class="ghost" data-time="60">60초</button>
+          <button class="ghost" data-time="90">90초</button>
+          <button class="ghost" data-time="120">120초</button>
+          <button class="ghost" data-time="180">180초</button>
+          <button class="danger" id="btnSoundTest">종료음 테스트</button>
+          <button class="ghost" id="btnSoundWarn">마무리음 테스트</button>
+        </div>
+
+        <div class="note" style="background:rgba(255,255,255,.25);color:#fff;border:1px solid rgba(255,255,255,.45)">
+          마무리 알림은 시간별 자동 기준으로 1회만 울리고, 종료 알림은 더 길게 울려요. 종료 후 +30초 / +60초 연장이 가능합니다.
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="label">MEMBER TIMER</span>
+        <h2>진행 중 타이머</h2>
+        <div class="member-timer-grid" id="memberTimerGrid"></div>
+      </article>
+    </section>
+
+    <section class="panel" id="tab-caution">
+      <article class="card">
+        <span class="label">CAUTION</span>
+        <h2>주의 체크</h2>
+        <p>주의 체크는 선택만으로 저장되지 않아요. 체크 후 반드시 저장 버튼을 눌러 기록을 남겨 주세요.</p>
+        <div class="grid2">
+          <button class="choice caution" data-caution="재확인 거부">재확인 거부</button>
+          <button class="choice caution" data-caution="책임자 확인">책임자 확인</button>
+          <button class="choice caution" data-caution="안내 불응">안내 불응</button>
+          <button class="choice caution" data-caution="멤버 불편 호소">멤버 불편 호소</button>
+          <button class="choice caution" data-caution="타 팬 민원">타 팬 민원</button>
+          <button class="choice caution" data-caution="중복 수령 확인">중복 수령 확인</button>
+        </div>
+        <div class="field"><label>스탭 메모</label><textarea id="memo" placeholder="종료 후 반영 필요 / 책임자 확인 필요"></textarea></div>
+        <div class="summary" id="cautionSummary">현재 팬과 체크 항목을 확인한 뒤 저장해 주세요.</div>
+        <div class="caution-save-row">
+          <button class="btn" id="btnSaveCaution" type="button">주의 기록 저장</button>
+          <button class="ghost" id="btnResetCaution" type="button">주의 체크 초기화</button>
+        </div>
+      </article>
+
+      <article class="card caution-history" id="cautionHistoryBox">
+        <span class="label">CAUTION LOG</span>
+        <h2>주의 기록</h2>
+        <div class="list" id="cautionHistoryList"></div>
+        <button class="toggle" id="btnToggleCautionHistory" style="width:100%;margin-top:10px">전체 기록 보기</button>
+      </article>
+    </section>
+  </main>
+</div>
+
+<div class="mini-timer" id="miniTimer"><span id="miniText">타이머</span><button class="ghost" data-tab-go="timer">보기</button></div>
+
+<script>
+(() => {
+  const $ = (s, root=document) => root.querySelector(s);
+  const $$ = (s, root=document) => Array.from(root.querySelectorAll(s));
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+  const members = {
+    mariring:{name:'마리링', mark:'🎀⭐'},
+    lulu:{name:'루루', mark:'🍼🐰'},
+    iro:{name:'이로', mark:'👼🏻💎'},
+    lunar:{name:'루나', mark:'🌙🐱'}
+  };
+  const passTypes = {
+    normal:{label:'일반 특전권', desc:'실물권'},
+    welcome:{label:'Welcome', desc:'신규권'},
+    joinIro:{label:'Join 이로권', desc:'이로 전용'},
+    joinLuna:{label:'Join 루나권', desc:'루나 전용'}
+  };
+  const samples = [
+    {todayNo:'101', nick:'마리링오시', id:'LB-0101', oshi:'마리링'},
+    {todayNo:'102', nick:'루루오시', id:'LB-0102', oshi:'루루'},
+    {todayNo:'103', nick:'팀오시', id:'LB-0103', oshi:'팀 오시'}
+  ];
+
+  let state = {
+    currentFan:null,
+    selectedPass:'normal',
+    selectedMember:'mariring',
+    recent:[],
+    history:[],
+    boothHistory:[],
+    cautionHistory:[],
+    checks:{visit:false,meate:false,fullLoop:false,eventDay:false},
+    cautions:{},
+    newFan:{follow:false,welcome:false},
+    counts:{mariring:0,lulu:0,iro:0,lunar:0},
+    nextTodayNo:1,
+    nextLumiNo:48,
+    eventName:'',
+    eventDateKey:'',
+    timer:{interval:null}, memberTimers:{}
+  };
+
+
+  Object.keys(members).forEach(k=>{
+    state.memberTimers[k] = {
+      member:k, fan:null, total:120, remaining:120, endAt:null, running:false, warned:false, done:false, notice:''
+    };
+  });
+
+  function pad(n,len=3){ return String(n).padStart(len,'0'); }
+  function saveLocal(){
+    localStorage.setItem('lumi_cheki_clean_test', JSON.stringify({
+      recent:state.recent, history:state.history, boothHistory:state.boothHistory, cautionHistory:state.cautionHistory, nextTodayNo:state.nextTodayNo, nextLumiNo:state.nextLumiNo, eventName:state.eventName, eventDateKey:state.eventDateKey
+    }));
+  }
+  function loadLocal(){
+    try{
+      const d=JSON.parse(localStorage.getItem('lumi_cheki_clean_test')||'{}');
+      if(Array.isArray(d.recent)) state.recent=d.recent;
+      if(Array.isArray(d.history)) state.history=d.history;
+      if(Array.isArray(d.boothHistory)) state.boothHistory=d.boothHistory;
+      if(Array.isArray(d.cautionHistory)) state.cautionHistory=d.cautionHistory;
+      if(d.nextTodayNo) state.nextTodayNo=d.nextTodayNo;
+      if(d.nextLumiNo) state.nextLumiNo=d.nextLumiNo;
+      if(d.eventName) state.eventName=d.eventName;
+      if(d.eventDateKey) state.eventDateKey=d.eventDateKey;
+    }catch(e){}
+  }
+
+  function ensureTodayNo(fan){
+    if(!fan.todayNo){
+      fan.todayNo = pad(state.nextTodayNo++);
     }
+    return fan;
+  }
+  function setCurrentFan(fan){
+    state.currentFan = ensureTodayNo({...fan});
+    addRecent(state.currentFan);
+    renderAll();
+  }
+  function addRecent(fan){
+    state.recent = [fan, ...state.recent.filter(f => f.id !== fan.id)].slice(0,20);
+    saveLocal();
+  }
 
-    function clean(v) {
-      return String(v || "").trim().toUpperCase().replace(/\s+/g, "");
+
+  function todayKey(){
+    const d = new Date();
+    return `${d.getFullYear()}-${pad(d.getMonth()+1,2)}-${pad(d.getDate(),2)}`;
+  }
+  function renderEventInfo(){
+    const input = $('#eventName');
+    if(input && input.value !== state.eventName) input.value = state.eventName || '';
+    const info = $('#eventInfo');
+    if(info){
+      const name = state.eventName || '이벤트명 미입력';
+      const key = state.eventDateKey || todayKey();
+      info.textContent = `오늘 이벤트: ${name} / 기준일: ${key} / 다음 오늘 번호: ${pad(state.nextTodayNo)}`;
     }
-
-    function ticket(v) {
-      v = clean(v);
-      try {
-        const url = new URL(v);
-        const id = url.searchParams.get("id");
-        if (id) v = clean(id);
-      } catch(e) {}
-      if (/^\d{4}$/.test(v)) return "LBT-0712-" + v;
-      return v;
+  }
+  function resetTodayEvent(){
+    const typedName = ($('#eventName')?.value || '').trim();
+    const name = typedName || prompt('오늘 이벤트명을 입력해 주세요. 예: Debut Live') || '';
+    if(!name.trim()){
+      alert('이벤트명이 없어서 초기화하지 않았어요.');
+      return;
     }
+    const ok = confirm(
+      '정말 오늘 번호와 임시 기록을 초기화할까요?\\n\\n' +
+      '초기화 내용:\\n' +
+      '- 오늘 번호 001부터 시작\\n' +
+      '- 최근 팬 목록 초기화\\n' +
+      '- 오늘 처리 기록 초기화\\n' +
+      '- 물판 처리 기록 초기화\\n' +
+      '- 주의 기록 초기화\\n' +
+      '- 현재 처리 중 팬 초기화\\n\\n' +
+      '이미 운영 중이면 누르지 마세요.'
+    );
+    if(!ok) return;
 
-    function lumi(v) {
-      v = clean(v);
-      if (/^\d{4}$/.test(v)) return "LB-" + v;
-      if (/^LB\d{4}$/.test(v)) return "LB-" + v.replace("LB", "");
-      return v;
+    state.eventName = name.trim();
+    state.eventDateKey = todayKey();
+    state.currentFan = null;
+    state.recent = [];
+    state.history = [];
+    state.boothHistory = [];
+    state.cautionHistory = [];
+    state.counts = {mariring:0,lulu:0,iro:0,lunar:0};
+    state.checks = {visit:false,meate:false,fullLoop:false,eventDay:false};
+    state.cautions = {};
+    state.nextTodayNo = 1;
+    Object.values(state.memberTimers || {}).forEach(t=>{
+      t.fan=null; t.running=false; t.done=false; t.warned=false; t.notice=''; t.remaining=t.total||120; t.endAt=null;
+    });
+    const memo = $('#memo');
+    if(memo) memo.value = '';
+    saveLocal();
+    renderAll();
+    alert('오늘 이벤트 시작 완료! 오늘 번호는 001부터 시작해요.');
+  }
+
+  function renderCurrentFan(){
+    if(!state.currentFan){
+      $('#currentNo').textContent='미선택';
+      $('#currentInfo').textContent='팬 조회/선택 후 처리할 수 있어요.';
+      return;
     }
-
-    function jsonp(params) {
-      return new Promise(function(resolve, reject) {
-        const cbName = "__lumibelle_cb_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
-        params.callback = cbName;
-
-        const qs = Object.keys(params).map(function(k) {
-          return encodeURIComponent(k) + "=" + encodeURIComponent(params[k]);
-        }).join("&");
-
-        const script = document.createElement("script");
-        const timer = setTimeout(function() {
-          cleanup();
-          reject(new Error("요청 시간이 초과됐어요."));
-        }, 15000);
-
-        function cleanup() {
-          clearTimeout(timer);
-          delete window[cbName];
-          if (script.parentNode) script.parentNode.removeChild(script);
-        }
-
-        window[cbName] = function(data) {
-          cleanup();
-          resolve(data);
-        };
-
-        script.onerror = function() {
-          cleanup();
-          reject(new Error("API 호출에 실패했어요."));
-        };
-
-        script.src = API_URL + "?" + qs;
-        document.body.appendChild(script);
-      });
-    }
-
-    // ===== search =====
-    function searchTicket() {
-      const value = ticket(document.getElementById("q").value);
-      if (!value) return msg("예약번호를 입력해 주세요.", "err");
-      document.getElementById("q").value = value;
-      search(value);
-    }
-
-    function searchLumi() {
-      const value = lumi(document.getElementById("q").value);
-      if (!value) return msg("루미ID 숫자 4자리를 입력해 주세요.", "err");
-      document.getElementById("q").value = value;
-      search(value);
-    }
-
-    function searchRaw() {
-      const value = String(document.getElementById("q").value || "").trim();
-      if (!value) return msg("입금자명, 닉네임, 예약번호, 루미ID 중 하나를 입력해 주세요.", "err");
-      search(value);
-    }
-
-    async function search(value) {
-      selectedTicketId = "";
-      document.getElementById("results").innerHTML = "";
-      msg("조회 중이에요...", "");
-
-      try {
-        const res = await jsonp({ action: "search", q: value });
-
-        if (!res.ok) {
-          msg("조회 오류: " + escapeHtml(res.error || "알 수 없는 오류"), "err");
-          return;
-        }
-
-        if (!res.found || !res.items || !res.items.length) {
-          msg("예약 정보를 찾을 수 없어요.", "err");
-          return;
-        }
-
-        if (res.items.length === 1) renderDetail(res.items[0]);
-        else renderList(res.items);
-      } catch (e) {
-        msg(escapeHtml(e.message || e), "err");
+    $('#currentNo').textContent=state.currentFan.todayNo;
+    $('#currentInfo').textContent=`${state.currentFan.nick} / ${state.currentFan.id} / ${state.currentFan.oshi || '-'}`;
+  }
+  function renderChoices(){
+    $('#passGrid').innerHTML = Object.entries(passTypes).map(([k,p]) =>
+      `<button class="choice ${state.selectedPass===k?'active':''}" data-pass="${k}">${p.label}<br><small>${p.desc}</small></button>`
+    ).join('');
+    $('#memberGrid').innerHTML = Object.entries(members).map(([k,m]) =>
+      `<button class="choice ${state.selectedMember===k?'active':''}" data-member="${k}">${m.name}<br><small>${m.mark}</small></button>`
+    ).join('');
+  }
+  function renderCounts(){
+    $('#countRows').innerHTML = Object.entries(members).map(([k,m]) => `
+      <div class="count-row">
+        <div class="count-name">${m.name}<br><small>${m.mark}</small></div>
+        <button data-count="${k}" data-delta="-1">-</button>
+        <div class="count-num">${state.counts[k]||0}</div>
+        <button data-count="${k}" data-delta="1">+</button>
+      </div>
+    `).join('');
+  }
+  function fanCard(fan, quick=false){
+    return `<div class="fan-card"><button data-select-fan="${esc(fan.id)}">
+      <span class="badge">${esc(fan.todayNo||'---')}</span> ${esc(fan.nick)}<br>
+      ${esc(fan.id)} / ${esc(fan.oshi||'-')}${fan.fullLoop?' / 풀루프':''}
+    </button></div>`;
+  }
+  function renderRecent(){
+    const html = state.recent.length ? state.recent.map(f=>fanCard(f,true)).join('') : `<div class="note">최근 팬이 없어요.</div>`;
+    $('#recentListUse').innerHTML = html;
+  }
+  function renderHistory(){
+    $('#historyList').innerHTML = state.history.length ? state.history.map(h => `
+      <div class="history-item">
+        <b>${esc(h.time)} · ${esc(h.todayNo)} ${esc(h.nick)} / ${esc(h.id)}</b><br>
+        ${esc(h.type)}<br>
+        ${esc(h.detail)}<br>
+        ${esc(h.flags)}
+      </div>
+    `).join('') : `<div class="note">아직 저장된 기록이 없어요.</div>`;
+  }
+  function updateSummary(){
+    const fan = state.currentFan ? `${state.currentFan.todayNo} / ${state.currentFan.nick} / ${state.currentFan.id}` : '팬 미선택';
+    $('#quickSummary').innerHTML =
+      `<b>이번 촬영</b><br>권종: ${esc(passTypes[state.selectedPass].label)}<br>멤버: ${esc(members[state.selectedMember].name)} ${esc(members[state.selectedMember].mark)}<br>팬: ${esc(fan)}`;
+  }
+  function renderCheckButtons(){
+    $$('.check').forEach(b=>b.classList.toggle('active', !!state.checks[b.dataset.check]));
+    $$('.caution').forEach(b=>b.classList.toggle('active', !!state.cautions[b.dataset.caution]));
+    $$('[data-new-toggle]').forEach(b=>b.classList.toggle('active', !!state.newFan[b.dataset.newToggle]));
+  }
+  function renderBooth(){
+    const sum = $('#boothFanSummary');
+    if(sum){
+      if(state.currentFan){
+        sum.innerHTML = `<b>현재 팬</b><br>${esc(state.currentFan.todayNo)} / ${esc(state.currentFan.nick)} / ${esc(state.currentFan.id)}`;
+      }else{
+        sum.innerHTML = '먼저 팬 조회/선택 후 처리해 주세요.';
       }
     }
+    const box = $('#boothHistoryList');
+    if(box){
+      box.innerHTML = state.boothHistory.length ? state.boothHistory.map(h => `
+        <div class="history-item">
+          <b>${esc(h.time)} · ${esc(h.todayNo)} ${esc(h.nick)} / ${esc(h.id)}</b><br>
+          ${esc(h.detail)}<br>
+          ${esc(h.flags)}
+        </div>
+      `).join('') : `<div class="note">아직 물판 처리 기록이 없어요.</div>`;
+    }
+  }
+  function boothAction(type){
+    if(!state.currentFan){
+      alert('먼저 팬을 조회하거나 선택해 주세요.');
+      return;
+    }
+    const d = new Date();
+    const base = {
+      time:`${d.getHours()}:${pad(d.getMinutes(),2)}:${pad(d.getSeconds(),2)}`,
+      todayNo:state.currentFan.todayNo,
+      nick:state.currentFan.nick,
+      id:state.currentFan.id,
+      flags:''
+    };
 
-    function renderList(items) {
-      msg("검색 결과가 " + items.length + "건 있어요.<br>메아테와 닉네임을 확인하고 선택해 주세요.", "ok");
-
-      let html = '<div class="list">';
-
-      items.forEach(function(item, index) {
-        html += '<button class="result-btn" type="button" onclick="selectFromList(' + index + ')">';
-        html += '<strong>' + escapeHtml(item.depositor || "-") + ' / ' + escapeHtml(item.nickname || "-") + '</strong>';
-        html += '<p><b>메아테</b> ' + escapeHtml(item.meate || "-") + '</p>';
-        html += '<p><b>예약번호</b> ' + escapeHtml(item.ticketId || "-") + '</p>';
-        html += '<p><b>루미ID</b> ' + escapeHtml(item.lumiId || "-") + '</p>';
-        html += '<p><b>결제</b> ' + escapeHtml(item.paymentStatus || "-") + ' / <b>입장</b> ' + escapeHtml(item.entryStatus || "-") + '</p>';
-        html += '</button>';
-      });
-
-      html += '</div>';
-      window.__searchItems = items;
-      document.getElementById("results").innerHTML = html;
+    let detail = '';
+    if(type === 'meate'){
+      state.checks.visit = true;
+      state.checks.meate = true;
+      detail = '메아테 처리 완료 +1P · 메아테 특전권 지급 + 루미 방문 + 물판 포인트 1P';
+    }
+    if(type === 'hostMeate'){
+      state.checks.visit = true;
+      state.checks.meate = true;
+      detail = '주최 메아테 처리 완료 +2P · 메아테 특전권 지급 + 루미 방문 + 물판 포인트 2P';
+    }
+    if(type === 'ticket15'){
+      detail = '특전권 15장 구매 +1P · 구매 포인트 1P';
     }
 
-    function selectFromList(index) {
-      const item = window.__searchItems && window.__searchItems[index];
-      if (item) renderDetail(item);
+    base.detail = detail;
+    base.flags = commonFlags(false);
+    state.boothHistory.unshift(base);
+
+    // Also leave a simple combined record in main history for today overview.
+    state.history.unshift({
+      time:base.time,
+      todayNo:base.todayNo,
+      nick:base.nick,
+      id:base.id,
+      type:'물판 처리',
+      detail,
+      flags:base.flags
+    });
+
+    saveLocal();
+    renderAll();
+    $('#boothStatus').innerHTML = `<b>처리 완료</b><br>${esc(base.todayNo)} / ${esc(base.nick)}<br>${esc(detail)}`;
+  }
+
+  function selectedCautions(){
+    return Object.keys(state.cautions || {}).filter(k => state.cautions[k]);
+  }
+  function renderCaution(){
+    const summary = $('#cautionSummary');
+    const selected = selectedCautions();
+    const fan = state.currentFan ? `${state.currentFan.todayNo} / ${state.currentFan.nick} / ${state.currentFan.id}` : '팬 미선택';
+    if(summary){
+      summary.innerHTML = `<b>현재 팬</b><br>${esc(fan)}<br><b>체크</b><br>${esc(selected.join(' / ') || '선택 없음')}`;
     }
-
-    function statusClass(value) {
-      if (value === "입금확인완료" || value === "입장완료") return "ok-pill";
-      if (value === "입금확인대기") return "wait-pill";
-      if (value === "미입장") return "gray-pill";
-      return "bad-pill";
+    const box = $('#cautionHistoryList');
+    if(box){
+      box.innerHTML = state.cautionHistory.length ? state.cautionHistory.map(h => `
+        <div class="history-item">
+          <b>${esc(h.time)} · ${esc(h.todayNo)} ${esc(h.nick)} / ${esc(h.id)}</b><br>
+          ${esc(h.items)}<br>
+          메모: ${esc(h.memo || '-')}
+        </div>
+      `).join('') : `<div class="note">아직 주의 기록이 없어요.</div>`;
     }
+  }
+  function saveCaution(){
+    if(!state.currentFan){
+      alert('먼저 팬을 조회하거나 선택해 주세요.');
+      return;
+    }
+    const selected = selectedCautions();
+    const memo = ($('#memo')?.value || '').trim();
+    if(!selected.length && !memo){
+      alert('주의 항목을 선택하거나 메모를 입력해 주세요.');
+      return;
+    }
+    const d = new Date();
+    const record = {
+      time:`${d.getHours()}:${pad(d.getMinutes(),2)}:${pad(d.getSeconds(),2)}`,
+      todayNo:state.currentFan.todayNo,
+      nick:state.currentFan.nick,
+      id:state.currentFan.id,
+      items:selected.join(' / ') || '메모만 기록',
+      memo
+    };
+    state.cautionHistory.unshift(record);
+    state.history.unshift({
+      time:record.time,
+      todayNo:record.todayNo,
+      nick:record.nick,
+      id:record.id,
+      type:'주의 기록',
+      detail:record.items,
+      flags:memo ? `메모: ${memo}` : '메모 없음'
+    });
+    saveLocal();
+    renderAll();
+    alert('주의 기록 저장 완료');
+  }
+  function resetCaution(){
+    state.cautions = {};
+    const memo = $('#memo');
+    if(memo) memo.value = '';
+    renderAll();
+  }
+
+  function renderAll(){
+    renderEventInfo(); renderCurrentFan(); renderChoices(); renderCounts(); renderRecent(); renderHistory(); renderBooth(); renderCaution(); updateSummary(); renderCheckButtons(); updateTimerUI();
+  }
 
 
-    function isLumibelleMeate(value) {
-      const v = clean(value || "");
-      const targets = [
-        "LUMIBELLE","LUMIBEL","루미벨",
-        "MARIRING","마리링",
-        "LULU","루루",
-        "IRO","이로",
-        "LUNA","LUNAR","루나"
+  function startChekiFlow(){
+    if(!state.currentFan){
+      alert('먼저 팬을 조회하거나 선택해 주세요.');
+      return;
+    }
+    state.checks.visit = true;
+    renderAll();
+    document.querySelector('[data-tab="use"]').click();
+  }
+  function clearForNextFan(){
+    state.currentFan = null;
+    state.counts = {mariring:0,lulu:0,iro:0,lunar:0};
+    state.selectedPass = 'normal';
+    state.selectedMember = 'mariring';
+    // 방문/메아테/주의 체크는 다음 팬으로 넘어갈 때 기본 초기화
+    state.checks = {visit:false,meate:false,fullLoop:false,eventDay:false};
+    renderAll();
+    document.querySelector('[data-tab="check"]').click();
+  }
+
+  function showCandidates(list){
+    $('#candidateArea').innerHTML = list.map(f => `
+      <div class="candidate-card"><button data-candidate='${esc(JSON.stringify(f))}'>
+        <span class="badge">${esc(f.todayNo||'신규')}</span> ${esc(f.nick)}<br>${esc(f.id)} / ${esc(f.oshi||'-')}<br>
+        <small>이 팬으로 처리 시작</small>
+      </button></div>
+    `).join('');
+  }
+  function searchFan(){
+    const q = $('#fanSearch').value.trim();
+    if(!q || q === '없음'){
+      $('#candidateArea').innerHTML = `<div class="note">조회 결과가 없어요. 신규 팬이면 아래 발급 박스를 열어 주세요.</div>`;
+      $('#newFanBox').style.display='block';
+      return;
+    }
+    if(q === '선택' || q === '동명이인'){
+      showCandidates(samples);
+      return;
+    }
+    const found = state.recent.find(f => [f.todayNo,f.nick,f.id].some(v => String(v).includes(q))) || samples.find(f => [f.todayNo,f.nick,f.id].some(v => String(v).includes(q)));
+    if(found) showCandidates([found]);
+    else { $('#candidateArea').innerHTML = `<div class="note">조회 결과가 없어요. 신규 발급을 확인해 주세요.</div>`; $('#newFanBox').style.display='block'; }
+  }
+  function quickFind(){
+    const q = $('#quickFanSearch').value.trim();
+    if(!q) return;
+    const found = state.recent.find(f => [f.todayNo,f.nick,f.id].some(v => String(v).includes(q)));
+    if(found) setCurrentFan(found);
+    else $('#quickSummary').innerHTML = `<b>팬을 찾지 못했어요.</b><br>최근 팬 열기 또는 팬 조회 탭에서 확인해 주세요.`;
+  }
+
+  function issueNewFan(){
+    const nick = $('#newNick').value.trim() || '신규팬';
+    const pin = $('#newPin').value.trim() || '0000';
+    const oshi = $('#newOshi').value;
+    const id = `LB-${pad(state.nextLumiNo++,4)}`;
+    const fan = {todayNo:pad(state.nextTodayNo++), nick, id, oshi, pin};
+    state.currentFan = fan; addRecent(fan);
+    const link = `https://lumibellelove.github.io/Lumibelle/lumi/index.html?id=${encodeURIComponent(id)}`;
+    const qr = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=16&data=${encodeURIComponent(link)}`;
+    $('#issueResult').style.display='block';
+    $('#issueResult').innerHTML = `<b>LUMI ID 발급 완료 ✦</b><br>오늘 번호: ${fan.todayNo}<br>루미 ID: ${id}<br>PIN: ${esc(pin)}<br>팔로우 확인: ${state.newFan.follow ? '완료' : '미확인'}<br>Welcome Ticket: ${state.newFan.welcome ? '지급' : '미지급'}<br><br><img alt="QR" src="${qr}" style="width:180px;background:#fff;border:1px solid #f0bfd4;border-radius:14px;padding:10px"><br>QR을 찍으면 루미 ID 조회 페이지로 이동해요. 화면 캡쳐를 안내해 주세요.`;
+    renderAll();
+  }
+
+  function validatePass(memberKey){
+    if(state.selectedPass==='joinIro' && memberKey !== 'iro') return 'Join 이로권은 이로에게만 사용할 수 있어요.';
+    if(state.selectedPass==='joinLuna' && memberKey !== 'lunar') return 'Join 루나권은 루나에게만 사용할 수 있어요.';
+    return '';
+  }
+  function commonFlags(hasCheki){
+    const arr=[];
+    if(state.checks.visit) arr.push('루미 방문');
+    if(state.checks.meate) arr.push('메아테 처리');
+    if(state.checks.fullLoop) arr.push('풀루프');
+    if(hasCheki) arr.push('루미 체크인/스탬프');
+    return arr.join(' / ') || '운영 체크 없음';
+  }
+  function addHistory(type, detail, hasCheki=false){
+    if(!state.currentFan){ alert('먼저 팬을 선택해 주세요.'); return false; }
+    const d = new Date();
+    state.history.unshift({
+      time: `${d.getHours()}:${pad(d.getMinutes(),2)}:${pad(d.getSeconds(),2)}`,
+      todayNo: state.currentFan.todayNo,
+      nick: state.currentFan.nick,
+      id: state.currentFan.id,
+      type, detail,
+      flags: commonFlags(hasCheki)
+    });
+    saveLocal();
+    renderAll();
+    return true;
+  }
+  function saveQuick(){
+    if(!state.currentFan){ alert('먼저 팬을 선택해 주세요.'); return; }
+    const err = validatePass(state.selectedMember);
+    if(err){ alert(err); return; }
+    const pass = passTypes[state.selectedPass].label;
+    const mem = members[state.selectedMember];
+    addHistory('빠른 촬영 저장', `${pass} / ${mem.name} ${mem.mark} 1장 사용 완료`, true);
+    state.selectedPass='normal';
+    $('#quickSummary').innerHTML = `<b>저장 완료</b><br>${state.currentFan.todayNo} / ${esc(state.currentFan.nick)} · ${esc(mem.name)} 1장 저장 완료<br><button class="btn" style="width:100%;margin-top:10px" data-member-start="${state.selectedMember}">${esc(mem.name)} 타이머 시작</button><br>같은 팬이면 계속 저장, 바뀌면 “다음 팬”을 눌러주세요.`;
+    renderChoices();
+  }
+  function saveDetail(){
+    const entries = Object.entries(state.counts).filter(([,v])=>v>0);
+    if(!entries.length){ alert('수량이 없어요.'); return; }
+    for(const [k] of entries){
+      const err = validatePass(k);
+      if(err){ alert(err); return; }
+    }
+    const pass = passTypes[state.selectedPass].label;
+    const detail = entries.map(([k,v])=>`${members[k].name} ${v}장`).join(' / ');
+    if(addHistory('상세 입력 저장', `${pass} / ${detail} 사용 완료`, true)){
+      state.counts={mariring:0,lulu:0,iro:0,lunar:0}; state.selectedPass='normal'; renderAll();
+    }
+  }
+
+  function soundEnd(){
+    try{
+      const C=window.AudioContext||window.webkitAudioContext; const ctx=new C();
+      const pattern = [
+        [0.00, 950, .16],[0.24, 950, .16],[0.48, 950, .16],[0.78, 1250, .55],
+        [1.45, 950, .16],[1.69, 950, .16],[1.93, 950, .16],[2.23, 1250, .60],
+        [3.00, 1100, .18],[3.25, 1350, .70]
       ];
-      return targets.some(t => v.includes(clean(t)));
-    }
-
-    function meateHandoffHtml(data) {
-      const meate = data.meate || "";
-      if (!meate || meate === "-") {
-        return '<div class="handoff warn"><strong>메아테 확인 필요</strong>메아테 정보가 비어 있어요. 현장 확인이 필요하면 책임자에게 공유해 주세요.</div>';
-      }
-
-      if (!isLumibelleMeate(meate)) {
-        return '<div class="handoff"><strong>타 팀/일반 메아테</strong>루미벨 혜택 대상이 아니면 입장 처리만 진행합니다. 루미 ID를 자동 발급하지 않습니다.</div>';
-      }
-
-      const fan = (data.lumiId || data.nickname || data.ticketId || "-");
-      const text = '루미벨 메아테 확인되셨어요. 입장 후 루미벨 물판에서 메아테 특전권이랑 포인트 처리 받아주세요.';
-      return '' +
-        '<div class="handoff warn">' +
-          '<strong>루미벨/멤버 메아테 확인</strong>' +
-          '이 팬은 물판에서 메아테 처리 대상입니다.<br>' +
-          '입장 스탭은 혜택을 직접 지급하지 말고, 물판 스탭에게 넘겨 주세요.<br>' +
-          '<b>안내 멘트:</b><br>' + escapeHtml(text) +
-          '<div class="handoff-actions">' +
-            '<button class="copy" type="button" onclick="copyHandoffText()">안내 멘트 복사</button>' +
-            '<a class="sub" href="cheki.html" style="min-height:50px;border-radius:999px;display:flex;align-items:center;justify-content:center;text-decoration:none;font-weight:900;">물판 처리 열기</a>' +
-          '</div>' +
-          '<input id="handoffText" type="text" value="' + escapeHtml(text + ' / 확인: ' + fan) + '" style="position:absolute;left:-9999px;">' +
-        '</div>';
-    }
-
-    function copyHandoffText() {
-      const el = document.getElementById("handoffText");
-      if (!el) return;
-      el.select();
-      el.setSelectionRange(0, 99999);
-      try {
-        document.execCommand("copy");
-        msg("안내 멘트를 복사했어요.", "ok");
-      } catch(e) {
-        msg("복사에 실패했어요. 화면의 안내 멘트를 직접 읽어 주세요.", "err");
-      }
-    }
-
-    function renderDetail(data) {
-      selectedTicketId = data.ticketId || "";
-
-      const payClass = statusClass(data.paymentStatus);
-      const entryClass = statusClass(data.entryStatus);
-
-      let button = "";
-
-      if (data.entryStatus === "입장완료") {
-        button = '<div class="msg ok">이미 입장완료 처리된 예약이에요.<br>입장시간: ' + escapeHtml(data.entryTime || "-") + '</div>';
-      } else if (data.paymentStatus !== "입금확인완료") {
-        button = '<div class="msg err">아직 입금확인완료가 아니에요.<br>현장 확인 후 처리해 주세요.</div><button class="pink" type="button" style="margin-top:10px;" onclick="checkin()">그래도 입장완료 처리</button>';
-      } else {
-        button = '<button class="pink" type="button" style="margin-top:10px;" onclick="checkin()">입장완료 처리</button>';
-      }
-
-      const html =
-        '<div class="detail">' +
-        row("예약번호", data.ticketId) +
-        row("루미ID", data.lumiId) +
-        row("닉네임", data.nickname) +
-        row("입금자명", data.depositor) +
-        row("메아테", data.meate) +
-        row("티켓", data.ticketType) +
-        row("결제상태", '<span class="status ' + payClass + '">' + escapeHtml(data.paymentStatus || "-") + '</span>', true) +
-        row("입장상태", '<span class="status ' + entryClass + '">' + escapeHtml(data.entryStatus || "-") + '</span>', true) +
-        row("입장시간", data.entryTime || "-") +
-        meateHandoffHtml(data) +
-        button +
-        '</div>';
-
-      msg("예약 정보를 찾았어요.", "ok");
-      document.getElementById("results").innerHTML = html;
-      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-    }
-
-    function row(label, value, raw) {
-      return '<div class="line"><strong>' + label + '</strong><span>' + (raw ? value : escapeHtml(value || "-")) + '</span></div>';
-    }
-
-    async function checkin() {
-      if (!selectedTicketId) return msg("예약번호를 찾지 못했어요.", "err");
-      if (!confirm("이 예약을 입장완료 처리할까요?")) return;
-
-      msg("입장완료 처리 중이에요...", "");
-
-      try {
-        const res = await jsonp({ action: "checkin", ticketId: selectedTicketId });
-
-        if (!res.ok) {
-          msg("입장 처리 오류: " + escapeHtml(res.error || "알 수 없는 오류"), "err");
-          return;
-        }
-
-        msg("입장완료 처리됐어요.", "ok");
-        renderDetail(res.item);
-      } catch (e) {
-        msg(escapeHtml(e.message || e), "err");
-      }
-    }
-
-    function escapeHtml(value) {
-      return String(value || "").replace(/[&<>"']/g, function(m) {
-        return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m];
+      pattern.forEach(([s,f,d])=>{
+        const o=ctx.createOscillator(), g=ctx.createGain();
+        o.type='square'; o.frequency.value=f;
+        g.gain.setValueAtTime(.0001,ctx.currentTime+s);
+        g.gain.exponentialRampToValueAtTime(.62,ctx.currentTime+s+.02);
+        g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+s+d);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(ctx.currentTime+s); o.stop(ctx.currentTime+s+d+.04);
       });
-    }
+      if(navigator.vibrate) navigator.vibrate([260,110,260,110,520,180,260,110,260,110,650]);
+    }catch(e){}
+  }
 
-    document.getElementById("q").addEventListener("keydown", function(e) {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        searchTicket();
+  function soundWarn(){
+    try{
+      const C=window.AudioContext||window.webkitAudioContext; const ctx=new C();
+      [[0,720,.12],[.22,920,.18]].forEach(([s,f,d])=>{
+        const o=ctx.createOscillator(), g=ctx.createGain();
+        o.type='sine'; o.frequency.value=f;
+        g.gain.setValueAtTime(.0001,ctx.currentTime+s);
+        g.gain.exponentialRampToValueAtTime(.38,ctx.currentTime+s+.02);
+        g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+s+d);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(ctx.currentTime+s); o.stop(ctx.currentTime+s+d+.03);
+      });
+      if(navigator.vibrate) navigator.vibrate([120]);
+    }catch(e){}
+  }
+
+  function sound(){ soundEnd(); }
+
+  function warnAt(total){
+    const mode = $('#warnMode')?.value || 'auto';
+    if(mode === 'off') return 0;
+    if(mode !== 'auto') return parseInt(mode,10) || 0;
+    if(total <= 60) return 25;
+    if(total <= 90) return 35;
+    if(total <= 120) return 50;
+    return 60;
+  }
+  let alertTimer = null;
+  let lastEndSoundAt = 0;
+  function showGlobalAlert(kind, lines){
+    const box = $('#globalAlert');
+    if(!box) return;
+    box.className = `global-alert show ${kind}`;
+    box.innerHTML = lines.map(esc).join('<br>');
+    clearTimeout(alertTimer);
+    alertTimer = setTimeout(()=>box.classList.remove('show'), kind === 'time' ? 6500 : 4200);
+  }
+  function clearMemberDone(key){
+    const t = state.memberTimers[key];
+    t.running=false; t.done=false; t.warned=false; t.notice=''; t.remaining=t.total; t.endAt=null; t.fan=null;
+    renderMemberTimers();
+  }
+  function extendMemberTimer(key, sec){
+    const t = state.memberTimers[key];
+    t.total = (t.remaining || 0) + sec;
+    t.remaining = t.total;
+    t.endAt = Date.now() + t.remaining*1000;
+    t.running = true;
+    t.done = false;
+    t.warned = false;
+    t.notice = `${sec}초 연장`;
+    ensureTimerInterval();
+    showGlobalAlert('warn', [`${members[key].name} ${sec}초 연장`, t.fan ? `${t.fan.todayNo} / ${t.fan.nick}` : '팬 미지정']);
+    renderMemberTimers();
+  }
+  function getBaseSeconds(){
+    return parseInt($('#timerSeconds')?.value,10) || 120;
+  }
+  function fmt(sec){
+    sec=Math.max(0, Math.ceil(sec||0));
+    return `${pad(Math.floor(sec/60),2)}:${pad(sec%60,2)}`;
+  }
+  function memberTimerCard(key,t){
+    const m=members[key];
+    const status = t.done ? 'TIME' : (t.running ? (t.warned ? '마무리 안내' : '진행 중') : '대기');
+    const cls = t.done ? 'done' : (t.running && t.warned ? 'warning' : (t.running ? 'running' : ''));
+    const fan = t.fan ? `${t.fan.todayNo} / ${t.fan.nick}` : '팬 미지정';
+    const notice = t.notice ? `<br><b>${esc(t.notice)}</b>` : '';
+    return `<div class="member-timer-card ${cls}">
+      <div class="member-timer-head"><span>${m.name} ${m.mark}</span><span>${status}</span></div>
+      <div class="member-timer-time">${fmt(t.remaining)}</div>
+      <div class="member-timer-meta">현재 팬: ${esc(fan)}<br>기본 ${t.total}초 · 마무리 알림 ${warnAt(t.total)}초 전${notice}</div>
+      <div class="member-timer-actions">
+        <button class="primary-mini" data-member-start="${key}">시작</button>
+        <button data-member-pause="${key}">정지</button>
+        <button data-member-reset="${key}">리셋</button>
+      </div>
+      <div class="member-timer-extra">
+        <button data-member-plus="${key}" data-plus-sec="30">+30초</button>
+        <button data-member-plus="${key}" data-plus-sec="60">+60초</button>
+        <button class="done-btn" data-member-done="${key}">확인 완료</button>
+      </div>
+    </div>`;
+  }
+  function renderMemberTimers(){
+    const box = $('#memberTimerGrid');
+    if(!box) return;
+    box.innerHTML = Object.entries(state.memberTimers).map(([k,t])=>memberTimerCard(k,t)).join('');
+    updateMiniTimer();
+  }
+  function startMemberTimer(key, fan=null){
+    const t=state.memberTimers[key];
+    t.total = getBaseSeconds();
+    t.remaining = t.total;
+    t.endAt = Date.now() + t.total*1000;
+    t.running = true;
+    t.warned = false;
+    t.done = false;
+    t.fan = fan || state.currentFan || t.fan;
+    t.notice = '';
+    ensureTimerInterval();
+    renderMemberTimers();
+  }
+  function pauseMemberTimer(key){
+    const t=state.memberTimers[key];
+    t.running = false;
+    t.done = false;
+    renderMemberTimers();
+  }
+  function resetMemberTimer(key){
+    const t=state.memberTimers[key];
+    t.running=false; t.done=false; t.warned=false; t.done=false; t.notice=''; t.total=getBaseSeconds(); t.remaining=t.total; t.endAt=null; t.fan=null;
+    renderMemberTimers();
+  }
+  function ensureTimerInterval(){
+    if(state.timer.interval) return;
+    state.timer.interval = setInterval(tickMemberTimers, 250);
+  }
+  function tickMemberTimers(){
+    let any=false;
+    const endedNow=[];
+    Object.entries(state.memberTimers).forEach(([key,t])=>{
+      if(!t.running) return;
+      any=true;
+      t.remaining=Math.max(0, Math.ceil((t.endAt-Date.now())/1000));
+      const w = warnAt(t.total);
+      if(w > 0 && t.remaining<=w && !t.warned && t.remaining>0){
+        t.warned=true;
+        t.notice='마무리 안내';
+        soundWarn();
+        showGlobalAlert('warn', [`⚠️ ${members[key].name} 마무리 안내`, t.fan ? `${t.fan.todayNo} / ${t.fan.nick}` : '팬 미지정', '슬슬 마무리 안내해주세요.']);
+      }
+      if(t.remaining<=0){
+        t.running=false;
+        t.done=true;
+        t.remaining=0;
+        t.notice='TIME';
+        endedNow.push(key);
       }
     });
-  </script>
+
+    if(endedNow.length){
+      const now=Date.now();
+      if(now - lastEndSoundAt > 2200){
+        soundEnd();
+        lastEndSoundAt = now;
+      }
+      const names = endedNow.map(k=>members[k].name).join(' / ');
+      const fans = endedNow.map(k=>{
+        const f=state.memberTimers[k].fan;
+        return f ? `${f.todayNo} ${f.nick}` : '팬 미지정';
+      }).join(' · ');
+      showGlobalAlert('time', [`⏰ ${names} TIME`, fans, '교류 시간이 종료되었습니다.']);
+    }
+
+    renderMemberTimers();
+    if(!any){
+      clearInterval(state.timer.interval);
+      state.timer.interval=null;
+    }
+  }
+  function updateMiniTimer(){
+    const active = Object.entries(state.memberTimers).filter(([,t])=>t.running || t.done);
+    const mini = $('#miniTimer');
+    if(!mini) return;
+    if(!active.length){
+      mini.classList.remove('show');
+      return;
+    }
+    mini.classList.add('show');
+    const done = active.filter(([,t])=>t.done);
+    if(done.length){
+      $('#miniText').textContent = '⏰ ' + done.map(([k])=>`${members[k].name} TIME`).join(' / ');
+      return;
+    }
+    const warn = active.filter(([,t])=>t.warned);
+    if(warn.length){
+      $('#miniText').textContent = '⚠️ ' + warn.map(([k,t])=>`${members[k].name} ${fmt(t.remaining)}`).join(' / ');
+      return;
+    }
+    const running = active.filter(([,t])=>t.running);
+    if(running.length <= 2){
+      $('#miniText').textContent = '⏱ ' + running.map(([k,t])=>`${members[k].name} ${fmt(t.remaining)}`).join(' / ');
+    }else{
+      $('#miniText').textContent = `⏱ 진행 중 ${running.length}명`;
+    }
+  }
+  function updateTimerUI(){ renderMemberTimers(); }
+
+  document.addEventListener('click', e => {
+    const tabBtn=e.target.closest('[data-tab]');
+    if(tabBtn){
+      const tab=tabBtn.dataset.tab;
+      $$('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+      $$('.panel').forEach(p=>p.classList.toggle('active', p.id===`tab-${tab}`));
+      return;
+    }
+    const tabGo=e.target.closest('[data-tab-go]');
+    if(tabGo){ $(`[data-tab="${tabGo.dataset.tabGo}"]`).click(); return; }
+
+    const pass=e.target.closest('[data-pass]');
+    if(pass){ state.selectedPass=pass.dataset.pass; renderAll(); return; }
+    const mem=e.target.closest('[data-member]');
+    if(mem){ state.selectedMember=mem.dataset.member; renderAll(); return; }
+    const candidate=e.target.closest('[data-candidate]');
+    if(candidate){ setCurrentFan(JSON.parse(candidate.dataset.candidate)); $('#candidateArea').innerHTML='<div class="note">현재 처리 중 팬으로 선택했어요.</div>'; return; }
+    const select=e.target.closest('[data-select-fan]');
+    if(select){ const fan=state.recent.find(f=>f.id===select.dataset.selectFan); if(fan) setCurrentFan(fan); return; }
+    const check=e.target.closest('[data-check]');
+    if(check){ const k=check.dataset.check; state.checks[k]=!state.checks[k]; renderAll(); return; }
+    const caution=e.target.closest('[data-caution]');
+    if(caution){ const k=caution.dataset.caution; state.cautions[k]=!state.cautions[k]; renderAll(); return; }
+    const count=e.target.closest('[data-count]');
+    if(count){ const k=count.dataset.count, d=parseInt(count.dataset.delta,10); state.counts[k]=Math.max(0,(state.counts[k]||0)+d); renderCounts(); return; }
+    const booth=e.target.closest('[data-booth-action]');
+    if(booth){ boothAction(booth.dataset.boothAction); return; }
+    const collapse=e.target.closest('[data-collapse]');
+    if(collapse){ $('#'+collapse.dataset.collapse).classList.toggle('open'); return; }
+    const time=e.target.closest('[data-time]');
+    if(time){
+      const sec=parseInt(time.dataset.time,10);
+      $('#timerSeconds').value = sec;
+      Object.values(state.memberTimers).forEach(t=>{
+        if(!t.running){ t.total=sec; t.remaining=sec; }
+      });
+      renderMemberTimers();
+      return;
+    }
+    const memberStart=e.target.closest('[data-member-start]');
+    if(memberStart){ startMemberTimer(memberStart.dataset.memberStart); return; }
+    const memberPause=e.target.closest('[data-member-pause]');
+    if(memberPause){ pauseMemberTimer(memberPause.dataset.memberPause); return; }
+    const memberReset=e.target.closest('[data-member-reset]');
+    if(memberReset){ resetMemberTimer(memberReset.dataset.memberReset); return; }
+    const memberPlus=e.target.closest('[data-member-plus]');
+    if(memberPlus){ extendMemberTimer(memberPlus.dataset.memberPlus, parseInt(memberPlus.dataset.plusSec,10)); return; }
+    const memberDone=e.target.closest('[data-member-done]');
+    if(memberDone){ clearMemberDone(memberDone.dataset.memberDone); return; }
+    const newToggle=e.target.closest('[data-new-toggle]');
+    if(newToggle){ const k=newToggle.dataset.newToggle; state.newFan[k]=!state.newFan[k]; renderAll(); return; }
+
+    const test=e.target.closest('[data-test]');
+    if(test){
+      if(test.dataset.test==='existing') setCurrentFan({todayNo:'012',nick:'테스트루미',id:'LB-0048',oshi:'루루'});
+      if(test.dataset.test==='candidates') showCandidates(samples);
+      if(test.dataset.test==='newfan') $('#newFanBox').style.display='block';
+      if(test.dataset.test==='recent'){ samples.forEach(f=>addRecent(f)); renderAll(); }
+      if(test.dataset.test==='one'){ setCurrentFan({todayNo:'012',nick:'테스트루미',id:'LB-0048',oshi:'루루'}); state.selectedMember='lulu'; saveQuick(); }
+      if(test.dataset.test==='clear'){ localStorage.removeItem('lumi_cheki_clean_test'); location.reload(); }
+      return;
+    }
+  });
+
+  $('#btnResetToday').addEventListener('click', resetTodayEvent);
+  $('#eventName').addEventListener('change', ()=>{ state.eventName = $('#eventName').value.trim(); state.eventDateKey = state.eventDateKey || todayKey(); saveLocal(); renderEventInfo(); });
+  $('#btnStartCheki').addEventListener('click', startChekiFlow);
+  $('#btnStartCheki2').addEventListener('click', startChekiFlow);
+  $('#btnNextFan').addEventListener('click', clearForNextFan);
+  $('#btnNextFanUse').addEventListener('click', clearForNextFan);
+  $('#btnKeepFanUse').addEventListener('click', ()=>renderAll());
+  $('#btnSearch').addEventListener('click', searchFan);
+  $('#btnIssue').addEventListener('click', issueNewFan);
+  $('#btnQuickFind').addEventListener('click', quickFind);
+  $('#btnQuickSave').addEventListener('click', saveQuick);
+  $('#btnResetCounts').addEventListener('click', ()=>{state.counts={mariring:0,lulu:0,iro:0,lunar:0};renderCounts();});
+  $('#btnSaveDetail').addEventListener('click', saveDetail);
+  $('#btnToggleHistory').addEventListener('click', ()=>{ const b=$('#recordBox'); b.classList.toggle('show-all'); $('#btnToggleHistory').textContent=b.classList.contains('show-all')?'전체 기록 접기':'전체 기록 보기'; });
+  $('#btnToggleBoothHistory').addEventListener('click', ()=>{ const b=$('#boothHistoryBox'); b.classList.toggle('show-all'); $('#btnToggleBoothHistory').textContent=b.classList.contains('show-all')?'전체 기록 접기':'전체 기록 보기'; });
+  $('#btnSaveCaution').addEventListener('click', saveCaution);
+  $('#btnResetCaution').addEventListener('click', resetCaution);
+  $('#btnToggleCautionHistory').addEventListener('click', ()=>{ const b=$('#cautionHistoryBox'); b.classList.toggle('show-all'); $('#btnToggleCautionHistory').textContent=b.classList.contains('show-all')?'전체 기록 접기':'전체 기록 보기'; });
+  $('#btnSoundTest').addEventListener('click', soundEnd);
+  $('#btnSoundWarn').addEventListener('click', soundWarn);
+  $('#warnMode').addEventListener('change', renderMemberTimers);
+  document.addEventListener('visibilitychange', tick);
+
+  loadLocal(); if(!state.eventDateKey) state.eventDateKey = todayKey(); renderAll();
+})();
+</script>
 </body>
 </html>
