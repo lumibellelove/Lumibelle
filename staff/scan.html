@@ -3,13 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Lumibelle Staff Check-in</title>
-
-  <!-- QR libraries -->
-  <script src="https://unpkg.com/html5-qrcode"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-
-  <style>
+  <title>Lumibelle Staff Entry Check</title>
+<style>
     @import url('https://fonts.googleapis.com/css2?family=SUIT:wght@600;700;800;900&display=swap');
 
     *{box-sizing:border-box}
@@ -73,49 +68,6 @@
     .pink{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;box-shadow:0 8px 18px rgba(255,95,165,.22)}
     .purple{background:linear-gradient(180deg,#bca7ff,#a88cff);color:#fff;box-shadow:0 8px 18px rgba(168,140,255,.22)}
     .sub{background:#fff0f7;color:#d77ca7;border:1px solid #f0bfd4}
-
-    .reader-box{
-      display:none;
-      margin-top:12px;
-      padding:10px;
-      border-radius:18px;
-      border:1px solid #f2d8e7;
-      background:#fff7fb;
-      overflow:hidden;
-    }
-
-    .reader-box.on{display:block}
-
-    #reader{
-      width:100%;
-      max-width:100%;
-      border-radius:14px;
-      overflow:hidden;
-      background:#fff;
-    }
-
-    .photo-box{
-      margin-top:12px;
-      padding:10px;
-      border-radius:18px;
-      border:1px solid #f2d8e7;
-      background:#fff7fb;
-      display:none;
-    }
-
-    .photo-box.on{display:block}
-
-    #preview{
-      width:100%;
-      max-height:320px;
-      object-fit:contain;
-      border-radius:14px;
-      background:#fff;
-      display:none;
-      margin-top:10px;
-    }
-
-    input[type="file"]{display:none}
 
     label.text-label{display:block;margin:14px 0 8px;color:#d77ca7;font-size:15px;font-weight:900}
 
@@ -213,6 +165,50 @@
 
     .note{margin:12px 0 0;text-align:center;font-size:11.5px;line-height:1.6;color:#b28ea2;font-weight:700}
 
+
+    .handoff{
+      margin-top:12px;
+      padding:13px;
+      border-radius:18px;
+      border:1px solid #f2d8e7;
+      background:linear-gradient(180deg,#fff9fc,#fff4fa);
+      color:#8f7183;
+      font-size:12.5px;
+      line-height:1.65;
+      font-weight:800;
+    }
+
+    .handoff strong{
+      display:block;
+      color:#d77ca7;
+      font-size:14px;
+      margin-bottom:5px;
+    }
+
+    .handoff.warn{
+      background:#fff8ef;
+      border-color:#f4d7c5;
+      color:#a36b33;
+    }
+
+    .handoff-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .copy{
+      background:#fff;
+      color:#d77ca7;
+      border:1px solid #f0bfd4;
+      box-shadow:0 4px 10px rgba(255,95,165,.08);
+    }
+
+    @media(max-width:360px){
+      .handoff-actions{grid-template-columns:1fr}
+    }
+
     @media(max-width:360px){
       .grid{grid-template-columns:1fr}
       .wide{grid-column:auto}
@@ -227,43 +223,38 @@
     <section class="hero">
       <small>STAFF ONLY</small>
       <h1>Lumibelle<br>Check-in</h1>
-      <p>QR 스캔 / QR 사진 / 수동 조회<br>세 가지 방식으로 입장 확인해요.</p>
+      <p>예약번호 끝 4자리 / 입금자명 / 닉네임 / 루미ID로 입장 확인해요.<br>QR은 사용하지 않고 수동 조회를 메인으로 운영합니다.</p>
     </section>
 
     <section class="card">
-      <button class="scan" type="button" onclick="startLiveScan()">실시간 QR 스캔</button>
-
-      <div id="readerBox" class="reader-box">
-        <div id="reader"></div>
-        <button class="sub" type="button" style="margin-top:10px;" onclick="stopLiveScan()">스캔 닫기</button>
+      <div class="handoff">
+        <strong>입장 스탭 기준</strong>
+        입장 스탭은 입장 확인과 입장완료 처리까지만 진행합니다.<br>
+        루미벨/멤버 메아테가 확인되면 팬분께 “루미벨 물판에서 메아테 처리 받아주세요”라고 안내해 주세요.
       </div>
 
-      <div style="height:10px;"></div>
-
-      <label class="file-btn sub" for="qrFile">QR 촬영 / 사진 선택</label>
-      <input id="qrFile" type="file" accept="image/*">
-
-      <div id="photoBox" class="photo-box">
-        <img id="preview" alt="QR preview">
-        <button class="sub" type="button" style="margin-top:10px;" onclick="clearPhoto()">사진 지우기</button>
+      <div class="handoff warn">
+        <strong>입장 확인 메인</strong>
+        팬 완료 화면의 입장 확인용 번호 4자리, 예약번호, 입금자명, 닉네임, 루미ID로 조회해 주세요.<br>
+        QR/카메라 인식은 현장 안정성이 낮아 현재 버전에서는 제외했습니다.
       </div>
 
       <label class="text-label" for="q">검색어</label>
-      <input id="q" type="text" placeholder="예: 1180 / 김민지 / 닉네임 / 8648">
+      <input id="q" type="text" placeholder="예: 0048 / 입금자명 / 닉네임 / LB-0048">
 
       <div class="grid">
-        <button class="pink" type="button" onclick="searchTicket()">예약번호</button>
+        <button class="pink" type="button" onclick="searchTicket()">예약번호 4자리</button>
         <button class="purple" type="button" onclick="searchLumi()">LB- ID</button>
         <button class="sub wide" type="button" onclick="searchRaw()">입금자명/닉네임 조회</button>
       </div>
 
-      <div id="msg" class="msg">QR을 스캔하거나 직접 입력해 주세요.</div>
+      <div id="msg" class="msg">예약번호 끝 4자리, 입금자명, 닉네임, 루미ID 중 하나를 입력해 주세요.</div>
       <div id="results"></div>
 
       <p class="note">
-        ※ QR에는 개인정보가 아닌 예약번호만 들어 있습니다.<br>
-        ※ QR은 보조 확인용입니다. 현장 메인은 예약번호 끝 4자리 / 입금자명 / 닉네임 / 루미ID 조회예요.<br>
-        ※ 실시간 스캔이 안 되면 QR 촬영/사진 선택 또는 수동 조회를 사용해 주세요.
+        ※ 현장 메인은 예약번호 끝 4자리 / 입금자명 / 닉네임 / 루미ID 조회예요.<br>
+        ※ 루미벨/멤버 메아테 혜택은 입장 스탭이 직접 지급하지 않고, 물판 스탭에게 안내해 주세요.<br>
+        ※ QR/카메라 인식은 현장 안정성이 낮아 현재 버전에서는 제외했습니다.
       </p>
       <a class="sub" href="index.html" style="margin-top:10px;width:100%;min-height:46px;border-radius:999px;display:flex;align-items:center;justify-content:center;text-decoration:none;font-weight:900;">스탭 허브로 돌아가기</a>
     </section>
@@ -273,9 +264,6 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbwJRbaZDXnquhBTYaa4R1Onaq0pkDLUWPip0pjzoAcdkcUVNYCCZ2wHWtzCyQLZ0sboJQ/exec";
 
     let selectedTicketId = "";
-    let liveScanner = null;
-    let liveRunning = false;
-    let liveLocked = false;
 
     function msg(text, cls) {
       const el = document.getElementById("msg");
@@ -339,158 +327,6 @@
         script.src = API_URL + "?" + qs;
         document.body.appendChild(script);
       });
-    }
-
-    // ===== live scan: html5-qrcode with BarcodeDetector disabled =====
-    function startLiveScan() {
-      liveLocked = false;
-      document.getElementById("readerBox").classList.add("on");
-
-      if (liveRunning) return;
-
-      if (typeof Html5Qrcode === "undefined") {
-        msg("실시간 QR 스캔 기능을 불러오지 못했어요.<br>QR 촬영/사진 선택을 사용해 주세요.", "err");
-        return;
-      }
-
-      liveScanner = new Html5Qrcode("reader");
-
-      liveScanner.start(
-        { facingMode: "environment" },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-          aspectRatio: 1.0,
-          disableFlip: false,
-          experimentalFeatures: {
-            useBarCodeDetectorIfSupported: false
-          }
-        },
-        function(decodedText) {
-          if (liveLocked) return;
-          liveLocked = true;
-
-          const value = ticket(decodedText);
-          document.getElementById("q").value = value;
-          msg("QR 인식 완료!<br>" + escapeHtml(value) + "<br>조회 중이에요...", "ok");
-
-          // stop() 전에 먼저 조회
-          search(value);
-
-          // stop 실패는 무시
-          setTimeout(function() {
-            stopLiveScan();
-          }, 200);
-        },
-        function() {}
-      ).then(function() {
-        liveRunning = true;
-        msg("카메라가 켜졌어요.<br>팬의 QR을 비춰주세요.", "ok");
-      }).catch(function() {
-        liveRunning = false;
-        msg("카메라를 열 수 없어요.<br>QR 촬영/사진 선택 또는 수동 조회를 사용해 주세요.", "err");
-      });
-    }
-
-    function stopLiveScan() {
-      document.getElementById("readerBox").classList.remove("on");
-
-      if (liveScanner && liveRunning) {
-        return liveScanner.stop().then(function() {
-          liveScanner.clear();
-          liveRunning = false;
-        }).catch(function() {
-          liveRunning = false;
-        });
-      }
-
-      return Promise.resolve();
-    }
-
-    // ===== photo QR: jsQR with downscale =====
-    document.getElementById("qrFile").addEventListener("change", function(e) {
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-
-      if (typeof jsQR === "undefined") {
-        msg("QR 사진 판독 기능을 불러오지 못했어요.<br>수동 조회를 사용해 주세요.", "err");
-        return;
-      }
-
-      msg("QR 이미지를 읽는 중이에요...", "");
-      const reader = new FileReader();
-
-      reader.onload = function(ev) {
-        const img = new Image();
-
-        img.onload = function() {
-          document.getElementById("photoBox").classList.add("on");
-          const preview = document.getElementById("preview");
-          preview.src = ev.target.result;
-          preview.style.display = "block";
-
-          const canvas = document.createElement("canvas");
-
-          // 모바일 메모리/인식 안정용 다운스케일
-          const maxSize = 1800;
-          let w = img.naturalWidth || img.width;
-          let h = img.naturalHeight || img.height;
-
-          const scale = Math.min(1, maxSize / Math.max(w, h));
-          w = Math.max(1, Math.round(w * scale));
-          h = Math.max(1, Math.round(h * scale));
-
-          canvas.width = w;
-          canvas.height = h;
-
-          const ctx = canvas.getContext("2d", { willReadFrequently: true });
-          ctx.drawImage(img, 0, 0, w, h);
-
-          let imageData;
-
-          try {
-            imageData = ctx.getImageData(0, 0, w, h);
-          } catch (err) {
-            msg("이미지를 분석하지 못했어요.<br>수동 조회를 사용해 주세요.", "err");
-            return;
-          }
-
-          const code = jsQR(imageData.data, imageData.width, imageData.height, {
-            inversionAttempts: "attemptBoth"
-          });
-
-          if (!code || !code.data) {
-            msg("QR을 읽지 못했어요.<br>QR이 크게 보이게 다시 촬영하거나 예약번호 끝 4자리로 조회해 주세요.", "err");
-            return;
-          }
-
-          const value = ticket(code.data);
-          document.getElementById("q").value = value;
-          msg("QR 인식 완료!<br>" + escapeHtml(value) + "<br>조회 중이에요...", "ok");
-          search(value);
-        };
-
-        img.onerror = function() {
-          msg("이미지를 불러오지 못했어요.", "err");
-        };
-
-        img.src = ev.target.result;
-      };
-
-      reader.onerror = function() {
-        msg("파일을 읽지 못했어요.", "err");
-      };
-
-      reader.readAsDataURL(file);
-
-      // 같은 파일 재선택 가능
-      e.target.value = "";
-    });
-
-    function clearPhoto() {
-      document.getElementById("preview").src = "";
-      document.getElementById("preview").style.display = "none";
-      document.getElementById("photoBox").classList.remove("on");
     }
 
     // ===== search =====
@@ -571,6 +407,58 @@
       return "bad-pill";
     }
 
+
+    function isLumibelleMeate(value) {
+      const v = clean(value || "");
+      const targets = [
+        "LUMIBELLE","LUMIBEL","루미벨",
+        "MARIRING","마리링",
+        "LULU","루루",
+        "IRO","이로",
+        "LUNA","LUNAR","루나"
+      ];
+      return targets.some(t => v.includes(clean(t)));
+    }
+
+    function meateHandoffHtml(data) {
+      const meate = data.meate || "";
+      if (!meate || meate === "-") {
+        return '<div class="handoff warn"><strong>메아테 확인 필요</strong>메아테 정보가 비어 있어요. 현장 확인이 필요하면 책임자에게 공유해 주세요.</div>';
+      }
+
+      if (!isLumibelleMeate(meate)) {
+        return '<div class="handoff"><strong>타 팀/일반 메아테</strong>루미벨 혜택 대상이 아니면 입장 처리만 진행합니다. 루미 ID를 자동 발급하지 않습니다.</div>';
+      }
+
+      const fan = (data.lumiId || data.nickname || data.ticketId || "-");
+      const text = '루미벨 메아테 확인되셨어요. 입장 후 루미벨 물판에서 메아테 특전권이랑 포인트 처리 받아주세요.';
+      return '' +
+        '<div class="handoff warn">' +
+          '<strong>루미벨/멤버 메아테 확인</strong>' +
+          '이 팬은 물판에서 메아테 처리 대상입니다.<br>' +
+          '입장 스탭은 혜택을 직접 지급하지 말고, 물판 스탭에게 넘겨 주세요.<br>' +
+          '<b>안내 멘트:</b><br>' + escapeHtml(text) +
+          '<div class="handoff-actions">' +
+            '<button class="copy" type="button" onclick="copyHandoffText()">안내 멘트 복사</button>' +
+            '<a class="sub" href="cheki.html" style="min-height:50px;border-radius:999px;display:flex;align-items:center;justify-content:center;text-decoration:none;font-weight:900;">물판 처리 열기</a>' +
+          '</div>' +
+          '<input id="handoffText" type="text" value="' + escapeHtml(text + ' / 확인: ' + fan) + '" style="position:absolute;left:-9999px;">' +
+        '</div>';
+    }
+
+    function copyHandoffText() {
+      const el = document.getElementById("handoffText");
+      if (!el) return;
+      el.select();
+      el.setSelectionRange(0, 99999);
+      try {
+        document.execCommand("copy");
+        msg("안내 멘트를 복사했어요.", "ok");
+      } catch(e) {
+        msg("복사에 실패했어요. 화면의 안내 멘트를 직접 읽어 주세요.", "err");
+      }
+    }
+
     function renderDetail(data) {
       selectedTicketId = data.ticketId || "";
 
@@ -598,6 +486,7 @@
         row("결제상태", '<span class="status ' + payClass + '">' + escapeHtml(data.paymentStatus || "-") + '</span>', true) +
         row("입장상태", '<span class="status ' + entryClass + '">' + escapeHtml(data.entryStatus || "-") + '</span>', true) +
         row("입장시간", data.entryTime || "-") +
+        meateHandoffHtml(data) +
         button +
         '</div>';
 
