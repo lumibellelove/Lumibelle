@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Lumibelle Cheki Check TEST CLEAN</title>
+<title>Lumibelle Cheki Check + Homework</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=SUIT:wght@500;600;700;800;900&display=swap');
 :root{
@@ -30,7 +30,7 @@ button,input,select,textarea{font-family:inherit}
 .current-no{display:inline-flex;min-width:92px;padding:8px 18px;border-radius:999px;border:1px solid var(--line);background:var(--soft);font-weight:1000;color:#7b6574}
 .current-info{font-weight:900;margin-top:6px}
 .current-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.current-actions button{min-height:42px;border-radius:16px;border:1px solid var(--line);background:#fff;color:var(--pink2);font-weight:900}.event-box{border:1px solid var(--line);background:#fff;border-radius:22px;padding:14px;margin:10px 0;box-shadow:0 8px 18px rgba(255,95,165,.06)}.event-row{display:grid;grid-template-columns:1fr 130px;gap:8px}.event-row input{text-align:left;font-size:14px}.event-label{font-size:12px;font-weight:1000;color:var(--pink2);margin-bottom:7px}.event-note{font-size:12px;font-weight:850;color:#b28ea2;line-height:1.55;margin-top:8px}
-.tabs{position:sticky;top:96px;z-index:19;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;background:rgba(255,247,251,.95);padding:8px 0;margin-bottom:10px}
+.tabs{position:sticky;top:96px;z-index:19;display:grid;grid-template-columns:repeat(6,1fr);gap:8px;background:rgba(255,247,251,.95);padding:8px 0;margin-bottom:10px}
 .tab-btn.active{background:linear-gradient(180deg,#ff72b0,#ff5ca6);color:#fff;border-color:transparent}
 .card{background:var(--card);border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow);padding:20px;margin:12px 0}
 .card h2{font-size:32px;color:var(--pink2);margin:12px 0 10px}
@@ -38,6 +38,12 @@ button,input,select,textarea{font-family:inherit}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .grid4{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .booth-result{margin-top:12px;padding:14px 16px;border:1px solid var(--line);border-radius:18px;background:#fff7fb;color:#a0617f;font-weight:900;line-height:1.65;font-size:13px}.booth-note{margin-top:10px;padding:12px 14px;border-radius:16px;background:#f7efff;color:#8066d0;font-weight:900;line-height:1.6;font-size:12.5px}.booth-history .history-item:nth-child(n+4){display:none}.booth-history.show-all .history-item:nth-child(n+4){display:block}.caution-save-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.caution-history .history-item:nth-child(n+4){display:none}.caution-history.show-all .history-item:nth-child(n+4){display:block}
+.homework-history .history-item:nth-child(n+4){display:none}.homework-history.show-all .history-item:nth-child(n+4){display:block}
+.homework-status-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.homework-status-row button{min-height:40px;border-radius:16px;border:1px solid var(--line);background:#fff;color:var(--pink2);font-weight:900}
+.homework-status-row button.done{background:#fff0f7;color:#ff5ca6}
+.homework-mini{font-size:12.5px;color:#b28ea2;font-weight:900;line-height:1.6;margin-top:8px}
+
 .choice{min-height:54px;border-radius:20px;border:1px solid var(--line);background:#fff;color:var(--pink2);font-weight:1000;font-size:14px}
 .choice.active{background:linear-gradient(180deg,#ff72b0,#ff5ca6);color:#fff;border-color:transparent;box-shadow:0 10px 18px rgba(255,95,165,.20)}
 .field{margin:12px 0}
@@ -208,9 +214,9 @@ textarea{padding:14px;min-height:120px}
 <div class="global-alert" id="globalAlert"></div>
 <div class="wrap">
   <section class="hero">
-    <span class="label">TEST CLEAN</span>
+    <span class="label">CHEKI + HOMEWORK</span>
     <h1>Lumibelle<br>Cheki Check</h1>
-    <p>버그 확인용으로 중복 코드를 정리한 테스트본이에요. 현장 흐름은 권종 → 멤버 → 팬 → 1장 저장 기준입니다.</p>
+    <p>현장 특전회 처리 화면입니다. 권종 → 멤버 → 팬 → 1장 저장 기준이며, 숙제체키 접수도 함께 기록할 수 있습니다.</p>
   </section>
 
   <div class="testbar">
@@ -246,6 +252,7 @@ textarea{padding:14px;min-height:120px}
     <button class="tab-btn" data-tab="booth">물판<br>처리</button>
     <button class="tab-btn" data-tab="use">특전 사용<br>/ 촬영</button>
     <button class="tab-btn" data-tab="timer">타이머</button>
+    <button class="tab-btn" data-tab="homework">숙제<br>체키</button>
     <button class="tab-btn" data-tab="caution">주의<br>체크</button>
   </nav>
 
@@ -409,6 +416,65 @@ textarea{padding:14px;min-height:120px}
       </article>
     </section>
 
+
+    <section class="panel" id="tab-homework">
+      <article class="card">
+        <span class="label">HOMEWORK CHEKI</span>
+        <h2>숙제체키 접수</h2>
+        <p>숙제체키는 팬 문의를 줄이기 위해 <b>번호와 상태</b>로 관리합니다. 현재 처리 중 팬을 먼저 선택한 뒤 접수해 주세요.</p>
+
+        <div class="summary" id="homeworkFanSummary">
+          먼저 팬 조회/선택 후 접수해 주세요.
+        </div>
+
+        <div class="field">
+          <label>1. 촬영 멤버</label>
+          <select id="homeworkMember">
+            <option value="mariring">마리링 🎀⭐</option>
+            <option value="lulu">루루 🍼🐰</option>
+            <option value="iro">이로 👼🏻💎</option>
+            <option value="lunar">루나 🌙🐱</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>2. 요청 문구 / 데코 요청</label>
+          <textarea id="homeworkRequest" placeholder="예: 생일 축하 문구 / 귀여운 느낌 / 하트 많이 / 문구 없음"></textarea>
+        </div>
+
+        <div class="field">
+          <label>3. 사진 식별 메모</label>
+          <input id="homeworkPhotoMemo" placeholder="예: 핑크 리본 포즈 / 첫 번째 체키 / 안경 쓴 팬">
+        </div>
+
+        <div class="field">
+          <label>4. 수령 예정</label>
+          <input id="homeworkPickupEvent" placeholder="예: 다음 참여 행사 / 2026-07-20 라이브 / 현장 수령">
+        </div>
+
+        <div class="grid2">
+          <button class="choice" data-hw-status="접수됨">접수됨</button>
+          <button class="choice" data-hw-status="준비 중">준비 중</button>
+          <button class="choice" data-hw-status="수령 가능">수령 가능</button>
+          <button class="choice" data-hw-status="수령 완료">수령 완료</button>
+        </div>
+
+        <button class="btn" id="btnSaveHomework" style="width:100%;margin-top:12px;min-height:60px;font-size:18px">숙제체키 접수 저장</button>
+
+        <div class="note">
+          체키 뒷면에는 <b>HW-날짜-번호 / 루미ID / 멤버명</b>을 적어 주세요.<br>
+          예: HW-0712-001 / LB-0032 / 마리링
+        </div>
+      </article>
+
+      <article class="card homework-history" id="homeworkHistoryBox">
+        <span class="label">HOMEWORK LOG</span>
+        <h2>숙제체키 기록</h2>
+        <div class="list" id="homeworkHistoryList"></div>
+        <button class="toggle" id="btnToggleHomeworkHistory" style="width:100%;margin-top:10px">전체 기록 보기</button>
+      </article>
+    </section>
+
     <section class="panel" id="tab-caution">
       <article class="card">
         <span class="label">CAUTION</span>
@@ -474,11 +540,14 @@ textarea{padding:14px;min-height:120px}
     history:[],
     boothHistory:[],
     cautionHistory:[],
+    homeworkHistory:[],
     checks:{visit:false,meate:false,fullLoop:false,eventDay:false},
     cautions:{},
     newFan:{follow:false,welcome:false},
     counts:{mariring:0,lulu:0,iro:0,lunar:0},
     nextTodayNo:1,
+    nextHomeworkNo:1,
+    homeworkStatus:'접수됨',
     nextLumiNo:48,
     eventName:'',
     eventDateKey:'',
@@ -495,7 +564,7 @@ textarea{padding:14px;min-height:120px}
   function pad(n,len=3){ return String(n).padStart(len,'0'); }
   function saveLocal(){
     localStorage.setItem('lumi_cheki_clean_test', JSON.stringify({
-      recent:state.recent, history:state.history, boothHistory:state.boothHistory, cautionHistory:state.cautionHistory, nextTodayNo:state.nextTodayNo, nextLumiNo:state.nextLumiNo, eventName:state.eventName, eventDateKey:state.eventDateKey
+      recent:state.recent, history:state.history, boothHistory:state.boothHistory, cautionHistory:state.cautionHistory, homeworkHistory:state.homeworkHistory, nextTodayNo:state.nextTodayNo, nextHomeworkNo:state.nextHomeworkNo, nextLumiNo:state.nextLumiNo, eventName:state.eventName, eventDateKey:state.eventDateKey
     }));
   }
   function loadLocal(){
@@ -505,7 +574,9 @@ textarea{padding:14px;min-height:120px}
       if(Array.isArray(d.history)) state.history=d.history;
       if(Array.isArray(d.boothHistory)) state.boothHistory=d.boothHistory;
       if(Array.isArray(d.cautionHistory)) state.cautionHistory=d.cautionHistory;
+      if(Array.isArray(d.homeworkHistory)) state.homeworkHistory=d.homeworkHistory;
       if(d.nextTodayNo) state.nextTodayNo=d.nextTodayNo;
+      if(d.nextHomeworkNo) state.nextHomeworkNo=d.nextHomeworkNo;
       if(d.nextLumiNo) state.nextLumiNo=d.nextLumiNo;
       if(d.eventName) state.eventName=d.eventName;
       if(d.eventDateKey) state.eventDateKey=d.eventDateKey;
@@ -570,6 +641,9 @@ textarea{padding:14px;min-height:120px}
     state.history = [];
     state.boothHistory = [];
     state.cautionHistory = [];
+    state.homeworkHistory = [];
+    state.nextHomeworkNo = 1;
+    state.homeworkStatus = "접수됨";
     state.counts = {mariring:0,lulu:0,iro:0,lunar:0};
     state.checks = {visit:false,meate:false,fullLoop:false,eventDay:false};
     state.cautions = {};
@@ -772,8 +846,104 @@ textarea{padding:14px;min-height:120px}
     renderAll();
   }
 
+
+  function eventCodeForHomework(){
+    const key = state.eventDateKey || todayKey();
+    const m = String(key).match(/(\d{4})-(\d{2})-(\d{2})/);
+    return m ? `${m[2]}${m[3]}` : '0000';
+  }
+  function nextHomeworkId(){
+    return `HW-${eventCodeForHomework()}-${pad(state.nextHomeworkNo++,3)}`;
+  }
+  function renderHomework(){
+    const sum = $('#homeworkFanSummary');
+    if(sum){
+      if(state.currentFan){
+        sum.innerHTML = `<b>현재 팬</b><br>${esc(state.currentFan.todayNo)} / ${esc(state.currentFan.nick)} / ${esc(state.currentFan.id)}`;
+      }else{
+        sum.innerHTML = '먼저 팬 조회/선택 후 접수해 주세요.';
+      }
+    }
+    $$('[data-hw-status]').forEach(b=>b.classList.toggle('active', state.homeworkStatus === b.dataset.hwStatus));
+
+    const box = $('#homeworkHistoryList');
+    if(box){
+      box.innerHTML = state.homeworkHistory.length ? state.homeworkHistory.map(h => `
+        <div class="history-item">
+          <b>${esc(h.hwId)} · ${esc(h.memberName)} · ${esc(h.status)}</b><br>
+          ${esc(h.todayNo)} ${esc(h.nick)} / ${esc(h.lumiId)}<br>
+          접수: ${esc(h.time)} / 수령 예정: ${esc(h.pickup || '현장 수령')}<br>
+          요청: ${esc(h.request || '없음')}<br>
+          사진 메모: ${esc(h.photoMemo || '없음')}
+          <div class="homework-mini">체키 뒷면: ${esc(h.hwId)} / ${esc(h.lumiId)} / ${esc(h.memberName)}</div>
+          <div class="homework-status-row">
+            <button data-hw-update="${esc(h.hwId)}" data-status="준비 중">준비 중</button>
+            <button data-hw-update="${esc(h.hwId)}" data-status="수령 가능">수령 가능</button>
+            <button data-hw-update="${esc(h.hwId)}" data-status="수령 완료" class="done">수령 완료</button>
+            <button data-hw-copy="${esc(h.hwId)}">뒷면 표기 복사</button>
+          </div>
+        </div>
+      `).join('') : `<div class="note">아직 숙제체키 기록이 없어요.</div>`;
+    }
+  }
+  function saveHomework(){
+    if(!state.currentFan){
+      alert('먼저 팬을 조회하거나 선택해 주세요.');
+      return;
+    }
+    const memberKey = $('#homeworkMember')?.value || state.selectedMember || 'mariring';
+    const mem = members[memberKey] || members.mariring;
+    const d = new Date();
+    const hwId = nextHomeworkId();
+    const record = {
+      hwId,
+      time:`${d.getFullYear()}-${pad(d.getMonth()+1,2)}-${pad(d.getDate(),2)} ${d.getHours()}:${pad(d.getMinutes(),2)}`,
+      todayNo:state.currentFan.todayNo,
+      nick:state.currentFan.nick,
+      lumiId:state.currentFan.id,
+      member:memberKey,
+      memberName:mem.name,
+      request:($('#homeworkRequest')?.value || '').trim(),
+      photoMemo:($('#homeworkPhotoMemo')?.value || '').trim(),
+      pickup:($('#homeworkPickupEvent')?.value || '').trim() || '다음 참여 행사 / 현장 수령',
+      status:state.homeworkStatus || '접수됨'
+    };
+    state.homeworkHistory.unshift(record);
+    state.history.unshift({
+      time:`${d.getHours()}:${pad(d.getMinutes(),2)}:${pad(d.getSeconds(),2)}`,
+      todayNo:record.todayNo,
+      nick:record.nick,
+      id:record.lumiId,
+      type:'숙제체키 접수',
+      detail:`${record.hwId} / ${record.memberName} / ${record.status}`,
+      flags:`수령 예정: ${record.pickup}`
+    });
+    saveLocal();
+
+    if($('#homeworkRequest')) $('#homeworkRequest').value = '';
+    if($('#homeworkPhotoMemo')) $('#homeworkPhotoMemo').value = '';
+    if($('#homeworkPickupEvent')) $('#homeworkPickupEvent').value = '';
+
+    renderAll();
+    alert(`숙제체키 접수 완료\\n${record.hwId}\\n체키 뒷면에 ${record.hwId} / ${record.lumiId} / ${record.memberName} 를 적어주세요.`);
+  }
+  function updateHomeworkStatus(hwId, status){
+    const rec = state.homeworkHistory.find(h=>h.hwId===hwId);
+    if(!rec) return;
+    rec.status = status;
+    saveLocal();
+    renderAll();
+  }
+  function copyHomeworkBack(hwId){
+    const rec = state.homeworkHistory.find(h=>h.hwId===hwId);
+    if(!rec) return;
+    const text = `${rec.hwId} / ${rec.lumiId} / ${rec.memberName}`;
+    navigator.clipboard?.writeText(text);
+    alert(text);
+  }
+
   function renderAll(){
-    renderEventInfo(); renderCurrentFan(); renderChoices(); renderCounts(); renderRecent(); renderHistory(); renderBooth(); renderCaution(); updateSummary(); renderCheckButtons(); updateTimerUI();
+    renderEventInfo(); renderCurrentFan(); renderChoices(); renderCounts(); renderRecent(); renderHistory(); renderBooth(); renderHomework(); renderCaution(); updateSummary(); renderCheckButtons(); updateTimerUI();
   }
 
 
@@ -1128,6 +1298,12 @@ textarea{padding:14px;min-height:120px}
     if(check){ const k=check.dataset.check; state.checks[k]=!state.checks[k]; renderAll(); return; }
     const caution=e.target.closest('[data-caution]');
     if(caution){ const k=caution.dataset.caution; state.cautions[k]=!state.cautions[k]; renderAll(); return; }
+    const hwStatus=e.target.closest('[data-hw-status]');
+    if(hwStatus){ state.homeworkStatus = hwStatus.dataset.hwStatus; renderAll(); return; }
+    const hwUpdate=e.target.closest('[data-hw-update]');
+    if(hwUpdate){ updateHomeworkStatus(hwUpdate.dataset.hwUpdate, hwUpdate.dataset.status); return; }
+    const hwCopy=e.target.closest('[data-hw-copy]');
+    if(hwCopy){ copyHomeworkBack(hwCopy.dataset.hwCopy); return; }
     const count=e.target.closest('[data-count]');
     if(count){ const k=count.dataset.count, d=parseInt(count.dataset.delta,10); state.counts[k]=Math.max(0,(state.counts[k]||0)+d); renderCounts(); return; }
     const booth=e.target.closest('[data-booth-action]');
@@ -1184,6 +1360,8 @@ textarea{padding:14px;min-height:120px}
   $('#btnSaveDetail').addEventListener('click', saveDetail);
   $('#btnToggleHistory').addEventListener('click', ()=>{ const b=$('#recordBox'); b.classList.toggle('show-all'); $('#btnToggleHistory').textContent=b.classList.contains('show-all')?'전체 기록 접기':'전체 기록 보기'; });
   $('#btnToggleBoothHistory').addEventListener('click', ()=>{ const b=$('#boothHistoryBox'); b.classList.toggle('show-all'); $('#btnToggleBoothHistory').textContent=b.classList.contains('show-all')?'전체 기록 접기':'전체 기록 보기'; });
+  $('#btnSaveHomework').addEventListener('click', saveHomework);
+  $('#btnToggleHomeworkHistory').addEventListener('click', ()=>{ const b=$('#homeworkHistoryBox'); b.classList.toggle('show-all'); $('#btnToggleHomeworkHistory').textContent=b.classList.contains('show-all')?'전체 기록 접기':'전체 기록 보기'; });
   $('#btnSaveCaution').addEventListener('click', saveCaution);
   $('#btnResetCaution').addEventListener('click', resetCaution);
   $('#btnToggleCautionHistory').addEventListener('click', ()=>{ const b=$('#cautionHistoryBox'); b.classList.toggle('show-all'); $('#btnToggleCautionHistory').textContent=b.classList.contains('show-all')?'전체 기록 접기':'전체 기록 보기'; });
