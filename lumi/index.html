@@ -12405,4 +12405,336 @@ html,body,.screen,.inside,.app-wrap{scroll-behavior:auto!important;}
 }
 </style>
 
+
+
+<style id="v2-8-89-mobile-rc-home-overlap-fix-css-only">
+/* ===== v2.8.89 MOBILE RC: CSS only / home overlap + mobile flow fix =====
+   JS/기능 미수정. 로그인, 문자, 우편, 프로필, 업적, ON AIR, 교환소 로직 건드리지 않음. */
+
+@media (max-width: 860px){
+  /* 1) 상단 탭이 스크롤 중 아래 콘텐츠를 덮지 않게 sticky 해제 */
+  .tabs{
+    position:relative !important;
+    top:auto !important;
+    z-index:1 !important;
+  }
+
+  /* 2) 모바일 본문은 기기 프레임 안에서만 자연스럽게 흐르게 */
+  .screen{
+    overflow:hidden !important;
+  }
+  .inside{
+    overflow:visible !important;
+  }
+  .page,
+  #page-home,
+  #page-ticket,
+  #page-record,
+  #page-mail,
+  #page-stamp,
+  #page-point,
+  #page-profile,
+  #page-achieve,
+  #page-onair,
+  #page-homework,
+  #page-guide,
+  #page-calendar,
+  #page-exchange,
+  #page-lumilog,
+  #page-message,
+  #page-future{
+    position:relative !important;
+    overflow:visible !important;
+    height:auto !important;
+    min-height:0 !important;
+  }
+
+  /* 3) 홈 첫 화면/위젯이 메뉴 밑으로 깔리는 문제 방지 */
+  #page-home .kawaii-home,
+  #page-home .kawaii-widget-grid,
+  #page-home .kawaii-launch-card,
+  #page-home .home-clock-widget,
+  #page-home .kawaii-search{
+    position:relative !important;
+    z-index:0 !important;
+    clear:both !important;
+  }
+
+  /* 4) 홈 카드: 아이콘/라벨/본문을 모두 정상 세로 흐름으로 고정 */
+  #page-home .kawaii-widget,
+  #page-home .kawaii-widget-grid > .kawaii-widget,
+  #page-home .v117-weather,
+  #page-home .v117-connect,
+  #page-home .v117-entry,
+  #page-home .v117-message,
+  #page-home .v117-reservation,
+  #page-home #homeWeatherCard,
+  #page-home #homeConnectCard,
+  #page-home #homeEntryCard,
+  #page-home #homeMessageCard,
+  #page-home #homeReservationCard,
+  #page-home #homeHomeworkCard{
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:flex-start !important;
+    justify-content:flex-start !important;
+    gap:0 !important;
+    min-height:0 !important;
+    height:auto !important;
+    padding:22px 24px !important;
+    overflow:hidden !important;
+  }
+
+  #page-home .kawaii-widget .v117-card-icon,
+  #page-home .kawaii-widget .home-mini-icon,
+  #page-home .kawaii-widget .home-card-icon,
+  #page-home .kawaii-widget > i,
+  #page-home #homeWeatherCard > i,
+  #page-home #homeConnectCard > i,
+  #page-home #homeEntryCard > i,
+  #page-home #homeMessageCard > i,
+  #page-home #homeReservationCard > i,
+  #page-home #homeHomeworkCard > i{
+    position:static !important;
+    left:auto !important;
+    right:auto !important;
+    top:auto !important;
+    bottom:auto !important;
+    transform:none !important;
+    float:none !important;
+    display:grid !important;
+    place-items:center !important;
+    width:46px !important;
+    height:46px !important;
+    min-width:46px !important;
+    min-height:46px !important;
+    margin:0 0 12px 0 !important;
+    padding:0 !important;
+    border-radius:16px !important;
+    line-height:1 !important;
+    font-size:23px !important;
+    opacity:1 !important;
+    z-index:1 !important;
+  }
+
+  #page-home .kawaii-widget .spark{
+    position:absolute !important;
+    right:22px !important;
+    top:22px !important;
+    width:auto !important;
+    height:auto !important;
+    margin:0 !important;
+    transform:none !important;
+    z-index:1 !important;
+    pointer-events:none !important;
+  }
+
+  #page-home .kawaii-widget small,
+  #page-home .kawaii-widget b,
+  #page-home .kawaii-widget span:not(.spark),
+  #page-home .kawaii-widget button,
+  #page-home #homeWeatherCard small,
+  #page-home #homeWeatherCard b,
+  #page-home #homeWeatherCard span:not(.spark),
+  #page-home #homeConnectCard small,
+  #page-home #homeConnectCard b,
+  #page-home #homeConnectCard span:not(.spark),
+  #page-home #homeEntryCard small,
+  #page-home #homeEntryCard b,
+  #page-home #homeEntryCard span:not(.spark),
+  #page-home #homeMessageCard small,
+  #page-home #homeMessageCard b,
+  #page-home #homeMessageCard span:not(.spark),
+  #page-home #homeReservationCard small,
+  #page-home #homeReservationCard b,
+  #page-home #homeReservationCard span:not(.spark),
+  #page-home #homeHomeworkCard small,
+  #page-home #homeHomeworkCard b,
+  #page-home #homeHomeworkCard span:not(.spark){
+    position:static !important;
+    display:block !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    height:auto !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    transform:none !important;
+    text-align:left !important;
+    white-space:normal !important;
+    word-break:keep-all !important;
+    overflow-wrap:break-word !important;
+    writing-mode:horizontal-tb !important;
+    text-orientation:mixed !important;
+    z-index:2 !important;
+  }
+
+  #page-home .kawaii-widget small,
+  #page-home #homeWeatherCard small,
+  #page-home #homeConnectCard small,
+  #page-home #homeEntryCard small,
+  #page-home #homeMessageCard small,
+  #page-home #homeReservationCard small,
+  #page-home #homeHomeworkCard small{
+    margin:0 0 10px !important;
+    padding-right:44px !important;
+    font-size:14px !important;
+    line-height:1.28 !important;
+    letter-spacing:.02em !important;
+  }
+
+  #page-home .kawaii-widget b,
+  #page-home #homeWeatherCard b,
+  #page-home #homeConnectCard b,
+  #page-home #homeMessageCard b,
+  #page-home #homeReservationCard b,
+  #page-home #homeHomeworkCard b{
+    margin:0 0 10px !important;
+    font-size:23px !important;
+    line-height:1.3 !important;
+    letter-spacing:-.045em !important;
+  }
+
+  #page-home .kawaii-widget span:not(.spark),
+  #page-home #homeWeatherCard span:not(.spark),
+  #page-home #homeConnectCard span:not(.spark),
+  #page-home #homeEntryCard span:not(.spark),
+  #page-home #homeMessageCard span:not(.spark),
+  #page-home #homeReservationCard span:not(.spark),
+  #page-home #homeHomeworkCard span:not(.spark){
+    margin:0 !important;
+    font-size:14.5px !important;
+    line-height:1.58 !important;
+  }
+
+  #page-home .v117-entry b,
+  #page-home #homeEntryCard b,
+  #page-home .quick-pass b{
+    color:#ff5fa8 !important;
+    -webkit-text-fill-color:#ff5fa8 !important;
+    font-size:36px !important;
+    line-height:1 !important;
+    letter-spacing:.10em !important;
+    white-space:nowrap !important;
+  }
+
+  #page-home .kawaii-widget .widget-link,
+  #page-home #homeMessageCard .widget-link{
+    position:static !important;
+    align-self:flex-end !important;
+    margin:16px 0 0 !important;
+    min-height:38px !important;
+    padding:0 18px !important;
+    border-radius:999px !important;
+    white-space:nowrap !important;
+  }
+
+  /* 5) 홈 앱 영역: PC 구조 느낌은 유지하되, 모바일에서는 2열 카드로 안정화 */
+  #page-home .kawaii-icon-grid{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:12px !important;
+  }
+  #page-home .kawaii-app-icon{
+    position:relative !important;
+    min-height:92px !important;
+    padding:10px 6px !important;
+    font-size:13.5px !important;
+    line-height:1.25 !important;
+    overflow:visible !important;
+  }
+  #page-home .kawaii-app-icon i{
+    position:relative !important;
+    width:46px !important;
+    height:46px !important;
+    min-width:46px !important;
+    margin:0 0 7px !important;
+    font-size:22px !important;
+  }
+  #page-home .kawaii-app-icon i:before{
+    font-size:17px !important;
+    left:-7px !important;
+    top:-10px !important;
+  }
+  #page-home .kawaii-app-icon .mini{
+    right:12px !important;
+    top:10px !important;
+    z-index:3 !important;
+  }
+
+  /* 6) 티켓/기록 쪽 긴 텍스트가 세로로 깨지지 않게 폭 계산 안정화 */
+  .ticket,
+  .lumi-pass,
+  .lumi-pass-card,
+  .card,
+  .row,
+  .memory-item,
+  .calendar-item,
+  .ticket-cell,
+  .lumi-entry-box,
+  .lumi-pass-note,
+  .lumi-pass-meta,
+  .lumi-pass .ticket-info > *,
+  .birthday-section,
+  .birthday-section .ticket,
+  #page-ticket .card,
+  #page-record .card{
+    min-width:0 !important;
+    max-width:100% !important;
+    overflow:hidden !important;
+    word-break:keep-all !important;
+    overflow-wrap:break-word !important;
+    writing-mode:horizontal-tb !important;
+  }
+
+  .ticket-cell b,
+  .ticket-cell small,
+  .lumi-pass b,
+  .lumi-pass span,
+  .lumi-pass p,
+  .row b,
+  .row span,
+  .memory-text b,
+  .memory-text span,
+  .calendar-item b,
+  .calendar-item span{
+    writing-mode:horizontal-tb !important;
+    word-break:keep-all !important;
+    overflow-wrap:break-word !important;
+  }
+}
+
+@media (max-width: 420px){
+  #page-home .kawaii-widget,
+  #page-home .kawaii-widget-grid > .kawaii-widget,
+  #page-home #homeWeatherCard,
+  #page-home #homeConnectCard,
+  #page-home #homeEntryCard,
+  #page-home #homeMessageCard,
+  #page-home #homeReservationCard,
+  #page-home #homeHomeworkCard{
+    padding:20px 20px !important;
+  }
+
+  #page-home .kawaii-widget b,
+  #page-home #homeWeatherCard b,
+  #page-home #homeConnectCard b,
+  #page-home #homeMessageCard b,
+  #page-home #homeReservationCard b,
+  #page-home #homeHomeworkCard b{
+    font-size:22px !important;
+  }
+
+  #page-home .kawaii-widget span:not(.spark),
+  #page-home #homeWeatherCard span:not(.spark),
+  #page-home #homeConnectCard span:not(.spark),
+  #page-home #homeEntryCard span:not(.spark),
+  #page-home #homeMessageCard span:not(.spark),
+  #page-home #homeReservationCard span:not(.spark),
+  #page-home #homeHomeworkCard span:not(.spark){
+    font-size:14px !important;
+  }
+}
+</style>
+
 </body></html>
