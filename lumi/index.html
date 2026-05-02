@@ -12957,4 +12957,239 @@ html,body,.screen,.inside,.app-wrap{scroll-behavior:auto!important;}
 }
 </style>
 
+
+
+<style id="v2-8-91-mobile-home-real-class-fix-css-only">
+/* ===== v2.8.91 MOBILE RC: CSS only / HOME real-class overlap fix =====
+   원인: 실제 홈 카드는 v118-home-card인데, 일부 이전 패치가 v1184-card 위주라 모바일에서 적용 누락.
+   처리: 홈 카드 실제 클래스와 변환 후 클래스 모두를 한 번에 잡고, 장식 아이콘 absolute 겹침을 제거.
+   JS/기능 미수정. */
+
+@media (max-width: 860px){
+  /* 홈 카드 영역은 PC용 2열/장식 배치를 모바일에서 확실히 해제 */
+  #page-home .kawaii-widget-grid.v118-home-grid,
+  #page-home .kawaii-widget-grid.v1184-grid,
+  #page-home .v118-home-grid,
+  #page-home .v1184-grid{
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    gap:10px !important;
+    margin:0 0 12px !important;
+    align-items:stretch !important;
+  }
+
+  /* 실제 현재 파일의 클래스(v118-home-card) + 스크립트 변환 후 클래스(v1184-card)를 모두 보정 */
+  #page-home .kawaii-widget-grid.v118-home-grid > .kawaii-widget,
+  #page-home .kawaii-widget-grid.v1184-grid > .kawaii-widget,
+  #page-home .kawaii-widget.v118-home-card,
+  #page-home .kawaii-widget.v1184-card,
+  #page-home #homeWeatherCard,
+  #page-home #homeConnectCard,
+  #page-home #homeEntryCard,
+  #page-home #homeMessageCard,
+  #page-home #homeReservationCard,
+  #page-home #homeHomeworkCard{
+    position:relative !important;
+    display:block !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+    padding:18px 20px !important;
+    border-radius:24px !important;
+    overflow:hidden !important;
+    text-align:left !important;
+  }
+
+  /* 겹침 주범: 예전 홈 아이콘은 모바일에서 숨김. spark만 우측 장식으로 사용 */
+  #page-home .home-card-icon,
+  #page-home .v117-card-icon,
+  #page-home .v118-card-icon,
+  #page-home .v1184-card-icon,
+  #page-home .kawaii-widget > i.home-card-icon,
+  #page-home .kawaii-widget > i.v1184-card-icon{
+    display:none !important;
+    visibility:hidden !important;
+    width:0 !important;
+    height:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    position:absolute !important;
+    inset:auto !important;
+    transform:none !important;
+  }
+
+  #page-home .kawaii-widget .spark,
+  #page-home .v118-home-card .spark,
+  #page-home .v1184-card .spark{
+    position:absolute !important;
+    right:18px !important;
+    top:18px !important;
+    display:block !important;
+    width:auto !important;
+    height:auto !important;
+    margin:0 !important;
+    padding:0 !important;
+    font-size:25px !important;
+    line-height:1 !important;
+    color:#ff8fc4 !important;
+    opacity:.9 !important;
+    pointer-events:none !important;
+    z-index:1 !important;
+  }
+
+  /* 제목/본문이 옆으로 밀리거나 세로쓰기처럼 깨지는 것 방지 */
+  #page-home .kawaii-widget small,
+  #page-home .kawaii-widget b,
+  #page-home .kawaii-widget span:not(.spark),
+  #page-home .kawaii-widget p,
+  #page-home .kawaii-widget button{
+    position:relative !important;
+    left:auto !important;
+    right:auto !important;
+    top:auto !important;
+    bottom:auto !important;
+    transform:none !important;
+    writing-mode:horizontal-tb !important;
+    text-orientation:mixed !important;
+    white-space:normal !important;
+    word-break:keep-all !important;
+    overflow-wrap:break-word !important;
+    max-width:100% !important;
+    z-index:2 !important;
+  }
+
+  #page-home .kawaii-widget small{
+    display:block !important;
+    margin:0 36px 9px 0 !important;
+    padding:0 !important;
+    color:#c97fa5 !important;
+    font-size:15px !important;
+    line-height:1.25 !important;
+    letter-spacing:-.02em !important;
+    font-weight:1000 !important;
+  }
+
+  #page-home .kawaii-widget b{
+    display:block !important;
+    margin:0 0 10px !important;
+    padding:0 !important;
+    color:#6f5364 !important;
+    font-size:23px !important;
+    line-height:1.26 !important;
+    letter-spacing:-.055em !important;
+    font-weight:1000 !important;
+  }
+
+  #page-home .kawaii-widget span:not(.spark){
+    display:block !important;
+    margin:0 !important;
+    padding:0 !important;
+    color:#73596a !important;
+    font-size:14.5px !important;
+    line-height:1.55 !important;
+    letter-spacing:-.03em !important;
+    font-weight:950 !important;
+  }
+
+  /* 홈 상단의 날씨/연결 카드는 너무 길지 않게 */
+  #page-home #homeWeatherCard,
+  #page-home #homeConnectCard{
+    padding-top:17px !important;
+    padding-bottom:17px !important;
+  }
+  #page-home #homeWeatherCard span br,
+  #page-home #homeConnectCard span br{
+    display:none !important;
+  }
+
+  /* 짧은 알림 카드들은 얇게: 아래로 밀림 완화 */
+  #page-home #homeEntryCard,
+  #page-home #homeReservationCard,
+  #page-home #homeHomeworkCard{
+    padding-top:16px !important;
+    padding-bottom:16px !important;
+  }
+  #page-home #homeEntryCard span,
+  #page-home #homeReservationCard span,
+  #page-home #homeHomeworkCard span{
+    display:none !important;
+  }
+
+  /* 입장번호는 겹치지 않게, 단 카드 높이를 잡아먹지 않게 */
+  #page-home #homeEntryCard b,
+  #page-home .quick-pass b{
+    color:#ff5fa8 !important;
+    -webkit-text-fill-color:#ff5fa8 !important;
+    font-size:30px !important;
+    line-height:1 !important;
+    letter-spacing:.08em !important;
+    margin:0 !important;
+  }
+
+  /* 문자 카드는 버튼이 오른쪽 아래에 예쁘게 붙도록 */
+  #page-home #homeMessageCard .widget-link{
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    float:right !important;
+    margin:12px 0 0 10px !important;
+    min-height:36px !important;
+    padding:0 17px !important;
+    border-radius:999px !important;
+    font-size:13px !important;
+    line-height:1 !important;
+    clear:none !important;
+  }
+  #page-home #homeMessageCard::after{
+    content:"";
+    display:block;
+    clear:both;
+  }
+
+  /* 루미폰 앱은 2열 유지하되 과한 높이 제거 */
+  #page-home .kawaii-launch-card{
+    padding:16px !important;
+    margin-top:12px !important;
+    border-radius:26px !important;
+  }
+  #page-home .kawaii-launch-head h3{
+    font-size:25px !important;
+    line-height:1.2 !important;
+  }
+  #page-home .kawaii-icon-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:10px !important;
+  }
+  #page-home .kawaii-app-icon{
+    min-height:92px !important;
+    padding:10px 6px !important;
+  }
+  #page-home .kawaii-app-icon i{
+    width:44px !important;
+    height:44px !important;
+    min-width:44px !important;
+    border-radius:15px !important;
+    font-size:21px !important;
+  }
+}
+
+@media (max-width:420px){
+  #page-home .kawaii-widget-grid.v118-home-grid > .kawaii-widget,
+  #page-home .kawaii-widget-grid.v1184-grid > .kawaii-widget,
+  #page-home .kawaii-widget.v118-home-card,
+  #page-home .kawaii-widget.v1184-card{
+    padding-left:18px !important;
+    padding-right:18px !important;
+  }
+  #page-home .kawaii-widget b{
+    font-size:21px !important;
+  }
+  #page-home .kawaii-widget span:not(.spark){
+    font-size:14px !important;
+  }
+}
+</style>
+
 </body></html>
