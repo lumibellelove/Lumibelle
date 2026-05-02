@@ -13779,61 +13779,55 @@ html,body,.screen,.inside,.app-wrap{scroll-behavior:auto!important;}
 
 
 
-<!-- ===== v2.8.96 PATCH: mobile tab badge spacing only ===== -->
+<!-- ===== v2.8.96 FIX: mobile tab badge spacing (PC 무영향) ===== -->
 <style id="v2_8_96_mobile_tab_badge_spacing_css_only">
-/* 아이폰은 괜찮고 플립에서 우편함 숫자 배지가 글자에 붙는 문제만 보정.
-   JS/기능 미수정. 상단 탭 배지 위치와 여유 공간만 조정. */
+/* 모바일 전용 배지 위치 보정. PC(861px+)는 전혀 건드리지 않음.
+   transform 충돌(scale vs translateY) 해소, padding-right 과도한 값 수정. */
 @media (max-width:860px){
   #tabs.tabs .tab[data-page="home"],
   #tabs.tabs .tab[data-page="mail"],
   #tabs.tabs .tab[data-page="onair"]{
-    padding-left:10px !important;
-    padding-right:36px !important;
+    padding-right:28px !important;
     text-align:center !important;
   }
   #tabs.tabs .tab .badge-dot{
-    top:50% !important;
-    right:10px !important;
-    transform:translateY(-50%) !important;
-    min-width:24px !important;
+    top:4px !important;
+    right:5px !important;
+    transform:scale(.85) !important;
+    transform-origin:top right !important;
+    min-width:20px !important;
     width:auto !important;
-    height:24px !important;
-    padding:0 7px !important;
+    height:20px !important;
+    padding:0 5px !important;
     border-radius:999px !important;
-    font-size:10.5px !important;
-    line-height:24px !important;
+    font-size:9.5px !important;
+    line-height:20px !important;
     display:grid !important;
     place-items:center !important;
     z-index:5 !important;
     pointer-events:none !important;
   }
-  #tabs.tabs .tab[data-page="mail"]{
-    padding-right:40px !important;
-  }
-  #tabs.tabs .tab[data-page="mail"] .badge-dot{
-    right:12px !important;
-  }
-  #tabs.tabs .tab[data-page="onair"]{
-    padding-right:44px !important;
-  }
   #tabs.tabs .tab[data-page="onair"] .badge-dot{
-    right:7px !important;
-    min-width:34px !important;
-    height:22px !important;
-    padding:0 7px !important;
-    font-size:9px !important;
-    line-height:22px !important;
+    min-width:30px !important;
+    right:4px !important;
+    font-size:8.5px !important;
   }
 }
 @media (max-width:380px){
   #tabs.tabs .tab[data-page="home"],
   #tabs.tabs .tab[data-page="mail"],
   #tabs.tabs .tab[data-page="onair"]{
-    padding-left:8px !important;
-    padding-right:38px !important;
+    padding-right:26px !important;
   }
-  #tabs.tabs .tab[data-page="mail"] .badge-dot{
-    right:9px !important;
+  #tabs.tabs .tab .badge-dot{
+    right:3px !important;
+    min-width:18px !important;
+    height:18px !important;
+    font-size:8.5px !important;
+    line-height:18px !important;
+  }
+  #tabs.tabs .tab[data-page="onair"] .badge-dot{
+    min-width:28px !important;
   }
 }
 </style>
