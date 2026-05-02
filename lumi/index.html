@@ -12143,4 +12143,266 @@ html,body,.screen,.inside,.app-wrap{scroll-behavior:auto!important;}
   },true);
 })();
 </script>
+
+
+<!-- ===== v2.8.88 MOBILE RC PATCH: CSS ONLY / no JS touch ===== -->
+<style id="v2888-mobile-rc-css-only">
+/*
+  v2.8.88 release-candidate mobile patch
+  - CSS only
+  - 기능 JS / 로그인 / 문자 / 우편 / 프로필 저장 / 칭호 / ON AIR / 교환소 미수정
+  - 모바일에서 sticky 탭이 아래 콘텐츠를 덮는 느낌 제거
+  - 좁은 폰에서 홈 카드가 2열로 찌그러져 한 글자씩 세로로 깨지는 현상 방지
+*/
+
+@media(max-width:860px){
+  /* 모바일에서는 상단 탭을 고정하지 않음: 스크롤 시 아래 카드 덮침 방지 */
+  .tabs,
+  #tabs{
+    position:relative !important;
+    top:auto !important;
+    z-index:4 !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+    margin-bottom:16px !important;
+  }
+
+  /* 프레임 안쪽 폭을 조금 더 확보 */
+  .outer{
+    width:calc(100% - 10px) !important;
+  }
+  .lumi-device{
+    padding:8px !important;
+    border-width:7px !important;
+  }
+  .inside{
+    padding-left:9px !important;
+    padding-right:9px !important;
+  }
+
+  /* 홈 섹션은 내용이 길어져도 다음 카드가 위로 파고들지 않게 */
+  #page-home,
+  #page-home .kawaii-home,
+  #page-home .kawaii-launch-card{
+    position:relative !important;
+    z-index:1 !important;
+    overflow:visible !important;
+  }
+
+  /* 좁은 모바일에서는 홈 위젯을 1열로 고정: 글자 세로 깨짐 방지 */
+  #page-home .kawaii-widget-grid,
+  #page-home .kawaii-widget-grid.v1184-grid,
+  #page-home .kawaii-widget-grid.v118-home-grid,
+  #page-home .v118-home-grid,
+  #page-home .lumi-today-grid,
+  #page-home .kawaii-widget-grid.v112-home-grid,
+  #page-home .kawaii-widget-grid.v114-home-grid,
+  #page-home .kawaii-widget-grid.v116-home-grid{
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    gap:12px !important;
+    align-items:stretch !important;
+  }
+
+  /* 누적 패치에서 들어간 fixed height / absolute text를 모바일에서는 해제 */
+  #page-home .kawaii-widget,
+  #page-home .kawaii-widget-grid.v1184-grid > .kawaii-widget.v1184-card,
+  #page-home .kawaii-widget-grid.v1184-grid > .kawaii-widget.v1184-card.v1184-weather,
+  #page-home .kawaii-widget-grid.v1184-grid > .kawaii-widget.v1184-card.v1184-connect,
+  #page-home .kawaii-widget-grid.v1184-grid > .kawaii-widget.v1184-card.v1184-entry,
+  #page-home .kawaii-widget-grid.v1184-grid > .kawaii-widget.v1184-card.v1184-message,
+  #page-home .kawaii-widget-grid.v1184-grid > .kawaii-widget.v1184-card.v1184-reservation,
+  #page-home .kawaii-widget-grid.v1184-grid > .kawaii-widget.v1184-card.v1184-homework,
+  #page-home #homeWeatherCard,
+  #page-home #homeConnectCard,
+  #page-home #homeEntryCard,
+  #page-home #homeMessageCard,
+  #page-home #homeReservationCard,
+  #page-home #homeHomeworkCard{
+    width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+    padding:18px 20px !important;
+    overflow:visible !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:flex-start !important;
+    justify-content:flex-start !important;
+  }
+
+  /* 홈 카드 텍스트는 모두 정상 흐름으로: 세로쓰기처럼 보이는 줄바꿈 차단 */
+  #page-home .kawaii-widget > small,
+  #page-home .kawaii-widget > b,
+  #page-home .kawaii-widget > span:not(.spark),
+  #page-home .kawaii-widget-grid.v1184-grid > .kawaii-widget.v1184-card > small,
+  #page-home .kawaii-widget-grid.v1184-grid > .kawaii-widget.v1184-card > b,
+  #page-home .kawaii-widget-grid.v1184-grid > .kawaii-widget.v1184-card > span:not(.spark),
+  #page-home #homeWeatherCard > small,
+  #page-home #homeWeatherCard > b,
+  #page-home #homeWeatherCard > span:not(.spark),
+  #page-home #homeConnectCard > small,
+  #page-home #homeConnectCard > b,
+  #page-home #homeConnectCard > span:not(.spark),
+  #page-home #homeEntryCard > small,
+  #page-home #homeEntryCard > b,
+  #page-home #homeEntryCard > span:not(.spark),
+  #page-home #homeMessageCard > small,
+  #page-home #homeMessageCard > b,
+  #page-home #homeMessageCard > span:not(.spark),
+  #page-home #homeReservationCard > small,
+  #page-home #homeReservationCard > b,
+  #page-home #homeReservationCard > span:not(.spark),
+  #page-home #homeHomeworkCard > small,
+  #page-home #homeHomeworkCard > b,
+  #page-home #homeHomeworkCard > span:not(.spark){
+    position:static !important;
+    left:auto !important;
+    right:auto !important;
+    top:auto !important;
+    bottom:auto !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    height:auto !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    transform:none !important;
+    text-align:left !important;
+    white-space:normal !important;
+    word-break:keep-all !important;
+    overflow-wrap:normal !important;
+  }
+
+  #page-home .kawaii-widget > small,
+  #page-home .kawaii-widget-grid.v1184-grid > .kawaii-widget.v1184-card > small,
+  #page-home #homeWeatherCard > small,
+  #page-home #homeConnectCard > small,
+  #page-home #homeEntryCard > small,
+  #page-home #homeMessageCard > small,
+  #page-home #homeReservationCard > small,
+  #page-home #homeHomeworkCard > small{
+    margin:0 0 8px !important;
+    font-size:13.5px !important;
+    line-height:1.25 !important;
+    letter-spacing:.04em !important;
+  }
+
+  #page-home .kawaii-widget > b,
+  #page-home .kawaii-widget-grid.v1184-grid > .kawaii-widget.v1184-card > b,
+  #page-home #homeWeatherCard > b,
+  #page-home #homeConnectCard > b,
+  #page-home #homeMessageCard > b,
+  #page-home #homeReservationCard > b,
+  #page-home #homeHomeworkCard > b{
+    margin:0 0 8px !important;
+    font-size:21px !important;
+    line-height:1.28 !important;
+    letter-spacing:-.035em !important;
+  }
+
+  #page-home #homeEntryCard > b,
+  #page-home .kawaii-widget-grid.v1184-grid > .kawaii-widget.v1184-card.v1184-entry > b{
+    color:#ff5fa8 !important;
+    -webkit-text-fill-color:#ff5fa8 !important;
+    margin:0 0 9px !important;
+    font-size:34px !important;
+    line-height:1 !important;
+    letter-spacing:.08em !important;
+    white-space:nowrap !important;
+  }
+
+  #page-home .kawaii-widget > span:not(.spark),
+  #page-home .kawaii-widget-grid.v1184-grid > .kawaii-widget.v1184-card > span:not(.spark),
+  #page-home #homeWeatherCard > span:not(.spark),
+  #page-home #homeConnectCard > span:not(.spark),
+  #page-home #homeEntryCard > span:not(.spark),
+  #page-home #homeMessageCard > span:not(.spark),
+  #page-home #homeReservationCard > span:not(.spark),
+  #page-home #homeHomeworkCard > span:not(.spark){
+    margin:0 !important;
+    font-size:14.2px !important;
+    line-height:1.55 !important;
+    font-weight:900 !important;
+  }
+
+  /* 홈 카드 안의 이동 버튼은 아래쪽 정상 흐름으로 */
+  #page-home .kawaii-widget .widget-link,
+  #page-home .kawaii-widget-grid.v1184-grid > .kawaii-widget.v1184-card .widget-link,
+  #page-home #homeEntryCard .widget-link,
+  #page-home #homeMessageCard .widget-link{
+    position:static !important;
+    align-self:flex-end !important;
+    width:auto !important;
+    max-width:100% !important;
+    min-height:34px !important;
+    height:auto !important;
+    margin:13px 0 0 !important;
+    padding:0 16px !important;
+    line-height:34px !important;
+    white-space:nowrap !important;
+  }
+
+  /* 시계 카드도 좁은 폭에서 안정화 */
+  #page-home .home-clock-widget{
+    grid-template-columns:1fr !important;
+    min-height:0 !important;
+    padding:22px 18px !important;
+  }
+  #page-home .home-clock-widget .time{
+    font-size:54px !important;
+    line-height:.95 !important;
+  }
+  #page-home .home-clock-widget .date{
+    font-size:16px !important;
+  }
+  #page-home .home-clock-widget .copy{
+    font-size:14.5px !important;
+    line-height:1.6 !important;
+    word-break:keep-all !important;
+    overflow-wrap:normal !important;
+  }
+
+  /* 앱 런처는 겹치지 않게 일반 카드처럼 흐름 유지 */
+  #page-home .kawaii-launch-card{
+    margin-top:14px !important;
+    margin-bottom:14px !important;
+  }
+  #page-home .kawaii-icon-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:10px !important;
+  }
+  #page-home .kawaii-app-icon{
+    min-height:74px !important;
+    padding:6px 4px !important;
+    font-size:13px !important;
+    line-height:1.25 !important;
+  }
+  #page-home .kawaii-app-icon i{
+    width:42px !important;
+    height:42px !important;
+    min-width:42px !important;
+    border-radius:15px !important;
+    font-size:21px !important;
+  }
+}
+
+@media(max-width:420px){
+  #page-home .kawaii-home{
+    padding-left:14px !important;
+    padding-right:14px !important;
+  }
+  #page-home .kawaii-widget,
+  #page-home .kawaii-widget-grid.v1184-grid > .kawaii-widget.v1184-card,
+  #page-home #homeWeatherCard,
+  #page-home #homeConnectCard,
+  #page-home #homeEntryCard,
+  #page-home #homeMessageCard,
+  #page-home #homeReservationCard,
+  #page-home #homeHomeworkCard{
+    padding:17px 18px !important;
+  }
+}
+</style>
+
 </body></html>
