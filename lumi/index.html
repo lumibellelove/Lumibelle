@@ -3,16 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>LUMI PHONE v10.3 | Clean RC Step 2 Ticket Mail OK</title>
+  <title>LUMI PHONE v10.3 | Clean RC Step 3 Record Stamp On Air</title>
   <meta name="theme-color" content="#fff7fb" />
 
   <style>
-    /* =========================================================
-      LUMI PHONE CLEAN RC
-      새 단일 HTML / 팬 화면 / 로그인 + 탭 구조 + 홈
-      기존 누적 패치 CSS·운영탭·내부 로드맵·개발용 UI 미포함
-    ========================================================= */
-
     @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=SUIT:wght@500;600;700;800;900&display=swap");
 
     :root {
@@ -30,10 +24,6 @@
       --shadow: 0 14px 34px rgba(232, 191, 211, 0.15);
       --shadow2: 0 24px 70px rgba(255, 95, 168, 0.18);
       --phone-max-mobile: 430px;
-      --radius-xl: 34px;
-      --radius-lg: 28px;
-      --radius-md: 22px;
-      --gap: 12px;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
@@ -76,6 +66,10 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+    button:disabled {
+      cursor: default;
+    }
+
     a {
       color: inherit;
       text-decoration: none;
@@ -85,9 +79,36 @@
       display: none !important;
     }
 
+    p {
+      margin: 0;
+      color: #8f7183;
+      font-size: 14px;
+      line-height: 1.72;
+      font-weight: 800;
+      word-break: keep-all;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+      padding: 13px 14px;
+      color: #76586a;
+      font-size: 14px;
+      font-weight: 900;
+      outline: none;
+      text-align: center;
+    }
+
+    input:focus {
+      border-color: var(--line2);
+      box-shadow: 0 0 0 4px rgba(255, 130, 186, 0.14);
+    }
+
     .root {
       min-height: 100vh;
-      padding: max(14px, var(--safe-top)) 10px calc(18px + var(--safe-bottom));
+      padding: max(8px, var(--safe-top)) 8px calc(12px + var(--safe-bottom));
       display: flex;
       justify-content: center;
       align-items: flex-start;
@@ -97,10 +118,10 @@
       width: min(100%, var(--phone-max-mobile));
       min-height: calc(100vh - 28px);
       border-radius: 40px;
-      border: 8px solid #ff78b8;
+      border: 7px solid #ff78b8;
       background: linear-gradient(145deg, rgba(255,255,255,.95), rgba(255,241,249,.88));
       box-shadow: var(--shadow2);
-      padding: 10px;
+      padding: 8px;
       position: relative;
     }
 
@@ -128,33 +149,38 @@
     }
 
     .screen-inner {
-      padding: 30px 12px 16px;
+      padding: 24px 10px 14px;
     }
 
-    .view {
+    .view,
+    .page,
+    .mini-page,
+    .detail-box {
       display: none;
     }
 
-    .view.active {
+    .view.active,
+    .page.active,
+    .mini-page.active,
+    .detail-box.active {
       display: block;
     }
 
-    /* LOGIN */
     .login-view {
-      min-height: calc(100vh - 110px);
+      min-height: calc(100vh - 96px);
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
-      padding: 18px 0;
+      padding: 42px 0 18px;
     }
 
     .login-card {
       width: 100%;
       border: 1px solid var(--line);
-      border-radius: 30px;
+      border-radius: 28px;
       background: rgba(255,255,255,.92);
       box-shadow: var(--shadow);
-      padding: 28px 20px;
+      padding: 24px 18px 22px;
       text-align: center;
     }
 
@@ -175,50 +201,28 @@
     }
 
     .login-title {
-      margin: 14px 0 10px;
+      margin: 12px 0 8px;
       font-family: "Cormorant Garamond", serif;
       color: var(--pink);
-      font-size: clamp(52px, 15vw, 72px);
+      font-size: clamp(48px, 14vw, 64px);
       line-height: .86;
       letter-spacing: -.05em;
       font-weight: 700;
     }
 
-    p {
-      margin: 0;
-      color: #8f7183;
-      font-size: 14px;
-      line-height: 1.72;
-      font-weight: 800;
-      word-break: keep-all;
+    .login-card p {
+      font-size: 13px;
+      line-height: 1.62;
     }
 
     .form {
       display: grid;
-      gap: 10px;
-      margin-top: 22px;
-    }
-
-    input {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: #fff;
-      padding: 13px 14px;
-      color: #76586a;
-      font-size: 14px;
-      font-weight: 900;
-      outline: none;
-      text-align: center;
-    }
-
-    input:focus {
-      border-color: var(--line2);
-      box-shadow: 0 0 0 4px rgba(255, 130, 186, 0.14);
+      gap: 9px;
+      margin-top: 18px;
     }
 
     .btn {
-      min-height: 46px;
+      min-height: 44px;
       border-radius: 999px;
       padding: 0 16px;
       font-size: 14px;
@@ -261,9 +265,8 @@
       display: block;
     }
 
-    /* APP */
     .statusbar {
-      min-height: 30px;
+      min-height: 26px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -271,7 +274,7 @@
       color: #b3839b;
       font-size: 12px;
       font-weight: 900;
-      padding: 0 2px 8px;
+      padding: 0 2px 6px;
       white-space: nowrap;
     }
 
@@ -283,19 +286,19 @@
 
     .top-actions {
       display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
+      gap: 7px;
+      margin-bottom: 10px;
     }
 
     .top-actions a,
     .top-actions button {
       flex: 1;
-      min-height: 40px;
+      min-height: 36px;
       border-radius: 999px;
       border: 1px solid var(--line2);
       background: #fff;
       color: #d77ca7;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 900;
       display: flex;
       align-items: center;
@@ -303,10 +306,10 @@
     }
 
     .header {
-      margin-bottom: 14px;
-      padding: 18px;
+      margin-bottom: 12px;
+      padding: 16px 16px 15px;
       border: 1px solid var(--line);
-      border-radius: 28px;
+      border-radius: 26px;
       background:
         radial-gradient(circle at 90% 10%, rgba(202,167,255,.2), transparent 24%),
         linear-gradient(135deg, #fff5fb, #fff, #f8f0ff);
@@ -314,18 +317,18 @@
     }
 
     .header h1 {
-      margin: 8px 0 6px;
+      margin: 7px 0 5px;
       color: var(--pink);
       font-family: "Cormorant Garamond", serif;
-      font-size: clamp(40px, 12vw, 48px);
+      font-size: clamp(38px, 11vw, 44px);
       line-height: .9;
       letter-spacing: -.04em;
       font-weight: 700;
     }
 
     .header p {
-      font-size: 13px;
-      line-height: 1.65;
+      font-size: 12.5px;
+      line-height: 1.58;
     }
 
     .tabs {
@@ -334,23 +337,23 @@
       z-index: 20;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 7px;
-      margin-bottom: 14px;
-      padding: 8px;
+      gap: 6px;
+      margin-bottom: 12px;
+      padding: 7px;
       border: 1px solid var(--line);
-      border-radius: 24px;
+      border-radius: 22px;
       background: rgba(255,255,255,.88);
       backdrop-filter: blur(10px);
     }
 
     .tab {
       position: relative;
-      min-height: 42px;
+      min-height: 39px;
       border: 1px solid var(--line);
-      border-radius: 16px;
+      border-radius: 15px;
       background: #fff;
       color: #9f748d;
-      font-size: 12px;
+      font-size: 11.5px;
       line-height: 1.2;
       font-weight: 900;
       white-space: nowrap;
@@ -367,38 +370,29 @@
 
     .badge {
       position: absolute;
-      right: 6px;
+      right: 5px;
       top: 4px;
-      min-width: 20px;
-      height: 20px;
-      padding: 0 6px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
       display: grid;
       place-items: center;
       border-radius: 999px;
       background: #ff3d8f;
       color: #fff;
-      font-size: 9px;
+      font-size: 8.5px;
       font-weight: 900;
       line-height: 1;
     }
 
-    .page {
-      display: none;
-    }
-
-    .page.active {
-      display: block;
-    }
-
-    /* HOME */
     .kawaii-home {
       position: relative;
       overflow: hidden;
       border: 1px solid var(--line);
-      border-radius: 30px;
+      border-radius: 28px;
       background: linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,248,252,.92));
       box-shadow: var(--shadow);
-      padding: 16px;
+      padding: 14px;
     }
 
     .kawaii-home::before,
@@ -424,39 +418,39 @@
 
     .clock-card {
       position: relative;
-      border-radius: 28px;
+      border-radius: 26px;
       border: 1px solid #f5d2e3;
       background:
         radial-gradient(circle at 88% 18%, rgba(255,255,255,.75), transparent 21%),
         linear-gradient(135deg, #fff, #fff5fb 55%, #f5edff);
-      padding: 24px 20px 20px;
-      min-height: 156px;
+      padding: 21px 18px 18px;
+      min-height: 136px;
       display: grid;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .clock-card::before {
       content: "🎀";
       position: absolute;
-      top: -10px;
+      top: -9px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 38px;
+      font-size: 34px;
       filter: drop-shadow(0 6px 8px rgba(255,95,168,.14));
     }
 
     .clock-eyebrow {
       color: #d77ca7;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 900;
       letter-spacing: .08em;
-      margin-bottom: 7px;
+      margin-bottom: 6px;
     }
 
     .time {
       color: #ff67ac;
-      font-size: clamp(48px, 16vw, 62px);
+      font-size: clamp(44px, 14vw, 56px);
       line-height: .9;
       font-weight: 900;
       letter-spacing: -.04em;
@@ -464,20 +458,20 @@
     }
 
     .date {
-      margin-top: 9px;
+      margin-top: 7px;
       color: #b894a7;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 900;
       letter-spacing: .08em;
       white-space: nowrap;
     }
 
     .copy {
-      margin-top: 9px;
+      margin-top: 7px;
       color: #7c5b6d;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 900;
-      line-height: 1.55;
+      line-height: 1.5;
     }
 
     .search {
@@ -485,14 +479,14 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      margin: 12px 0 14px;
-      padding: 0 15px;
-      min-height: 46px;
+      margin: 10px 0 12px;
+      padding: 0 13px;
+      min-height: 42px;
       border: 1px solid #f4d2e3;
       border-radius: 999px;
       background: rgba(255,255,255,.86);
       color: #b98aa2;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 900;
       text-align: left;
     }
@@ -507,95 +501,94 @@
     .home-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 10px;
-      margin-bottom: 14px;
+      gap: 9px;
+      margin-bottom: 12px;
     }
 
     .home-card {
       position: relative;
-      min-height: auto;
       border: 1px solid #f3d2e3;
-      border-radius: 24px;
+      border-radius: 22px;
       background: #fff;
-      padding: 15px 15px 15px 64px;
+      padding: 13px 13px 13px 58px;
       box-shadow: 0 8px 16px rgba(232,191,211,.08);
       overflow: hidden;
     }
 
     .home-card.no-icon {
-      padding-left: 15px;
+      padding-left: 13px;
     }
 
     .home-card-icon {
       position: absolute;
-      left: 14px;
-      top: 16px;
-      width: 40px;
-      height: 40px;
-      border-radius: 15px;
+      left: 13px;
+      top: 14px;
+      width: 36px;
+      height: 36px;
+      border-radius: 14px;
       display: grid;
       place-items: center;
       background: linear-gradient(135deg, #fff0f7, #f8f0ff);
       color: #d77ca7;
       font-style: normal;
-      font-size: 22px;
+      font-size: 19px;
       border: 1px solid #f3d2e3;
     }
 
     .home-card small {
       display: block;
       color: #b5869c;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 900;
       letter-spacing: .02em;
     }
 
     .home-card b {
       display: block;
-      margin-top: 5px;
+      margin-top: 4px;
       color: #715269;
-      font-size: 18px;
-      line-height: 1.25;
+      font-size: 17px;
+      line-height: 1.22;
       font-weight: 900;
       word-break: keep-all;
     }
 
     .home-card span {
       display: block;
-      margin-top: 7px;
+      margin-top: 6px;
       color: #8d6b7d;
-      font-size: 12.5px;
-      line-height: 1.55;
+      font-size: 12px;
+      line-height: 1.48;
       font-weight: 800;
       word-break: keep-all;
     }
 
     .home-card.pass b {
       color: var(--pink);
-      font-size: 34px;
+      font-size: 31px;
       letter-spacing: .06em;
       line-height: 1;
     }
 
     .widget-link {
-      min-height: 34px;
-      margin-top: 10px;
+      min-height: 32px;
+      margin-top: 9px;
       padding: 0 12px;
       border-radius: 999px;
       border: 1px solid var(--line2);
       background: #fff;
       color: #d77ca7;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 900;
     }
 
     .launch-card {
       border: 1px solid #f3d2e3;
-      border-radius: 28px;
+      border-radius: 26px;
       background: rgba(255,255,255,.86);
       box-shadow: var(--shadow);
-      padding: 15px;
-      margin-top: 12px;
+      padding: 14px;
+      margin-top: 10px;
     }
 
     .launch-head {
@@ -603,13 +596,13 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      margin-bottom: 12px;
+      margin-bottom: 11px;
     }
 
     .launch-head h2 {
       margin: 0;
       color: #d77ca7;
-      font-size: 21px;
+      font-size: 20px;
       line-height: 1.2;
       font-weight: 900;
       letter-spacing: -.03em;
@@ -618,18 +611,18 @@
     .icon-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
+      gap: 9px;
     }
 
     .app-icon {
       position: relative;
-      min-height: 96px;
+      min-height: 92px;
       border: 1px solid var(--line);
-      border-radius: 22px;
+      border-radius: 21px;
       background: #fff;
       box-shadow: 0 8px 16px rgba(232,191,211,.08);
       color: #7f5f72;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 900;
       display: flex;
       flex-direction: column;
@@ -641,16 +634,16 @@
     }
 
     .app-icon i {
-      width: 50px;
-      height: 50px;
-      border-radius: 18px;
+      width: 48px;
+      height: 48px;
+      border-radius: 17px;
       display: grid;
       place-items: center;
       background: linear-gradient(180deg, #ffc4df, #ffddeb);
       border: 1px solid #f4b8d2;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 10px 20px rgba(255,95,168,.13);
       font-style: normal;
-      font-size: 24px;
+      font-size: 23px;
     }
 
     .app-icon.live i {
@@ -662,36 +655,622 @@
       position: absolute;
       right: 7px;
       top: 7px;
-      min-height: 22px;
-      padding: 0 7px;
+      min-height: 20px;
+      padding: 0 6px;
       display: flex;
       align-items: center;
       border-radius: 999px;
       background: #ff3d8f;
       color: #fff;
-      font-size: 10px;
+      font-size: 9.5px;
       font-weight: 900;
     }
 
-    .placeholder {
+    .placeholder,
+    .module-card {
       border: 1px solid var(--line);
       border-radius: 28px;
-      background: rgba(255,255,255,.88);
+      background: rgba(255,255,255,.9);
       box-shadow: var(--shadow);
-      padding: 18px;
+      padding: 16px;
+      margin-bottom: 12px;
     }
 
-    .placeholder h2 {
-      margin: 0 0 10px;
+    .placeholder h2,
+    .module-card h2 {
+      margin: 0 0 8px;
       color: #d77ca7;
-      font-size: 22px;
+      font-size: 24px;
       line-height: 1.2;
+      font-weight: 900;
+      letter-spacing: -.03em;
+    }
+
+    .placeholder p,
+    .module-card > p {
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .mini-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .mini-tab {
+      min-height: 40px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #b07693;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .mini-tab.active {
+      color: #fff;
+      border-color: transparent;
+      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
+      box-shadow: 0 8px 18px rgba(255,95,168,.14);
+    }
+
+    .ticket-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      color: #fff;
+      background:
+        radial-gradient(circle at 95% 0%, rgba(255,255,255,.42), transparent 28%),
+        linear-gradient(135deg, #ff7eb3, #ff5fa8 58%, #caa7ff);
+      box-shadow: 0 15px 32px rgba(255,95,168,.20);
+      margin-bottom: 12px;
+    }
+
+    .ticket-card.soft {
+      color: var(--deep);
+      background:
+        radial-gradient(circle at 92% 8%, rgba(255,255,255,.55), transparent 24%),
+        linear-gradient(135deg, #fff3fa, #ffd9e8 46%, #f5edff 100%);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .ticket-card::before,
+    .ticket-card::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #fff7fb;
+      transform: translateY(-50%);
+      z-index: 1;
+    }
+
+    .ticket-card::before { left: -14px; }
+    .ticket-card::after { right: -14px; }
+
+    .ticket-inner {
+      position: relative;
+      z-index: 2;
+      margin: 10px;
+      border: 2px dotted rgba(255,255,255,.50);
+      border-radius: 22px;
+      padding: 16px;
+    }
+
+    .ticket-card.soft .ticket-inner {
+      border-color: rgba(210,105,166,.24);
+    }
+
+    .ticket-kicker {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      opacity: .86;
+    }
+
+    .ticket-title {
+      margin-top: 7px;
+      font-size: 23px;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -.03em;
+      word-break: keep-all;
+    }
+
+    .ticket-sub {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.55;
+      font-weight: 800;
+      opacity: .9;
+      word-break: keep-all;
+    }
+
+    .ticket-number {
+      margin: 13px 0 10px;
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.18);
+      text-align: center;
+    }
+
+    .ticket-card.soft .ticket-number {
+      background: rgba(255,255,255,.55);
+    }
+
+    .ticket-number small {
+      display: block;
+      font-size: 11px;
+      font-weight: 900;
+      opacity: .8;
+    }
+
+    .ticket-number strong {
+      display: block;
+      margin-top: 2px;
+      font-size: 42px;
+      line-height: 1;
+      letter-spacing: .10em;
       font-weight: 900;
     }
 
-    .placeholder p {
+    .ticket-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .ticket-cell {
+      min-height: 48px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.16);
+    }
+
+    .ticket-card.soft .ticket-cell {
+      background: rgba(255,255,255,.52);
+    }
+
+    .ticket-cell small {
+      display: block;
+      font-size: 10px;
+      opacity: .78;
+      font-weight: 900;
+    }
+
+    .ticket-cell b {
+      display: block;
+      margin-top: 2px;
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 900;
+      word-break: keep-all;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line2);
+      color: #d77ca7;
+      font-size: 11px;
+      font-weight: 900;
+      margin: 5px 5px 0 0;
+      white-space: nowrap;
+    }
+
+    .ticket-list,
+    .mail-list,
+    .record-list,
+    .guide-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .plain-row {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: #fff;
+      padding: 14px;
+    }
+
+    .plain-row b {
+      display: block;
+      color: #76586a;
+      font-size: 15px;
+      line-height: 1.35;
+      font-weight: 900;
+      word-break: keep-all;
+    }
+
+    .plain-row span {
+      display: block;
+      margin-top: 5px;
+      color: #9a7187;
+      font-size: 12px;
+      line-height: 1.55;
+      font-weight: 800;
+      word-break: keep-all;
+    }
+
+    .mail-item {
+      position: relative;
+      width: 100%;
+      min-height: 78px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: #fff;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 42px 1fr 22px;
+      gap: 10px;
+      align-items: center;
+      text-align: left;
+      color: inherit;
+    }
+
+    .mail-item .icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: #fff0f7;
+      color: #d77ca7;
+      font-size: 20px;
+      border: 1px solid var(--line);
+    }
+
+    .mail-item b {
+      display: block;
+      color: #76586a;
+      font-size: 14px;
+      line-height: 1.35;
+      font-weight: 900;
+    }
+
+    .mail-item span {
+      display: block;
+      margin-top: 4px;
+      color: #b28ea2;
+      font-size: 11.5px;
+      line-height: 1.35;
+      font-weight: 800;
+    }
+
+    .mail-item .arrow {
+      color: #d77ca7;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .mail-dot {
+      position: absolute;
+      left: 10px;
+      top: 9px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ff3d8f;
+    }
+
+    .detail-box {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: #fffafd;
+      padding: 16px;
+    }
+
+    .detail-box h3 {
+      margin: 0 0 8px;
+      color: #d77ca7;
+      font-size: 18px;
+      line-height: 1.25;
+      font-weight: 900;
+    }
+
+    .detail-box p {
+      font-size: 13px;
+      line-height: 1.75;
+      font-weight: 800;
+    }
+
+    .mail-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .mail-action-btn {
+      min-height: 38px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #d77ca7;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .mail-action-btn.primary-look {
+      border-color: transparent;
+      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(255,95,168,.14);
+    }
+
+    .mail-action-btn:disabled {
+      opacity: .78;
+    }
+
+    .message-phone {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      background: linear-gradient(180deg, #fffafd, #fff0f7);
+    }
+
+    .bubble {
+      max-width: 92%;
+      padding: 12px 14px;
+      border-radius: 20px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: #76586a;
+      font-size: 13px;
+      line-height: 1.6;
+      font-weight: 850;
+      box-shadow: 0 8px 16px rgba(232,191,211,.10);
+      word-break: keep-all;
+    }
+
+    .bubble.from {
+      justify-self: start;
+      border-bottom-left-radius: 8px;
+    }
+
+    .bubble.to {
+      justify-self: end;
+      border-bottom-right-radius: 8px;
+      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+      margin: 12px 0;
+    }
+
+    .summary-card {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: #fff;
+      padding: 13px;
+      box-shadow: 0 8px 16px rgba(232,191,211,.08);
+    }
+
+    .summary-card small {
+      display: block;
+      color: #b5869c;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .02em;
+    }
+
+    .summary-card b {
+      display: block;
+      margin-top: 4px;
+      color: var(--pink);
+      font-size: 24px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .summary-card span {
+      display: block;
+      margin-top: 7px;
+      color: #8d6b7d;
+      font-size: 11.5px;
+      line-height: 1.45;
+      font-weight: 800;
+      word-break: keep-all;
+    }
+
+    .record-item {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: #fff;
+      padding: 14px;
+    }
+
+    .record-item small {
+      display: inline-flex;
+      min-height: 24px;
+      align-items: center;
+      padding: 0 9px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff7fb;
+      color: #b07693;
+      font-size: 10.5px;
+      font-weight: 900;
+    }
+
+    .record-item b {
+      display: block;
+      margin-top: 8px;
+      color: #76586a;
+      font-size: 16px;
+      line-height: 1.35;
+      font-weight: 900;
+      word-break: keep-all;
+    }
+
+    .record-item span {
+      display: block;
+      margin-top: 5px;
+      color: #9a7187;
+      font-size: 12px;
+      line-height: 1.55;
+      font-weight: 800;
+      word-break: keep-all;
+    }
+
+    .stamp-status {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: linear-gradient(135deg, #fff, #fff0f7 62%, #f8f0ff);
+      padding: 15px;
+      margin: 12px 0;
+    }
+
+    .stamp-status small {
+      display: block;
+      color: #b5869c;
+      font-size: 11.5px;
+      font-weight: 900;
+    }
+
+    .stamp-status b {
+      display: block;
+      margin-top: 5px;
+      color: var(--pink);
+      font-size: 28px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .stamp-status span {
+      display: block;
+      margin-top: 8px;
+      color: #8d6b7d;
+      font-size: 12px;
+      line-height: 1.55;
+      font-weight: 800;
+    }
+
+    .stamp-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .stamp-cell {
+      aspect-ratio: 1;
+      border: 2px solid #f0cddd;
+      border-radius: 50%;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      color: #efc3d7;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .stamp-cell.done {
+      border-color: transparent;
+      background: linear-gradient(135deg, #ff82ba, #ff5fa8);
+      color: #fff;
+      box-shadow: 0 8px 16px rgba(255,95,168,.16);
+    }
+
+    .onair-state {
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 92% 8%, rgba(255,255,255,.55), transparent 25%),
+        linear-gradient(135deg, #ff7eb3, #ff5fa8 55%, #caa7ff);
+      color: #fff;
+      padding: 17px;
+      box-shadow: 0 15px 32px rgba(255,95,168,.20);
+      margin: 12px 0;
+    }
+
+    .onair-state .eyebrow {
+      min-height: 28px;
+      color: #d77ca7;
+      font-size: 11px;
+      margin-bottom: 11px;
+    }
+
+    .onair-state h3 {
+      margin: 0;
+      color: #fff;
+      font-size: 24px;
+      line-height: 1.2;
+      font-weight: 900;
+      letter-spacing: -.03em;
+    }
+
+    .onair-state p {
+      margin-top: 8px;
+      color: #fff;
       font-size: 13px;
       line-height: 1.65;
+      font-weight: 850;
+    }
+
+    .code-box {
+      display: grid;
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .code-box label {
+      color: #b07693;
+      font-size: 12px;
+      font-weight: 900;
+      padding-left: 2px;
+    }
+
+    .code-box input {
+      text-align: left;
+    }
+
+    .disabled-note-btn {
+      min-height: 42px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #d77ca7;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .toast {
+      display: none;
+      margin-top: 10px;
+      border: 1px solid #f4d7c5;
+      border-radius: 18px;
+      background: #fff8ef;
+      color: #bc7138;
+      padding: 11px;
+      font-size: 12px;
+      line-height: 1.55;
+      font-weight: 850;
+      word-break: keep-all;
+    }
+
+    .toast.show {
+      display: block;
     }
 
     @media (max-width: 374px) {
@@ -706,53 +1285,80 @@
       }
 
       .screen-inner {
-        padding-left: 10px;
-        padding-right: 10px;
+        padding-left: 9px;
+        padding-right: 9px;
       }
 
-      .header {
-        padding: 16px;
+      .login-view {
+        padding-top: 34px;
+      }
+
+      .login-title {
+        font-size: 50px;
+      }
+
+      .help-row,
+      .ticket-meta {
+        grid-template-columns: 1fr;
       }
 
       .header h1 {
-        font-size: 38px;
-      }
-
-      .tabs {
-        gap: 6px;
+        font-size: 36px;
       }
 
       .tab {
-        min-height: 40px;
         font-size: 11px;
       }
 
+      .clock-card {
+        min-height: 128px;
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .time {
+        font-size: 46px;
+      }
+
       .home-card {
-        padding: 14px 13px 14px 58px;
+        padding-left: 55px;
       }
 
       .home-card.no-icon {
-        padding-left: 13px;
+        padding-left: 12px;
       }
 
-      .home-card-icon {
-        left: 12px;
-        width: 38px;
-        height: 38px;
+      .home-card b {
+        font-size: 16px;
       }
 
       .app-icon {
-        min-height: 90px;
-        font-size: 12px;
+        min-height: 88px;
       }
 
       .app-icon i {
-        width: 46px;
-        height: 46px;
-        font-size: 22px;
+        width: 45px;
+        height: 45px;
+        font-size: 21px;
       }
 
-      .help-row {
+      .mini-tabs {
+        gap: 6px;
+      }
+
+      .mini-tab {
+        font-size: 11px;
+      }
+
+      .ticket-title {
+        font-size: 21px;
+      }
+
+      .ticket-number strong {
+        font-size: 36px;
+      }
+
+      .summary-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -815,1122 +1421,16 @@
       .time {
         font-size: 72px;
       }
-    }
-  
-    /* ===== STEP 2: Ticket + Mail clean modules OK ===== */
-    .module-card {
-      border: 1px solid var(--line);
-      border-radius: 28px;
-      background: rgba(255,255,255,.9);
-      box-shadow: var(--shadow);
-      padding: 16px;
-      margin-bottom: 12px;
-    }
 
-    .module-card h2 {
-      margin: 0 0 8px;
-      color: #d77ca7;
-      font-size: 24px;
-      line-height: 1.2;
-      font-weight: 900;
-      letter-spacing: -.03em;
-    }
-
-    .module-card > p {
-      font-size: 13px;
-      line-height: 1.65;
-    }
-
-    .mini-tabs {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      margin: 12px 0;
-    }
-
-    .mini-tab {
-      min-height: 40px;
-      border-radius: 999px;
-      border: 1px solid var(--line2);
-      background: #fff;
-      color: #b07693;
-      font-size: 12px;
-      font-weight: 900;
-      white-space: nowrap;
-    }
-
-    .mini-tab.active {
-      color: #fff;
-      border-color: transparent;
-      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
-      box-shadow: 0 8px 18px rgba(255,95,168,.14);
-    }
-
-    .mini-page {
-      display: none;
-    }
-
-    .mini-page.active {
-      display: block;
-    }
-
-    .ticket-card {
-      position: relative;
-      overflow: hidden;
-      border-radius: 28px;
-      color: #fff;
-      background:
-        radial-gradient(circle at 95% 0%, rgba(255,255,255,.42), transparent 28%),
-        linear-gradient(135deg, #ff7eb3, #ff5fa8 58%, #caa7ff);
-      box-shadow: 0 15px 32px rgba(255,95,168,.20);
-      margin-bottom: 12px;
-    }
-
-    .ticket-card.soft {
-      color: var(--deep);
-      background:
-        radial-gradient(circle at 92% 8%, rgba(255,255,255,.55), transparent 24%),
-        linear-gradient(135deg, #fff3fa, #ffd9e8 46%, #f5edff 100%);
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow);
-    }
-
-    .ticket-card::before,
-    .ticket-card::after {
-      content: "";
-      position: absolute;
-      top: 50%;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: #fff7fb;
-      transform: translateY(-50%);
-      z-index: 1;
-    }
-
-    .ticket-card::before { left: -14px; }
-    .ticket-card::after { right: -14px; }
-
-    .ticket-inner {
-      position: relative;
-      z-index: 2;
-      margin: 10px;
-      border: 2px dotted rgba(255,255,255,.50);
-      border-radius: 22px;
-      padding: 16px;
-    }
-
-    .ticket-card.soft .ticket-inner {
-      border-color: rgba(210,105,166,.24);
-    }
-
-    .ticket-kicker {
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: .12em;
-      opacity: .86;
-    }
-
-    .ticket-title {
-      margin-top: 7px;
-      font-size: 23px;
-      font-weight: 900;
-      line-height: 1.15;
-      letter-spacing: -.03em;
-      word-break: keep-all;
-    }
-
-    .ticket-sub {
-      margin-top: 6px;
-      font-size: 12px;
-      line-height: 1.55;
-      font-weight: 800;
-      opacity: .9;
-      word-break: keep-all;
-    }
-
-    .ticket-number {
-      margin: 13px 0 10px;
-      padding: 12px;
-      border-radius: 18px;
-      background: rgba(255,255,255,.18);
-      text-align: center;
-    }
-
-    .ticket-card.soft .ticket-number {
-      background: rgba(255,255,255,.55);
-    }
-
-    .ticket-number small {
-      display: block;
-      font-size: 11px;
-      font-weight: 900;
-      opacity: .8;
-    }
-
-    .ticket-number strong {
-      display: block;
-      margin-top: 2px;
-      font-size: 42px;
-      line-height: 1;
-      letter-spacing: .10em;
-      font-weight: 900;
-    }
-
-    .ticket-meta {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .ticket-cell {
-      min-height: 48px;
-      padding: 8px 10px;
-      border-radius: 14px;
-      background: rgba(255,255,255,.16);
-    }
-
-    .ticket-card.soft .ticket-cell {
-      background: rgba(255,255,255,.52);
-    }
-
-    .ticket-cell small {
-      display: block;
-      font-size: 10px;
-      opacity: .78;
-      font-weight: 900;
-    }
-
-    .ticket-cell b {
-      display: block;
-      margin-top: 2px;
-      font-size: 12px;
-      line-height: 1.35;
-      font-weight: 900;
-      word-break: keep-all;
-    }
-
-    .status-chip {
-      display: inline-flex;
-      align-items: center;
-      min-height: 26px;
-      padding: 0 10px;
-      border-radius: 999px;
-      background: #fff;
-      border: 1px solid var(--line2);
-      color: #d77ca7;
-      font-size: 11px;
-      font-weight: 900;
-      margin: 5px 5px 0 0;
-      white-space: nowrap;
-    }
-
-    .ticket-list,
-    .mail-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .plain-row {
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      background: #fff;
-      padding: 14px;
-    }
-
-    .plain-row b {
-      display: block;
-      color: #76586a;
-      font-size: 15px;
-      line-height: 1.35;
-      font-weight: 900;
-      word-break: keep-all;
-    }
-
-    .plain-row span {
-      display: block;
-      margin-top: 5px;
-      color: #9a7187;
-      font-size: 12px;
-      line-height: 1.55;
-      font-weight: 800;
-      word-break: keep-all;
-    }
-
-    .mail-item {
-      position: relative;
-      width: 100%;
-      min-height: 78px;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: #fff;
-      padding: 12px;
-      display: grid;
-      grid-template-columns: 42px 1fr 22px;
-      gap: 10px;
-      align-items: center;
-      text-align: left;
-      color: inherit;
-    }
-
-    .mail-item .icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 16px;
-      display: grid;
-      place-items: center;
-      background: #fff0f7;
-      color: #d77ca7;
-      font-size: 20px;
-      border: 1px solid var(--line);
-    }
-
-    .mail-item b {
-      display: block;
-      color: #76586a;
-      font-size: 14px;
-      line-height: 1.35;
-      font-weight: 900;
-    }
-
-    .mail-item span {
-      display: block;
-      margin-top: 4px;
-      color: #b28ea2;
-      font-size: 11.5px;
-      line-height: 1.35;
-      font-weight: 800;
-    }
-
-    .mail-item .arrow {
-      color: #d77ca7;
-      font-size: 18px;
-      font-weight: 900;
-    }
-
-    .mail-dot {
-      position: absolute;
-      left: 10px;
-      top: 9px;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #ff3d8f;
-    }
-
-    .detail-box {
-      display: none;
-      margin-top: 12px;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: #fffafd;
-      padding: 16px;
-    }
-
-    .detail-box.active {
-      display: block;
-    }
-
-    .detail-box h3 {
-      margin: 0 0 8px;
-      color: #d77ca7;
-      font-size: 18px;
-      line-height: 1.25;
-      font-weight: 900;
-    }
-
-    .detail-box p {
-      font-size: 13px;
-      line-height: 1.75;
-      font-weight: 800;
-    }
-
-
-    .mail-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 14px;
-    }
-
-    .mail-action-btn {
-      min-height: 38px;
-      border-radius: 999px;
-      border: 1px solid var(--line2);
-      background: #fff;
-      color: #d77ca7;
-      font-size: 12px;
-      font-weight: 900;
-      white-space: nowrap;
-    }
-
-    .mail-action-btn.primary-look {
-      border-color: transparent;
-      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
-      color: #fff;
-      box-shadow: 0 8px 18px rgba(255,95,168,.14);
-    }
-
-    .mail-action-btn:disabled {
-      opacity: .78;
-      cursor: default;
-    }
-
-    .message-phone {
-      display: grid;
-      gap: 10px;
-      margin-top: 14px;
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-radius: 26px;
-      background: linear-gradient(180deg, #fffafd, #fff0f7);
-    }
-
-    .bubble {
-      max-width: 92%;
-      padding: 12px 14px;
-      border-radius: 20px;
-      background: #fff;
-      border: 1px solid var(--line);
-      color: #76586a;
-      font-size: 13px;
-      line-height: 1.6;
-      font-weight: 850;
-      box-shadow: 0 8px 16px rgba(232,191,211,.10);
-      word-break: keep-all;
-    }
-
-    .bubble.from {
-      justify-self: start;
-      border-bottom-left-radius: 8px;
-    }
-
-    .bubble.to {
-      justify-self: end;
-      border-bottom-right-radius: 8px;
-      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
-      color: #fff;
-      border-color: transparent;
-    }
-
-    @media (max-width: 374px) {
-      .ticket-meta {
-        grid-template-columns: 1fr;
+      .summary-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
-      .mini-tabs {
-        gap: 6px;
-      }
-
-      .mini-tab {
-        font-size: 11px;
-      }
-
-      .ticket-title {
-        font-size: 21px;
-      }
-
-      .ticket-number strong {
-        font-size: 36px;
+      .stamp-grid {
+        grid-template-columns: repeat(10, minmax(0, 1fr));
       }
     }
-
   </style>
-
-  <style id="step1-1-mobile-density-patch">
-    /* =========================================================
-      STEP 1-1 모바일 홈 밀도 조정 패치
-      기능 추가 없음 / 탭 구조 유지 / 앱 그리드 유지
-    ========================================================= */
-
-    @media (max-width: 759px) {
-      .root {
-        padding-top: max(8px, var(--safe-top));
-        padding-left: 8px;
-        padding-right: 8px;
-        padding-bottom: calc(12px + var(--safe-bottom));
-      }
-
-      .phone {
-        border-width: 7px;
-        padding: 8px;
-      }
-
-      .screen-inner {
-        padding-top: 24px;
-        padding-left: 10px;
-        padding-right: 10px;
-        padding-bottom: 14px;
-      }
-
-      .login-view {
-        min-height: calc(100vh - 96px);
-        align-items: flex-start;
-        padding-top: 42px;
-      }
-
-      .login-card {
-        padding: 24px 18px 22px;
-        border-radius: 28px;
-      }
-
-      .login-title {
-        margin-top: 12px;
-        margin-bottom: 8px;
-        font-size: clamp(48px, 14vw, 64px);
-      }
-
-      .login-card p {
-        font-size: 13px;
-        line-height: 1.62;
-      }
-
-      .form {
-        margin-top: 18px;
-        gap: 9px;
-      }
-
-      input {
-        min-height: 48px;
-        padding-top: 11px;
-        padding-bottom: 11px;
-      }
-
-      .btn {
-        min-height: 44px;
-      }
-
-      .statusbar {
-        min-height: 26px;
-        padding-bottom: 6px;
-      }
-
-      .top-actions {
-        gap: 7px;
-        margin-bottom: 10px;
-      }
-
-      .top-actions a,
-      .top-actions button {
-        min-height: 36px;
-        font-size: 12px;
-      }
-
-      .header {
-        padding: 16px 16px 15px;
-        margin-bottom: 12px;
-        border-radius: 26px;
-      }
-
-      .header h1 {
-        margin-top: 7px;
-        margin-bottom: 5px;
-        font-size: clamp(38px, 11vw, 44px);
-      }
-
-      .header p {
-        font-size: 12.5px;
-        line-height: 1.58;
-      }
-
-      .tabs {
-        gap: 6px;
-        padding: 7px;
-        margin-bottom: 12px;
-        border-radius: 22px;
-      }
-
-      .tab {
-        min-height: 39px;
-        font-size: 11.5px;
-        border-radius: 15px;
-      }
-
-      .badge {
-        min-width: 18px;
-        height: 18px;
-        top: 4px;
-        right: 5px;
-        padding: 0 5px;
-        font-size: 8.5px;
-      }
-
-      .kawaii-home {
-        padding: 14px;
-        border-radius: 28px;
-      }
-
-      .clock-card {
-        min-height: 136px;
-        padding: 21px 18px 18px;
-        border-radius: 26px;
-        margin-bottom: 10px;
-      }
-
-      .clock-card::before {
-        top: -9px;
-        font-size: 34px;
-      }
-
-      .clock-eyebrow {
-        font-size: 11px;
-        margin-bottom: 6px;
-      }
-
-      .time {
-        font-size: clamp(44px, 14vw, 56px);
-      }
-
-      .date {
-        margin-top: 7px;
-        font-size: 13px;
-      }
-
-      .copy {
-        margin-top: 7px;
-        font-size: 12.5px;
-        line-height: 1.5;
-      }
-
-      .search {
-        min-height: 42px;
-        margin-top: 10px;
-        margin-bottom: 12px;
-        padding: 0 13px;
-        font-size: 12.5px;
-      }
-
-      .home-grid {
-        gap: 9px;
-        margin-bottom: 12px;
-      }
-
-      .home-card {
-        padding: 13px 13px 13px 58px;
-        border-radius: 22px;
-      }
-
-      .home-card.no-icon {
-        padding-left: 13px;
-      }
-
-      .home-card-icon {
-        left: 13px;
-        top: 14px;
-        width: 36px;
-        height: 36px;
-        border-radius: 14px;
-        font-size: 19px;
-      }
-
-      .home-card small {
-        font-size: 11.5px;
-      }
-
-      .home-card b {
-        margin-top: 4px;
-        font-size: 17px;
-        line-height: 1.22;
-      }
-
-      .home-card.pass b {
-        font-size: 31px;
-      }
-
-      .home-card span {
-        margin-top: 6px;
-        font-size: 12px;
-        line-height: 1.48;
-      }
-
-      .widget-link {
-        min-height: 32px;
-        margin-top: 9px;
-        font-size: 11.5px;
-      }
-
-      .launch-card {
-        margin-top: 10px;
-        padding: 14px;
-        border-radius: 26px;
-      }
-
-      .launch-head {
-        margin-bottom: 11px;
-      }
-
-      .launch-head h2 {
-        font-size: 20px;
-      }
-
-      .icon-grid {
-        gap: 9px;
-      }
-
-      .app-icon {
-        min-height: 92px;
-        border-radius: 21px;
-        font-size: 12.5px;
-      }
-
-      .app-icon i {
-        width: 48px;
-        height: 48px;
-        border-radius: 17px;
-        font-size: 23px;
-      }
-
-      .mini {
-        min-height: 20px;
-        padding: 0 6px;
-        font-size: 9.5px;
-      }
-    }
-
-    @media (max-width: 374px) {
-      .login-view {
-        padding-top: 34px;
-      }
-
-      .screen-inner {
-        padding-left: 9px;
-        padding-right: 9px;
-      }
-
-      .login-title {
-        font-size: 50px;
-      }
-
-      .header h1 {
-        font-size: 36px;
-      }
-
-      .tab {
-        font-size: 11px;
-      }
-
-      .clock-card {
-        min-height: 128px;
-        padding-left: 16px;
-        padding-right: 16px;
-      }
-
-      .time {
-        font-size: 46px;
-      }
-
-      .home-card {
-        padding-left: 55px;
-      }
-
-      .home-card.no-icon {
-        padding-left: 12px;
-      }
-
-      .home-card b {
-        font-size: 16px;
-      }
-
-      .app-icon {
-        min-height: 88px;
-      }
-
-      .app-icon i {
-        width: 45px;
-        height: 45px;
-        font-size: 21px;
-      }
-    }
-  
-    /* ===== STEP 2: Ticket + Mail clean modules OK ===== */
-    .module-card {
-      border: 1px solid var(--line);
-      border-radius: 28px;
-      background: rgba(255,255,255,.9);
-      box-shadow: var(--shadow);
-      padding: 16px;
-      margin-bottom: 12px;
-    }
-
-    .module-card h2 {
-      margin: 0 0 8px;
-      color: #d77ca7;
-      font-size: 24px;
-      line-height: 1.2;
-      font-weight: 900;
-      letter-spacing: -.03em;
-    }
-
-    .module-card > p {
-      font-size: 13px;
-      line-height: 1.65;
-    }
-
-    .mini-tabs {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      margin: 12px 0;
-    }
-
-    .mini-tab {
-      min-height: 40px;
-      border-radius: 999px;
-      border: 1px solid var(--line2);
-      background: #fff;
-      color: #b07693;
-      font-size: 12px;
-      font-weight: 900;
-      white-space: nowrap;
-    }
-
-    .mini-tab.active {
-      color: #fff;
-      border-color: transparent;
-      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
-      box-shadow: 0 8px 18px rgba(255,95,168,.14);
-    }
-
-    .mini-page {
-      display: none;
-    }
-
-    .mini-page.active {
-      display: block;
-    }
-
-    .ticket-card {
-      position: relative;
-      overflow: hidden;
-      border-radius: 28px;
-      color: #fff;
-      background:
-        radial-gradient(circle at 95% 0%, rgba(255,255,255,.42), transparent 28%),
-        linear-gradient(135deg, #ff7eb3, #ff5fa8 58%, #caa7ff);
-      box-shadow: 0 15px 32px rgba(255,95,168,.20);
-      margin-bottom: 12px;
-    }
-
-    .ticket-card.soft {
-      color: var(--deep);
-      background:
-        radial-gradient(circle at 92% 8%, rgba(255,255,255,.55), transparent 24%),
-        linear-gradient(135deg, #fff3fa, #ffd9e8 46%, #f5edff 100%);
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow);
-    }
-
-    .ticket-card::before,
-    .ticket-card::after {
-      content: "";
-      position: absolute;
-      top: 50%;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: #fff7fb;
-      transform: translateY(-50%);
-      z-index: 1;
-    }
-
-    .ticket-card::before { left: -14px; }
-    .ticket-card::after { right: -14px; }
-
-    .ticket-inner {
-      position: relative;
-      z-index: 2;
-      margin: 10px;
-      border: 2px dotted rgba(255,255,255,.50);
-      border-radius: 22px;
-      padding: 16px;
-    }
-
-    .ticket-card.soft .ticket-inner {
-      border-color: rgba(210,105,166,.24);
-    }
-
-    .ticket-kicker {
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: .12em;
-      opacity: .86;
-    }
-
-    .ticket-title {
-      margin-top: 7px;
-      font-size: 23px;
-      font-weight: 900;
-      line-height: 1.15;
-      letter-spacing: -.03em;
-      word-break: keep-all;
-    }
-
-    .ticket-sub {
-      margin-top: 6px;
-      font-size: 12px;
-      line-height: 1.55;
-      font-weight: 800;
-      opacity: .9;
-      word-break: keep-all;
-    }
-
-    .ticket-number {
-      margin: 13px 0 10px;
-      padding: 12px;
-      border-radius: 18px;
-      background: rgba(255,255,255,.18);
-      text-align: center;
-    }
-
-    .ticket-card.soft .ticket-number {
-      background: rgba(255,255,255,.55);
-    }
-
-    .ticket-number small {
-      display: block;
-      font-size: 11px;
-      font-weight: 900;
-      opacity: .8;
-    }
-
-    .ticket-number strong {
-      display: block;
-      margin-top: 2px;
-      font-size: 42px;
-      line-height: 1;
-      letter-spacing: .10em;
-      font-weight: 900;
-    }
-
-    .ticket-meta {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .ticket-cell {
-      min-height: 48px;
-      padding: 8px 10px;
-      border-radius: 14px;
-      background: rgba(255,255,255,.16);
-    }
-
-    .ticket-card.soft .ticket-cell {
-      background: rgba(255,255,255,.52);
-    }
-
-    .ticket-cell small {
-      display: block;
-      font-size: 10px;
-      opacity: .78;
-      font-weight: 900;
-    }
-
-    .ticket-cell b {
-      display: block;
-      margin-top: 2px;
-      font-size: 12px;
-      line-height: 1.35;
-      font-weight: 900;
-      word-break: keep-all;
-    }
-
-    .status-chip {
-      display: inline-flex;
-      align-items: center;
-      min-height: 26px;
-      padding: 0 10px;
-      border-radius: 999px;
-      background: #fff;
-      border: 1px solid var(--line2);
-      color: #d77ca7;
-      font-size: 11px;
-      font-weight: 900;
-      margin: 5px 5px 0 0;
-      white-space: nowrap;
-    }
-
-    .ticket-list,
-    .mail-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .plain-row {
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      background: #fff;
-      padding: 14px;
-    }
-
-    .plain-row b {
-      display: block;
-      color: #76586a;
-      font-size: 15px;
-      line-height: 1.35;
-      font-weight: 900;
-      word-break: keep-all;
-    }
-
-    .plain-row span {
-      display: block;
-      margin-top: 5px;
-      color: #9a7187;
-      font-size: 12px;
-      line-height: 1.55;
-      font-weight: 800;
-      word-break: keep-all;
-    }
-
-    .mail-item {
-      position: relative;
-      width: 100%;
-      min-height: 78px;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: #fff;
-      padding: 12px;
-      display: grid;
-      grid-template-columns: 42px 1fr 22px;
-      gap: 10px;
-      align-items: center;
-      text-align: left;
-      color: inherit;
-    }
-
-    .mail-item .icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 16px;
-      display: grid;
-      place-items: center;
-      background: #fff0f7;
-      color: #d77ca7;
-      font-size: 20px;
-      border: 1px solid var(--line);
-    }
-
-    .mail-item b {
-      display: block;
-      color: #76586a;
-      font-size: 14px;
-      line-height: 1.35;
-      font-weight: 900;
-    }
-
-    .mail-item span {
-      display: block;
-      margin-top: 4px;
-      color: #b28ea2;
-      font-size: 11.5px;
-      line-height: 1.35;
-      font-weight: 800;
-    }
-
-    .mail-item .arrow {
-      color: #d77ca7;
-      font-size: 18px;
-      font-weight: 900;
-    }
-
-    .mail-dot {
-      position: absolute;
-      left: 10px;
-      top: 9px;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #ff3d8f;
-    }
-
-    .detail-box {
-      display: none;
-      margin-top: 12px;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: #fffafd;
-      padding: 16px;
-    }
-
-    .detail-box.active {
-      display: block;
-    }
-
-    .detail-box h3 {
-      margin: 0 0 8px;
-      color: #d77ca7;
-      font-size: 18px;
-      line-height: 1.25;
-      font-weight: 900;
-    }
-
-    .detail-box p {
-      font-size: 13px;
-      line-height: 1.75;
-      font-weight: 800;
-    }
-
-    .message-phone {
-      display: grid;
-      gap: 10px;
-      margin-top: 14px;
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-radius: 26px;
-      background: linear-gradient(180deg, #fffafd, #fff0f7);
-    }
-
-    .bubble {
-      max-width: 92%;
-      padding: 12px 14px;
-      border-radius: 20px;
-      background: #fff;
-      border: 1px solid var(--line);
-      color: #76586a;
-      font-size: 13px;
-      line-height: 1.6;
-      font-weight: 850;
-      box-shadow: 0 8px 16px rgba(232,191,211,.10);
-      word-break: keep-all;
-    }
-
-    .bubble.from {
-      justify-self: start;
-      border-bottom-left-radius: 8px;
-    }
-
-    .bubble.to {
-      justify-self: end;
-      border-bottom-right-radius: 8px;
-      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
-      color: #fff;
-      border-color: transparent;
-    }
-
-    @media (max-width: 374px) {
-      .ticket-meta {
-        grid-template-columns: 1fr;
-      }
-
-      .mini-tabs {
-        gap: 6px;
-      }
-
-      .mini-tab {
-        font-size: 11px;
-      }
-
-      .ticket-title {
-        font-size: 21px;
-      }
-
-      .ticket-number strong {
-        font-size: 36px;
-      }
-    }
-
-  </style>
-
 </head>
 
 <body>
@@ -2076,166 +1576,310 @@
                 </div>
               </section>
 
-              
-<section class="page" id="page-ticket" aria-label="티켓함">
-  <article class="module-card">
-    <h2>티켓함</h2>
-    <p>현재 티켓, 지난 티켓, 특전권을 나누어 확인해요. 입장 전에는 현재 티켓의 입장 확인용 번호를 먼저 보여주세요.</p>
+              <section class="page" id="page-ticket" aria-label="티켓함">
+                <article class="module-card">
+                  <h2>티켓함</h2>
+                  <p>현재 티켓, 지난 티켓, 특전권을 나누어 확인해요. 입장 전에는 현재 티켓의 입장 확인용 번호를 먼저 보여주세요.</p>
 
-    <div class="mini-tabs" data-mini-tabs="ticket">
-      <button class="mini-tab active" type="button" data-mini-target="ticket-current">현재 티켓</button>
-      <button class="mini-tab" type="button" data-mini-target="ticket-past">지난 티켓</button>
-      <button class="mini-tab" type="button" data-mini-target="ticket-benefit">특전권</button>
-    </div>
+                  <div class="mini-tabs" data-mini-tabs="ticket">
+                    <button class="mini-tab active" type="button" data-mini-target="ticket-current">현재 티켓</button>
+                    <button class="mini-tab" type="button" data-mini-target="ticket-past">지난 티켓</button>
+                    <button class="mini-tab" type="button" data-mini-target="ticket-benefit">특전권</button>
+                  </div>
 
-    <section class="mini-page active" id="ticket-current">
-      <article class="ticket-card">
-        <div class="ticket-inner">
-          <div class="ticket-kicker">CURRENT TICKET</div>
-          <div class="ticket-title">Lumibelle Debut Live</div>
-          <div class="ticket-sub">입금확인완료 · 미입장 · 메아테 루루</div>
+                  <section class="mini-page active" id="ticket-current">
+                    <article class="ticket-card">
+                      <div class="ticket-inner">
+                        <div class="ticket-kicker">CURRENT TICKET</div>
+                        <div class="ticket-title">Lumibelle Debut Live</div>
+                        <div class="ticket-sub">입금확인완료 · 미입장 · 메아테 루루</div>
 
-          <div class="ticket-number">
-            <small>입장 확인용 번호</small>
-            <strong>0001</strong>
-          </div>
+                        <div class="ticket-number">
+                          <small>입장 확인용 번호</small>
+                          <strong>0001</strong>
+                        </div>
 
-          <div class="ticket-meta">
-            <div class="ticket-cell"><small>예약 상태</small><b>입금확인완료</b></div>
-            <div class="ticket-cell"><small>입장 상태</small><b>미입장</b></div>
-            <div class="ticket-cell"><small>메아테</small><b>루루</b></div>
-            <div class="ticket-cell"><small>메아테 혜택</small><b>처리 대상</b></div>
-          </div>
-        </div>
-      </article>
+                        <div class="ticket-meta">
+                          <div class="ticket-cell"><small>예약 상태</small><b>입금확인완료</b></div>
+                          <div class="ticket-cell"><small>입장 상태</small><b>미입장</b></div>
+                          <div class="ticket-cell"><small>메아테</small><b>루루</b></div>
+                          <div class="ticket-cell"><small>메아테 혜택</small><b>처리 대상</b></div>
+                        </div>
+                      </div>
+                    </article>
 
-      <span class="status-chip">입장 전</span>
-      <span class="status-chip">메아테 루루</span>
-      <span class="status-chip">혜택 미수령</span>
-    </section>
+                    <span class="status-chip">입장 전</span>
+                    <span class="status-chip">메아테 루루</span>
+                    <span class="status-chip">혜택 미수령</span>
+                  </section>
 
-    <section class="mini-page" id="ticket-past">
-      <div class="ticket-list">
-        <article class="plain-row">
-          <b>아직 지난 공연 기록이 없어요</b>
-          <span>지난 티켓은 공연 종료 후 최신순으로 쌓이고, 추억 보기로 연결됩니다.</span>
-        </article>
-      </div>
-    </section>
+                  <section class="mini-page" id="ticket-past">
+                    <div class="ticket-list">
+                      <article class="plain-row">
+                        <b>아직 지난 공연 기록이 없어요</b>
+                        <span>지난 티켓은 공연 종료 후 최신순으로 쌓이고, 추억 보기로 연결됩니다.</span>
+                      </article>
+                    </div>
+                  </section>
 
-    <section class="mini-page" id="ticket-benefit">
-      <article class="ticket-card soft">
-        <div class="ticket-inner">
-          <div class="ticket-kicker">SPECIAL TICKET</div>
-          <div class="ticket-title">Welcome Ticket</div>
-          <div class="ticket-sub">신규 이벤트 대상에게 지급되는 촬영 특전권입니다.</div>
+                  <section class="mini-page" id="ticket-benefit">
+                    <article class="ticket-card soft">
+                      <div class="ticket-inner">
+                        <div class="ticket-kicker">SPECIAL TICKET</div>
+                        <div class="ticket-title">Welcome Ticket</div>
+                        <div class="ticket-sub">신규 이벤트 대상에게 지급되는 촬영 특전권입니다.</div>
 
-          <div class="ticket-meta">
-            <div class="ticket-cell"><small>사용 가능 멤버</small><b>마리링 · 루루</b></div>
-            <div class="ticket-cell"><small>상태</small><b>사용 가능</b></div>
-            <div class="ticket-cell"><small>유효기간</small><b>지급일 기준 안내</b></div>
-            <div class="ticket-cell"><small>양도</small><b>본인 사용</b></div>
-          </div>
-        </div>
-      </article>
+                        <div class="ticket-meta">
+                          <div class="ticket-cell"><small>사용 가능 멤버</small><b>마리링 · 루루</b></div>
+                          <div class="ticket-cell"><small>상태</small><b>사용 가능</b></div>
+                          <div class="ticket-cell"><small>유효기간</small><b>지급일 기준 안내</b></div>
+                          <div class="ticket-cell"><small>양도</small><b>본인 사용</b></div>
+                        </div>
+                      </div>
+                    </article>
 
-      <article class="plain-row">
-        <b>수령 가능 숙제체키 0장</b>
-        <span>준비 중 1장 · 자세한 상태는 숙제체키 탭에서 확인합니다.</span>
-      </article>
-    </section>
-  </article>
-</section>
+                    <article class="plain-row">
+                      <b>수령 가능 숙제체키 0장</b>
+                      <span>준비 중 1장 · 자세한 상태는 숙제체키 탭에서 확인합니다.</span>
+                    </article>
+                  </section>
+                </article>
+              </section>
 
-              
-<section class="page" id="page-mail" aria-label="우편함">
-  <article class="module-card">
-    <h2>우편함</h2>
-    <p>공연 후 우편, 소장 우편, 안내 우편을 모아보는 공간이에요. 루미벨과 함께한 마음과 기록을 천천히 모아둘 수 있어요.</p>
+              <section class="page" id="page-mail" aria-label="우편함">
+                <article class="module-card">
+                  <h2>우편함</h2>
+                  <p>공연 후 우편, 소장 우편, 안내 우편을 모아보는 공간이에요. 루미벨과 함께한 마음과 기록을 천천히 모아둘 수 있어요.</p>
 
-    <div class="mini-tabs" data-mini-tabs="mail">
-      <button class="mini-tab active" type="button" data-mini-target="mail-inbox">받은 우편</button>
-      <button class="mini-tab" type="button" data-mini-target="mail-saved">소장 우편</button>
-      <button class="mini-tab" type="button" data-mini-target="mail-guide">안내</button>
-    </div>
+                  <div class="mini-tabs" data-mini-tabs="mail">
+                    <button class="mini-tab active" type="button" data-mini-target="mail-inbox">받은 우편</button>
+                    <button class="mini-tab" type="button" data-mini-target="mail-saved">소장 우편</button>
+                    <button class="mini-tab" type="button" data-mini-target="mail-guide">안내</button>
+                  </div>
 
-    <section class="mini-page active" id="mail-inbox">
-      <div class="mail-list">
-        <button class="mail-item" type="button" data-detail="mailDetail1">
-          <span class="mail-dot"></span>
-          <span class="icon">💌</span>
-          <span><b>루미벨에서 도착한 첫 우편</b><span>루미폰 개통을 환영해요.</span></span>
-          <span class="arrow">›</span>
-        </button>
+                  <section class="mini-page active" id="mail-inbox">
+                    <div class="mail-list">
+                      <button class="mail-item" type="button" data-detail="mailDetail1">
+                        <span class="mail-dot"></span>
+                        <span class="icon">💌</span>
+                        <span><b>루미벨에서 도착한 첫 우편</b><span>루미폰 개통을 환영해요.</span></span>
+                        <span class="arrow">›</span>
+                      </button>
 
-        <button class="mail-item" type="button" data-detail="mailDetail2">
-          <span class="icon">🎀</span>
-          <span><b>Debut Live 안내</b><span>입장 확인용 번호와 메아테 안내를 확인해주세요.</span></span>
-          <span class="arrow">›</span>
-        </button>
-      </div>
+                      <button class="mail-item" type="button" data-detail="mailDetail2">
+                        <span class="icon">🎀</span>
+                        <span><b>Debut Live 안내</b><span>입장 확인용 번호와 메아테 안내를 확인해주세요.</span></span>
+                        <span class="arrow">›</span>
+                      </button>
+                    </div>
 
-      <div class="detail-box active" id="mailDetail1">
-        <h3>루미벨에서 도착한 첫 우편</h3>
-        <p>루미폰 개통을 환영해요. 이곳에는 루미벨과 함께한 기록, 공연 후 남겨지는 우편, 특별한 날의 메시지가 천천히 쌓입니다.</p>
-        <div class="mail-actions" aria-label="우편 액션 미리보기">
-          <button class="mail-action-btn primary-look" type="button" disabled>소장하기</button>
-          <button class="mail-action-btn" type="button" disabled>닫기</button>
-        </div>
-      </div>
+                    <div class="detail-box active" id="mailDetail1">
+                      <h3>루미벨에서 도착한 첫 우편</h3>
+                      <p>루미폰 개통을 환영해요. 이곳에는 루미벨과 함께한 기록, 공연 후 남겨지는 우편, 특별한 날의 메시지가 천천히 쌓입니다.</p>
+                      <div class="mail-actions" aria-label="우편 액션 미리보기">
+                        <button class="mail-action-btn primary-look" type="button" disabled>소장하기</button>
+                        <button class="mail-action-btn" type="button" disabled>닫기</button>
+                      </div>
+                    </div>
 
-      <div class="detail-box" id="mailDetail2">
-        <h3>Debut Live 안내</h3>
-        <p>현장에서는 루미 ID 또는 입장 확인용 번호를 먼저 보여주세요. 메아테 혜택은 입장 시가 아니라 물판/특전회에서 확인 후 처리됩니다.</p>
-        <div class="mail-actions" aria-label="우편 액션 미리보기">
-          <button class="mail-action-btn primary-look" type="button" disabled>소장하기</button>
-          <button class="mail-action-btn" type="button" disabled>닫기</button>
-        </div>
-      </div>
-    </section>
+                    <div class="detail-box" id="mailDetail2">
+                      <h3>Debut Live 안내</h3>
+                      <p>현장에서는 루미 ID 또는 입장 확인용 번호를 먼저 보여주세요. 메아테 혜택은 입장 시가 아니라 물판/특전회에서 확인 후 처리됩니다.</p>
+                      <div class="mail-actions" aria-label="우편 액션 미리보기">
+                        <button class="mail-action-btn primary-look" type="button" disabled>소장하기</button>
+                        <button class="mail-action-btn" type="button" disabled>닫기</button>
+                      </div>
+                    </div>
+                  </section>
 
-    <section class="mini-page" id="mail-saved">
-      <article class="plain-row">
-        <b>아직 소장 우편이 없어요</b>
-        <span>소장한 우편은 여기에서 다시 볼 수 있게 됩니다.</span>
-      </article>
-    </section>
+                  <section class="mini-page" id="mail-saved">
+                    <article class="plain-row">
+                      <b>아직 소장 우편이 없어요</b>
+                      <span>소장한 우편은 여기에서 다시 볼 수 있게 됩니다.</span>
+                    </article>
+                  </section>
 
-    <section class="mini-page" id="mail-guide">
-      <article class="plain-row">
-        <b>우편함 안내</b>
-        <span>멤버의 컨디션과 일정에 따라 모든 메시지에 개별 답장을 남기기는 어렵지만, 남겨진 마음은 루미벨의 기록 속에 오래 보관됩니다.</span>
-      </article>
-    </section>
-  </article>
-</section>
+                  <section class="mini-page" id="mail-guide">
+                    <article class="plain-row">
+                      <b>우편함 안내</b>
+                      <span>멤버의 컨디션과 일정에 따라 모든 메시지에 개별 답장을 남기기는 어렵지만, 남겨진 마음은 루미벨의 기록 속에 오래 보관됩니다.</span>
+                    </article>
+                  </section>
+                </article>
+              </section>
 
-              
-<section class="page" id="page-message" aria-label="문자">
-  <article class="module-card">
-    <h2>문자</h2>
-    <p>홈에서 연결되는 새 문자 미리보기예요. 멤버에게서 도착한 작은 메시지를 먼저 확인해요.</p>
+              <section class="page" id="page-message" aria-label="문자">
+                <article class="module-card">
+                  <h2>문자</h2>
+                  <p>홈에서 연결되는 새 문자 미리보기예요. 멤버에게서 도착한 작은 메시지를 먼저 확인해요.</p>
 
-    <div class="message-phone">
-      <div class="bubble from">루미나... 오늘 와주는 거야...? 🐰🩷</div>
-      <div class="bubble from">루루가 기다리고 있을게...! 입장번호랑 작은 우산도 잊지 말기... 🐰💭</div>
-      <div class="bubble to">응! 오늘 보러 갈게.</div>
-      <div class="bubble from">와줘서 고마워... 오늘도 루루랑 같이 있어줄래...? 🍼🐰</div>
-    </div>
-  </article>
-</section>
+                  <div class="message-phone">
+                    <div class="bubble from">루미나... 오늘 와주는 거야...? 🐰🩷</div>
+                    <div class="bubble from">루루가 기다리고 있을게...! 입장번호랑 작은 우산도 잊지 말기... 🐰💭</div>
+                    <div class="bubble to">응! 오늘 보러 갈게.</div>
+                    <div class="bubble from">와줘서 고마워... 오늘도 루루랑 같이 있어줄래...? 🍼🐰</div>
+                  </div>
+                </article>
+              </section>
 
-              <section class="page" id="page-record"><article class="placeholder"><h2>기록</h2><p>루미 방문과 루미 체크인은 섞지 않고 다음 단계에서 분리 연결합니다.</p></article></section>
-              <section class="page" id="page-stamp"><article class="placeholder"><h2>스탬프</h2><p>스탬프는 루미 체크인 기준으로 다음 단계에서 연결합니다.</p></article></section>
-              <section class="page" id="page-point"><article class="placeholder"><h2>포인트</h2><p>물판 포인트, 반짝 포인트, 반짝 XP는 분리해서 연결합니다.</p></article></section>
-              <section class="page" id="page-exchange"><article class="placeholder"><h2>교환소</h2><p>반짝 포인트 교환소는 이후 단계에서 연결합니다.</p></article></section>
-              <section class="page" id="page-profile"><article class="placeholder"><h2>프로필</h2><p>오시, 칭호, 루미 ID, 프로필 표시는 이후 단계에서 연결합니다.</p></article></section>
-              <section class="page" id="page-achieve"><article class="placeholder"><h2>업적</h2><p>업적과 칭호는 이후 단계에서 연결합니다.</p></article></section>
-              <section class="page" id="page-onair"><article class="placeholder"><h2>ON AIR</h2><p>방송 상태, 루미코드, 온라인 연결 기록은 이후 단계에서 연결합니다.</p></article></section>
-              <section class="page" id="page-homework"><article class="placeholder"><h2>숙제체키</h2><p>숙제체키 상태는 이후 단계에서 연결합니다.</p></article></section>
-              <section class="page" id="page-calendar"><article class="placeholder"><h2>캘린더</h2><p>일정 데이터는 이후 단계에서 연결합니다.</p></article></section>
-              <section class="page" id="page-future"><article class="placeholder"><h2>게임존</h2><p>게임존은 이후 단계에서 연결합니다.</p></article></section>
-              <section class="page" id="page-lumilog"><article class="placeholder"><h2>루미로그</h2><p>루미로그는 이후 단계에서 연결합니다.</p></article></section>
+              <section class="page" id="page-record" aria-label="기록">
+                <article class="module-card">
+                  <h2>기록</h2>
+                  <p>오프라인에서 만난 순간과 온라인으로 이어진 마음을 함께 모아보는 공간이에요. 루미 방문은 와준 순간, 루미 체크인은 특전회에 함께한 기록이에요. 스탬프는 체크인 기준으로 지급돼요.</p>
+
+                  <section class="summary-grid" aria-label="기록 요약">
+                    <article class="summary-card"><small>함께한 라이브</small><b>1회</b><span>예매와 입장 기록 기준으로 쌓여요.</span></article>
+                    <article class="summary-card"><small>루미 방문</small><b>1회</b><span>메아테 지정, 물판 방문, 접점 기록을 남겨요.</span></article>
+                    <article class="summary-card"><small>루미 체크인</small><b>0회</b><span>촬영·교류 특전에 참여한 기록이에요.</span></article>
+                    <article class="summary-card"><small>획득 스탬프</small><b>0개</b><span>체크인 완료 시 지급돼요.</span></article>
+                    <article class="summary-card"><small>온라인 연결</small><b>0회</b><span>방송, 루미코드, 반짝 응원 기록이에요.</span></article>
+                    <article class="summary-card"><small>받은 우편</small><b>2통</b><span>공연 후 마음과 안내가 쌓여요.</span></article>
+                  </section>
+
+                  <div class="record-list" aria-label="나의 루미 기록">
+                    <article class="record-item">
+                      <small>라이브 기록</small>
+                      <b>Lumibelle Debut Live</b>
+                      <span>예약 완료 · 미입장<br>입장 확인용 번호 0001 / 메아테 루루</span>
+                      <span class="status-chip">입장 전</span>
+                      <span class="status-chip">메아테 루루</span>
+                      <span class="status-chip">혜택 처리 대상</span>
+                    </article>
+
+                    <article class="record-item">
+                      <small>우편 기록</small>
+                      <b>루미벨에서 도착한 첫 우편</b>
+                      <span>받은 우편 · 루미폰 개통을 환영해요.</span>
+                    </article>
+
+                    <article class="record-item">
+                      <small>온라인 기록</small>
+                      <b>아직 온라인 연결 기록이 없어요</b>
+                      <span>ON AIR와 루미코드 기록은 방송 참여 후 이곳에 쌓여요.</span>
+                    </article>
+                  </div>
+                </article>
+              </section>
+
+              <section class="page" id="page-stamp" aria-label="스탬프">
+                <article class="module-card">
+                  <h2>스탬프</h2>
+                  <p>스탬프는 루미 체크인 완료 시 지급돼요. 공연 관람, 물판 방문, 굿즈 구매만으로는 지급되지 않아요.</p>
+
+                  <article class="stamp-status">
+                    <small>현재 회차</small>
+                    <b>1회차 · 0 / 20</b>
+                    <span>아직 첫 스탬프를 기다리는 중이에요.</span>
+                  </article>
+
+                  <section class="stamp-grid" aria-label="스탬프 카드">
+                    <span class="stamp-cell">1</span><span class="stamp-cell">2</span><span class="stamp-cell">3</span><span class="stamp-cell">4</span><span class="stamp-cell">5</span>
+                    <span class="stamp-cell">6</span><span class="stamp-cell">7</span><span class="stamp-cell">8</span><span class="stamp-cell">9</span><span class="stamp-cell">10</span>
+                    <span class="stamp-cell">11</span><span class="stamp-cell">12</span><span class="stamp-cell">13</span><span class="stamp-cell">14</span><span class="stamp-cell">15</span>
+                    <span class="stamp-cell">16</span><span class="stamp-cell">17</span><span class="stamp-cell">18</span><span class="stamp-cell">19</span><span class="stamp-cell">20</span>
+                  </section>
+
+                  <div class="guide-list">
+                    <article class="plain-row">
+                      <b>스탬프 지급 기준</b>
+                      <span>루미 체크인은 특전권 또는 이벤트권 사용 후 실제 촬영·교류 특전에 참여한 기록이에요. 스탬프는 체크인 완료 기준으로 기본 1일 1개 지급돼요. 이벤트 데이에는 추가 지급될 수 있어요.</span>
+                    </article>
+
+                    <article class="plain-row">
+                      <b>스탬프가 지급되지 않는 경우</b>
+                      <span>라이브만 관람한 경우, 물판만 구경한 경우, 굿즈만 구매한 경우, 팔로우 이벤트만 받고 특전회에 참여하지 않은 경우, 촬영 없이 지나간 경우에는 지급되지 않아요.</span>
+                    </article>
+                  </div>
+                </article>
+              </section>
+
+              <section class="page" id="page-point">
+                <article class="placeholder">
+                  <h2>포인트</h2>
+                  <p>물판 포인트, 반짝 포인트, 반짝 XP는 분리해서 연결합니다.</p>
+                </article>
+              </section>
+
+              <section class="page" id="page-exchange">
+                <article class="placeholder">
+                  <h2>교환소</h2>
+                  <p>반짝 포인트 교환소는 이후 단계에서 연결합니다.</p>
+                </article>
+              </section>
+
+              <section class="page" id="page-profile">
+                <article class="placeholder">
+                  <h2>프로필</h2>
+                  <p>오시, 칭호, 루미 ID, 프로필 표시는 이후 단계에서 연결합니다.</p>
+                </article>
+              </section>
+
+              <section class="page" id="page-achieve">
+                <article class="placeholder">
+                  <h2>업적</h2>
+                  <p>업적과 칭호는 이후 단계에서 연결합니다.</p>
+                </article>
+              </section>
+
+              <section class="page" id="page-onair" aria-label="ON AIR">
+                <article class="module-card">
+                  <h2>ON AIR</h2>
+                  <p>방송 중 공개되는 루미코드를 입력하면 온라인 연결 기록으로 남길 수 있어요. 오늘은 방송 준비 상태를 먼저 보여드려요.</p>
+
+                  <article class="onair-state">
+                    <span class="eyebrow">READY</span>
+                    <h3>방송 준비 중</h3>
+                    <p>아직 루미코드가 열리지 않았어요. 방송 시작 후 안내된 시간에 루미코드가 공개됩니다.</p>
+                  </article>
+
+                  <div class="guide-list">
+                    <article class="plain-row">
+                      <b>루미코드 안내</b>
+                      <span>방송 시작 20~30분 후 공개 예정 · 공개 후 10분 동안 화면에 표시 · 입력은 다음날 23:59까지 가능 · 놓친 코드는 원칙적으로 재공개하지 않아요.</span>
+                    </article>
+                  </div>
+
+                  <div class="code-box">
+                    <label for="lumiCodeInput">오늘의 루미코드</label>
+                    <input id="lumiCodeInput" placeholder="예: LUMI-4827" />
+                    <button class="disabled-note-btn" id="codeReadyBtn" type="button">인증 준비 중</button>
+                    <div class="toast" id="codeToast">아직 루미코드가 열리지 않았어요.</div>
+                  </div>
+
+                  <article class="plain-row" style="margin-top:12px;">
+                    <b>온라인 연결 기록</b>
+                    <span>방송 참여, 루미코드 입력, 반짝 응원은 현장 물판 포인트와 별도로 기록돼요. 물판 포인트와 온라인 기록은 서로 합산되지 않아요.</span>
+                  </article>
+                </article>
+              </section>
+
+              <section class="page" id="page-homework">
+                <article class="placeholder">
+                  <h2>숙제체키</h2>
+                  <p>숙제체키 상태는 이후 단계에서 연결합니다.</p>
+                </article>
+              </section>
+
+              <section class="page" id="page-calendar">
+                <article class="placeholder">
+                  <h2>캘린더</h2>
+                  <p>일정 데이터는 이후 단계에서 연결합니다.</p>
+                </article>
+              </section>
+
+              <section class="page" id="page-future">
+                <article class="placeholder">
+                  <h2>게임존</h2>
+                  <p>게임존은 이후 단계에서 연결합니다.</p>
+                </article>
+              </section>
+
+              <section class="page" id="page-lumilog">
+                <article class="placeholder">
+                  <h2>루미로그</h2>
+                  <p>루미로그는 이후 단계에서 연결합니다.</p>
+                </article>
+              </section>
             </main>
           </section>
         </div>
@@ -2269,6 +1913,8 @@
       const statusTime = $("#statusTime");
       const homeClock = $("#homeClock");
       const homeDate = $("#homeDate");
+      const codeReadyBtn = $("#codeReadyBtn");
+      const codeToast = $("#codeToast");
 
       function normId(value) {
         const digits = String(value || "").replace(/\D/g, "").slice(-4);
@@ -2334,37 +1980,6 @@
         homeDate.textContent = dateText;
       }
 
-      loginForm.addEventListener("submit", (event) => {
-        event.preventDefault();
-        const ok = normId(loginId.value) === sampleUser.id && loginPin.value.trim() === sampleUser.pin;
-        if (ok) {
-          openApp();
-          return;
-        }
-        showMessage("루미 ID 또는 PIN을 다시 확인해 주세요. 샘플 로그인은 LB-0001 / 1234 입니다.");
-      });
-
-      sampleBtn.addEventListener("click", openApp);
-
-      newIdBtn.addEventListener("click", () => {
-        showMessage("온라인 팬도 루미 ID를 만들 수 있어요. 실제 발급 페이지에서는 닉네임, 이메일, 오시, 생일, PIN을 입력하게 됩니다.");
-      });
-
-      forgotPinBtn.addEventListener("click", () => {
-        showMessage("PIN 분실 시 루미 ID, 닉네임, 이메일 등으로 문의 후 임시 PIN을 재설정하는 구조로 운영합니다.");
-      });
-
-      logoutBtn.addEventListener("click", closeApp);
-
-      $$("[data-page]").forEach((button) => {
-        button.addEventListener("click", () => go(button.dataset.page));
-      });
-
-      $$("[data-go]").forEach((button) => {
-        button.addEventListener("click", () => go(button.dataset.go));
-      });
-
-
       function setMiniPage(targetId) {
         const target = document.getElementById(targetId);
         if (!target) return;
@@ -2393,6 +2008,36 @@
         });
       }
 
+      loginForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const ok = normId(loginId.value) === sampleUser.id && loginPin.value.trim() === sampleUser.pin;
+        if (ok) {
+          openApp();
+          return;
+        }
+        showMessage("루미 ID 또는 PIN을 다시 확인해 주세요. 샘플 로그인은 LB-0001 / 1234 입니다.");
+      });
+
+      sampleBtn.addEventListener("click", openApp);
+
+      newIdBtn.addEventListener("click", () => {
+        showMessage("온라인 팬도 루미 ID를 만들 수 있어요. 실제 발급 페이지에서는 닉네임, 이메일, 오시, 생일, PIN을 입력하게 됩니다.");
+      });
+
+      forgotPinBtn.addEventListener("click", () => {
+        showMessage("PIN 분실 시 루미 ID, 닉네임, 이메일 등으로 문의 후 임시 PIN을 재설정하는 구조로 운영합니다.");
+      });
+
+      logoutBtn.addEventListener("click", closeApp);
+
+      $$(".tab").forEach((button) => {
+        button.addEventListener("click", () => go(button.dataset.page));
+      });
+
+      $$("[data-go]").forEach((button) => {
+        button.addEventListener("click", () => go(button.dataset.go));
+      });
+
       $$(".mini-tab").forEach((button) => {
         button.addEventListener("click", () => setMiniPage(button.dataset.miniTarget));
       });
@@ -2401,6 +2046,11 @@
         button.addEventListener("click", () => showMailDetail(button.dataset.detail));
       });
 
+      if (codeReadyBtn && codeToast) {
+        codeReadyBtn.addEventListener("click", () => {
+          codeToast.classList.add("show");
+        });
+      }
 
       updateClock();
       setInterval(updateClock, 30000);
