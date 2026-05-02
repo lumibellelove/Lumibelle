@@ -1754,6 +1754,186 @@ button,
 }
 </style>
 
+
+
+<style id="v2-8-94-mobile-home-single-column-css-only">
+/* v2.8.94: 홈 화면만 재정리. JS/기능 미수정, 모바일에서 2열 카드 세로깨짐 방지. */
+@media (max-width:860px){
+  /* 홈은 우선 안정이 목표라 정보 카드만 1열로 고정 */
+  #page-home .kawaii-widget-grid,
+  #page-home .kawaii-widget-grid.v118-home-grid,
+  #page-home .kawaii-widget-grid.v1184-grid{
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    gap:10px !important;
+    margin:10px 0 12px !important;
+  }
+
+  /* 홈 카드: 좁은 2열용으로 줄였던 값 되돌리고, 한 줄 카드처럼 읽히게 */
+  #page-home .kawaii-widget-grid > .kawaii-widget,
+  #page-home .kawaii-widget.v118-home-card,
+  #page-home .kawaii-widget.v1184-card{
+    position:relative !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    min-height:0 !important;
+    height:auto !important;
+    padding:16px 18px !important;
+    border-radius:22px !important;
+    display:block !important;
+    overflow:hidden !important;
+    text-align:left !important;
+  }
+
+  /* 카드 안의 글자는 무조건 가로쓰기. 이전 압축 패치와 충돌 방지 */
+  #page-home .kawaii-widget small,
+  #page-home .kawaii-widget b,
+  #page-home .kawaii-widget span:not(.spark),
+  #page-home .kawaii-widget p,
+  #page-home .kawaii-widget button,
+  #page-home .v118-home-card small,
+  #page-home .v118-home-card b,
+  #page-home .v118-home-card span:not(.spark),
+  #page-home .v118-home-card p,
+  #page-home .v118-home-card button{
+    position:relative !important;
+    z-index:2 !important;
+    display:block !important;
+    float:none !important;
+    clear:none !important;
+    transform:none !important;
+    writing-mode:horizontal-tb !important;
+    text-orientation:mixed !important;
+    white-space:normal !important;
+    word-break:keep-all !important;
+    overflow-wrap:break-word !important;
+    word-wrap:break-word !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    letter-spacing:-.035em !important;
+  }
+
+  #page-home .kawaii-widget small,
+  #page-home .v118-home-card small{
+    margin:0 34px 7px 0 !important;
+    padding:0 !important;
+    font-size:13.5px !important;
+    line-height:1.25 !important;
+    color:#c97fa5 !important;
+    font-weight:1000 !important;
+  }
+  #page-home .kawaii-widget b,
+  #page-home .v118-home-card b{
+    margin:0 0 7px !important;
+    padding:0 !important;
+    font-size:22px !important;
+    line-height:1.24 !important;
+    color:#6f5364 !important;
+    font-weight:1000 !important;
+  }
+  #page-home .kawaii-widget span:not(.spark),
+  #page-home .v118-home-card span:not(.spark){
+    margin:0 !important;
+    padding:0 !important;
+    font-size:14px !important;
+    line-height:1.55 !important;
+    color:#73596a !important;
+    font-weight:900 !important;
+  }
+
+  /* br은 홈 카드에서만 모바일 줄바꿈 부담 줄이기 */
+  #page-home .kawaii-widget span br,
+  #page-home .v118-home-card span br{display:none !important;}
+
+  /* 아이콘 겹침은 홈 카드에서 완전 숨김. 우측 별 장식만 남김 */
+  #page-home .kawaii-widget-grid > .kawaii-widget > i,
+  #page-home .home-card-icon,
+  #page-home .v1184-card-icon,
+  #page-home .v117-card-icon,
+  #page-home .v118-card-icon{
+    display:none !important;
+    visibility:hidden !important;
+    width:0 !important;
+    height:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+  }
+  #page-home .kawaii-widget .spark,
+  #page-home .v1184-card .spark{
+    display:block !important;
+    position:absolute !important;
+    right:16px !important;
+    top:15px !important;
+    z-index:1 !important;
+    font-size:23px !important;
+    line-height:1 !important;
+    color:#ff8fc4 !important;
+    opacity:.9 !important;
+    pointer-events:none !important;
+  }
+
+  /* 입장번호/문자/예약/숙제체키 카드도 길게 늘어지지 않게 */
+  #page-home #homeEntryCard,
+  #page-home #homeMessageCard,
+  #page-home #homeReservationCard,
+  #page-home #homeHomeworkCard{
+    padding-top:15px !important;
+    padding-bottom:15px !important;
+  }
+  #page-home #homeEntryCard b,
+  #page-home .quick-pass b{
+    font-size:36px !important;
+    line-height:1 !important;
+    letter-spacing:.08em !important;
+    color:#ff5fa8 !important;
+    -webkit-text-fill-color:#ff5fa8 !important;
+  }
+  #page-home #homeMessageCard .widget-link{
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:auto !important;
+    min-width:108px !important;
+    min-height:34px !important;
+    margin:10px 0 0 !important;
+    padding:0 15px !important;
+    border-radius:999px !important;
+    font-size:12.5px !important;
+    line-height:1 !important;
+    float:none !important;
+  }
+
+  /* 시계/검색은 조금만 압축 */
+  #page-home .home-clock-widget{
+    min-height:auto !important;
+    padding:18px 16px 16px !important;
+    margin-bottom:10px !important;
+    border-radius:24px !important;
+    display:block !important;
+  }
+  #page-home .home-clock-widget .time{font-size:44px !important;line-height:.95 !important;}
+  #page-home .home-clock-widget .date{font-size:15px !important;margin-top:5px !important;}
+  #page-home .home-clock-widget .copy{font-size:13px !important;line-height:1.45 !important;margin-top:7px !important;}
+  #page-home .kawaii-search{min-height:40px !important;margin:8px 0 10px !important;padding:0 14px !important;font-size:13px !important;line-height:1.35 !important;}
+
+  /* 앱 영역은 기존 3열 유지. 홈 정보 카드와 충돌하지 않게만 정돈 */
+  #page-home .kawaii-launch-card{margin-top:12px !important;padding:15px !important;border-radius:22px !important;}
+  #page-home .kawaii-icon-grid{grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:8px !important;}
+  #page-home .kawaii-app-icon{min-height:78px !important;padding:6px 2px !important;font-size:11.5px !important;line-height:1.2 !important;}
+}
+
+@media (max-width:380px){
+  #page-home .kawaii-widget b,
+  #page-home .v118-home-card b{font-size:20px !important;}
+  #page-home .kawaii-widget span:not(.spark),
+  #page-home .v118-home-card span:not(.spark){font-size:13.5px !important;}
+  #page-home #homeEntryCard b,#page-home .quick-pass b{font-size:32px !important;}
+}
+</style>
+
 </head>
 <body>
 <input accept="image/*" class="hidden-input" id="coverInput" type="file"/><input accept="image/*" class="hidden-input" id="avatarInput" type="file"/>
