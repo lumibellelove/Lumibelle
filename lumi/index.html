@@ -4051,6 +4051,42 @@
       color: #fff;
     }
 
+
+
+    /* Profile share visual fix: clear modal + profile-card-like export */
+    #page-profile .profile-simple-modal.is-profile-share {
+      background: rgba(70, 50, 64, 0.18) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-dialog {
+      background: #fff !important;
+      filter: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      box-shadow: 0 22px 62px rgba(70, 50, 64, .18) !important;
+    }
+
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-body,
+    #page-profile .profile-simple-modal.is-profile-share .profile-share-preview-wrap,
+    #page-profile .profile-simple-modal.is-profile-share .profile-share-preview-img {
+      filter: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    #page-profile .profile-share-preview-wrap {
+      border-radius: 24px !important;
+      padding: 8px !important;
+      background: #fffafd !important;
+      box-shadow: 0 10px 26px rgba(232,191,211,.12) !important;
+    }
+
+    #page-profile .profile-share-preview-img {
+      border-radius: 18px !important;
+    }
+
   </style>
 </head>
 
@@ -5735,24 +5771,25 @@
         const white = "#ffffff";
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         const outer = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
         outer.addColorStop(0, "#fffafd");
-        outer.addColorStop(.55, "#fff0f7");
+        outer.addColorStop(.58, "#fff3fa");
         outer.addColorStop(1, "#f8f0ff");
         ctx.fillStyle = outer;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.fillStyle = "rgba(255, 95, 168, .10)";
+        ctx.fillStyle = "rgba(255, 95, 168, .09)";
         ctx.beginPath();
-        ctx.arc(158, 164, 168, 0, Math.PI * 2);
+        ctx.arc(170, 160, 170, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = "rgba(202, 167, 255, .14)";
+        ctx.fillStyle = "rgba(202, 167, 255, .12)";
         ctx.beginPath();
-        ctx.arc(932, 252, 176, 0, Math.PI * 2);
+        ctx.arc(952, 276, 184, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = "rgba(255, 205, 226, .24)";
+        ctx.fillStyle = "rgba(255, 205, 226, .20)";
         ctx.beginPath();
-        ctx.arc(882, 1218, 228, 0, Math.PI * 2);
+        ctx.arc(882, 1218, 220, 0, Math.PI * 2);
         ctx.fill();
 
         const cardX = 56;
@@ -5762,16 +5799,16 @@
         const cardR = 54;
         const cardGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
         cardGrad.addColorStop(0, "#ffffff");
-        cardGrad.addColorStop(.74, "#fffafd");
-        cardGrad.addColorStop(1, "#fff4fa");
+        cardGrad.addColorStop(.78, "#fffafd");
+        cardGrad.addColorStop(1, "#fff5fb");
         roundRect(ctx, cardX, cardY, cardW, cardH, cardR, cardGrad, "#f4c8dc");
-        roundRect(ctx, cardX + 14, cardY + 14, cardW - 28, cardH - 28, 40, null, "rgba(239,188,213,.70)");
+        roundRect(ctx, cardX + 14, cardY + 14, cardW - 28, cardH - 28, 38, null, "rgba(239,188,213,.62)");
 
         const coverX = 88;
         const coverY = 88;
         const coverW = 904;
-        const coverH = 382;
-        const coverR = 34;
+        const coverH = 356;
+        const coverR = 28;
         const coverGrad = ctx.createLinearGradient(coverX, coverY, coverX + coverW, coverY + coverH);
         coverGrad.addColorStop(0, "#ffd0e7");
         coverGrad.addColorStop(.48, "#ff8fc2");
@@ -5781,91 +5818,98 @@
         if (coverImg) {
           drawRoundedCoverImage(ctx, coverImg, payload.coverPart || null, coverX, coverY, coverW, coverH, coverR, "#f3c6dc");
         } else {
-          ctx.fillStyle = "rgba(255,255,255,.24)";
+          ctx.fillStyle = "rgba(255,255,255,.22)";
           ctx.beginPath();
           ctx.arc(244, 178, 98, 0, Math.PI * 2);
           ctx.fill();
-          ctx.fillStyle = "rgba(255,255,255,.18)";
+          ctx.fillStyle = "rgba(255,255,255,.17)";
           ctx.beginPath();
-          ctx.arc(818, 382, 126, 0, Math.PI * 2);
+          ctx.arc(818, 350, 124, 0, Math.PI * 2);
           ctx.fill();
         }
 
-        const avatarSize = 224;
-        const avatarX = 118;
-        const avatarY = 358;
+        const avatarOuter = 246;
+        const avatarInner = 226;
+        const avatarX = 116;
+        const avatarY = 330;
         ctx.beginPath();
-        ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
+        ctx.arc(avatarX + avatarOuter / 2, avatarY + avatarOuter / 2, avatarOuter / 2, 0, Math.PI * 2);
         ctx.fillStyle = "#fff9fd";
         ctx.fill();
-        ctx.lineWidth = 6;
+        ctx.lineWidth = 7;
         ctx.strokeStyle = white;
         ctx.stroke();
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 2.5;
         ctx.strokeStyle = line;
         ctx.stroke();
 
         const avatarImg = await loadCanvasImage(payload.avatar || "");
-        const avatarImgSize = 202;
-        const avatarImgX = avatarX + (avatarSize - avatarImgSize) / 2;
-        const avatarImgY = avatarY + (avatarSize - avatarImgSize) / 2;
+        const avatarImgX = avatarX + (avatarOuter - avatarInner) / 2;
+        const avatarImgY = avatarY + (avatarOuter - avatarInner) / 2;
         if (avatarImg) {
-          drawCircularImage(ctx, avatarImg, avatarImgX, avatarImgY, avatarImgSize, payload.avatarPart || null);
+          drawCircularImage(ctx, avatarImg, avatarImgX, avatarImgY, avatarInner, payload.avatarPart || null);
         } else {
-          const iconGrad = ctx.createLinearGradient(avatarImgX, avatarImgY, avatarImgX + avatarImgSize, avatarImgY + avatarImgSize);
+          const iconGrad = ctx.createLinearGradient(avatarImgX, avatarImgY, avatarImgX + avatarInner, avatarImgY + avatarInner);
           iconGrad.addColorStop(0, "#ff82ba");
           iconGrad.addColorStop(1, "#caa7ff");
           ctx.beginPath();
-          ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarImgSize / 2, 0, Math.PI * 2);
+          ctx.arc(avatarX + avatarOuter / 2, avatarY + avatarOuter / 2, avatarInner / 2, 0, Math.PI * 2);
           ctx.fillStyle = iconGrad;
           ctx.fill();
           ctx.fillStyle = white;
-          ctx.font = "900 84px sans-serif";
+          ctx.font = "900 88px sans-serif";
           ctx.textAlign = "center";
-          ctx.fillText("✦", avatarX + avatarSize / 2, avatarY + 142);
+          ctx.fillText("✦", avatarX + avatarOuter / 2, avatarY + 154);
         }
 
         const leftX = 112;
         ctx.textAlign = "left";
         ctx.fillStyle = deep;
         ctx.font = "900 88px sans-serif";
-        wrapText(ctx, payload.title || "루미나", leftX, 648, 840, 94, "left");
+        wrapText(ctx, payload.title || "루미나", leftX, 602, 840, 92, "left");
 
         ctx.fillStyle = muted;
         ctx.font = "900 38px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, 748);
+        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, 708);
 
         ctx.fillStyle = deep;
         ctx.font = "900 44px sans-serif";
-        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", leftX, 842, 850, 52, "left");
+        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", leftX, 800, 850, 50, "left");
+
+        function singleLine(text, maxChars) {
+          const value = String(text || "").trim();
+          if (!maxChars || value.length <= maxChars) return value;
+          return value.slice(0, maxChars - 1) + "…";
+        }
 
         function pill(text, x, y, w, h, fontSize) {
-          roundRect(ctx, x, y, w, h, h / 2, "rgba(255,255,255,.86)", line2);
+          roundRect(ctx, x, y, w, h, h / 2, "rgba(255,255,255,.88)", line2);
           ctx.fillStyle = muted;
           ctx.font = "900 " + (fontSize || 33) + "px sans-serif";
           ctx.textAlign = "center";
-          const shown = String(text || "");
-          wrapText(ctx, shown, x + w / 2, y + h / 2 + Math.round((fontSize || 33) * .36), w - 44, Math.round((fontSize || 33) * 1.1), "center");
+          ctx.textBaseline = "middle";
+          ctx.fillText(singleLine(text, Math.floor(w / ((fontSize || 33) * .62))), x + w / 2, y + h / 2 + 1);
+          ctx.textBaseline = "alphabetic";
           ctx.textAlign = "left";
         }
 
         const titleText = String(payload.small || "대표 칭호 · 나만의 루미나").replace(/^대표 칭호\s*[·:]\s*/, "");
-        pill(titleText || "나만의 루미나", leftX, 910, 430, 70, 34);
-        pill("📍 " + (payload.space || "루루의 방"), leftX, 1018, 324, 66, 34);
-        pill("🎂 " + (payload.birthday || "07.19"), leftX + 354, 1018, 256, 66, 34);
-        pill("🗓 " + (payload.date || "2026.07.12") + " 개통", leftX, 1098, 452, 66, 34);
+        pill(titleText || "나만의 루미나", leftX, 862, 430, 70, 34);
+        pill("📍 " + (payload.space || "루루의 방"), leftX, 972, 324, 66, 34);
+        pill("🎂 " + (payload.birthday || "07.19"), leftX + 354, 972, 256, 66, 34);
+        pill("🗓 " + (payload.date || "2026.07.12") + " 개통", leftX, 1050, 452, 66, 34);
 
-        roundRect(ctx, 94, 1210, 892, 122, 30, "rgba(255,255,255,.88)", line);
+        roundRect(ctx, 94, 1186, 892, 128, 30, "rgba(255,255,255,.90)", line);
         ctx.fillStyle = muted;
         ctx.font = "900 26px sans-serif";
-        ctx.fillText((payload.date || "2026.07.12") + " 개통", 132, 1252);
+        ctx.fillText((payload.date || "2026.07.12") + " 개통", 132, 1230);
         ctx.fillStyle = pink;
         ctx.font = "900 30px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, 132, 1290);
+        ctx.fillText("LUMI ID · " + sampleUser.id, 132, 1268);
         ctx.fillStyle = muted;
         ctx.font = "900 25px sans-serif";
-        ctx.fillText("lumibellelove.com", 132, 1324);
-        fakeQr(ctx, 818, 1232, 78);
+        ctx.fillText("lumibellelove.com", 132, 1304);
+        fakeQr(ctx, 818, 1212, 82);
         return canvas;
       }
 
