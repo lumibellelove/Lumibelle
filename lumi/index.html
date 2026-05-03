@@ -3184,11 +3184,14 @@
     #page-profile .profile-edit-dialog > div:first-child::after{content:none!important;display:none!important;}
 
     @supports (-webkit-touch-callout: none) {
-      #page-profile .profile-edit-dialog,
-      #page-profile .profile-field,
-      #page-profile .profile-field input,
-      #page-profile .birthday-selects select,
-      #page-profile .profile-oshi-button {
+      #page-profile .profile-edit-modal {
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+      }
+
+      #page-profile .profile-edit-dialog {
+        height: calc(100dvh - 18px) !important;
+        overflow: hidden !important;
         transition: none !important;
         will-change: auto !important;
         backface-visibility: hidden;
@@ -3197,10 +3200,40 @@
         -webkit-transform: none !important;
       }
 
+      #page-profile .profile-edit-topbar {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 30 !important;
+        padding-top: calc(env(safe-area-inset-top, 0px) + 10px) !important;
+      }
+
+      #page-profile .profile-field,
       #page-profile .profile-field input,
       #page-profile .birthday-selects select,
       #page-profile .profile-oshi-button {
+        transition: none !important;
+        will-change: auto !important;
+        -webkit-backface-visibility: hidden !important;
+        backface-visibility: hidden !important;
+        box-shadow: none !important;
+        transform: none !important;
+        -webkit-transform: none !important;
+      }
+
+      #page-profile .profile-field input,
+      #page-profile .birthday-selects select,
+      #page-profile .profile-oshi-button {
+        font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif !important;
         font-size: 16px !important;
+        font-weight: 650 !important;
+        line-height: 1.35 !important;
+        color: #76586a !important;
+        background: #fff !important;
+        caret-color: #ff5fa8 !important;
+        -webkit-appearance: none !important;
+        appearance: none !important;
+        isolation: isolate !important;
+        contain: paint !important;
       }
 
       #page-profile .profile-field input:focus,
@@ -3208,10 +3241,7 @@
       #page-profile .profile-oshi-button:focus {
         box-shadow: none !important;
         outline: none !important;
-      }
-
-      #page-profile .profile-edit-topbar {
-        padding-top: calc(env(safe-area-inset-top, 0px) + 10px) !important;
+        border-color: var(--line2);
       }
     }
 
@@ -3243,17 +3273,55 @@
       display: none !important;
     }
 
-    @supports (-webkit-touch-callout: none) {
-      #page-profile .profile-edit-dialog {
-        height: calc(100dvh - 18px) !important;
-        overflow: hidden !important;
-      }
+  
 
-      #page-profile .profile-edit-topbar {
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 30 !important;
-      }
+    /* LUMIPHONE PROFILE INPUT CARET FLICKER PATCH - profile modal only */
+    #page-profile .profile-edit-modal {
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+    }
+
+    #page-profile .profile-edit-dialog,
+    #page-profile .profile-form-compact,
+    #page-profile .profile-field,
+    #page-profile .profile-field input,
+    #page-profile .birthday-selects select,
+    #page-profile .profile-oshi-button {
+      -webkit-font-smoothing: antialiased !important;
+      -webkit-backface-visibility: hidden !important;
+      backface-visibility: hidden !important;
+      isolation: isolate !important;
+      will-change: auto !important;
+      transform: none !important;
+      -webkit-transform: none !important;
+      transition: none !important;
+      animation: none !important;
+      filter: none !important;
+      text-shadow: none !important;
+      box-shadow: none !important;
+    }
+
+    #page-profile .profile-field input,
+    #page-profile .birthday-selects select {
+      background: #fff !important;
+      background-image: none !important;
+      caret-color: #ff5fa8 !important;
+      outline: none !important;
+      -webkit-tap-highlight-color: transparent !important;
+    }
+
+    #page-profile .profile-field input:focus,
+    #page-profile .birthday-selects select:focus {
+      background: #fff !important;
+      border-color: rgba(239,188,213,.98) !important;
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    #page-profile .profile-field:focus-within {
+      border-color: rgba(239,188,213,.98) !important;
+      outline: none !important;
+      box-shadow: none !important;
     }
 
   </style>
