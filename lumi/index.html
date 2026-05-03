@@ -5962,12 +5962,15 @@
           ctx.textBaseline = "alphabetic";
         }
 
-        const pillY1 = contentTop + 204;
+        const pillY1 = contentTop + 154;
         const pillY2 = pillY1 + 72;
         const titleText = String(payload.small || "대표 칭호 · 나만의 루미나").replace(/^대표 칭호\s*[·:]\s*/, "");
         pill(titleText || "나만의 루미나", leftX, pillY1, 390, 60, 34);
-        pill("📍 " + (payload.space || "루루의 방"), leftX, pillY2, 252, 56, 32);
-        pill("🎂 " + (payload.birthday || "07.19"), leftX + 278, pillY2, 210, 56, 32);
+
+        ctx.fillStyle = muted;
+        ctx.font = "900 32px sans-serif";
+        ctx.textAlign = "left";
+        ctx.fillText("📍 " + (payload.space || "루루의 방") + " · 🎂 " + (payload.birthday || "07.19"), leftX + 4, pillY1 + 96);
 
         function getProfileShareStampText() {
           const statusText = document.querySelector(".stamp-status span")?.textContent || "";
@@ -5997,7 +6000,7 @@
           ctx.textAlign = "left";
         }
 
-        const summaryY = pillY2 + 76;
+        const summaryY = pillY1 + 126;
         const summaryW = 318;
         const summaryH = 106;
         summaryBox("스탬프", getProfileShareStampText(), leftX, summaryY, summaryW, summaryH);
