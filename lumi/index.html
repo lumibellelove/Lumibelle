@@ -55,6 +55,7 @@
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
       will-change: transform;
+      contain: strict;
       pointer-events: none;
     }
 
@@ -2133,6 +2134,10 @@
         font-weight: 700;
         transition: none !important;
         will-change: auto;
+        /* 캐럿 깜박임이 배경 레이어 재합성 트리거하는 것 차단 */
+        isolation: isolate;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
       }
 
       .profile-field input:focus,
@@ -2143,6 +2148,12 @@
       }
 
       /* 로그인 입력창 포커스 번쩍임 억제 */
+      input {
+        isolation: isolate;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+      }
+
       input:focus {
         box-shadow: none;
       }
