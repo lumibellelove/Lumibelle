@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>LUMI PHONE v10.3 | Profile Oshi Picker Final Patch</title>
+  <title>LUMI PHONE v10.3 | Profile Oshi Limit Final Patch</title>
   <meta name="theme-color" content="#fff7fb" />
 
   <style>
@@ -2121,26 +2121,7 @@
       opacity: .78;
       background: #fffafd;
     }
-
-    @supports (-webkit-touch-callout: none) {
-      .profile-field input,
-      .profile-field textarea,
-      .birthday-selects select {
-        font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-        font-weight: 700;
-          transition: none !important;
-        will-change: auto;
-      }
-
-      .profile-field input:focus,
-      .profile-field textarea:focus,
-      .birthday-selects select:focus {
-        outline: none;
-        box-shadow: none;
-      }
-    }
-
-    @media (max-width: 430px) {
+@media (max-width: 430px) {
       .profile-title-modal { padding: 10px; }
       .profile-title-dialog { padding: 14px; border-radius: 24px; }
       .profile-title-topbar h3 { font-size: 22px; }
@@ -2488,8 +2469,50 @@
         place-items: center;
       }
     }
+/* Profile title pill centered final adjustment */
+    .profile-title-pill {
+      width: 100%;
+      max-width: 100%;
+      justify-self: stretch;
+      align-self: stretch;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 32px;
+      padding: 0 13px;
+      margin: 8px 0 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(239, 188, 213, 0.70);
+      background: #fffafd;
+      color: #9a7187;
+      font-size: 11.2px;
+      line-height: 1.25;
+      font-weight: 900;
+      text-align: center;
+      box-shadow: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
 
     @supports (-webkit-touch-callout: none) {
+      .profile-field input,
+      .profile-field textarea,
+      .birthday-selects select {
+        font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+        font-weight: 700;
+          transition: none !important;
+        will-change: auto;
+      }
+
+      .profile-field input:focus,
+      .profile-field textarea:focus,
+      .birthday-selects select:focus {
+        outline: none;
+        box-shadow: none;
+      }
+
       .profile-edit-panel,
       .profile-form,
       .profile-field,
@@ -3095,7 +3118,7 @@
                       <div class="profile-title-row">
                         <h3 class="profile-name" id="profileDisplayName">루미나</h3>
                         <span class="profile-id">LUMI ID · LB-0001</span>
-                        <div class="profile-meta" id="profileMeta">오시: 루루 🍼🐰 · 가입 상태: 샘플 루미</div>
+                        <div class="profile-meta" id="profileMeta">오시: 루루 🍼🐰</div>
                         <div class="profile-title-pill" id="profileTitlePill">나만의 루미나</div>
 <div class="profile-public-tags" aria-label="프로필 공개 정보">
                           <span class="profile-public-tag" id="profileSpaceTag">📍 루루의 방</span>
@@ -3213,13 +3236,13 @@
                           <button class="profile-oshi-close" id="profileOshiClose" type="button" aria-label="닫기">×</button>
                         </div>
                         <div class="profile-oshi-list" aria-label="오시 선택 목록">
-                          <button class="profile-oshi-option" type="button" data-oshi-value="팀 오시 / Lumibelle"><span class="profile-oshi-check">✓</span><span>팀 오시 / Lumibelle</span></button>
+                          <button class="profile-oshi-option" type="button" data-oshi-value="Lumibelle 👑"><span class="profile-oshi-check">✓</span><span>Lumibelle 👑</span></button>
                           <button class="profile-oshi-option" type="button" data-oshi-value="마리링 🎀⭐"><span class="profile-oshi-check">✓</span><span>마리링 🎀⭐</span></button>
                           <button class="profile-oshi-option" type="button" data-oshi-value="루루 🍼🐰"><span class="profile-oshi-check">✓</span><span>루루 🍼🐰</span></button>
                           <button class="profile-oshi-option" type="button" data-oshi-value="이로 👼🏻💎"><span class="profile-oshi-check">✓</span><span>이로 👼🏻💎</span></button>
                           <button class="profile-oshi-option" type="button" data-oshi-value="루나 🌙🐱"><span class="profile-oshi-check">✓</span><span>루나 🌙🐱</span></button>
                           <button class="profile-oshi-option" type="button" data-oshi-value="아직 고민 중"><span class="profile-oshi-check">✓</span><span>아직 고민 중</span></button>
-                          <button class="profile-oshi-option" type="button" data-oshi-value="DD / 모두 좋아"><span class="profile-oshi-check">✓</span><span>DD / 모두 좋아</span></button>
+                          <button class="profile-oshi-option" type="button" data-oshi-value="DD · 모두 좋아"><span class="profile-oshi-check">✓</span><span>DD · 모두 좋아</span></button>
                         </div>
                       </div>
                     </section>
@@ -3479,6 +3502,7 @@
 
 
       const profileStorageKey = "lumiphone.profile.v1";
+      const profileOshiChangedKey = "lumiphone.profile.oshiChangedAt.v1";
       const profileDefaultPart = () => ({ src: "", x: 50, y: 50, scale: 1 });
       const profileDefaultInfo = () => ({
         displayName: "루미나",
@@ -3572,6 +3596,61 @@
           profileState = profileDefaultState();
         }
         profileDraft = cloneProfileState(profileState);
+      }
+
+
+      function getLastOshiChangedAt() {
+        const raw = localStorage.getItem(profileOshiChangedKey);
+        const time = raw ? Number(raw) : 0;
+        return Number.isFinite(time) ? time : 0;
+      }
+
+      function setLastOshiChangedAt(time) {
+        localStorage.setItem(profileOshiChangedKey, String(time || Date.now()));
+      }
+
+      function getNextOshiChangeDateText(lastChangedAt) {
+        const next = new Date(Number(lastChangedAt) + 14 * 24 * 60 * 60 * 1000);
+        return next.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" });
+      }
+
+      function canChangeOshiNow(lastChangedAt) {
+        if (!lastChangedAt) return true;
+        return Date.now() - Number(lastChangedAt) >= 14 * 24 * 60 * 60 * 1000;
+      }
+
+      function showOshiLimitMessage(lastChangedAt) {
+        const dateText = getNextOshiChangeDateText(lastChangedAt);
+        alert("아직 오시를 변경할 수 없어요.\\n\\n오시는 14일에 한 번 변경할 수 있어요.\\n다음 변경 가능일 이후 다시 변경해 주세요.\\n\\n다음 변경 가능일: " + dateText);
+      }
+
+      function confirmOshiChange() {
+        return window.confirm("오시를 변경할까요?\\n\\n오시는 14일에 한 번 변경할 수 있어요.\\n이번에 저장하면 일정 기간 동안 다시 변경하기 어려울 수 있어요.");
+      }
+
+      function shouldProceedProfileSave(nextInfo) {
+        const currentInfo = normalizeProfileInfo(profileState.info);
+        const nextOshi = nextInfo && nextInfo.oshi;
+        const currentOshi = currentInfo.oshi;
+        if (nextOshi === currentOshi) return true;
+
+        const lastChangedAt = getLastOshiChangedAt();
+        if (!canChangeOshiNow(lastChangedAt)) {
+          showOshiLimitMessage(lastChangedAt);
+          return false;
+        }
+
+        return confirmOshiChange();
+      }
+
+      function finalizeProfileSave(nextState) {
+        const before = normalizeProfileInfo(profileState.info).oshi;
+        const after = normalizeProfileInfo(nextState.info).oshi;
+        profileState = normalizeProfileState(nextState);
+        if (before !== after) setLastOshiChangedAt(Date.now());
+        saveProfileState();
+        renderProfileView();
+        closeProfileEditor(false);
       }
 
       function saveProfileState() {
@@ -3756,7 +3835,7 @@
         if (profileAvatar) profileAvatar.classList.toggle("has-image", Boolean(profileState.avatar.src));
         const info = normalizeProfileInfo(profileState.info);
         if (profileDisplayName) profileDisplayName.textContent = info.displayName;
-        if (profileMeta) profileMeta.textContent = "오시: " + info.oshi + " · 가입 상태: 샘플 루미";
+        if (profileMeta) profileMeta.textContent = "오시: " + info.oshi;
         if (profileTitlePill) profileTitlePill.textContent = info.title;
         if (profileSpaceTag) profileSpaceTag.textContent = "📍 " + info.space;
         if (profileBirthdayTag) profileBirthdayTag.textContent = "🎂 " + profileBirthdayText(info);
@@ -3893,13 +3972,26 @@
           showProfileError("나의 공간을 입력해 주세요.");
           return;
         }
+
+        const nextState = normalizeProfileState(profileDraft);
         const beforeOshi = normalizeProfileInfo(profileState.info).oshi;
-        const afterOshi = normalizeProfileInfo(profileDraft.info).oshi;
-        if (beforeOshi !== afterOshi && !confirmedOshiChange) {
-          openProfileOshiConfirmModal();
-          return;
+        const afterOshi = normalizeProfileInfo(nextState.info).oshi;
+        const oshiChanged = beforeOshi !== afterOshi;
+
+        if (oshiChanged) {
+          const lastChangedAt = getLastOshiChangedAt();
+          if (!canChangeOshiNow(lastChangedAt)) {
+            showOshiLimitMessage(lastChangedAt);
+            return;
+          }
+          if (!confirmedOshiChange) {
+            openProfileOshiConfirmModal();
+            return;
+          }
+          setLastOshiChangedAt(Date.now());
         }
-        profileState = normalizeProfileState(profileDraft);
+
+        profileState = nextState;
         saveProfileState();
         renderProfileView();
         closeProfileEditor(false);
