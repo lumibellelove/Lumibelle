@@ -5496,6 +5496,24 @@
         openProfileSimpleModal("공유 안내", ["이 기기에서는 이미지 공유가 바로 되지 않아요.", "이미지는 저장했고, 공유 문구는 복사해두었어요.", "X나 인스타에서 직접 붙여 넣어 주세요."]);
       }
 
+      function isMobileLikeDevice() {
+        const ua = navigator.userAgent || "";
+        const touchPoints = Number(navigator.maxTouchPoints || 0);
+        const coarsePointer = Boolean(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+        const narrowViewport = Math.min(window.innerWidth || 9999, window.screen && window.screen.width ? window.screen.width : 9999) <= 900;
+        return /Android|iPhone|iPad|iPod|Mobile|SamsungBrowser/i.test(ua) || (touchPoints > 1 && coarsePointer && narrowViewport);
+      }
+
+      function moveToXShareUrl(xUrl) {
+        if (!xUrl) return;
+        if (isMobileLikeDevice()) {
+          window.location.assign(xUrl);
+          return;
+        }
+        const nextWindow = window.open(xUrl, "_blank", "noopener,noreferrer");
+        if (nextWindow && typeof nextWindow.focus === "function") nextWindow.focus();
+      }
+
       function openXAchievementShareConfirm(payload) {
         if (!payload) return;
         const xUrl = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(payload.text);
@@ -5506,14 +5524,7 @@
           {
             label: "이동하기",
             primary: true,
-            onClick: () => {
-              const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "");
-              if (isMobile) {
-                window.location.href = xUrl;
-              } else {
-                window.open(xUrl, "_blank", "noopener,noreferrer");
-              }
-            }
+            onClick: () => moveToXShareUrl(xUrl)
           },
           { label: "취소" }
         ]);
