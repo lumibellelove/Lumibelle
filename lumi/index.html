@@ -4503,6 +4503,19 @@
       background: transparent !important;
     }
 
+
+    /* GPT profile share title spacing patch */
+    .profile-simple-modal.is-profile-share .profile-simple-topbar {
+      margin-top: 10px !important;
+      margin-bottom: 8px !important;
+      padding-left: 10px !important;
+      padding-right: 8px !important;
+    }
+    .profile-simple-modal.is-profile-share .profile-simple-topbar h3 {
+      padding-left: 14px !important;
+      padding-top: 6px !important;
+    }
+
   </style>
 </head>
 
@@ -6306,18 +6319,18 @@
 
         ctx.fillStyle = muted;
         ctx.font = "900 39px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, contentTop + 96);
+        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, contentTop + 84);
 
         ctx.fillStyle = deep;
         ctx.font = "900 43px sans-serif";
-        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", leftX, contentTop + 150, cardW - 108, 52, "left");
+        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", leftX, contentTop + 132, cardW - 108, 52, "left");
 
         const logoImg = await loadCanvasImage(LUMIBELLE_SHARE_LOGO_DATA_URL || "");
         if (logoImg) {
-          const logoW = 194;
+          const logoW = 190;
           const logoH = logoW * ((logoImg.naturalHeight || logoImg.height) / (logoImg.naturalWidth || logoImg.width));
-          const logoX = cardX + cardW - logoW - 50;
-          const logoY = coverY + coverH + 78;
+          const logoX = cardX + cardW - logoW - 34;
+          const logoY = coverY + coverH + 104;
           ctx.save();
           ctx.globalAlpha = .76;
           ctx.drawImage(logoImg, logoX, logoY, logoW, logoH);
@@ -6344,9 +6357,9 @@
         const pillY1 = contentTop + 205;
         const pillY2 = pillY1 + 74;
         const titleText = String(payload.small || "대표 칭호 · 나만의 루미나").replace(/^대표 칭호\s*[·:]\s*/, "");
-        pill(titleText || "나만의 루미나", leftX, pillY1, 470, 56, 31);
-        pill("📍 " + (payload.space || "루루의 방"), leftX, pillY2, 320, 52, 29);
-        pill("🎂 " + (payload.birthday || "07.19"), leftX + 354, pillY2, 250, 52, 29);
+        pill(titleText || "나만의 루미나", leftX, pillY1, 430, 56, 32);
+        pill("📍 " + (payload.space || "루루의 방"), leftX, pillY2, 286, 52, 30);
+        pill("🎂 " + (payload.birthday || "07.19"), leftX + 326, pillY2, 226, 52, 30);
 
         function getProfileShareStampText() {
           const statusText = document.querySelector(".stamp-status span")?.textContent || "";
