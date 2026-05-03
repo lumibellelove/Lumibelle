@@ -5926,7 +5926,7 @@
 
         ctx.fillStyle = muted;
         ctx.font = "900 39px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, contentTop + 94);
+        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, contentTop + 70);
 
         ctx.fillStyle = deep;
         ctx.font = "900 43px sans-serif";
@@ -5937,7 +5937,7 @@
           const logoW = 190;
           const logoH = logoW * ((logoImg.naturalHeight || logoImg.height) / (logoImg.naturalWidth || logoImg.width));
           const logoX = cardX + cardW - logoW - 24;
-          const logoY = coverY + coverH + 44;
+          const logoY = coverY + coverH + 14;
           ctx.save();
           ctx.globalAlpha = .76;
           ctx.drawImage(logoImg, logoX, logoY, logoW, logoH);
@@ -5952,13 +5952,14 @@
 
         function pill(text, x, y, w, h, fontSize) {
           roundRect(ctx, x, y, w, h, h / 2, "rgba(255,255,255,.94)", line2);
+          const fs = fontSize || 31;
+          const pad = Math.max(22, Math.round(h * 0.42));
           ctx.fillStyle = muted;
-          ctx.font = "900 " + (fontSize || 31) + "px sans-serif";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText(singleLine(text, Math.floor(w / ((fontSize || 31) * .58))), x + w / 2, y + h / 2 + 1);
-          ctx.textBaseline = "alphabetic";
+          ctx.font = "900 " + fs + "px sans-serif";
           ctx.textAlign = "left";
+          ctx.textBaseline = "middle";
+          ctx.fillText(singleLine(text, Math.floor((w - pad * 2) / (fs * .58))), x + pad, y + h / 2 + 1);
+          ctx.textBaseline = "alphabetic";
         }
 
         const pillY1 = contentTop + 204;
