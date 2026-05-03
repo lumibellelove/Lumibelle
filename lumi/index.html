@@ -1335,6 +1335,9 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: var(--pos-x, 50%) var(--pos-y, 50%);
+      transform: scale(var(--scale, 1));
+      transform-origin: var(--pos-x, 50%) var(--pos-y, 50%);
       display: block;
       z-index: 0;
     }
@@ -1467,7 +1470,7 @@
 
     .profile-info-item {
       display: grid;
-      grid-template-columns: 46px 1fr;
+      grid-template-columns: 46px minmax(0, 1fr);
       gap: 10px;
       align-items: center;
       border: 1px solid var(--line);
@@ -1480,7 +1483,18 @@
       width: 42px;
       height: 42px;
       border-radius: 15px;
-      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1;
+      font-size: 19px;
+      overflow: hidden;
+    }
+
+    .profile-info-item > div {
+      min-width: 0;
+      align-self: center;
     }
 
     .profile-info-item b {
@@ -1564,7 +1578,9 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: 50% 50%;
+      object-position: var(--pos-x, 50%) var(--pos-y, 50%);
+      transform: scale(var(--scale, 1));
+      transform-origin: var(--pos-x, 50%) var(--pos-y, 50%);
       display: block;
       border-radius: 50%;
     }
@@ -2132,7 +2148,7 @@
                   <section class="profile-edit-panel hidden" id="profileEditor" aria-label="프로필 꾸미기 편집 화면">
                     <div>
                       <h3>프로필 꾸미기</h3>
-                      <p>이미지는 추후 자동으로 보기 좋게 맞춰질 예정이에요.</p>
+                      <p>헤더와 프로필 이미지는 변경 후 저장하면 프로필 카드에 반영돼요.</p>
                     </div>
 
                     <section class="profile-setting-list" aria-label="프로필 꾸미기 설정">
@@ -2392,21 +2408,25 @@
       }
 
       function renderProfileEditor() {
-        return;
+        if (!profileEditor || profileEditor.classList.contains("hidden")) return;
+        applyImagePart(profileCoverImg, profileDraft.cover);
+        applyImagePart(profileAvatarImg, profileDraft.avatar);
+        if (profileCover) profileCover.classList.toggle("has-image", Boolean(profileDraft.cover.src));
+        if (profileAvatar) profileAvatar.classList.toggle("has-image", Boolean(profileDraft.avatar.src));
       }
 
       function openProfileEditor() {
         profileDraft = cloneProfileState(profileState);
-        renderProfileEditor();
         if (profileEditor) profileEditor.classList.remove("hidden");
         if (profileEditOpen) profileEditOpen.classList.add("hidden");
+        renderProfileEditor();
       }
 
       function closeProfileEditor(resetDraft) {
         if (resetDraft) profileDraft = cloneProfileState(profileState);
         if (profileEditor) profileEditor.classList.add("hidden");
         if (profileEditOpen) profileEditOpen.classList.remove("hidden");
-        renderProfileEditor();
+        renderProfileView();
       }
 
       function readProfileFile(input, targetName) {
