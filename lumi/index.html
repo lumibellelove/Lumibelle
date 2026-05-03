@@ -4329,6 +4329,142 @@
       line-height: 1.15 !important;
     }
 
+
+    /* Final profile share cleanup patch: 기능 복구 + 실제 프로필 카드형 비율 */
+    .profile-simple-modal.is-profile-share,
+    #page-profile .profile-simple-modal.is-profile-share {
+      background: rgba(70, 50, 64, 0.16) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      padding: 8px !important;
+      place-items: center !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-dialog,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-dialog {
+      width: min(720px, calc(100vw - 14px)) !important;
+      max-height: calc(100dvh - 16px) !important;
+      overflow-y: auto !important;
+      padding: 12px 12px 14px !important;
+      border-radius: 28px !important;
+      background: #fff !important;
+      filter: none !important;
+      box-shadow: 0 18px 54px rgba(70, 50, 64, .14) !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-topbar,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-topbar {
+      margin-bottom: 8px !important;
+      align-items: center !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-topbar h3,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-topbar h3 {
+      padding-left: 4px !important;
+      font-size: 26px !important;
+      line-height: 1.12 !important;
+      letter-spacing: -0.03em !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-body,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-body {
+      gap: 6px !important;
+      margin-bottom: 10px !important;
+    }
+
+    .profile-share-preview-wrap {
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-share-preview-img,
+    #page-profile .profile-share-preview-img {
+      display: block !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      height: auto !important;
+      border-radius: 24px !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      filter: none !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-body > p,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-body > p {
+      margin: 2px 0 0 !important;
+      font-size: 12.5px !important;
+      line-height: 1.28 !important;
+      text-align: center !important;
+      color: #8d6b7d !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-actions,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-actions {
+      display: grid !important;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      gap: 8px !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-action-btn,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-action-btn {
+      min-height: 58px !important;
+      border-radius: 18px !important;
+      border: 1px solid var(--line2) !important;
+      background: #fff !important;
+      color: #8d6b7d !important;
+      display: grid !important;
+      grid-template-rows: auto auto !important;
+      place-items: center !important;
+      gap: 3px !important;
+      padding: 7px 4px 6px !important;
+      box-shadow: 0 6px 12px rgba(232,191,211,.06) !important;
+      font-size: 10.5px !important;
+      line-height: 1.08 !important;
+      font-weight: 900 !important;
+      white-space: normal !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-action-btn b,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-action-btn b {
+      display: block !important;
+      color: #d77ca7 !important;
+      font-size: 20px !important;
+      line-height: 1 !important;
+      font-weight: 900 !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-action-btn span,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-action-btn span {
+      display: block !important;
+      color: #8d6b7d !important;
+      font-size: 10.5px !important;
+      line-height: 1.08 !important;
+      font-weight: 900 !important;
+      white-space: nowrap !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-action-btn.primary-look,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-action-btn.primary-look {
+      border-color: transparent !important;
+      background: linear-gradient(180deg,#ff82ba,#ff5fa8) !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-action-btn.primary-look b,
+    .profile-simple-modal.is-profile-share .profile-simple-action-btn.primary-look span,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-action-btn.primary-look b,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-action-btn.primary-look span {
+      color: #fff !important;
+    }
+
+    #profileJoinTag {
+      display: none !important;
+    }
+
 </style>
 </head>
 
@@ -5200,6 +5336,7 @@
       let profileCropPart = profileDefaultPart();
       let profileCropTarget = "cover";
       let profileDragState = null;
+      let profileShareCache = null;
 
       const profileMediaModal = $("#profileMediaModal");
       const profileMediaTitle = $("#profileMediaTitle");
@@ -6084,10 +6221,10 @@
           ctx.fill();
         }
 
-        const avatarOuter = 300;
-        const avatarInner = 288;
-        const avatarX = cardX + 34;
-        const avatarY = coverY + coverH - 138;
+        const avatarOuter = 322;
+        const avatarInner = 312;
+        const avatarX = cardX + 28;
+        const avatarY = coverY + coverH - 132;
         const avatarCX = avatarX + avatarOuter / 2;
         const avatarCY = avatarY + avatarOuter / 2;
         ctx.beginPath();
@@ -6121,19 +6258,19 @@
         }
 
         const leftX = cardX + 54;
-        const contentTop = Math.max(avatarY + avatarOuter + 86, coverY + coverH + 228);
+        const contentTop = Math.max(avatarY + avatarOuter + 76, coverY + coverH + 238);
         ctx.textAlign = "left";
         ctx.fillStyle = deep;
-        ctx.font = "900 82px sans-serif";
-        wrapText(ctx, payload.title || "루미나", leftX, contentTop, cardW - 108, 82, "left");
+        ctx.font = "900 90px sans-serif";
+        wrapText(ctx, payload.title || "루미나", leftX, contentTop, cardW - 108, 92, "left");
 
         ctx.fillStyle = muted;
-        ctx.font = "900 37px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, contentTop + 92);
+        ctx.font = "900 40px sans-serif";
+        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, contentTop + 104);
 
         ctx.fillStyle = deep;
-        ctx.font = "900 40px sans-serif";
-        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", leftX, contentTop + 148, cardW - 108, 46, "left");
+        ctx.font = "900 44px sans-serif";
+        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", leftX, contentTop + 162, cardW - 108, 52, "left");
 
         function singleLine(text, maxChars) {
           const value = String(text || "").trim();
@@ -6152,14 +6289,14 @@
           ctx.textAlign = "left";
         }
 
-        const pillY1 = contentTop + 224;
-        const pillY2 = pillY1 + 76;
+        const pillY1 = contentTop + 238;
+        const pillY2 = pillY1 + 88;
         const titleText = String(payload.small || "대표 칭호 · 나만의 루미나").replace(/^대표 칭호\s*[·:]\s*/, "");
-        pill(titleText || "나만의 루미나", leftX, pillY1, 520, 64, 34);
-        pill("📍 " + (payload.space || "루루의 방"), leftX, pillY2, 370, 58, 32);
-        pill("🎂 " + (payload.birthday || "07.19"), leftX + 394, pillY2, 284, 58, 32);
+        pill(titleText || "나만의 루미나", leftX, pillY1, 540, 68, 36);
+        pill("📍 " + (payload.space || "루루의 방"), leftX, pillY2, 390, 62, 34);
+        pill("🎂 " + (payload.birthday || "07.19"), leftX + 414, pillY2, 300, 62, 34);
 
-        const infoY = Math.min(pillY2 + 260, cardY + cardH - 250);
+        const infoY = Math.min(pillY2 + 204, cardY + cardH - 292);
         const infoH = cardY + cardH - infoY - 1;
         const footerPadX = 54;
         const infoX = cardX + footerPadX;
@@ -6178,17 +6315,36 @@
         ctx.stroke();
 
         ctx.fillStyle = muted;
-        ctx.font = "900 36px sans-serif";
-        ctx.fillText((payload.date || "2026.07.12") + " 개통", infoX, infoY + 70);
+        ctx.font = "900 40px sans-serif";
+        ctx.fillText((payload.date || "2026.07.12") + " 개통", infoX, infoY + 78);
         ctx.fillStyle = pink;
-        ctx.font = "900 42px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, infoX, infoY + 132);
+        ctx.font = "900 48px sans-serif";
+        ctx.fillText("LUMI ID · " + sampleUser.id, infoX, infoY + 146);
         ctx.fillStyle = muted;
-        ctx.font = "900 34px sans-serif";
-        ctx.fillText("lumibellelove.com", infoX, infoY + 190);
-        fakeQr(ctx, infoX + infoW - 178, infoY + 54, 150);
+        ctx.font = "900 38px sans-serif";
+        ctx.fillText("lumibellelove.com", infoX, infoY + 210);
+        fakeQr(ctx, infoX + infoW - 190, infoY + 58, 166);
 
         return canvas;
+      }
+
+      async function prepareProfileShareCache(payload) {
+        const safePayload = payload || getProfileSharePayload();
+        const canvas = await drawProfileShareImage(safePayload);
+        const blob = canvas ? await achievementCanvasToBlob(canvas) : null;
+        const dataUrl = canvas ? canvas.toDataURL("image/png") : "";
+        profileShareCache = {
+          payload: safePayload,
+          canvas,
+          blob,
+          dataUrl,
+          fileName: profileImageFileName()
+        };
+        return profileShareCache;
+      }
+
+      function getPreparedProfileShareCache() {
+        return profileShareCache && profileShareCache.payload ? profileShareCache : null;
       }
 
       function profileImageFileName() {
@@ -6198,25 +6354,57 @@
 
       async function downloadProfileShareImage(silent) {
         const payload = getProfileSharePayload();
-        const canvas = await drawProfileShareImage(payload);
-        const blob = await achievementCanvasToBlob(canvas);
+        const cached = getPreparedProfileShareCache();
+        const nextCache = cached && cached.blob ? cached : await prepareProfileShareCache(payload);
+        const blob = nextCache && nextCache.blob;
         if (!blob) {
           if (!silent) openProfileSimpleModal("저장 안내", ["이미지 저장이 어려워요.", "공유 버튼으로 다른 앱에 보내 주세요.", "PC 환경에서는 PC에서 저장해 주세요."]);
           return null;
         }
-        downloadBlob(blob, profileImageFileName());
+        downloadBlob(blob, (nextCache && nextCache.fileName) || profileImageFileName());
         if (!silent) openProfileSimpleModal("저장 완료", ["공유 카드가 저장되었어요."]);
         return blob;
       }
 
       async function shareProfileNative() {
         const payload = getProfileSharePayload();
-        const canvas = await drawProfileShareImage(payload);
-        const blob = await achievementCanvasToBlob(canvas);
-        const fileName = profileImageFileName();
+        const cached = getPreparedProfileShareCache();
+        const fileName = (cached && cached.fileName) || profileImageFileName();
+        const blob = cached && cached.blob ? cached.blob : null;
         const isMobile = isMobileLikeDevice();
+
+        // iPhone/Safari는 사용자 클릭 직후에 navigator.share가 바로 호출되어야 안정적이다.
+        // 그래서 프로필 공유 모달을 열 때 미리 만든 blob/cache를 우선 사용한다.
+        if (isMobile && blob) {
+          const file = new File([blob], fileName, { type: "image/png" });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({ title: "LUMI PHONE", text: payload.text, files: [file] });
+              closeProfileSimpleModal();
+              return;
+            } catch (error) {
+              if (error && error.name === "AbortError") return;
+            }
+          }
+          if (navigator.share) {
+            try {
+              await navigator.share({ title: "LUMI PHONE", text: payload.text, url: "https://lumibellelove.com" });
+              closeProfileSimpleModal();
+              return;
+            } catch (error) {
+              if (error && error.name === "AbortError") return;
+            }
+          }
+          downloadBlob(blob, fileName);
+          await copyPlainTextAsync(payload.text);
+          openProfileSimpleModal("공유 안내", ["이 기기에서는 이미지 공유가 바로 되지 않아요.", "이미지는 저장했고, 공유 문구는 복사해두었어요.", "X나 인스타에서 직접 붙여 넣어 주세요."]);
+          return;
+        }
+
+        const nextCache = cached && cached.blob ? cached : await prepareProfileShareCache(payload);
+        const nextBlob = nextCache && nextCache.blob;
         if (!isMobile) {
-          if (blob) downloadBlob(blob, fileName);
+          if (nextBlob) downloadBlob(nextBlob, (nextCache && nextCache.fileName) || fileName);
           const copied = await copyPlainTextAsync(payload.text);
           openProfileSimpleModal("PC 공유 준비 완료", [
             "PC에서는 공유 준비를 완료했어요.",
@@ -6225,25 +6413,17 @@
           ]);
           return;
         }
-        const file = blob ? new File([blob], fileName, { type: "image/png" }) : null;
-        const shareData = { title: "LUMI PHONE", text: payload.text, url: "https://lumibellelove.com" };
-        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-          try {
-            await navigator.share({ title: "LUMI PHONE", text: payload.text, files: [file] });
-            return;
-          } catch (error) {
-            if (error && error.name === "AbortError") return;
-          }
-        }
+
         if (navigator.share) {
           try {
-            await navigator.share(shareData);
+            await navigator.share({ title: "LUMI PHONE", text: payload.text, url: "https://lumibellelove.com" });
+            closeProfileSimpleModal();
             return;
           } catch (error) {
             if (error && error.name === "AbortError") return;
           }
         }
-        if (blob) downloadBlob(blob, fileName);
+        if (nextBlob) downloadBlob(nextBlob, (nextCache && nextCache.fileName) || fileName);
         await copyPlainTextAsync(payload.text);
         openProfileSimpleModal("공유 안내", ["이 기기에서는 이미지 공유가 바로 되지 않아요.", "이미지는 저장했고, 공유 문구는 복사해두었어요.", "X나 인스타에서 직접 붙여 넣어 주세요."]);
       }
@@ -6255,7 +6435,7 @@
           "X에는 공유 문구와 링크가 먼저 들어가요.",
           "이미지까지 함께 올리고 싶다면 ‘공유’ 버튼을 이용해 주세요."
         ], [
-          { label: "이동하기", primary: true, onClick: () => moveToXShareUrl(xUrl) },
+          { label: "이동하기", primary: true, onClick: async () => { await copyPlainTextAsync(payload.text); moveToXShareUrl(xUrl); } },
           { label: "취소" }
         ]);
       }
@@ -6272,8 +6452,9 @@
       }
 
       async function openProfileSharePanel() {
+        profileShareCache = null;
         openProfileSimpleModal("프로필 공유", ["프로필 공유 카드를 준비하는 중이에요."], [
-          { icon: "↗", text: "공유", primary: true, onClick: () => handleProfileShareAction("native") },
+          { icon: "↗", text: "공유", primary: true, keepOpen: true, onClick: () => handleProfileShareAction("native") },
           { icon: "𝕏", text: "X", onClick: () => handleProfileShareAction("x") },
           { icon: "📷", text: "인스타", onClick: () => handleProfileShareAction("instagram") },
           { icon: "↓", text: "저장", onClick: () => handleProfileShareAction("save") }
@@ -6285,15 +6466,15 @@
         }
         if (!profileSimpleBody) return;
         const payload = getProfileSharePayload();
-        const canvas = await drawProfileShareImage(payload);
-        if (!canvas || !profileSimpleModal || profileSimpleModal.classList.contains("hidden")) return;
+        const cache = await prepareProfileShareCache(payload);
+        if (!cache || !cache.dataUrl || !profileSimpleModal || profileSimpleModal.classList.contains("hidden")) return;
         profileSimpleBody.innerHTML = "";
         const wrap = document.createElement("div");
         wrap.className = "profile-share-preview-wrap";
         const img = document.createElement("img");
         img.className = "profile-share-preview-img";
         img.alt = "프로필 공유 카드 미리보기";
-        img.src = canvas.toDataURL("image/png");
+        img.src = cache.dataUrl;
         wrap.appendChild(img);
         profileSimpleBody.appendChild(wrap);
         const note = document.createElement("p");
@@ -6529,7 +6710,7 @@
               btn.textContent = action.label || "확인";
             }
             btn.addEventListener("click", () => {
-              closeProfileSimpleModal();
+              if (!action.keepOpen) closeProfileSimpleModal();
               if (typeof action.onClick === "function") action.onClick();
             });
             profileSimpleActions.appendChild(btn);
