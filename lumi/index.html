@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>LUMI PHONE v10.3 | Profile Modal Layout Patch</title>
+  <title>LUMI PHONE v10.3 | Profile Modal Spacing Clean Patch</title>
   <meta name="theme-color" content="#fff7fb" />
 
   <style>
@@ -43,26 +43,23 @@
       text-size-adjust: 100%;
     }
 
-    #bg-layer {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      background:
-        radial-gradient(circle at 7% 5%, rgba(255, 205, 226, 0.58), transparent 26%),
-        radial-gradient(circle at 92% 12%, rgba(227, 211, 255, 0.60), transparent 30%),
-        linear-gradient(180deg, #fffafd, #fff7fb);
-      -webkit-transform: translateZ(0);
-      transform: translateZ(0);
-      will-change: transform;
-      contain: strict;
-      pointer-events: none;
-    }
-
     body {
       min-height: 100vh;
       font-family: SUIT, "Apple SD Gothic Neo", "Noto Sans KR", system-ui, -apple-system, sans-serif;
       color: var(--text);
       line-height: 1.55;
+    }
+
+    #bg-layer {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      contain: strict;
+      background:
+        radial-gradient(circle at 7% 5%, rgba(255, 205, 226, 0.58), transparent 26%),
+        radial-gradient(circle at 92% 12%, rgba(227, 211, 255, 0.60), transparent 30%),
+        linear-gradient(180deg, #fffafd, #fff7fb);
     }
 
     button,
@@ -1825,17 +1822,6 @@
     .profile-error.show {
       display: block;
     }
-
-    .profile-bio {
-      color: #76586a;
-      font-size: 12.5px;
-      line-height: 1.55;
-      font-weight: 850;
-      word-break: keep-all;
-      margin-top: 2px;
-      margin-bottom: 10px;
-    }
-
     .profile-public-tags {
       display: flex;
       flex-wrap: wrap;
@@ -2124,41 +2110,7 @@
       opacity: .78;
       background: #fffafd;
     }
-
-    @supports (-webkit-touch-callout: none) {
-      .profile-field input,
-      .profile-field textarea,
-      .birthday-selects select {
-        font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-        font-weight: 700;
-        transition: none !important;
-        will-change: auto;
-        /* 캐럿 깜박임이 배경 레이어 재합성 트리거하는 것 차단 */
-        isolation: isolate;
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
-      }
-
-      .profile-field input:focus,
-      .profile-field textarea:focus,
-      .birthday-selects select:focus {
-        outline: none;
-        box-shadow: none;
-      }
-
-      /* 로그인 입력창 포커스 번쩍임 억제 */
-      input {
-        isolation: isolate;
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
-      }
-
-      input:focus {
-        box-shadow: none;
-      }
-    }
-
-    @media (max-width: 430px) {
+@media (max-width: 430px) {
       .profile-title-modal { padding: 10px; }
       .profile-title-dialog { padding: 14px; border-radius: 24px; }
       .profile-title-topbar h3 { font-size: 22px; }
@@ -2189,12 +2141,6 @@
       text-align: left;
       box-shadow: none;
     }
-
-    .profile-bio {
-      margin-top: 4px;
-      margin-bottom: 0;
-    }
-
     .profile-public-tags {
       margin-top: 7px;
     }
@@ -2286,52 +2232,243 @@
     }
 
 
-    /* Profile modal layout / compact card spacing patch */
+    /* Profile final: title pill spacing + custom oshi picker */
     .profile-title-row {
-      gap: 3px;
+      gap: 5px;
     }
 
-    .profile-name {
-      margin-bottom: 2px;
-    }
-
-    .profile-id {
-      width: auto;
-      min-height: auto;
-      display: block;
-      padding: 0;
-      border: 0;
-      background: transparent;
-      color: #b28ea2;
-      font-size: 11.2px;
+    .profile-title-pill {
+      width: auto !important;
+      max-width: 100%;
+      justify-self: start;
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 31px;
+      padding: 0 14px;
+      margin: 7px 0 9px;
+      border: 1px solid rgba(239, 188, 213, 0.76);
+      border-radius: 999px;
+      background: #fffafd;
+      color: #9a7187;
+      font-size: 11.4px;
       line-height: 1.25;
       font-weight: 900;
-      letter-spacing: .02em;
+      text-align: left;
+      box-shadow: none !important;
+      word-break: keep-all;
     }
 
-    .profile-meta {
-      margin-top: 4px;
-      color: #85677a;
-      font-size: 12.5px;
-      line-height: 1.35;
+    .profile-public-tags {
+      margin-top: 8px;
+    }
+
+    .profile-oshi-select {
+      display: none !important;
+    }
+
+    .profile-oshi-button {
+      width: 100%;
+      min-height: 44px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 13px;
+      border-radius: 15px;
+      border: 1px solid rgba(242, 216, 231, 0.98);
+      background: linear-gradient(180deg, #fff, #fffafd);
+      color: #76586a;
+      text-align: left;
+      font-size: 15px;
+      font-weight: 900;
+      box-shadow: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .profile-oshi-button span:first-child {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .profile-oshi-button span:last-child {
+      min-height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 11px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #d77ca7;
+      font-size: 11.5px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .profile-oshi-modal,
+    .profile-confirm-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1002;
+      display: grid;
+      place-items: end center;
+      padding: 14px;
+      background: rgba(70, 50, 64, 0.36);
+      backdrop-filter: blur(7px);
+    }
+
+    .profile-oshi-dialog,
+    .profile-confirm-dialog {
+      width: min(520px, 100%);
+      max-height: min(660px, calc(100vh - 28px));
+      overflow: auto;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 28px 80px rgba(70, 50, 64, .24);
+      padding: 16px;
+    }
+
+    .profile-oshi-topbar,
+    .profile-confirm-topbar {
+      display: grid;
+      grid-template-columns: 1fr 40px;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .profile-oshi-topbar h3,
+    .profile-confirm-topbar h3 {
+      margin: 0;
+      color: #d77ca7;
+      font-size: 22px;
+      line-height: 1.15;
       font-weight: 900;
     }
 
+    .profile-oshi-close,
+    .profile-confirm-close {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #b07693;
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .profile-oshi-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .profile-oshi-option {
+      min-height: 48px;
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+      color: #76586a;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 14px;
+      font-weight: 900;
+      line-height: 1.3;
+      box-shadow: none;
+    }
+
+    .profile-oshi-check {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid var(--line2);
+      color: transparent;
+      background: #fffafd;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .profile-oshi-option.active {
+      border-color: rgba(255, 95, 168, 0.62);
+      background: #fff0f7;
+      color: #624459;
+    }
+
+    .profile-oshi-option.active .profile-oshi-check {
+      color: #fff;
+      border-color: transparent;
+      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
+    }
+
+    .profile-confirm-dialog {
+      place-self: center;
+      max-width: 440px;
+    }
+
+    .profile-confirm-dialog p {
+      margin: 0 0 14px;
+      color: #8f7183;
+      font-size: 13px;
+      line-height: 1.68;
+      font-weight: 850;
+    }
+
+    .profile-confirm-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .profile-confirm-btn {
+      min-height: 40px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #b07693;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .profile-confirm-btn.primary-look {
+      border-color: transparent;
+      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(255,95,168,.14);
+    }
+
+    @media (min-width: 760px) {
+      .profile-oshi-modal {
+        place-items: center;
+      }
+    }
+/* Profile title pill centered final adjustment */
     .profile-title-pill {
       width: 100%;
       max-width: 100%;
       justify-self: stretch;
       align-self: stretch;
-      display: flex;
+      display: inline-flex;
+      align-items: center;
       justify-content: center;
-      min-height: 30px;
-      padding: 0 12px;
-      margin: 7px 0 7px;
+      min-height: 32px;
+      padding: 0 13px;
+      margin: 8px 0 8px;
       border-radius: 999px;
-      border: 1px solid rgba(239, 188, 213, 0.76);
+      border: 1px solid rgba(239, 188, 213, 0.70);
       background: #fffafd;
       color: #9a7187;
-      font-size: 11px;
+      font-size: 11.2px;
       line-height: 1.25;
       font-weight: 900;
       text-align: center;
@@ -2341,189 +2478,50 @@
       text-overflow: ellipsis;
     }
 
-    .profile-public-tags {
-      margin-top: 6px;
-    }
 
-    .profile-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin: 10px 0 12px;
-    }
-
-    .profile-action-btn {
-      min-height: 40px;
-      border-radius: 999px;
-      border: 1px solid var(--line2);
-      background: #fff;
-      color: #b07693;
-      font-size: 12.5px;
-      font-weight: 900;
-    }
-
-    .profile-action-btn.primary-look {
-      color: #fff;
-      border-color: transparent;
-      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
-      box-shadow: 0 8px 18px rgba(255,95,168,.14);
-    }
-
-    .profile-edit-modal,
-    .lumi-modal {
-      position: fixed;
-      inset: 0;
-      z-index: 1002;
-      display: grid;
-      place-items: center;
-      padding: 12px;
-      background: rgba(70, 50, 64, 0.42);
-      backdrop-filter: blur(8px);
-    }
-
-    .profile-edit-modal.hidden,
-    .lumi-modal.hidden {
-      display: none !important;
-    }
-
-    .profile-edit-dialog,
-    .lumi-modal-card {
-      position: relative;
-      width: min(680px, 100%);
-      max-height: calc(100vh - 28px);
-      overflow: auto;
-      border: 1px solid var(--line);
-      border-radius: 28px;
-      background: linear-gradient(180deg, #fff, #fff7fb);
-      box-shadow: 0 28px 80px rgba(70, 50, 64, .24);
-      padding: 15px;
-    }
-
-    .profile-edit-dialog {
-      display: grid;
-      gap: 9px;
-    }
-
-    .lumi-modal-card {
-      width: min(420px, 100%);
-      padding: 18px;
-    }
-
-    .lumi-modal-close {
-      position: absolute;
-      right: 12px;
-      top: 12px;
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      border: 1px solid var(--line2);
-      background: #fff;
-      color: #b07693;
-      font-size: 20px;
-      font-weight: 900;
-    }
-
-    .lumi-modal-card h3 {
-      margin: 0 42px 10px 0;
-      color: #d77ca7;
-      font-size: 21px;
-      line-height: 1.22;
-      font-weight: 900;
-      letter-spacing: -.03em;
-    }
-
-    .lumi-modal-body {
-      display: grid;
-      gap: 9px;
-      color: #8f7183;
-      font-size: 13px;
-      line-height: 1.6;
-      font-weight: 850;
-      word-break: keep-all;
-    }
-
-    .lumi-modal-body p {
-      font-size: 13px;
-      line-height: 1.6;
-      font-weight: 850;
-    }
-
-    .lumi-date-chip {
-      width: fit-content;
-      min-height: 28px;
-      display: inline-flex;
-      align-items: center;
-      padding: 0 10px;
-      border-radius: 999px;
-      border: 1px solid var(--line2);
-      background: #fff;
-      color: #b07693;
-      font-size: 11.5px;
-      font-weight: 900;
-    }
-
-    .lumi-modal-actions {
-      display: grid;
-      gap: 8px;
-      margin-top: 14px;
-    }
-
-    .oshi-current {
-      padding-right: 26px;
-    }
-
-    .oshi-option-list {
-      display: grid;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
-    .oshi-option-list button,
-    .profile-oshi-trigger {
-      width: 100%;
-      min-height: 40px;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: #fff;
-      color: #76586a;
-      font-size: 13px;
-      font-weight: 900;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 0 12px;
-      text-align: left;
-    }
-
-    .oshi-option-list button.active {
-      border-color: var(--pink);
-      background: #fff0f7;
-      color: #624459;
-    }
-
-    .oshi-note {
-      margin-top: 3px;
-      color: #b28ea2 !important;
-      font-size: 11.5px !important;
-      line-height: 1.45 !important;
-    }
-
-    @media (max-width: 430px) {
-      .profile-edit-modal {
-        align-items: end;
-        padding: 10px;
+    @supports (-webkit-touch-callout: none) {
+      .profile-field input,
+      .profile-field textarea,
+      .birthday-selects select {
+        font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+        font-weight: 700;
+          transition: none !important;
+        will-change: auto;
       }
 
-      .profile-edit-dialog {
-        width: 100%;
-        max-height: calc(100vh - 26px);
-        border-radius: 26px;
-        padding: 14px;
+      .profile-field input:focus,
+      .profile-field textarea:focus,
+      .birthday-selects select:focus {
+        outline: none;
+        box-shadow: none;
       }
 
-      .lumi-modal-card {
-        border-radius: 24px;
+      .profile-edit-panel,
+      .profile-form,
+      .profile-field,
+      .profile-setting-row,
+      .profile-title-dialog,
+      .profile-oshi-dialog,
+      .profile-confirm-dialog {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        box-shadow: none !important;
+      }
+
+      .profile-field input,
+      .birthday-selects select,
+      .profile-oshi-button {
+        transition: none !important;
+        transform: none !important;
+        -webkit-transform: none !important;
+        will-change: auto !important;
+        backface-visibility: hidden;
+      }
+
+      .profile-field input:focus,
+      .birthday-selects select:focus {
+        outline: none !important;
+        box-shadow: none !important;
       }
     }
 
@@ -2781,11 +2779,282 @@
       .profile-stat-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
       .point-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
+  
+    /* Profile card order + action buttons + clean oshi modal final patch */
+    .profile-title-row {
+      gap: 6px;
+    }
+
+    .profile-title-pill {
+      display: inline-flex !important;
+      width: auto !important;
+      max-width: 100%;
+      justify-self: start;
+      align-self: flex-start;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 32px;
+      padding: 0 15px;
+      margin: 7px 0 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(239, 188, 213, 0.78);
+      background: #fffafd;
+      color: #9a7187;
+      font-size: 12px;
+      line-height: 1.25;
+      font-weight: 900;
+      text-align: left;
+      box-shadow: none !important;
+      word-break: keep-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .profile-id {
+      margin-top: 0;
+    }
+
+    .profile-meta {
+      margin-top: 1px;
+    }
+
+    .profile-public-tags {
+      margin-top: 8px;
+    }
+
+    .profile-card-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .profile-action-button {
+      min-height: 42px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: linear-gradient(180deg, #fff, #fff7fb);
+      color: #d77ca7;
+      font-size: 12.5px;
+      font-weight: 900;
+      box-shadow: none;
+      white-space: nowrap;
+    }
+
+    .profile-action-button:active {
+      transform: none;
+    }
+
+    .profile-confirm-body {
+      display: grid;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    .profile-confirm-body p {
+      margin: 0;
+      color: #8f7183;
+      font-size: 13px;
+      line-height: 1.62;
+      font-weight: 850;
+      word-break: keep-all;
+    }
+
+    .profile-confirm-body .profile-confirm-line {
+      display: block;
+      color: #76586a;
+      font-size: 13px;
+      line-height: 1.55;
+      font-weight: 900;
+      word-break: keep-all;
+    }
+
+    .profile-confirm-body .profile-confirm-date {
+      display: inline-flex;
+      width: fit-content;
+      max-width: 100%;
+      min-height: 28px;
+      align-items: center;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff7fb;
+      color: #d77ca7;
+      font-size: 12px;
+      font-weight: 900;
+      word-break: keep-all;
+    }
+
+    .profile-confirm-btn.hidden {
+      display: none !important;
+    }
+
+  
+    /* Profile modal + spacing clean patch */
+    .profile-title-row {
+      gap: 3px !important;
+      margin-top: 7px;
+    }
+
+    .profile-name {
+      margin: 0 0 2px !important;
+    }
+
+    .profile-id {
+      display: block !important;
+      width: auto !important;
+      min-height: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      color: #b28ea2 !important;
+      font-size: 11.2px !important;
+      line-height: 1.25 !important;
+      font-weight: 900 !important;
+      letter-spacing: .02em !important;
+    }
+
+    .profile-meta {
+      margin-top: 4px !important;
+      color: #85677a !important;
+      font-size: 12.5px !important;
+      line-height: 1.35 !important;
+      font-weight: 900 !important;
+    }
+
+    .profile-title-pill {
+      width: 100% !important;
+      max-width: 100% !important;
+      justify-self: stretch !important;
+      align-self: stretch !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      min-height: 31px !important;
+      padding: 0 12px !important;
+      margin: 7px 0 7px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(239, 188, 213, 0.76) !important;
+      background: #fffafd !important;
+      color: #9a7187 !important;
+      font-size: 11.2px !important;
+      line-height: 1.25 !important;
+      font-weight: 900 !important;
+      text-align: center !important;
+      box-shadow: none !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+
+    .profile-public-tags {
+      margin-top: 6px !important;
+    }
+
+    .profile-card-actions {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 10px 0 12px;
+    }
+
+    .profile-action-button {
+      min-height: 40px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #b07693;
+      font-size: 12.5px;
+      line-height: 1.2;
+      font-weight: 900;
+      box-shadow: none;
+    }
+
+    .profile-action-button:first-child {
+      color: #fff;
+      border-color: transparent;
+      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
+      box-shadow: 0 8px 18px rgba(255,95,168,.14);
+    }
+
+    .profile-edit-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1002;
+      display: grid;
+      place-items: center;
+      padding: 12px;
+      background: rgba(70, 50, 64, 0.42);
+      backdrop-filter: blur(8px);
+    }
+
+    .profile-edit-modal.hidden {
+      display: none !important;
+    }
+
+    .profile-edit-dialog {
+      width: min(680px, 100%);
+      max-height: calc(100vh - 28px);
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: linear-gradient(180deg, #fff, #fff7fb);
+      box-shadow: 0 28px 80px rgba(70, 50, 64, .24);
+      padding: 15px;
+      display: grid;
+      gap: 9px;
+    }
+
+    .profile-edit-dialog > div:first-child {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .profile-edit-dialog > div:first-child::after {
+      content: "×";
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #b07693;
+      font-size: 20px;
+      font-weight: 900;
+      pointer-events: none;
+    }
+
+    .profile-oshi-modal,
+    .profile-confirm-modal,
+    .profile-title-modal,
+    .profile-media-modal {
+      z-index: 1004;
+    }
+
+    @media (max-width: 430px) {
+      .profile-edit-modal {
+        align-items: end;
+        padding: 10px;
+      }
+
+      .profile-edit-dialog {
+        width: 100%;
+        max-height: calc(100vh - 26px);
+        border-radius: 26px;
+        padding: 14px;
+      }
+    }
+
   </style>
 </head>
 
 <body>
-<div id="bg-layer" aria-hidden="true"></div>
+  <div id="bg-layer" aria-hidden="true"></div>
   <main class="root">
     <div class="phone">
       <div class="screen">
@@ -3102,8 +3371,8 @@
                       <div class="profile-avatar" id="profileAvatar" aria-label="프로필 아이콘"><img id="profileAvatarImg" class="hidden" alt="프로필 이미지" /><span id="profileAvatarFallback">✦</span></div>
                       <div class="profile-title-row">
                         <h3 class="profile-name" id="profileDisplayName">루미나</h3>
-                        <div class="profile-id" id="profileLumiId">LUMI ID · LB-0001</div>
-                        <div class="profile-meta" id="profileMeta">오시: 루루 🍼🐰 · 가입 상태: 샘플 루미</div>
+                        <div class="profile-id">LUMI ID · LB-0001</div>
+                        <div class="profile-meta" id="profileMeta">오시: 루루 🍼🐰</div>
                         <div class="profile-title-pill" id="profileTitlePill">나만의 루미나</div>
 <div class="profile-public-tags" aria-label="프로필 공개 정보">
                           <span class="profile-public-tag" id="profileSpaceTag">📍 루루의 방</span>
@@ -3114,6 +3383,11 @@
                     </div>
                   </section>
 
+                  <div class="profile-card-actions" aria-label="프로필 액션">
+                    <button class="profile-action-button" id="profileEditOpen" type="button">프로필 꾸미기</button>
+                    <button class="profile-action-button" id="profileTitleQuickOpen" type="button">칭호 변경</button>
+                  </div>
+
                   <section class="profile-stat-grid" aria-label="프로필 요약">
                     <article class="profile-stat"><small>물판 포인트</small><b>0P</b></article>
                     <article class="profile-stat"><small>반짝 포인트</small><b>0P</b></article>
@@ -3122,19 +3396,14 @@
                   </section>
 
                   <section class="profile-info-list" aria-label="프로필 설정">
-                    <article class="profile-info-item"><span class="list-icon">🎀</span><div><b>오시 설정</b><span>현재 오시는 루루예요. 오시 변경 기능은 이후 단계에서 연결합니다.</span></div></article>
+                    <article class="profile-info-item"><span class="list-icon">🎀</span><div><b>오시 설정</b><span>프로필 꾸미기에서 오시를 설정할 수 있어요. 오시는 14일에 한 번 변경할 수 있어요.</span></div></article>
                     <article class="profile-info-item"><span class="list-icon">🏷️</span><div><b>현재 칭호</b><span>프로필 꾸미기에서 장착할 칭호를 선택할 수 있어요.</span></div></article>
                     <article class="profile-info-item"><span class="list-icon">🕰️</span><div><b>나의 루미 기록</b><span>라이브 1회 · 체크인 1회 · 스탬프 1개 · 온라인 연결 기록은 추억의 시간에서 확인할 수 있어요.</span></div></article>
                   </section>
 
-                  
-                  <section class="profile-actions" aria-label="프로필 액션">
-                    <button class="profile-action-btn primary-look" id="profileEditOpen" type="button">프로필 꾸미기</button>
-                    <button class="profile-action-btn" id="profileTitleOpen" type="button">칭호 변경</button>
-                  </section>
 
-
-                  <section class="profile-edit-modal hidden" id="profileEditor" aria-hidden="true" aria-label="프로필 꾸미기 편집 화면"><div class="profile-edit-dialog">
+                  <section class="profile-edit-modal hidden" id="profileEditor" aria-hidden="true" aria-label="프로필 꾸미기 편집 화면">
+                    <div class="profile-edit-dialog">
                     <div>
                       <h3>프로필 꾸미기</h3>
                       <p>헤더와 프로필 이미지, 공개 정보를 꾸밀 수 있어요.</p>
@@ -3166,23 +3435,28 @@
                         <input id="profileInputDisplayName" data-max="12" autocomplete="off" autocapitalize="off" spellcheck="false" value="루미나" />
                       </label>
 
-                      <label class="profile-field">
+                      <div class="profile-field profile-oshi-field">
                         <span class="profile-field-head"><b>오시 설정</b><span class="profile-counter">선택</span></span>
-                        <button class="profile-oshi-trigger" id="profileOshiOpen" type="button">
-                          <span id="profileOshiSelected">루루 🍼🐰</span>
-                          <span aria-hidden="true">변경</span>
+                        <button class="profile-oshi-button" id="profileOshiButton" type="button" aria-haspopup="dialog">
+                          <span id="profileOshiCurrent">루루 🍼🐰</span>
+                          <span>변경</span>
                         </button>
-                        <input id="profileInputOshi" type="hidden" value="루루 🍼🐰" />
-                      </label>
+                        <input class="hidden" id="profileInputOshi" type="hidden" value="루루 🍼🐰" />
+                      </div>
 
-<div class="profile-field profile-title-field">
+
+                      
+
+                      
+
+                      <div class="profile-field profile-title-field">
                         <span class="profile-field-head"><b>대표 칭호</b><span class="profile-counter">장착중</span></span>
                         <div class="profile-title-edit-row">
                           <div class="profile-selected-title" id="profileSelectedTitle">나만의 루미나</div>
                           <button class="profile-setting-action profile-title-change" id="profileTitlePick" type="button">칭호 변경</button>
                         </div>
                       </div>
-<label class="profile-field">
+                      <label class="profile-field">
                         <span class="profile-field-head"><b>나의 공간</b><span class="profile-counter" data-count-for="space">0/12</span></span>
                         <input id="profileInputSpace" data-max="12" autocomplete="off" autocapitalize="off" spellcheck="false" value="루루의 방" />
                         
@@ -3212,6 +3486,41 @@
                       </label>
 
                       <div class="profile-error" id="profileError" aria-live="polite"></div>
+                    </section>
+
+                    <section class="profile-oshi-modal hidden" id="profileOshiModal" aria-hidden="true" aria-label="오시 설정">
+                      <div class="profile-oshi-dialog" role="dialog" aria-modal="true" aria-labelledby="profileOshiModalTitle">
+                        <div class="profile-oshi-topbar">
+                          <h3 id="profileOshiModalTitle">오시 설정</h3>
+                          <button class="profile-oshi-close" id="profileOshiClose" type="button" aria-label="닫기">×</button>
+                        </div>
+                        <div class="profile-oshi-list" aria-label="오시 선택 목록">
+                          <button class="profile-oshi-option" type="button" data-oshi-value="팀 오시 / Lumibelle 👑"><span class="profile-oshi-check">✓</span><span>팀 오시 / Lumibelle 👑</span></button>
+                          <button class="profile-oshi-option" type="button" data-oshi-value="마리링 🎀⭐"><span class="profile-oshi-check">✓</span><span>마리링 🎀⭐</span></button>
+                          <button class="profile-oshi-option" type="button" data-oshi-value="루루 🍼🐰"><span class="profile-oshi-check">✓</span><span>루루 🍼🐰</span></button>
+                          <button class="profile-oshi-option" type="button" data-oshi-value="이로 👼🏻💎"><span class="profile-oshi-check">✓</span><span>이로 👼🏻💎</span></button>
+                          <button class="profile-oshi-option" type="button" data-oshi-value="루나 🌙🐱"><span class="profile-oshi-check">✓</span><span>루나 🌙🐱</span></button>
+                          <button class="profile-oshi-option" type="button" data-oshi-value="아직 고민 중"><span class="profile-oshi-check">✓</span><span>아직 고민 중</span></button>
+                          <button class="profile-oshi-option" type="button" data-oshi-value="DD / 모두 좋아"><span class="profile-oshi-check">✓</span><span>DD / 모두 좋아</span></button>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section class="profile-confirm-modal hidden" id="profileOshiConfirmModal" aria-hidden="true" aria-label="오시 변경 확인">
+                      <div class="profile-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="profileOshiConfirmTitle">
+                        <div class="profile-confirm-topbar">
+                          <h3 id="profileOshiConfirmTitle">오시를 변경할까요?</h3>
+                          <button class="profile-confirm-close" id="profileOshiConfirmClose" type="button" aria-label="닫기">×</button>
+                        </div>
+                        <div class="profile-confirm-body" id="profileOshiConfirmBody">
+                          <p>오시는 14일에 한 번 변경할 수 있어요.</p>
+                          <p>변경 후에는 다음 변경 가능일까지 다시 바꿀 수 없어요.</p>
+                        </div>
+                        <div class="profile-confirm-actions">
+                          <button class="profile-confirm-btn primary-look" id="profileOshiConfirmApply" type="button">변경하기</button>
+                          <button class="profile-confirm-btn" id="profileOshiConfirmCancel" type="button">취소</button>
+                        </div>
+                      </div>
                     </section>
 
                     <section class="profile-title-modal hidden" id="profileTitleModal" aria-hidden="true" aria-label="칭호 선택">
@@ -3284,38 +3593,6 @@
                 </article>
               </section>
 
-
-                  <section class="lumi-modal hidden" id="lumiModal" aria-hidden="true">
-                    <div class="lumi-modal-card" role="dialog" aria-modal="true" aria-labelledby="lumiModalTitle">
-                      <button class="lumi-modal-close" id="lumiModalClose" type="button" aria-label="닫기">×</button>
-                      <h3 id="lumiModalTitle">안내</h3>
-                      <div class="lumi-modal-body" id="lumiModalBody"></div>
-                      <div class="lumi-modal-actions" id="lumiModalActions">
-                        <button class="profile-edit-btn primary-look" id="lumiModalOk" type="button">확인</button>
-                      </div>
-                    </div>
-                  </section>
-
-                  <section class="lumi-modal hidden" id="oshiModal" aria-hidden="true">
-                    <div class="lumi-modal-card" role="dialog" aria-modal="true" aria-labelledby="oshiModalTitle">
-                      <button class="lumi-modal-close" id="oshiModalClose" type="button" aria-label="닫기">×</button>
-                      <h3 id="oshiModalTitle">오시 설정</h3>
-                      <div class="lumi-modal-body">
-                        <p class="oshi-current">현재 오시: <b id="oshiCurrentText">루루 🍼🐰</b></p>
-                        <div class="oshi-option-list" id="oshiOptionList">
-                          <button type="button" data-oshi="팀 오시 / Lumibelle">팀 오시 / Lumibelle</button>
-                          <button type="button" data-oshi="마리링 🎀⭐">마리링 🎀⭐</button>
-                          <button type="button" data-oshi="루루 🍼🐰">루루 🍼🐰</button>
-                          <button type="button" data-oshi="이로 👼🏻💎">이로 👼🏻💎</button>
-                          <button type="button" data-oshi="루나 🌙🐱">루나 🌙🐱</button>
-                          <button type="button" data-oshi="아직 고민 중">아직 고민 중</button>
-                          <button type="button" data-oshi="DD / 모두 좋아">DD / 모두 좋아</button>
-                        </div>
-                        <p class="oshi-note">오시는 14일에 한 번 변경할 수 있어요.</p>
-                      </div>
-                    </div>
-                  </section>
-
               <section class="page" id="page-onair" aria-label="ON AIR">
                 <article class="module-card">
                   <h2>ON AIR</h2>
@@ -3382,7 +3659,6 @@
       const codeReadyBtn = $("#codeReadyBtn");
       const codeToast = $("#codeToast");
       const profileEditOpen = $("#profileEditOpen");
-      const profileTitleOpen = $("#profileTitleOpen");
       const profileEditor = $("#profileEditor");
       const profileCancel = $("#profileCancel");
       const profileApply = $("#profileApply");
@@ -3402,14 +3678,22 @@
       const profileBirthdayTag = $("#profileBirthdayTag");
       const profileJoinTag = $("#profileJoinTag");
       const profileInputDisplayName = $("#profileInputDisplayName");
-      const profileOshiOpen = $("#profileOshiOpen");
-      const profileOshiSelected = $("#profileOshiSelected");
       const profileInputLetterName = $("#profileInputLetterName");
       const profileInputOshi = $("#profileInputOshi");
+      const profileOshiButton = $("#profileOshiButton");
+      const profileOshiCurrent = $("#profileOshiCurrent");
+      const profileOshiModal = $("#profileOshiModal");
+      const profileOshiClose = $("#profileOshiClose");
+      const profileOshiConfirmModal = $("#profileOshiConfirmModal");
+      const profileOshiConfirmClose = $("#profileOshiConfirmClose");
+      const profileOshiConfirmApply = $("#profileOshiConfirmApply");
+      const profileOshiConfirmBody = $("#profileOshiConfirmBody");
+      const profileOshiConfirmCancel = $("#profileOshiConfirmCancel");
       const profileInputBroadcastName = $("#profileInputBroadcastName");
       const profileInputTitle = $("#profileInputTitle");
       const profileSelectedTitle = $("#profileSelectedTitle");
       const profileTitlePick = $("#profileTitlePick");
+      const profileTitleQuickOpen = $("#profileTitleQuickOpen");
       const profileTitleModal = $("#profileTitleModal");
       const profileTitleClose = $("#profileTitleClose");
       
@@ -3483,6 +3767,7 @@
 
 
       const profileStorageKey = "lumiphone.profile.v1";
+      const profileOshiChangedKey = "lumiphone.profile.oshiChangedAt.v1";
       const profileDefaultPart = () => ({ src: "", x: 50, y: 50, scale: 1 });
       const profileDefaultInfo = () => ({
         displayName: "루미나",
@@ -3511,18 +3796,6 @@
       const profileMediaImg = $("#profileMediaImg");
       const profileMediaZoom = $("#profileMediaZoom");
       const profileMediaReset = $("#profileMediaReset");
-
-      const lumiModal = $("#lumiModal");
-      const lumiModalTitle = $("#lumiModalTitle");
-      const lumiModalBody = $("#lumiModalBody");
-      const lumiModalActions = $("#lumiModalActions");
-      const lumiModalClose = $("#lumiModalClose");
-      const lumiModalOk = $("#lumiModalOk");
-      const oshiModal = $("#oshiModal");
-      const oshiModalClose = $("#oshiModalClose");
-      const oshiCurrentText = $("#oshiCurrentText");
-      const oshiOptionList = $("#oshiOptionList");
-
 
       function cloneProfileState(state) {
         return JSON.parse(JSON.stringify(state || profileDefaultState()));
@@ -3590,6 +3863,86 @@
         profileDraft = cloneProfileState(profileState);
       }
 
+
+      function getLastOshiChangedAt() {
+        const raw = localStorage.getItem(profileOshiChangedKey);
+        const time = raw ? Number(raw) : 0;
+        return Number.isFinite(time) ? time : 0;
+      }
+
+      function setLastOshiChangedAt(time) {
+        localStorage.setItem(profileOshiChangedKey, String(time || Date.now()));
+      }
+
+      function getNextOshiChangeDateText(lastChangedAt) {
+        const next = new Date(Number(lastChangedAt) + 14 * 24 * 60 * 60 * 1000);
+        return next.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" });
+      }
+
+      function canChangeOshiNow(lastChangedAt) {
+        if (!lastChangedAt) return true;
+        return Date.now() - Number(lastChangedAt) >= 14 * 24 * 60 * 60 * 1000;
+      }
+
+      function setProfileOshiConfirmContent(mode, data) {
+        const payload = data || {};
+        if (!profileOshiConfirmTitle || !profileOshiConfirmBody || !profileOshiConfirmApply || !profileOshiConfirmCancel) return;
+
+        profileOshiConfirmBody.innerHTML = "";
+
+        if (mode === "limit") {
+          const dateText = getNextOshiChangeDateText(payload.lastChangedAt);
+          profileOshiConfirmTitle.textContent = "아직 오시를 변경할 수 없어요";
+          profileOshiConfirmApply.classList.add("hidden");
+          profileOshiConfirmCancel.textContent = "확인";
+
+          ["오시는 14일에 한 번 변경할 수 있어요.", "다음 변경 가능일 이후 다시 변경해 주세요."].forEach((text) => {
+            const p = document.createElement("p");
+            p.textContent = text;
+            profileOshiConfirmBody.appendChild(p);
+          });
+
+          const date = document.createElement("span");
+          date.className = "profile-confirm-date";
+          date.textContent = "다음 변경 가능일: " + dateText;
+          profileOshiConfirmBody.appendChild(date);
+          return;
+        }
+
+        profileOshiConfirmTitle.textContent = "오시를 변경할까요?";
+        profileOshiConfirmApply.classList.remove("hidden");
+        profileOshiConfirmApply.textContent = "변경하기";
+        profileOshiConfirmCancel.textContent = "취소";
+
+        const guide1 = document.createElement("p");
+        guide1.textContent = "오시는 14일에 한 번 변경할 수 있어요.";
+        profileOshiConfirmBody.appendChild(guide1);
+
+        const guide2 = document.createElement("p");
+        guide2.textContent = "변경 후에는 다음 변경 가능일까지 다시 바꿀 수 없어요.";
+        profileOshiConfirmBody.appendChild(guide2);
+
+        const before = document.createElement("span");
+        before.className = "profile-confirm-line";
+        before.textContent = "현재 오시: " + (payload.beforeOshi || "루루 🍼🐰");
+        profileOshiConfirmBody.appendChild(before);
+
+        const after = document.createElement("span");
+        after.className = "profile-confirm-line";
+        after.textContent = "변경할 오시: " + (payload.afterOshi || "루루 🍼🐰");
+        profileOshiConfirmBody.appendChild(after);
+      }
+
+      function showOshiLimitMessage(lastChangedAt) {
+        setProfileOshiConfirmContent("limit", { lastChangedAt });
+        openProfileOshiConfirmModal();
+      }
+
+      function showOshiChangeConfirm(beforeOshi, afterOshi) {
+        setProfileOshiConfirmContent("confirm", { beforeOshi, afterOshi });
+        openProfileOshiConfirmModal();
+      }
+
       function saveProfileState() {
         try {
           localStorage.setItem(profileStorageKey, JSON.stringify(profileState));
@@ -3637,13 +3990,8 @@
       }
 
       function trimAllProfileInputs() {
-      function attachProfileCounterBlur(element) {
-        if (!element) return;
-        element.addEventListener("blur", updateProfileCounters);
+        [profileInputDisplayName, profileInputLetterName, profileInputBroadcastName, profileInputSpace].forEach(trimProfileInputToMax);
       }
-
-      [profileInputDisplayName, profileInputLetterName, profileInputBroadcastName, profileInputSpace].forEach(attachProfileCounterBlur);
-}
 
       function updateProfileCounters() {
         setCounter("displayName", profileInputDisplayName ? profileInputDisplayName.value : "", 12);
@@ -3668,7 +4016,7 @@
         const info = normalizeProfileInfo(profileDraft.info);
         if (profileInputDisplayName) profileInputDisplayName.value = info.displayName;
         if (profileInputOshi) profileInputOshi.value = info.oshi;
-        if (profileOshiSelected) profileOshiSelected.textContent = info.oshi;
+        updateProfileOshiOptions(info.oshi);
         if (profileInputLetterName) profileInputLetterName.value = info.letterName;
         if (profileInputBroadcastName) profileInputBroadcastName.value = info.broadcastName;
         if (profileInputTitle) profileInputTitle.value = info.title;
@@ -3700,6 +4048,47 @@
         if (!profileError) return;
         profileError.textContent = text || "";
         profileError.classList.toggle("show", Boolean(text));
+      }
+
+      function updateProfileOshiOptions(currentOshi) {
+        const nextOshi = normalizeProfileInfo({ oshi: currentOshi }).oshi;
+        if (profileInputOshi) profileInputOshi.value = nextOshi;
+        if (profileOshiCurrent) profileOshiCurrent.textContent = nextOshi;
+        $$(".profile-oshi-option[data-oshi-value]").forEach((button) => {
+          button.classList.toggle("active", button.dataset.oshiValue === nextOshi);
+        });
+      }
+
+      function openProfileOshiModal() {
+        if (!profileOshiModal) return;
+        updateProfileOshiOptions(normalizeProfileInfo(profileDraft.info).oshi);
+        profileOshiModal.classList.remove("hidden");
+        profileOshiModal.setAttribute("aria-hidden", "false");
+      }
+
+      function closeProfileOshiModal() {
+        if (!profileOshiModal) return;
+        profileOshiModal.classList.add("hidden");
+        profileOshiModal.setAttribute("aria-hidden", "true");
+      }
+
+      function selectProfileOshi(oshiName) {
+        const nextOshi = normalizeProfileInfo({ oshi: oshiName || "루루 🍼🐰" }).oshi;
+        profileDraft.info = normalizeProfileInfo(Object.assign({}, profileDraft.info, { oshi: nextOshi }));
+        updateProfileOshiOptions(nextOshi);
+        closeProfileOshiModal();
+      }
+
+      function openProfileOshiConfirmModal() {
+        if (!profileOshiConfirmModal) return;
+        profileOshiConfirmModal.classList.remove("hidden");
+        profileOshiConfirmModal.setAttribute("aria-hidden", "false");
+      }
+
+      function closeProfileOshiConfirmModal() {
+        if (!profileOshiConfirmModal) return;
+        profileOshiConfirmModal.classList.add("hidden");
+        profileOshiConfirmModal.setAttribute("aria-hidden", "true");
       }
 
       function openProfileTitleModal() {
@@ -3736,7 +4125,7 @@
         if (profileAvatar) profileAvatar.classList.toggle("has-image", Boolean(profileState.avatar.src));
         const info = normalizeProfileInfo(profileState.info);
         if (profileDisplayName) profileDisplayName.textContent = info.displayName;
-        if (profileMeta) profileMeta.textContent = "오시: " + info.oshi + " · 가입 상태: 샘플 루미";
+        if (profileMeta) profileMeta.textContent = "오시: " + info.oshi;
         if (profileTitlePill) profileTitlePill.textContent = info.title;
         if (profileSpaceTag) profileSpaceTag.textContent = "📍 " + info.space;
         if (profileBirthdayTag) profileBirthdayTag.textContent = "🎂 " + profileBirthdayText(info);
@@ -3808,17 +4197,23 @@
 
       function openProfileEditor() {
         profileDraft = cloneProfileState(profileState);
-        if (profileEditor) { profileEditor.classList.remove("hidden"); profileEditor.setAttribute("aria-hidden", "false"); }
-        
+        if (profileEditor) {
+          profileEditor.classList.remove("hidden");
+          profileEditor.setAttribute("aria-hidden", "false");
+        }
         renderProfileEditor();
       }
 
       function closeProfileEditor(resetDraft) {
         closeProfileMediaModal();
         closeProfileTitleModal();
+        closeProfileOshiModal();
+        closeProfileOshiConfirmModal();
         if (resetDraft) profileDraft = cloneProfileState(profileState);
-        if (profileEditor) { profileEditor.classList.add("hidden"); profileEditor.setAttribute("aria-hidden", "true"); }
-        
+        if (profileEditor) {
+          profileEditor.classList.add("hidden");
+          profileEditor.setAttribute("aria-hidden", "true");
+        }
         renderProfileView();
       }
 
@@ -3833,108 +4228,6 @@
           input.value = "";
         };
         reader.readAsDataURL(file);
-      }
-
-
-      function openLumiModal(options) {
-        if (!lumiModal || !lumiModalTitle || !lumiModalBody || !lumiModalActions) return;
-        const title = options && options.title ? options.title : "안내";
-        const paragraphs = options && Array.isArray(options.paragraphs) ? options.paragraphs : [];
-        const chip = options && options.chip ? options.chip : "";
-        const actions = options && Array.isArray(options.actions) && options.actions.length ? options.actions : [
-          { label: "확인", primary: true, action: closeLumiModal }
-        ];
-
-        lumiModalTitle.textContent = title;
-        lumiModalBody.innerHTML = "";
-        paragraphs.forEach((text) => {
-          const p = document.createElement("p");
-          p.textContent = text;
-          lumiModalBody.appendChild(p);
-        });
-        if (chip) {
-          const chipEl = document.createElement("div");
-          chipEl.className = "lumi-date-chip";
-          chipEl.textContent = chip;
-          lumiModalBody.appendChild(chipEl);
-        }
-
-        lumiModalActions.innerHTML = "";
-        actions.forEach((item) => {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "profile-edit-btn" + (item.primary ? " primary-look" : "");
-          btn.textContent = item.label;
-          btn.addEventListener("click", item.action || closeLumiModal);
-          lumiModalActions.appendChild(btn);
-        });
-
-        lumiModal.classList.remove("hidden");
-        lumiModal.setAttribute("aria-hidden", "false");
-      }
-
-      function closeLumiModal() {
-        if (!lumiModal) return;
-        lumiModal.classList.add("hidden");
-        lumiModal.setAttribute("aria-hidden", "true");
-      }
-
-      function openOshiModal() {
-        const info = normalizeProfileInfo(profileDraft.info || profileState.info);
-        const current = profileInputOshi ? profileInputOshi.value || info.oshi : info.oshi;
-        if (oshiCurrentText) oshiCurrentText.textContent = current;
-        if (oshiOptionList) {
-          oshiOptionList.querySelectorAll("[data-oshi]").forEach((button) => {
-            button.classList.toggle("active", button.dataset.oshi === current);
-          });
-        }
-        if (oshiModal) {
-          oshiModal.classList.remove("hidden");
-          oshiModal.setAttribute("aria-hidden", "false");
-        }
-      }
-
-      function closeOshiModal() {
-        if (!oshiModal) return;
-        oshiModal.classList.add("hidden");
-        oshiModal.setAttribute("aria-hidden", "true");
-      }
-
-      function setDraftOshi(value) {
-        const info = normalizeProfileInfo(profileDraft.info || profileState.info);
-        const previous = info.oshi;
-        const next = value || previous;
-        if (next === previous) {
-          closeOshiModal();
-          return;
-        }
-
-        const nextDate = "2026.05.17";
-        openLumiModal({
-          title: "오시를 변경할까요?",
-          paragraphs: [
-            "오시는 14일에 한 번 변경할 수 있어요.",
-            "변경 후에는 다음 변경 가능일까지 다시 바꿀 수 없어요.",
-            "현재 오시: " + previous,
-            "변경할 오시: " + next
-          ],
-          chip: "다음 변경 가능일: " + nextDate,
-          actions: [
-            {
-              label: "변경하기",
-              primary: true,
-              action: () => {
-                if (profileInputOshi) profileInputOshi.value = next;
-                if (profileOshiSelected) profileOshiSelected.textContent = next;
-                profileDraft.info = Object.assign({}, profileDraft.info || {}, { oshi: next });
-                closeLumiModal();
-                closeOshiModal();
-                updateProfileCounters();
-              }
-            },
-            { label: "취소", primary: false, action: closeLumiModal }
-          ]
-        });
       }
 
       loginForm.addEventListener("submit", (event) => {
@@ -3959,49 +4252,81 @@
       }
 
       if (profileEditOpen) profileEditOpen.addEventListener("click", openProfileEditor);
-
-      if (profileTitleOpen) {
-        profileTitleOpen.addEventListener("click", () => {
-          openLumiModal({
-            title: "칭호 변경 준비중",
-            paragraphs: ["업적에서 해금한 칭호를 프로필에 장착하는 기능은 이후 단계에서 연결됩니다."],
-            actions: [{ label: "확인", primary: true, action: closeLumiModal }]
-          });
-        });
-      }
-      if (lumiModalClose) lumiModalClose.addEventListener("click", closeLumiModal);
-      if (lumiModalOk) lumiModalOk.addEventListener("click", closeLumiModal);
-      if (profileOshiOpen) profileOshiOpen.addEventListener("click", openOshiModal);
-      if (oshiModalClose) oshiModalClose.addEventListener("click", closeOshiModal);
-      if (oshiOptionList) {
-        oshiOptionList.querySelectorAll("[data-oshi]").forEach((button) => {
-          button.addEventListener("click", () => setDraftOshi(button.dataset.oshi));
-        });
-      }
-
       if (profileCancel) profileCancel.addEventListener("click", () => { profileTextComposing = false; closeProfileEditor(true); });
+
+      if (profileEditor) {
+        profileEditor.addEventListener("click", (event) => {
+          if (event.target === profileEditor) closeProfileEditor(true);
+        });
+      }
+
+      function commitProfileSave(confirmedOshiChange) {
+        profileTextComposing = false;
+        trimAllProfileInputs();
+        updateProfileCounters();
+        profileDraft.info = collectProfileForm();
+        if (!profileDraft.info.displayName) {
+          showProfileError("표시 닉네임을 입력해 주세요.");
+          return;
+        }
+        if (!profileDraft.info.space) {
+          showProfileError("나의 공간을 입력해 주세요.");
+          return;
+        }
+
+        const nextState = normalizeProfileState(profileDraft);
+        const beforeOshi = normalizeProfileInfo(profileState.info).oshi;
+        const afterOshi = normalizeProfileInfo(nextState.info).oshi;
+        const oshiChanged = beforeOshi !== afterOshi;
+
+        if (oshiChanged) {
+          const lastChangedAt = getLastOshiChangedAt();
+          if (!canChangeOshiNow(lastChangedAt)) {
+            showOshiLimitMessage(lastChangedAt);
+            return;
+          }
+          if (!confirmedOshiChange) {
+            showOshiChangeConfirm(beforeOshi, afterOshi);
+            return;
+          }
+          setLastOshiChangedAt(Date.now());
+        }
+
+        profileState = nextState;
+        saveProfileState();
+        renderProfileView();
+        closeProfileEditor(false);
+      }
+
       if (profileApply) {
-        profileApply.addEventListener("click", () => {
-          profileTextComposing = false;
-          trimAllProfileInputs();
-          updateProfileCounters();
-          updateProfileCounters();
-          profileDraft.info = collectProfileForm();
-          if (!profileDraft.info.displayName) {
-            showProfileError("표시 닉네임을 입력해 주세요.");
-            return;
-          }
-          if (!profileDraft.info.space) {
-            showProfileError("나의 공간을 입력해 주세요.");
-            return;
-          }
-          profileState = normalizeProfileState(profileDraft);
-          saveProfileState();
-          renderProfileView();
-          closeProfileEditor(false);
+        profileApply.addEventListener("click", () => commitProfileSave(false));
+      }
+      if (profileOshiButton) profileOshiButton.addEventListener("click", openProfileOshiModal);
+      if (profileOshiClose) profileOshiClose.addEventListener("click", closeProfileOshiModal);
+      if (profileOshiModal) {
+        profileOshiModal.addEventListener("click", (event) => {
+          if (event.target === profileOshiModal) closeProfileOshiModal();
+        });
+      }
+      $$(".profile-oshi-option[data-oshi-value]").forEach((button) => {
+        button.addEventListener("click", () => selectProfileOshi(button.dataset.oshiValue));
+      });
+      if (profileOshiConfirmClose) profileOshiConfirmClose.addEventListener("click", closeProfileOshiConfirmModal);
+      if (profileOshiConfirmCancel) profileOshiConfirmCancel.addEventListener("click", closeProfileOshiConfirmModal);
+      if (profileOshiConfirmApply) profileOshiConfirmApply.addEventListener("click", () => {
+        closeProfileOshiConfirmModal();
+        commitProfileSave(true);
+      });
+      if (profileOshiConfirmModal) {
+        profileOshiConfirmModal.addEventListener("click", (event) => {
+          if (event.target === profileOshiConfirmModal) closeProfileOshiConfirmModal();
         });
       }
       if (profileTitlePick) profileTitlePick.addEventListener("click", openProfileTitleModal);
+      if (profileTitleQuickOpen) profileTitleQuickOpen.addEventListener("click", () => {
+        if (profileEditor && profileEditor.classList.contains("hidden")) openProfileEditor();
+        openProfileTitleModal();
+      });
       if (profileTitleClose) profileTitleClose.addEventListener("click", closeProfileTitleModal);
       if (profileTitleModal) {
         profileTitleModal.addEventListener("click", (event) => {
@@ -4113,8 +4438,13 @@
         if (profileTextComposing) return;
         updateProfileCounters();
       }
-      [profileInputDisplayName, profileInputLetterName, profileInputBroadcastName, profileInputSpace].forEach(attachProfileCounterBlur);
-input.addEventListener("compositionend", () => {
+
+      [profileInputDisplayName, profileInputLetterName, profileInputBroadcastName, profileInputSpace].forEach((input) => {
+        if (!input) return;
+        input.addEventListener("compositionstart", () => {
+          profileTextComposing = true;
+        });
+        input.addEventListener("compositionend", () => {
           profileTextComposing = false;
         });
         input.addEventListener("blur", () => { updateProfileCountersSoft(); });
