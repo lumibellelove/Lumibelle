@@ -4200,8 +4200,8 @@
 
     .profile-simple-modal.is-profile-share .profile-simple-body,
     #page-profile .profile-simple-modal.is-profile-share .profile-simple-body {
-      gap: 6px !important;
-      margin-bottom: 8px !important;
+      gap: 4px !important;
+      margin-bottom: 6px !important;
       padding: 0 !important;
     }
 
@@ -4337,16 +4337,16 @@
       background: rgba(70, 50, 64, 0.16) !important;
       backdrop-filter: none !important;
       -webkit-backdrop-filter: none !important;
-      padding: 8px !important;
+      padding: 2px !important;
       place-items: center !important;
     }
 
     .profile-simple-modal.is-profile-share .profile-simple-dialog,
     #page-profile .profile-simple-modal.is-profile-share .profile-simple-dialog {
-      width: min(760px, calc(100vw - 4px)) !important;
-      max-height: calc(100dvh - 8px) !important;
+      width: min(780px, calc(100vw - 2px)) !important;
+      max-height: calc(100dvh - 4px) !important;
       overflow-y: auto !important;
-      padding: 8px 8px 12px !important;
+      padding: 6px 6px 10px !important;
       border-radius: 26px !important;
       background: #fff !important;
       border: 0 !important;
@@ -4356,7 +4356,7 @@
 
     .profile-simple-modal.is-profile-share .profile-simple-topbar,
     #page-profile .profile-simple-modal.is-profile-share .profile-simple-topbar {
-      margin-bottom: 8px !important;
+      margin-bottom: 6px !important;
       align-items: center !important;
     }
 
@@ -4370,8 +4370,8 @@
 
     .profile-simple-modal.is-profile-share .profile-simple-body,
     #page-profile .profile-simple-modal.is-profile-share .profile-simple-body {
-      gap: 6px !important;
-      margin-bottom: 8px !important;
+      gap: 4px !important;
+      margin-bottom: 6px !important;
       padding: 0 !important;
     }
 
@@ -4478,7 +4478,32 @@
       display: none !important;
     }
 
-</style>
+
+    /* GPT final nudge: profile share modal/frame cleanup */
+    .profile-simple-modal.is-profile-share {
+      padding: 2px !important;
+    }
+    .profile-simple-modal.is-profile-share .profile-simple-dialog {
+      width: min(780px, calc(100vw - 2px)) !important;
+      padding: 6px 6px 10px !important;
+      border: 0 !important;
+      box-shadow: 0 14px 42px rgba(70, 50, 64, .10) !important;
+    }
+    .profile-simple-modal.is-profile-share .profile-share-preview-wrap {
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      outline: 0 !important;
+    }
+    .profile-simple-modal.is-profile-share .profile-share-preview-img {
+      border: 0 !important;
+      box-shadow: none !important;
+      background: transparent !important;
+    }
+
+  </style>
 </head>
 
 <body>
@@ -6273,7 +6298,7 @@
         }
 
         const leftX = cardX + 54;
-        const contentTop = avatarY + avatarOuter + 104;
+        const contentTop = avatarY + avatarOuter + 92;
         ctx.textAlign = "left";
         ctx.fillStyle = deep;
         ctx.font = "900 88px sans-serif";
@@ -6289,12 +6314,12 @@
 
         const logoImg = await loadCanvasImage(LUMIBELLE_SHARE_LOGO_DATA_URL || "");
         if (logoImg) {
-          const logoW = 214;
+          const logoW = 194;
           const logoH = logoW * ((logoImg.naturalHeight || logoImg.height) / (logoImg.naturalWidth || logoImg.width));
-          const logoX = cardX + cardW - logoW - 74;
-          const logoY = coverY + coverH + 72;
+          const logoX = cardX + cardW - logoW - 50;
+          const logoY = coverY + coverH + 78;
           ctx.save();
-          ctx.globalAlpha = .86;
+          ctx.globalAlpha = .76;
           ctx.drawImage(logoImg, logoX, logoY, logoW, logoH);
           ctx.restore();
         }
@@ -6319,9 +6344,9 @@
         const pillY1 = contentTop + 205;
         const pillY2 = pillY1 + 74;
         const titleText = String(payload.small || "대표 칭호 · 나만의 루미나").replace(/^대표 칭호\s*[·:]\s*/, "");
-        pill(titleText || "나만의 루미나", leftX, pillY1, 500, 58, 32);
-        pill("📍 " + (payload.space || "루루의 방"), leftX, pillY2, 350, 54, 30);
-        pill("🎂 " + (payload.birthday || "07.19"), leftX + 384, pillY2, 270, 54, 30);
+        pill(titleText || "나만의 루미나", leftX, pillY1, 470, 56, 31);
+        pill("📍 " + (payload.space || "루루의 방"), leftX, pillY2, 320, 52, 29);
+        pill("🎂 " + (payload.birthday || "07.19"), leftX + 354, pillY2, 250, 52, 29);
 
         function getProfileShareStampText() {
           const statusText = document.querySelector(".stamp-status span")?.textContent || "";
