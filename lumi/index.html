@@ -4270,6 +4270,67 @@
       line-height: 1.35 !important;
       text-align: center !important;
     }
+
+
+    /* Profile share final exact fix: achievement-style buttons + clean preview */
+    .profile-simple-modal.is-profile-share .profile-simple-actions,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-actions {
+      display: grid !important;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      gap: 7px !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-action-btn,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-action-btn {
+      min-height: 58px !important;
+      border: 1px solid var(--line2) !important;
+      border-radius: 18px !important;
+      background: #fff !important;
+      color: #9a7187 !important;
+      display: grid !important;
+      place-items: center !important;
+      gap: 2px !important;
+      padding: 7px 4px 6px !important;
+      box-shadow: 0 6px 12px rgba(232,191,211,.06) !important;
+      white-space: normal !important;
+      line-height: 1.1 !important;
+      font-size: 10.5px !important;
+      font-weight: 900 !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-action-btn b,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-action-btn b {
+      display: block !important;
+      color: #d77ca7 !important;
+      font-size: 20px !important;
+      line-height: 1 !important;
+      font-weight: 900 !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-action-btn span,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-action-btn span {
+      display: block !important;
+      color: #8d6b7d !important;
+      font-size: 10.5px !important;
+      line-height: 1.1 !important;
+      font-weight: 900 !important;
+      white-space: nowrap !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-action-btn.primary-look,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-action-btn.primary-look {
+      border-color: transparent !important;
+      background: linear-gradient(180deg,#ff82ba,#ff5fa8) !important;
+      color: #fff !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-action-btn.primary-look b,
+    .profile-simple-modal.is-profile-share .profile-simple-action-btn.primary-look span,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-action-btn.primary-look b,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-action-btn.primary-look span {
+      color: #fff !important;
+    }
+
 </style>
 </head>
 
@@ -6026,10 +6087,10 @@
           ctx.fill();
         }
 
-        const avatarOuter = 312;
-        const avatarInner = 300;
-        const avatarX = cardX + 40;
-        const avatarY = coverY + coverH - 132;
+        const avatarOuter = 328;
+        const avatarInner = 316;
+        const avatarX = cardX + 34;
+        const avatarY = coverY + coverH - 138;
         const avatarCX = avatarX + avatarOuter / 2;
         const avatarCY = avatarY + avatarOuter / 2;
         ctx.beginPath();
@@ -6063,19 +6124,19 @@
         }
 
         const leftX = cardX + 54;
-        const contentTop = avatarY + avatarOuter + 46;
+        const contentTop = Math.max(avatarY + avatarOuter + 60, coverY + coverH + 238);
         ctx.textAlign = "left";
         ctx.fillStyle = deep;
         ctx.font = "900 82px sans-serif";
         wrapText(ctx, payload.title || "루미나", leftX, contentTop, cardW - 108, 82, "left");
 
         ctx.fillStyle = muted;
-        ctx.font = "900 35px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, contentTop + 88);
+        ctx.font = "900 37px sans-serif";
+        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, contentTop + 78);
 
         ctx.fillStyle = deep;
-        ctx.font = "900 38px sans-serif";
-        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", leftX, contentTop + 150, cardW - 108, 44, "left");
+        ctx.font = "900 40px sans-serif";
+        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", leftX, contentTop + 130, cardW - 108, 44, "left");
 
         function singleLine(text, maxChars) {
           const value = String(text || "").trim();
@@ -6094,31 +6155,41 @@
           ctx.textAlign = "left";
         }
 
-        const pillY1 = contentTop + 214;
+        const pillY1 = contentTop + 190;
         const pillY2 = pillY1 + 72;
-        const pillY3 = pillY2 + 70;
         const titleText = String(payload.small || "대표 칭호 · 나만의 루미나").replace(/^대표 칭호\s*[·:]\s*/, "");
         pill(titleText || "나만의 루미나", leftX, pillY1, 492, 58, 30);
         pill("📍 " + (payload.space || "루루의 방"), leftX, pillY2, 360, 56, 30);
         pill("🎂 " + (payload.birthday || "07.19"), leftX + 386, pillY2, 278, 56, 30);
-        // 개통일 pill에는 아이콘을 넣지 않는다.
-        pill(payload.date || "2026.07.12", leftX, pillY3, 366, 56, 30);
 
-        const infoX = cardX + 54;
-        const infoH = 210;
-        const infoY = cardY + cardH - infoH - 42;
-        const infoW = cardW - 108;
-        roundRect(ctx, infoX, infoY, infoW, infoH, 34, "rgba(255,255,255,.94)", line);
+        const infoH = 202;
+        const infoY = cardY + cardH - infoH - 1;
+        const footerPadX = 54;
+        const infoX = cardX + footerPadX;
+        const infoW = cardW - footerPadX * 2;
+        ctx.save();
+        roundRect(ctx, cardX, cardY, cardW, cardH, cardR, null, null);
+        ctx.clip();
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(cardX + 1, infoY, cardW - 2, infoH);
+        ctx.restore();
+        ctx.strokeStyle = line;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(cardX + 28, infoY);
+        ctx.lineTo(cardX + cardW - 28, infoY);
+        ctx.stroke();
+
+        ctx.fillStyle = muted;
+        ctx.font = "900 34px sans-serif";
+        ctx.fillText((payload.date || "2026.07.12") + " 개통", infoX, infoY + 58);
+        ctx.fillStyle = pink;
+        ctx.font = "900 40px sans-serif";
+        ctx.fillText("LUMI ID · " + sampleUser.id, infoX, infoY + 110);
         ctx.fillStyle = muted;
         ctx.font = "900 32px sans-serif";
-        ctx.fillText((payload.date || "2026.07.12") + " 개통", infoX + 38, infoY + 58);
-        ctx.fillStyle = pink;
-        ctx.font = "900 36px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, infoX + 38, infoY + 108);
-        ctx.fillStyle = muted;
-        ctx.font = "900 30px sans-serif";
-        ctx.fillText("lumibellelove.com", infoX + 38, infoY + 158);
-        fakeQr(ctx, infoX + infoW - 166, infoY + 38, 132);
+        ctx.fillText("lumibellelove.com", infoX, infoY + 158);
+        fakeQr(ctx, infoX + infoW - 158, infoY + 38, 132);
 
         return canvas;
       }
@@ -6205,10 +6276,10 @@
 
       async function openProfileSharePanel() {
         openProfileSimpleModal("프로필 공유", ["프로필 공유 카드를 준비하는 중이에요."], [
-          { label: "↗\n공유", primary: true, onClick: () => handleProfileShareAction("native") },
-          { label: "𝕏\nX", onClick: () => handleProfileShareAction("x") },
-          { label: "📷\n인스타", onClick: () => handleProfileShareAction("instagram") },
-          { label: "↓\n저장", onClick: () => handleProfileShareAction("save") }
+          { icon: "↗", text: "공유", primary: true, onClick: () => handleProfileShareAction("native") },
+          { icon: "𝕏", text: "X", onClick: () => handleProfileShareAction("x") },
+          { icon: "📷", text: "인스타", onClick: () => handleProfileShareAction("instagram") },
+          { icon: "↓", text: "저장", onClick: () => handleProfileShareAction("save") }
         ]);
         if (profileSimpleModal) {
           profileSimpleModal.classList.add("is-profile-share");
@@ -6450,7 +6521,16 @@
             const btn = document.createElement("button");
             btn.type = "button";
             btn.className = "profile-simple-action-btn" + (action.primary ? " primary-look" : "");
-            btn.textContent = action.label || "확인";
+            if (action.icon || action.text) {
+              const icon = document.createElement("b");
+              icon.textContent = action.icon || "";
+              const label = document.createElement("span");
+              label.textContent = action.text || action.label || "확인";
+              btn.appendChild(icon);
+              btn.appendChild(label);
+            } else {
+              btn.textContent = action.label || "확인";
+            }
             btn.addEventListener("click", () => {
               closeProfileSimpleModal();
               if (typeof action.onClick === "function") action.onClick();
