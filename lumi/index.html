@@ -4148,6 +4148,86 @@
       line-height: 1.15 !important;
     }
 
+
+
+    /* Profile share structure hard reset: no nested preview frame, four clean actions */
+    .profile-simple-modal.is-profile-share,
+    #page-profile .profile-simple-modal.is-profile-share {
+      background: rgba(70, 50, 64, 0.18) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      padding: 10px !important;
+      place-items: center !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-dialog,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-dialog {
+      width: min(680px, calc(100vw - 20px)) !important;
+      max-height: calc(100dvh - 20px) !important;
+      overflow-y: auto !important;
+      padding: 12px !important;
+      border-radius: 28px !important;
+      background: #fff !important;
+      box-shadow: 0 22px 62px rgba(70, 50, 64, .16) !important;
+      filter: none !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-body,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-body {
+      gap: 8px !important;
+      margin-bottom: 12px !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-share-preview-wrap,
+    #page-profile .profile-share-preview-wrap {
+      width: 100% !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+      filter: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-share-preview-img,
+    #page-profile .profile-share-preview-img {
+      display: block !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      height: auto !important;
+      border-radius: 24px !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      filter: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-actions,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-actions {
+      display: grid !important;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      gap: 7px !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-action-btn,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-action-btn {
+      min-height: 56px !important;
+      border-radius: 18px !important;
+      padding: 7px 4px 6px !important;
+      white-space: pre-line !important;
+      line-height: 1.15 !important;
+      font-size: 11px !important;
+      box-shadow: 0 6px 12px rgba(232,191,211,.06) !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-action-btn.primary-look,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-action-btn.primary-look {
+      color: #fff !important;
+    }
+
   </style>
 </head>
 
@@ -5863,44 +5943,26 @@
         const white = "#ffffff";
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
 
-        const outer = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-        outer.addColorStop(0, "#fffafd");
-        outer.addColorStop(.58, "#fff3fa");
-        outer.addColorStop(1, "#f8f0ff");
-        ctx.fillStyle = outer;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.fillStyle = "rgba(255, 95, 168, .09)";
-        ctx.beginPath();
-        ctx.arc(170, 160, 170, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = "rgba(202, 167, 255, .12)";
-        ctx.beginPath();
-        ctx.arc(952, 276, 184, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = "rgba(255, 205, 226, .20)";
-        ctx.beginPath();
-        ctx.arc(882, 1218, 220, 0, Math.PI * 2);
-        ctx.fill();
-
-        const cardX = 56;
-        const cardY = 56;
-        const cardW = 968;
-        const cardH = 1328;
-        const cardR = 54;
+        const cardX = 34;
+        const cardY = 34;
+        const cardW = canvas.width - cardX * 2;
+        const cardH = canvas.height - cardY * 2;
+        const cardR = 58;
         const cardGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
         cardGrad.addColorStop(0, "#ffffff");
-        cardGrad.addColorStop(.78, "#fffafd");
+        cardGrad.addColorStop(.74, "#fffafd");
         cardGrad.addColorStop(1, "#fff5fb");
+        roundRect(ctx, 0, 0, canvas.width, canvas.height, 0, "#fff7fb", null);
         roundRect(ctx, cardX, cardY, cardW, cardH, cardR, cardGrad, "#f4c8dc");
-        roundRect(ctx, cardX + 14, cardY + 14, cardW - 28, cardH - 28, 38, null, "rgba(239,188,213,.62)");
 
-        const coverX = 88;
-        const coverY = 88;
-        const coverW = 904;
-        const coverH = 356;
-        const coverR = 30;
+        const coverX = cardX;
+        const coverY = cardY;
+        const coverW = cardW;
+        const coverH = 372;
+        const coverR = cardR;
         const coverGrad = ctx.createLinearGradient(coverX, coverY, coverX + coverW, coverY + coverH);
         coverGrad.addColorStop(0, "#ffd0e7");
         coverGrad.addColorStop(.48, "#ff8fc2");
@@ -5910,28 +5972,30 @@
         if (coverImg) {
           drawTopRoundedCoverImage(ctx, coverImg, payload.coverPart || null, coverX, coverY, coverW, coverH, coverR, "#f3c6dc");
         } else {
-          ctx.fillStyle = "rgba(255,255,255,.22)";
+          ctx.fillStyle = "rgba(255,255,255,.24)";
           ctx.beginPath();
-          ctx.arc(244, 178, 98, 0, Math.PI * 2);
+          ctx.arc(230, 154, 112, 0, Math.PI * 2);
           ctx.fill();
           ctx.fillStyle = "rgba(255,255,255,.17)";
           ctx.beginPath();
-          ctx.arc(818, 350, 124, 0, Math.PI * 2);
+          ctx.arc(830, 315, 136, 0, Math.PI * 2);
           ctx.fill();
         }
 
-        const avatarOuter = 290;
-        const avatarInner = 284;
-        const avatarX = 116;
-        const avatarY = 318;
+        const avatarOuter = 264;
+        const avatarInner = 250;
+        const avatarX = cardX + 72;
+        const avatarY = coverY + coverH - 108;
+        const avatarCX = avatarX + avatarOuter / 2;
+        const avatarCY = avatarY + avatarOuter / 2;
         ctx.beginPath();
-        ctx.arc(avatarX + avatarOuter / 2, avatarY + avatarOuter / 2, avatarOuter / 2, 0, Math.PI * 2);
+        ctx.arc(avatarCX, avatarCY, avatarOuter / 2, 0, Math.PI * 2);
         ctx.fillStyle = "#fff9fd";
         ctx.fill();
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
         ctx.strokeStyle = white;
         ctx.stroke();
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 2;
         ctx.strokeStyle = line;
         ctx.stroke();
 
@@ -5945,75 +6009,73 @@
           iconGrad.addColorStop(0, "#ff82ba");
           iconGrad.addColorStop(1, "#caa7ff");
           ctx.beginPath();
-          ctx.arc(avatarX + avatarOuter / 2, avatarY + avatarOuter / 2, avatarInner / 2, 0, Math.PI * 2);
+          ctx.arc(avatarCX, avatarCY, avatarInner / 2, 0, Math.PI * 2);
           ctx.fillStyle = iconGrad;
           ctx.fill();
           ctx.fillStyle = white;
-          ctx.font = "900 104px sans-serif";
+          ctx.font = "900 92px sans-serif";
           ctx.textAlign = "center";
-          ctx.fillText("✦", avatarX + avatarOuter / 2, avatarY + 190);
+          ctx.fillText("✦", avatarCX, avatarCY + 30);
         }
 
-        const leftX = 112;
+        const leftX = cardX + 72;
+        const contentTop = avatarY + avatarOuter + 70;
         ctx.textAlign = "left";
         ctx.fillStyle = deep;
-        ctx.font = "900 84px sans-serif";
-        wrapText(ctx, payload.title || "루미나", leftX, 662, 840, 82, "left");
+        ctx.font = "900 78px sans-serif";
+        wrapText(ctx, payload.title || "루미나", leftX, contentTop, cardW - 144, 78, "left");
 
         ctx.fillStyle = muted;
-        ctx.font = "900 36px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, 742);
+        ctx.font = "900 34px sans-serif";
+        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, contentTop + 76);
 
         ctx.fillStyle = deep;
-        ctx.font = "900 42px sans-serif";
-        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", leftX, 812, 850, 46, "left");
+        ctx.font = "900 38px sans-serif";
+        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", leftX, contentTop + 138, cardW - 144, 44, "left");
 
         function singleLine(text, maxChars) {
           const value = String(text || "").trim();
           if (!maxChars || value.length <= maxChars) return value;
-          return value.slice(0, maxChars - 1) + "…";
+          return value.slice(0, Math.max(1, maxChars - 1)) + "…";
         }
 
         function pill(text, x, y, w, h, fontSize) {
-          roundRect(ctx, x, y, w, h, h / 2, "rgba(255,255,255,.88)", line2);
+          roundRect(ctx, x, y, w, h, h / 2, "rgba(255,255,255,.94)", line2);
           ctx.fillStyle = muted;
-          ctx.font = "900 " + (fontSize || 33) + "px sans-serif";
+          ctx.font = "900 " + (fontSize || 31) + "px sans-serif";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillText(singleLine(text, Math.floor(w / ((fontSize || 33) * .62))), x + w / 2, y + h / 2 + 1);
+          ctx.fillText(singleLine(text, Math.floor(w / ((fontSize || 31) * .58))), x + w / 2, y + h / 2 + 1);
           ctx.textBaseline = "alphabetic";
           ctx.textAlign = "left";
         }
 
+        const pillY1 = contentTop + 206;
+        const pillY2 = pillY1 + 74;
+        const pillY3 = pillY2 + 72;
         const titleText = String(payload.small || "대표 칭호 · 나만의 루미나").replace(/^대표 칭호\s*[·:]\s*/, "");
-        pill(titleText || "나만의 루미나", leftX, 866, 430, 58, 31);
-        pill("📍 " + (payload.space || "루루의 방"), leftX, 954, 324, 56, 31);
-        pill("🎂 " + (payload.birthday || "07.19"), leftX + 354, 954, 256, 56, 31);
-        pill("🗓 " + (payload.date || "2026.07.12"), leftX, 1022, 380, 56, 31);
+        pill(titleText || "나만의 루미나", leftX, pillY1, 476, 58, 30);
+        pill("📍 " + (payload.space || "루루의 방"), leftX, pillY2, 352, 56, 30);
+        pill("🎂 " + (payload.birthday || "07.19"), leftX + 382, pillY2, 276, 56, 30);
+        pill(payload.date || "2026.07.12", leftX, pillY3, 358, 56, 30);
 
-        roundRect(ctx, 94, 1156, 892, 128, 30, "rgba(255,255,255,.90)", line);
+        const infoX = cardX + 60;
+        const infoY = cardY + cardH - 202;
+        const infoW = cardW - 120;
+        const infoH = 142;
+        roundRect(ctx, infoX, infoY, infoW, infoH, 30, "rgba(255,255,255,.92)", line);
         ctx.fillStyle = muted;
         ctx.font = "900 26px sans-serif";
-        ctx.fillText((payload.date || "2026.07.12") + " 개통", 132, 1200);
+        ctx.fillText((payload.date || "2026.07.12") + " 개통", infoX + 38, infoY + 45);
         ctx.fillStyle = pink;
         ctx.font = "900 30px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, 132, 1238);
+        ctx.fillText("LUMI ID · " + sampleUser.id, infoX + 38, infoY + 84);
         ctx.fillStyle = muted;
         ctx.font = "900 25px sans-serif";
-        ctx.fillText("lumibellelove.com", 132, 1274);
-        fakeQr(ctx, 818, 1182, 82);
+        ctx.fillText("lumibellelove.com", infoX + 38, infoY + 120);
+        fakeQr(ctx, infoX + infoW - 118, infoY + 30, 84);
 
-        /* Export only the actual card area so the preview does not look like a card inside another frame. */
-        const exportCanvas = document.createElement("canvas");
-        exportCanvas.width = 1200;
-        exportCanvas.height = 1646;
-        const exportCtx = exportCanvas.getContext("2d");
-        if (!exportCtx) return canvas;
-        exportCtx.clearRect(0, 0, exportCanvas.width, exportCanvas.height);
-        exportCtx.imageSmoothingEnabled = true;
-        exportCtx.imageSmoothingQuality = "high";
-        exportCtx.drawImage(canvas, cardX - 4, cardY - 4, cardW + 8, cardH + 8, 0, 0, exportCanvas.width, exportCanvas.height);
-        return exportCanvas;
+        return canvas;
       }
 
       function profileImageFileName() {
@@ -6099,7 +6161,7 @@
       async function openProfileSharePanel() {
         openProfileSimpleModal("프로필 공유", ["프로필 공유 카드를 준비하는 중이에요."], [
           { label: "↗\n공유", primary: true, onClick: () => handleProfileShareAction("native") },
-          { label: "𝕏", onClick: () => handleProfileShareAction("x") },
+          { label: "𝕏\nX", onClick: () => handleProfileShareAction("x") },
           { label: "📷\n인스타", onClick: () => handleProfileShareAction("instagram") },
           { label: "↓\n저장", onClick: () => handleProfileShareAction("save") }
         ]);
