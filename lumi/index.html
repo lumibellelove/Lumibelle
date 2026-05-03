@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>LUMI PHONE v10.3 | Profile Final Clean Patch</title>
+  <title>LUMI PHONE v10.3 | Profile Title Modal Safe Scroll Patch</title>
   <meta name="theme-color" content="#fff7fb" />
 
   <style>
@@ -79,6 +79,12 @@
     }
 
     .hidden { display: none !important; }
+
+    html.profile-title-modal-open,
+    body.profile-title-modal-open {
+      overflow: hidden !important;
+      overscroll-behavior: none;
+    }
 
     p {
       margin: 0;
@@ -1988,15 +1994,24 @@
       z-index: 1001;
       display: grid;
       place-items: center;
-      padding: 18px;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      min-height: 100vh;
+      padding: max(14px, env(safe-area-inset-top, 0px)) 14px max(14px, env(safe-area-inset-bottom, 0px));
+      overflow: hidden;
+      overscroll-behavior: none;
       background: rgba(70, 50, 64, 0.42);
       backdrop-filter: blur(8px);
     }
 
     .profile-title-dialog {
       width: min(720px, 100%);
-      max-height: min(760px, calc(100vh - 36px));
-      overflow: auto;
+      max-height: calc(100dvh - 28px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+      display: grid;
+      grid-template-rows: auto auto auto minmax(0, 1fr);
+      overflow: hidden;
+      overscroll-behavior: contain;
       border-radius: 28px;
       background: #fff;
       border: 1px solid var(--line);
@@ -2064,11 +2079,17 @@
 
     .profile-title-panel {
       display: none;
+      min-height: 0;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 9px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      padding-right: 2px;
+      padding-bottom: 2px;
     }
 
-    .profile-title-panel.active { display: grid; }
+    .profile-title-panel.active { display: grid; align-content: start; }
 
     .profile-title-option {
       min-height: 58px;
@@ -2111,8 +2132,16 @@
       background: #fffafd;
     }
 @media (max-width: 430px) {
-      .profile-title-modal { padding: 10px; }
-      .profile-title-dialog { padding: 14px; border-radius: 24px; }
+      .profile-title-modal {
+        place-items: center;
+        padding: max(10px, env(safe-area-inset-top, 0px)) 10px max(10px, env(safe-area-inset-bottom, 0px));
+      }
+      .profile-title-dialog {
+        width: 100%;
+        max-height: calc(100dvh - 20px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+        padding: 14px;
+        border-radius: 24px;
+      }
       .profile-title-topbar h3 { font-size: 22px; }
       .profile-title-panel { grid-template-columns: 1fr; }
       .profile-title-edit-row { grid-template-columns: 1fr; }
@@ -3184,7 +3213,8 @@
     #page-profile .profile-edit-dialog > div:first-child::after{content:none!important;display:none!important;}
 
     @supports (-webkit-touch-callout: none) {
-      #page-profile .profile-edit-modal {
+      #page-profile .profile-edit-modal,
+      #page-profile .profile-title-modal {
         -webkit-backdrop-filter: none !important;
         backdrop-filter: none !important;
       }
@@ -4348,6 +4378,8 @@
         if (!profileTitleModal) return;
         profileDraft = cloneProfileState(profileState);
         updateProfileTitleOptions(normalizeProfileInfo(profileDraft.info).title);
+        document.documentElement.classList.add("profile-title-modal-open");
+        document.body.classList.add("profile-title-modal-open");
         profileTitleModal.classList.remove("hidden");
         profileTitleModal.setAttribute("aria-hidden", "false");
       }
@@ -4356,6 +4388,8 @@
         if (!profileTitleModal) return;
         profileTitleModal.classList.add("hidden");
         profileTitleModal.setAttribute("aria-hidden", "true");
+        document.documentElement.classList.remove("profile-title-modal-open");
+        document.body.classList.remove("profile-title-modal-open");
       }
 
       function updateProfileTitleOptions(currentTitle) {
