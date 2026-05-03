@@ -5950,27 +5950,34 @@
           return value.slice(0, Math.max(1, maxChars - 1)) + "…";
         }
 
-        function pill(text, x, y, w, h, fontSize) {
+        function pill(text, x, y, w, h, fontSize, align) {
           roundRect(ctx, x, y, w, h, h / 2, "rgba(255,255,255,.94)", line2);
           const fs = fontSize || 31;
           const pad = Math.max(18, Math.round(h * 0.36));
           ctx.fillStyle = muted;
           ctx.font = "900 " + fs + "px sans-serif";
-          ctx.textAlign = "left";
           ctx.textBaseline = "middle";
-          ctx.fillText(singleLine(text, Math.floor((w - pad * 2) / (fs * .58))), x + pad, y + h / 2 + 1);
+          if (align === "center") {
+            ctx.textAlign = "center";
+            ctx.fillText(singleLine(text, Math.floor(w / (fs * .58))), x + w / 2, y + h / 2 + 1);
+          } else {
+            ctx.textAlign = "left";
+            ctx.fillText(singleLine(text, Math.floor((w - pad * 2) / (fs * .58))), x + pad, y + h / 2 + 1);
+          }
           ctx.textBaseline = "alphabetic";
+          ctx.textAlign = "left";
         }
 
         const pillY1 = contentTop + 154;
         const pillY2 = pillY1 + 72;
         const titleText = String(payload.small || "대표 칭호 · 나만의 루미나").replace(/^대표 칭호\s*[·:]\s*/, "");
-        pill(titleText || "나만의 루미나", leftX, pillY1, 390, 60, 34);
+        pill(titleText || "나만의 루미나", leftX, pillY1, 390, 60, 34, "center");
 
         ctx.fillStyle = muted;
         ctx.font = "900 38px sans-serif";
         ctx.textAlign = "left";
-        ctx.fillText("📍 " + (payload.space || "루루의 방") + " · 🎂 " + (payload.birthday || "07.19"), leftX + 4, pillY1 + 162);
+        ctx.fillText("🎂 " + (payload.birthday || "07.19"), leftX + 4, pillY1 + 132);
+        ctx.fillText("📍 " + (payload.space || "루루의 방"), leftX + 4, pillY1 + 176);
 
         function getProfileShareStampText() {
           const statusText = document.querySelector(".stamp-status span")?.textContent || "";
