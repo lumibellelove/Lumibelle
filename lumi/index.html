@@ -4058,27 +4058,6 @@
       box-shadow: 0 22px 62px rgba(70, 50, 64, .18);
     }
 
-    .profile-simple-modal.is-profile-share .profile-simple-body,
-    .profile-simple-modal.is-profile-share .profile-share-preview-wrap,
-    .profile-simple-modal.is-profile-share .profile-share-preview-img,
-    #page-profile .profile-simple-modal.is-profile-share .profile-simple-body,
-    #page-profile .profile-simple-modal.is-profile-share .profile-share-preview-wrap,
-    #page-profile .profile-simple-modal.is-profile-share .profile-share-preview-img {
-      filter: none;
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
-    }
-
-    .profile-share-preview-wrap,
-    #page-profile .profile-share-preview-wrap {
-      width: 100%;
-      border: 1px solid rgba(239,188,213,.82);
-      border-radius: 24px;
-      background: #fffafd;
-      padding: 8px;
-      box-shadow: 0 10px 26px rgba(232,191,211,.12);
-    }
-
     .profile-share-preview-img,
     #page-profile .profile-share-preview-img {
       display: block;
@@ -4110,16 +4089,6 @@
     #page-profile .profile-simple-modal.is-profile-share .profile-simple-body {
       gap: 10px !important;
       margin-bottom: 12px !important;
-    }
-
-    .profile-simple-modal.is-profile-share .profile-share-preview-wrap,
-    #page-profile .profile-share-preview-wrap {
-      width: 100% !important;
-      border: 0 !important;
-      border-radius: 0 !important;
-      background: transparent !important;
-      padding: 0 !important;
-      box-shadow: none !important;
     }
 
     .profile-simple-modal.is-profile-share .profile-share-preview-img,
@@ -4178,19 +4147,6 @@
       margin-bottom: 12px !important;
     }
 
-    .profile-simple-modal.is-profile-share .profile-share-preview-wrap,
-    #page-profile .profile-share-preview-wrap {
-      width: 100% !important;
-      border: 0 !important;
-      border-radius: 0 !important;
-      background: transparent !important;
-      padding: 0 !important;
-      box-shadow: none !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-    }
-
     .profile-simple-modal.is-profile-share .profile-share-preview-img,
     #page-profile .profile-share-preview-img {
       display: block !important;
@@ -4246,15 +4202,6 @@
     #page-profile .profile-simple-modal.is-profile-share .profile-simple-body {
       gap: 6px !important;
       margin-bottom: 10px !important;
-    }
-
-    .profile-simple-modal.is-profile-share .profile-share-preview-wrap,
-    #page-profile .profile-share-preview-wrap {
-      margin: 0 !important;
-      padding: 0 !important;
-      border: 0 !important;
-      background: transparent !important;
-      box-shadow: none !important;
     }
 
     .profile-simple-modal.is-profile-share .profile-share-preview-img,
@@ -4331,18 +4278,6 @@
       color: #fff !important;
     }
 
-
-
-    /* GPT patch: profile share preview frame removal + join pill regression guard */
-    .profile-simple-modal.is-profile-share .profile-share-preview-wrap,
-    #page-profile .profile-share-preview-wrap {
-      background: transparent !important;
-      border: 0 !important;
-      box-shadow: none !important;
-      padding: 0 !important;
-      margin: 0 !important;
-    }
-
     .profile-simple-modal.is-profile-share .profile-share-preview-img,
     #page-profile .profile-share-preview-img {
       display: block !important;
@@ -4356,6 +4291,44 @@
     #profileJoinTag {
       display: none !important;
     }
+
+    /* GPT patch: single clean profile share preview wrapper */
+    .profile-share-preview-wrap {
+      background: none;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-share-preview-img,
+    #page-profile .profile-share-preview-img {
+      display: block !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      height: auto !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      border-radius: 24px !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-topbar h3,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-topbar h3 {
+      padding-left: 14px !important;
+    }
+
+    #profileJoinTag {
+      display: none !important;
+    }
+
+
+    .profile-simple-modal.is-profile-share .profile-simple-topbar h3,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-topbar h3 {
+      font-size: 24px !important;
+      line-height: 1.15 !important;
+    }
+
 </style>
 </head>
 
@@ -6148,7 +6121,7 @@
         }
 
         const leftX = cardX + 54;
-        const contentTop = Math.max(avatarY + avatarOuter + 54, coverY + coverH + 196);
+        const contentTop = Math.max(avatarY + avatarOuter + 86, coverY + coverH + 228);
         ctx.textAlign = "left";
         ctx.fillStyle = deep;
         ctx.font = "900 82px sans-serif";
@@ -6156,11 +6129,11 @@
 
         ctx.fillStyle = muted;
         ctx.font = "900 37px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, contentTop + 78);
+        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, contentTop + 92);
 
         ctx.fillStyle = deep;
         ctx.font = "900 40px sans-serif";
-        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", leftX, contentTop + 130, cardW - 108, 44, "left");
+        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", leftX, contentTop + 148, cardW - 108, 46, "left");
 
         function singleLine(text, maxChars) {
           const value = String(text || "").trim();
@@ -6179,14 +6152,14 @@
           ctx.textAlign = "left";
         }
 
-        const pillY1 = contentTop + 190;
-        const pillY2 = pillY1 + 72;
+        const pillY1 = contentTop + 224;
+        const pillY2 = pillY1 + 76;
         const titleText = String(payload.small || "대표 칭호 · 나만의 루미나").replace(/^대표 칭호\s*[·:]\s*/, "");
-        pill(titleText || "나만의 루미나", leftX, pillY1, 492, 58, 30);
-        pill("📍 " + (payload.space || "루루의 방"), leftX, pillY2, 360, 56, 30);
-        pill("🎂 " + (payload.birthday || "07.19"), leftX + 386, pillY2, 278, 56, 30);
+        pill(titleText || "나만의 루미나", leftX, pillY1, 520, 64, 34);
+        pill("📍 " + (payload.space || "루루의 방"), leftX, pillY2, 370, 58, 32);
+        pill("🎂 " + (payload.birthday || "07.19"), leftX + 394, pillY2, 284, 58, 32);
 
-        const infoY = Math.min(pillY2 + 90, cardY + cardH - 260);
+        const infoY = Math.min(pillY2 + 260, cardY + cardH - 250);
         const infoH = cardY + cardH - infoY - 1;
         const footerPadX = 54;
         const infoX = cardX + footerPadX;
@@ -6206,14 +6179,14 @@
 
         ctx.fillStyle = muted;
         ctx.font = "900 36px sans-serif";
-        ctx.fillText((payload.date || "2026.07.12") + " 개통", infoX, infoY + 62);
+        ctx.fillText((payload.date || "2026.07.12") + " 개통", infoX, infoY + 70);
         ctx.fillStyle = pink;
         ctx.font = "900 42px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, infoX, infoY + 118);
+        ctx.fillText("LUMI ID · " + sampleUser.id, infoX, infoY + 132);
         ctx.fillStyle = muted;
         ctx.font = "900 34px sans-serif";
-        ctx.fillText("lumibellelove.com", infoX, infoY + 172);
-        fakeQr(ctx, infoX + infoW - 178, infoY + 42, 150);
+        ctx.fillText("lumibellelove.com", infoX, infoY + 190);
+        fakeQr(ctx, infoX + infoW - 178, infoY + 54, 150);
 
         return canvas;
       }
