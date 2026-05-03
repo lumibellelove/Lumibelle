@@ -5360,8 +5360,8 @@
           (card.dataset.achievementIcon || "🏅") + " " + (card.dataset.achievementTitle || "업적") + "\n" +
           "칭호 「" + (card.dataset.achievementReward || "-") + "」 획득\n\n" +
           (card.dataset.achievementDesc || "루미벨과 함께한 기록") + "\n\n" +
-          "https://lumibellelove.com\n" +
-          "#LUMIBELLE #루미벨 #루미폰";
+          "https://lumibellelove.com/\n\n" +
+          "#루미벨 #LUMIBELLE #루미폰 #왕도아이돌 #라이브아이돌";
       }
 
       function achievementSummaryShareText() {
@@ -5377,8 +5377,8 @@
           "진행 중 " + progressCards.length + "개\n" +
           "대표 업적 " + representativeTitle + "\n\n" +
           "업적 도감\n" + (sampleCards || "아직 공개된 업적이 없어요") + "\n\n" +
-          "https://lumibellelove.com\n" +
-          "#LUMIBELLE #루미벨 #루미폰";
+          "https://lumibellelove.com/\n\n" +
+          "#루미벨 #LUMIBELLE #루미폰 #왕도아이돌 #라이브아이돌";
       }
 
       function getAchievementSharePayload(scope) {
@@ -5461,7 +5461,6 @@
         ctx.fillStyle = "rgba(255,95,168,.22)";
         ctx.font = "900 48px sans-serif";
         ctx.fillText("✦", 185, 190);
-        ctx.fillText("✦", 890, 1160);
 
         ctx.fillStyle = pink;
         ctx.font = "900 30px sans-serif";
@@ -5498,17 +5497,45 @@
         wrapText(ctx, small, 540, 940, 700, 34, "center");
 
         ctx.textAlign = "left";
-        roundRect(ctx, 154, 1042, 772, 160, 34, white, line);
+
+        const profileInfoForFooter = normalizeProfileInfo(profileState.info);
+        const footerJoinDate = profileInfoForFooter.joinedAt || "2026.07.12";
+        const footerCardX = 134;
+        const footerCardY = 122;
+        const footerCardW = 812;
+        const footerCardH = 1108;
+        const infoY = 1034;
+        const footerPadX = 44;
+        const infoX = footerCardX + footerPadX;
+        const infoW = footerCardW - footerPadX * 2;
+
+        ctx.strokeStyle = "rgba(242,216,231,.78)";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(footerCardX + 34, infoY);
+        ctx.lineTo(footerCardX + footerCardW - 34, infoY);
+        ctx.stroke();
+
+        const footerGrad = ctx.createLinearGradient(footerCardX, infoY + 1, footerCardX, footerCardY + footerCardH);
+        footerGrad.addColorStop(0, "rgba(255,255,255,.24)");
+        footerGrad.addColorStop(1, "rgba(255,247,251,.34)");
+        ctx.save();
+        roundRect(ctx, footerCardX, footerCardY, footerCardW, footerCardH, 52, null, null);
+        ctx.clip();
+        ctx.fillStyle = footerGrad;
+        ctx.fillRect(footerCardX + 1, infoY + 1, footerCardW - 2, footerCardY + footerCardH - infoY - 2);
+        ctx.restore();
+
         ctx.fillStyle = muted;
-        ctx.font = "900 25px sans-serif";
-        ctx.fillText(payload.date || new Date().toLocaleDateString("ko-KR"), 190, 1102);
-        ctx.fillStyle = pink;
         ctx.font = "900 28px sans-serif";
-        ctx.fillText("LUMI ID · LB-0001", 190, 1148);
+        ctx.fillText(footerJoinDate + " 개통", infoX, infoY + 52);
+        ctx.fillStyle = pink;
+        ctx.font = "900 36px sans-serif";
+        ctx.fillText("LUMI ID · " + sampleUser.id, infoX, infoY + 104);
         ctx.fillStyle = muted;
-        ctx.font = "900 25px sans-serif";
-        ctx.fillText("lumibellelove.com", 190, 1192);
-        fakeQr(ctx, 785, 1067, 104);
+        ctx.font = "900 27px sans-serif";
+        ctx.fillText("왕도 라이브 아이돌 · lumibellelove.com", infoX, infoY + 150);
+        fakeQr(ctx, infoX + infoW - 128, infoY + 42, 112);
         return canvas;
       }
 
