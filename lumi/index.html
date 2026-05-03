@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>LUMI PHONE v10.3 | Clean RC Profile Decorate v1</title>
+  <title>LUMI PHONE v10.3 | Clean RC Profile Media Patch</title>
   <meta name="theme-color" content="#fff7fb" />
 
   <style>
@@ -1350,10 +1350,6 @@
       content: none;
     }
 
-    .profile-cover.has-image .profile-cover-chip {
-      display: none;
-    }
-
     .profile-cover-chip {
       position: absolute;
       right: 11px;
@@ -1708,68 +1704,169 @@
     }
 
 
-    .profile-adjust-panel {
-      border: 1px solid var(--line);
-      border-radius: 20px;
+
+
+
+    /* Profile media picker: PC uses modal cropper, mobile uses native picker first */
+    .profile-media-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(70, 50, 64, 0.42);
+      backdrop-filter: blur(8px);
+    }
+
+    .profile-media-dialog {
+      width: min(680px, 100%);
+      max-height: min(760px, calc(100vh - 36px));
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      overflow: hidden;
+      border-radius: 26px;
       background: #fff;
-      padding: 11px;
-      display: grid;
-      gap: 9px;
+      border: 1px solid var(--line);
+      box-shadow: 0 28px 80px rgba(70, 50, 64, .24);
     }
 
-    .profile-adjust-head {
+    .profile-media-topbar {
+      min-height: 58px;
       display: grid;
-      gap: 3px;
+      grid-template-columns: 44px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 14px;
+      border-bottom: 1px solid #f4dce9;
+      background: rgba(255,255,255,.96);
     }
 
-    .profile-adjust-head b {
-      color: #76586a;
-      font-size: 14px;
-      line-height: 1.3;
+    .profile-media-close,
+    .profile-media-apply {
+      min-height: 36px;
+      border-radius: 999px;
+      font-size: 13px;
       font-weight: 900;
-      word-break: keep-all;
     }
 
-    .profile-adjust-head span {
-      color: #9a7187;
-      font-size: 11.5px;
-      line-height: 1.4;
-      font-weight: 800;
-      word-break: keep-all;
+    .profile-media-close {
+      width: 36px;
+      background: #fff;
+      border: 1px solid var(--line2);
+      color: #b07693;
     }
 
-    .profile-target-tabs,
-    .profile-adjust-grid {
+    .profile-media-apply {
+      padding: 0 16px;
+      color: #fff;
+      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
+      box-shadow: 0 8px 18px rgba(255,95,168,.14);
+    }
+
+    .profile-media-title {
+      margin: 0;
+      color: #624459;
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .profile-media-body {
+      min-height: 0;
+      overflow: auto;
+      padding: 18px;
+      background: #f8f1f6;
+    }
+
+    .profile-media-stage-wrap {
+      width: 100%;
+      min-height: 320px;
       display: grid;
-      gap: 7px;
+      place-items: center;
     }
 
-    .profile-target-tabs {
-      grid-template-columns: 1fr 1fr;
+    .profile-media-stage {
+      position: relative;
+      width: min(100%, 560px);
+      height: 188px;
+      overflow: hidden;
+      border: 3px solid #ff5fa8;
+      background: #110b10;
+      box-shadow: 0 14px 30px rgba(70, 50, 64, .18);
+      touch-action: none;
+      cursor: grab;
     }
 
-    .profile-adjust-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+    .profile-media-stage:active { cursor: grabbing; }
+
+    .profile-media-stage[data-mode="avatar"] {
+      width: min(78vw, 360px);
+      height: min(78vw, 360px);
+      max-width: 360px;
+      max-height: 360px;
+      border-radius: 50%;
+      border-color: rgba(255,255,255,.95);
+      outline: 2px solid rgba(255,95,168,.85);
     }
 
-    .profile-target-btn,
-    .profile-adjust-btn {
-      min-height: 32px;
+    .profile-media-stage img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: var(--pos-x, 50%) var(--pos-y, 50%);
+      transform: scale(var(--scale, 1));
+      transform-origin: var(--pos-x, 50%) var(--pos-y, 50%);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .profile-media-controls {
+      display: grid;
+      gap: 10px;
+      padding: 14px 18px 18px;
+      border-top: 1px solid #f4dce9;
+      background: #fff;
+    }
+
+    .profile-media-hint {
+      color: #9a7187;
+      font-size: 12px;
+      line-height: 1.45;
+      font-weight: 900;
+      text-align: center;
+      word-break: keep-all;
+    }
+
+    .profile-zoom-row {
+      display: grid;
+      grid-template-columns: 28px 1fr 28px;
+      gap: 10px;
+      align-items: center;
+      color: #b07693;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .profile-zoom-row input[type="range"] {
+      padding: 0;
+      height: 28px;
+      accent-color: var(--pink);
+      box-shadow: none;
+      border: 0;
+    }
+
+    .profile-media-reset {
+      min-height: 36px;
       border-radius: 999px;
       border: 1px solid var(--line2);
       background: #fff;
       color: #b07693;
-      font-size: 11.5px;
+      font-size: 12px;
       font-weight: 900;
-      white-space: nowrap;
     }
-
-    .profile-target-btn.active {
-      color: #fff;
-      border-color: transparent;
-      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
-    }
-
 
     @media (max-width: 374px) {
       .profile-edit-panel {
@@ -2178,7 +2275,7 @@
                   </div>
 
                   <section class="profile-card" aria-label="루미나 프로필 카드">
-                    <div class="profile-cover" id="profileCover"><img id="profileCoverImg" class="hidden" alt="프로필 헤더 이미지" /><span class="profile-cover-chip">헤더 변경 준비중</span></div>
+                    <div class="profile-cover" id="profileCover"><img id="profileCoverImg" class="hidden" alt="프로필 헤더 이미지" /><span class="profile-cover-chip">헤더 이미지</span></div>
                     <div class="profile-main">
                       <div class="profile-avatar" id="profileAvatar" aria-label="프로필 아이콘"><img id="profileAvatarImg" class="hidden" alt="프로필 이미지" /><span id="profileAvatarFallback">✦</span></div>
                       <div class="profile-title-row">
@@ -2245,25 +2342,31 @@
                       </article>
                     </section>
 
-                    <article class="profile-adjust-panel" aria-label="사진 위치 조절">
-                      <div class="profile-adjust-head">
-                        <b>사진 위치 조절</b>
-                        <span id="profileAdjustTarget">헤더 이미지 기준 · 버튼으로 위치와 크기를 맞춰요.</span>
+                    <section class="profile-media-modal hidden" id="profileMediaModal" aria-hidden="true" aria-label="미디어 수정">
+                      <div class="profile-media-dialog" role="dialog" aria-modal="true" aria-labelledby="profileMediaTitle">
+                        <div class="profile-media-topbar">
+                          <button class="profile-media-close" id="profileMediaClose" type="button" aria-label="닫기">×</button>
+                          <h3 class="profile-media-title" id="profileMediaTitle">미디어 수정</h3>
+                          <button class="profile-media-apply" id="profileMediaApply" type="button">적용</button>
+                        </div>
+                        <div class="profile-media-body">
+                          <div class="profile-media-stage-wrap">
+                            <div class="profile-media-stage" id="profileMediaStage" data-mode="cover">
+                              <img id="profileMediaImg" alt="선택한 이미지 미리보기" />
+                            </div>
+                          </div>
+                        </div>
+                        <div class="profile-media-controls">
+                          <div class="profile-media-hint">PC에서는 이미지를 드래그하고 슬라이더로 확대/축소해요. 모바일은 우선 기본 앨범 선택 후 바로 반영돼요.</div>
+                          <div class="profile-zoom-row" aria-label="확대 축소">
+                            <span>−</span>
+                            <input id="profileMediaZoom" type="range" min="1" max="2.5" step="0.05" value="1" />
+                            <span>＋</span>
+                          </div>
+                          <button class="profile-media-reset" id="profileMediaReset" type="button">위치 초기화</button>
+                        </div>
                       </div>
-                      <div class="profile-target-tabs">
-                        <button class="profile-target-btn active" type="button" data-profile-target="cover">헤더</button>
-                        <button class="profile-target-btn" type="button" data-profile-target="avatar">프로필</button>
-                      </div>
-                      <div class="profile-adjust-grid">
-                        <button class="profile-adjust-btn" type="button" data-profile-adjust="up">위</button>
-                        <button class="profile-adjust-btn" type="button" data-profile-adjust="down">아래</button>
-                        <button class="profile-adjust-btn" type="button" data-profile-adjust="left">왼쪽</button>
-                        <button class="profile-adjust-btn" type="button" data-profile-adjust="right">오른쪽</button>
-                        <button class="profile-adjust-btn" type="button" data-profile-adjust="zoomIn">확대</button>
-                        <button class="profile-adjust-btn" type="button" data-profile-adjust="zoomOut">축소</button>
-                      </div>
-                      <button class="profile-edit-btn" id="profileResetImage" type="button">현재 사진 위치 초기화</button>
-                    </article>
+                    </section>
 
                     <div class="profile-edit-actions">
                       <button class="profile-edit-btn primary-look" id="profileApply" type="button">저장하기</button>
@@ -2353,8 +2456,6 @@
       const profileAvatarImg = $("#profileAvatarImg");
       const profileCover = $("#profileCover");
       const profileAvatar = $("#profileAvatar");
-      const profileAdjustTarget = $("#profileAdjustTarget");
-      const profileResetImage = $("#profileResetImage");
 
       function normId(value) {
         const digits = String(value || "").replace(/\D/g, "").slice(-4);
@@ -2426,6 +2527,18 @@
       let profileState = profileDefaultState();
       let profileDraft = profileDefaultState();
       let profileEditTarget = "cover";
+      let profileCropPart = profileDefaultPart();
+      let profileCropTarget = "cover";
+      let profileDragState = null;
+
+      const profileMediaModal = $("#profileMediaModal");
+      const profileMediaTitle = $("#profileMediaTitle");
+      const profileMediaClose = $("#profileMediaClose");
+      const profileMediaApply = $("#profileMediaApply");
+      const profileMediaStage = $("#profileMediaStage");
+      const profileMediaImg = $("#profileMediaImg");
+      const profileMediaZoom = $("#profileMediaZoom");
+      const profileMediaReset = $("#profileMediaReset");
 
       function cloneProfileState(state) {
         return JSON.parse(JSON.stringify(state || profileDefaultState()));
@@ -2448,32 +2561,8 @@
         };
       }
 
-      function setProfileEditTarget(targetName) {
-        profileEditTarget = targetName === "avatar" ? "avatar" : "cover";
-        $$(".profile-target-btn").forEach((button) => {
-          button.classList.toggle("active", button.dataset.profileTarget === profileEditTarget);
-        });
-        if (profileAdjustTarget) {
-          profileAdjustTarget.textContent = (profileEditTarget === "cover" ? "헤더 이미지 기준" : "프로필 이미지 기준") + " · 버튼으로 위치와 크기를 맞춰요.";
-        }
-      }
-
-      function adjustProfileImage(action) {
-        const current = normalizeProfilePart(profileDraft[profileEditTarget]);
-        const step = 5;
-        if (action === "up") current.y -= step;
-        if (action === "down") current.y += step;
-        if (action === "left") current.x -= step;
-        if (action === "right") current.x += step;
-        if (action === "zoomIn") current.scale += 0.1;
-        if (action === "zoomOut") current.scale -= 0.1;
-        if (action === "reset") {
-          current.x = 50;
-          current.y = 50;
-          current.scale = 1;
-        }
-        profileDraft[profileEditTarget] = normalizeProfilePart(current);
-        renderProfileEditor();
+      function isDesktopProfileEditor() {
+        return window.matchMedia && window.matchMedia("(min-width: 760px)").matches;
       }
 
       function loadProfileState() {
@@ -2526,6 +2615,58 @@
         if (profileAvatar) profileAvatar.classList.toggle("has-image", Boolean(profileDraft.avatar.src));
       }
 
+      function renderProfileCrop() {
+        if (!profileMediaImg || !profileMediaStage || !profileMediaZoom) return;
+        const part = normalizeProfilePart(profileCropPart);
+        profileMediaStage.dataset.mode = profileCropTarget === "avatar" ? "avatar" : "cover";
+        profileMediaImg.src = part.src;
+        profileMediaImg.style.setProperty("--pos-x", part.x + "%");
+        profileMediaImg.style.setProperty("--pos-y", part.y + "%");
+        profileMediaImg.style.setProperty("--scale", String(part.scale));
+        profileMediaZoom.value = String(part.scale);
+        if (profileMediaTitle) profileMediaTitle.textContent = profileCropTarget === "avatar" ? "프로필 이미지 수정" : "헤더 이미지 수정";
+      }
+
+      function openProfileMediaModal(targetName, part) {
+        profileCropTarget = targetName === "avatar" ? "avatar" : "cover";
+        profileCropPart = normalizeProfilePart(part || profileDraft[profileCropTarget]);
+        if (profileMediaModal) {
+          profileMediaModal.classList.remove("hidden");
+          profileMediaModal.setAttribute("aria-hidden", "false");
+        }
+        renderProfileCrop();
+      }
+
+      function closeProfileMediaModal() {
+        profileDragState = null;
+        if (profileMediaModal) {
+          profileMediaModal.classList.add("hidden");
+          profileMediaModal.setAttribute("aria-hidden", "true");
+        }
+      }
+
+      function applyProfileMediaCrop() {
+        profileDraft[profileCropTarget] = normalizeProfilePart(profileCropPart);
+        profileEditTarget = profileCropTarget;
+        closeProfileMediaModal();
+        renderProfileEditor();
+      }
+
+      function resetProfileMediaCrop() {
+        profileCropPart = normalizeProfilePart(Object.assign({}, profileCropPart, { x: 50, y: 50, scale: 1 }));
+        renderProfileCrop();
+      }
+
+      function updateProfileCropPosition(dx, dy) {
+        if (!profileMediaStage) return;
+        const rect = profileMediaStage.getBoundingClientRect();
+        const part = normalizeProfilePart(profileCropPart);
+        part.x -= (dx / Math.max(rect.width, 1)) * 100;
+        part.y -= (dy / Math.max(rect.height, 1)) * 100;
+        profileCropPart = normalizeProfilePart(part);
+        renderProfileCrop();
+      }
+
       function openProfileEditor() {
         profileDraft = cloneProfileState(profileState);
         if (profileEditor) profileEditor.classList.remove("hidden");
@@ -2534,6 +2675,7 @@
       }
 
       function closeProfileEditor(resetDraft) {
+        closeProfileMediaModal();
         if (resetDraft) profileDraft = cloneProfileState(profileState);
         if (profileEditor) profileEditor.classList.add("hidden");
         if (profileEditOpen) profileEditOpen.classList.remove("hidden");
@@ -2545,9 +2687,14 @@
         if (!file || !file.type.startsWith("image/")) return;
         const reader = new FileReader();
         reader.onload = () => {
-          profileDraft[targetName] = { src: String(reader.result || ""), x: 50, y: 50, scale: 1 };
-          setProfileEditTarget(targetName);
-          renderProfileEditor();
+          const nextPart = { src: String(reader.result || ""), x: 50, y: 50, scale: 1 };
+          profileEditTarget = targetName === "avatar" ? "avatar" : "cover";
+          if (isDesktopProfileEditor()) {
+            openProfileMediaModal(profileEditTarget, nextPart);
+          } else {
+            profileDraft[profileEditTarget] = normalizeProfilePart(nextPart);
+            renderProfileEditor();
+          }
           input.value = "";
         };
         reader.readAsDataURL(file);
@@ -2589,16 +2736,33 @@
       if (profileCoverInput) profileCoverInput.addEventListener("change", () => readProfileFile(profileCoverInput, "cover"));
       if (profileAvatarInput) profileAvatarInput.addEventListener("change", () => readProfileFile(profileAvatarInput, "avatar"));
 
-      $$(".profile-target-btn").forEach((button) => {
-        button.addEventListener("click", () => setProfileEditTarget(button.dataset.profileTarget));
-      });
-      $$(".profile-adjust-btn").forEach((button) => {
-        button.addEventListener("click", () => adjustProfileImage(button.dataset.profileAdjust));
-      });
-      if (profileResetImage) profileResetImage.addEventListener("click", () => adjustProfileImage("reset"));
+      if (profileMediaClose) profileMediaClose.addEventListener("click", closeProfileMediaModal);
+      if (profileMediaApply) profileMediaApply.addEventListener("click", applyProfileMediaCrop);
+      if (profileMediaReset) profileMediaReset.addEventListener("click", resetProfileMediaCrop);
+      if (profileMediaZoom) {
+        profileMediaZoom.addEventListener("input", () => {
+          profileCropPart = normalizeProfilePart(Object.assign({}, profileCropPart, { scale: Number(profileMediaZoom.value) || 1 }));
+          renderProfileCrop();
+        });
+      }
+      if (profileMediaStage) {
+        profileMediaStage.addEventListener("pointerdown", (event) => {
+          if (!isDesktopProfileEditor()) return;
+          profileDragState = { x: event.clientX, y: event.clientY };
+          profileMediaStage.setPointerCapture(event.pointerId);
+        });
+        profileMediaStage.addEventListener("pointermove", (event) => {
+          if (!profileDragState) return;
+          const dx = event.clientX - profileDragState.x;
+          const dy = event.clientY - profileDragState.y;
+          profileDragState = { x: event.clientX, y: event.clientY };
+          updateProfileCropPosition(dx, dy);
+        });
+        profileMediaStage.addEventListener("pointerup", () => { profileDragState = null; });
+        profileMediaStage.addEventListener("pointercancel", () => { profileDragState = null; });
+      }
 
       loadProfileState();
-      setProfileEditTarget("cover");
       renderProfileView();
       renderProfileEditor();
 
