@@ -4123,6 +4123,94 @@
 
 
 
+
+    /* Ticket wallet pagination */
+    .ticket-pager-scope {
+      display: grid;
+      gap: 10px;
+    }
+
+    .ticket-paged-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .ticket-page-item {
+      display: none;
+      gap: 8px;
+    }
+
+    .ticket-page-item.active {
+      display: grid;
+    }
+
+    .ticket-pagination {
+      display: grid;
+      grid-template-columns: 42px 1fr 42px;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .ticket-pagination button {
+      width: 42px;
+      height: 36px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #d77ca7;
+      font-size: 18px;
+      line-height: 1;
+      font-weight: 900;
+      box-shadow: 0 6px 12px rgba(232,191,211,.06);
+    }
+
+    .ticket-pagination button:disabled {
+      opacity: .42;
+    }
+
+    .ticket-pagination span {
+      text-align: center;
+      color: #9a7187;
+      font-size: 12px;
+      line-height: 1.2;
+      font-weight: 900;
+      letter-spacing: .03em;
+    }
+
+    .ticket-filter-row {
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      padding: 2px 1px 6px;
+      margin: 2px 0 2px;
+      scrollbar-width: none;
+    }
+
+    .ticket-filter-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .ticket-filter-pill {
+      flex: 0 0 auto;
+      min-height: 34px;
+      padding: 0 13px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #b07693;
+      font-size: 11.5px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .ticket-filter-pill.active {
+      border-color: transparent;
+      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(255,95,168,.14);
+    }
+
   </style>
 </head>
 
@@ -4281,45 +4369,93 @@
                     <button class="mini-tab" type="button" data-mini-target="ticket-past">지난 티켓</button>
                     <button class="mini-tab" type="button" data-mini-target="ticket-benefit">특전권</button>
                   </div>
-                  <section class="mini-page active" id="ticket-current">
-                    <article class="ticket-card">
-                      <div class="ticket-inner">
-                        <div class="ticket-kicker">CURRENT TICKET</div>
-                        <div class="ticket-title">Lumibelle Debut Live</div>
-                        <div class="ticket-sub">입금확인완료 · 미입장 · 메아테 루루</div>
-                        <div class="ticket-number"><small>입장 확인용 번호</small><strong>0001</strong></div>
-                        <div class="ticket-meta">
-                          <div class="ticket-cell"><small>예약 상태</small><b>입금확인완료</b></div>
-                          <div class="ticket-cell"><small>입장 상태</small><b>미입장</b></div>
-                          <div class="ticket-cell"><small>메아테</small><b>루루</b></div>
-                          <div class="ticket-cell"><small>메아테 혜택</small><b>처리 대상</b></div>
+
+                  <section class="mini-page active ticket-pager-scope" id="ticket-current" data-ticket-pager="current" data-ticket-page-size="1">
+                    <div class="ticket-paged-list">
+                      <div class="ticket-page-item">
+                        <article class="ticket-card">
+                          <div class="ticket-inner">
+                            <div class="ticket-kicker">CURRENT TICKET</div>
+                            <div class="ticket-title">Lumibelle Debut Live</div>
+                            <div class="ticket-sub">입금확인완료 · 미입장 · 메아테 루루</div>
+                            <div class="ticket-number"><small>입장 확인용 번호</small><strong>0001</strong></div>
+                            <div class="ticket-meta">
+                              <div class="ticket-cell"><small>예약 상태</small><b>입금확인완료</b></div>
+                              <div class="ticket-cell"><small>입장 상태</small><b>미입장</b></div>
+                              <div class="ticket-cell"><small>메아테</small><b>루루</b></div>
+                              <div class="ticket-cell"><small>메아테 혜택</small><b>처리 대상</b></div>
+                            </div>
+                          </div>
+                        </article>
+                        <div>
+                          <span class="status-chip">입장 전</span>
+                          <span class="status-chip">메아테 루루</span>
+                          <span class="status-chip">혜택 미수령</span>
                         </div>
                       </div>
-                    </article>
-                    <span class="status-chip">입장 전</span>
-                    <span class="status-chip">메아테 루루</span>
-                    <span class="status-chip">혜택 미수령</span>
-                  </section>
-                  <section class="mini-page" id="ticket-past">
-                    <div class="ticket-list">
-                      <article class="plain-row"><b>아직 지난 공연 기록이 없어요</b><span>지난 티켓은 공연 종료 후 최신순으로 쌓이고, 추억 보기로 연결됩니다.</span></article>
                     </div>
+                    <nav class="ticket-pagination" aria-label="현재 티켓 페이지 이동">
+                      <button type="button" data-ticket-prev="current" aria-label="이전 현재 티켓">‹</button>
+                      <span data-ticket-page-text="current">1 / 1</span>
+                      <button type="button" data-ticket-next="current" aria-label="다음 현재 티켓">›</button>
+                    </nav>
                   </section>
-                  <section class="mini-page" id="ticket-benefit">
-                    <article class="ticket-card soft">
-                      <div class="ticket-inner">
-                        <div class="ticket-kicker">SPECIAL TICKET</div>
-                        <div class="ticket-title">Welcome Ticket</div>
-                        <div class="ticket-sub">신규 이벤트 대상에게 지급되는 촬영 특전권입니다.</div>
-                        <div class="ticket-meta">
-                          <div class="ticket-cell"><small>사용 가능 멤버</small><b>마리링 · 루루</b></div>
-                          <div class="ticket-cell"><small>상태</small><b>사용 가능</b></div>
-                          <div class="ticket-cell"><small>유효기간</small><b>지급일 기준 안내</b></div>
-                          <div class="ticket-cell"><small>양도</small><b>본인 사용</b></div>
-                        </div>
+
+                  <section class="mini-page ticket-pager-scope" id="ticket-past" data-ticket-pager="past" data-ticket-page-size="1">
+                    <div class="ticket-paged-list">
+                      <div class="ticket-page-item">
+                        <article class="plain-row"><b>아직 지난 공연 기록이 없어요</b><span>지난 티켓은 공연 종료 후 최신순으로 쌓이고, 추억 보기로 연결됩니다.</span></article>
                       </div>
-                    </article>
-                    <article class="plain-row"><b>수령 가능 숙제체키 0장</b><span>준비 중 1장 · 자세한 상태는 숙제체키 탭에서 확인합니다.</span></article>
+                    </div>
+                    <nav class="ticket-pagination" aria-label="지난 티켓 페이지 이동">
+                      <button type="button" data-ticket-prev="past" aria-label="이전 지난 티켓">‹</button>
+                      <span data-ticket-page-text="past">1 / 1</span>
+                      <button type="button" data-ticket-next="past" aria-label="다음 지난 티켓">›</button>
+                    </nav>
+                  </section>
+
+                  <section class="mini-page ticket-pager-scope" id="ticket-benefit" data-ticket-pager="benefit" data-ticket-page-size="1">
+                    <div class="ticket-filter-row" aria-label="특전권 분류">
+                      <button class="ticket-filter-pill active" type="button" data-ticket-filter="전체">전체</button>
+                      <button class="ticket-filter-pill" type="button" data-ticket-filter="메아테">메아테</button>
+                      <button class="ticket-filter-pill" type="button" data-ticket-filter="이벤트">이벤트</button>
+                      <button class="ticket-filter-pill" type="button" data-ticket-filter="생일">생일</button>
+                      <button class="ticket-filter-pill" type="button" data-ticket-filter="사용 완료">사용 완료</button>
+                    </div>
+                    <div class="ticket-paged-list">
+                      <div class="ticket-page-item" data-ticket-category="이벤트">
+                        <article class="ticket-card soft">
+                          <div class="ticket-inner">
+                            <div class="ticket-kicker">SPECIAL TICKET</div>
+                            <div class="ticket-title">Welcome Ticket</div>
+                            <div class="ticket-sub">신규 이벤트 대상에게 지급되는 촬영 특전권입니다.</div>
+                            <div class="ticket-meta">
+                              <div class="ticket-cell"><small>사용 가능 멤버</small><b>마리링 · 루루</b></div>
+                              <div class="ticket-cell"><small>상태</small><b>사용 가능</b></div>
+                              <div class="ticket-cell"><small>유효기간</small><b>지급일 기준 안내</b></div>
+                              <div class="ticket-cell"><small>양도</small><b>본인 사용</b></div>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                      <div class="ticket-page-item" data-ticket-category="메아테">
+                        <article class="plain-row"><b>메아테 특전권 준비 중</b><span>주최 라이브 메아테 혜택과 현장 지급 특전권은 이곳에 모아둘 예정이에요.</span></article>
+                      </div>
+                      <div class="ticket-page-item" data-ticket-category="생일">
+                        <article class="plain-row"><b>Birthday Ticket 준비 중</b><span>생일 당월에 사용할 수 있는 생일 기념 촬영 특전권은 이후 연결합니다.</span></article>
+                      </div>
+                      <div class="ticket-page-item" data-ticket-category="사용 완료">
+                        <article class="plain-row"><b>사용 완료 특전권이 없어요</b><span>사용한 특전권도 추억 기록으로 남겨둘 수 있게 준비 중이에요.</span></article>
+                      </div>
+                      <div class="ticket-page-item" data-ticket-category="이벤트">
+                        <article class="plain-row"><b>수령 가능 숙제체키 0장</b><span>준비 중 1장 · 자세한 상태는 숙제체키 탭에서 확인합니다.</span></article>
+                      </div>
+                    </div>
+                    <nav class="ticket-pagination" aria-label="특전권 페이지 이동">
+                      <button type="button" data-ticket-prev="benefit" aria-label="이전 특전권">‹</button>
+                      <span data-ticket-page-text="benefit">1 / 1</span>
+                      <button type="button" data-ticket-next="benefit" aria-label="다음 특전권">›</button>
+                    </nav>
                   </section>
                 </article>
               </section>
@@ -4972,6 +5108,64 @@
         parent.querySelectorAll(".detail-box").forEach((box) => box.classList.toggle("active", box.id === detailId));
       }
 
+
+
+      const ticketPagerState = {};
+
+      function getTicketPagerItems(scope) {
+        const activeFilter = scope.dataset.ticketActiveFilter || "전체";
+        return Array.from(scope.querySelectorAll(".ticket-page-item")).filter((item) => {
+          const category = item.dataset.ticketCategory || "전체";
+          return activeFilter === "전체" || category === activeFilter;
+        });
+      }
+
+      function renderTicketPager(scope) {
+        if (!scope) return;
+        const key = scope.dataset.ticketPager || scope.id;
+        const pageSize = Math.max(1, parseInt(scope.dataset.ticketPageSize || "1", 10));
+        const allItems = Array.from(scope.querySelectorAll(".ticket-page-item"));
+        const items = getTicketPagerItems(scope);
+        const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
+        const current = Math.min(Math.max(0, ticketPagerState[key] || 0), totalPages - 1);
+        ticketPagerState[key] = current;
+
+        allItems.forEach((item) => item.classList.remove("active"));
+        items.forEach((item, index) => {
+          const active = index >= current * pageSize && index < (current + 1) * pageSize;
+          item.classList.toggle("active", active);
+        });
+
+        const textEl = scope.querySelector("[data-ticket-page-text]");
+        const prevBtn = scope.querySelector("[data-ticket-prev]");
+        const nextBtn = scope.querySelector("[data-ticket-next]");
+        if (textEl) textEl.textContent = (current + 1) + " / " + totalPages;
+        if (prevBtn) prevBtn.disabled = current <= 0;
+        if (nextBtn) nextBtn.disabled = current >= totalPages - 1;
+      }
+
+      function updateTicketPager(key, delta) {
+        const scope = document.querySelector('[data-ticket-pager="' + key + '"]');
+        if (!scope) return;
+        ticketPagerState[key] = (ticketPagerState[key] || 0) + delta;
+        renderTicketPager(scope);
+      }
+
+      function setTicketFilter(button) {
+        const scope = button.closest(".ticket-pager-scope");
+        if (!scope) return;
+        const key = scope.dataset.ticketPager || scope.id;
+        scope.dataset.ticketActiveFilter = button.dataset.ticketFilter || "전체";
+        ticketPagerState[key] = 0;
+        scope.querySelectorAll(".ticket-filter-pill").forEach((pill) => {
+          pill.classList.toggle("active", pill === button);
+        });
+        renderTicketPager(scope);
+      }
+
+      function initTicketPagers() {
+        document.querySelectorAll(".ticket-pager-scope").forEach((scope) => renderTicketPager(scope));
+      }
 
       const profileStorageKey = "lumiphone.profile.v1";
       const profileOshiChangedKey = "lumiphone.profile.oshiChangedAt.v1";
@@ -6621,6 +6815,10 @@
       $$("[data-go]").forEach((button) => button.addEventListener("click", () => go(button.dataset.go)));
       $$(".mini-tab").forEach((button) => button.addEventListener("click", () => setMiniPage(button.dataset.miniTarget)));
       $$("[data-detail]").forEach((button) => button.addEventListener("click", () => showMailDetail(button.dataset.detail)));
+      $$("[data-ticket-prev]").forEach((button) => button.addEventListener("click", () => updateTicketPager(button.dataset.ticketPrev, -1)));
+      $$("[data-ticket-next]").forEach((button) => button.addEventListener("click", () => updateTicketPager(button.dataset.ticketNext, 1)));
+      $$(".ticket-filter-pill").forEach((button) => button.addEventListener("click", () => setTicketFilter(button)));
+      initTicketPagers();
 
       if (codeReadyBtn && codeToast) {
         codeReadyBtn.addEventListener("click", () => codeToast.classList.add("show"));
