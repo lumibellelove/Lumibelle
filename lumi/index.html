@@ -4201,7 +4201,8 @@
     .profile-simple-modal.is-profile-share .profile-simple-body,
     #page-profile .profile-simple-modal.is-profile-share .profile-simple-body {
       gap: 6px !important;
-      margin-bottom: 10px !important;
+      margin-bottom: 8px !important;
+      padding: 0 !important;
     }
 
     .profile-simple-modal.is-profile-share .profile-share-preview-img,
@@ -4342,14 +4343,15 @@
 
     .profile-simple-modal.is-profile-share .profile-simple-dialog,
     #page-profile .profile-simple-modal.is-profile-share .profile-simple-dialog {
-      width: min(720px, calc(100vw - 14px)) !important;
-      max-height: calc(100dvh - 16px) !important;
+      width: min(760px, calc(100vw - 4px)) !important;
+      max-height: calc(100dvh - 8px) !important;
       overflow-y: auto !important;
-      padding: 12px 12px 14px !important;
-      border-radius: 28px !important;
+      padding: 8px 8px 12px !important;
+      border-radius: 26px !important;
       background: #fff !important;
+      border: 0 !important;
       filter: none !important;
-      box-shadow: 0 18px 54px rgba(70, 50, 64, .14) !important;
+      box-shadow: 0 18px 54px rgba(70, 50, 64, .12) !important;
     }
 
     .profile-simple-modal.is-profile-share .profile-simple-topbar,
@@ -4369,7 +4371,8 @@
     .profile-simple-modal.is-profile-share .profile-simple-body,
     #page-profile .profile-simple-modal.is-profile-share .profile-simple-body {
       gap: 6px !important;
-      margin-bottom: 10px !important;
+      margin-bottom: 8px !important;
+      padding: 0 !important;
     }
 
     .profile-share-preview-wrap {
@@ -4387,11 +4390,21 @@
       width: 100% !important;
       max-width: 100% !important;
       height: auto !important;
-      border-radius: 24px !important;
+      border-radius: 22px !important;
       background: transparent !important;
       border: 0 !important;
       box-shadow: none !important;
       filter: none !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-share-preview-wrap,
+    #page-profile .profile-simple-modal.is-profile-share .profile-share-preview-wrap {
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      outline: 0 !important;
     }
 
     .profile-simple-modal.is-profile-share .profile-simple-body > p,
@@ -6260,7 +6273,7 @@
         }
 
         const leftX = cardX + 54;
-        const contentTop = avatarY + avatarOuter + 80;
+        const contentTop = avatarY + avatarOuter + 104;
         ctx.textAlign = "left";
         ctx.fillStyle = deep;
         ctx.font = "900 88px sans-serif";
@@ -6276,12 +6289,12 @@
 
         const logoImg = await loadCanvasImage(LUMIBELLE_SHARE_LOGO_DATA_URL || "");
         if (logoImg) {
-          const logoW = 238;
+          const logoW = 214;
           const logoH = logoW * ((logoImg.naturalHeight || logoImg.height) / (logoImg.naturalWidth || logoImg.width));
-          const logoX = cardX + cardW - logoW - 60;
-          const logoY = coverY + coverH + 58;
+          const logoX = cardX + cardW - logoW - 74;
+          const logoY = coverY + coverH + 72;
           ctx.save();
-          ctx.globalAlpha = .92;
+          ctx.globalAlpha = .86;
           ctx.drawImage(logoImg, logoX, logoY, logoW, logoH);
           ctx.restore();
         }
@@ -6306,9 +6319,9 @@
         const pillY1 = contentTop + 205;
         const pillY2 = pillY1 + 74;
         const titleText = String(payload.small || "대표 칭호 · 나만의 루미나").replace(/^대표 칭호\s*[·:]\s*/, "");
-        pill(titleText || "나만의 루미나", leftX, pillY1, 540, 62, 34);
-        pill("📍 " + (payload.space || "루루의 방"), leftX, pillY2, 390, 58, 32);
-        pill("🎂 " + (payload.birthday || "07.19"), leftX + 414, pillY2, 300, 58, 32);
+        pill(titleText || "나만의 루미나", leftX, pillY1, 500, 58, 32);
+        pill("📍 " + (payload.space || "루루의 방"), leftX, pillY2, 350, 54, 30);
+        pill("🎂 " + (payload.birthday || "07.19"), leftX + 384, pillY2, 270, 54, 30);
 
         function getProfileShareStampText() {
           const statusText = document.querySelector(".stamp-status span")?.textContent || "";
@@ -6338,7 +6351,7 @@
           ctx.textAlign = "left";
         }
 
-        const summaryY = pillY2 + 78;
+        const summaryY = pillY2 + 68;
         const summaryW = 318;
         const summaryH = 106;
         summaryBox("스탬프", getProfileShareStampText(), leftX, summaryY, summaryW, summaryH);
