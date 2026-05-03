@@ -4228,7 +4228,49 @@
       color: #fff !important;
     }
 
-  </style>
+  
+
+    /* Profile share export preview final override: compact modal preview, no extra frame */
+    .profile-simple-modal.is-profile-share .profile-simple-dialog,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-dialog {
+      width: min(700px, calc(100vw - 16px)) !important;
+      padding: 10px !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-topbar,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-topbar {
+      margin-bottom: 6px !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-body,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-body {
+      gap: 6px !important;
+      margin-bottom: 10px !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-share-preview-wrap,
+    #page-profile .profile-share-preview-wrap {
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-share-preview-img,
+    #page-profile .profile-share-preview-img {
+      width: 100% !important;
+      border-radius: 24px !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-body > p,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-body > p {
+      margin-top: 2px !important;
+      font-size: 11.5px !important;
+      line-height: 1.35 !important;
+      text-align: center !important;
+    }
+</style>
 </head>
 
 <body>
@@ -5929,6 +5971,8 @@
       }
 
       async function drawProfileShareImage(payload) {
+        // Export-only profile share card.
+        // This canvas is intentionally independent from the modal preview size.
         const canvas = document.createElement("canvas");
         canvas.width = 1080;
         canvas.height = 1440;
@@ -5946,14 +5990,14 @@
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
 
-        const cardX = 34;
-        const cardY = 34;
+        const cardX = 26;
+        const cardY = 26;
         const cardW = canvas.width - cardX * 2;
         const cardH = canvas.height - cardY * 2;
-        const cardR = 58;
+        const cardR = 56;
         const cardGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
         cardGrad.addColorStop(0, "#ffffff");
-        cardGrad.addColorStop(.74, "#fffafd");
+        cardGrad.addColorStop(.72, "#fffafd");
         cardGrad.addColorStop(1, "#fff5fb");
         roundRect(ctx, 0, 0, canvas.width, canvas.height, 0, "#fff7fb", null);
         roundRect(ctx, cardX, cardY, cardW, cardH, cardR, cardGrad, "#f4c8dc");
@@ -5961,7 +6005,7 @@
         const coverX = cardX;
         const coverY = cardY;
         const coverW = cardW;
-        const coverH = 372;
+        const coverH = 392;
         const coverR = cardR;
         const coverGrad = ctx.createLinearGradient(coverX, coverY, coverX + coverW, coverY + coverH);
         coverGrad.addColorStop(0, "#ffd0e7");
@@ -5982,10 +6026,10 @@
           ctx.fill();
         }
 
-        const avatarOuter = 264;
-        const avatarInner = 250;
-        const avatarX = cardX + 72;
-        const avatarY = coverY + coverH - 108;
+        const avatarOuter = 312;
+        const avatarInner = 300;
+        const avatarX = cardX + 40;
+        const avatarY = coverY + coverH - 132;
         const avatarCX = avatarX + avatarOuter / 2;
         const avatarCY = avatarY + avatarOuter / 2;
         ctx.beginPath();
@@ -5995,7 +6039,7 @@
         ctx.lineWidth = 3;
         ctx.strokeStyle = white;
         ctx.stroke();
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1.5;
         ctx.strokeStyle = line;
         ctx.stroke();
 
@@ -6013,25 +6057,25 @@
           ctx.fillStyle = iconGrad;
           ctx.fill();
           ctx.fillStyle = white;
-          ctx.font = "900 92px sans-serif";
+          ctx.font = "900 104px sans-serif";
           ctx.textAlign = "center";
-          ctx.fillText("✦", avatarCX, avatarCY + 30);
+          ctx.fillText("✦", avatarCX, avatarCY + 34);
         }
 
-        const leftX = cardX + 72;
-        const contentTop = avatarY + avatarOuter + 70;
+        const leftX = cardX + 54;
+        const contentTop = avatarY + avatarOuter + 46;
         ctx.textAlign = "left";
         ctx.fillStyle = deep;
-        ctx.font = "900 78px sans-serif";
-        wrapText(ctx, payload.title || "루미나", leftX, contentTop, cardW - 144, 78, "left");
+        ctx.font = "900 82px sans-serif";
+        wrapText(ctx, payload.title || "루미나", leftX, contentTop, cardW - 108, 82, "left");
 
         ctx.fillStyle = muted;
-        ctx.font = "900 34px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, contentTop + 76);
+        ctx.font = "900 35px sans-serif";
+        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, contentTop + 88);
 
         ctx.fillStyle = deep;
         ctx.font = "900 38px sans-serif";
-        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", leftX, contentTop + 138, cardW - 144, 44, "left");
+        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", leftX, contentTop + 150, cardW - 108, 44, "left");
 
         function singleLine(text, maxChars) {
           const value = String(text || "").trim();
@@ -6050,30 +6094,31 @@
           ctx.textAlign = "left";
         }
 
-        const pillY1 = contentTop + 206;
-        const pillY2 = pillY1 + 74;
-        const pillY3 = pillY2 + 72;
+        const pillY1 = contentTop + 214;
+        const pillY2 = pillY1 + 72;
+        const pillY3 = pillY2 + 70;
         const titleText = String(payload.small || "대표 칭호 · 나만의 루미나").replace(/^대표 칭호\s*[·:]\s*/, "");
-        pill(titleText || "나만의 루미나", leftX, pillY1, 476, 58, 30);
-        pill("📍 " + (payload.space || "루루의 방"), leftX, pillY2, 352, 56, 30);
-        pill("🎂 " + (payload.birthday || "07.19"), leftX + 382, pillY2, 276, 56, 30);
-        pill(payload.date || "2026.07.12", leftX, pillY3, 358, 56, 30);
+        pill(titleText || "나만의 루미나", leftX, pillY1, 492, 58, 30);
+        pill("📍 " + (payload.space || "루루의 방"), leftX, pillY2, 360, 56, 30);
+        pill("🎂 " + (payload.birthday || "07.19"), leftX + 386, pillY2, 278, 56, 30);
+        // 개통일 pill에는 아이콘을 넣지 않는다.
+        pill(payload.date || "2026.07.12", leftX, pillY3, 366, 56, 30);
 
-        const infoX = cardX + 60;
-        const infoY = cardY + cardH - 202;
-        const infoW = cardW - 120;
-        const infoH = 142;
-        roundRect(ctx, infoX, infoY, infoW, infoH, 30, "rgba(255,255,255,.92)", line);
+        const infoX = cardX + 54;
+        const infoH = 210;
+        const infoY = cardY + cardH - infoH - 42;
+        const infoW = cardW - 108;
+        roundRect(ctx, infoX, infoY, infoW, infoH, 34, "rgba(255,255,255,.94)", line);
         ctx.fillStyle = muted;
-        ctx.font = "900 26px sans-serif";
-        ctx.fillText((payload.date || "2026.07.12") + " 개통", infoX + 38, infoY + 45);
+        ctx.font = "900 32px sans-serif";
+        ctx.fillText((payload.date || "2026.07.12") + " 개통", infoX + 38, infoY + 58);
         ctx.fillStyle = pink;
-        ctx.font = "900 30px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, infoX + 38, infoY + 84);
+        ctx.font = "900 36px sans-serif";
+        ctx.fillText("LUMI ID · " + sampleUser.id, infoX + 38, infoY + 108);
         ctx.fillStyle = muted;
-        ctx.font = "900 25px sans-serif";
-        ctx.fillText("lumibellelove.com", infoX + 38, infoY + 120);
-        fakeQr(ctx, infoX + infoW - 118, infoY + 30, 84);
+        ctx.font = "900 30px sans-serif";
+        ctx.fillText("lumibellelove.com", infoX + 38, infoY + 158);
+        fakeQr(ctx, infoX + infoW - 166, infoY + 38, 132);
 
         return canvas;
       }
