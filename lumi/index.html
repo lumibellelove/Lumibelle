@@ -3672,7 +3672,7 @@
 
                   <section class="profile-info-list" aria-label="프로필 설정">
                     <article class="profile-info-item"><span class="list-icon">🎀</span><div><b>오시 설정</b><span>프로필 꾸미기에서 오시를 설정할 수 있어요. 오시는 14일에 한 번 변경할 수 있어요.</span></div></article>
-                    <article class="profile-info-item"><span class="list-icon">🏷️</span><div><b>현재 칭호</b><span>업적에서 해금한 칭호를 장착하는 기능은 이후 단계에서 연결합니다.</span></div></article>
+                    <article class="profile-info-item"><span class="list-icon">🏷️</span><div><b>현재 칭호</b><span>칭호 변경에서 보유 칭호를 대표 칭호로 장착할 수 있어요.</span></div></article>
                     <article class="profile-info-item"><span class="list-icon">🕰️</span><div><b>나의 루미 기록</b><span>라이브 1회 · 체크인 1회 · 스탬프 1개 · 온라인 연결 기록은 추억의 시간에서 확인할 수 있어요.</span></div></article>
                   </section>
 
@@ -3765,6 +3765,32 @@
                       <div class="profile-confirm-actions">
                         <button class="profile-confirm-btn primary-look" id="profileOshiConfirmApply" type="button">변경하기</button>
                         <button class="profile-confirm-btn" id="profileOshiConfirmCancel" type="button">취소</button>
+                      </div>
+                    </div>
+                  </section>
+
+
+                  <section class="profile-title-modal hidden" id="profileTitleModal" aria-hidden="true" aria-label="칭호 변경">
+                    <div class="profile-title-dialog" role="dialog" aria-modal="true" aria-labelledby="profileTitleModalTitle">
+                      <div class="profile-title-topbar">
+                        <h3 id="profileTitleModalTitle">칭호 변경</h3>
+                        <button class="profile-title-close" id="profileTitleClose" type="button" aria-label="닫기">×</button>
+                      </div>
+                      <p class="profile-title-note">업적에서 해금한 칭호를 대표 칭호로 장착할 수 있어요.</p>
+                      <div class="profile-title-tabs" aria-label="칭호 목록 구분">
+                        <button class="profile-title-tab active" type="button" data-title-panel="owned">보유 칭호</button>
+                        <button class="profile-title-tab" type="button" data-title-panel="locked">잠긴 칭호</button>
+                      </div>
+                      <div class="profile-title-panel active" id="profileTitleOwned" aria-label="보유 칭호">
+                        <button class="profile-title-option" type="button" data-title-value="나만의 루미나"><b>나만의 루미나</b><span>루미폰을 개통한 루미나의 기본 칭호</span></button>
+                        <button class="profile-title-option" type="button" data-title-value="첫 번째 점"><b>첫 번째 점</b><span>루미벨의 시작을 함께 기록한 칭호</span></button>
+                        <button class="profile-title-option" type="button" data-title-value="데뷔 라이브의 증인"><b>데뷔 라이브의 증인</b><span>데뷔 라이브의 순간을 함께한 칭호</span></button>
+                        <button class="profile-title-option" type="button" data-title-value="별빛을 따라간 자"><b>별빛을 따라온 마음을 담은 칭호</b><span>루미벨의 이야기를 따라온 루미나에게</span></button>
+                      </div>
+                      <div class="profile-title-panel" id="profileTitleLocked" aria-label="잠긴 칭호">
+                        <button class="profile-title-option locked" type="button" disabled><b>스탬프 카드 완주자</b><span>스탬프 20개를 모으면 해금 예정</span></button>
+                        <button class="profile-title-option locked" type="button" disabled><b>반짝 응원의 마법사</b><span>ON AIR 반짝 응원 기록으로 해금 예정</span></button>
+                        <button class="profile-title-option locked" type="button" disabled><b>비밀 편지의 주인</b><span>소장 우편/시즌 이벤트로 해금 예정</span></button>
                       </div>
                     </div>
                   </section>
@@ -4320,6 +4346,7 @@
 
       function openProfileTitleModal() {
         if (!profileTitleModal) return;
+        profileDraft = cloneProfileState(profileState);
         updateProfileTitleOptions(normalizeProfileInfo(profileDraft.info).title);
         profileTitleModal.classList.remove("hidden");
         profileTitleModal.setAttribute("aria-hidden", "false");
@@ -4341,7 +4368,10 @@
       function selectProfileTitle(titleName) {
         const nextTitle = clampText(titleName || "아직 칭호가 없어요", 18) || "아직 칭호가 없어요";
         profileDraft.info = normalizeProfileInfo(Object.assign({}, profileDraft.info, { title: nextTitle }));
+        profileState = normalizeProfileState(Object.assign({}, profileState, { info: profileDraft.info }));
+        saveProfileState();
         updateProfileTitleOptions(nextTitle);
+        renderProfileView();
         closeProfileTitleModal();
       }
 
@@ -4573,8 +4603,8 @@
           if (event.target === profileOshiConfirmModal) closeProfileOshiConfirmModal();
         });
       }
-      if (profileTitlePick) profileTitlePick.addEventListener("click", () => openProfileSimpleModal("칭호 변경 준비중", ["업적에서 해금한 칭호를 프로필에 장착하는 기능은 이후 단계에서 연결됩니다."]));
-      if (profileTitleQuickOpen) profileTitleQuickOpen.addEventListener("click", () => openProfileSimpleModal("칭호 변경 준비중", ["업적에서 해금한 칭호를 프로필에 장착하는 기능은 이후 단계에서 연결됩니다."]));
+      if (profileTitlePick) profileTitlePick.addEventListener("click", openProfileTitleModal);
+      if (profileTitleQuickOpen) profileTitleQuickOpen.addEventListener("click", openProfileTitleModal);
       if (profileShareOpen) profileShareOpen.addEventListener("click", () => openProfileSimpleModal("공유 카드 준비중", ["루미폰 프로필을 세로형 MY LUMI CARD 이미지로 만들어 공유하는 기능은 다음 단계에서 연결됩니다.", "공유 카드의 QR은 개인 프로필이 아니라 lumibellelove.com 메인으로 연결할 예정이에요."]));
       if (profileEditorClose) profileEditorClose.addEventListener("click", () => { profileTextComposing = false; closeProfileEditor(true); });
       if (profileEditorSaveTop) profileEditorSaveTop.addEventListener("click", () => commitProfileSave(false));
