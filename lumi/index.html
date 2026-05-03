@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>LUMI PHONE v10.3 | Clean RC Profile iOS Input Final Patch</title>
+  <title>LUMI PHONE v10.3 | Clean RC Profile Title Picker iOS Input Patch</title>
   <meta name="theme-color" content="#fff7fb" />
 
   <style>
@@ -1947,6 +1947,192 @@
     }
 
 
+    /* Profile title picker + iPhone input stabilization */
+    .profile-title-edit-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .profile-selected-title {
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      padding: 8px 11px;
+      border-radius: 15px;
+      border: 1px solid rgba(242, 216, 231, 0.95);
+      background: #fffafd;
+      color: #76586a;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.3;
+      word-break: keep-all;
+    }
+
+    .profile-title-change {
+      min-height: 38px;
+      padding: 0 12px;
+    }
+
+    .profile-title-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1001;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(70, 50, 64, 0.42);
+      backdrop-filter: blur(8px);
+    }
+
+    .profile-title-dialog {
+      width: min(720px, 100%);
+      max-height: min(760px, calc(100vh - 36px));
+      overflow: auto;
+      border-radius: 28px;
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: 0 28px 80px rgba(70, 50, 64, .24);
+      padding: 18px;
+    }
+
+    .profile-title-topbar {
+      display: grid;
+      grid-template-columns: 1fr 40px;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .profile-title-topbar h3 {
+      margin: 0;
+      color: #d77ca7;
+      font-size: 25px;
+      line-height: 1.15;
+      font-weight: 900;
+    }
+
+    .profile-title-close {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #b07693;
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .profile-title-note {
+      margin: 0 0 12px;
+      font-size: 12px;
+      line-height: 1.45;
+      color: #9a7187;
+    }
+
+    .profile-title-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .profile-title-tab {
+      min-height: 38px;
+      padding: 0 16px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #b07693;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .profile-title-tab.active {
+      border-color: transparent;
+      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(255,95,168,.14);
+    }
+
+    .profile-title-panel {
+      display: none;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .profile-title-panel.active { display: grid; }
+
+    .profile-title-option {
+      min-height: 58px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+      color: #76586a;
+      padding: 12px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
+    .profile-title-option b {
+      display: block;
+      font-weight: 900;
+      word-break: keep-all;
+    }
+
+    .profile-title-option span {
+      display: block;
+      margin-top: 4px;
+      color: #9a7187;
+      font-size: 11.5px;
+      line-height: 1.4;
+      font-weight: 800;
+      word-break: keep-all;
+    }
+
+    .profile-title-option.active {
+      border-color: #ff5fa8;
+      background: #fff0f7;
+      color: #624459;
+      box-shadow: 0 8px 18px rgba(255,95,168,.12);
+    }
+
+    .profile-title-option.locked {
+      opacity: .78;
+      background: #fffafd;
+    }
+
+    @supports (-webkit-touch-callout: none) {
+      .profile-field input,
+      .profile-field textarea,
+      .birthday-selects select {
+        font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+        font-weight: 700;
+        -webkit-transform: none !important;
+        transform: none !important;
+        transition: none !important;
+        will-change: auto;
+      }
+
+      .profile-field input:focus,
+      .profile-field textarea:focus,
+      .birthday-selects select:focus {
+        outline: none;
+        box-shadow: none;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .profile-title-modal { padding: 10px; }
+      .profile-title-dialog { padding: 14px; border-radius: 24px; }
+      .profile-title-topbar h3 { font-size: 22px; }
+      .profile-title-panel { grid-template-columns: 1fr; }
+      .profile-title-edit-row { grid-template-columns: 1fr; }
+      .profile-title-change { width: 100%; }
+    }
+
     /* Profile media picker: PC modal cropper + mobile touch cropper */
     .profile-media-modal {
       position: fixed;
@@ -2522,7 +2708,7 @@
                         <h3 class="profile-name" id="profileDisplayName">루미나</h3>
                         <span class="profile-id">LUMI ID · LB-0001</span>
                         <div class="profile-meta">오시: 루루 🍼🐰 · 가입 상태: 샘플 루미</div>
-                        <div class="profile-title-pill" id="profileTitlePill">대표 칭호 · 첫 번째 점을 따라온 루미나</div>
+                        <div class="profile-title-pill" id="profileTitlePill">나만의 루미나</div>
                         <div class="profile-bio" id="profileBioText">루미벨과 함께 반짝이는 중</div>
                         <div class="profile-public-tags" aria-label="프로필 공개 정보">
                           <span class="profile-public-tag" id="profileSpaceTag">📍 루루의 방</span>
@@ -2542,7 +2728,7 @@
 
                   <section class="profile-info-list" aria-label="프로필 설정">
                     <article class="profile-info-item"><span class="list-icon">🎀</span><div><b>오시 설정</b><span>현재 오시는 루루예요. 오시 변경 기능은 이후 단계에서 연결합니다.</span></div></article>
-                    <article class="profile-info-item"><span class="list-icon">🏷️</span><div><b>대표 칭호</b><span>업적에서 해금한 칭호를 프로필에 장착하는 기능은 업적 탭과 함께 연결합니다.</span></div></article>
+                    <article class="profile-info-item"><span class="list-icon">🏷️</span><div><b>현재 칭호</b><span>프로필 꾸미기에서 장착할 칭호를 선택할 수 있어요.</span></div></article>
                     <article class="profile-info-item"><span class="list-icon">🕰️</span><div><b>나의 루미 기록</b><span>라이브 1회 · 체크인 1회 · 스탬프 1개 · 온라인 연결 기록은 추억의 시간에서 확인할 수 있어요.</span></div></article>
                   </section>
 
@@ -2577,27 +2763,29 @@
                     <section class="profile-form" aria-label="프로필 정보 수정">
                       <label class="profile-field">
                         <span class="profile-field-head"><b>표시 닉네임</b><span class="profile-counter" data-count-for="displayName">0/12</span></span>
-                        <input id="profileInputDisplayName" maxlength="12" value="루미나" />
+                        <input id="profileInputDisplayName" data-max="12" autocomplete="off" autocapitalize="off" spellcheck="false" value="루미나" />
                       </label>
 
                       
 
                       
 
-                      <label class="profile-field">
+                      <div class="profile-field profile-title-field">
                         <span class="profile-field-head"><b>대표 칭호</b><span class="profile-counter">장착중</span></span>
-                        <input id="profileInputTitle" value="첫 번째 점을 따라온 루미나" readonly />
-                        
-                      </label>
+                        <div class="profile-title-edit-row">
+                          <div class="profile-selected-title" id="profileSelectedTitle">나만의 루미나</div>
+                          <button class="profile-setting-action profile-title-change" id="profileTitlePick" type="button">칭호 변경</button>
+                        </div>
+                      </div>
 
                       <label class="profile-field">
                         <span class="profile-field-head"><b>자기소개/한마디</b><span class="profile-counter" data-count-for="bio">0/30</span></span>
-                        <textarea id="profileInputBio" maxlength="30">루미벨과 함께 반짝이는 중</textarea>
+                        <textarea id="profileInputBio" data-max="30" autocomplete="off" autocapitalize="off" spellcheck="false">루미벨과 함께 반짝이는 중</textarea>
                       </label>
 
                       <label class="profile-field">
                         <span class="profile-field-head"><b>나의 공간</b><span class="profile-counter" data-count-for="space">0/12</span></span>
-                        <input id="profileInputSpace" maxlength="12" value="루루의 방" />
+                        <input id="profileInputSpace" data-max="12" autocomplete="off" autocapitalize="off" spellcheck="false" value="루루의 방" />
                         
                       </label>
 
@@ -2614,17 +2802,49 @@
 
                       <label class="profile-field">
                         <span class="profile-field-head"><b>문자 이름</b><span class="profile-counter" data-count-for="letterName">0/10</span></span>
-                        <input id="profileInputLetterName" maxlength="10" value="루리" />
+                        <input id="profileInputLetterName" data-max="10" autocomplete="off" autocapitalize="off" spellcheck="false" value="루리" />
                         
                       </label>
 
                       <label class="profile-field">
                         <span class="profile-field-head"><b>방송 닉네임</b><span class="profile-counter" data-count-for="broadcastName">0/12</span></span>
-                        <input id="profileInputBroadcastName" maxlength="12" value="리" />
+                        <input id="profileInputBroadcastName" data-max="12" autocomplete="off" autocapitalize="off" spellcheck="false" value="리" />
                         
                       </label>
 
                       <div class="profile-error" id="profileError" aria-live="polite"></div>
+                    </section>
+
+                    <section class="profile-title-modal hidden" id="profileTitleModal" aria-hidden="true" aria-label="칭호 선택">
+                      <div class="profile-title-dialog" role="dialog" aria-modal="true" aria-labelledby="profileTitleModalTitle">
+                        <div class="profile-title-topbar">
+                          <h3 id="profileTitleModalTitle">칭호 선택</h3>
+                          <button class="profile-title-close" id="profileTitleClose" type="button" aria-label="닫기">×</button>
+                        </div>
+                        <p class="profile-title-note">획득한 칭호는 바로 장착할 수 있고, 잠긴 칭호는 조건 달성 후 열려요.</p>
+                        <div class="profile-title-tabs" aria-label="칭호 구분">
+                          <button class="profile-title-tab active" type="button" data-title-panel="owned">획득 칭호</button>
+                          <button class="profile-title-tab" type="button" data-title-panel="locked">잠금 칭호</button>
+                        </div>
+                        <div class="profile-title-panel active" id="profileTitleOwned">
+                          <button class="profile-title-option" type="button" data-title-value="아직 칭호가 없어요"><b>아직 칭호가 없어요</b></button>
+                          <button class="profile-title-option" type="button" data-title-value="첫 번째 점"><b>첫 번째 점</b></button>
+                          <button class="profile-title-option" type="button" data-title-value="처음 와준 루미나"><b>처음 와준 루미나</b></button>
+                          <button class="profile-title-option" type="button" data-title-value="첫 초대장"><b>첫 초대장</b></button>
+                          <button class="profile-title-option" type="button" data-title-value="웰컴 루미나"><b>웰컴 루미나</b></button>
+                          <button class="profile-title-option" type="button" data-title-value="편지를 받은 루미나"><b>편지를 받은 루미나</b></button>
+                          <button class="profile-title-option" type="button" data-title-value="나만의 루미나"><b>나만의 루미나</b></button>
+                          <button class="profile-title-option" type="button" data-title-value="오시를 정한 루미나"><b>오시를 정한 루미나</b></button>
+                          <button class="profile-title-option" type="button" data-title-value="루미 스토리의 주인공"><b>루미 스토리의 주인공</b></button>
+                        </div>
+                        <div class="profile-title-panel" id="profileTitleLocked">
+                          <div class="profile-title-option locked"><b>스탬프 20개 완주</b><span>한 회차 스탬프를 완주하면 열려요.</span></div>
+                          <div class="profile-title-option locked"><b>온라인 연결자</b><span>ON AIR 연결 기록이 더 쌓이면 열려요.</span></div>
+                          <div class="profile-title-option locked"><b>생일 축하를 받은 루미나</b><span>Birthday Ticket 또는 생일 기록과 연결될 예정이에요.</span></div>
+                          <div class="profile-title-option locked"><b>새로운 색의 증인</b><span>공개 전 멤버와 관련된 티저 칭호예요.</span></div>
+                          <div class="profile-title-option locked"><b>달빛을 기다린 루미나</b><span>공개 후 조건 달성 시 열려요.</span></div>
+                        </div>
+                      </div>
                     </section>
 
                     <section class="profile-media-modal hidden" id="profileMediaModal" aria-hidden="true" aria-label="미디어 수정">
@@ -2751,6 +2971,10 @@
       const profileInputLetterName = $("#profileInputLetterName");
       const profileInputBroadcastName = $("#profileInputBroadcastName");
       const profileInputTitle = $("#profileInputTitle");
+      const profileSelectedTitle = $("#profileSelectedTitle");
+      const profileTitlePick = $("#profileTitlePick");
+      const profileTitleModal = $("#profileTitleModal");
+      const profileTitleClose = $("#profileTitleClose");
       const profileInputBio = $("#profileInputBio");
       const profileInputSpace = $("#profileInputSpace");
       const profileBirthdayMonth = $("#profileBirthdayMonth");
@@ -2827,7 +3051,7 @@
         displayName: "루미나",
         letterName: "루리",
         broadcastName: "리",
-        title: "첫 번째 점을 따라온 루미나",
+        title: "나만의 루미나",
         bio: "루미벨과 함께 반짝이는 중",
         space: "루루의 방",
         birthdayMonth: "07",
@@ -2886,7 +3110,7 @@
           displayName: clampText(next.displayName || "루미나", 12) || "루미나",
           letterName: clampText(next.letterName || "루리", 10),
           broadcastName: clampText(next.broadcastName || "리", 12),
-          title: clampText(next.title || "첫 번째 점을 따라온 루미나", 40),
+          title: clampText(String(next.title || "나만의 루미나").replace(/^대표 칭호\s*·\s*/, "").replace("첫 번째 점을 따라온 루미나", "첫 번째 점"), 18),
           bio: clampText(next.bio || "루미벨과 함께 반짝이는 중", 30),
           space: clampText(next.space || "루루의 방", 12),
           birthdayMonth: normalizeBirthdayMonth(next.birthdayMonth),
@@ -2952,6 +3176,21 @@
         if (el) el.textContent = String(value || "").length + "/" + max;
       }
 
+      function profileInputMax(input) {
+        return Number(input && input.dataset && input.dataset.max) || Number(input && input.getAttribute("maxlength")) || 0;
+      }
+
+      function trimProfileInputToMax(input) {
+        const max = profileInputMax(input);
+        if (!input || !max) return;
+        const value = String(input.value || "");
+        if (value.length > max) input.value = value.slice(0, max);
+      }
+
+      function trimAllProfileInputs() {
+        [profileInputDisplayName, profileInputLetterName, profileInputBroadcastName, profileInputBio, profileInputSpace].forEach(trimProfileInputToMax);
+      }
+
       function updateProfileCounters() {
         setCounter("displayName", profileInputDisplayName ? profileInputDisplayName.value : "", 12);
         setCounter("letterName", profileInputLetterName ? profileInputLetterName.value : "", 10);
@@ -2978,6 +3217,8 @@
         if (profileInputLetterName) profileInputLetterName.value = info.letterName;
         if (profileInputBroadcastName) profileInputBroadcastName.value = info.broadcastName;
         if (profileInputTitle) profileInputTitle.value = info.title;
+        if (profileSelectedTitle) profileSelectedTitle.textContent = info.title;
+        updateProfileTitleOptions(info.title);
         if (profileInputBio) profileInputBio.value = info.bio;
         if (profileInputSpace) profileInputSpace.value = info.space;
         populateBirthdaySelects();
@@ -2987,12 +3228,13 @@
       }
 
       function collectProfileForm() {
+        trimAllProfileInputs();
         const current = normalizeProfileInfo(profileDraft.info);
         return normalizeProfileInfo(Object.assign({}, current, {
           displayName: profileInputDisplayName ? profileInputDisplayName.value : current.displayName,
           letterName: profileInputLetterName ? profileInputLetterName.value : current.letterName,
           broadcastName: profileInputBroadcastName ? profileInputBroadcastName.value : current.broadcastName,
-          title: profileInputTitle ? profileInputTitle.value : current.title,
+          title: current.title,
           bio: profileInputBio ? profileInputBio.value : current.bio,
           space: profileInputSpace ? profileInputSpace.value : current.space,
           birthdayMonth: profileBirthdayMonth ? profileBirthdayMonth.value : current.birthdayMonth,
@@ -3006,6 +3248,33 @@
         profileError.classList.toggle("show", Boolean(text));
       }
 
+      function openProfileTitleModal() {
+        if (!profileTitleModal) return;
+        updateProfileTitleOptions(normalizeProfileInfo(profileDraft.info).title);
+        profileTitleModal.classList.remove("hidden");
+        profileTitleModal.setAttribute("aria-hidden", "false");
+      }
+
+      function closeProfileTitleModal() {
+        if (!profileTitleModal) return;
+        profileTitleModal.classList.add("hidden");
+        profileTitleModal.setAttribute("aria-hidden", "true");
+      }
+
+      function updateProfileTitleOptions(currentTitle) {
+        $$(".profile-title-option[data-title-value]").forEach((button) => {
+          button.classList.toggle("active", button.dataset.titleValue === currentTitle);
+        });
+        if (profileSelectedTitle) profileSelectedTitle.textContent = currentTitle || "아직 칭호가 없어요";
+      }
+
+      function selectProfileTitle(titleName) {
+        const nextTitle = clampText(titleName || "아직 칭호가 없어요", 18) || "아직 칭호가 없어요";
+        profileDraft.info = normalizeProfileInfo(Object.assign({}, profileDraft.info, { title: nextTitle }));
+        updateProfileTitleOptions(nextTitle);
+        closeProfileTitleModal();
+      }
+
       function renderProfileView() {
         applyImagePart(profileCoverImg, profileState.cover);
         applyImagePart(profileAvatarImg, profileState.avatar);
@@ -3013,7 +3282,7 @@
         if (profileAvatar) profileAvatar.classList.toggle("has-image", Boolean(profileState.avatar.src));
         const info = normalizeProfileInfo(profileState.info);
         if (profileDisplayName) profileDisplayName.textContent = info.displayName;
-        if (profileTitlePill) profileTitlePill.textContent = "대표 칭호 · " + info.title;
+        if (profileTitlePill) profileTitlePill.textContent = info.title;
         if (profileBioText) profileBioText.textContent = info.bio;
         if (profileSpaceTag) profileSpaceTag.textContent = "📍 " + info.space;
         if (profileBirthdayTag) profileBirthdayTag.textContent = "🎂 " + profileBirthdayText(info);
@@ -3092,6 +3361,7 @@
 
       function closeProfileEditor(resetDraft) {
         closeProfileMediaModal();
+        closeProfileTitleModal();
         if (resetDraft) profileDraft = cloneProfileState(profileState);
         if (profileEditor) profileEditor.classList.add("hidden");
         if (profileEditOpen) profileEditOpen.classList.remove("hidden");
@@ -3137,6 +3407,7 @@
       if (profileApply) {
         profileApply.addEventListener("click", () => {
           profileTextComposing = false;
+          trimAllProfileInputs();
           updateProfileCounters();
           profileDraft.info = collectProfileForm();
           if (!profileDraft.info.displayName) {
@@ -3153,6 +3424,26 @@
           closeProfileEditor(false);
         });
       }
+      if (profileTitlePick) profileTitlePick.addEventListener("click", openProfileTitleModal);
+      if (profileTitleClose) profileTitleClose.addEventListener("click", closeProfileTitleModal);
+      if (profileTitleModal) {
+        profileTitleModal.addEventListener("click", (event) => {
+          if (event.target === profileTitleModal) closeProfileTitleModal();
+        });
+      }
+      $$(".profile-title-option[data-title-value]").forEach((button) => {
+        button.addEventListener("click", () => selectProfileTitle(button.dataset.titleValue));
+      });
+      $$(".profile-title-tab").forEach((button) => {
+        button.addEventListener("click", () => {
+          const owned = button.dataset.titlePanel === "owned";
+          $$(".profile-title-tab").forEach((tab) => tab.classList.toggle("active", tab === button));
+          const ownedPanel = $("#profileTitleOwned");
+          const lockedPanel = $("#profileTitleLocked");
+          if (ownedPanel) ownedPanel.classList.toggle("active", owned);
+          if (lockedPanel) lockedPanel.classList.toggle("active", !owned);
+        });
+      });
       if (profileCoverPick && profileCoverInput) profileCoverPick.addEventListener("click", () => profileCoverInput.click());
       if (profileAvatarPick && profileAvatarInput) profileAvatarPick.addEventListener("click", () => profileAvatarInput.click());
       if (profileCoverInput) profileCoverInput.addEventListener("change", () => readProfileFile(profileCoverInput, "cover"));
@@ -3254,7 +3545,7 @@
         input.addEventListener("compositionend", () => {
           profileTextComposing = false;
         });
-        input.addEventListener("blur", updateProfileCountersSoft);
+        input.addEventListener("blur", () => { trimProfileInputToMax(input); updateProfileCountersSoft(); });
       });
       [profileBirthdayMonth, profileBirthdayDay].forEach((select) => {
         if (!select) return;
