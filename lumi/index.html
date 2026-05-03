@@ -5454,21 +5454,51 @@
       }
 
       async function copyPlainTextAsync(text) {
+        if (!text) return false;
         if (navigator.clipboard && navigator.clipboard.writeText) {
           try {
             await navigator.clipboard.writeText(text);
             return true;
           } catch (error) {
-            return false;
+            // file:// 또는 일부 PC 브라우저에서는 clipboard API가 막힐 수 있어 아래 방식으로 한 번 더 시도한다.
           }
         }
-        return false;
+        try {
+          const textarea = document.createElement("textarea");
+          textarea.value = text;
+          textarea.setAttribute("readonly", "readonly");
+          textarea.style.position = "fixed";
+          textarea.style.left = "-9999px";
+          textarea.style.top = "0";
+          document.body.appendChild(textarea);
+          textarea.focus();
+          textarea.select();
+          const ok = document.execCommand && document.execCommand("copy");
+          document.body.removeChild(textarea);
+          return Boolean(ok);
+        } catch (error) {
+          return false;
+        }
       }
 
       async function shareAchievementNative(payload) {
         const canvas = drawAchievementShareImage(payload);
         const blob = await achievementCanvasToBlob(canvas);
         const fileName = achievementImageFileName(payload);
+        const isMobile = isMobileLikeDevice();
+
+        // PC에서는 Web Share 동작이 브라우저마다 불안정하므로 저장 + 문구 복사 방식으로 고정한다.
+        if (!isMobile) {
+          if (blob) downloadBlob(blob, fileName);
+          const copied = await copyPlainTextAsync(payload.text);
+          openProfileSimpleModal("PC 공유 준비 완료", [
+            "PC에서는 공유 준비를 완료했어요.",
+            "공유 카드 이미지는 저장했고, 공유 문구는 " + (copied ? "복사해두었어요." : "복사가 어려워요."),
+            copied ? "X나 인스타 웹에서 직접 업로드해 주세요." : "공유 문구가 필요하면 X 버튼을 이용해 주세요."
+          ]);
+          return;
+        }
+
         const file = blob ? new File([blob], fileName, { type: "image/png" }) : null;
         const shareData = {
           title: "LUMI PHONE",
