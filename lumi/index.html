@@ -3878,6 +3878,84 @@
       .achievement-share-action span { font-size: 10px; }
     }
 
+
+    /* Global simple modal for achievement share notices */
+    .profile-simple-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1200;
+      display: grid;
+      place-items: center;
+      padding: 14px;
+      background: rgba(70, 50, 64, 0.42);
+      backdrop-filter: blur(8px);
+    }
+
+    .profile-simple-modal.hidden { display: none !important; }
+
+    .profile-simple-dialog {
+      width: min(380px, 100%);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      background: #fff;
+      box-shadow: 0 28px 80px rgba(70, 50, 64, .24);
+      padding: 18px;
+    }
+
+    .profile-simple-topbar {
+      display: grid;
+      grid-template-columns: 1fr 36px;
+      gap: 10px;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .profile-simple-topbar h3 {
+      margin: 0;
+      color: #d77ca7;
+      font-size: 20px;
+      line-height: 1.25;
+      font-weight: 900;
+      word-break: keep-all;
+    }
+
+    .profile-simple-close {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #b07693;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .profile-simple-body {
+      display: grid;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    .profile-simple-body p {
+      margin: 0;
+      color: #8f7183;
+      font-size: 13px;
+      line-height: 1.62;
+      font-weight: 850;
+      word-break: keep-all;
+    }
+
+    .profile-simple-ok {
+      width: 100%;
+      min-height: 38px;
+      border-radius: 999px;
+      border: 0;
+      background: linear-gradient(180deg,#ff82ba,#ff5fa8);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
   </style>
 </head>
 
@@ -4443,10 +4521,10 @@
                   <section class="achievement-share-tool" aria-label="나의 기록 공유">
                     <small>나의 기록 공유</small>
                     <div class="achievement-share-icons" aria-label="업적 현황 공유 액션">
+                      <button class="achievement-share-action" type="button" data-share-scope="summary" data-share-action="native"><b>↗</b><span>공유</span></button>
                       <button class="achievement-share-action" type="button" data-share-scope="summary" data-share-action="x"><b>𝕏</b><span>X</span></button>
                       <button class="achievement-share-action" type="button" data-share-scope="summary" data-share-action="instagram"><b>📷</b><span>인스타</span></button>
                       <button class="achievement-share-action" type="button" data-share-scope="summary" data-share-action="save"><b>↓</b><span>저장</span></button>
-                      <button class="achievement-share-action" type="button" data-share-scope="summary" data-share-action="native"><b>↗</b><span>공유</span></button>
                     </div>
                   </section>
 
@@ -4526,10 +4604,10 @@
                     <section class="achievement-inline-share" aria-label="개별 업적 공유">
                       <small>공유하기</small>
                       <div class="achievement-share-icons" aria-label="개별 업적 공유 액션">
+                        <button class="achievement-share-action" type="button" data-share-scope="single" data-share-action="native"><b>↗</b><span>공유</span></button>
                         <button class="achievement-share-action" type="button" data-share-scope="single" data-share-action="x"><b>𝕏</b><span>X</span></button>
                         <button class="achievement-share-action" type="button" data-share-scope="single" data-share-action="instagram"><b>📷</b><span>인스타</span></button>
                         <button class="achievement-share-action" type="button" data-share-scope="single" data-share-action="save"><b>↓</b><span>저장</span></button>
-                        <button class="achievement-share-action" type="button" data-share-scope="single" data-share-action="native"><b>↗</b><span>공유</span></button>
                       </div>
                     </section>
                   </div>
@@ -5171,92 +5249,95 @@
         canvas.height = 1350;
         const ctx = canvas.getContext("2d");
         if (!ctx) return null;
+
         const pink = "#ff5fa8";
+        const pink2 = "#ff82ba";
         const pinkSoft = "#fff0f7";
         const deep = "#624459";
         const muted = "#9a7187";
         const line = "#f2d8e7";
-        ctx.fillStyle = "#fff7fb";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        const bg = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-        bg.addColorStop(0, "#fff");
-        bg.addColorStop(.56, "#fff0f7");
-        bg.addColorStop(1, "#f8f0ff");
-        roundRect(ctx, 80, 70, 920, 1210, 64, bg, line);
-        roundRect(ctx, 125, 122, 830, 1110, 46, "rgba(255,255,255,.72)", "#f7d9e8");
+        const white = "#ffffff";
 
-        ctx.fillStyle = "rgba(255,95,168,.18)";
-        ctx.font = "900 44px sans-serif";
-        ctx.fillText("✦", 165, 185);
-        ctx.fillText("✦", 865, 1168);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const outer = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        outer.addColorStop(0, "#fffafd");
+        outer.addColorStop(.48, "#fff0f7");
+        outer.addColorStop(1, "#f8f0ff");
+        ctx.fillStyle = outer;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "rgba(255, 95, 168, .11)";
+        ctx.beginPath();
+        ctx.arc(168, 190, 158, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(202, 167, 255, .16)";
+        ctx.beginPath();
+        ctx.arc(916, 238, 174, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255, 205, 226, .28)";
+        ctx.beginPath();
+        ctx.arc(884, 1120, 210, 0, Math.PI * 2);
+        ctx.fill();
+
+        const cardBg = ctx.createLinearGradient(100, 76, 980, 1280);
+        cardBg.addColorStop(0, "#ffffff");
+        cardBg.addColorStop(.68, "#fff7fb");
+        cardBg.addColorStop(1, "#f8f0ff");
+        roundRect(ctx, 90, 72, 900, 1206, 72, cardBg, "#f7d9e8");
+        roundRect(ctx, 134, 122, 812, 1108, 52, "rgba(255,255,255,.76)", "#f8dce9");
+
+        ctx.textAlign = "center";
+        ctx.fillStyle = "rgba(255,95,168,.22)";
+        ctx.font = "900 48px sans-serif";
+        ctx.fillText("✦", 185, 190);
+        ctx.fillText("✦", 890, 1160);
+
         ctx.fillStyle = pink;
         ctx.font = "900 30px sans-serif";
-        ctx.textAlign = "center";
         ctx.fillText("LUMI PHONE", 540, 190);
         ctx.fillStyle = muted;
         ctx.font = "900 24px sans-serif";
         ctx.fillText(payload.mode === "summary" ? "ACHIEVEMENT LOG" : (payload.kicker || "ACHIEVEMENT UNLOCKED"), 540, 228);
 
-        if (payload.mode === "summary") {
-          ctx.fillStyle = pink;
-          ctx.font = "900 76px sans-serif";
-          ctx.fillText("✦", 540, 330);
-          ctx.fillStyle = deep;
-          ctx.font = "900 50px sans-serif";
-          ctx.fillText("나의 루미폰 업적", 540, 410);
-          const statText = (payload.reward || "").split(" · ");
-          const descText = (payload.desc || "").split(" · ");
-          const statItems = [statText[0] || "달성 -", statText[1] || "칭호 -", descText[0] || "진행 중 -", descText[1] || "대표 업적 -"];
-          statItems.forEach((item, index) => {
-            const x = 170 + (index % 2) * 375;
-            const y = 485 + Math.floor(index / 2) * 132;
-            roundRect(ctx, x, y, 335, 96, 26, "#fff", line);
-            ctx.fillStyle = index < 2 ? pink : deep;
-            ctx.font = "900 28px sans-serif";
-            wrapText(ctx, item, x + 168, y + 40, 275, 32, "center");
-          });
-          ctx.textAlign = "left";
-          ctx.fillStyle = pink;
-          ctx.font = "900 29px sans-serif";
-          ctx.fillText("MY ACHIEVEMENT COLLECTION", 175, 795);
-          (payload.cards || []).slice(0, 4).forEach((item, index) => {
-            const x = 175 + (index % 2) * 370;
-            const y = 830 + Math.floor(index / 2) * 120;
-            roundRect(ctx, x, y, 330, 88, 24, "#fff", line);
-            ctx.fillStyle = pink;
-            ctx.font = "900 35px sans-serif";
-            ctx.fillText(item.icon || "🏅", x + 28, y + 56);
-            ctx.fillStyle = deep;
-            ctx.font = "900 25px sans-serif";
-            wrapText(ctx, item.title || "업적", x + 78, y + 38, 220, 30, "left");
-          });
-        } else {
-          roundRect(ctx, 420, 285, 240, 240, 64, pinkSoft, line);
-          ctx.fillStyle = pink;
-          ctx.font = "900 96px sans-serif";
-          ctx.fillText(payload.icon || "🏅", 540, 435);
-          ctx.fillStyle = deep;
-          ctx.font = "900 58px sans-serif";
-          wrapText(ctx, payload.title || "업적", 540, 575, 760, 66, "center");
-          ctx.fillStyle = pink;
-          ctx.font = "900 34px sans-serif";
-          wrapText(ctx, payload.reward || "", 540, 700, 760, 44, "center");
-          ctx.fillStyle = muted;
-          ctx.font = "800 30px sans-serif";
-          wrapText(ctx, payload.desc || "루미벨과 함께한 기록", 540, 815, 760, 42, "center");
-        }
+        const icon = payload.mode === "summary" ? "✦" : (payload.icon || "🏅");
+        roundRect(ctx, 420, 285, 240, 240, 66, pinkSoft, line);
+        const iconGrad = ctx.createLinearGradient(420, 285, 660, 525);
+        iconGrad.addColorStop(0, "#fff");
+        iconGrad.addColorStop(1, "#ffe4f0");
+        roundRect(ctx, 440, 305, 200, 200, 56, iconGrad, "#f4c8dc");
+        ctx.fillStyle = pink;
+        ctx.font = "900 94px sans-serif";
+        ctx.fillText(icon, 540, 435);
+
+        ctx.fillStyle = deep;
+        ctx.font = "900 58px sans-serif";
+        wrapText(ctx, payload.title || (payload.mode === "summary" ? "나의 루미폰 업적" : "업적"), 540, 600, 760, 66, "center");
+
+        ctx.fillStyle = pink;
+        ctx.font = "900 34px sans-serif";
+        wrapText(ctx, payload.reward || "", 540, 724, 760, 44, "center");
+
+        ctx.fillStyle = muted;
+        ctx.font = "800 30px sans-serif";
+        wrapText(ctx, payload.desc || "루미벨과 함께 쌓아가는 나만의 기록이에요.", 540, 838, 760, 42, "center");
+
+        const small = payload.mode === "summary" ? "루미벨과 함께 쌓아가는 나만의 기록이에요." : (payload.small || "루미벨과 함께한 기록이에요.");
+        ctx.fillStyle = "#b5869c";
+        ctx.font = "900 24px sans-serif";
+        wrapText(ctx, small, 540, 940, 700, 34, "center");
 
         ctx.textAlign = "left";
+        roundRect(ctx, 154, 1042, 772, 160, 34, white, line);
         ctx.fillStyle = muted;
         ctx.font = "900 25px sans-serif";
-        ctx.fillText(payload.date || new Date().toLocaleDateString("ko-KR"), 180, 1110);
+        ctx.fillText(payload.date || new Date().toLocaleDateString("ko-KR"), 190, 1102);
         ctx.fillStyle = pink;
         ctx.font = "900 28px sans-serif";
-        ctx.fillText("LUMI ID · LB-0001", 180, 1154);
+        ctx.fillText("LUMI ID · LB-0001", 190, 1148);
         ctx.fillStyle = muted;
         ctx.font = "900 25px sans-serif";
-        ctx.fillText("lumibellelove.com", 180, 1198);
-        fakeQr(ctx, 800, 1092, 110);
+        ctx.fillText("lumibellelove.com", 190, 1192);
+        fakeQr(ctx, 785, 1067, 104);
         return canvas;
       }
 
@@ -5308,20 +5389,86 @@
         }
       }
 
-      function downloadAchievementImage(payload) {
+      function achievementImageFileName(payload) {
+        return (payload.mode === "summary" ? "lumiphone-achievement" : "lumiphone-achievement-" + (payload.title || "card")).replace(/[\/:*?"<>|\s]+/g, "-") + ".png";
+      }
+
+      function achievementCanvasToBlob(canvas) {
+        return new Promise((resolve) => {
+          if (!canvas || !canvas.toBlob) {
+            resolve(null);
+            return;
+          }
+          canvas.toBlob((blob) => resolve(blob), "image/png");
+        });
+      }
+
+      function downloadBlob(blob, fileName) {
+        if (!blob) return false;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName || "lumiphone-achievement.png";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 800);
+        return true;
+      }
+
+      async function downloadAchievementImage(payload, silent) {
         const canvas = drawAchievementShareImage(payload);
-        if (!canvas) return;
-        canvas.toBlob((blob) => {
-          if (!blob) return;
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = (payload.mode === "summary" ? "lumiphone-achievement" : "lumiphone-achievement-" + (payload.title || "card")).replace(/[\\/:*?"<>|\s]+/g, "-") + ".png";
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          setTimeout(() => URL.revokeObjectURL(url), 600);
-        }, "image/png");
+        const blob = await achievementCanvasToBlob(canvas);
+        if (!blob) {
+          if (!silent) openProfileSimpleModal("저장 안내", ["이미지 저장이 어려워요.", "화면을 길게 눌러 저장하거나, 공유 버튼을 이용해 주세요."]);
+          return null;
+        }
+        downloadBlob(blob, achievementImageFileName(payload));
+        if (!silent) openProfileSimpleModal("저장 완료", ["공유 카드가 저장되었어요."]);
+        return blob;
+      }
+
+      async function copyPlainTextAsync(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          try {
+            await navigator.clipboard.writeText(text);
+            return true;
+          } catch (error) {
+            return false;
+          }
+        }
+        return false;
+      }
+
+      async function shareAchievementNative(payload) {
+        const canvas = drawAchievementShareImage(payload);
+        const blob = await achievementCanvasToBlob(canvas);
+        const fileName = achievementImageFileName(payload);
+        const file = blob ? new File([blob], fileName, { type: "image/png" }) : null;
+        const shareData = {
+          title: "LUMI PHONE",
+          text: payload.text,
+          url: "https://lumibellelove.com"
+        };
+        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ title: "LUMI PHONE", text: payload.text, files: [file] });
+            return;
+          } catch (error) {
+            if (error && error.name === "AbortError") return;
+          }
+        }
+        if (navigator.share) {
+          try {
+            await navigator.share(shareData);
+            return;
+          } catch (error) {
+            if (error && error.name === "AbortError") return;
+          }
+        }
+        if (blob) downloadBlob(blob, fileName);
+        await copyPlainTextAsync(payload.text);
+        openProfileSimpleModal("공유 안내", ["이 기기에서는 이미지 공유가 바로 되지 않아요.", "이미지는 저장했고, 공유 문구는 복사해두었어요.", "X나 인스타에서 직접 붙여 넣어 주세요."]);
       }
 
       function handleAchievementShareAction(scope, action) {
@@ -5331,7 +5478,10 @@
           return;
         }
         if (action === "x") {
-          window.location.href = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(payload.text);
+          openProfileSimpleModal("X 공유 안내", ["X 작성창으로 이동해요.", "이미지까지 함께 올리고 싶다면 ‘공유’ 버튼을 이용해 주세요."]);
+          setTimeout(() => {
+            window.location.href = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(payload.text);
+          }, 720);
           return;
         }
         if (action === "instagram") {
@@ -5339,15 +5489,11 @@
           return;
         }
         if (action === "save") {
-          downloadAchievementImage(payload);
+          downloadAchievementImage(payload, false);
           return;
         }
         if (action === "native") {
-          if (navigator.share) {
-            navigator.share({ title: "LUMI PHONE", text: payload.text, url: "https://lumibellelove.com" }).catch(() => {});
-          } else {
-            copyPlainText(payload.text, "공유창을 지원하지 않아 공유 문구를 복사했어요.");
-          }
+          shareAchievementNative(payload);
         }
       }
 
@@ -5528,6 +5674,7 @@
 
       function openProfileSimpleModal(title, lines) {
         if (!profileSimpleModal || !profileSimpleTitle || !profileSimpleBody) return;
+        if (profileSimpleModal.parentElement !== document.body) document.body.appendChild(profileSimpleModal);
         profileSimpleTitle.textContent = title || "안내";
         profileSimpleBody.innerHTML = "";
         (Array.isArray(lines) ? lines : [String(lines || "")]).forEach((line) => {
