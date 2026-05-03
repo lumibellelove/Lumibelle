@@ -4331,6 +4331,31 @@
       color: #fff !important;
     }
 
+
+
+    /* GPT patch: profile share preview frame removal + join pill regression guard */
+    .profile-simple-modal.is-profile-share .profile-share-preview-wrap,
+    #page-profile .profile-share-preview-wrap {
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-share-preview-img,
+    #page-profile .profile-share-preview-img {
+      display: block !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      height: auto !important;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+
+    #profileJoinTag {
+      display: none !important;
+    }
 </style>
 </head>
 
@@ -4659,7 +4684,6 @@
                         <div class="profile-public-tags" aria-label="프로필 공개 정보">
                           <span class="profile-public-tag" id="profileSpaceTag">📍 루루의 방</span>
                           <span class="profile-public-tag" id="profileBirthdayTag">🎂 07.19</span>
-                          <span class="profile-public-tag" id="profileJoinTag">🗓 2026.07.12 개통</span>
                         </div>
                       </div>
                     </div>
@@ -6087,8 +6111,8 @@
           ctx.fill();
         }
 
-        const avatarOuter = 328;
-        const avatarInner = 316;
+        const avatarOuter = 300;
+        const avatarInner = 288;
         const avatarX = cardX + 34;
         const avatarY = coverY + coverH - 138;
         const avatarCX = avatarX + avatarOuter / 2;
@@ -6124,7 +6148,7 @@
         }
 
         const leftX = cardX + 54;
-        const contentTop = Math.max(avatarY + avatarOuter + 60, coverY + coverH + 238);
+        const contentTop = Math.max(avatarY + avatarOuter + 54, coverY + coverH + 196);
         ctx.textAlign = "left";
         ctx.fillStyle = deep;
         ctx.font = "900 82px sans-serif";
@@ -6162,8 +6186,8 @@
         pill("📍 " + (payload.space || "루루의 방"), leftX, pillY2, 360, 56, 30);
         pill("🎂 " + (payload.birthday || "07.19"), leftX + 386, pillY2, 278, 56, 30);
 
-        const infoH = 202;
-        const infoY = cardY + cardH - infoH - 1;
+        const infoY = Math.min(pillY2 + 90, cardY + cardH - 260);
+        const infoH = cardY + cardH - infoY - 1;
         const footerPadX = 54;
         const infoX = cardX + footerPadX;
         const infoW = cardW - footerPadX * 2;
@@ -6181,15 +6205,15 @@
         ctx.stroke();
 
         ctx.fillStyle = muted;
-        ctx.font = "900 34px sans-serif";
-        ctx.fillText((payload.date || "2026.07.12") + " 개통", infoX, infoY + 58);
+        ctx.font = "900 36px sans-serif";
+        ctx.fillText((payload.date || "2026.07.12") + " 개통", infoX, infoY + 62);
         ctx.fillStyle = pink;
-        ctx.font = "900 40px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, infoX, infoY + 110);
+        ctx.font = "900 42px sans-serif";
+        ctx.fillText("LUMI ID · " + sampleUser.id, infoX, infoY + 118);
         ctx.fillStyle = muted;
-        ctx.font = "900 32px sans-serif";
-        ctx.fillText("lumibellelove.com", infoX, infoY + 158);
-        fakeQr(ctx, infoX + infoW - 158, infoY + 38, 132);
+        ctx.font = "900 34px sans-serif";
+        ctx.fillText("lumibellelove.com", infoX, infoY + 172);
+        fakeQr(ctx, infoX + infoW - 178, infoY + 42, 150);
 
         return canvas;
       }
@@ -6486,7 +6510,7 @@
         if (profileTitlePill) profileTitlePill.textContent = info.title;
         if (profileSpaceTag) profileSpaceTag.textContent = "📍 " + info.space;
         if (profileBirthdayTag) profileBirthdayTag.textContent = "🎂 " + profileBirthdayText(info);
-        if (profileJoinTag) profileJoinTag.textContent = "🗓 " + info.joinedAt + " 개통";
+        if (profileJoinTag) profileJoinTag.textContent = "";
       }
 
       function renderProfileEditorPreview() {
