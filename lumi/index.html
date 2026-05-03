@@ -1553,8 +1553,10 @@
 
 
 
-    /* Profile editor v1: mobile-only button adjustment, no drag/pinch */
-    .profile-avatar { overflow: hidden; }
+    /* Profile editor v2: Twitter-like compact settings */
+    .profile-avatar {
+      overflow: hidden;
+    }
 
     .profile-avatar img {
       position: absolute;
@@ -1562,9 +1564,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: var(--pos-x, 50%) var(--pos-y, 50%);
-      transform: scale(var(--scale, 1));
-      transform-origin: center;
+      object-position: 50% 50%;
       display: block;
       border-radius: 50%;
     }
@@ -1574,25 +1574,18 @@
       z-index: 1;
     }
 
-    .profile-avatar.has-image span,
-    .profile-edit-avatar.has-image span { display: none; }
-
-    .profile-cover img,
-    .profile-edit-cover img,
-    .profile-edit-avatar img {
-      object-position: var(--pos-x, 50%) var(--pos-y, 50%);
-      transform: scale(var(--scale, 1));
-      transform-origin: center;
+    .profile-avatar.has-image span {
+      display: none;
     }
 
     .profile-edit-panel {
       border: 1px solid var(--line);
-      border-radius: 26px;
+      border-radius: 24px;
       background: linear-gradient(180deg, #fff, #fff7fb);
       padding: 14px;
       box-shadow: var(--shadow);
       display: grid;
-      gap: 12px;
+      gap: 10px;
     }
 
     .profile-edit-panel h3 {
@@ -1606,106 +1599,67 @@
 
     .profile-edit-panel p {
       font-size: 12px;
-      line-height: 1.58;
+      line-height: 1.55;
     }
 
-    .profile-edit-preview {
-      overflow: hidden;
+    .profile-setting-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .profile-setting-row {
+      min-height: 56px;
       border: 1px solid var(--line);
-      border-radius: 24px;
+      border-radius: 18px;
       background: #fff;
-    }
-
-    .profile-edit-cover {
-      position: relative;
-      height: 132px;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at 15% 52%, rgba(255,255,255,.75), transparent 19%),
-        radial-gradient(circle at 78% 22%, rgba(202,167,255,.44), transparent 28%),
-        linear-gradient(135deg, #ffd0e7 0%, #ff8fc2 44%, #e9d8ff 100%);
-    }
-
-    .profile-edit-cover img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .profile-edit-main {
-      position: relative;
-      padding: 0 13px 14px;
-      margin-top: -42px;
-    }
-
-    .profile-edit-avatar {
-      position: relative;
-      width: 84px;
-      height: 84px;
-      border-radius: 50%;
-      overflow: hidden;
+      padding: 10px 11px;
       display: grid;
-      place-items: center;
-      background: linear-gradient(135deg, #ff5fa8, #caa7ff);
-      border: 5px solid rgba(255,255,255,.95);
-      box-shadow: 0 14px 26px rgba(255,95,168,.18);
-      color: #fff;
-      font-size: 36px;
-    }
-
-    .profile-edit-avatar img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      border-radius: 50%;
-    }
-
-    .profile-edit-name {
-      margin-top: 9px;
-      color: #624459;
-      font-size: 28px;
-      line-height: 1;
-      font-weight: 900;
-      letter-spacing: -.04em;
-    }
-
-    .profile-edit-controls {
-      display: grid;
+      grid-template-columns: 1fr auto;
       gap: 10px;
+      align-items: center;
     }
 
-    .profile-control-box {
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: #fff;
-      padding: 12px;
-      display: grid;
-      gap: 9px;
+    .profile-setting-main {
+      min-width: 0;
     }
 
-    .profile-control-box b {
+    .profile-setting-main b {
+      display: block;
       color: #76586a;
-      font-size: 15px;
-      font-weight: 900;
+      font-size: 14px;
       line-height: 1.3;
+      font-weight: 900;
+      word-break: keep-all;
     }
 
-    .profile-button-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 7px;
+    .profile-setting-main span {
+      display: block;
+      margin-top: 3px;
+      color: #9a7187;
+      font-size: 11.5px;
+      line-height: 1.35;
+      font-weight: 800;
+      word-break: keep-all;
     }
 
-    .profile-button-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 7px;
+    .profile-setting-action,
+    .profile-setting-value {
+      min-height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #d77ca7;
+      font-size: 11.5px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .profile-setting-action {
+      background: linear-gradient(180deg, #fff, #fff7fb);
     }
 
     .profile-edit-btn {
@@ -1714,7 +1668,7 @@
       border: 1px solid var(--line2);
       background: #fff;
       color: #b07693;
-      font-size: 11.5px;
+      font-size: 12px;
       line-height: 1.2;
       font-weight: 900;
       white-space: nowrap;
@@ -1727,17 +1681,38 @@
       box-shadow: 0 8px 18px rgba(255,95,168,.14);
     }
 
-    .profile-edit-btn.soft-danger {
-      color: #bc7138;
-      border-color: #f4d7c5;
-      background: #fff8ef;
-    }
-
     .profile-edit-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
     }
+
+    @media (max-width: 374px) {
+      .profile-edit-panel {
+        padding: 12px;
+      }
+
+      .profile-setting-row {
+        min-height: 52px;
+        padding: 9px 10px;
+      }
+
+      .profile-setting-main b {
+        font-size: 13.5px;
+      }
+
+      .profile-setting-main span {
+        font-size: 11px;
+      }
+
+      .profile-setting-action,
+      .profile-setting-value {
+        min-height: 30px;
+        padding: 0 10px;
+        font-size: 11px;
+      }
+    }
+
 
     @media (max-width: 374px) {
       .profile-button-grid { gap: 6px; }
@@ -2157,59 +2132,47 @@
                   <section class="profile-edit-panel hidden" id="profileEditor" aria-label="프로필 꾸미기 편집 화면">
                     <div>
                       <h3>프로필 꾸미기</h3>
-                      <p>모바일에서는 버튼으로 위치를 맞춰요. 적용하기 전까지 현재 프로필 화면은 바뀌지 않아요.</p>
+                      <p>이미지는 추후 자동으로 보기 좋게 맞춰질 예정이에요.</p>
                     </div>
 
-                    <section class="profile-edit-preview" aria-label="프로필 미리보기">
-                      <div class="profile-edit-cover" id="profileEditCover"><img id="profileEditCoverImg" class="hidden" alt="헤더 미리보기" /></div>
-                      <div class="profile-edit-main">
-                        <div class="profile-edit-avatar" id="profileEditAvatar"><img id="profileEditAvatarImg" class="hidden" alt="프로필 미리보기" /><span>✦</span></div>
-                        <div class="profile-edit-name">루미나</div>
-                        <span class="profile-id">LUMI ID · LB-0001</span>
-                      </div>
+                    <section class="profile-setting-list" aria-label="프로필 꾸미기 설정">
+                      <article class="profile-setting-row">
+                        <div class="profile-setting-main">
+                          <b>헤더 이미지</b>
+                          <span>프로필 상단 배너에 표시돼요.</span>
+                        </div>
+                        <button class="profile-setting-action" id="profileCoverPick" type="button">변경</button>
+                      </article>
+
+                      <article class="profile-setting-row">
+                        <div class="profile-setting-main">
+                          <b>프로필 이미지</b>
+                          <span>원형 프로필에 맞춰 표시돼요.</span>
+                        </div>
+                        <button class="profile-setting-action" id="profileAvatarPick" type="button">변경</button>
+                      </article>
+
+                      <article class="profile-setting-row">
+                        <div class="profile-setting-main">
+                          <b>닉네임</b>
+                          <span>루미나</span>
+                        </div>
+                        <span class="profile-setting-value">현재</span>
+                      </article>
+
+                      <article class="profile-setting-row">
+                        <div class="profile-setting-main">
+                          <b>대표 칭호</b>
+                          <span>첫 번째 점을 따라온 루미나</span>
+                        </div>
+                        <span class="profile-setting-value">장착중</span>
+                      </article>
                     </section>
 
-                    <div class="profile-edit-controls">
-                      <section class="profile-control-box" aria-label="헤더 이미지 조절">
-                        <b>헤더 이미지</b>
-                        <div class="profile-button-row">
-                          <button class="profile-edit-btn" id="profileCoverPick" type="button">헤더 이미지 변경</button>
-                          <button class="profile-edit-btn soft-danger" id="profileCoverReset" type="button">헤더 초기화</button>
-                        </div>
-                        <div class="profile-button-grid">
-                          <button class="profile-edit-btn" type="button" data-profile-adjust="cover" data-action="up">위로</button>
-                          <button class="profile-edit-btn" type="button" data-profile-adjust="cover" data-action="down">아래로</button>
-                          <button class="profile-edit-btn" type="button" data-profile-adjust="cover" data-action="center">가운데</button>
-                          <button class="profile-edit-btn" type="button" data-profile-adjust="cover" data-action="left">왼쪽</button>
-                          <button class="profile-edit-btn" type="button" data-profile-adjust="cover" data-action="right">오른쪽</button>
-                          <button class="profile-edit-btn" type="button" data-profile-adjust="cover" data-action="zoomIn">확대</button>
-                          <button class="profile-edit-btn" type="button" data-profile-adjust="cover" data-action="zoomOut">축소</button>
-                        </div>
-                      </section>
-
-                      <section class="profile-control-box" aria-label="프로필 이미지 조절">
-                        <b>프로필 이미지</b>
-                        <div class="profile-button-row">
-                          <button class="profile-edit-btn" id="profileAvatarPick" type="button">프로필 이미지 변경</button>
-                          <button class="profile-edit-btn soft-danger" id="profileAvatarReset" type="button">프로필 초기화</button>
-                        </div>
-                        <div class="profile-button-grid">
-                          <button class="profile-edit-btn" type="button" data-profile-adjust="avatar" data-action="up">위로</button>
-                          <button class="profile-edit-btn" type="button" data-profile-adjust="avatar" data-action="down">아래로</button>
-                          <button class="profile-edit-btn" type="button" data-profile-adjust="avatar" data-action="center">가운데</button>
-                          <button class="profile-edit-btn" type="button" data-profile-adjust="avatar" data-action="left">왼쪽</button>
-                          <button class="profile-edit-btn" type="button" data-profile-adjust="avatar" data-action="right">오른쪽</button>
-                          <button class="profile-edit-btn" type="button" data-profile-adjust="avatar" data-action="zoomIn">확대</button>
-                          <button class="profile-edit-btn" type="button" data-profile-adjust="avatar" data-action="zoomOut">축소</button>
-                        </div>
-                      </section>
-                    </div>
-
                     <div class="profile-edit-actions">
-                      <button class="profile-edit-btn primary-look" id="profileApply" type="button">적용하기</button>
+                      <button class="profile-edit-btn primary-look" id="profileApply" type="button">저장하기</button>
                       <button class="profile-edit-btn" id="profileCancel" type="button">취소하기</button>
                     </div>
-                    <button class="profile-edit-btn" id="profileBack" type="button">프로필 보기로 돌아가기</button>
 
                     <input class="hidden" id="profileCoverInput" type="file" accept="image/*" />
                     <input class="hidden" id="profileAvatarInput" type="file" accept="image/*" />
@@ -2284,22 +2247,16 @@
       const codeToast = $("#codeToast");
       const profileEditOpen = $("#profileEditOpen");
       const profileEditor = $("#profileEditor");
-      const profileBack = $("#profileBack");
       const profileCancel = $("#profileCancel");
       const profileApply = $("#profileApply");
       const profileCoverPick = $("#profileCoverPick");
       const profileAvatarPick = $("#profileAvatarPick");
-      const profileCoverReset = $("#profileCoverReset");
-      const profileAvatarReset = $("#profileAvatarReset");
       const profileCoverInput = $("#profileCoverInput");
       const profileAvatarInput = $("#profileAvatarInput");
       const profileCoverImg = $("#profileCoverImg");
       const profileAvatarImg = $("#profileAvatarImg");
       const profileCover = $("#profileCover");
       const profileAvatar = $("#profileAvatar");
-      const profileEditCoverImg = $("#profileEditCoverImg");
-      const profileEditAvatarImg = $("#profileEditAvatarImg");
-      const profileEditAvatar = $("#profileEditAvatar");
 
       function normId(value) {
         const digits = String(value || "").replace(/\D/g, "").slice(-4);
@@ -2321,32 +2278,7 @@
         loginView.classList.remove("active");
         appView.classList.add("active");
         go("home");
-        if (profileEditOpen) profileEditOpen.addEventListener("click", openProfileEditor);
-      if (profileBack) profileBack.addEventListener("click", () => closeProfileEditor(true));
-      if (profileCancel) profileCancel.addEventListener("click", () => closeProfileEditor(true));
-      if (profileApply) {
-        profileApply.addEventListener("click", () => {
-          profileState = normalizeProfileState(profileDraft);
-          saveProfileState();
-          renderProfileView();
-          closeProfileEditor(false);
-        });
-      }
-      if (profileCoverPick && profileCoverInput) profileCoverPick.addEventListener("click", () => profileCoverInput.click());
-      if (profileAvatarPick && profileAvatarInput) profileAvatarPick.addEventListener("click", () => profileAvatarInput.click());
-      if (profileCoverInput) profileCoverInput.addEventListener("change", () => readProfileFile(profileCoverInput, "cover"));
-      if (profileAvatarInput) profileAvatarInput.addEventListener("change", () => readProfileFile(profileAvatarInput, "avatar"));
-      if (profileCoverReset) profileCoverReset.addEventListener("click", () => { profileDraft.cover = profileDefaultPart(); renderProfileEditor(); });
-      if (profileAvatarReset) profileAvatarReset.addEventListener("click", () => { profileDraft.avatar = profileDefaultPart(); renderProfileEditor(); });
-      $$('[data-profile-adjust]').forEach((button) => {
-        button.addEventListener("click", () => adjustProfileImage(button.dataset.profileAdjust, button.dataset.action));
-      });
-
-      loadProfileState();
-      renderProfileView();
-      renderProfileEditor();
-
-      updateClock();
+        updateClock();
       }
 
       function closeApp() {
@@ -2460,9 +2392,7 @@
       }
 
       function renderProfileEditor() {
-        applyImagePart(profileEditCoverImg, profileDraft.cover);
-        applyImagePart(profileEditAvatarImg, profileDraft.avatar);
-        if (profileEditAvatar) profileEditAvatar.classList.toggle("has-image", Boolean(profileDraft.avatar.src));
+        return;
       }
 
       function openProfileEditor() {
@@ -2476,24 +2406,6 @@
         if (resetDraft) profileDraft = cloneProfileState(profileState);
         if (profileEditor) profileEditor.classList.add("hidden");
         if (profileEditOpen) profileEditOpen.classList.remove("hidden");
-        renderProfileEditor();
-      }
-
-      function adjustProfileImage(targetName, action) {
-        const part = profileDraft[targetName];
-        if (!part) return;
-        const move = 5;
-        if (action === "up") part.y = Math.max(0, part.y - move);
-        if (action === "down") part.y = Math.min(100, part.y + move);
-        if (action === "left") part.x = Math.max(0, part.x - move);
-        if (action === "right") part.x = Math.min(100, part.x + move);
-        if (action === "zoomIn") part.scale = Math.min(2.5, Math.round((part.scale + 0.1) * 10) / 10);
-        if (action === "zoomOut") part.scale = Math.max(1, Math.round((part.scale - 0.1) * 10) / 10);
-        if (action === "center") {
-          part.x = 50;
-          part.y = 50;
-          part.scale = 1;
-        }
         renderProfileEditor();
       }
 
@@ -2531,7 +2443,6 @@
       }
 
       if (profileEditOpen) profileEditOpen.addEventListener("click", openProfileEditor);
-      if (profileBack) profileBack.addEventListener("click", () => closeProfileEditor(true));
       if (profileCancel) profileCancel.addEventListener("click", () => closeProfileEditor(true));
       if (profileApply) {
         profileApply.addEventListener("click", () => {
@@ -2545,11 +2456,6 @@
       if (profileAvatarPick && profileAvatarInput) profileAvatarPick.addEventListener("click", () => profileAvatarInput.click());
       if (profileCoverInput) profileCoverInput.addEventListener("change", () => readProfileFile(profileCoverInput, "cover"));
       if (profileAvatarInput) profileAvatarInput.addEventListener("change", () => readProfileFile(profileAvatarInput, "avatar"));
-      if (profileCoverReset) profileCoverReset.addEventListener("click", () => { profileDraft.cover = profileDefaultPart(); renderProfileEditor(); });
-      if (profileAvatarReset) profileAvatarReset.addEventListener("click", () => { profileDraft.avatar = profileDefaultPart(); renderProfileEditor(); });
-      $$('[data-profile-adjust]').forEach((button) => {
-        button.addEventListener("click", () => adjustProfileImage(button.dataset.profileAdjust, button.dataset.action));
-      });
 
       loadProfileState();
       renderProfileView();
