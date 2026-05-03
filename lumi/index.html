@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>LUMI PHONE v10.3 | Clean RC Profile Slim Touch Patch</title>
+  <title>LUMI PHONE v10.3 | Clean RC Profile iOS Input Final Patch</title>
   <meta name="theme-color" content="#fff7fb" />
 
   <style>
@@ -1836,6 +1836,117 @@
     }
 
 
+    /* Profile form iOS input final patch */
+    .profile-edit-panel {
+      gap: 8px;
+      padding: 11px;
+    }
+
+    .profile-edit-panel > div:first-child p {
+      margin-top: 4px;
+      font-size: 11.5px;
+      line-height: 1.45;
+      color: #9a7187;
+    }
+
+    .profile-setting-list {
+      gap: 7px;
+    }
+
+    .profile-setting-row {
+      min-height: 46px;
+      padding: 8px 10px;
+      border-radius: 16px;
+    }
+
+    .profile-form {
+      gap: 7px;
+    }
+
+    .profile-field {
+      gap: 5px;
+      padding: 8px 10px;
+      border-radius: 16px;
+    }
+
+    .profile-field input,
+    .profile-field textarea,
+    .birthday-selects select {
+      -webkit-appearance: none;
+      appearance: none;
+      min-height: 38px;
+      border-radius: 13px;
+      font-size: 16px;
+      font-weight: 800;
+      transform: translateZ(0);
+      -webkit-font-smoothing: antialiased;
+      transition: none !important;
+    }
+
+    .profile-field input,
+    .birthday-selects select {
+      padding: 8px 10px;
+    }
+
+    .profile-field textarea {
+      min-height: 68px;
+      padding: 9px 10px;
+    }
+
+    .profile-field input:focus,
+    .profile-field textarea:focus,
+    .birthday-selects select:focus {
+      border-color: var(--line2);
+      box-shadow: none;
+      outline: 2px solid rgba(255, 130, 186, 0.16);
+      outline-offset: 0;
+    }
+
+    .profile-field-head {
+      font-size: 12.5px;
+    }
+
+    .profile-counter {
+      font-size: 10.5px;
+    }
+
+    .profile-section-title {
+      margin: 2px 0 -2px;
+      color: #d77ca7;
+      font-size: 12px;
+      line-height: 1.2;
+      font-weight: 900;
+      letter-spacing: .02em;
+    }
+
+    .profile-edit-actions {
+      margin-top: 2px;
+    }
+
+    @media (max-width: 430px) {
+      .profile-media-modal {
+        padding: 10px;
+      }
+
+      .profile-media-body {
+        padding: 12px;
+      }
+
+      .profile-media-stage-wrap {
+        min-height: 250px;
+      }
+
+      .profile-media-stage {
+        height: 150px;
+      }
+
+      .profile-media-stage[data-mode="avatar"] {
+        width: min(74vw, 300px);
+        height: min(74vw, 300px);
+      }
+    }
+
+
     /* Profile media picker: PC modal cropper + mobile touch cropper */
     .profile-media-modal {
       position: fixed;
@@ -2443,6 +2554,7 @@
                       <p>헤더와 프로필 이미지, 공개 정보를 꾸밀 수 있어요.</p>
                     </div>
 
+                    <div class="profile-section-title">이미지</div>
                     <section class="profile-setting-list" aria-label="프로필 꾸미기 설정">
                       <article class="profile-setting-row">
                         <div class="profile-setting-main">
@@ -2461,23 +2573,16 @@
                       </article>
                     </section>
 
+                    <div class="profile-section-title">공개 프로필</div>
                     <section class="profile-form" aria-label="프로필 정보 수정">
                       <label class="profile-field">
                         <span class="profile-field-head"><b>표시 닉네임</b><span class="profile-counter" data-count-for="displayName">0/12</span></span>
                         <input id="profileInputDisplayName" maxlength="12" value="루미나" />
                       </label>
 
-                      <label class="profile-field">
-                        <span class="profile-field-head"><b>문자 이름</b><span class="profile-counter" data-count-for="letterName">0/10</span></span>
-                        <input id="profileInputLetterName" maxlength="10" value="루리" />
-                        
-                      </label>
+                      
 
-                      <label class="profile-field">
-                        <span class="profile-field-head"><b>방송 닉네임</b><span class="profile-counter" data-count-for="broadcastName">0/12</span></span>
-                        <input id="profileInputBroadcastName" maxlength="12" value="리" />
-                        
-                      </label>
+                      
 
                       <label class="profile-field">
                         <span class="profile-field-head"><b>대표 칭호</b><span class="profile-counter">장착중</span></span>
@@ -2504,6 +2609,20 @@
                         </div>
                         
                       </div>
+
+                      <div class="profile-section-title">내부용 이름</div>
+
+                      <label class="profile-field">
+                        <span class="profile-field-head"><b>문자 이름</b><span class="profile-counter" data-count-for="letterName">0/10</span></span>
+                        <input id="profileInputLetterName" maxlength="10" value="루리" />
+                        
+                      </label>
+
+                      <label class="profile-field">
+                        <span class="profile-field-head"><b>방송 닉네임</b><span class="profile-counter" data-count-for="broadcastName">0/12</span></span>
+                        <input id="profileInputBroadcastName" maxlength="12" value="리" />
+                        
+                      </label>
 
                       <div class="profile-error" id="profileError" aria-live="polite"></div>
                     </section>
@@ -3014,9 +3133,11 @@
       }
 
       if (profileEditOpen) profileEditOpen.addEventListener("click", openProfileEditor);
-      if (profileCancel) profileCancel.addEventListener("click", () => closeProfileEditor(true));
+      if (profileCancel) profileCancel.addEventListener("click", () => { profileTextComposing = false; closeProfileEditor(true); });
       if (profileApply) {
         profileApply.addEventListener("click", () => {
+          profileTextComposing = false;
+          updateProfileCounters();
           profileDraft.info = collectProfileForm();
           if (!profileDraft.info.displayName) {
             showProfileError("표시 닉네임을 입력해 주세요.");
@@ -3119,26 +3240,21 @@
 
 
       let profileTextComposing = false;
-      let profileCounterFrame = 0;
 
-      function scheduleProfileCounters() {
-        if (profileCounterFrame) cancelAnimationFrame(profileCounterFrame);
-        profileCounterFrame = requestAnimationFrame(() => {
-          profileCounterFrame = 0;
-          updateProfileCounters();
-        });
+      function updateProfileCountersSoft() {
+        if (profileTextComposing) return;
+        updateProfileCounters();
       }
 
       [profileInputDisplayName, profileInputLetterName, profileInputBroadcastName, profileInputBio, profileInputSpace].forEach((input) => {
         if (!input) return;
-        input.addEventListener("compositionstart", () => { profileTextComposing = true; });
+        input.addEventListener("compositionstart", () => {
+          profileTextComposing = true;
+        });
         input.addEventListener("compositionend", () => {
           profileTextComposing = false;
-          scheduleProfileCounters();
         });
-        input.addEventListener("input", () => {
-          if (!profileTextComposing) scheduleProfileCounters();
-        });
+        input.addEventListener("blur", updateProfileCountersSoft);
       });
       [profileBirthdayMonth, profileBirthdayDay].forEach((select) => {
         if (!select) return;
