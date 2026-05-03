@@ -1954,7 +1954,171 @@
     }
 
 
-    /* Removed unused legacy title-picker CSS. The current title button uses the Lumi Phone simple modal. */
+    /* Profile title picker + iPhone input stabilization */
+    .profile-title-edit-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .profile-selected-title {
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      padding: 8px 11px;
+      border-radius: 15px;
+      border: 1px solid rgba(242, 216, 231, 0.95);
+      background: #fffafd;
+      color: #76586a;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.3;
+      word-break: keep-all;
+    }
+
+    .profile-title-change {
+      min-height: 38px;
+      padding: 0 12px;
+    }
+
+    .profile-title-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1001;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(70, 50, 64, 0.42);
+      backdrop-filter: blur(8px);
+    }
+
+    .profile-title-dialog {
+      width: min(720px, 100%);
+      max-height: min(760px, calc(100vh - 36px));
+      overflow: auto;
+      border-radius: 28px;
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: 0 28px 80px rgba(70, 50, 64, .24);
+      padding: 18px;
+    }
+
+    .profile-title-topbar {
+      display: grid;
+      grid-template-columns: 1fr 40px;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .profile-title-topbar h3 {
+      margin: 0;
+      color: #d77ca7;
+      font-size: 25px;
+      line-height: 1.15;
+      font-weight: 900;
+    }
+
+    .profile-title-close {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #b07693;
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .profile-title-note {
+      margin: 0 0 12px;
+      font-size: 12px;
+      line-height: 1.45;
+      color: #9a7187;
+    }
+
+    .profile-title-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .profile-title-tab {
+      min-height: 38px;
+      padding: 0 16px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #b07693;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .profile-title-tab.active {
+      border-color: transparent;
+      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(255,95,168,.14);
+    }
+
+    .profile-title-panel {
+      display: none;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .profile-title-panel.active { display: grid; }
+
+    .profile-title-option {
+      min-height: 58px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+      color: #76586a;
+      padding: 12px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
+    .profile-title-option b {
+      display: block;
+      font-weight: 900;
+      word-break: keep-all;
+    }
+
+    .profile-title-option span {
+      display: block;
+      margin-top: 4px;
+      color: #9a7187;
+      font-size: 11.5px;
+      line-height: 1.4;
+      font-weight: 800;
+      word-break: keep-all;
+    }
+
+    .profile-title-option.active {
+      border-color: #ff5fa8;
+      background: #fff0f7;
+      color: #624459;
+      box-shadow: 0 8px 18px rgba(255,95,168,.12);
+    }
+
+    .profile-title-option.locked {
+      opacity: .78;
+      background: #fffafd;
+    }
+@media (max-width: 430px) {
+      .profile-title-modal { padding: 10px; }
+      .profile-title-dialog { padding: 14px; border-radius: 24px; }
+      .profile-title-topbar h3 { font-size: 22px; }
+      .profile-title-panel { grid-template-columns: 1fr; }
+      .profile-title-edit-row { grid-template-columns: 1fr; }
+      .profile-title-change { width: 100%; }
+    }
+
 
     /* Profile card spacing + iPhone input lag fix v2 */
     .profile-title-row {
@@ -1989,6 +2153,7 @@
     }
 
     .profile-edit-panel *,
+    .profile-title-dialog *,
     .profile-media-dialog * {
       transition: none !important;
       animation: none !important;
@@ -2757,6 +2922,7 @@
     }
 .profile-oshi-modal,
     .profile-confirm-modal,
+    .profile-title-modal,
     .profile-media-modal {
       z-index: 1004;
     }
@@ -2836,7 +3002,7 @@
 
     @media (max-width:430px){
       #page-profile .profile-edit-modal{align-items:end;padding:8px;}
-      #page-profile .profile-edit-dialog{width:100%;max-height:calc(100vh - 18px);border-radius:26px;}
+      #page-profile .profile-edit-dialog{width:100%;height:calc(100dvh - 16px)!important;max-height:calc(100vh - 16px);border-radius:26px;}
       #page-profile .profile-edit-cover{height:122px;}
       #page-profile .profile-edit-avatar{width:82px;height:82px;margin-top:-36px;}
     }
@@ -2850,14 +3016,14 @@
     #page-profile .profile-card-actions {
       display: grid !important;
       grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-      gap: 10px !important;
-      margin: 8px 0 10px !important;
+      gap: 8px !important;
+      margin: 6px 0 8px !important;
       padding: 0 !important;
       min-height: 0 !important;
     }
 
     #page-profile .profile-action-button {
-      min-height: 40px !important;
+      min-height: 38px !important;
       border-radius: 999px !important;
       border: 1px solid var(--line2) !important;
       background: #fff !important;
@@ -2877,7 +3043,7 @@
     }
 
     #page-profile .profile-stat-grid {
-      margin-top: 4px !important;
+      margin-top: 0 !important;
     }
 
     #page-profile .profile-edit-modal {
@@ -2886,14 +3052,19 @@
 
     #page-profile .profile-edit-dialog {
       background: linear-gradient(180deg, #fff, #fff7fb) !important;
+      height: min(720px, calc(100dvh - 18px)) !important;
       max-height: calc(100vh - 18px) !important;
-      overflow: auto !important;
+      overflow: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+      min-height: 0 !important;
     }
 
     #page-profile .profile-edit-topbar {
       position: sticky !important;
       top: 0 !important;
-      z-index: 10 !important;
+      z-index: 20 !important;
+      flex: 0 0 auto !important;
       min-height: 58px !important;
       padding: calc(env(safe-area-inset-top, 0px) + 10px) 13px 10px !important;
       background: rgba(255,255,255,.98) !important;
@@ -2925,37 +3096,44 @@
       height: 36px !important;
       border-radius: 50% !important;
       transform: none !important;
-      background: rgba(255, 255, 255, 0.90) !important;
-      border: 1px solid rgba(239, 188, 213, 0.86) !important;
+      background: #fff7fb !important;
+      border: 1px solid rgba(239, 188, 213, 0.96) !important;
       color: #d77ca7 !important;
       font-size: 16px !important;
       line-height: 1 !important;
-      box-shadow: 0 6px 14px rgba(70, 50, 64, .12) !important;
-      backdrop-filter: blur(8px) !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
     }
 
     #page-profile .profile-edit-avatar .profile-camera-button {
       position: absolute !important;
       top: auto !important;
-      right: -6px !important;
-      bottom: 2px !important;
+      right: -1px !important;
+      bottom: 5px !important;
       left: auto !important;
       width: 30px !important;
       height: 30px !important;
       border-radius: 50% !important;
       transform: none !important;
-      background: rgba(255, 255, 255, 0.94) !important;
-      border: 1px solid rgba(239, 188, 213, 0.92) !important;
+      background: #fff7fb !important;
+      border: 1px solid rgba(239, 188, 213, 0.96) !important;
       color: #d77ca7 !important;
-      font-size: 14px !important;
+      font-size: 13px !important;
       line-height: 1 !important;
-      box-shadow: 0 6px 14px rgba(70, 50, 64, .14) !important;
-      backdrop-filter: blur(8px) !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
     }
 
     #page-profile .profile-form-compact {
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      overscroll-behavior: contain !important;
       gap: 8px !important;
-      padding: 0 14px 10px !important;
+      padding: 0 14px calc(env(safe-area-inset-bottom, 0px) + 12px) !important;
       background: #fff7fb !important;
     }
 
@@ -2995,15 +3173,11 @@
     }
 
     #page-profile .profile-edit-actions-bottom {
-      margin-top: 0 !important;
-      padding: 10px 14px calc(env(safe-area-inset-bottom, 0px) + 12px) !important;
-      background: linear-gradient(180deg, rgba(255,247,251,.88), #fff7fb) !important;
-      border-top: 1px solid #f4dce9 !important;
+      display: none !important;
     }
 
     #page-profile .profile-edit-dialog,
-    #page-profile .profile-form-compact,
-    #page-profile .profile-edit-actions-bottom {
+    #page-profile .profile-form-compact {
       background-color: #fff7fb !important;
     }
 
@@ -3038,6 +3212,47 @@
 
       #page-profile .profile-edit-topbar {
         padding-top: calc(env(safe-area-inset-top, 0px) + 10px) !important;
+      }
+    }
+
+
+    /* Profile final mobile polish: no bottom action bar, no gray icon haze */
+    #page-profile .profile-main {
+      padding-bottom: 10px !important;
+    }
+
+    #page-profile .profile-public-tags {
+      margin-top: 5px !important;
+      margin-bottom: 0 !important;
+    }
+
+    #page-profile .profile-share-button,
+    #page-profile .profile-camera-button {
+      background: #fff7fb !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      filter: none !important;
+    }
+
+    #page-profile .profile-edit-hero {
+      flex: 0 0 auto !important;
+    }
+
+    #page-profile .profile-edit-actions-bottom {
+      display: none !important;
+    }
+
+    @supports (-webkit-touch-callout: none) {
+      #page-profile .profile-edit-dialog {
+        height: calc(100dvh - 18px) !important;
+        overflow: hidden !important;
+      }
+
+      #page-profile .profile-edit-topbar {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 30 !important;
       }
     }
 
@@ -3449,11 +3664,6 @@
                         <div class="profile-error" id="profileError" aria-live="polite"></div>
                       </section>
 
-                      <div class="profile-edit-actions profile-edit-actions-bottom">
-                        <button class="profile-edit-btn primary-look" id="profileApply" type="button">저장하기</button>
-                        <button class="profile-edit-btn" id="profileCancel" type="button">취소하기</button>
-                      </div>
-
                       <input class="hidden" id="profileCoverInput" type="file" accept="image/*" />
                       <input class="hidden" id="profileAvatarInput" type="file" accept="image/*" />
                     </div>
@@ -3627,7 +3837,12 @@
       const profileOshiConfirmBody = $("#profileOshiConfirmBody");
       const profileOshiConfirmCancel = $("#profileOshiConfirmCancel");
       const profileInputBroadcastName = $("#profileInputBroadcastName");
+      const profileInputTitle = $("#profileInputTitle");
+      const profileSelectedTitle = $("#profileSelectedTitle");
+      const profileTitlePick = $("#profileTitlePick");
       const profileTitleQuickOpen = $("#profileTitleQuickOpen");
+      const profileTitleModal = $("#profileTitleModal");
+      const profileTitleClose = $("#profileTitleClose");
       
       const profileInputSpace = $("#profileInputSpace");
       const profileBirthdayMonth = $("#profileBirthdayMonth");
@@ -3963,6 +4178,9 @@
         updateProfileOshiOptions(info.oshi);
         if (profileInputLetterName) profileInputLetterName.value = info.letterName;
         if (profileInputBroadcastName) profileInputBroadcastName.value = info.broadcastName;
+        if (profileInputTitle) profileInputTitle.value = info.title;
+        if (profileSelectedTitle) profileSelectedTitle.textContent = info.title;
+        updateProfileTitleOptions(info.title);
         if (profileInputSpace) profileInputSpace.value = info.space;
         populateBirthdaySelects();
         if (profileBirthdayMonth) profileBirthdayMonth.value = info.birthdayMonth;
@@ -4032,7 +4250,32 @@
         profileOshiConfirmModal.setAttribute("aria-hidden", "true");
       }
 
-      /* Legacy title-picker modal functions removed. Title change now opens the simple Lumi Phone modal. */
+      function openProfileTitleModal() {
+        if (!profileTitleModal) return;
+        updateProfileTitleOptions(normalizeProfileInfo(profileDraft.info).title);
+        profileTitleModal.classList.remove("hidden");
+        profileTitleModal.setAttribute("aria-hidden", "false");
+      }
+
+      function closeProfileTitleModal() {
+        if (!profileTitleModal) return;
+        profileTitleModal.classList.add("hidden");
+        profileTitleModal.setAttribute("aria-hidden", "true");
+      }
+
+      function updateProfileTitleOptions(currentTitle) {
+        $$(".profile-title-option[data-title-value]").forEach((button) => {
+          button.classList.toggle("active", button.dataset.titleValue === currentTitle);
+        });
+        if (profileSelectedTitle) profileSelectedTitle.textContent = currentTitle || "아직 칭호가 없어요";
+      }
+
+      function selectProfileTitle(titleName) {
+        const nextTitle = clampText(titleName || "아직 칭호가 없어요", 18) || "아직 칭호가 없어요";
+        profileDraft.info = normalizeProfileInfo(Object.assign({}, profileDraft.info, { title: nextTitle }));
+        updateProfileTitleOptions(nextTitle);
+        closeProfileTitleModal();
+      }
 
       function renderProfileView() {
         applyImagePart(profileCoverImg, profileState.cover);
@@ -4145,6 +4388,7 @@
 
       function closeProfileEditor(resetDraft) {
         closeProfileMediaModal();
+        closeProfileTitleModal();
         closeProfileSimpleModal();
         closeProfileOshiModal();
         closeProfileOshiConfirmModal();
@@ -4261,6 +4505,7 @@
           if (event.target === profileOshiConfirmModal) closeProfileOshiConfirmModal();
         });
       }
+      if (profileTitlePick) profileTitlePick.addEventListener("click", () => openProfileSimpleModal("칭호 변경 준비중", ["업적에서 해금한 칭호를 프로필에 장착하는 기능은 이후 단계에서 연결됩니다."]));
       if (profileTitleQuickOpen) profileTitleQuickOpen.addEventListener("click", () => openProfileSimpleModal("칭호 변경 준비중", ["업적에서 해금한 칭호를 프로필에 장착하는 기능은 이후 단계에서 연결됩니다."]));
       if (profileShareOpen) profileShareOpen.addEventListener("click", () => openProfileSimpleModal("공유 카드 준비중", ["루미폰 프로필을 세로형 MY LUMI CARD 이미지로 만들어 공유하는 기능은 다음 단계에서 연결됩니다.", "공유 카드의 QR은 개인 프로필이 아니라 lumibellelove.com 메인으로 연결할 예정이에요."]));
       if (profileEditorClose) profileEditorClose.addEventListener("click", () => { profileTextComposing = false; closeProfileEditor(true); });
@@ -4272,7 +4517,25 @@
           if (event.target === profileSimpleModal) closeProfileSimpleModal();
         });
       }
-      /* Legacy title-picker event listeners removed. */
+      if (profileTitleClose) profileTitleClose.addEventListener("click", closeProfileTitleModal);
+      if (profileTitleModal) {
+        profileTitleModal.addEventListener("click", (event) => {
+          if (event.target === profileTitleModal) closeProfileTitleModal();
+        });
+      }
+      $$(".profile-title-option[data-title-value]").forEach((button) => {
+        button.addEventListener("click", () => selectProfileTitle(button.dataset.titleValue));
+      });
+      $$(".profile-title-tab").forEach((button) => {
+        button.addEventListener("click", () => {
+          const owned = button.dataset.titlePanel === "owned";
+          $$(".profile-title-tab").forEach((tab) => tab.classList.toggle("active", tab === button));
+          const ownedPanel = $("#profileTitleOwned");
+          const lockedPanel = $("#profileTitleLocked");
+          if (ownedPanel) ownedPanel.classList.toggle("active", owned);
+          if (lockedPanel) lockedPanel.classList.toggle("active", !owned);
+        });
+      });
       if (profileCoverPick && profileCoverInput) profileCoverPick.addEventListener("click", () => profileCoverInput.click());
       if (profileAvatarPick && profileAvatarInput) profileAvatarPick.addEventListener("click", () => profileAvatarInput.click());
       if (profileCoverInput) profileCoverInput.addEventListener("change", () => readProfileFile(profileCoverInput, "cover"));
