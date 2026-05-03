@@ -3354,6 +3354,187 @@
       box-shadow: none !important;
     }
 
+  
+
+    /* Achievement tab v1: profile title-linked cards */
+    .achievement-hero {
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      background: linear-gradient(135deg, #fff, #fff0f7 68%, #f8f0ff);
+      padding: 15px;
+      margin: 12px 0;
+      box-shadow: var(--shadow);
+    }
+
+    .achievement-hero small {
+      display: block;
+      color: #b5869c;
+      font-size: 11.5px;
+      font-weight: 900;
+      letter-spacing: .04em;
+    }
+
+    .achievement-hero b {
+      display: block;
+      margin-top: 5px;
+      color: var(--pink);
+      font-size: 31px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -.03em;
+    }
+
+    .achievement-hero span {
+      display: block;
+      margin-top: 8px;
+      color: #8d6b7d;
+      font-size: 12.5px;
+      line-height: 1.55;
+      font-weight: 850;
+      word-break: keep-all;
+    }
+
+    .achievement-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .achievement-card {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 23px;
+      background: #fff;
+      padding: 13px;
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr);
+      gap: 11px;
+      align-items: flex-start;
+      box-shadow: 0 8px 16px rgba(232,191,211,.07);
+    }
+
+    .achievement-card.locked {
+      background: #fffafd;
+    }
+
+    .achievement-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, #fff0f7, #f8f0ff);
+      border: 1px solid var(--line);
+      color: #d77ca7;
+      font-size: 19px;
+      line-height: 1;
+    }
+
+    .achievement-main {
+      min-width: 0;
+    }
+
+    .achievement-kicker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .achievement-state {
+      min-height: 23px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 9px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff7fb;
+      color: #d77ca7;
+      font-size: 10.5px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .achievement-state.locked {
+      border-color: #ead7e2;
+      background: #fff;
+      color: #b28ea2;
+    }
+
+    .achievement-card h3 {
+      margin: 0;
+      color: #76586a;
+      font-size: 16px;
+      line-height: 1.32;
+      font-weight: 900;
+      word-break: keep-all;
+    }
+
+    .achievement-card p {
+      margin-top: 5px;
+      color: #9a7187;
+      font-size: 12px;
+      line-height: 1.52;
+      font-weight: 800;
+      word-break: keep-all;
+    }
+
+    .achievement-title-line {
+      display: block;
+      margin-top: 7px;
+      color: #d77ca7;
+      font-size: 11.5px;
+      line-height: 1.4;
+      font-weight: 900;
+      word-break: keep-all;
+    }
+
+    .achievement-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 9px;
+    }
+
+    .achievement-btn {
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #b07693;
+      font-size: 11.5px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .achievement-btn.primary-look {
+      border-color: transparent;
+      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(255,95,168,.12);
+    }
+
+    .achievement-btn:disabled {
+      opacity: .72;
+    }
+
+    @media (max-width: 374px) {
+      .achievement-card {
+        grid-template-columns: 38px minmax(0, 1fr);
+        gap: 9px;
+        padding: 12px;
+      }
+      .achievement-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 14px;
+        font-size: 17px;
+      }
+      .achievement-card h3 { font-size: 15px; }
+    }
+
   </style>
 </head>
 
@@ -3892,7 +4073,83 @@
                 </article>
               </section>
 
-              <section class="page" id="page-achieve"><article class="placeholder"><h2>업적</h2><p>업적과 칭호는 이후 단계에서 연결합니다.</p></article></section>
+              <section class="page" id="page-achieve" aria-label="업적">
+                <article class="module-card achievement-module">
+                  <h2>업적</h2>
+                  <p>루미벨과 함께한 순간을 업적으로 기록하고, 해금한 칭호를 프로필에 장착할 수 있어요.</p>
+                  <section class="achievement-hero" aria-label="업적 요약">
+                    <small>MY LUMI ACHIEVEMENT</small>
+                    <b>3 / 7</b>
+                    <span>현재 샘플 기준으로 기본 업적 3개가 달성되어 있어요. 잠긴 업적은 실제 기록 연동 단계에서 자동으로 열리게 둘 예정이에요.</span>
+                  </section>
+                  <div class="summary-grid" aria-label="업적 수치 요약">
+                    <article class="summary-card"><small>달성 업적</small><b>3</b><span>개통, 첫 기록, 첫 번째 점</span></article>
+                    <article class="summary-card"><small>보유 칭호</small><b>4</b><span>프로필에서 대표 칭호 장착 가능</span></article>
+                  </div>
+                  <section class="achievement-list" aria-label="업적 목록">
+                    <article class="achievement-card" data-achievement="phone-open">
+                      <div class="achievement-icon">📱</div>
+                      <div class="achievement-main">
+                        <div class="achievement-kicker"><span class="achievement-state">달성 완료</span><span class="achievement-state">기본</span></div>
+                        <h3>루미폰 개통</h3>
+                        <p>루미 ID로 루미폰에 처음 들어온 기록이에요.</p>
+                        <span class="achievement-title-line">해금 칭호 · 나만의 루미나</span>
+                        <div class="achievement-actions"><button class="achievement-btn primary-look" type="button" data-achieve-equip-title="나만의 루미나">칭호 장착</button></div>
+                      </div>
+                    </article>
+                    <article class="achievement-card" data-achievement="first-point">
+                      <div class="achievement-icon">✦</div>
+                      <div class="achievement-main">
+                        <div class="achievement-kicker"><span class="achievement-state">달성 완료</span><span class="achievement-state">라이브</span></div>
+                        <h3>첫 번째 점</h3>
+                        <p>루미벨의 첫 시작을 따라온 마음을 남긴 업적이에요.</p>
+                        <span class="achievement-title-line">해금 칭호 · 첫 번째 점</span>
+                        <div class="achievement-actions"><button class="achievement-btn primary-look" type="button" data-achieve-equip-title="첫 번째 점">칭호 장착</button></div>
+                      </div>
+                    </article>
+                    <article class="achievement-card" data-achievement="debut-witness">
+                      <div class="achievement-icon">🎀</div>
+                      <div class="achievement-main">
+                        <div class="achievement-kicker"><span class="achievement-state">달성 완료</span><span class="achievement-state">시즌</span></div>
+                        <h3>데뷔 라이브의 증인</h3>
+                        <p>데뷔 라이브의 순간을 루미폰 기록에 남긴 업적이에요.</p>
+                        <span class="achievement-title-line">해금 칭호 · 데뷔 라이브의 증인</span>
+                        <div class="achievement-actions"><button class="achievement-btn primary-look" type="button" data-achieve-equip-title="데뷔 라이브의 증인">칭호 장착</button></div>
+                      </div>
+                    </article>
+                    <article class="achievement-card locked" data-achievement="stamp-complete">
+                      <div class="achievement-icon">🔒</div>
+                      <div class="achievement-main">
+                        <div class="achievement-kicker"><span class="achievement-state locked">잠김</span><span class="achievement-state locked">스탬프</span></div>
+                        <h3>스탬프 카드 완주자</h3>
+                        <p>루미 체크인 기준 스탬프 20개를 모으면 열리는 업적이에요.</p>
+                        <span class="achievement-title-line">예정 칭호 · 스탬프 카드 완주자</span>
+                        <div class="achievement-actions"><button class="achievement-btn" type="button" disabled>조건 달성 후 해금</button></div>
+                      </div>
+                    </article>
+                    <article class="achievement-card locked" data-achievement="onair-magic">
+                      <div class="achievement-icon">🔒</div>
+                      <div class="achievement-main">
+                        <div class="achievement-kicker"><span class="achievement-state locked">잠김</span><span class="achievement-state locked">온라인</span></div>
+                        <h3>반짝 응원의 마법사</h3>
+                        <p>ON AIR 반짝 응원과 루미코드 기록이 쌓이면 열리는 업적이에요.</p>
+                        <span class="achievement-title-line">예정 칭호 · 반짝 응원의 마법사</span>
+                        <div class="achievement-actions"><button class="achievement-btn" type="button" disabled>조건 달성 후 해금</button></div>
+                      </div>
+                    </article>
+                    <article class="achievement-card locked" data-achievement="secret-letter">
+                      <div class="achievement-icon">🔒</div>
+                      <div class="achievement-main">
+                        <div class="achievement-kicker"><span class="achievement-state locked">잠김</span><span class="achievement-state locked">우편</span></div>
+                        <h3>비밀 편지의 주인</h3>
+                        <p>소장 우편이나 시즌 이벤트 편지를 통해 열리는 업적이에요.</p>
+                        <span class="achievement-title-line">예정 칭호 · 비밀 편지의 주인</span>
+                        <div class="achievement-actions"><button class="achievement-btn" type="button" disabled>조건 달성 후 해금</button></div>
+                      </div>
+                    </article>
+                  </section>
+                </article>
+              </section>
               <section class="page" id="page-homework"><article class="placeholder"><h2>숙제체키</h2><p>숙제체키 상태는 이후 단계에서 연결합니다.</p></article></section>
               <section class="page" id="page-calendar"><article class="placeholder"><h2>캘린더</h2><p>일정 데이터는 이후 단계에서 연결합니다.</p></article></section>
               <section class="page" id="page-future"><article class="placeholder"><h2>준비중</h2><p>새로운 기능과 콘텐츠가 열리기 전까지 잠시 기다리는 공간입니다.</p></article></section>
@@ -3984,6 +4241,7 @@
       const profileSimpleBody = $("#profileSimpleBody");
       const profileSimpleClose = $("#profileSimpleClose");
       const profileSimpleOk = $("#profileSimpleOk");
+      const achievementEquipButtons = $$('[data-achieve-equip-title]');
 
       function normId(value) {
         const digits = String(value || "").replace(/\D/g, "").slice(-4);
@@ -4409,6 +4667,17 @@
         closeProfileTitleModal();
       }
 
+      function equipAchievementTitle(titleName) {
+        const nextTitle = clampText(titleName || "나만의 루미나", 18) || "나만의 루미나";
+        const nextInfo = normalizeProfileInfo(Object.assign({}, profileState.info, { title: nextTitle }));
+        profileState = normalizeProfileState(Object.assign({}, profileState, { info: nextInfo }));
+        profileDraft = cloneProfileState(profileState);
+        saveProfileState();
+        updateProfileTitleOptions(nextTitle);
+        renderProfileView();
+        openProfileSimpleModal("칭호 장착 완료", ["대표 칭호가 ‘" + nextTitle + "’로 변경되었어요."]);
+      }
+
       function renderProfileView() {
         applyImagePart(profileCoverImg, profileState.cover);
         applyImagePart(profileAvatarImg, profileState.avatar);
@@ -4657,6 +4926,9 @@
       }
       $$(".profile-title-option[data-title-value]").forEach((button) => {
         button.addEventListener("click", () => selectProfileTitle(button.dataset.titleValue));
+      });
+      achievementEquipButtons.forEach((button) => {
+        button.addEventListener("click", () => equipAchievementTitle(button.dataset.achieveEquipTitle));
       });
       $$(".profile-title-tab").forEach((button) => {
         button.addEventListener("click", () => {
