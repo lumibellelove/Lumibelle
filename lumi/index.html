@@ -4295,7 +4295,7 @@
                   </div>
 
                   <section class="profile-card" aria-label="루미나 프로필 카드">
-                    <button class="profile-share-button" id="profileShareOpen" type="button" aria-label="프로필 공유 카드 준비중">↗</button>
+                    <button class="profile-share-button" id="profileShareOpen" type="button" aria-label="프로필 공유">↗</button>
                     <div class="profile-cover" id="profileCover"><img id="profileCoverImg" class="hidden" alt="프로필 헤더 이미지" /></div>
                     <div class="profile-main">
                       <div class="profile-avatar" id="profileAvatar" aria-label="프로필 아이콘"><img id="profileAvatarImg" class="hidden" alt="프로필 이미지" /><span id="profileAvatarFallback">✦</span></div>
@@ -5560,6 +5560,262 @@
         ]);
       }
 
+      function getProfileSharePayload() {
+        const info = normalizeProfileInfo(profileState.info);
+        const name = info.displayName || "루미나";
+        const title = info.title || "나만의 루미나";
+        const oshi = info.oshi || "루루 🍼🐰";
+        const joinedAt = info.joinedAt || "2026.07.12";
+        const text = [
+          "루미폰 프로필 카드",
+          "",
+          name + " · " + sampleUser.id,
+          "오시: " + oshi,
+          "대표 칭호: " + title,
+          "",
+          "루미벨과 함께 반짝이는 중 ✨",
+          "https://lumibellelove.com",
+          "#LUMIBELLE #루미벨 #루미폰"
+        ].join("\n");
+        return {
+          mode: "profile",
+          kicker: "PROFILE CARD",
+          icon: "♡",
+          title: name,
+          reward: "LUMI ID · " + sampleUser.id,
+          desc: "오시: " + oshi,
+          small: "대표 칭호 · " + title,
+          date: joinedAt,
+          avatar: profileState && profileState.avatar ? profileState.avatar.src : "",
+          text
+        };
+      }
+
+      function loadCanvasImage(src) {
+        return new Promise((resolve) => {
+          if (!src) { resolve(null); return; }
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = () => resolve(null);
+          img.src = src;
+        });
+      }
+
+      function drawCircularImage(ctx, img, x, y, size) {
+        if (!ctx || !img) return false;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.clip();
+        const iw = img.naturalWidth || img.width;
+        const ih = img.naturalHeight || img.height;
+        const scale = Math.max(size / iw, size / ih);
+        const sw = size / scale;
+        const sh = size / scale;
+        const sx = Math.max(0, (iw - sw) / 2);
+        const sy = Math.max(0, (ih - sh) / 2);
+        ctx.drawImage(img, sx, sy, sw, sh, x, y, size, size);
+        ctx.restore();
+        return true;
+      }
+
+      async function drawProfileShareImage(payload) {
+        const canvas = document.createElement("canvas");
+        canvas.width = 1080;
+        canvas.height = 1350;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return null;
+
+        const pink = "#ff5fa8";
+        const pinkSoft = "#fff0f7";
+        const deep = "#624459";
+        const muted = "#9a7187";
+        const line = "#f2d8e7";
+        const white = "#ffffff";
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const outer = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        outer.addColorStop(0, "#fffafd");
+        outer.addColorStop(.48, "#fff0f7");
+        outer.addColorStop(1, "#f8f0ff");
+        ctx.fillStyle = outer;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "rgba(255, 95, 168, .11)";
+        ctx.beginPath();
+        ctx.arc(168, 190, 158, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(202, 167, 255, .16)";
+        ctx.beginPath();
+        ctx.arc(916, 238, 174, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255, 205, 226, .28)";
+        ctx.beginPath();
+        ctx.arc(884, 1120, 210, 0, Math.PI * 2);
+        ctx.fill();
+
+        const cardBg = ctx.createLinearGradient(100, 76, 980, 1280);
+        cardBg.addColorStop(0, "#ffffff");
+        cardBg.addColorStop(.68, "#fff7fb");
+        cardBg.addColorStop(1, "#f8f0ff");
+        roundRect(ctx, 90, 72, 900, 1206, 72, cardBg, "#f7d9e8");
+        roundRect(ctx, 134, 122, 812, 1108, 52, "rgba(255,255,255,.76)", "#f8dce9");
+
+        ctx.textAlign = "center";
+        ctx.fillStyle = "rgba(255,95,168,.22)";
+        ctx.font = "900 48px sans-serif";
+        ctx.fillText("✦", 185, 190);
+        ctx.fillText("✦", 890, 1160);
+
+        ctx.fillStyle = pink;
+        ctx.font = "900 30px sans-serif";
+        ctx.fillText("LUMI PHONE", 540, 190);
+        ctx.fillStyle = muted;
+        ctx.font = "900 24px sans-serif";
+        ctx.fillText("PROFILE CARD", 540, 228);
+
+        roundRect(ctx, 412, 282, 256, 256, 92, pinkSoft, line);
+        const iconGrad = ctx.createLinearGradient(420, 290, 660, 530);
+        iconGrad.addColorStop(0, "#fff");
+        iconGrad.addColorStop(1, "#ffe4f0");
+        roundRect(ctx, 436, 306, 208, 208, 82, iconGrad, "#f4c8dc");
+        const avatarImg = await loadCanvasImage(payload.avatar || "");
+        if (avatarImg) {
+          drawCircularImage(ctx, avatarImg, 446, 316, 188);
+        } else {
+          ctx.fillStyle = pink;
+          ctx.font = "900 94px sans-serif";
+          ctx.fillText("♡", 540, 444);
+        }
+
+        ctx.fillStyle = deep;
+        ctx.font = "900 60px sans-serif";
+        wrapText(ctx, payload.title || "루미나", 540, 612, 760, 68, "center");
+
+        ctx.fillStyle = pink;
+        ctx.font = "900 33px sans-serif";
+        wrapText(ctx, payload.reward || ("LUMI ID · " + sampleUser.id), 540, 722, 760, 42, "center");
+
+        ctx.fillStyle = muted;
+        ctx.font = "800 30px sans-serif";
+        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", 540, 820, 760, 42, "center");
+
+        ctx.fillStyle = "#b5869c";
+        ctx.font = "900 28px sans-serif";
+        wrapText(ctx, payload.small || "대표 칭호 · 나만의 루미나", 540, 908, 700, 38, "center");
+
+        ctx.fillStyle = pink;
+        ctx.font = "900 26px sans-serif";
+        wrapText(ctx, "루미벨과 함께 반짝이는 중", 540, 990, 700, 36, "center");
+
+        ctx.textAlign = "left";
+        roundRect(ctx, 154, 1042, 772, 160, 34, white, line);
+        ctx.fillStyle = muted;
+        ctx.font = "900 25px sans-serif";
+        ctx.fillText((payload.date || "2026.07.12") + " 개통", 190, 1102);
+        ctx.fillStyle = pink;
+        ctx.font = "900 28px sans-serif";
+        ctx.fillText("LUMI ID · " + sampleUser.id, 190, 1148);
+        ctx.fillStyle = muted;
+        ctx.font = "900 25px sans-serif";
+        ctx.fillText("lumibellelove.com", 190, 1192);
+        fakeQr(ctx, 785, 1067, 104);
+        return canvas;
+      }
+
+      function profileImageFileName() {
+        const name = normalizeProfileInfo(profileState.info).displayName || "profile";
+        return ("lumiphone-profile-" + name).replace(/[\/:*?"<>|\s]+/g, "-") + ".png";
+      }
+
+      async function downloadProfileShareImage(silent) {
+        const payload = getProfileSharePayload();
+        const canvas = await drawProfileShareImage(payload);
+        const blob = await achievementCanvasToBlob(canvas);
+        if (!blob) {
+          if (!silent) openProfileSimpleModal("저장 안내", ["이미지 저장이 어려워요.", "공유 버튼으로 다른 앱에 보내 주세요.", "PC 환경에서는 PC에서 저장해 주세요."]);
+          return null;
+        }
+        downloadBlob(blob, profileImageFileName());
+        if (!silent) openProfileSimpleModal("저장 완료", ["공유 카드가 저장되었어요."]);
+        return blob;
+      }
+
+      async function shareProfileNative() {
+        const payload = getProfileSharePayload();
+        const canvas = await drawProfileShareImage(payload);
+        const blob = await achievementCanvasToBlob(canvas);
+        const fileName = profileImageFileName();
+        const isMobile = isMobileLikeDevice();
+        if (!isMobile) {
+          if (blob) downloadBlob(blob, fileName);
+          const copied = await copyPlainTextAsync(payload.text);
+          openProfileSimpleModal("PC 공유 준비 완료", [
+            "PC에서는 공유 준비를 완료했어요.",
+            "공유 카드 이미지는 저장했고, 공유 문구는 " + (copied ? "복사해두었어요." : "복사가 어려워요."),
+            copied ? "X나 인스타 웹에서 직접 업로드해 주세요." : "공유 문구가 필요하면 X 버튼을 이용해 주세요."
+          ]);
+          return;
+        }
+        const file = blob ? new File([blob], fileName, { type: "image/png" }) : null;
+        const shareData = { title: "LUMI PHONE", text: payload.text, url: "https://lumibellelove.com" };
+        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ title: "LUMI PHONE", text: payload.text, files: [file] });
+            return;
+          } catch (error) {
+            if (error && error.name === "AbortError") return;
+          }
+        }
+        if (navigator.share) {
+          try {
+            await navigator.share(shareData);
+            return;
+          } catch (error) {
+            if (error && error.name === "AbortError") return;
+          }
+        }
+        if (blob) downloadBlob(blob, fileName);
+        await copyPlainTextAsync(payload.text);
+        openProfileSimpleModal("공유 안내", ["이 기기에서는 이미지 공유가 바로 되지 않아요.", "이미지는 저장했고, 공유 문구는 복사해두었어요.", "X나 인스타에서 직접 붙여 넣어 주세요."]);
+      }
+
+      function openProfileXShareConfirm() {
+        const payload = getProfileSharePayload();
+        const xUrl = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(payload.text);
+        openProfileSimpleModal("X 작성창으로 이동할까요?", [
+          "X에는 공유 문구와 링크가 먼저 들어가요.",
+          "이미지까지 함께 올리고 싶다면 ‘공유’ 버튼을 이용해 주세요."
+        ], [
+          { label: "이동하기", primary: true, onClick: () => moveToXShareUrl(xUrl) },
+          { label: "취소" }
+        ]);
+      }
+
+      function handleProfileShareAction(action) {
+        const payload = getProfileSharePayload();
+        if (action === "native") { shareProfileNative(); return; }
+        if (action === "x") { openProfileXShareConfirm(); return; }
+        if (action === "instagram") {
+          copyPlainText(payload.text, "인스타 공유 준비 완료!\n\n이미지 저장 버튼으로 공유 카드를 저장한 뒤, 인스타 스토리나 게시물에 올려주세요.\n\n공유 문구는 복사해두었어요.");
+          return;
+        }
+        if (action === "save") { downloadProfileShareImage(false); }
+      }
+
+      function openProfileSharePanel() {
+        openProfileSimpleModal("프로필 공유", [
+          "프로필 공유 카드를 준비했어요.",
+          "공유할 곳을 골라주세요."
+        ], [
+          { label: "↗ 공유", primary: true, onClick: () => handleProfileShareAction("native") },
+          { label: "𝕏 X", onClick: () => handleProfileShareAction("x") },
+          { label: "📷 인스타", onClick: () => handleProfileShareAction("instagram") },
+          { label: "↓ 저장", onClick: () => handleProfileShareAction("save") }
+        ]);
+      }
+
       function handleAchievementShareAction(scope, action) {
         const payload = getAchievementSharePayload(scope);
         if (!payload) {
@@ -5986,7 +6242,7 @@
       }
       if (profileTitlePick) profileTitlePick.addEventListener("click", openProfileTitleModal);
       if (profileTitleQuickOpen) profileTitleQuickOpen.addEventListener("click", openProfileTitleModal);
-      if (profileShareOpen) profileShareOpen.addEventListener("click", () => openProfileSimpleModal("공유 카드 준비중", ["루미폰 프로필을 세로형 MY LUMI CARD 이미지로 만들어 공유하는 기능은 다음 단계에서 연결됩니다.", "공유 카드의 QR은 개인 프로필이 아니라 lumibellelove.com 메인으로 연결할 예정이에요."]));
+      if (profileShareOpen) profileShareOpen.addEventListener("click", openProfileSharePanel);
       if (profileEditorClose) profileEditorClose.addEventListener("click", () => { profileTextComposing = false; closeProfileEditor(true); });
       if (profileEditorSaveTop) profileEditorSaveTop.addEventListener("click", () => commitProfileSave(false));
       if (profileSimpleClose) profileSimpleClose.addEventListener("click", closeProfileSimpleModal);
