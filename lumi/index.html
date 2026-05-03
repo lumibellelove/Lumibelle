@@ -1888,7 +1888,6 @@
       border-radius: 13px;
       font-size: 16px;
       font-weight: 800;
-      transform: translateZ(0);
       -webkit-font-smoothing: antialiased;
       transition: none !important;
     }
@@ -2120,9 +2119,7 @@
       .birthday-selects select {
         font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
         font-weight: 700;
-        -webkit-transform: none !important;
-        transform: none !important;
-        transition: none !important;
+          transition: none !important;
         will-change: auto;
       }
 
@@ -2216,6 +2213,51 @@
       border-color: var(--line2);
       box-shadow: none !important;
     }
+
+
+    /* Profile no-bio + oshi + iOS input stabilization patch */
+    .profile-title-pill {
+      width: auto;
+      max-width: 100%;
+      justify-self: start;
+      align-self: flex-start;
+      justify-content: flex-start;
+      min-height: 30px;
+      padding: 0 13px;
+      text-align: left;
+      font-size: 11px;
+      border-color: rgba(239, 188, 213, 0.78);
+      background: #fffafd;
+      margin-top: 3px;
+      margin-bottom: 8px;
+      box-shadow: none;
+    }
+
+    .profile-public-tags {
+      margin-top: 4px;
+    }
+
+    .profile-field input,
+    .profile-field textarea,
+    .birthday-selects select {
+      transition: none !important;
+      box-shadow: none !important;
+      filter: none !important;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .profile-field input:focus,
+    .profile-field textarea:focus,
+    .birthday-selects select:focus {
+      box-shadow: none !important;
+      outline: 1px solid rgba(255, 130, 186, 0.22);
+      outline-offset: 0;
+    }
+
+    .profile-oshi-select {
+      text-align: left;
+    }
+
 
     /* Profile media picker: PC modal cropper + mobile touch cropper */
     .profile-media-modal {
@@ -2791,10 +2833,9 @@
                       <div class="profile-title-row">
                         <h3 class="profile-name" id="profileDisplayName">루미나</h3>
                         <span class="profile-id">LUMI ID · LB-0001</span>
-                        <div class="profile-meta">오시: 루루 🍼🐰 · 가입 상태: 샘플 루미</div>
+                        <div class="profile-meta" id="profileMeta">오시: 루루 🍼🐰 · 가입 상태: 샘플 루미</div>
                         <div class="profile-title-pill" id="profileTitlePill">나만의 루미나</div>
-                        <div class="profile-bio" id="profileBioText">루미벨과 함께 반짝이는 중</div>
-                        <div class="profile-public-tags" aria-label="프로필 공개 정보">
+<div class="profile-public-tags" aria-label="프로필 공개 정보">
                           <span class="profile-public-tag" id="profileSpaceTag">📍 루루의 방</span>
                           <span class="profile-public-tag" id="profileBirthdayTag">🎂 07.19</span>
                           <span class="profile-public-tag" id="profileJoinTag">🗓 2026.07.12 개통</span>
@@ -2850,6 +2891,20 @@
                         <input id="profileInputDisplayName" data-max="12" autocomplete="off" autocapitalize="off" spellcheck="false" value="루미나" />
                       </label>
 
+                      <label class="profile-field">
+                        <span class="profile-field-head"><b>오시 설정</b><span class="profile-counter">선택</span></span>
+                        <select id="profileInputOshi" class="profile-oshi-select">
+                          <option value="팀 오시 / Lumibelle">팀 오시 / Lumibelle</option>
+                          <option value="마리링 🎀⭐">마리링 🎀⭐</option>
+                          <option value="루루 🍼🐰">루루 🍼🐰</option>
+                          <option value="이로 👼🏻💎">이로 👼🏻💎</option>
+                          <option value="루나 🌙🐱">루나 🌙🐱</option>
+                          <option value="아직 고민 중">아직 고민 중</option>
+                          <option value="DD / 모두 좋아">DD / 모두 좋아</option>
+                        </select>
+                      </label>
+
+
                       
 
                       
@@ -2861,13 +2916,7 @@
                           <button class="profile-setting-action profile-title-change" id="profileTitlePick" type="button">칭호 변경</button>
                         </div>
                       </div>
-
-                      <label class="profile-field">
-                        <span class="profile-field-head"><b>자기소개/한마디</b><span class="profile-counter" data-count-for="bio">0/30</span></span>
-                        <textarea id="profileInputBio" data-max="30" autocomplete="off" autocapitalize="off" spellcheck="false">루미벨과 함께 반짝이는 중</textarea>
-                      </label>
-
-                      <label class="profile-field">
+<label class="profile-field">
                         <span class="profile-field-head"><b>나의 공간</b><span class="profile-counter" data-count-for="space">0/12</span></span>
                         <input id="profileInputSpace" data-max="12" autocomplete="off" autocapitalize="off" spellcheck="false" value="루루의 방" />
                         
@@ -3046,20 +3095,22 @@
       const profileCover = $("#profileCover");
       const profileAvatar = $("#profileAvatar");
       const profileDisplayName = $("#profileDisplayName");
+      const profileMeta = $("#profileMeta");
       const profileTitlePill = $("#profileTitlePill");
-      const profileBioText = $("#profileBioText");
+      
       const profileSpaceTag = $("#profileSpaceTag");
       const profileBirthdayTag = $("#profileBirthdayTag");
       const profileJoinTag = $("#profileJoinTag");
       const profileInputDisplayName = $("#profileInputDisplayName");
       const profileInputLetterName = $("#profileInputLetterName");
+      const profileInputOshi = $("#profileInputOshi");
       const profileInputBroadcastName = $("#profileInputBroadcastName");
       const profileInputTitle = $("#profileInputTitle");
       const profileSelectedTitle = $("#profileSelectedTitle");
       const profileTitlePick = $("#profileTitlePick");
       const profileTitleModal = $("#profileTitleModal");
       const profileTitleClose = $("#profileTitleClose");
-      const profileInputBio = $("#profileInputBio");
+      
       const profileInputSpace = $("#profileInputSpace");
       const profileBirthdayMonth = $("#profileBirthdayMonth");
       const profileBirthdayDay = $("#profileBirthdayDay");
@@ -3133,10 +3184,10 @@
       const profileDefaultPart = () => ({ src: "", x: 50, y: 50, scale: 1 });
       const profileDefaultInfo = () => ({
         displayName: "루미나",
+        oshi: "루루 🍼🐰",
         letterName: "루리",
         broadcastName: "리",
         title: "나만의 루미나",
-        bio: "루미벨과 함께 반짝이는 중",
         space: "루루의 방",
         birthdayMonth: "07",
         birthdayDay: "19",
@@ -3192,10 +3243,10 @@
         const next = Object.assign(base, info || {});
         return {
           displayName: clampText(next.displayName || "루미나", 12) || "루미나",
+          oshi: clampText(next.oshi || "루루 🍼🐰", 24) || "루루 🍼🐰",
           letterName: clampText(next.letterName || "루리", 10),
           broadcastName: clampText(next.broadcastName || "리", 12),
           title: clampText(String(next.title || "나만의 루미나").replace(/^대표 칭호\s*·\s*/, "").replace("첫 번째 점을 따라온 루미나", "첫 번째 점"), 18),
-          bio: clampText(next.bio || "루미벨과 함께 반짝이는 중", 30),
           space: clampText(next.space || "루루의 방", 12),
           birthdayMonth: normalizeBirthdayMonth(next.birthdayMonth),
           birthdayDay: normalizeBirthdayDay(next.birthdayDay),
@@ -3272,14 +3323,13 @@
       }
 
       function trimAllProfileInputs() {
-        [profileInputDisplayName, profileInputLetterName, profileInputBroadcastName, profileInputBio, profileInputSpace].forEach(trimProfileInputToMax);
+        [profileInputDisplayName, profileInputLetterName, profileInputBroadcastName, profileInputSpace].forEach(trimProfileInputToMax);
       }
 
       function updateProfileCounters() {
         setCounter("displayName", profileInputDisplayName ? profileInputDisplayName.value : "", 12);
         setCounter("letterName", profileInputLetterName ? profileInputLetterName.value : "", 10);
         setCounter("broadcastName", profileInputBroadcastName ? profileInputBroadcastName.value : "", 12);
-        setCounter("bio", profileInputBio ? profileInputBio.value : "", 30);
         setCounter("space", profileInputSpace ? profileInputSpace.value : "", 12);
       }
 
@@ -3298,12 +3348,12 @@
       function renderProfileForm() {
         const info = normalizeProfileInfo(profileDraft.info);
         if (profileInputDisplayName) profileInputDisplayName.value = info.displayName;
+        if (profileInputOshi) profileInputOshi.value = info.oshi;
         if (profileInputLetterName) profileInputLetterName.value = info.letterName;
         if (profileInputBroadcastName) profileInputBroadcastName.value = info.broadcastName;
         if (profileInputTitle) profileInputTitle.value = info.title;
         if (profileSelectedTitle) profileSelectedTitle.textContent = info.title;
         updateProfileTitleOptions(info.title);
-        if (profileInputBio) profileInputBio.value = info.bio;
         if (profileInputSpace) profileInputSpace.value = info.space;
         populateBirthdaySelects();
         if (profileBirthdayMonth) profileBirthdayMonth.value = info.birthdayMonth;
@@ -3316,10 +3366,10 @@
         const current = normalizeProfileInfo(profileDraft.info);
         return normalizeProfileInfo(Object.assign({}, current, {
           displayName: profileInputDisplayName ? profileInputDisplayName.value : current.displayName,
+          oshi: profileInputOshi ? profileInputOshi.value : current.oshi,
           letterName: profileInputLetterName ? profileInputLetterName.value : current.letterName,
           broadcastName: profileInputBroadcastName ? profileInputBroadcastName.value : current.broadcastName,
           title: current.title,
-          bio: profileInputBio ? profileInputBio.value : current.bio,
           space: profileInputSpace ? profileInputSpace.value : current.space,
           birthdayMonth: profileBirthdayMonth ? profileBirthdayMonth.value : current.birthdayMonth,
           birthdayDay: profileBirthdayDay ? profileBirthdayDay.value : current.birthdayDay
@@ -3366,8 +3416,8 @@
         if (profileAvatar) profileAvatar.classList.toggle("has-image", Boolean(profileState.avatar.src));
         const info = normalizeProfileInfo(profileState.info);
         if (profileDisplayName) profileDisplayName.textContent = info.displayName;
+        if (profileMeta) profileMeta.textContent = "오시: " + info.oshi + " · 가입 상태: 샘플 루미";
         if (profileTitlePill) profileTitlePill.textContent = info.title;
-        if (profileBioText) profileBioText.textContent = info.bio;
         if (profileSpaceTag) profileSpaceTag.textContent = "📍 " + info.space;
         if (profileBirthdayTag) profileBirthdayTag.textContent = "🎂 " + profileBirthdayText(info);
         if (profileJoinTag) profileJoinTag.textContent = "🗓 " + info.joinedAt + " 개통";
@@ -3492,6 +3542,7 @@
         profileApply.addEventListener("click", () => {
           profileTextComposing = false;
           trimAllProfileInputs();
+          updateProfileCounters();
           updateProfileCounters();
           profileDraft.info = collectProfileForm();
           if (!profileDraft.info.displayName) {
@@ -3621,7 +3672,7 @@
         updateProfileCounters();
       }
 
-      [profileInputDisplayName, profileInputLetterName, profileInputBroadcastName, profileInputBio, profileInputSpace].forEach((input) => {
+      [profileInputDisplayName, profileInputLetterName, profileInputBroadcastName, profileInputSpace].forEach((input) => {
         if (!input) return;
         input.addEventListener("compositionstart", () => {
           profileTextComposing = true;
