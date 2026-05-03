@@ -3462,23 +3462,6 @@
       margin-bottom: 14px !important;
     }
 
-    #page-profile .profile-share-preview-wrap {
-      width: 100%;
-      border: 1px solid rgba(239,188,213,.82);
-      border-radius: 26px;
-      background: linear-gradient(180deg, #fff, #fff7fb);
-      padding: 10px;
-      box-shadow: 0 14px 34px rgba(232,191,211,.16);
-    }
-
-    #page-profile .profile-share-preview-img {
-      display: block;
-      width: 100%;
-      height: auto;
-      border-radius: 20px;
-      background: #fffafd;
-    }
-
     #page-profile .profile-simple-modal.is-profile-share .profile-simple-actions {
       grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
       gap: 8px !important;
@@ -4054,37 +4037,65 @@
 
 
     /* Profile share visual fix: clear modal + profile-card-like export */
+    .profile-simple-modal.is-profile-share,
     #page-profile .profile-simple-modal.is-profile-share {
-      background: rgba(70, 50, 64, 0.18) !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
+      background: rgba(70, 50, 64, 0.18);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
 
+    .profile-simple-modal.is-profile-share .profile-simple-dialog,
     #page-profile .profile-simple-modal.is-profile-share .profile-simple-dialog {
-      background: #fff !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      box-shadow: 0 22px 62px rgba(70, 50, 64, .18) !important;
+      width: min(620px, 100%);
+      max-height: calc(100dvh - 20px);
+      overflow-y: auto;
+      border-radius: 30px;
+      padding: 16px;
+      background: #fff;
+      filter: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      box-shadow: 0 22px 62px rgba(70, 50, 64, .18);
     }
 
+    .profile-simple-modal.is-profile-share .profile-simple-body,
+    .profile-simple-modal.is-profile-share .profile-share-preview-wrap,
+    .profile-simple-modal.is-profile-share .profile-share-preview-img,
     #page-profile .profile-simple-modal.is-profile-share .profile-simple-body,
     #page-profile .profile-simple-modal.is-profile-share .profile-share-preview-wrap,
     #page-profile .profile-simple-modal.is-profile-share .profile-share-preview-img {
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
+      filter: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
 
+    .profile-share-preview-wrap,
     #page-profile .profile-share-preview-wrap {
-      border-radius: 24px !important;
-      padding: 8px !important;
-      background: #fffafd !important;
-      box-shadow: 0 10px 26px rgba(232,191,211,.12) !important;
+      width: 100%;
+      border: 1px solid rgba(239,188,213,.82);
+      border-radius: 24px;
+      background: #fffafd;
+      padding: 8px;
+      box-shadow: 0 10px 26px rgba(232,191,211,.12);
     }
 
+    .profile-share-preview-img,
     #page-profile .profile-share-preview-img {
-      border-radius: 18px !important;
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 18px;
+      background: #fffafd;
+    }
+
+    @media (max-width: 430px) {
+      .profile-simple-modal.is-profile-share .profile-simple-dialog,
+      #page-profile .profile-simple-modal.is-profile-share .profile-simple-dialog {
+        width: 100%;
+        max-height: calc(100dvh - 16px);
+        padding: 14px;
+        border-radius: 28px;
+      }
     }
 
   </style>
@@ -5756,6 +5767,37 @@
         return true;
       }
 
+      function topRoundRect(ctx, x, y, w, h, r, fill, stroke) {
+        const radius = Math.max(0, Math.min(r || 0, w / 2, h));
+        ctx.beginPath();
+        ctx.moveTo(x, y + h);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h);
+        ctx.closePath();
+        if (fill) {
+          ctx.fillStyle = fill;
+          ctx.fill();
+        }
+        if (stroke) {
+          ctx.strokeStyle = stroke;
+          ctx.stroke();
+        }
+      }
+
+      function drawTopRoundedCoverImage(ctx, img, part, x, y, w, h, r, stroke) {
+        if (!ctx || !img) return false;
+        ctx.save();
+        topRoundRect(ctx, x, y, w, h, r, null, null);
+        ctx.clip();
+        drawImageCover(ctx, img, part || null, x, y, w, h);
+        ctx.restore();
+        if (stroke) topRoundRect(ctx, x, y, w, h, r, null, stroke);
+        return true;
+      }
+
       async function drawProfileShareImage(payload) {
         const canvas = document.createElement("canvas");
         canvas.width = 1080;
@@ -5808,15 +5850,15 @@
         const coverY = 88;
         const coverW = 904;
         const coverH = 356;
-        const coverR = 28;
+        const coverR = 30;
         const coverGrad = ctx.createLinearGradient(coverX, coverY, coverX + coverW, coverY + coverH);
         coverGrad.addColorStop(0, "#ffd0e7");
         coverGrad.addColorStop(.48, "#ff8fc2");
         coverGrad.addColorStop(1, "#e9d8ff");
-        roundRect(ctx, coverX, coverY, coverW, coverH, coverR, coverGrad, "#f3c6dc");
+        topRoundRect(ctx, coverX, coverY, coverW, coverH, coverR, coverGrad, "#f3c6dc");
         const coverImg = await loadCanvasImage(payload.cover || "");
         if (coverImg) {
-          drawRoundedCoverImage(ctx, coverImg, payload.coverPart || null, coverX, coverY, coverW, coverH, coverR, "#f3c6dc");
+          drawTopRoundedCoverImage(ctx, coverImg, payload.coverPart || null, coverX, coverY, coverW, coverH, coverR, "#f3c6dc");
         } else {
           ctx.fillStyle = "rgba(255,255,255,.22)";
           ctx.beginPath();
@@ -5828,18 +5870,18 @@
           ctx.fill();
         }
 
-        const avatarOuter = 246;
-        const avatarInner = 226;
+        const avatarOuter = 302;
+        const avatarInner = 294;
         const avatarX = 116;
-        const avatarY = 330;
+        const avatarY = 318;
         ctx.beginPath();
         ctx.arc(avatarX + avatarOuter / 2, avatarY + avatarOuter / 2, avatarOuter / 2, 0, Math.PI * 2);
         ctx.fillStyle = "#fff9fd";
         ctx.fill();
-        ctx.lineWidth = 7;
+        ctx.lineWidth = 4;
         ctx.strokeStyle = white;
         ctx.stroke();
-        ctx.lineWidth = 2.5;
+        ctx.lineWidth = 1.5;
         ctx.strokeStyle = line;
         ctx.stroke();
 
@@ -5857,24 +5899,24 @@
           ctx.fillStyle = iconGrad;
           ctx.fill();
           ctx.fillStyle = white;
-          ctx.font = "900 88px sans-serif";
+          ctx.font = "900 104px sans-serif";
           ctx.textAlign = "center";
-          ctx.fillText("✦", avatarX + avatarOuter / 2, avatarY + 154);
+          ctx.fillText("✦", avatarX + avatarOuter / 2, avatarY + 190);
         }
 
         const leftX = 112;
         ctx.textAlign = "left";
         ctx.fillStyle = deep;
-        ctx.font = "900 88px sans-serif";
-        wrapText(ctx, payload.title || "루미나", leftX, 602, 840, 92, "left");
+        ctx.font = "900 84px sans-serif";
+        wrapText(ctx, payload.title || "루미나", leftX, 662, 840, 82, "left");
 
         ctx.fillStyle = muted;
-        ctx.font = "900 38px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, 708);
+        ctx.font = "900 36px sans-serif";
+        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, 742);
 
         ctx.fillStyle = deep;
-        ctx.font = "900 44px sans-serif";
-        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", leftX, 800, 850, 50, "left");
+        ctx.font = "900 42px sans-serif";
+        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", leftX, 812, 850, 46, "left");
 
         function singleLine(text, maxChars) {
           const value = String(text || "").trim();
@@ -5894,22 +5936,22 @@
         }
 
         const titleText = String(payload.small || "대표 칭호 · 나만의 루미나").replace(/^대표 칭호\s*[·:]\s*/, "");
-        pill(titleText || "나만의 루미나", leftX, 862, 430, 70, 34);
-        pill("📍 " + (payload.space || "루루의 방"), leftX, 972, 324, 66, 34);
-        pill("🎂 " + (payload.birthday || "07.19"), leftX + 354, 972, 256, 66, 34);
-        pill("🗓 " + (payload.date || "2026.07.12") + " 개통", leftX, 1050, 452, 66, 34);
+        pill(titleText || "나만의 루미나", leftX, 866, 430, 58, 31);
+        pill("📍 " + (payload.space || "루루의 방"), leftX, 954, 324, 56, 31);
+        pill("🎂 " + (payload.birthday || "07.19"), leftX + 354, 954, 256, 56, 31);
+        pill("🗓 " + (payload.date || "2026.07.12") + " 개통", leftX, 1022, 452, 56, 31);
 
-        roundRect(ctx, 94, 1186, 892, 128, 30, "rgba(255,255,255,.90)", line);
+        roundRect(ctx, 94, 1156, 892, 128, 30, "rgba(255,255,255,.90)", line);
         ctx.fillStyle = muted;
         ctx.font = "900 26px sans-serif";
-        ctx.fillText((payload.date || "2026.07.12") + " 개통", 132, 1230);
+        ctx.fillText((payload.date || "2026.07.12") + " 개통", 132, 1200);
         ctx.fillStyle = pink;
         ctx.font = "900 30px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, 132, 1268);
+        ctx.fillText("LUMI ID · " + sampleUser.id, 132, 1238);
         ctx.fillStyle = muted;
         ctx.font = "900 25px sans-serif";
-        ctx.fillText("lumibellelove.com", 132, 1304);
-        fakeQr(ctx, 818, 1212, 82);
+        ctx.fillText("lumibellelove.com", 132, 1274);
+        fakeQr(ctx, 818, 1182, 82);
         return canvas;
       }
 
@@ -5994,13 +6036,18 @@
       }
 
       async function openProfileSharePanel() {
+        if (profileSimpleModal) profileSimpleModal.classList.add("is-profile-share");
         openProfileSimpleModal("프로필 공유", ["프로필 공유 카드를 준비하는 중이에요."], [
           { label: "↗\n공유", primary: true, onClick: () => handleProfileShareAction("native") },
           { label: "𝕏\nX", onClick: () => handleProfileShareAction("x") },
           { label: "📷\n인스타", onClick: () => handleProfileShareAction("instagram") },
           { label: "↓\n저장", onClick: () => handleProfileShareAction("save") }
         ]);
-        if (profileSimpleModal) profileSimpleModal.classList.add("is-profile-share");
+        if (profileSimpleModal) {
+          profileSimpleModal.classList.add("is-profile-share");
+          profileSimpleModal.classList.remove("hidden");
+          profileSimpleModal.setAttribute("aria-hidden", "false");
+        }
         if (!profileSimpleBody) return;
         const payload = getProfileSharePayload();
         const canvas = await drawProfileShareImage(payload);
