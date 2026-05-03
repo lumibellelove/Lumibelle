@@ -5010,8 +5010,10 @@
       function saveProfileState() {
         try {
           localStorage.setItem(profileStorageKey, JSON.stringify(profileState));
+          return true;
         } catch (error) {
-          /* localStorage quota can fail with large images. Keep the current screen stable. */
+          /* localStorage quota can fail with large images. Keep the current screen stable and report the failure. */
+          return false;
         }
       }
 
@@ -5588,6 +5590,7 @@
           desc: "오시: " + oshi,
           small: "대표 칭호 · " + title,
           space: info.space || "루루의 방",
+          birthday: profileBirthdayText(info),
           date: joinedAt,
           cover: coverPart.src || "",
           coverPart,
@@ -5653,144 +5656,143 @@
         if (!ctx) return null;
 
         const pink = "#ff5fa8";
-        const pinkSoft = "#fff0f7";
         const deep = "#624459";
         const muted = "#9a7187";
         const line = "#f2d8e7";
+        const line2 = "#efbcd5";
         const white = "#ffffff";
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         const outer = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
         outer.addColorStop(0, "#fffafd");
-        outer.addColorStop(.48, "#fff0f7");
+        outer.addColorStop(.52, "#fff0f7");
         outer.addColorStop(1, "#f8f0ff");
         ctx.fillStyle = outer;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.fillStyle = "rgba(255, 95, 168, .11)";
+        ctx.fillStyle = "rgba(255, 95, 168, .10)";
         ctx.beginPath();
-        ctx.arc(168, 190, 158, 0, Math.PI * 2);
+        ctx.arc(176, 178, 166, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = "rgba(202, 167, 255, .16)";
+        ctx.fillStyle = "rgba(202, 167, 255, .15)";
         ctx.beginPath();
-        ctx.arc(916, 238, 174, 0, Math.PI * 2);
+        ctx.arc(920, 246, 178, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = "rgba(255, 205, 226, .28)";
+        ctx.fillStyle = "rgba(255, 205, 226, .24)";
         ctx.beginPath();
-        ctx.arc(884, 1120, 210, 0, Math.PI * 2);
+        ctx.arc(880, 1120, 220, 0, Math.PI * 2);
         ctx.fill();
 
-        const cardBg = ctx.createLinearGradient(100, 76, 980, 1280);
-        cardBg.addColorStop(0, "#ffffff");
-        cardBg.addColorStop(.68, "#fff7fb");
-        cardBg.addColorStop(1, "#f8f0ff");
-        roundRect(ctx, 90, 72, 900, 1206, 72, cardBg, "#f7d9e8");
-        roundRect(ctx, 134, 122, 812, 1108, 52, "rgba(255,255,255,.76)", "#f8dce9");
+        const cardX = 70;
+        const cardY = 62;
+        const cardW = 940;
+        const cardH = 1228;
+        const cardR = 70;
+        const cardGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
+        cardGrad.addColorStop(0, "#ffffff");
+        cardGrad.addColorStop(.72, "#fffafd");
+        cardGrad.addColorStop(1, "#fff4fa");
+        roundRect(ctx, cardX, cardY, cardW, cardH, cardR, cardGrad, "#f4c8dc");
 
-        ctx.textAlign = "center";
-        ctx.fillStyle = "rgba(255,95,168,.22)";
-        ctx.font = "900 48px sans-serif";
-        ctx.fillText("✦", 185, 190);
-        ctx.fillText("✦", 890, 1160);
-
-        ctx.fillStyle = pink;
-        ctx.font = "900 30px sans-serif";
-        ctx.fillText("LUMI PHONE", 540, 190);
-        ctx.fillStyle = muted;
-        ctx.font = "900 24px sans-serif";
-        ctx.fillText("PROFILE CARD", 540, 228);
-
-        const coverX = 146;
-        const coverY = 258;
-        const coverW = 788;
-        const coverH = 260;
-        const coverR = 46;
+        const coverX = 92;
+        const coverY = 88;
+        const coverW = 896;
+        const coverH = 360;
+        const coverR = 52;
         const coverGrad = ctx.createLinearGradient(coverX, coverY, coverX + coverW, coverY + coverH);
         coverGrad.addColorStop(0, "#ffd0e7");
         coverGrad.addColorStop(.48, "#ff8fc2");
         coverGrad.addColorStop(1, "#e9d8ff");
-        roundRect(ctx, coverX, coverY, coverW, coverH, coverR, coverGrad, "#f4c8dc");
+        roundRect(ctx, coverX, coverY, coverW, coverH, coverR, coverGrad, "#f3c6dc");
         const coverImg = await loadCanvasImage(payload.cover || "");
         if (coverImg) {
-          drawRoundedCoverImage(ctx, coverImg, payload.coverPart || null, coverX, coverY, coverW, coverH, coverR, "#f4c8dc");
+          drawRoundedCoverImage(ctx, coverImg, payload.coverPart || null, coverX, coverY, coverW, coverH, coverR, "#f3c6dc");
         } else {
-          ctx.fillStyle = "rgba(255,255,255,.24)";
+          ctx.fillStyle = "rgba(255,255,255,.22)";
           ctx.beginPath();
-          ctx.arc(300, 320, 84, 0, Math.PI * 2);
+          ctx.arc(246, 170, 98, 0, Math.PI * 2);
           ctx.fill();
           ctx.fillStyle = "rgba(255,255,255,.18)";
           ctx.beginPath();
-          ctx.arc(786, 466, 116, 0, Math.PI * 2);
+          ctx.arc(812, 370, 128, 0, Math.PI * 2);
           ctx.fill();
         }
 
-        const avatarOuter = 246;
-        const avatarInner = 224;
-        const avatarImageSize = 206;
-        const avatarOuterX = 540 - avatarOuter / 2;
-        const avatarOuterY = 438;
-        const avatarInnerX = 540 - avatarInner / 2;
-        const avatarInnerY = avatarOuterY + 11;
-        const avatarImageX = 540 - avatarImageSize / 2;
-        const avatarImageY = avatarInnerY + 9;
+        const avatarSize = 216;
+        const avatarX = 128;
+        const avatarY = 332;
+        const avatarImgSize = 184;
+        const avatarImgX = avatarX + (avatarSize - avatarImgSize) / 2;
+        const avatarImgY = avatarY + (avatarSize - avatarImgSize) / 2;
         ctx.beginPath();
-        ctx.arc(540, avatarOuterY + avatarOuter / 2, avatarOuter / 2, 0, Math.PI * 2);
-        ctx.fillStyle = pinkSoft;
+        ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
+        ctx.fillStyle = "#fff9fd";
         ctx.fill();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = line;
+        ctx.lineWidth = 8;
+        ctx.strokeStyle = white;
         ctx.stroke();
-        const iconGrad = ctx.createLinearGradient(avatarInnerX, avatarInnerY, avatarInnerX + avatarInner, avatarInnerY + avatarInner);
-        iconGrad.addColorStop(0, "#fff");
-        iconGrad.addColorStop(1, "#ffe4f0");
-        ctx.beginPath();
-        ctx.arc(540, avatarInnerY + avatarInner / 2, avatarInner / 2, 0, Math.PI * 2);
-        ctx.fillStyle = iconGrad;
-        ctx.fill();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = "#f4c8dc";
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = line;
         ctx.stroke();
         const avatarImg = await loadCanvasImage(payload.avatar || "");
         if (avatarImg) {
-          drawCircularImage(ctx, avatarImg, avatarImageX, avatarImageY, avatarImageSize, payload.avatarPart || null);
+          drawCircularImage(ctx, avatarImg, avatarImgX, avatarImgY, avatarImgSize, payload.avatarPart || null);
         } else {
-          ctx.fillStyle = pink;
-          ctx.font = "900 92px sans-serif";
-          ctx.fillText("♡", 540, avatarInnerY + 142);
+          const iconGrad = ctx.createLinearGradient(avatarImgX, avatarImgY, avatarImgX + avatarImgSize, avatarImgY + avatarImgSize);
+          iconGrad.addColorStop(0, "#ff82ba");
+          iconGrad.addColorStop(1, "#caa7ff");
+          ctx.beginPath();
+          ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarImgSize / 2, 0, Math.PI * 2);
+          ctx.fillStyle = iconGrad;
+          ctx.fill();
+          ctx.fillStyle = white;
+          ctx.font = "900 80px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("✦", avatarX + avatarSize / 2, avatarY + 137);
         }
 
+        const leftX = 116;
+        ctx.textAlign = "left";
         ctx.fillStyle = deep;
-        ctx.font = "900 58px sans-serif";
-        wrapText(ctx, payload.title || "루미나", 540, 740, 760, 66, "center");
-
-        ctx.fillStyle = pink;
-        ctx.font = "900 32px sans-serif";
-        wrapText(ctx, payload.reward || ("LUMI ID · " + sampleUser.id), 540, 826, 760, 42, "center");
+        ctx.font = "900 76px sans-serif";
+        wrapText(ctx, payload.title || "루미나", leftX, 610, 810, 82, "left");
 
         ctx.fillStyle = muted;
-        ctx.font = "800 29px sans-serif";
-        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", 540, 908, 760, 40, "center");
+        ctx.font = "900 34px sans-serif";
+        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, 704);
 
-        ctx.fillStyle = "#b5869c";
-        ctx.font = "900 27px sans-serif";
-        wrapText(ctx, payload.small || "대표 칭호 · 나만의 루미나", 540, 982, 700, 36, "center");
+        ctx.fillStyle = deep;
+        ctx.font = "900 40px sans-serif";
+        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", leftX, 790, 820, 48, "left");
 
-        ctx.fillStyle = pink;
-        ctx.font = "900 25px sans-serif";
-        wrapText(ctx, "루미벨과 함께 반짝이는 중", 540, 1042, 700, 34, "center");
+        function pill(text, x, y, w, h) {
+          roundRect(ctx, x, y, w, h, h / 2, "rgba(255,255,255,.82)", line2);
+          ctx.fillStyle = muted;
+          ctx.font = "900 31px sans-serif";
+          ctx.textAlign = "center";
+          const shown = String(text || "");
+          wrapText(ctx, shown, x + w / 2, y + h / 2 + 11, w - 44, 34, "center");
+          ctx.textAlign = "left";
+        }
+
+        const titleText = String(payload.small || "대표 칭호 · 나만의 루미나").replace(/^대표 칭호\s*[·:]\s*/, "");
+        pill(titleText || "나만의 루미나", leftX, 848, 410, 66);
+        pill("📍 " + (payload.space || "루루의 방"), leftX, 956, 300, 62);
+        pill("🎂 " + (payload.birthday || "07.19"), leftX + 330, 956, 240, 62);
+        pill("🗓 " + (payload.date || "2026.07.12") + " 개통", leftX, 1036, 420, 62);
 
         ctx.textAlign = "left";
-        roundRect(ctx, 154, 1072, 772, 144, 34, white, line);
+        roundRect(ctx, 104, 1122, 872, 138, 34, "rgba(255,255,255,.86)", line);
         ctx.fillStyle = muted;
-        ctx.font = "900 24px sans-serif";
-        ctx.fillText((payload.date || "2026.07.12") + " 개통", 190, 1128);
+        ctx.font = "900 25px sans-serif";
+        ctx.fillText((payload.date || "2026.07.12") + " 개통", 140, 1168);
         ctx.fillStyle = pink;
-        ctx.font = "900 27px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, 190, 1170);
+        ctx.font = "900 28px sans-serif";
+        ctx.fillText("LUMI ID · " + sampleUser.id, 140, 1207);
         ctx.fillStyle = muted;
         ctx.font = "900 24px sans-serif";
-        ctx.fillText("lumibellelove.com", 190, 1208);
-        fakeQr(ctx, 792, 1092, 96);
+        ctx.fillText("lumibellelove.com", 140, 1242);
+        fakeQr(ctx, 824, 1144, 90);
         return canvas;
       }
 
@@ -6205,17 +6207,54 @@
         renderProfileView();
       }
 
-      function readProfileFile(input, targetName) {
+      function profileFileToPersistentDataUrl(file, targetName) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onerror = () => reject(new Error("file-read-failed"));
+          reader.onload = () => {
+            const original = String(reader.result || "");
+            const img = new Image();
+            img.onload = () => {
+              try {
+                const maxW = targetName === "avatar" ? 900 : 1600;
+                const maxH = targetName === "avatar" ? 900 : 900;
+                const iw = img.naturalWidth || img.width || 1;
+                const ih = img.naturalHeight || img.height || 1;
+                const ratio = Math.min(1, maxW / Math.max(iw, 1), maxH / Math.max(ih, 1));
+                const w = Math.max(1, Math.round(iw * ratio));
+                const h = Math.max(1, Math.round(ih * ratio));
+                const canvas = document.createElement("canvas");
+                canvas.width = w;
+                canvas.height = h;
+                const c = canvas.getContext("2d");
+                if (!c) { resolve(original); return; }
+                c.drawImage(img, 0, 0, w, h);
+                const compressed = canvas.toDataURL("image/jpeg", 0.84);
+                resolve(compressed || original);
+              } catch (error) {
+                resolve(original);
+              }
+            };
+            img.onerror = () => resolve(original);
+            img.src = original;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      async function readProfileFile(input, targetName) {
         const file = input && input.files && input.files[0];
         if (!file || !file.type.startsWith("image/")) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-          const nextPart = { src: String(reader.result || ""), x: 50, y: 50, scale: 1 };
+        try {
+          const dataUrl = await profileFileToPersistentDataUrl(file, targetName === "avatar" ? "avatar" : "cover");
+          const nextPart = { src: String(dataUrl || ""), x: 50, y: 50, scale: 1 };
           profileEditTarget = targetName === "avatar" ? "avatar" : "cover";
           openProfileMediaModal(profileEditTarget, nextPart);
+        } catch (error) {
+          showProfileError("이미지를 불러오기 어려워요. 다른 이미지를 선택해 주세요.");
+        } finally {
           input.value = "";
-        };
-        reader.readAsDataURL(file);
+        }
       }
 
       loginForm.addEventListener("submit", (event) => {
@@ -6281,7 +6320,10 @@
         }
 
         profileState = nextState;
-        saveProfileState();
+        if (!saveProfileState()) {
+          showProfileError("이미지 용량이 커서 저장이 어려워요. 조금 작은 이미지로 다시 선택해 주세요.");
+          return;
+        }
         renderProfileView();
         closeProfileEditor(false);
       }
