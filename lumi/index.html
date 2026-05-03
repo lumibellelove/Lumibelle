@@ -2672,6 +2672,87 @@
       font-weight: 900;
     }
 
+
+    .achievement-summary-card.achievement-summary-mini {
+      width: 100%;
+      min-height: 92px;
+      text-align: center;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: linear-gradient(180deg, #fff, #fff7fb);
+      color: inherit;
+      box-shadow: 0 8px 16px rgba(232,191,211,.08);
+      display: grid;
+      align-content: center;
+      gap: 4px;
+      padding: 10px 8px;
+    }
+
+    .achievement-summary-card.achievement-summary-mini i {
+      width: 34px;
+      height: 34px;
+      margin: 1px auto 0;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: #fff0f7;
+      border: 1px solid var(--line);
+      color: #d77ca7;
+      font-size: 18px;
+      font-style: normal;
+    }
+
+    .achievement-summary-card.achievement-summary-mini b {
+      font-size: 15px;
+      line-height: 1.15;
+      color: #76586a;
+      word-break: keep-all;
+    }
+
+    .achievement-summary-card.achievement-summary-mini span {
+      margin-top: 0;
+      font-size: 10.5px;
+      line-height: 1.25;
+    }
+
+    .achievement-pagination {
+      display: grid;
+      grid-template-columns: 42px 1fr 42px;
+      align-items: center;
+      gap: 8px;
+      margin: 12px 0 0;
+    }
+
+    .achievement-pagination button {
+      width: 42px;
+      height: 36px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #d77ca7;
+      font-size: 22px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .achievement-pagination button:disabled {
+      opacity: .38;
+      cursor: default;
+    }
+
+    .achievement-pagination span {
+      min-height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff, #fff7fb);
+      color: #9a7187;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .03em;
+    }
+
     @media (max-width: 374px) {
       .profile-edit-panel {
         padding: 12px;
@@ -4345,8 +4426,18 @@
                   <section class="achievement-summary-grid" aria-label="업적 요약 4박스">
                     <article class="achievement-summary-card"><small>달성 업적</small><b id="achievementSummaryDone">0 / 0</b><span>완료한 기록</span></article>
                     <article class="achievement-summary-card"><small>보유 칭호</small><b id="achievementSummaryTitles">0개</b><span>프로필 장착 가능</span></article>
-                    <article class="achievement-summary-card"><small>진행 중</small><b id="achievementSummaryProgress">0개</b><span>이어가는 기록</span></article>
-                    <article class="achievement-summary-card"><small>대표 업적</small><b id="achievementSummaryRepresentative">-</b><span>자랑하고 싶은 기록</span></article>
+                    <button class="achievement-summary-card achievement-summary-mini" type="button" id="achievementSummaryProgressCard" aria-label="진행 중 업적 상세 보기">
+                      <small>진행 중</small>
+                      <i id="achievementSummaryProgressIcon" aria-hidden="true">✨</i>
+                      <b id="achievementSummaryProgress">0개</b>
+                      <span id="achievementSummaryProgressName">이어가는 기록</span>
+                    </button>
+                    <button class="achievement-summary-card achievement-summary-mini" type="button" id="achievementSummaryRepresentativeCard" aria-label="대표 업적 상세 보기">
+                      <small>대표 업적</small>
+                      <i id="achievementSummaryRepresentativeIcon" aria-hidden="true">🏅</i>
+                      <b id="achievementSummaryRepresentative">-</b>
+                      <span>자랑하고 싶은 기록</span>
+                    </button>
                   </section>
 
                   <section class="achievement-share-tool" aria-label="나의 기록 공유">
@@ -4401,6 +4492,11 @@
                       <span class="achievement-more-button">⋯</span><div class="achievement-icon">?</div><span class="achievement-state locked">숨김</span><h3>???</h3><span class="achievement-title-line">해금 후 공개</span>
                     </button>
                   </section>
+                  <nav class="achievement-pagination" aria-label="업적 도감 페이지 이동">
+                    <button type="button" id="achievementPagePrev" aria-label="이전 업적 페이지">‹</button>
+                    <span id="achievementPageText">1 / 1</span>
+                    <button type="button" id="achievementPageNext" aria-label="다음 업적 페이지">›</button>
+                  </nav>
                   <p class="achievement-more-hint">업적이 많아져도 도감처럼 짧게 보여주고, 자세한 내용은 팝업에 보관해요.</p>
                 </article>
 
@@ -4550,9 +4646,20 @@
       const achievementSummaryDone = $('#achievementSummaryDone');
       const achievementSummaryTitles = $('#achievementSummaryTitles');
       const achievementSummaryProgress = $('#achievementSummaryProgress');
+      const achievementSummaryProgressName = $('#achievementSummaryProgressName');
+      const achievementSummaryProgressIcon = $('#achievementSummaryProgressIcon');
+      const achievementSummaryProgressCard = $('#achievementSummaryProgressCard');
       const achievementSummaryRepresentative = $('#achievementSummaryRepresentative');
+      const achievementSummaryRepresentativeIcon = $('#achievementSummaryRepresentativeIcon');
+      const achievementSummaryRepresentativeCard = $('#achievementSummaryRepresentativeCard');
+      const achievementPagePrev = $('#achievementPagePrev');
+      const achievementPageNext = $('#achievementPageNext');
+      const achievementPageText = $('#achievementPageText');
       const achievementShareActionButtons = $$('.achievement-share-action[data-share-scope][data-share-action]');
       let currentAchievementCard = null;
+      let achievementCurrentFilter = "전체";
+      let achievementCurrentPage = 1;
+      const achievementPageSize = 6;
       const representativeAchievementKey = 'lumiphone.representativeAchievement.v1';
 
       function normId(value) {
@@ -5065,62 +5172,91 @@
         const ctx = canvas.getContext("2d");
         if (!ctx) return null;
         const pink = "#ff5fa8";
+        const pinkSoft = "#fff0f7";
         const deep = "#624459";
         const muted = "#9a7187";
+        const line = "#f2d8e7";
         ctx.fillStyle = "#fff7fb";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-        grad.addColorStop(0, "#fff");
-        grad.addColorStop(.62, "#fff0f7");
-        grad.addColorStop(1, "#f8f0ff");
-        roundRect(ctx, 90, 90, 900, 1170, 58, grad, "#f2d8e7");
-        ctx.fillStyle = "rgba(255,95,168,.16)";
-        ctx.font = "900 42px sans-serif";
-        ctx.fillText("✦", 150, 180);
-        ctx.fillText("✦", 880, 1170);
+        const bg = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        bg.addColorStop(0, "#fff");
+        bg.addColorStop(.56, "#fff0f7");
+        bg.addColorStop(1, "#f8f0ff");
+        roundRect(ctx, 80, 70, 920, 1210, 64, bg, line);
+        roundRect(ctx, 125, 122, 830, 1110, 46, "rgba(255,255,255,.72)", "#f7d9e8");
+
+        ctx.fillStyle = "rgba(255,95,168,.18)";
+        ctx.font = "900 44px sans-serif";
+        ctx.fillText("✦", 165, 185);
+        ctx.fillText("✦", 865, 1168);
         ctx.fillStyle = pink;
-        ctx.font = "900 32px sans-serif";
+        ctx.font = "900 30px sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText("LUMI PHONE · " + (payload.kicker || "ACHIEVEMENT"), 540, 190);
-        ctx.font = "900 86px sans-serif";
-        ctx.fillText(payload.icon || "🏅", 540, 330);
-        ctx.fillStyle = deep;
-        ctx.font = "900 56px sans-serif";
-        wrapText(ctx, payload.title || "업적", 540, 430, 780, 66, "center");
-        ctx.fillStyle = pink;
-        ctx.font = "900 34px sans-serif";
-        wrapText(ctx, payload.reward || "", 540, 540, 760, 44, "center");
+        ctx.fillText("LUMI PHONE", 540, 190);
         ctx.fillStyle = muted;
-        ctx.font = "800 30px sans-serif";
-        wrapText(ctx, payload.desc || "루미벨과 함께한 기록", 540, 635, 760, 42, "center");
-        if (payload.mode === "summary" && payload.cards && payload.cards.length) {
+        ctx.font = "900 24px sans-serif";
+        ctx.fillText(payload.mode === "summary" ? "ACHIEVEMENT LOG" : (payload.kicker || "ACHIEVEMENT UNLOCKED"), 540, 228);
+
+        if (payload.mode === "summary") {
+          ctx.fillStyle = pink;
+          ctx.font = "900 76px sans-serif";
+          ctx.fillText("✦", 540, 330);
+          ctx.fillStyle = deep;
+          ctx.font = "900 50px sans-serif";
+          ctx.fillText("나의 루미폰 업적", 540, 410);
+          const statText = (payload.reward || "").split(" · ");
+          const descText = (payload.desc || "").split(" · ");
+          const statItems = [statText[0] || "달성 -", statText[1] || "칭호 -", descText[0] || "진행 중 -", descText[1] || "대표 업적 -"];
+          statItems.forEach((item, index) => {
+            const x = 170 + (index % 2) * 375;
+            const y = 485 + Math.floor(index / 2) * 132;
+            roundRect(ctx, x, y, 335, 96, 26, "#fff", line);
+            ctx.fillStyle = index < 2 ? pink : deep;
+            ctx.font = "900 28px sans-serif";
+            wrapText(ctx, item, x + 168, y + 40, 275, 32, "center");
+          });
           ctx.textAlign = "left";
           ctx.fillStyle = pink;
-          ctx.font = "900 30px sans-serif";
-          ctx.fillText("업적 도감", 180, 780);
-          payload.cards.forEach((item, index) => {
-            const x = 180 + (index % 2) * 370;
-            const y = 825 + Math.floor(index / 2) * 120;
-            roundRect(ctx, x, y, 330, 86, 24, "#fff", "#f2d8e7");
+          ctx.font = "900 29px sans-serif";
+          ctx.fillText("MY ACHIEVEMENT COLLECTION", 175, 795);
+          (payload.cards || []).slice(0, 4).forEach((item, index) => {
+            const x = 175 + (index % 2) * 370;
+            const y = 830 + Math.floor(index / 2) * 120;
+            roundRect(ctx, x, y, 330, 88, 24, "#fff", line);
             ctx.fillStyle = pink;
-            ctx.font = "900 34px sans-serif";
-            ctx.fillText(item.icon || "🏅", x + 28, y + 54);
+            ctx.font = "900 35px sans-serif";
+            ctx.fillText(item.icon || "🏅", x + 28, y + 56);
             ctx.fillStyle = deep;
             ctx.font = "900 25px sans-serif";
-            wrapText(ctx, item.title || "업적", x + 76, y + 36, 220, 30, "left");
+            wrapText(ctx, item.title || "업적", x + 78, y + 38, 220, 30, "left");
           });
+        } else {
+          roundRect(ctx, 420, 285, 240, 240, 64, pinkSoft, line);
+          ctx.fillStyle = pink;
+          ctx.font = "900 96px sans-serif";
+          ctx.fillText(payload.icon || "🏅", 540, 435);
+          ctx.fillStyle = deep;
+          ctx.font = "900 58px sans-serif";
+          wrapText(ctx, payload.title || "업적", 540, 575, 760, 66, "center");
+          ctx.fillStyle = pink;
+          ctx.font = "900 34px sans-serif";
+          wrapText(ctx, payload.reward || "", 540, 700, 760, 44, "center");
+          ctx.fillStyle = muted;
+          ctx.font = "800 30px sans-serif";
+          wrapText(ctx, payload.desc || "루미벨과 함께한 기록", 540, 815, 760, 42, "center");
         }
+
         ctx.textAlign = "left";
         ctx.fillStyle = muted;
-        ctx.font = "900 26px sans-serif";
-        ctx.fillText(payload.date || "", 180, 1110);
+        ctx.font = "900 25px sans-serif";
+        ctx.fillText(payload.date || new Date().toLocaleDateString("ko-KR"), 180, 1110);
         ctx.fillStyle = pink;
         ctx.font = "900 28px sans-serif";
-        ctx.fillText("LUMI ID · LB-0001", 180, 1152);
+        ctx.fillText("LUMI ID · LB-0001", 180, 1154);
         ctx.fillStyle = muted;
         ctx.font = "900 25px sans-serif";
-        ctx.fillText("lumibellelove.com", 180, 1194);
-        fakeQr(ctx, 800, 1090, 110);
+        ctx.fillText("lumibellelove.com", 180, 1198);
+        fakeQr(ctx, 800, 1092, 110);
         return canvas;
       }
 
@@ -5195,11 +5331,11 @@
           return;
         }
         if (action === "x") {
-          window.open("https://twitter.com/intent/tweet?text=" + encodeURIComponent(payload.text), "_blank", "noopener,noreferrer");
+          window.location.href = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(payload.text);
           return;
         }
         if (action === "instagram") {
-          copyPlainText(payload.text, "인스타용 문구를 복사했어요. 저장 아이콘으로 이미지를 저장한 뒤 인스타에 함께 올려주세요.");
+          copyPlainText(payload.text, "인스타 공유 준비 완료!\n\n이미지 저장 버튼으로 공유 카드를 저장한 뒤, 인스타 스토리나 게시물에 올려주세요.\n\n공유 문구는 복사해두었어요.");
           return;
         }
         if (action === "save") {
@@ -5216,10 +5352,14 @@
       }
 
       function copyPlainText(text, successMessage) {
+        const showCopyMessage = () => {
+          const message = successMessage || "공유 문구를 복사했어요.";
+          openProfileSimpleModal("복사 완료", String(message).split(/\n+/).filter(Boolean));
+        };
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(() => openProfileSimpleModal("복사 완료", [successMessage || "공유 문구를 복사했어요."])).catch(() => openProfileSimpleModal("복사 안내", [text]));
+          navigator.clipboard.writeText(text).then(showCopyMessage).catch(() => openProfileSimpleModal("복사 안내", String(text || "").split(/\n+/).filter(Boolean)));
         } else {
-          openProfileSimpleModal("복사 안내", [text]);
+          openProfileSimpleModal("복사 안내", String(text || "").split(/\n+/).filter(Boolean));
         }
       }
 
@@ -5302,27 +5442,61 @@
         const ownedTitles = Array.from(new Set(ownedCards.map((card) => card.dataset.achievementReward).filter(Boolean)));
         if (achievementSummaryDone) achievementSummaryDone.textContent = ownedCards.length + " / " + cards.length;
         if (achievementSummaryTitles) achievementSummaryTitles.textContent = ownedTitles.length + "개";
-        if (achievementSummaryProgress) achievementSummaryProgress.textContent = progressCards.length + "개";
+
+        const progressCard = progressCards[0] || null;
+        if (achievementSummaryProgress) achievementSummaryProgress.textContent = progressCard ? (progressCard.dataset.achievementProgress || "진행 중") : "0개";
+        if (achievementSummaryProgressName) achievementSummaryProgressName.textContent = progressCard ? (progressCard.dataset.achievementTitle || "이어가는 기록") : "이어가는 기록";
+        if (achievementSummaryProgressIcon) achievementSummaryProgressIcon.textContent = progressCard ? (progressCard.dataset.achievementIcon || "✨") : "✨";
+        if (achievementSummaryProgressCard) {
+          achievementSummaryProgressCard.disabled = !progressCard;
+          achievementSummaryProgressCard.dataset.summaryAchievementTitle = progressCard ? (progressCard.dataset.achievementTitle || "") : "";
+        }
+
         let representativeTitle = localStorage.getItem(representativeAchievementKey) || (ownedCards[0] && ownedCards[0].dataset.achievementTitle) || "";
         let representativeCard = findAchievementCardByTitle(representativeTitle) || ownedCards[0] || cards[0];
         if (representativeCard && !achievementIsOwned(representativeCard)) representativeCard = ownedCards[0] || cards[0];
         if (representativeCard) {
           localStorage.setItem(representativeAchievementKey, representativeCard.dataset.achievementTitle || "");
           if (achievementSummaryRepresentative) achievementSummaryRepresentative.textContent = representativeCard.dataset.achievementTitle || "-";
+          if (achievementSummaryRepresentativeIcon) achievementSummaryRepresentativeIcon.textContent = representativeCard.dataset.achievementIcon || "🏅";
+          if (achievementSummaryRepresentativeCard) {
+            achievementSummaryRepresentativeCard.disabled = false;
+            achievementSummaryRepresentativeCard.dataset.summaryAchievementTitle = representativeCard.dataset.achievementTitle || "";
+          }
+        } else if (achievementSummaryRepresentativeCard) {
+          achievementSummaryRepresentativeCard.disabled = true;
         }
       }
 
-      function filterAchievements(category) {
+      function getFilteredAchievementCards(category) {
         const nextCategory = category || "전체";
-        achievementFilterButtons.forEach((button) => {
-          button.classList.toggle("active", button.dataset.achievementFilter === nextCategory);
-        });
-        getAchievementCards().forEach((card) => {
+        return getAchievementCards().filter((card) => {
           const cardCategory = card.dataset.achievementCategory || "기본";
           const isHidden = (card.dataset.achievementStatus || "") === "숨김" || cardCategory === "숨김";
-          const visible = nextCategory === "전체" ? true : nextCategory === "숨김" ? isHidden : cardCategory === nextCategory;
-          card.hidden = !visible;
+          return nextCategory === "전체" ? true : nextCategory === "숨김" ? isHidden : cardCategory === nextCategory;
         });
+      }
+
+      function renderAchievementPage() {
+        const filteredCards = getFilteredAchievementCards(achievementCurrentFilter);
+        const totalPages = Math.max(1, Math.ceil(filteredCards.length / achievementPageSize));
+        if (achievementCurrentPage > totalPages) achievementCurrentPage = totalPages;
+        if (achievementCurrentPage < 1) achievementCurrentPage = 1;
+        const start = (achievementCurrentPage - 1) * achievementPageSize;
+        const visibleSet = new Set(filteredCards.slice(start, start + achievementPageSize));
+        getAchievementCards().forEach((card) => { card.hidden = !visibleSet.has(card); });
+        if (achievementPageText) achievementPageText.textContent = achievementCurrentPage + " / " + totalPages;
+        if (achievementPagePrev) achievementPagePrev.disabled = achievementCurrentPage <= 1;
+        if (achievementPageNext) achievementPageNext.disabled = achievementCurrentPage >= totalPages;
+      }
+
+      function filterAchievements(category) {
+        achievementCurrentFilter = category || "전체";
+        achievementCurrentPage = 1;
+        achievementFilterButtons.forEach((button) => {
+          button.classList.toggle("active", button.dataset.achievementFilter === achievementCurrentFilter);
+        });
+        renderAchievementPage();
       }
 
       function renderProfileView() {
@@ -5619,6 +5793,32 @@
           handleAchievementShareAction(button.dataset.shareScope || "summary", button.dataset.shareAction || "native");
         });
       });
+      if (achievementSummaryProgressCard) {
+        achievementSummaryProgressCard.addEventListener("click", () => {
+          const title = achievementSummaryProgressCard.dataset.summaryAchievementTitle || "";
+          const card = title ? findAchievementCardByTitle(title) : null;
+          if (card) openAchievementModal(card);
+        });
+      }
+      if (achievementSummaryRepresentativeCard) {
+        achievementSummaryRepresentativeCard.addEventListener("click", () => {
+          const title = achievementSummaryRepresentativeCard.dataset.summaryAchievementTitle || "";
+          const card = title ? findAchievementCardByTitle(title) : null;
+          if (card) openAchievementModal(card);
+        });
+      }
+      if (achievementPagePrev) {
+        achievementPagePrev.addEventListener("click", () => {
+          achievementCurrentPage -= 1;
+          renderAchievementPage();
+        });
+      }
+      if (achievementPageNext) {
+        achievementPageNext.addEventListener("click", () => {
+          achievementCurrentPage += 1;
+          renderAchievementPage();
+        });
+      }
       updateAchievementSummary();
       filterAchievements("전체");
       $$(".profile-title-tab").forEach((button) => {
