@@ -3956,6 +3956,29 @@
       font-weight: 900;
     }
 
+
+    .profile-simple-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .profile-simple-action-btn {
+      min-height: 38px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #b07693;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .profile-simple-action-btn.primary-look {
+      border-color: transparent;
+      background: linear-gradient(180deg,#ff82ba,#ff5fa8);
+      color: #fff;
+    }
+
   </style>
 </head>
 
@@ -4437,6 +4460,7 @@
                       </div>
                       <div class="profile-simple-body" id="profileSimpleBody"></div>
                       <button class="profile-simple-ok" id="profileSimpleOk" type="button">확인</button>
+                      <div class="profile-simple-actions hidden" id="profileSimpleActions"></div>
                     </div>
                   </section>
 
@@ -4706,6 +4730,7 @@
       const profileSimpleBody = $("#profileSimpleBody");
       const profileSimpleClose = $("#profileSimpleClose");
       const profileSimpleOk = $("#profileSimpleOk");
+      const profileSimpleActions = $("#profileSimpleActions");
       const achievementCards = $$('.achievement-card[data-achievement-title]');
       const achievementModal = $('#achievementModal');
       const achievementModalClose = $('#achievementModalClose');
@@ -5420,7 +5445,7 @@
         const canvas = drawAchievementShareImage(payload);
         const blob = await achievementCanvasToBlob(canvas);
         if (!blob) {
-          if (!silent) openProfileSimpleModal("저장 안내", ["이미지 저장이 어려워요.", "화면을 길게 눌러 저장하거나, 공유 버튼을 이용해 주세요."]);
+          if (!silent) openProfileSimpleModal("저장 안내", ["이미지 저장이 어려워요.", "공유 버튼으로 다른 앱에 보내 주세요.", "PC 환경에서는 PC에서 저장해 주세요."]);
           return null;
         }
         downloadBlob(blob, achievementImageFileName(payload));
@@ -5471,6 +5496,29 @@
         openProfileSimpleModal("공유 안내", ["이 기기에서는 이미지 공유가 바로 되지 않아요.", "이미지는 저장했고, 공유 문구는 복사해두었어요.", "X나 인스타에서 직접 붙여 넣어 주세요."]);
       }
 
+      function openXAchievementShareConfirm(payload) {
+        if (!payload) return;
+        const xUrl = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(payload.text);
+        openProfileSimpleModal("X 작성창으로 이동할까요?", [
+          "X에는 공유 문구와 링크가 먼저 들어가요.",
+          "이미지까지 함께 올리고 싶다면 ‘공유’ 버튼을 이용해 주세요."
+        ], [
+          {
+            label: "이동하기",
+            primary: true,
+            onClick: () => {
+              const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "");
+              if (isMobile) {
+                window.location.href = xUrl;
+              } else {
+                window.open(xUrl, "_blank", "noopener,noreferrer");
+              }
+            }
+          },
+          { label: "취소" }
+        ]);
+      }
+
       function handleAchievementShareAction(scope, action) {
         const payload = getAchievementSharePayload(scope);
         if (!payload) {
@@ -5478,10 +5526,7 @@
           return;
         }
         if (action === "x") {
-          openProfileSimpleModal("X 공유 안내", ["X 작성창으로 이동해요.", "이미지까지 함께 올리고 싶다면 ‘공유’ 버튼을 이용해 주세요."]);
-          setTimeout(() => {
-            window.location.href = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(payload.text);
-          }, 720);
+          openXAchievementShareConfirm(payload);
           return;
         }
         if (action === "instagram") {
@@ -5672,7 +5717,7 @@
         renderProfileForm();
       }
 
-      function openProfileSimpleModal(title, lines) {
+      function openProfileSimpleModal(title, lines, actions) {
         if (!profileSimpleModal || !profileSimpleTitle || !profileSimpleBody) return;
         if (profileSimpleModal.parentElement !== document.body) document.body.appendChild(profileSimpleModal);
         profileSimpleTitle.textContent = title || "안내";
@@ -5682,6 +5727,25 @@
           p.textContent = line;
           profileSimpleBody.appendChild(p);
         });
+        if (profileSimpleActions) {
+          profileSimpleActions.innerHTML = "";
+          const actionList = Array.isArray(actions) ? actions : [];
+          profileSimpleActions.classList.toggle("hidden", actionList.length === 0);
+          if (profileSimpleOk) profileSimpleOk.classList.toggle("hidden", actionList.length > 0);
+          actionList.forEach((action) => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "profile-simple-action-btn" + (action.primary ? " primary-look" : "");
+            btn.textContent = action.label || "확인";
+            btn.addEventListener("click", () => {
+              closeProfileSimpleModal();
+              if (typeof action.onClick === "function") action.onClick();
+            });
+            profileSimpleActions.appendChild(btn);
+          });
+        } else if (profileSimpleOk) {
+          profileSimpleOk.classList.remove("hidden");
+        }
         profileSimpleModal.classList.remove("hidden");
         profileSimpleModal.setAttribute("aria-hidden", "false");
       }
@@ -5690,6 +5754,11 @@
         if (!profileSimpleModal) return;
         profileSimpleModal.classList.add("hidden");
         profileSimpleModal.setAttribute("aria-hidden", "true");
+        if (profileSimpleActions) {
+          profileSimpleActions.innerHTML = "";
+          profileSimpleActions.classList.add("hidden");
+        }
+        if (profileSimpleOk) profileSimpleOk.classList.remove("hidden");
       }
 
       function renderProfileCrop() {
