@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>LUMI PHONE v10.3 | Clean RC Step 2 Ticket Mail OK</title>
+  <title>LUMI PHONE v10.3 | Clean RC Step 3 ON AIR Final Fix</title>
   <meta name="theme-color" content="#fff7fb" />
 
   <style>
-    /* =========================================================
+/* =========================================================
       LUMI PHONE CLEAN RC
       새 단일 HTML / 팬 화면 / 로그인 + 탭 구조 + 홈
       기존 누적 패치 CSS·운영탭·내부 로드맵·개발용 UI 미포함
@@ -1542,10 +1542,7 @@
       display: block;
     }
 
-</style>
-
-  <style id="step1-1-mobile-density-patch">
-    /* =========================================================
+/* =========================================================
       STEP 1-1 모바일 홈 밀도 조정 패치
       기능 추가 없음 / 탭 구조 유지 / 앱 그리드 유지
     ========================================================= */
@@ -1849,7 +1846,49 @@
       }
     }
 
-  </style>
+    /* ===== ON AIR final micro-adjustment (deduped in main CSS) ===== */
+    .tab[data-page="onair"] {
+      padding-left: 9px;
+      padding-right: 31px;
+      text-align: left;
+    }
+
+    .tab[data-page="onair"] .badge {
+      top: 3px;
+      right: 4px;
+      min-width: 28px;
+      height: 17px;
+      padding: 0 5px;
+      font-size: 8px;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    #page-onair > .module-card > p {
+      font-size: 12.3px;
+      line-height: 1.62;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    @media (max-width: 374px) {
+      .tab[data-page="onair"] {
+        padding-left: 8px;
+        padding-right: 29px;
+      }
+
+      .tab[data-page="onair"] .badge {
+        right: 3px;
+        min-width: 27px;
+        font-size: 7.5px;
+      }
+    }
+
+
+    .mt-10 { margin-top: 10px; }
+    .mt-12 { margin-top: 12px; }
+
+</style>
 
 </head>
 
@@ -1909,7 +1948,7 @@
               <button class="tab" type="button" data-page="exchange">교환소</button>
               <button class="tab" type="button" data-page="profile">프로필</button>
               <button class="tab" type="button" data-page="achieve">업적</button>
-              <button class="tab" type="button" data-page="onair">ON AIR<span class="badge">LIVE</span></button>
+              <button class="tab" type="button" data-page="onair"><span class="tab-text">ON AIR</span><span class="badge">LIVE</span></button>
               <button class="tab" type="button" data-page="homework">숙제체키</button>
               <button class="tab" type="button" data-page="calendar">캘린더</button>
             </nav>
@@ -2254,7 +2293,7 @@
       </div>
     </section>
 
-    <article class="plain-row" style="margin-top:12px;">
+    <article class="plain-row mt-12">
       <b>루미코드 입력, 반짝 포인트/XP, 시크릿 메시지</b>
       <span>방송 참여 기록과 함께 순차적으로 열릴 예정이에요.</span>
     </article>
@@ -2285,7 +2324,7 @@
       </article>
     </section>
 
-    <article class="plain-row" style="margin-top:10px;">
+    <article class="plain-row mt-10">
       <b>스탬프 제외</b>
       <span>라이브만 봄 · 물판만 구경 · 굿즈만 구매 · 팔로우 이벤트만 받고 특전회 참여 안 함 · 그냥 찍고 감</span>
     </article>
@@ -2313,11 +2352,11 @@
                     <div class="toast" id="codeToast">아직 루미코드가 열리지 않았어요.</div>
                   </div>
 
-                  <button class="disabled-note-btn" id="onairGuideBtn" type="button" style="margin-top:12px;">
+                  <button class="disabled-note-btn mt-12" id="onairGuideBtn" type="button">
                     루미코드 안내 보기
                   </button>
 
-                  <article class="plain-row hidden" id="onairGuideDetail" style="margin-top:10px;">
+                  <article class="plain-row hidden mt-10" id="onairGuideDetail">
                     <b>루미코드 안내</b>
                     <span>방송 시작 20~30분 후 공개 예정 · 공개 후 10분 동안 화면에 표시 · 입력은 다음날 23:59까지 가능 · 놓친 코드는 원칙적으로 재공개하지 않아요.<br>방송 참여, 루미코드 입력, 반짝 응원은 현장 물판 포인트와 별도로 기록되며 서로 합산되지 않아요.</span>
                   </article>
@@ -2385,20 +2424,6 @@
         loginView.classList.remove("active");
         appView.classList.add("active");
         go("home");
-  
-      if (codeReadyBtn && codeToast) {
-        codeReadyBtn.addEventListener("click", () => {
-          codeToast.classList.add("show");
-        });
-      }
-
-      if (onairGuideBtn && onairGuideDetail) {
-        onairGuideBtn.addEventListener("click", () => {
-          const isHidden = onairGuideDetail.classList.toggle("hidden");
-          onairGuideBtn.textContent = isHidden ? "루미코드 안내 보기" : "루미코드 안내 닫기";
-        });
-      }
-
       updateClock();
       }
 
