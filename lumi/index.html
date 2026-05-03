@@ -4098,6 +4098,56 @@
       }
     }
 
+
+    /* Profile share final tuning: no extra preview frame, larger card, compact clean buttons */
+    .profile-simple-modal.is-profile-share .profile-simple-dialog,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-dialog {
+      width: min(680px, calc(100vw - 20px)) !important;
+      padding: 14px !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-body,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-body {
+      gap: 10px !important;
+      margin-bottom: 12px !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-share-preview-wrap,
+    #page-profile .profile-share-preview-wrap {
+      width: 100% !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-share-preview-img,
+    #page-profile .profile-share-preview-img {
+      display: block !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      height: auto !important;
+      border-radius: 22px !important;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-actions,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-actions {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 8px !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-action-btn,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-action-btn {
+      min-height: 44px !important;
+      border-radius: 999px !important;
+      padding: 6px 8px !important;
+      white-space: pre-line !important;
+      line-height: 1.15 !important;
+    }
+
   </style>
 </head>
 
@@ -5870,15 +5920,15 @@
           ctx.fill();
         }
 
-        const avatarOuter = 302;
-        const avatarInner = 294;
+        const avatarOuter = 290;
+        const avatarInner = 284;
         const avatarX = 116;
         const avatarY = 318;
         ctx.beginPath();
         ctx.arc(avatarX + avatarOuter / 2, avatarY + avatarOuter / 2, avatarOuter / 2, 0, Math.PI * 2);
         ctx.fillStyle = "#fff9fd";
         ctx.fill();
-        ctx.lineWidth = 4;
+        ctx.lineWidth = 2;
         ctx.strokeStyle = white;
         ctx.stroke();
         ctx.lineWidth = 1.5;
@@ -5939,7 +5989,7 @@
         pill(titleText || "나만의 루미나", leftX, 866, 430, 58, 31);
         pill("📍 " + (payload.space || "루루의 방"), leftX, 954, 324, 56, 31);
         pill("🎂 " + (payload.birthday || "07.19"), leftX + 354, 954, 256, 56, 31);
-        pill("🗓 " + (payload.date || "2026.07.12") + " 개통", leftX, 1022, 452, 56, 31);
+        pill("🗓 " + (payload.date || "2026.07.12"), leftX, 1022, 380, 56, 31);
 
         roundRect(ctx, 94, 1156, 892, 128, 30, "rgba(255,255,255,.90)", line);
         ctx.fillStyle = muted;
@@ -5952,7 +6002,18 @@
         ctx.font = "900 25px sans-serif";
         ctx.fillText("lumibellelove.com", 132, 1274);
         fakeQr(ctx, 818, 1182, 82);
-        return canvas;
+
+        /* Export only the actual card area so the preview does not look like a card inside another frame. */
+        const exportCanvas = document.createElement("canvas");
+        exportCanvas.width = 1200;
+        exportCanvas.height = 1646;
+        const exportCtx = exportCanvas.getContext("2d");
+        if (!exportCtx) return canvas;
+        exportCtx.clearRect(0, 0, exportCanvas.width, exportCanvas.height);
+        exportCtx.imageSmoothingEnabled = true;
+        exportCtx.imageSmoothingQuality = "high";
+        exportCtx.drawImage(canvas, cardX - 4, cardY - 4, cardW + 8, cardH + 8, 0, 0, exportCanvas.width, exportCanvas.height);
+        return exportCanvas;
       }
 
       function profileImageFileName() {
@@ -6036,10 +6097,9 @@
       }
 
       async function openProfileSharePanel() {
-        if (profileSimpleModal) profileSimpleModal.classList.add("is-profile-share");
         openProfileSimpleModal("프로필 공유", ["프로필 공유 카드를 준비하는 중이에요."], [
           { label: "↗\n공유", primary: true, onClick: () => handleProfileShareAction("native") },
-          { label: "𝕏\nX", onClick: () => handleProfileShareAction("x") },
+          { label: "𝕏", onClick: () => handleProfileShareAction("x") },
           { label: "📷\n인스타", onClick: () => handleProfileShareAction("instagram") },
           { label: "↓\n저장", onClick: () => handleProfileShareAction("save") }
         ]);
