@@ -6886,6 +6886,18 @@
       .onair-secret-card i { width: 44px; height: 44px; }
     }
 
+    /* ON AIR live badge visibility + cheer cooldown patch */
+    body:not(.lumi-onair-live) .tab[data-page="onair"] .badge,
+    body:not(.lumi-onair-live) .app-icon[data-go="onair"] .mini {
+      display: none !important;
+    }
+    .onair-cheer-buttons button:disabled {
+      opacity: .58;
+      filter: saturate(.72);
+      box-shadow: none !important;
+      cursor: default;
+    }
+
 </style>
 </head>
 
@@ -10752,21 +10764,44 @@
     });
   }
 
-  window.__lumiOnAirLastCheerAt = 0;
+  const ON_AIR_CHEER_COOLDOWN_MS = 30000;
+
+  function getTodayCheerKey(){
+    const today = new Date().toISOString().slice(0, 10);
+    return 'lumiphone:onair:cheer:' + today;
+  }
 
   function getTodayCheerData(){
-    const today = new Date().toISOString().slice(0, 10);
-    const storageKey = 'lumiphone:onair:cheer:' + today;
-    const base = { count: 0, last: '' };
+    const base = { count: 0, last: '', updatedAt: 0 };
     try {
-      const saved = window.localStorage ? window.localStorage.getItem(storageKey) : null;
+      const saved = window.localStorage ? window.localStorage.getItem(getTodayCheerKey()) : null;
       return saved ? Object.assign(base, JSON.parse(saved)) : base;
     } catch (error) {
       return base;
     }
   }
 
-  function renderOnAirCheerStatus(){
+  function getCheerRemainMs(data){
+    const updatedAt = Number(data && data.updatedAt) || 0;
+    return Math.max(0, ON_AIR_CHEER_COOLDOWN_MS - (Date.now() - updatedAt));
+  }
+
+  function setOnAirCheerButtonsLocked(remainMs){
+    const root = document.getElementById('page-onair');
+    if (!root) return;
+    const buttons = Array.from(root.querySelectorAll('[data-onair-cheer]'));
+    const locked = remainMs > 0;
+    buttons.forEach((button) => {
+      button.disabled = locked;
+      button.setAttribute('aria-disabled', locked ? 'true' : 'false');
+    });
+    clearTimeout(window.__lumiOnAirCheerCooldownTimer);
+    if (locked) {
+      window.__lumiOnAirCheerCooldownTimer = setTimeout(renderOnAirCheerStatus, remainMs + 80);
+    }
+  }
+
+  function renderOnAirCheerStatus(messageOverride){
     const root = document.getElementById('page-onair');
     const statusCard = root ? root.querySelector('[data-onair-cheer-status]') : null;
     if (!statusCard) return;
@@ -10774,12 +10809,20 @@
     const detailEl = statusCard.querySelector('[data-onair-cheer-detail]');
     const data = getTodayCheerData();
     const count = Number(data.count) || 0;
+    const remainMs = getCheerRemainMs(data);
     if (countEl) countEl.textContent = '오늘 보낸 반짝 응원 ' + count + '회';
     if (detailEl) {
-      detailEl.textContent = count > 0
-        ? '마지막 응원: ' + (data.last || '반짝 응원') + ' · 보상은 오늘 1회만 저장되고, 추가 응원은 마음 기록으로 남아요.'
-        : '아직 보낸 응원이 없어요. 보상은 방송마다 1회만 저장돼요.';
+      if (messageOverride) {
+        detailEl.textContent = messageOverride;
+      } else if (count > 0 && remainMs > 0) {
+        detailEl.textContent = '마지막 응원: ' + (data.last || '반짝 응원') + ' · 약 ' + Math.ceil(remainMs / 1000) + '초 뒤 다시 보낼 수 있어요. 보상은 오늘 1회만 저장돼요.';
+      } else if (count > 0) {
+        detailEl.textContent = '마지막 응원: ' + (data.last || '반짝 응원') + ' · 다시 응원을 보낼 수 있어요. 추가 응원은 마음 기록으로 남아요.';
+      } else {
+        detailEl.textContent = '아직 보낸 응원이 없어요. 보상은 방송마다 1회만 저장돼요.';
+      }
     }
+    setOnAirCheerButtonsLocked(remainMs);
   }
 
   document.addEventListener('click', function(event){
@@ -10812,45 +10855,29 @@
       event.stopPropagation();
 
       const now = Date.now();
-      const cooldownMs = 800;
       const label = cheerButton.getAttribute('data-onair-cheer') || '반짝 응원';
-      const root = document.getElementById('page-onair');
-      const statusCard = root ? root.querySelector('[data-onair-cheer-status]') : null;
-      const countEl = statusCard ? statusCard.querySelector('[data-onair-cheer-count]') : null;
-      const detailEl = statusCard ? statusCard.querySelector('[data-onair-cheer-detail]') : null;
+      let cheerData = getTodayCheerData();
+      const remainMs = getCheerRemainMs(cheerData);
 
-      if (now - window.__lumiOnAirLastCheerAt < cooldownMs) {
-        if (detailEl) {
-          detailEl.textContent = '방금 응원이 기록됐어요. 너무 빠른 연속 터치는 잠깐만 쉬었다가 다시 보내 주세요.';
-        }
+      if (remainMs > 0) {
+        renderOnAirCheerStatus('방금 응원이 기록됐어요. 약 ' + Math.ceil(remainMs / 1000) + '초 뒤 다시 보낼 수 있어요.');
         cheerButton.blur();
         return;
       }
-
-      window.__lumiOnAirLastCheerAt = now;
-      const today = new Date().toISOString().slice(0, 10);
-      const storageKey = 'lumiphone:onair:cheer:' + today;
-      let cheerData = { count: 0, last: '' };
-
-      try {
-        const saved = window.localStorage ? window.localStorage.getItem(storageKey) : null;
-        if (saved) cheerData = Object.assign(cheerData, JSON.parse(saved));
-      } catch (error) {}
 
       cheerData.count = (Number(cheerData.count) || 0) + 1;
       cheerData.last = label;
       cheerData.updatedAt = now;
 
       try {
-        if (window.localStorage) window.localStorage.setItem(storageKey, JSON.stringify(cheerData));
+        if (window.localStorage) window.localStorage.setItem(getTodayCheerKey(), JSON.stringify(cheerData));
       } catch (error) {}
 
-      if (countEl) countEl.textContent = '오늘 보낸 반짝 응원 ' + cheerData.count + '회';
-      if (detailEl) {
-        detailEl.textContent = cheerData.count === 1
-          ? '마지막 응원: ' + label + ' · 오늘 보상 기록 완료. 보상은 방송마다 1회만 저장돼요.'
-          : '마지막 응원: ' + label + ' · 추가 응원은 마음 기록으로만 남고, 보상은 오늘 1회만 저장돼요.';
-      }
+      renderOnAirCheerStatus(
+        cheerData.count === 1
+          ? '마지막 응원: ' + label + ' · 오늘 보상 기록 완료. 30초 뒤 다시 응원을 보낼 수 있어요.'
+          : '마지막 응원: ' + label + ' · 추가 응원은 마음 기록으로 남아요. 30초 뒤 다시 보낼 수 있어요.'
+      );
 
       cheerButton.blur();
       return;
