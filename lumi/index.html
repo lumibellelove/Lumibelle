@@ -4670,30 +4670,12 @@
     }
 
 
-    /* Profile share modal event-cleanup patch */
-    .profile-simple-modal.is-profile-share .profile-simple-topbar,
-    #page-profile .profile-simple-modal.is-profile-share .profile-simple-topbar {
-      padding: 4px 6px 2px 10px !important;
-    }
-
+    /* Profile share modal event-safety only: do not override preview card layout */
     .profile-simple-modal.is-profile-share .profile-simple-action-btn:disabled,
     #page-profile .profile-simple-modal.is-profile-share .profile-simple-action-btn:disabled {
       opacity: .48 !important;
       pointer-events: none !important;
       filter: grayscale(.08) !important;
-    }
-
-    .profile-simple-modal.is-profile-share .profile-share-preview-img,
-    #page-profile .profile-simple-modal.is-profile-share .profile-share-preview-img {
-      display: block !important;
-      width: 100% !important;
-      height: auto !important;
-      max-height: calc(100dvh - 150px) !important;
-      object-fit: contain !important;
-      border: 1px solid rgba(242, 216, 231, .82) !important;
-      border-radius: 24px !important;
-      background: #fff !important;
-      box-shadow: 0 10px 24px rgba(232,191,211,.12) !important;
     }
 
     .profile-simple-modal.is-profile-share .profile-simple-action-btn b,
@@ -6927,10 +6909,26 @@
         ];
       }
 
+      async function shareProfileXNativeOrConfirm() {
+        const payload = getProfileSharePayload();
+        const canUseNativeShare = isMobileLikeDevice() && navigator.share;
+        if (canUseNativeShare) {
+          try {
+            await copyPlainTextAsync(payload.text);
+            await navigator.share({ title: "LUMI PHONE", text: payload.text, url: "https://lumibellelove.com" });
+            closeProfileSimpleModal();
+            return;
+          } catch (error) {
+            if (error && error.name === "AbortError") return;
+          }
+        }
+        openProfileXShareConfirm();
+      }
+
       function handleProfileShareAction(action) {
         const payload = getProfileSharePayload();
         if (action === "native") { shareProfileNative(); return; }
-        if (action === "x") { openProfileXShareConfirm(); return; }
+        if (action === "x") { shareProfileXNativeOrConfirm(); return; }
         if (action === "instagram") {
           copyPlainText(payload.text, "인스타 공유 준비 완료!\n\n이미지 저장 버튼으로 공유 카드를 저장한 뒤, 인스타 스토리나 게시물에 올려주세요.\n\n공유 문구는 복사해두었어요.");
           return;
