@@ -4668,6 +4668,51 @@
       }
     }
 
+
+    /* Profile share modal event-cleanup patch */
+    .profile-simple-modal.is-profile-share .profile-simple-topbar,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-topbar {
+      padding: 4px 6px 2px 10px !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-action-btn:disabled,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-action-btn:disabled {
+      opacity: .48 !important;
+      pointer-events: none !important;
+      filter: grayscale(.08) !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-share-preview-wrap,
+    #page-profile .profile-simple-modal.is-profile-share .profile-share-preview-wrap {
+      margin: 0 auto !important;
+      width: 100% !important;
+      max-width: 440px !important;
+      padding: 0 !important;
+      border: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-share-preview-img,
+    #page-profile .profile-simple-modal.is-profile-share .profile-share-preview-img {
+      display: block !important;
+      width: 100% !important;
+      height: auto !important;
+      max-height: calc(100dvh - 150px) !important;
+      object-fit: contain !important;
+      border: 1px solid rgba(242, 216, 231, .82) !important;
+      border-radius: 24px !important;
+      background: #fff !important;
+      box-shadow: 0 10px 24px rgba(232,191,211,.12) !important;
+    }
+
+    .profile-simple-modal.is-profile-share .profile-simple-action-btn b,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-action-btn b,
+    .profile-simple-modal.is-profile-share .profile-simple-action-btn span,
+    #page-profile .profile-simple-modal.is-profile-share .profile-simple-action-btn span {
+      pointer-events: none !important;
+    }
+
   </style>
 </head>
 
@@ -6568,20 +6613,20 @@
           ctx.fill();
         }
 
-        const avatarOuter = 300;
-        const avatarInner = 290;
-        const avatarX = cardX + 36;
-        const avatarY = coverY + coverH - 128;
+        const avatarOuter = 312;
+        const avatarInner = 302;
+        const avatarX = cardX + 30;
+        const avatarY = coverY + coverH - 138;
         const avatarCX = avatarX + avatarOuter / 2;
         const avatarCY = avatarY + avatarOuter / 2;
         ctx.beginPath();
         ctx.arc(avatarCX, avatarCY, avatarOuter / 2, 0, Math.PI * 2);
         ctx.fillStyle = "#fff9fd";
         ctx.fill();
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 2;
         ctx.strokeStyle = white;
         ctx.stroke();
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 1.25;
         ctx.strokeStyle = line;
         ctx.stroke();
 
@@ -6605,19 +6650,19 @@
         }
 
         const leftX = cardX + 54;
-        const contentTop = avatarY + avatarOuter + 92;
+        const contentTop = avatarY + avatarOuter + 54;
         ctx.textAlign = "left";
         ctx.fillStyle = deep;
-        ctx.font = "900 88px sans-serif";
+        ctx.font = "900 96px sans-serif";
         wrapText(ctx, payload.title || "루미나", leftX, contentTop, cardW - 108, 92, "left");
 
         ctx.fillStyle = muted;
-        ctx.font = "900 39px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, contentTop + 70);
+        ctx.font = "900 42px sans-serif";
+        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, contentTop + 82);
 
         ctx.fillStyle = deep;
-        ctx.font = "900 43px sans-serif";
-        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", leftX, contentTop + 136, cardW - 108, 52, "left");
+        ctx.font = "900 46px sans-serif";
+        wrapText(ctx, payload.desc || "오시: 루루 🍼🐰", leftX, contentTop + 150, cardW - 108, 56, "left");
 
         const logoImg = await loadCanvasImage(LUMIBELLE_SHARE_LOGO_DATA_URL || "");
         if (logoImg) {
@@ -6655,15 +6700,11 @@
           ctx.textAlign = "left";
         }
 
-        const pillY1 = contentTop + 190;
-        const pillY2 = pillY1 + 72;
+        const pillY1 = contentTop + 206;
         const titleText = String(payload.small || "대표 칭호 · 나만의 루미나").replace(/^대표 칭호\s*[·:]\s*/, "");
-        pill(titleText || "나만의 루미나", leftX, pillY1, 360, 62, 36, "center");
-
-        ctx.fillStyle = muted;
-        ctx.font = "900 38px sans-serif";
-        ctx.textAlign = "left";
-        ctx.fillText("📍 " + (payload.space || "루루의 방"), leftX + 4, pillY1 + 128);
+        pill(titleText || "나만의 루미나", leftX, pillY1, 402, 66, 37, "center");
+        pill("📍 " + (payload.space || "루루의 방"), leftX + 422, pillY1, 270, 66, 34, "center");
+        pill("🎂 " + (payload.birthday || "07.19"), leftX, pillY1 + 78, 276, 60, 32, "center");
 
         function getProfileShareStampText() {
           const statusText = document.querySelector(".stamp-status span")?.textContent || "";
@@ -6693,13 +6734,13 @@
           ctx.textAlign = "left";
         }
 
-        const summaryY = pillY1 + 158;
+        const summaryY = pillY1 + 154;
         const summaryW = 318;
         const summaryH = 106;
         summaryBox("스탬프", getProfileShareStampText(), leftX, summaryY, summaryW, summaryH);
         summaryBox("반짝 XP", getProfileShareXpText(), leftX + summaryW + 42, summaryY, summaryW, summaryH);
 
-        const infoY = cardY + cardH - 248;
+        const infoY = cardY + cardH - 284;
         const infoH = cardY + cardH - infoY - 1;
         const footerPadX = 54;
         const infoX = cardX + footerPadX;
@@ -6718,15 +6759,15 @@
         ctx.stroke();
 
         ctx.fillStyle = muted;
-        ctx.font = "900 38px sans-serif";
-        ctx.fillText((payload.date || "2026.07.12") + " 개통", infoX, infoY + 80);
+        ctx.font = "900 42px sans-serif";
+        ctx.fillText((payload.date || "2026.07.12") + " 개통", infoX, infoY + 92);
         ctx.fillStyle = pink;
-        ctx.font = "900 48px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, infoX, infoY + 144);
+        ctx.font = "900 52px sans-serif";
+        ctx.fillText("LUMI ID · " + sampleUser.id, infoX, infoY + 160);
         ctx.fillStyle = muted;
-        ctx.font = "900 34px sans-serif";
-        ctx.fillText("왕도 라이브 아이돌 · lumibellelove.com", infoX, infoY + 194);
-        fakeQr(ctx, infoX + infoW - 190, infoY + 42, 166);
+        ctx.font = "900 36px sans-serif";
+        ctx.fillText("lumibellelove.com", infoX, infoY + 214);
+        fakeQr(ctx, infoX + infoW - 210, infoY + 46, 184);
 
         return canvas;
       }
@@ -6843,6 +6884,15 @@
         ]);
       }
 
+      function getProfileShareModalActions(disabled) {
+        return [
+          { action: "native", icon: "↗", text: "공유", primary: true, keepOpen: true, disabled: Boolean(disabled), onClick: () => handleProfileShareAction("native") },
+          { action: "x", icon: "𝕏", text: "X", disabled: Boolean(disabled), onClick: () => handleProfileShareAction("x") },
+          { action: "instagram", icon: "📷", text: "인스타", disabled: Boolean(disabled), onClick: () => handleProfileShareAction("instagram") },
+          { action: "save", icon: "↓", text: "저장", disabled: Boolean(disabled), onClick: () => handleProfileShareAction("save") }
+        ];
+      }
+
       function handleProfileShareAction(action) {
         const payload = getProfileSharePayload();
         if (action === "native") { shareProfileNative(); return; }
@@ -6854,14 +6904,13 @@
         if (action === "save") { downloadProfileShareImage(false); }
       }
 
-      async function openProfileSharePanel() {
+      async function openProfileSharePanel(event) {
+        if (event) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
         profileShareCache = null;
-        openProfileSimpleModal("프로필 공유", ["프로필 공유 카드를 준비하는 중이에요."], [
-          { icon: "↗", text: "공유", primary: true, keepOpen: true, onClick: () => handleProfileShareAction("native") },
-          { icon: "𝕏", text: "X", onClick: () => handleProfileShareAction("x") },
-          { icon: "📷", text: "인스타", onClick: () => handleProfileShareAction("instagram") },
-          { icon: "↓", text: "저장", onClick: () => handleProfileShareAction("save") }
-        ]);
+        openProfileSimpleModal("프로필 공유", ["프로필 공유 카드를 준비하는 중이에요."], getProfileShareModalActions(true));
         if (profileSimpleModal) {
           profileSimpleModal.classList.add("is-profile-share");
           profileSimpleModal.classList.remove("hidden");
@@ -6883,6 +6932,7 @@
         const note = document.createElement("p");
         note.textContent = "공유할 방법을 선택해 주세요.";
         profileSimpleBody.appendChild(note);
+        renderProfileSimpleActions(getProfileShareModalActions(false));
       }
 
       function handleAchievementShareAction(scope, action) {
@@ -7083,6 +7133,41 @@
         renderProfileForm();
       }
 
+      function renderProfileSimpleActions(actions) {
+        if (!profileSimpleActions) return;
+        profileSimpleActions.innerHTML = "";
+        const actionList = Array.isArray(actions) ? actions : [];
+        profileSimpleActions.classList.toggle("hidden", actionList.length === 0);
+        if (profileSimpleOk) profileSimpleOk.classList.toggle("hidden", actionList.length > 0);
+        actionList.forEach((action) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "profile-simple-action-btn" + (action.primary ? " primary-look" : "");
+          btn.disabled = Boolean(action.disabled);
+          btn.setAttribute("data-profile-simple-action", action.action || action.text || action.label || "ok");
+          if (action.icon || action.text) {
+            const icon = document.createElement("b");
+            icon.textContent = action.icon || "";
+            icon.setAttribute("aria-hidden", "true");
+            const label = document.createElement("span");
+            label.textContent = action.text || action.label || "확인";
+            btn.appendChild(icon);
+            btn.appendChild(label);
+            btn.setAttribute("aria-label", label.textContent);
+          } else {
+            btn.textContent = action.label || "확인";
+          }
+          btn.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            if (btn.disabled) return;
+            if (!action.keepOpen) closeProfileSimpleModal();
+            if (typeof action.onClick === "function") action.onClick();
+          });
+          profileSimpleActions.appendChild(btn);
+        });
+      }
+
       function openProfileSimpleModal(title, lines, actions) {
         if (!profileSimpleModal || !profileSimpleTitle || !profileSimpleBody) return;
         if (profileSimpleModal.parentElement !== document.body) document.body.appendChild(profileSimpleModal);
@@ -7094,30 +7179,7 @@
           profileSimpleBody.appendChild(p);
         });
         if (profileSimpleActions) {
-          profileSimpleActions.innerHTML = "";
-          const actionList = Array.isArray(actions) ? actions : [];
-          profileSimpleActions.classList.toggle("hidden", actionList.length === 0);
-          if (profileSimpleOk) profileSimpleOk.classList.toggle("hidden", actionList.length > 0);
-          actionList.forEach((action) => {
-            const btn = document.createElement("button");
-            btn.type = "button";
-            btn.className = "profile-simple-action-btn" + (action.primary ? " primary-look" : "");
-            if (action.icon || action.text) {
-              const icon = document.createElement("b");
-              icon.textContent = action.icon || "";
-              const label = document.createElement("span");
-              label.textContent = action.text || action.label || "확인";
-              btn.appendChild(icon);
-              btn.appendChild(label);
-            } else {
-              btn.textContent = action.label || "확인";
-            }
-            btn.addEventListener("click", () => {
-              if (!action.keepOpen) closeProfileSimpleModal();
-              if (typeof action.onClick === "function") action.onClick();
-            });
-            profileSimpleActions.appendChild(btn);
-          });
+          renderProfileSimpleActions(actions);
         } else if (profileSimpleOk) {
           profileSimpleOk.classList.remove("hidden");
         }
