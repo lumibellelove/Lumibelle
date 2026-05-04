@@ -6368,6 +6368,26 @@
 
       function moveToXShareUrl(xUrl) {
         if (!xUrl) return;
+        const mobileLike = isMobileLike();
+        let shareText = "";
+        try {
+          const parsed = new URL(xUrl, window.location.href);
+          shareText = parsed.searchParams.get("text") || "";
+        } catch (err) {
+          shareText = "";
+        }
+        if (mobileLike && shareText) {
+          const ua = navigator.userAgent || "";
+          const encodedText = encodeURIComponent(shareText);
+          if (/Android/i.test(ua)) {
+            window.location.href = "intent://post?message=" + encodedText + "#Intent;scheme=twitter;package=com.twitter.android;end";
+            return;
+          }
+          if (/iPhone|iPad|iPod/i.test(ua)) {
+            window.location.href = "twitter://post?message=" + encodedText;
+            return;
+          }
+        }
         const nextWindow = window.open(xUrl, "_blank", "noopener,noreferrer");
         if (nextWindow && typeof nextWindow.focus === "function") {
           nextWindow.focus();
@@ -6407,7 +6427,7 @@
           "오시: " + oshi,
           "대표 칭호: " + title,
           "",
-          "루미벨과 함께 반짝이는 중",
+          "루미벨과 함께 반짝이는 중 ✨",
           "https://lumibellelove.com/",
           "",
           "#루미벨 #LUMIBELLE #루미폰 #왕도아이돌 #라이브아이돌"
