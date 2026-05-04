@@ -3632,13 +3632,13 @@
     .mail-item {
       position: relative;
       width: 100%;
-      min-height: 104px;
+      min-height: 96px;
       border: 1px solid var(--line);
       border-radius: 22px;
       background: #fff;
-      padding: 12px 54px 12px 12px;
+      padding: 12px;
       display: grid;
-      grid-template-columns: 52px minmax(0, 1fr);
+      grid-template-columns: 52px minmax(0, 1fr) auto;
       gap: 12px;
       align-items: center;
       text-align: left;
@@ -3656,11 +3656,13 @@
       color: #d77ca7;
       font-size: 23px;
       border: 1px solid var(--line);
-      align-self: start;
+      align-self: center;
+      justify-self: center;
     }
 
     .mail-item-main {
       min-width: 0;
+      align-self: center;
     }
 
     .mail-item-meta {
@@ -3699,9 +3701,9 @@
     }
 
     .mail-status-chip {
-      position: absolute;
-      right: 12px;
-      top: 12px;
+      position: static;
+      align-self: start;
+      justify-self: end;
       min-height: 27px;
       display: inline-flex;
       align-items: center;
@@ -9228,20 +9230,40 @@
       };
       const MAIL_PAGE_SIZE = 3;
       const MAIL_SAVE_KEY = "lumiSavedMailIds";
+      const MAIL_READ_KEY = "lumiReadMailIds";
 
-      function readSavedMailIds() {
+      function readMailIds(key) {
         try {
-          const parsed = JSON.parse(localStorage.getItem(MAIL_SAVE_KEY) || "[]");
+          const parsed = JSON.parse(localStorage.getItem(key) || "[]");
           return Array.isArray(parsed) ? parsed.map(String) : [];
         } catch (error) {
           return [];
         }
       }
 
-      function writeSavedMailIds(ids) {
+      function writeMailIds(key, ids) {
         try {
-          localStorage.setItem(MAIL_SAVE_KEY, JSON.stringify(Array.from(new Set(ids.map(String)))));
+          localStorage.setItem(key, JSON.stringify(Array.from(new Set(ids.map(String)))));
         } catch (error) {}
+      }
+
+      function isMailRead(id) {
+        const item = LUMI_MAIL_ITEMS.find((mail) => mail.id === String(id));
+        return Boolean(item && item.status !== "NEW") || readMailIds(MAIL_READ_KEY).includes(String(id));
+      }
+
+      function setMailRead(id, read) {
+        const ids = readMailIds(MAIL_READ_KEY).filter((item) => item !== String(id));
+        if (read) ids.push(String(id));
+        writeMailIds(MAIL_READ_KEY, ids);
+      }
+
+      function readSavedMailIds() {
+        return readMailIds(MAIL_SAVE_KEY);
+      }
+
+      function writeSavedMailIds(ids) {
+        writeMailIds(MAIL_SAVE_KEY, ids);
       }
 
       function isMailSaved(id) {
@@ -9278,7 +9300,7 @@
 
         list.innerHTML = pageItems.map((item) => {
           const saved = isMailSaved(item.id);
-          const status = saved ? "소장" : item.status;
+          const status = saved ? "소장" : (isMailRead(item.id) ? "읽음" : item.status);
           const statusClass = status === "NEW" ? " new" : "";
           return '<button class="mail-item" type="button" data-mail-open="' + item.id + '">' +
             '<span class="icon">' + item.icon + '</span>' +
@@ -9312,6 +9334,10 @@
         if (meta) meta.textContent = item.from + " · " + item.meta;
         if (title) title.textContent = item.title;
         if (body) body.textContent = item.body;
+        if (!isMailRead(id)) {
+          setMailRead(id, true);
+          renderMailAll();
+        }
         if (save) save.textContent = isMailSaved(id) ? "소장해제" : "소장하기";
         modal.classList.remove("hidden");
         modal.setAttribute("aria-hidden", "false");
