@@ -7626,7 +7626,7 @@
                       <button type="button" data-onair-cheer="하트 응원">하트 보내기</button>
                       <button type="button" data-onair-cheer="오늘도 응원해">오늘도 응원해</button>
                     </div>
-                    <article class="onair-note-card"><b>오늘 보낸 반짝 응원 88회</b><span>마지막 응원: 반짝 응원 · 보상은 방송당 1회만 지급 예정</span></article>
+                    <article class="onair-note-card" id="onairCheerStatus" aria-live="polite"><b id="onairCheerCount">오늘 보낸 반짝 응원 0회</b><span id="onairCheerLast">아직 보낸 응원이 없어요. 버튼을 누르면 바로 여기에서 횟수와 마지막 응원을 확인할 수 있어요.</span></article>
                   </section>
 
                   <section class="onair-panel" data-onair-panel="message">
@@ -7635,7 +7635,7 @@
                       <i>💌</i>
                       <div><small>ON AIR SECRET</small><b>루나의 ON AIR 메시지가 도착했어요</b><span>ON AIR 참여 기록과 연결된 온라인 응원 메시지를 문자함에서 볼 수 있어요.</span></div>
                     </article>
-                    <button class="outline-pill onair-wide-btn" type="button" data-go="message">문자함에서 루나 메시지 보기</button>
+                    <button class="outline-pill onair-wide-btn" type="button" data-onair-message="luna">문자함에서 루나 메시지 보기</button>
                   </section>
 
                   <section class="onair-panel" data-onair-panel="reward">
@@ -8146,6 +8146,32 @@
         $$(".tab").forEach((el) => el.classList.toggle("active", el.dataset.page === targetName));
         window.scrollTo({ top: 0, behavior: "auto" });
       }
+
+      function renderMessageThread(member) {
+        const phone = document.querySelector("#page-message .message-phone");
+        if (!phone) return;
+        const target = String(member || "lulu").toLowerCase();
+        if (target === "luna") {
+          phone.innerHTML = [
+            '<div class="bubble from">왔어? 안 그래도 마침 기다리고 있었는데 ㅎㅎ 🌙✨</div>',
+            '<div class="bubble from">ON AIR에서 보내준 응원, 루나한테 다 닿고 있다구.</div>',
+            '<div class="bubble to">오늘도 응원할게!</div>',
+            '<div class="bubble from">고마워. 멀리 있어도 우리 마음은 이렇게 이어져 있나 봐 ♡</div>'
+          ].join("");
+          return;
+        }
+        phone.innerHTML = [
+          '<div class="bubble from">루미나... 오늘 와주는 거야...? 🐰🩷</div>',
+          '<div class="bubble from">루루가 기다리고 있을게...! 입장번호랑 작은 우산도 잊지 말기... 🐰💭</div>',
+          '<div class="bubble to">응! 오늘 보러 갈게.</div>',
+          '<div class="bubble from">와줘서 고마워... 오늘도 루루랑 같이 있어줄래...? 🍼🐰</div>'
+        ].join("");
+      }
+
+      window.openLumiMessage = function(member) {
+        renderMessageThread(member || "lulu");
+        go("message");
+      };
 
       function updateClock() {
         const now = new Date();
@@ -10727,6 +10753,8 @@
   }
 
   document.addEventListener('click', function(event){
+    if (event.target.closest('#profileSimpleModal')) return;
+
     const tabButton = event.target.closest('[data-onair-tab]');
     if (tabButton) {
       event.preventDefault();
@@ -10735,19 +10763,84 @@
       return;
     }
 
+    const messageButton = event.target.closest('[data-onair-message]');
+    if (messageButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      const member = messageButton.getAttribute('data-onair-message') || 'luna';
+      if (typeof window.openLumiMessage === 'function') {
+        window.openLumiMessage(member);
+      } else if (typeof window.openProfileSimpleModal === 'function') {
+        window.openProfileSimpleModal('ON AIR 메시지', ['문자함으로 이동해 메시지를 확인해 주세요.']);
+      }
+      return;
+    }
+
     const cheerButton = event.target.closest('[data-onair-cheer]');
     if (cheerButton) {
       event.preventDefault();
       event.stopPropagation();
       const label = cheerButton.getAttribute('data-onair-cheer') || '반짝 응원';
-      if (typeof window.openLumiModal === 'function') {
-        window.openLumiModal(label, '방송이 시작되면 반짝 응원을 기록으로 남길 수 있어요.');
-      } else if (typeof showMessage === 'function') {
-        showMessage(label + '은 방송이 시작되면 기록으로 남길 수 있어요.');
-      }
+      saveOnAirCheer(label);
+      cheerButton.blur();
+      return;
     }
-  }, true);
+  });
 
+  function getTodayKey() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return year + '-' + month + '-' + day;
+  }
+
+  function getOnAirCheerState() {
+    const today = getTodayKey();
+    const fallback = { date: today, count: 0, last: '', rewarded: false };
+    try {
+      const saved = JSON.parse(localStorage.getItem('lumiphone:onairCheer') || 'null');
+      if (!saved || saved.date !== today) return fallback;
+      return {
+        date: today,
+        count: Number(saved.count) || 0,
+        last: saved.last || '',
+        rewarded: !!saved.rewarded
+      };
+    } catch (error) {
+      return fallback;
+    }
+  }
+
+  function setOnAirCheerState(state) {
+    try {
+      localStorage.setItem('lumiphone:onairCheer', JSON.stringify(state));
+    } catch (error) {}
+  }
+
+  function renderOnAirCheerStatus(state) {
+    const countEl = document.getElementById('onairCheerCount');
+    const lastEl = document.getElementById('onairCheerLast');
+    if (!countEl || !lastEl) return;
+    countEl.textContent = '오늘 보낸 반짝 응원 ' + state.count + '회';
+    if (state.count > 0) {
+      const rewardText = state.rewarded ? '오늘 보상 기록 완료 · 추가 응원은 마음 기록으로만 남아요.' : '보상은 방송마다 1회만 저장될 예정이에요.';
+      lastEl.textContent = '마지막 응원: ' + state.last + ' · ' + rewardText;
+    } else {
+      lastEl.textContent = '아직 보낸 응원이 없어요. 버튼을 누르면 바로 여기에서 횟수와 마지막 응원을 확인할 수 있어요.';
+    }
+  }
+
+  function saveOnAirCheer(label) {
+    const state = getOnAirCheerState();
+    state.count += 1;
+    state.last = label;
+    state.rewarded = true;
+    setOnAirCheerState(state);
+    renderOnAirCheerStatus(state);
+  }
+
+  renderOnAirCheerStatus(getOnAirCheerState());
   setOnAirTab('code');
 })();
 
