@@ -36,6 +36,19 @@
     const submit = document.getElementById("lumiCodeSubmit");
     if (!input || !submit) return;
 
+    input.placeholder = "";
+    input.setAttribute("autocomplete", "off");
+    input.setAttribute("autocapitalize", "characters");
+    input.setAttribute("spellcheck", "false");
+
+    input.addEventListener("focus", () => {
+      input.placeholder = "";
+    });
+
+    input.addEventListener("blur", () => {
+      input.placeholder = "";
+    });
+
     function submitCode() {
       const raw = input.value.trim();
       if (!raw) {
