@@ -3706,22 +3706,33 @@
 
     .mail-status-chip {
       position: absolute;
-      right: 14px;
-      top: 14px;
-      min-height: 27px;
+      right: 12px;
+      top: 12px;
+      min-height: 23px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 0 10px;
+      padding: 0 8px;
       border-radius: 999px;
       border: 1px solid var(--line2);
-      background: #fff;
-      color: #b07693;
-      font-size: 10.5px;
+      background: #fff7fb;
+      color: #d77ca7;
+      font-size: 10px;
       line-height: 1;
       font-weight: 900;
       white-space: nowrap;
       z-index: 2;
+    }
+
+    .mail-status-chip.read {
+      color: #9a7187;
+      background: #fff;
+    }
+
+    .mail-status-chip.saved {
+      color: #fff;
+      background: #b28ea2;
+      border-color: transparent;
     }
 
     .mail-status-chip.new {
@@ -3730,8 +3741,8 @@
       background: #ff5fa8;
     }
 
-    .mail-status-chip.new::before,
-    .mail-status-chip.new::after {
+    .mail-status-chip::before,
+    .mail-status-chip::after {
       content: none !important;
     }
 
@@ -9311,7 +9322,7 @@
         list.innerHTML = pageItems.map((item) => {
           const saved = isMailSaved(item.id);
           const status = saved ? "소장" : (isMailRead(item.id) ? "읽음" : item.status);
-          const statusClass = status === "NEW" ? " new" : "";
+          const statusClass = status === "NEW" ? " new" : (status === "소장" ? " saved" : " read");
           return '<button class="mail-item" type="button" data-mail-open="' + item.id + '">' +
             '<span class="icon">' + item.icon + '</span>' +
             '<span class="mail-item-main"><span class="mail-item-meta">' + item.from + ' · ' + item.meta + '</span><b>' + item.title + '</b><span class="mail-item-preview">' + item.preview + '</span></span>' +
