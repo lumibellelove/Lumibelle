@@ -3589,7 +3589,324 @@
 
     #page-profile .profile-edit-dialog > div:first-child::after{content:none!important;display:none!important;}
 
-    @supports (-webkit-touch-callout: none) {
+    
+
+    /* Mailbox mobile v1: list, filters, pager, modal */
+    .mail-card .mini-tabs.mail-tabs {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .mail-filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .mail-filter-row button {
+      min-height: 40px;
+      padding: 0 15px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #b07693;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .mail-filter-row button.active {
+      color: #fff;
+      border-color: transparent;
+      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
+      box-shadow: 0 8px 18px rgba(255, 95, 168, .14);
+    }
+
+    .mail-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .mail-item {
+      position: relative;
+      width: 100%;
+      min-height: 104px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: #fff;
+      padding: 12px 54px 12px 12px;
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      text-align: left;
+      color: inherit;
+      box-shadow: 0 8px 16px rgba(232,191,211,.08);
+    }
+
+    .mail-item .icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 17px;
+      display: grid;
+      place-items: center;
+      background: #fff0f7;
+      color: #d77ca7;
+      font-size: 23px;
+      border: 1px solid var(--line);
+      align-self: start;
+    }
+
+    .mail-item-main {
+      min-width: 0;
+    }
+
+    .mail-item-meta {
+      display: block;
+      color: #b28ea2;
+      font-size: 11px;
+      line-height: 1.25;
+      font-weight: 900;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mail-item b {
+      display: block;
+      margin-top: 5px;
+      color: #76586a;
+      font-size: 15px;
+      line-height: 1.3;
+      font-weight: 900;
+      word-break: keep-all;
+    }
+
+    .mail-item-preview {
+      display: -webkit-box;
+      margin-top: 5px;
+      color: #9a7187;
+      font-size: 12px;
+      line-height: 1.45;
+      font-weight: 800;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 1;
+      line-clamp: 1;
+      word-break: keep-all;
+    }
+
+    .mail-status-chip {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      min-height: 27px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #b07693;
+      font-size: 10.5px;
+      line-height: 1;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .mail-status-chip.new {
+      color: #fff;
+      border-color: transparent;
+      background: #ff5fa8;
+    }
+
+    .mail-pager {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) 44px;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+      padding: 0 2px;
+    }
+
+    .mail-pager button {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #d77ca7;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .mail-pager button:disabled {
+      opacity: .42;
+    }
+
+    .mail-pager span {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #9a7187;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .mail-empty {
+      margin-top: 12px;
+      border: 1px dashed var(--line2);
+      border-radius: 20px;
+      background: #fffafd;
+      padding: 14px;
+      color: #9a7187;
+      font-size: 13px;
+      line-height: 1.55;
+      font-weight: 900;
+      text-align: center;
+      word-break: keep-all;
+    }
+
+    .mail-guide-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .mail-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1100;
+      display: grid;
+      place-items: center;
+      padding: max(14px, env(safe-area-inset-top, 0px)) 14px max(14px, env(safe-area-inset-bottom, 0px));
+    }
+
+    .mail-modal.hidden {
+      display: none !important;
+    }
+
+    .mail-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(72, 49, 63, .38);
+      backdrop-filter: blur(8px);
+    }
+
+    .mail-modal-dialog {
+      position: relative;
+      z-index: 1;
+      width: min(430px, 100%);
+      max-height: calc(100dvh - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff, #fff7fb);
+      box-shadow: 0 28px 80px rgba(70, 50, 64, .24);
+      padding: 20px;
+    }
+
+    .mail-modal-x {
+      position: absolute;
+      right: 14px;
+      top: 14px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #b07693;
+      font-size: 21px;
+      font-weight: 900;
+    }
+
+    .mail-modal-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: #fff0f7;
+      border: 1px solid var(--line);
+      color: #d77ca7;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .mail-modal-meta {
+      padding-right: 42px;
+      color: #b28ea2;
+      font-size: 12px;
+      line-height: 1.4;
+      font-weight: 900;
+      word-break: keep-all;
+    }
+
+    .mail-modal-dialog h3 {
+      margin: 7px 0 10px;
+      color: #76586a;
+      font-size: 21px;
+      line-height: 1.28;
+      font-weight: 900;
+      letter-spacing: -.03em;
+      word-break: keep-all;
+    }
+
+    .mail-modal-dialog p {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: #fff;
+      padding: 14px;
+      color: #85677a;
+      font-size: 13px;
+      line-height: 1.75;
+      font-weight: 850;
+      word-break: keep-all;
+      white-space: pre-line;
+    }
+
+    .mail-modal-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .mail-save-main {
+      min-height: 44px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+      box-shadow: 0 8px 18px rgba(255,95,168,.14);
+    }
+
+    .mail-close-sub {
+      min-height: 42px;
+      border-radius: 999px;
+      border: 1px solid var(--line2);
+      background: #fff;
+      color: #b07693;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    @media (min-width: 760px) {
+      .mail-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+@supports (-webkit-touch-callout: none) {
       #page-profile .profile-edit-modal,
       #page-profile .profile-title-modal {
         -webkit-backdrop-filter: none !important;
@@ -7649,34 +7966,72 @@
               </section>
 
               <section class="page" id="page-mail" aria-label="우편함">
-                <article class="module-card">
+                <article class="module-card mail-card">
                   <h2>우편함</h2>
-                  <p>공연 후 우편, 소장 우편, 안내 우편을 모아보는 공간이에요. 루미벨과 함께한 마음과 기록을 천천히 모아둘 수 있어요.</p>
-                  <div class="mini-tabs" data-mini-tabs="mail">
+                  <p>공연 후 도착한 우편, 소장 우편, 안내 우편을 모아보는 공간이에요. 루미벨과 함께한 마음과 기록을 천천히 보관해요.</p>
+
+                  <div class="mini-tabs mail-tabs" data-mini-tabs="mail">
                     <button class="mini-tab active" type="button" data-mini-target="mail-inbox">받은 우편</button>
                     <button class="mini-tab" type="button" data-mini-target="mail-saved">소장 우편</button>
                     <button class="mini-tab" type="button" data-mini-target="mail-guide">안내</button>
                   </div>
+
                   <section class="mini-page active" id="mail-inbox">
-                    <div class="mail-list">
-                      <button class="mail-item" type="button" data-detail="mailDetail1"><span class="mail-dot"></span><span class="icon">💌</span><span><b>루미벨에서 도착한 첫 우편</b><span>루미폰 개통을 환영해요.</span></span><span class="arrow">›</span></button>
-                      <button class="mail-item" type="button" data-detail="mailDetail2"><span class="icon">🎀</span><span><b>Debut Live 안내</b><span>입장 확인용 번호와 메아테 안내를 확인해주세요.</span></span><span class="arrow">›</span></button>
+                    <div class="mail-filter-row" aria-label="받은 우편 필터">
+                      <button class="active" type="button" data-mail-filter="inbox" data-mail-filter-value="all">전체</button>
+                      <button type="button" data-mail-filter="inbox" data-mail-filter-value="member">멤버</button>
+                      <button type="button" data-mail-filter="inbox" data-mail-filter-value="live">라이브</button>
+                      <button type="button" data-mail-filter="inbox" data-mail-filter-value="event">이벤트</button>
                     </div>
-                    <div class="detail-box active" id="mailDetail1">
-                      <h3>루미벨에서 도착한 첫 우편</h3>
-                      <p>루미폰 개통을 환영해요. 이곳에는 루미벨과 함께한 기록, 공연 후 남겨지는 우편, 특별한 날의 메시지가 천천히 쌓입니다.</p>
-                      <div class="mail-actions"><button class="mail-action-btn primary-look" type="button" disabled>소장하기</button><button class="mail-action-btn" type="button" disabled>닫기</button></div>
+                    <div class="mail-list" id="mailInboxList" aria-live="polite"></div>
+                    <div class="mail-pager" id="mailInboxPager" aria-label="받은 우편 페이지 이동">
+                      <button type="button" id="mailInboxPrev" aria-label="이전 받은 우편">‹</button>
+                      <span id="mailInboxPageText">1 / 1</span>
+                      <button type="button" id="mailInboxNext" aria-label="다음 받은 우편">›</button>
                     </div>
-                    <div class="detail-box" id="mailDetail2">
-                      <h3>Debut Live 안내</h3>
-                      <p>현장에서는 루미 ID 또는 입장 확인용 번호를 먼저 보여주세요. 메아테 혜택은 입장 시가 아니라 물판/특전회에서 확인 후 처리됩니다.</p>
-                      <div class="mail-actions"><button class="mail-action-btn primary-look" type="button" disabled>소장하기</button><button class="mail-action-btn" type="button" disabled>닫기</button></div>
+                    <div class="mail-empty hidden" id="mailInboxEmpty">조건에 맞는 우편이 없어요.</div>
+                  </section>
+
+                  <section class="mini-page" id="mail-saved">
+                    <div class="mail-filter-row" aria-label="소장 우편 필터">
+                      <button class="active" type="button" data-mail-filter="saved" data-mail-filter-value="all">전체</button>
+                      <button type="button" data-mail-filter="saved" data-mail-filter-value="member">멤버</button>
+                      <button type="button" data-mail-filter="saved" data-mail-filter-value="live">라이브</button>
+                      <button type="button" data-mail-filter="saved" data-mail-filter-value="event">이벤트</button>
+                    </div>
+                    <div class="mail-list" id="mailSavedList" aria-live="polite"></div>
+                    <div class="mail-pager" id="mailSavedPager" aria-label="소장 우편 페이지 이동">
+                      <button type="button" id="mailSavedPrev" aria-label="이전 소장 우편">‹</button>
+                      <span id="mailSavedPageText">1 / 1</span>
+                      <button type="button" id="mailSavedNext" aria-label="다음 소장 우편">›</button>
+                    </div>
+                    <div class="mail-empty hidden" id="mailSavedEmpty">아직 소장한 우편이 없어요.</div>
+                  </section>
+
+                  <section class="mini-page" id="mail-guide">
+                    <div class="mail-guide-list">
+                      <article class="plain-row"><b>우편함 안내</b><span>공연 후 우편, 멤버의 한마디, 이벤트 안내처럼 오래 보관하고 싶은 메시지를 모아두는 공간이에요.</span></article>
+                      <article class="plain-row"><b>소장 우편</b><span>특별히 간직하고 싶은 우편은 소장하기를 눌러 소장 우편 탭에서 다시 볼 수 있어요.</span></article>
+                      <article class="plain-row"><b>답장과 마음 기록</b><span>모든 우편에 개별 답장이 붙는 구조는 아니지만, 남겨진 마음은 루미벨의 기록 속에 오래 보관됩니다.</span></article>
                     </div>
                   </section>
-                  <section class="mini-page" id="mail-saved"><article class="plain-row"><b>아직 소장 우편이 없어요</b><span>소장한 우편은 여기에서 다시 볼 수 있게 됩니다.</span></article></section>
-                  <section class="mini-page" id="mail-guide"><article class="plain-row"><b>우편함 안내</b><span>멤버의 컨디션과 일정에 따라 모든 메시지에 개별 답장을 남기기는 어렵지만, 남겨진 마음은 루미벨의 기록 속에 오래 보관됩니다.</span></article></section>
                 </article>
               </section>
+
+              <div class="mail-modal hidden" id="mailModal" aria-hidden="true">
+                <div class="mail-modal-backdrop" data-mail-close="overlay"></div>
+                <article class="mail-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="mailModalTitle">
+                  <button class="mail-modal-x" type="button" data-mail-close="button" aria-label="우편 닫기">×</button>
+                  <div class="mail-modal-icon" id="mailModalIcon">💌</div>
+                  <div class="mail-modal-meta" id="mailModalMeta">루미벨 · 안내</div>
+                  <h3 id="mailModalTitle">우편 제목</h3>
+                  <p id="mailModalBody">우편 내용</p>
+                  <div class="mail-modal-actions">
+                    <button class="mail-save-main" id="mailSaveToggle" type="button">소장하기</button>
+                    <button class="mail-close-sub" type="button" data-mail-close="button">닫기</button>
+                  </div>
+                </article>
+              </div>
 
               <section class="page" id="page-message" aria-label="문자">
                 <article class="module-card lumiMsg-card">
@@ -8799,14 +9154,194 @@
         if (!group) return;
         group.querySelectorAll(".mini-page").forEach((page) => page.classList.toggle("active", page.id === targetId));
         group.querySelectorAll(".mini-tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.miniTarget === targetId));
+        if (targetId === "mail-inbox") renderMailBox("inbox");
+        if (targetId === "mail-saved") renderMailBox("saved");
+      }
+
+      const LUMI_MAIL_ITEMS = [
+        {
+          id: "welcome",
+          box: "inbox",
+          category: "event",
+          icon: "💌",
+          from: "루미벨",
+          meta: "개통 안내 · 오늘 12:00",
+          status: "NEW",
+          title: "루미벨에서 도착한 첫 우편",
+          preview: "루미폰 개통을 환영해요.",
+          body: "루미폰 개통을 환영해요.\n\n이곳에는 루미벨과 함께한 기록, 공연 후 남겨지는 우편, 특별한 날의 메시지가 천천히 쌓입니다. 오래 간직하고 싶은 우편은 소장하기를 눌러 소장 우편에 보관할 수 있어요."
+        },
+        {
+          id: "debut-guide",
+          box: "inbox",
+          category: "live",
+          icon: "🎀",
+          from: "LUMI STAFF",
+          meta: "라이브 안내 · 2026.07.12",
+          status: "읽음",
+          title: "Debut Live 안내",
+          preview: "입장 확인용 번호와 메아테 안내를 확인해 주세요.",
+          body: "현장에서는 루미 ID 또는 입장 확인용 번호를 먼저 보여주세요.\n\n메아테 혜택은 입장 시가 아니라 물판/특전회에서 확인 후 처리됩니다. 특전회에 참여한 기록은 루미 체크인으로 남고, 스탬프는 체크인 기준으로 지급돼요."
+        },
+        {
+          id: "after-live",
+          box: "inbox",
+          category: "member",
+          icon: "🎀⭐",
+          from: "마리링",
+          meta: "공연 후 우편 · 오늘 18:00",
+          status: "NEW",
+          title: "오늘 와줘서 고마워",
+          preview: "네가 남겨준 마음이 오늘 무대의 반짝임이 됐어.",
+          body: "오늘 와줘서 고마워.\n\n네가 남겨준 마음이 오늘 무대의 반짝임이 됐어. 모든 순간에 답장을 남기지는 못해도, 루미벨은 루미나가 보내준 응원과 후기를 소중히 확인하고 있어. 다음에도 무대에서 꼭 만나자."
+        },
+        {
+          id: "birthday-ticket",
+          box: "inbox",
+          category: "event",
+          icon: "🎂",
+          from: "루미폰",
+          meta: "이벤트 안내 · 생일 당월",
+          status: "읽음",
+          title: "Birthday Ticket 안내",
+          preview: "생일 당월에 사용할 수 있는 특별한 촬영 티켓이에요.",
+          body: "Birthday Ticket은 생일 당월 1일부터 말일까지 사용할 수 있는 생일 기념 촬영 특전권이에요.\n\n본인 사용만 가능하며 양도할 수 없고, 사용 완료 후 재발급되지 않습니다. 실제 표시와 사용 가능 여부는 루미 ID 기록과 운영 확인 기준으로 적용됩니다."
+        },
+        {
+          id: "lumi-log-note",
+          box: "inbox",
+          category: "live",
+          icon: "📖",
+          from: "LUMI LOG",
+          meta: "기록 안내 · 공연 후",
+          status: "읽음",
+          title: "오늘의 마음은 루미로그에 남아요",
+          preview: "후기와 응원은 지나가는 글이 아니라 오래 남는 기록이 돼요.",
+          body: "공연 후 남겨준 후기와 응원은 지나가는 글이 아니라 루미벨의 기록 속에 오래 보관됩니다.\n\n리프 여부가 마음의 크기를 의미하지는 않아요. 대신 루미로그를 통해 그날의 셋리스트, 사진, 멤버의 한마디, 루미나가 남겨준 마음을 천천히 기록해요."
+        }
+      ];
+
+      const mailState = {
+        inbox: { page: 0, filter: "all" },
+        saved: { page: 0, filter: "all" },
+        currentId: null
+      };
+      const MAIL_PAGE_SIZE = 3;
+      const MAIL_SAVE_KEY = "lumiSavedMailIds";
+
+      function readSavedMailIds() {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(MAIL_SAVE_KEY) || "[]");
+          return Array.isArray(parsed) ? parsed.map(String) : [];
+        } catch (error) {
+          return [];
+        }
+      }
+
+      function writeSavedMailIds(ids) {
+        try {
+          localStorage.setItem(MAIL_SAVE_KEY, JSON.stringify(Array.from(new Set(ids.map(String)))));
+        } catch (error) {}
+      }
+
+      function isMailSaved(id) {
+        return readSavedMailIds().includes(String(id));
+      }
+
+      function setMailSaved(id, saved) {
+        const ids = readSavedMailIds().filter((item) => item !== String(id));
+        if (saved) ids.push(String(id));
+        writeSavedMailIds(ids);
+      }
+
+      function getMailItems(box) {
+        const state = mailState[box] || mailState.inbox;
+        const savedIds = readSavedMailIds();
+        const base = box === "saved" ? LUMI_MAIL_ITEMS.filter((item) => savedIds.includes(item.id)) : LUMI_MAIL_ITEMS;
+        return base.filter((item) => state.filter === "all" || item.category === state.filter);
+      }
+
+      function renderMailBox(box) {
+        const list = document.getElementById(box === "saved" ? "mailSavedList" : "mailInboxList");
+        const pager = document.getElementById(box === "saved" ? "mailSavedPager" : "mailInboxPager");
+        const text = document.getElementById(box === "saved" ? "mailSavedPageText" : "mailInboxPageText");
+        const prev = document.getElementById(box === "saved" ? "mailSavedPrev" : "mailInboxPrev");
+        const next = document.getElementById(box === "saved" ? "mailSavedNext" : "mailInboxNext");
+        const empty = document.getElementById(box === "saved" ? "mailSavedEmpty" : "mailInboxEmpty");
+        if (!list || !pager || !text || !prev || !next || !empty) return;
+
+        const state = mailState[box];
+        const items = getMailItems(box);
+        const totalPages = Math.max(1, Math.ceil(items.length / MAIL_PAGE_SIZE));
+        state.page = Math.min(Math.max(0, state.page), totalPages - 1);
+        const pageItems = items.slice(state.page * MAIL_PAGE_SIZE, state.page * MAIL_PAGE_SIZE + MAIL_PAGE_SIZE);
+
+        list.innerHTML = pageItems.map((item) => {
+          const saved = isMailSaved(item.id);
+          const status = saved ? "소장" : item.status;
+          const statusClass = status === "NEW" ? " new" : "";
+          return '<button class="mail-item" type="button" data-mail-open="' + item.id + '">' +
+            '<span class="icon">' + item.icon + '</span>' +
+            '<span class="mail-item-main"><span class="mail-item-meta">' + item.from + ' · ' + item.meta + '</span><b>' + item.title + '</b><span class="mail-item-preview">' + item.preview + '</span></span>' +
+            '<span class="mail-status-chip' + statusClass + '">' + status + '</span>' +
+          '</button>';
+        }).join("");
+        empty.classList.toggle("hidden", items.length > 0);
+        pager.classList.toggle("hidden", items.length <= MAIL_PAGE_SIZE);
+        text.textContent = (state.page + 1) + " / " + totalPages;
+        prev.disabled = state.page <= 0;
+        next.disabled = state.page >= totalPages - 1;
+      }
+
+      function renderMailAll() {
+        renderMailBox("inbox");
+        renderMailBox("saved");
+      }
+
+      function openMailModal(id) {
+        const item = LUMI_MAIL_ITEMS.find((mail) => mail.id === id);
+        const modal = document.getElementById("mailModal");
+        if (!item || !modal) return;
+        mailState.currentId = id;
+        const icon = document.getElementById("mailModalIcon");
+        const meta = document.getElementById("mailModalMeta");
+        const title = document.getElementById("mailModalTitle");
+        const body = document.getElementById("mailModalBody");
+        const save = document.getElementById("mailSaveToggle");
+        if (icon) icon.textContent = item.icon;
+        if (meta) meta.textContent = item.from + " · " + item.meta;
+        if (title) title.textContent = item.title;
+        if (body) body.textContent = item.body;
+        if (save) save.textContent = isMailSaved(id) ? "소장해제" : "소장하기";
+        modal.classList.remove("hidden");
+        modal.setAttribute("aria-hidden", "false");
+      }
+
+      function closeMailModal() {
+        const modal = document.getElementById("mailModal");
+        if (!modal) return;
+        modal.classList.add("hidden");
+        modal.setAttribute("aria-hidden", "true");
+      }
+
+      function setMailFilter(box, value) {
+        mailState[box].filter = value;
+        mailState[box].page = 0;
+        document.querySelectorAll('[data-mail-filter="' + box + '"]').forEach((button) => {
+          button.classList.toggle("active", button.dataset.mailFilterValue === value);
+        });
+        renderMailBox(box);
+      }
+
+      function changeMailPage(box, delta) {
+        const state = mailState[box];
+        const totalPages = Math.max(1, Math.ceil(getMailItems(box).length / MAIL_PAGE_SIZE));
+        state.page = Math.min(Math.max(0, state.page + delta), totalPages - 1);
+        renderMailBox(box);
       }
 
       function showMailDetail(detailId) {
-        const target = document.getElementById(detailId);
-        if (!target) return;
-        const parent = target.closest(".mini-page");
-        if (!parent) return;
-        parent.querySelectorAll(".detail-box").forEach((box) => box.classList.toggle("active", box.id === detailId));
+        openMailModal(detailId);
       }
 
 
@@ -10542,7 +11077,39 @@
       $$(".tab").forEach((button) => button.addEventListener("click", () => go(button.dataset.page)));
       $$("[data-go]").forEach((button) => button.addEventListener("click", () => go(button.dataset.go)));
       $$(".mini-tab").forEach((button) => button.addEventListener("click", () => setMiniPage(button.dataset.miniTarget)));
-      $$("[data-detail]").forEach((button) => button.addEventListener("click", () => showMailDetail(button.dataset.detail)));
+      document.addEventListener("click", (event) => {
+        const mailOpen = event.target.closest("[data-mail-open]");
+        if (mailOpen) {
+          openMailModal(mailOpen.dataset.mailOpen);
+          return;
+        }
+        const mailFilter = event.target.closest("[data-mail-filter]");
+        if (mailFilter) {
+          setMailFilter(mailFilter.dataset.mailFilter, mailFilter.dataset.mailFilterValue || "all");
+          return;
+        }
+        const mailClose = event.target.closest("[data-mail-close]");
+        if (mailClose) {
+          closeMailModal();
+        }
+      });
+      const mailInboxPrev = document.getElementById("mailInboxPrev");
+      const mailInboxNext = document.getElementById("mailInboxNext");
+      const mailSavedPrev = document.getElementById("mailSavedPrev");
+      const mailSavedNext = document.getElementById("mailSavedNext");
+      const mailSaveToggle = document.getElementById("mailSaveToggle");
+      if (mailInboxPrev) mailInboxPrev.addEventListener("click", () => changeMailPage("inbox", -1));
+      if (mailInboxNext) mailInboxNext.addEventListener("click", () => changeMailPage("inbox", 1));
+      if (mailSavedPrev) mailSavedPrev.addEventListener("click", () => changeMailPage("saved", -1));
+      if (mailSavedNext) mailSavedNext.addEventListener("click", () => changeMailPage("saved", 1));
+      if (mailSaveToggle) mailSaveToggle.addEventListener("click", () => {
+        if (!mailState.currentId) return;
+        const nextSaved = !isMailSaved(mailState.currentId);
+        setMailSaved(mailState.currentId, nextSaved);
+        mailSaveToggle.textContent = nextSaved ? "소장해제" : "소장하기";
+        renderMailAll();
+      });
+      renderMailAll();
       if (typeof window.showLumiMessageInbox === "function") window.showLumiMessageInbox();
       $$("[data-ticket-prev]").forEach((button) => button.addEventListener("click", () => updateTicketPager(button.dataset.ticketPrev, -1)));
       $$("[data-ticket-next]").forEach((button) => button.addEventListener("click", () => updateTicketPager(button.dataset.ticketNext, 1)));
