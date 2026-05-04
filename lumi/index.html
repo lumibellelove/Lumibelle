@@ -7307,8 +7307,8 @@
       .lumiMsg-actions { grid-template-columns: 1fr; }
       .lumiMsg-tabs button,
       .lumiMsg-filters button { flex: 1 1 auto; }
-      .lumiMsg-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-      .lumiMsg-item { min-height: 118px; padding: 10px 9px; border-radius: 18px; }
+      .lumiMsg-list { grid-template-columns: 1fr; gap: 8px; }
+      .lumiMsg-item { min-height: 106px; padding: 10px 11px; border-radius: 18px; }
       .lumiMsg-title { font-size: 13px; }
       .lumiMsg-preview { font-size: 11px; line-height: 1.42; }
       .lumiMsg-meta { font-size: 10px; }
@@ -11599,7 +11599,7 @@
   function getObj(k){ try { return JSON.parse(localStorage.getItem(k)||"{}"); } catch(e) { return {}; } }
   function setObj(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
   function fanText(value){ return String(value == null ? "" : value); }
-  function perPage(){ return window.matchMedia && window.matchMedia("(max-width: 430px)").matches ? 4 : 6; }
+  function perPage(){ return window.matchMedia && window.matchMedia("(max-width: 430px)").matches ? 3 : 6; }
   let box = "inbox", filter = "all", page = 1, currentId = null, timers = [];
   function pageEl(){ return document.getElementById("page-message"); }
   function isRead(id){ return getArr(KEY.read).includes(id); }
@@ -11651,7 +11651,7 @@
       list.appendChild(btn);
     });
     const pageText = $("#lumiMsgPageText", root), prev = $("#lumiMsgPrev", root), next = $("#lumiMsgNext", root);
-    if (pageText) pageText.textContent = page + " / " + total;
+    if (pageText) pageText.textContent = page + "/" + total;
     if (prev) prev.disabled = page <= 1;
     if (next) next.disabled = page >= total;
     if (pager) pager.classList.toggle("hidden", items.length <= pp && page === 1);
@@ -11753,7 +11753,7 @@
       addBubble(typeof item === "string" ? item : item.text, typeof item === "string" ? "from" : item.kind);
       delay(step, animate ? 720 : 520);
     }
-    delay(step, animate ? 220 : 140);
+    delay(step, animate ? 420 : 140);
   }
   function bind(){
     const root = pageEl(); if (!root || root.dataset.lumiMsgV108 === "1") return;
