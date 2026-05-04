@@ -6368,41 +6368,25 @@
 
       function moveToXShareUrl(xUrl) {
         if (!xUrl) return;
-        if (isMobileLikeDevice()) {
-          window.location.assign(xUrl);
+        const nextWindow = window.open(xUrl, "_blank", "noopener,noreferrer");
+        if (nextWindow && typeof nextWindow.focus === "function") {
+          nextWindow.focus();
           return;
         }
-        const nextWindow = window.open(xUrl, "_blank", "noopener,noreferrer");
-        if (nextWindow && typeof nextWindow.focus === "function") nextWindow.focus();
+        window.location.href = xUrl;
       }
 
       function openXAchievementShareConfirm(payload) {
         if (!payload) return;
         const xUrl = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(payload.text);
-        if (isMobileLikeDevice()) {
-          openProfileSimpleModal("X 공유 준비", [
-            "모바일에서는 Chrome으로 바로 이동하지 않고 공유 시트를 열어요.",
-            "공유 시트에서 X를 선택해 주세요.",
-            "이미지가 함께 공유되지 않는 기기에서는 저장/복사 안내로 전환돼요."
-          ], [
-            {
-              label: "공유 시트 열기",
-              primary: true,
-              keepOpen: true,
-              onClick: () => shareAchievementNative(payload)
-            },
-            { label: "취소" }
-          ]);
-          return;
-        }
         openProfileSimpleModal("X 작성창으로 이동할까요?", [
-          "X에는 공유 문구와 링크가 먼저 들어가요.",
-          "이미지까지 함께 올리고 싶다면 ‘공유’ 버튼을 이용해 주세요."
+          "공유 문구를 클립보드에 복사한 뒤 X 작성 화면을 열어요.",
+          "공유 이미지는 자동 첨부되지 않으니, 저장된 이미지를 직접 첨부해 주세요."
         ], [
           {
             label: "이동하기",
             primary: true,
-            onClick: () => moveToXShareUrl(xUrl)
+            onClick: async () => { await copyPlainTextAsync(payload.text); moveToXShareUrl(xUrl); }
           },
           { label: "취소" }
         ]);
@@ -6423,7 +6407,7 @@
           "오시: " + oshi,
           "대표 칭호: " + title,
           "",
-          "루미벨과 함께 반짝이는 중 ✨",
+          "루미벨과 함께 반짝이는 중",
           "https://lumibellelove.com/",
           "",
           "#루미벨 #LUMIBELLE #루미폰 #왕도아이돌 #라이브아이돌"
@@ -6850,20 +6834,9 @@
       function openProfileXShareConfirm() {
         const payload = getProfileSharePayload();
         const xUrl = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(payload.text);
-        if (isMobileLikeDevice()) {
-          openProfileSimpleModal("X 공유 준비", [
-            "모바일에서는 Chrome으로 바로 이동하지 않고 공유 시트를 열어요.",
-            "공유 시트에서 X를 선택해 주세요.",
-            "이미지가 함께 공유되지 않는 기기에서는 저장/복사 안내로 전환돼요."
-          ], [
-            { label: "공유 시트 열기", primary: true, keepOpen: true, onClick: () => shareProfileNative() },
-            { label: "취소" }
-          ]);
-          return;
-        }
         openProfileSimpleModal("X 작성창으로 이동할까요?", [
-          "X에는 공유 문구와 링크가 먼저 들어가요.",
-          "이미지까지 함께 올리고 싶다면 ‘공유’ 버튼을 이용해 주세요."
+          "공유 문구를 클립보드에 복사한 뒤 X 작성 화면을 열어요.",
+          "공유 이미지는 자동 첨부되지 않으니, 저장된 이미지를 직접 첨부해 주세요."
         ], [
           { label: "이동하기", primary: true, onClick: async () => { await copyPlainTextAsync(payload.text); moveToXShareUrl(xUrl); } },
           { label: "취소" }
