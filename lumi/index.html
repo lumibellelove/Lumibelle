@@ -1081,6 +1081,7 @@
       font-size: 20px;
       border: 1px solid var(--line);
       flex: 0 0 auto;
+      align-self: center;
     }
 
     .mail-item b {
@@ -3723,6 +3724,11 @@
       color: #fff;
       border-color: transparent;
       background: #ff5fa8;
+    }
+
+    .mail-status-chip.new::before,
+    .mail-status-chip.new::after {
+      content: none !important;
     }
 
     .mail-pager {
@@ -9315,9 +9321,18 @@
         next.disabled = state.page >= totalPages - 1;
       }
 
+      function updateMailTabBadge() {
+        const badge = document.querySelector('.tab[data-page="mail"] .badge');
+        if (!badge) return;
+        const unread = LUMI_MAIL_ITEMS.filter((mail) => !isMailRead(mail.id) && mail.status === "NEW").length;
+        badge.textContent = unread || "";
+        badge.style.display = unread ? "" : "none";
+      }
+
       function renderMailAll() {
         renderMailBox("inbox");
         renderMailBox("saved");
+        updateMailTabBadge();
       }
 
       function openMailModal(id) {
