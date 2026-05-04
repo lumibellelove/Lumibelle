@@ -6368,32 +6368,22 @@
 
       function moveToXShareUrl(xUrl) {
         if (!xUrl) return;
-        const mobileLike = isMobileLike();
-        let shareText = "";
-        try {
-          const parsed = new URL(xUrl, window.location.href);
-          shareText = parsed.searchParams.get("text") || "";
-        } catch (err) {
-          shareText = "";
-        }
-        if (mobileLike && shareText) {
-          const ua = navigator.userAgent || "";
-          const encodedText = encodeURIComponent(shareText);
-          if (/Android/i.test(ua)) {
-            window.location.href = "intent://post?message=" + encodedText + "#Intent;scheme=twitter;package=com.twitter.android;end";
-            return;
-          }
-          if (/iPhone|iPad|iPod/i.test(ua)) {
-            window.location.href = "twitter://post?message=" + encodedText;
-            return;
-          }
-        }
-        const nextWindow = window.open(xUrl, "_blank", "noopener,noreferrer");
-        if (nextWindow && typeof nextWindow.focus === "function") {
-          nextWindow.focus();
+        const ua = navigator.userAgent || "";
+
+        if (/Android/i.test(ua)) {
+          const intentTarget = String(xUrl).replace(/^https?:\/\//, "");
+          const intentUrl = "intent://" + intentTarget + "#Intent;scheme=https;package=com.twitter.android;S.browser_fallback_url=" + encodeURIComponent(xUrl) + ";end";
+          window.location.assign(intentUrl);
           return;
         }
-        window.location.href = xUrl;
+
+        if (isMobileLikeDevice()) {
+          window.location.assign(xUrl);
+          return;
+        }
+
+        const nextWindow = window.open(xUrl, "_blank", "noopener,noreferrer");
+        if (nextWindow && typeof nextWindow.focus === "function") nextWindow.focus();
       }
 
       function openXAchievementShareConfirm(payload) {
