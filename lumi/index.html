@@ -7030,7 +7030,7 @@
 
 
 
-    /* Message / Lumi Letter choice inbox patch v10.8 */
+    /* Message / Lumi Letter choice inbox patch v10.13 */
     .lumiMsg-card { overflow: hidden; }
     .lumiMsg-intro { margin-bottom: 12px; }
     .lumiMsg-tabs,
@@ -7058,7 +7058,8 @@
     .lumiMsg-filters button.active,
     .lumiMsg-replies button:active,
     .primary-mini,
-    #lumiMsgSaveBtn:not(.hidden) {
+    #lumiMsgSaveBtn:not(.hidden),
+    #lumiMsgUnsaveBtn:not(.hidden) {
       color: #fff;
       border-color: transparent;
       background: linear-gradient(180deg, #ff82ba, #ff5fa8);
@@ -7077,40 +7078,55 @@
     }
     .lumiMsg-list {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: 1fr;
       gap: 9px;
       margin-top: 12px;
     }
     .lumiMsg-item {
       position: relative;
       width: 100%;
-      min-height: 126px;
+      min-height: 96px;
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr);
+      grid-template-rows: auto auto auto auto;
+      column-gap: 12px;
+      row-gap: 3px;
+      align-items: start;
       border: 1px solid var(--line);
       border-radius: 20px;
       background: #fff;
-      padding: 12px 10px 11px;
+      padding: 12px 13px;
       text-align: left;
       color: inherit;
       box-shadow: 0 8px 16px rgba(232,191,211,.08);
     }
     .lumiMsg-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 14px;
+      grid-row: 1 / span 4;
+      grid-column: 1;
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
       display: grid;
       place-items: center;
       background: #fff0f7;
       border: 1px solid var(--line);
       color: #d77ca7;
-      font-size: 18px;
-      margin-bottom: 7px;
+      font-size: 22px;
+      margin: 0;
     }
     .lumiMsg-meta {
+      grid-column: 2;
+      min-width: 0;
+      padding-right: 58px;
       color: #b5869c;
       font-size: 11px;
       font-weight: 900;
       line-height: 1.25;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
+    .lumiMsg-meta small { font-size: 10.5px; }
     .lumiMsg-tag,
     .lumiMsg-state {
       display: inline-flex;
@@ -7123,52 +7139,79 @@
       color: #d77ca7;
       font-size: 10px;
       font-weight: 900;
-      margin: 5px 5px 0 0;
       vertical-align: middle;
       font-style: normal;
+    }
+    .lumiMsg-tag {
+      grid-column: 2;
+      justify-self: start;
+      margin: 2px 0 0;
+    }
+    .lumiMsg-state {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      margin: 0;
     }
     .lumiMsg-state.read { color: #9a7187; background: #fff; }
     .lumiMsg-state.saved { color: #fff; background: #b28ea2; border-color: transparent; }
     .lumiMsg-title {
+      grid-column: 2;
       display: block;
-      margin-top: 7px;
+      min-width: 0;
+      margin-top: 3px;
       color: #76586a;
       font-size: 15px;
-      line-height: 1.35;
+      line-height: 1.3;
       font-weight: 900;
       word-break: keep-all;
     }
     .lumiMsg-preview {
+      grid-column: 2;
       display: block;
-      margin-top: 5px;
+      min-width: 0;
+      margin-top: 2px;
       color: #9a7187;
       font-size: 12px;
-      line-height: 1.5;
+      line-height: 1.45;
       font-weight: 800;
-      word-break: keep-all;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .lumiMsg-pager {
       display: grid;
       grid-template-columns: 42px 1fr 42px;
-      gap: 8px;
       align-items: center;
-      margin: 12px 0;
+      gap: 8px;
+      margin: 12px 0 0;
     }
     .lumiMsg-pager button {
       width: 42px;
-      height: 42px;
+      height: 36px;
+      border-radius: 999px;
       border: 1px solid var(--line2);
-      border-radius: 50%;
       background: #fff;
       color: #d77ca7;
-      font-size: 18px;
+      font-size: 22px;
+      line-height: 1;
       font-weight: 900;
     }
+    .lumiMsg-pager button:disabled {
+      opacity: .38;
+      cursor: default;
+    }
     .lumiMsg-pager span {
-      text-align: center;
+      min-height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff, #fff7fb);
       color: #9a7187;
       font-size: 12px;
       font-weight: 900;
+      letter-spacing: .03em;
     }
     .lumiMsg-empty {
       border: 1px dashed var(--line2);
@@ -7290,25 +7333,56 @@
       margin-top: 12px;
     }
     .lumiMsg-replies button { white-space: normal; line-height: 1.35; padding: 8px 12px; }
+    .lumiMsg-replies button:only-child {
+      grid-column: 1 / -1;
+      color: #b07693;
+      background: #fff;
+      border-color: var(--line2);
+      box-shadow: none;
+    }
     .lumiMsg-actions {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
       margin-top: 12px;
     }
+    .lumiMsg-actions button {
+      min-height: 38px;
+      background: #fff;
+      border: 1px solid var(--line2);
+      color: #b07693;
+      box-shadow: none;
+    }
+    #lumiMsgSaveBtn:not(.hidden),
+    #lumiMsgUnsaveBtn:not(.hidden) {
+      grid-column: 1 / -1;
+      min-height: 42px;
+      color: #fff;
+      border-color: transparent;
+      background: linear-gradient(180deg, #ff82ba, #ff5fa8);
+      box-shadow: 0 8px 18px rgba(255,95,168,.14);
+    }
+    #lumiMsgReplayBtn,
+    #lumiMsgCloseBtn {
+      grid-column: auto;
+      background: #fff;
+      border-color: var(--line2);
+      color: #b07693;
+    }
     html.lumi-msg-modal-open,
     body.lumi-msg-modal-open {
       overflow: hidden !important;
       overscroll-behavior: none;
     }
+    @media (min-width: 760px) {
+      .lumiMsg-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
     @media (max-width: 430px) {
-      .lumiMsg-tools,
-      .lumiMsg-replies,
-      .lumiMsg-actions { grid-template-columns: 1fr; }
+      .lumiMsg-tools { grid-template-columns: 1fr; }
       .lumiMsg-tabs button,
       .lumiMsg-filters button { flex: 1 1 auto; }
       .lumiMsg-list { grid-template-columns: 1fr; gap: 8px; }
-      .lumiMsg-item { min-height: 106px; padding: 10px 11px; border-radius: 18px; }
+      .lumiMsg-item { min-height: 92px; padding: 11px 12px; border-radius: 18px; grid-template-columns: 52px minmax(0, 1fr); }
       .lumiMsg-title { font-size: 13px; }
       .lumiMsg-preview { font-size: 11px; line-height: 1.42; }
       .lumiMsg-meta { font-size: 10px; }
@@ -11651,7 +11725,7 @@
       list.appendChild(btn);
     });
     const pageText = $("#lumiMsgPageText", root), prev = $("#lumiMsgPrev", root), next = $("#lumiMsgNext", root);
-    if (pageText) pageText.textContent = page + "/" + total;
+    if (pageText) pageText.textContent = page + " / " + total;
     if (prev) prev.disabled = page <= 1;
     if (next) next.disabled = page >= total;
     if (pager) pager.classList.toggle("hidden", items.length <= pp && page === 1);
