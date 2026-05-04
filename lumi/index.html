@@ -5435,6 +5435,113 @@
       .record-month-row strong { font-size: 15px; }
     }
 
+
+    /* Record: month/page control balance + roomy summary boxes patch */
+    #page-record .record-hero-grid {
+      gap: 10px;
+      margin: 14px 0 10px;
+    }
+
+    #page-record .record-hero-card {
+      padding: 15px 14px 14px;
+      border-radius: 24px;
+      min-height: 116px;
+    }
+
+    #page-record .record-hero-card small,
+    #page-record .record-stat-card small {
+      line-height: 1.35;
+    }
+
+    #page-record .record-hero-card b {
+      margin-top: 7px;
+      font-size: clamp(22px, 6.9vw, 30px);
+      line-height: 1.05;
+    }
+
+    #page-record .record-hero-card span {
+      margin-top: 9px;
+      line-height: 1.5;
+    }
+
+    #page-record .record-month-row {
+      width: min(78%, 330px);
+      margin: 12px auto 12px;
+      grid-template-columns: 42px minmax(0, 1fr) 42px;
+      gap: 10px;
+    }
+
+    #page-record .record-month-row button {
+      width: 42px;
+      height: 42px;
+    }
+
+    #page-record .record-month-row strong {
+      font-size: 17px;
+    }
+
+    #page-record .record-card-grid.record-timeline-list .record-memory-card {
+      padding-left: 70px;
+      padding-right: 16px;
+    }
+
+    #page-record .record-card-grid.record-timeline-list::before {
+      left: 33px;
+    }
+
+    #page-record .record-card-grid.record-timeline-list .record-memory-icon {
+      left: 15px;
+    }
+
+    #page-record .record-card-grid.record-timeline-list .record-memory-card em {
+      margin-top: 8px;
+      align-self: flex-start;
+      justify-content: flex-start;
+    }
+
+    #page-record .record-pagination {
+      width: min(72%, 280px);
+      margin: 18px auto 12px;
+      display: grid;
+      grid-template-columns: 46px minmax(76px, 1fr) 46px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    #page-record .record-pagination button {
+      width: 46px;
+      height: 46px;
+      justify-self: center;
+    }
+
+    #page-record .record-pagination span {
+      min-height: 38px;
+      justify-content: center;
+      padding: 0 17px;
+      font-size: 13px;
+      background: #fffafd;
+      border-color: var(--line2);
+    }
+
+    @media (max-width: 380px) {
+      #page-record .record-hero-card {
+        padding: 14px 12px 13px;
+        min-height: 112px;
+      }
+      #page-record .record-hero-card b {
+        font-size: 22px;
+      }
+      #page-record .record-hero-card span {
+        font-size: 10.7px;
+      }
+      #page-record .record-month-row {
+        width: min(82%, 305px);
+      }
+      #page-record .record-pagination {
+        width: min(76%, 270px);
+      }
+    }
+
 </style>
 </head>
 
@@ -5761,9 +5868,9 @@
                   </div>
 
                   <div class="record-month-row" aria-label="기록 월 이동">
-                    <button type="button" aria-label="이전 달">‹</button>
-                    <strong>2026년 07월</strong>
-                    <button type="button" aria-label="다음 달">›</button>
+                    <button type="button" id="recordMonthPrev" aria-label="이전 달">‹</button>
+                    <strong id="recordMonthLabel">2026년 07월</strong>
+                    <button type="button" id="recordMonthNext" aria-label="다음 달">›</button>
                   </div>
 
                   <div class="record-list-title">기록 타임라인</div>
@@ -8560,16 +8667,45 @@
       const recordPageNext = document.querySelector("#recordPageNext");
       const recordPageText = document.querySelector("#recordPageText");
       const recordMsg = document.querySelector("#recordMsg");
+      const recordMonthPrev = document.querySelector("#recordMonthPrev");
+      const recordMonthNext = document.querySelector("#recordMonthNext");
+      const recordMonthLabel = document.querySelector("#recordMonthLabel");
       const pageSize = 4;
+      const minYear = 2026;
       let currentFilter = "전체";
       let currentPage = 1;
+      let currentYear = 2026;
+      let currentMonth = 7;
+
+      function pad2(value) {
+        return String(value).padStart(2, "0");
+      }
+
+      function currentMonthKey() {
+        return currentYear + "." + pad2(currentMonth);
+      }
+
+      function updateMonthLabel() {
+        if (recordMonthLabel) recordMonthLabel.textContent = currentYear + "년 " + pad2(currentMonth) + "월";
+        if (recordMonthPrev) recordMonthPrev.disabled = currentYear <= minYear && currentMonth <= 1;
+      }
+
+      function cardMatchesMonth(card) {
+        const date = card.dataset.recordDate || "";
+        if (!date || date === "준비중") return currentYear === 2026 && currentMonth === 7;
+        return date.indexOf(currentMonthKey()) === 0;
+      }
 
       function filteredRecords() {
-        return recordCards.filter((card) => currentFilter === "전체" || card.dataset.recordCategory === currentFilter);
+        return recordCards.filter((card) => {
+          const matchesFilter = currentFilter === "전체" || card.dataset.recordCategory === currentFilter;
+          return matchesFilter && cardMatchesMonth(card);
+        });
       }
 
       function renderRecordPage() {
         if (!recordCards.length) return;
+        updateMonthLabel();
         const list = filteredRecords();
         const totalPages = Math.max(1, Math.ceil(list.length / pageSize));
         if (currentPage > totalPages) currentPage = totalPages;
@@ -8581,9 +8717,13 @@
         if (recordPagePrev) recordPagePrev.disabled = currentPage <= 1;
         if (recordPageNext) recordPageNext.disabled = currentPage >= totalPages;
         if (recordMsg) {
-          recordMsg.textContent = currentFilter === "전체"
-            ? "기록은 실제 데이터 연동 전 샘플이에요. 나중에 루미 ID 기준으로 공연, 체크인, 온라인 연결 기록이 표시됩니다."
-            : currentFilter + " 기록만 보고 있어요. 실제 데이터 연동 후 루미 ID 기준으로 자동 정리됩니다.";
+          if (!list.length) {
+            recordMsg.textContent = currentMonthKey() + " 기록은 아직 없어요. 실제 데이터 연동 후 루미 ID 기준으로 월별 기록이 표시됩니다.";
+          } else {
+            recordMsg.textContent = currentFilter === "전체"
+              ? "기록은 실제 데이터 연동 전 샘플이에요. 나중에 루미 ID 기준으로 공연, 체크인, 온라인 연결 기록이 표시됩니다."
+              : currentFilter + " 기록만 보고 있어요. 실제 데이터 연동 후 루미 ID 기준으로 자동 정리됩니다.";
+          }
         }
       }
 
@@ -8596,9 +8736,23 @@
         renderRecordPage();
       }
 
+      function moveMonth(delta) {
+        let nextMonth = currentMonth + delta;
+        let nextYear = currentYear;
+        while (nextMonth < 1) { nextMonth += 12; nextYear -= 1; }
+        while (nextMonth > 12) { nextMonth -= 12; nextYear += 1; }
+        if (nextYear < minYear) return;
+        currentYear = nextYear;
+        currentMonth = nextMonth;
+        currentPage = 1;
+        renderRecordPage();
+      }
+
       recordFilterButtons.forEach((button) => {
         button.addEventListener("click", () => setRecordFilter(button.dataset.recordFilter || "전체"));
       });
+      if (recordMonthPrev) recordMonthPrev.addEventListener("click", () => moveMonth(-1));
+      if (recordMonthNext) recordMonthNext.addEventListener("click", () => moveMonth(1));
       if (recordPagePrev) {
         recordPagePrev.addEventListener("click", () => {
           currentPage -= 1;
