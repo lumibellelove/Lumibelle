@@ -7077,33 +7077,33 @@
     }
     .lumiMsg-list {
       display: grid;
-      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
       margin-top: 12px;
     }
     .lumiMsg-item {
       position: relative;
       width: 100%;
+      min-height: 126px;
       border: 1px solid var(--line);
-      border-radius: 22px;
+      border-radius: 20px;
       background: #fff;
-      padding: 13px 12px 13px 64px;
+      padding: 12px 10px 11px;
       text-align: left;
       color: inherit;
       box-shadow: 0 8px 16px rgba(232,191,211,.08);
     }
     .lumiMsg-icon {
-      position: absolute;
-      left: 12px;
-      top: 14px;
-      width: 40px;
-      height: 40px;
-      border-radius: 15px;
+      width: 36px;
+      height: 36px;
+      border-radius: 14px;
       display: grid;
       place-items: center;
       background: #fff0f7;
       border: 1px solid var(--line);
       color: #d77ca7;
-      font-size: 20px;
+      font-size: 18px;
+      margin-bottom: 7px;
     }
     .lumiMsg-meta {
       color: #b5869c;
@@ -7182,13 +7182,34 @@
     }
     .lumiMsg-view {
       display: none;
-      margin-top: 14px;
+      position: fixed;
+      inset: 0;
+      z-index: 1002;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      margin: 0;
+      border: 0;
+      border-radius: 0;
+      background: rgba(70, 50, 64, 0.38);
+      padding: max(14px, env(safe-area-inset-top, 0px)) 14px max(14px, env(safe-area-inset-bottom, 0px));
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(7px);
+    }
+    .lumiMsg-view.show { display: flex; }
+    .lumiMsg-dialog {
+      width: min(100%, 390px);
+      max-height: calc(100dvh - 28px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto auto;
       border: 1px solid var(--line);
       border-radius: 26px;
       background: linear-gradient(180deg, #fffafd, #fff0f7);
       padding: 14px;
+      box-shadow: 0 24px 70px rgba(70, 50, 64, 0.22);
+      overflow: hidden;
     }
-    .lumiMsg-view.show { display: block; }
     .lumiMsg-chatHead {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -7227,7 +7248,12 @@
     .lumiMsg-chatLog {
       display: grid;
       gap: 10px;
-      max-height: none;
+      min-height: 0;
+      max-height: 52vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-right: 2px;
+      overscroll-behavior: contain;
     }
     .lumiMsg-bubble {
       max-width: 92%;
@@ -7270,12 +7296,25 @@
       gap: 8px;
       margin-top: 12px;
     }
+    html.lumi-msg-modal-open,
+    body.lumi-msg-modal-open {
+      overflow: hidden !important;
+      overscroll-behavior: none;
+    }
     @media (max-width: 430px) {
       .lumiMsg-tools,
       .lumiMsg-replies,
       .lumiMsg-actions { grid-template-columns: 1fr; }
       .lumiMsg-tabs button,
       .lumiMsg-filters button { flex: 1 1 auto; }
+      .lumiMsg-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .lumiMsg-item { min-height: 118px; padding: 10px 9px; border-radius: 18px; }
+      .lumiMsg-title { font-size: 13px; }
+      .lumiMsg-preview { font-size: 11px; line-height: 1.42; }
+      .lumiMsg-meta { font-size: 10px; }
+      .lumiMsg-tag, .lumiMsg-state { min-height: 21px; padding: 0 7px; font-size: 9.5px; }
+      .lumiMsg-dialog { width: 100%; max-height: calc(100dvh - 20px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); border-radius: 24px; }
+      .lumiMsg-chatLog { max-height: 49vh; }
       .lumiMsg-bubble { max-width: 94%; }
     }
 </style>
@@ -7576,7 +7615,7 @@
                   </div>
 
                   <div class="lumiMsg-tools">
-                    <input id="lumiMsgSearch" type="search" placeholder="문자 검색: 루나, ON AIR, 생일, 루미레터" />
+                    <input id="lumiMsgSearch" type="search" placeholder="문자 검색: 루나, ON AIR, 복귀, 비밀, 운영" />
                     <button class="btn sub" id="lumiMsgReplayFromList" type="button">다시 보기</button>
                   </div>
 
@@ -7584,7 +7623,10 @@
                     <button class="active" type="button" data-lumimsg-filter="all">전체</button>
                     <button type="button" data-lumimsg-filter="online">온라인</button>
                     <button type="button" data-lumimsg-filter="live">라이브</button>
+                    <button type="button" data-lumimsg-filter="return">복귀</button>
                     <button type="button" data-lumimsg-filter="birthday">생일</button>
+                    <button type="button" data-lumimsg-filter="secret">비밀</button>
+                    <button type="button" data-lumimsg-filter="staff">운영</button>
                     <button type="button" data-lumimsg-filter="lumiletter">루미레터</button>
                   </div>
 
@@ -7597,17 +7639,19 @@
                   <div class="lumiMsg-empty hidden" id="lumiMsgEmpty">조건에 맞는 문자가 없어요.</div>
 
                   <div class="lumiMsg-view" id="lumiMsgView" aria-label="문자 상세">
-                    <div class="lumiMsg-chatHead">
-                      <div><b id="lumiMsgChatTitle">문자</b><small id="lumiMsgChatDate">-</small></div>
-                      <span id="lumiMsgChatTag">태그</span>
-                    </div>
-                    <div class="lumiMsg-chatLog" id="lumiMsgChatLog"></div>
-                    <div class="lumiMsg-replies" id="lumiMsgReplies"></div>
-                    <div class="lumiMsg-actions">
-                      <button type="button" class="primary-mini" id="lumiMsgSaveBtn">소장하기</button>
-                      <button type="button" id="lumiMsgUnsaveBtn">소장해제</button>
-                      <button type="button" id="lumiMsgReplayBtn">다시 재생</button>
-                      <button type="button" id="lumiMsgCloseBtn">목록으로</button>
+                    <div class="lumiMsg-dialog" role="dialog" aria-modal="true" aria-labelledby="lumiMsgChatTitle">
+                      <div class="lumiMsg-chatHead">
+                        <div><b id="lumiMsgChatTitle">문자</b><small id="lumiMsgChatDate">-</small></div>
+                        <span id="lumiMsgChatTag">태그</span>
+                      </div>
+                      <div class="lumiMsg-chatLog" id="lumiMsgChatLog"></div>
+                      <div class="lumiMsg-replies" id="lumiMsgReplies"></div>
+                      <div class="lumiMsg-actions">
+                        <button type="button" class="primary-mini" id="lumiMsgSaveBtn">소장하기</button>
+                        <button type="button" id="lumiMsgUnsaveBtn">소장해제</button>
+                        <button type="button" id="lumiMsgReplayBtn">다시 재생</button>
+                        <button type="button" id="lumiMsgCloseBtn">목록으로</button>
+                      </div>
                     </div>
                   </div>
                 </article>
@@ -11374,6 +11418,41 @@
 /* ===== v10.8 message / lumiletter choice inbox patch ===== */
 (function(){
   "use strict";
+  window.LUMI_MEMBER_MESSAGES = window.LUMI_MEMBER_MESSAGES || {
+    mariring: {
+      status: "ready",
+      firstVisit: "와줘서 고마워! 오늘부터 링링이 너만의 아이돌이 되어줄게.",
+      liveThanks: "오늘 와줘서 정말 고마워! 네가 있어서 링링은 더 반짝일 수 있었어.",
+      comeback: "오랜만이야! 다시 와줘서 고마워. 기다리고 있었다구!",
+      onlineSupport: "멀리서 보내준 마음도 링링에게 전부 닿았어. 고마워!",
+      birthday: "오늘 특별한 날이라고 하던데, 맞아? 태어나줘서 고맙고 항상 링링을 응원해주는 네가 있기에 링링은 빛날 수 있었어. 진심으로 생일을 축하해."
+    },
+    lulu: {
+      status: "ready",
+      firstVisit: "어... 루루 보러 와준거야...? 🐰🩷\n와줘서 고마워...! 오늘부터 루루랑 같이 있어줄래...? 🍼🐰",
+      liveThanks: "오늘 와줘서 루루 진짜 힘났어... 🐰🩷\n잘 못했어도 루루 정말 열심히 했는데, 네 눈에도 괜찮았을까...? 🐰💦\n다음엔 더 열심히 할게...! 🐰✨️",
+      comeback: "🐰💭\n...루루 잊어버린 줄 알았어..🐰💦\n루루는 항상 기다리고 있었어...\n루루 곁에 다시 와줘서 너무 고마워... 오늘은 조금 더 같이 있어줄래...?🐰🩷",
+      onlineSupport: "직접 못 만나도 루루 다 느끼고 있어...!\n오늘도 응원해줘서 고마워... 루루도 더 열심히 할게...! 항상 루루를 생각해줘서 고마워...! 🐰🩷",
+      birthday: "🐰🎀🎉\n오늘은 너의 날이네...!\n태어나줘서 고마워... 오늘 하루가 조금 더 특별하고 행복하기를 루루가 기도할게...🐰🍀\n루루도 오늘은 더 많이 좋아해도 될까...? 🍼🩷"
+    },
+    iro: {
+      status: "ready",
+      firstVisit: "여행자…가 아니라 루미나! 이로이론나 색으로 네 하루를 바꿔줄게!",
+      liveThanks: "오늘 와줘서 아자스! 네 응원 덕분에 행복지수 완전 올라갔어!",
+      comeback: "오랜만이잖아! 이리내 이리내, 다시 와준 거 완전 기억해둘게.",
+      onlineSupport: "랜선 너머 응원도 다 들렸어! 소리질러—는 아니고, 마음으로 크게 받았어!",
+      birthday: "생일 축하해! 오늘 하루는 네 세상의 색이 제일 반짝이는 날이었으면 좋겠어."
+    },
+    lunar: {
+      status: "ready",
+      firstVisit: "왔어? 안 그래도 마침 기다리고 있었는데 ㅎㅎ\n루나는 언제든 네 마음속에 있다구? 보고 싶을 때마다 늘 항상 곁에 있을게 🌙✨",
+      liveThanks: "루나를 보고 있는 눈이 너무 반짝반짝해서 무대에서도 너만 봤는데.. 혹시 너도 느꼈어?\n사실 있지 오늘은 네가 있어서 더 잘하고 싶었어\n항상 더 빛나게 노래할게! 그러니까 끝까지 루나랑 함께해 줘 ♡",
+      comeback: "어제도 그저께도 네가 언제 다시 오지 않을까 늘 생각했어 ㅜㅜ\n어젯밤 루나 꿈에도 네가 나와서 지인짜 기뻤단 말이야\n루나는 정말 너무너무 보고 싶었는데! 우리 이렇게 다시 보니까 더 좋다 그치~?",
+      onlineSupport: "오늘은 평소보다 응원하는 목소리가 더 크던데?\n멀리 있어도 나를 사랑하는 그 마음이 루나한테 다 닿고 있다구 ㅎㅎ\n진짜 신기하지? 사랑하는 마음이 우리를 이렇게 이어 주나 봐\n항상 루나가 많이 고마워 😽",
+      birthday: "오늘 생일이지? 잊지 않고 있었어!\n약간은 욕심일 수 있지만..\n네 생일 제일 먼저 축하해 주는 사람이 그게 루나였으면 좋겠다고 생각했어\n생일 너무 축하해 오늘 가장 행복한 하루 보내기! 루나랑 꼬옥 약속 ♡"
+    }
+  };
+  const MEMBER_MESSAGES = window.LUMI_MEMBER_MESSAGES;
   const MESSAGES = [
     {
       id:"lunar-online-cheer",
@@ -11429,6 +11508,57 @@
         "멀리서 응원할게":["링링 고마워! 멀리서 보내준 마음도 진짜 크게 느껴졌어."],
         "ON AIR로 함께할게":["좋아! 화면 너머 응원도 링링에게 닿았어."],
         "다음엔 꼭 보러 갈게":["기다릴게! 다음에 만나는 날엔 더 반짝이는 모습 보여줄게!"]
+      }
+    },
+    {
+      id:"lulu-return-welcome",
+      date:"오랜만에 접속",
+      from:"루루 🍼🐰",
+      tag:"복귀",
+      type:"return",
+      title:"다시 와줘서 고마워",
+      preview:"오랜만에 루미폰에 돌아온 루미나를 위한 문자예요.",
+      icon:"🐰",
+      lines:(MEMBER_MESSAGES.lulu.comeback || "다시 와줘서 고마워...").split("\n"),
+      choices:["루루 보러 다시 왔어","기다려줘서 고마워","오늘은 더 같이 있을게"],
+      after:{
+        "루루 보러 다시 왔어":["정말...? 그 말 들으니까 루루 너무 기뻐... 🐰🩷"],
+        "기다려줘서 고마워":["루루는 항상 기다리고 있었어... 다시 와줘서 고마워."],
+        "오늘은 더 같이 있을게":["응... 오늘은 조금 더 같이 있어줄래...? 🍼🐰"]
+      }
+    },
+    {
+      id:"lunar-secret-onair",
+      date:"ON AIR 종료 후",
+      from:"루나 🌙🐱",
+      tag:"비밀",
+      type:"secret",
+      title:"방송이 끝난 뒤의 달빛",
+      preview:"ON AIR 이후 조용히 도착하는 시크릿 메시지예요.",
+      icon:"🌙",
+      lines:["방송 끝났는데도 아직 보고 있었어? ㅎㅎ", "오늘 보내준 반짝 응원, 루나한테 조용히 남아있어.", "이건 여기까지 와준 너한테만 남기는 작은 달빛 메시지야 🌙✨"],
+      choices:["비밀로 간직할게","오늘도 함께했어","다음 방송도 올게"],
+      after:{
+        "비밀로 간직할게":["좋아. 우리만 아는 작은 달빛으로 남겨두자 ♡"],
+        "오늘도 함께했어":["응, 다 느껴졌어. 멀리 있어도 마음은 닿는다구."],
+        "다음 방송도 올게":["기다리고 있을게. 루나는 늘 항상 곁에 있을게 🌙✨"]
+      }
+    },
+    {
+      id:"staff-lumi-guide",
+      date:"운영 안내",
+      from:"루미폰 운영",
+      tag:"운영",
+      type:"staff",
+      title:"루미폰 기록 안내",
+      preview:"티켓, 포인트, 스탬프 기록이 이상할 때 확인하는 안내예요.",
+      icon:"📎",
+      lines:["루미폰 기록은 공연/특전회/ON AIR 기록을 천천히 연결하는 공간이에요.", "기록이 다르게 보이면 루미 ID와 날짜를 알려주세요.", "스탭 확인 후 가능한 범위에서 수정해드릴게요."],
+      choices:["확인했어요","문의할게요","루미 ID 준비할게요"],
+      after:{
+        "확인했어요":["확인해줘서 고마워요. 기록은 안전하게 남겨둘게요."],
+        "문의할게요":["좋아요. 루미 ID와 날짜를 함께 알려주시면 확인이 빨라요."],
+        "루미 ID 준비할게요":["루미 ID가 있으면 티켓/포인트/스탬프 확인이 쉬워져요."]
       }
     },
     {
@@ -11533,6 +11663,8 @@
     clearTimers();
     const view = $("#lumiMsgView", root);
     if (view) view.classList.remove("show");
+    document.documentElement.classList.remove("lumi-msg-modal-open");
+    document.body.classList.remove("lumi-msg-modal-open");
     currentId = null;
     renderList();
   }
@@ -11542,7 +11674,7 @@
     div.className = "lumiMsg-bubble " + (kind || "from");
     div.textContent = text;
     log.appendChild(div);
-    div.scrollIntoView({ block:"nearest" });
+    log.scrollTop = log.scrollHeight;
     return div;
   }
   function updateSaveButtons(){
@@ -11589,7 +11721,7 @@
     addBubble(choice, "to");
     const root = pageEl(); const replies = $("#lumiMsgReplies", root); if (replies) replies.innerHTML = "";
     renderList();
-    after.forEach((line, idx) => delay(() => addBubble(line, "from"), 620 * (idx + 1)));
+    after.forEach((line, idx) => delay(() => addBubble(line, "from"), 760 * (idx + 1)));
   }
   function openMessage(id, animate){
     const root = pageEl(); if (!root) return;
@@ -11606,6 +11738,8 @@
     if (replies) replies.innerHTML = "";
     updateSaveButtons();
     if (view) view.classList.add("show");
+    document.documentElement.classList.add("lumi-msg-modal-open");
+    document.body.classList.add("lumi-msg-modal-open");
     const savedReply = getReplyData()[m.id];
     const sequence = (m.lines || []).map(fanText);
     if (savedReply) {
@@ -11617,9 +11751,9 @@
       if (i >= sequence.length) { renderReplies(m, !!savedReply); return; }
       const item = sequence[i++];
       addBubble(typeof item === "string" ? item : item.text, typeof item === "string" ? "from" : item.kind);
-      delay(step, animate ? 520 : 180);
+      delay(step, animate ? 720 : 520);
     }
-    delay(step, animate ? 160 : 60);
+    delay(step, animate ? 220 : 140);
   }
   function bind(){
     const root = pageEl(); if (!root || root.dataset.lumiMsgV108 === "1") return;
@@ -11636,6 +11770,7 @@
     $("#lumiMsgReplayFromList", root)?.addEventListener("click", () => { if (currentId) openMessage(currentId, true); });
     $("#lumiMsgReplayBtn", root)?.addEventListener("click", () => { if (currentId) openMessage(currentId, true); });
     $("#lumiMsgCloseBtn", root)?.addEventListener("click", showInbox);
+    $("#lumiMsgView", root)?.addEventListener("click", (event) => { if (event.target && event.target.id === "lumiMsgView") showInbox(); });
     $("#lumiMsgSaveBtn", root)?.addEventListener("click", () => { if (!currentId) return; setSaved(currentId, true); updateSaveButtons(); renderList(); });
     $("#lumiMsgUnsaveBtn", root)?.addEventListener("click", () => { if (!currentId) return; setSaved(currentId, false); updateSaveButtons(); renderList(); if (box === "saved") showInbox(); });
     renderList();
