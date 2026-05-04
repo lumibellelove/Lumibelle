@@ -4369,7 +4369,7 @@
       box-shadow: 0 8px 18px rgba(255,95,168,.14);
     }
 
-    .game-zone-btn:disabled {
+    .game-zone-btn[aria-disabled="true"] {
       opacity: .78;
     }
 
@@ -9527,7 +9527,7 @@
                         <span class="game-zone-chip">PREVIEW</span>
                         <h3>오늘의 운세</h3>
                         <p>카드 3장 중 하나를 골라 오늘의 반짝 운세를 확인하는 기능이에요.</p>
-                        <button class="game-zone-btn primary-look" type="button">운세 카드 고르기</button>
+                        <button class="game-zone-btn primary-look" type="button" data-game-zone-modal="fortune">운세 카드 고르기</button>
                       </div>
                     </article>
 
@@ -9537,7 +9537,7 @@
                         <span class="game-zone-chip">PREVIEW</span>
                         <h3>루미 레슨</h3>
                         <p>보컬, 댄스, 응원법 레슨 결과와 멤버 한마디가 나오는 미니 기능이에요.</p>
-                        <button class="game-zone-btn" type="button">레슨 시작</button>
+                        <button class="game-zone-btn" type="button" data-game-zone-modal="lesson">레슨 시작</button>
                       </div>
                     </article>
 
@@ -9547,7 +9547,7 @@
                         <span class="game-zone-chip">COMING SOON</span>
                         <h3>루미 크레인</h3>
                         <p>하루 1회 무료, 추가 플레이는 반짝 포인트로 연결될 예정이에요.</p>
-                        <button class="game-zone-btn" type="button" disabled>준비중</button>
+                        <button class="game-zone-btn" type="button" data-game-zone-modal="crane">준비중</button>
                       </div>
                     </article>
 
@@ -9557,7 +9557,7 @@
                         <span class="game-zone-chip">AI CHAT</span>
                         <h3>루미 AI 채팅</h3>
                         <p>루미벨 멤버 캐릭터와 세계관을 바탕으로 대화하는 캐릭터 AI 채팅 공간을 준비 중이에요.</p>
-                        <button class="game-zone-btn" type="button" disabled>AI 채팅 준비중</button>
+                        <button class="game-zone-btn" type="button" data-game-zone-modal="ai">AI 채팅 준비중</button>
                       </div>
                     </article>
                   </section>
@@ -13607,6 +13607,66 @@
   function ready(){ bind(); renderList(); }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", ready); else ready();
 })();
+
+/* GAME ZONE ready-modal binding: keeps cards as preview/coming-soon without connecting point logic yet */
+(() => {
+  "use strict";
+
+  const GAME_ZONE_MESSAGES = {
+    fortune: {
+      title: "오늘의 운세 준비중",
+      lines: [
+        "카드 3장 중 하나를 골라 오늘의 반짝 운세를 확인하는 기능이에요.",
+        "현재는 미리보기 단계라 결과 저장과 포인트 보상은 아직 연결하지 않았어요."
+      ]
+    },
+    lesson: {
+      title: "루미 레슨 준비중",
+      lines: [
+        "보컬, 댄스, 응원법 레슨 결과와 멤버 한마디가 나오는 미니 기능이에요.",
+        "실제 결과 카드와 기록 저장은 추후 연결할 예정이에요."
+      ]
+    },
+    crane: {
+      title: "루미 크레인 준비중",
+      lines: [
+        "하루 1회 무료 플레이와 반짝 포인트 추가 플레이를 고려 중인 기능이에요.",
+        "포인트 차감과 보상 지급은 아직 연결하지 않았어요."
+      ]
+    },
+    ai: {
+      title: "루미 AI 채팅 준비중",
+      lines: [
+        "루미벨 멤버 캐릭터와 세계관을 바탕으로 대화할 수 있는 캐릭터 AI 채팅 공간을 준비 중이에요.",
+        "수위 제한은 강하게 적용하며, 우회 표현·성적 대화·개인 연락 유도·멤버 사생활 추측은 제공하지 않는 방향으로 설계합니다."
+      ]
+    }
+  };
+
+  function openGameZoneNotice(key) {
+    const data = GAME_ZONE_MESSAGES[key] || GAME_ZONE_MESSAGES.fortune;
+    if (typeof window.openProfileSimpleModal === "function") {
+      window.openProfileSimpleModal(data.title, data.lines);
+      return;
+    }
+    alert([data.title].concat(data.lines).join("\n"));
+  }
+
+  function bindGameZoneButtons() {
+    document.querySelectorAll("[data-game-zone-modal]").forEach((button) => {
+      if (button.dataset.gameZoneBound === "true") return;
+      button.dataset.gameZoneBound = "true";
+      button.addEventListener("click", () => openGameZoneNotice(button.dataset.gameZoneModal));
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bindGameZoneButtons);
+  } else {
+    bindGameZoneButtons();
+  }
+})();
+
 </script>
 </body>
 </html>
