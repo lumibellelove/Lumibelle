@@ -8061,6 +8061,182 @@
       .lumiMsg-chatLog { max-height: 49vh; }
       .lumiMsg-bubble { max-width: 94%; }
     }
+
+
+    /* Songbook v1: preparation hub */
+    .songbook-card {
+      display: grid;
+      gap: 14px;
+    }
+
+    .songbook-hero {
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 92% 14%, rgba(202,167,255,.16), transparent 26%),
+        linear-gradient(135deg, #fff, #fff6fb 68%, #f8f0ff);
+      padding: 17px;
+    }
+
+    .songbook-hero h2 {
+      margin: 10px 0 8px;
+      color: var(--pink);
+      font-size: 31px;
+      line-height: 1.08;
+      font-weight: 900;
+      letter-spacing: -.04em;
+    }
+
+    .songbook-hero p {
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .songbook-tabs {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin: 0;
+    }
+
+    .songbook-note {
+      margin: 0 0 11px;
+      border: 1px dashed var(--line2);
+      border-radius: 20px;
+      background: #fffafd;
+      padding: 13px;
+    }
+
+    .songbook-note b {
+      display: block;
+      color: #d77ca7;
+      font-size: 14px;
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
+    .songbook-note span {
+      display: block;
+      margin-top: 5px;
+      color: #8f7183;
+      font-size: 12px;
+      line-height: 1.55;
+      font-weight: 800;
+      word-break: keep-all;
+    }
+
+    .songbook-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 9px;
+    }
+
+    .songbook-row {
+      position: relative;
+      min-height: 92px;
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr);
+      gap: 11px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: #fff;
+      padding: 13px 74px 13px 13px;
+      box-shadow: 0 8px 16px rgba(232,191,211,.06);
+    }
+
+    .songbook-row i {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, #fff0f7, #f8f0ff);
+      font-style: normal;
+      font-size: 24px;
+      overflow: hidden;
+    }
+
+    .songbook-row small {
+      display: block;
+      color: #b5869c;
+      font-size: 11.5px;
+      line-height: 1.28;
+      font-weight: 900;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .songbook-row b {
+      display: block;
+      margin-top: 5px;
+      color: #76586a;
+      font-size: 16px;
+      line-height: 1.32;
+      font-weight: 900;
+      word-break: keep-all;
+    }
+
+    .songbook-row span {
+      display: block;
+      margin-top: 5px;
+      color: #9a7187;
+      font-size: 12px;
+      line-height: 1.45;
+      font-weight: 800;
+      word-break: keep-all;
+    }
+
+    .songbook-row em {
+      position: absolute;
+      right: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      min-height: 27px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px;
+      border: 1px solid var(--line2);
+      border-radius: 999px;
+      background: #fff7fb;
+      color: #d77ca7;
+      font-style: normal;
+      font-size: 11px;
+      line-height: 1;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    @media (min-width: 760px) {
+      .songbook-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 430px) {
+      .songbook-hero h2 {
+        font-size: 28px;
+      }
+
+      .songbook-row {
+        padding-right: 62px;
+      }
+
+      .songbook-row b {
+        font-size: 15px;
+      }
+
+      .songbook-row span {
+        font-size: 11.5px;
+      }
+
+      .songbook-row em {
+        right: 10px;
+        padding: 0 8px;
+        font-size: 10.5px;
+      }
+    }
 </style>
 </head>
 
@@ -8112,7 +8288,7 @@
             </section>
 
             <nav class="tabs" id="tabs" aria-label="루미폰 탭">
-              <button class="tab active" type="button" data-page="home">홈<span class="badge">2</span></button>
+              <button class="tab active" type="button" data-page="home">홈</button>
               <button class="tab" type="button" data-page="ticket">티켓함</button>
               <button class="tab" type="button" data-page="mail">우편함<span class="badge">3</span></button>
               <button class="tab" type="button" data-page="record">기록</button>
@@ -8167,10 +8343,10 @@
                       <span>현장에서는 이 번호를 먼저 보여주세요. 정식 티켓은 티켓함에서 확인해주세요.</span>
                     </article>
 
-                    <article class="home-card no-icon">
-                      <small>NEW MESSAGE</small>
-                      <b>루루에게서 새 문자 1통</b>
-                      <span>오늘 오는 루미나를 챙기는 문자가 도착했어요.</span>
+                    <article class="home-card no-icon" id="homeMessageCard" data-home-alert="message">
+                      <small id="homeMessageKicker">NEW MESSAGE</small>
+                      <b id="homeMessageTitle">새 문자 확인</b>
+                      <span id="homeMessagePreview">도착한 문자를 확인해 주세요.</span>
                       <button class="widget-link" data-go="message" type="button">문자 보기</button>
                     </article>
 
@@ -9240,7 +9416,110 @@
                   <p class="exchange-note" id="exchangeMsg">지금은 보상 후보와 포인트 기준을 먼저 잡아둔 상태예요. 실제 신청, 차감, 멤버별 가능 범위는 추후 공개됩니다.</p>
                 </article>
               </section>
-              <section class="page" id="page-songbook"><article class="placeholder"><h2>노래책</h2><p>멤버별 노래 목록과 방송/라이브 노래 보상은 이후 단계에서 연결합니다.</p></article></section>
+              <section class="page" id="page-songbook">
+                <article class="module-card songbook-card">
+                  <div class="songbook-hero">
+                    <span class="eyebrow">LUMI SONGBOOK</span>
+                    <h2>노래책 / 준비중</h2>
+                    <p>멤버별로 부를 수 있는 노래, 방송 노래 보상, 신청권 후보를 정리할 자리예요. 지금은 실제 신청/차감 없이 후보와 방향을 먼저 준비합니다.</p>
+                  </div>
+
+                  <div class="mini-tabs songbook-tabs" data-mini-tabs="songbook">
+                    <button class="mini-tab active" type="button" data-mini-target="songbook-members">멤버별 노래책</button>
+                    <button class="mini-tab" type="button" data-mini-target="songbook-rewards">보상 후보</button>
+                  </div>
+
+                  <section class="mini-page active" id="songbook-members">
+                    <div class="songbook-note">
+                      <b>멤버별 방향</b>
+                      <span>실제 노래 목록은 멤버 확인 후 채워 넣고, 지금은 각 멤버의 보컬 결과 어울리는 노래 방향만 정리해요.</span>
+                    </div>
+                    <div class="songbook-list">
+                      <article class="songbook-row">
+                        <i>🎀</i>
+                        <div>
+                          <small>MARIRING · 마리링 🎀⭐</small>
+                          <b>왕도 아이돌 / 별빛 / 감성 보이스</b>
+                          <span>Stardust Magical 계열, 청춘·마법소녀·첫사랑 감성 곡을 모으는 방향.</span>
+                        </div>
+                        <em>마리링</em>
+                      </article>
+                      <article class="songbook-row">
+                        <i>🐰</i>
+                        <div>
+                          <small>LULU · 루루 🍼🐰</small>
+                          <b>포근한 핑크 / 귀여운 응원송</b>
+                          <span>딸기우유, 베이비 프린세스, 수줍지만 사랑스러운 노래를 모으는 방향.</span>
+                        </div>
+                        <em>루루</em>
+                      </article>
+                      <article class="songbook-row">
+                        <i>💎</i>
+                        <div>
+                          <small>IRO · 이로 👼🏻💎</small>
+                          <b>명창 코나니 / 파워 보컬</b>
+                          <span>고음, 폭발, 푸른 다이아, 여오타 감성의 보컬곡을 모으는 방향.</span>
+                        </div>
+                        <em>이로</em>
+                      </article>
+                      <article class="songbook-row">
+                        <i>🌙</i>
+                        <div>
+                          <small>LUNAR · 루나 🌙🐱</small>
+                          <b>달빛 / 몽환 / 녹아드는 음색</b>
+                          <span>차분하고 맑은 여운형 보컬, 밤과 달빛 분위기의 곡을 모으는 방향.</span>
+                        </div>
+                        <em>루나</em>
+                      </article>
+                    </div>
+                  </section>
+
+                  <section class="mini-page" id="songbook-rewards">
+                    <div class="songbook-note">
+                      <b>운영 기준</b>
+                      <span>반짝 포인트 차감, 신청권 사용, 방송 보상 지급은 다음 단계에서 연결합니다. 지금은 후보/가이드만 먼저 보여줘요.</span>
+                    </div>
+                    <div class="songbook-list">
+                      <article class="songbook-row">
+                        <i>🎫</i>
+                        <div>
+                          <small>REWARD · 공통</small>
+                          <b>노래 신청권 후보</b>
+                          <span>반짝 교환소 또는 이벤트 보상으로 해금 가능한 신청권 후보.</span>
+                        </div>
+                        <em>공통</em>
+                      </article>
+                      <article class="songbook-row">
+                        <i>📻</i>
+                        <div>
+                          <small>ON AIR · 방송</small>
+                          <b>방송 노래 보상 후보</b>
+                          <span>방송 중 특정 조건 달성 시 짧은 노래/노래책 선택권으로 연결 가능한 후보.</span>
+                        </div>
+                        <em>ON AIR</em>
+                      </article>
+                      <article class="songbook-row">
+                        <i>🏷️</i>
+                        <div>
+                          <small>ACHIEVEMENT · 업적</small>
+                          <b>노래 관련 칭호 후보</b>
+                          <span>노래책 참여, 신청, 방송 인증과 연동될 칭호/업적 후보.</span>
+                        </div>
+                        <em>업적</em>
+                      </article>
+                      <article class="songbook-row">
+                        <i>📖</i>
+                        <div>
+                          <small>RECORD · 기록</small>
+                          <b>내가 들은 노래 기록</b>
+                          <span>나중에 추억의 시간/온라인 연결 기록과 연결할 수 있는 구조.</span>
+                        </div>
+                        <em>기록</em>
+                      </article>
+                    </div>
+                  </section>
+                </article>
+              </section>
               <section class="page" id="page-lumilog" aria-label="루미로그">
                 <article class="module-card lumiLog-card">
                   <h2>내 루미로그</h2>
@@ -12934,9 +13213,23 @@
     });
   }
   function updateBadges(){
-    const unread = MESSAGES.filter(m => !isRead(m.id)).length;
+    const unreadItems = MESSAGES.filter(m => !isRead(m.id));
+    const unread = unreadItems.length;
     const messageMini = document.querySelector('.app-icon[data-go="message"] .mini, .kawaii-app-icon[data-go="message"] .mini');
     if (messageMini) { messageMini.textContent = unread > 0 ? String(Math.min(unread,9)) : ""; messageMini.style.display = unread > 0 ? "inline-flex" : "none"; }
+    const homeCard = document.getElementById("homeMessageCard");
+    const homeTitle = document.getElementById("homeMessageTitle");
+    const homePreview = document.getElementById("homeMessagePreview");
+    const homeKicker = document.getElementById("homeMessageKicker");
+    if (homeCard) {
+      homeCard.classList.toggle("hidden", unread === 0);
+      const first = unreadItems[0];
+      if (first) {
+        if (homeKicker) homeKicker.textContent = unread > 1 ? "NEW MESSAGES" : "NEW MESSAGE";
+        if (homeTitle) homeTitle.textContent = first.from + "에게서 새 문자 " + unread + "통";
+        if (homePreview) homePreview.textContent = first.preview || first.title || "도착한 문자를 확인해 주세요.";
+      }
+    }
   }
   function renderList(){
     const root = pageEl(); if (!root) return;
