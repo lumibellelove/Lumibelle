@@ -48,6 +48,43 @@
     }
   };
 
+  let songbookScrollY = 0;
+
+  function lockSongbookScroll() {
+    songbookScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${songbookScrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
+    document.body.classList.add("songbook-modal-open");
+  }
+
+  function unlockSongbookScroll() {
+    document.body.classList.remove("songbook-modal-open");
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.left = "";
+    document.body.style.right = "";
+    document.body.style.width = "";
+    window.scrollTo(0, songbookScrollY || 0);
+  }
+
+  function bindTap(element, handler) {
+    if (!element) return;
+    let touched = false;
+    element.addEventListener("touchend", (event) => {
+      touched = true;
+      event.preventDefault();
+      handler(event);
+      setTimeout(() => { touched = false; }, 350);
+    }, { passive: false });
+    element.addEventListener("click", (event) => {
+      if (touched) return;
+      handler(event);
+    });
+  }
+
   function setMessage(text) {
     const box = document.getElementById("songbookMessage");
     if (!box) return;
@@ -88,19 +125,22 @@
 
     modal.classList.add("active");
     modal.setAttribute("aria-hidden", "false");
+    lockSongbookScroll();
     setMessage(`${data.title} 상세를 열었어요.`);
   }
 
   function closeDetail() {
     const modal = document.getElementById("songbookDetailModal");
     if (!modal) return;
+    if (!modal.classList.contains("active")) return;
     modal.classList.remove("active");
     modal.setAttribute("aria-hidden", "true");
+    unlockSongbookScroll();
   }
 
   function bindTabs() {
     document.querySelectorAll("[data-songbook-tab]").forEach((button) => {
-      button.addEventListener("click", () => {
+      bindTap(button, () => {
         const name = button.dataset.songbookTab || "all";
         showPanel(name);
       });
@@ -109,13 +149,13 @@
 
   function bindActions() {
     document.querySelectorAll("[data-songbook-detail]").forEach((button) => {
-      button.addEventListener("click", () => {
+      bindTap(button, () => {
         openDetail(button.dataset.songbookDetail);
       });
     });
 
     document.querySelectorAll("[data-songbook-action]").forEach((button) => {
-      button.addEventListener("click", () => {
+      bindTap(button, () => {
         setMessage("노래 목록은 멤버 검토 후 연결할 예정이에요.");
       });
     });
@@ -126,8 +166,8 @@
     const close = document.getElementById("songbookDetailClose");
     const ok = document.getElementById("songbookDetailOk");
 
-    close?.addEventListener("click", closeDetail);
-    ok?.addEventListener("click", closeDetail);
+    bindTap(close, closeDetail);
+    bindTap(ok, closeDetail);
     modal?.addEventListener("click", (event) => {
       if (event.target === modal) closeDetail();
     });
