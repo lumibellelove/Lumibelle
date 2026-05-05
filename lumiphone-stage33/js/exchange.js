@@ -92,10 +92,32 @@
     }
   };
 
+  let savedScrollY = 0;
+
   function setMessage(text) {
     const box = document.getElementById("exchangeMessage");
     if (!box) return;
     box.textContent = text;
+  }
+
+  function lockBodyScroll() {
+    savedScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    document.body.classList.add("modal-open-exchange");
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${savedScrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
+  }
+
+  function unlockBodyScroll() {
+    document.body.classList.remove("modal-open-exchange");
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.left = "";
+    document.body.style.right = "";
+    document.body.style.width = "";
+    window.scrollTo(0, savedScrollY);
   }
 
   function showPanel(name) {
@@ -137,14 +159,17 @@
 
     modal.classList.add("active");
     modal.setAttribute("aria-hidden", "false");
+    lockBodyScroll();
     setMessage(`${data.title} 상세를 열었어요.`);
   }
 
   function closeDetail() {
     const modal = document.getElementById("exchangeDetailModal");
     if (!modal) return;
+    if (!modal.classList.contains("active")) return;
     modal.classList.remove("active");
     modal.setAttribute("aria-hidden", "true");
+    unlockBodyScroll();
   }
 
   function bindTabs() {
