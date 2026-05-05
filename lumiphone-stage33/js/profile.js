@@ -63,41 +63,63 @@
     window.location.hash = "#achievement";
   }
 
-  function bootButtons() {
-    const editButton = document.getElementById("profileEditButton");
-    const shareButton = document.getElementById("profileShareButton");
-    const titleButton = document.getElementById("profileTitleButton");
-    const saveButton = document.getElementById("profileEditSave");
+  function handleProfileAction(target) {
+    const button = target.closest("button");
+    if (!button) return false;
 
-    if (editButton) {
-      editButton.addEventListener("click", () => openModal("profileEditModal"));
+    if (button.id === "profileEditButton") {
+      openModal("profileEditModal");
+      return true;
     }
 
-    if (titleButton) {
-      titleButton.addEventListener("click", () => {
-        setMessage("업적/칭호 탭에서 해금된 칭호를 장착할 수 있어요.");
-        goAchievement();
-      });
+    if (button.id === "profileTitleButton") {
+      setMessage("업적/칭호 탭에서 해금된 칭호를 장착할 수 있어요.");
+      goAchievement();
+      return true;
     }
 
-    if (shareButton) {
-      shareButton.addEventListener("click", () => {
-        syncSharePreview();
-        openModal("profileShareModal");
-      });
+    if (button.id === "profileShareButton") {
+      syncSharePreview();
+      openModal("profileShareModal");
+      return true;
     }
 
-    if (saveButton) saveButton.addEventListener("click", saveProfileEdit);
+    if (button.id === "profileEditSave") {
+      saveProfileEdit();
+      return true;
+    }
+
+    if (button.dataset.profileClose) {
+      const type = button.dataset.profileClose;
+      if (type === "edit") closeModal("profileEditModal");
+      if (type === "share") closeModal("profileShareModal");
+      return true;
+    }
+
+    return false;
   }
 
-  function bootModalClose() {
-    document.querySelectorAll("[data-profile-close]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const type = button.dataset.profileClose;
-        if (type === "edit") closeModal("profileEditModal");
-        if (type === "share") closeModal("profileShareModal");
-      });
+  function handleBackdrop(target) {
+    const closer = target.closest("[data-profile-close]");
+    if (!closer) return false;
+    const type = closer.dataset.profileClose;
+    if (type === "edit") closeModal("profileEditModal");
+    if (type === "share") closeModal("profileShareModal");
+    return true;
+  }
+
+  function bootDelegatedEvents() {
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (handleProfileAction(target) || handleBackdrop(target)) event.preventDefault();
     });
+
+    document.addEventListener("touchend", (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (handleProfileAction(target) || handleBackdrop(target)) event.preventDefault();
+    }, { passive: false });
 
     document.addEventListener("keydown", (event) => {
       if (event.key !== "Escape") return;
@@ -107,8 +129,7 @@
   }
 
   function boot() {
-    bootButtons();
-    bootModalClose();
+    bootDelegatedEvents();
     syncSharePreview();
   }
 
