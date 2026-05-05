@@ -66,7 +66,16 @@
   }
 
   function bindNavigation() {
+    /*
+      Stage 79
+      분리/이식 중 app.js가 실수로 한 번 더 로드되거나
+      탭 버튼이 재초기화되어도 클릭 이벤트가 중복으로 쌓이지 않게 막는다.
+      화면/저장 데이터는 건드리지 않는다.
+    */
     document.querySelectorAll(targetSelector).forEach((button) => {
+      if (button.dataset.lumiNavBound === "1") return;
+      button.dataset.lumiNavBound = "1";
+
       button.addEventListener("click", (event) => {
         const name = button.dataset.pageTarget;
         if (!name || !pageExists(name)) return;
@@ -95,6 +104,13 @@
   }
 
   function boot() {
+    if (window.__LUMIPHONE_APP_BOOTED__ === true) {
+      bindNavigation();
+      runNavigationCheck();
+      return;
+    }
+    window.__LUMIPHONE_APP_BOOTED__ = true;
+
     bindNavigation();
     runNavigationCheck();
     const initial = getPageNameFromHash();
