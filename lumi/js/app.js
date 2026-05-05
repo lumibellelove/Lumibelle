@@ -11,12 +11,7 @@
   }
 
   function normalizePageName(name) {
-    /*
-      Stage 81
-      존재하지 않는 해시/탭 이름으로 들어와도 빈 화면이 되지 않게
-      항상 실제 존재하는 페이지 이름으로 정리한다.
-      정상 탭 이동/저장 데이터/각 탭 내용은 건드리지 않는다.
-    */
+    
     return pageExists(name) ? name : "home";
   }
 
@@ -25,11 +20,7 @@
   }
 
   function setActiveButton(name) {
-    /*
-      Stage 80
-      상단 탭과 홈 메뉴 버튼의 active 표시를 한 번에 맞춘다.
-      화면 디자인은 그대로 두고, 접근성 상태만 같이 정리한다.
-    */
+    
     document.querySelectorAll(targetSelector).forEach((button) => {
       const isActive = button.dataset.pageTarget === name;
       button.classList.toggle("active", isActive);
@@ -39,12 +30,7 @@
   }
 
   function resetPageScroll() {
-    /*
-      Stage 78
-      모바일에서 홈 하단까지 내려간 뒤 다른 탭을 누르면
-      새 탭도 중간 위치에서 시작해 보일 수 있어서,
-      탭 전환 직후 루미폰 화면을 맨 위로 정리한다.
-    */
+    
     requestAnimationFrame(() => {
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
       const screen = document.querySelector(".screen");
@@ -57,11 +43,7 @@
     const target = document.getElementById(`page-${safeName}`);
     if (!target) return;
 
-    /*
-      Stage 77
-      body 상태를 먼저 바꿔야 홈 전용 상단바/메뉴 CSS가
-      탭 전환 순간에 늦게 따라오지 않는다.
-    */
+    
     document.body.dataset.currentPage = safeName;
 
     document.querySelectorAll(pageSelector).forEach((page) => {
@@ -84,12 +66,7 @@
   }
 
   function bindNavigation() {
-    /*
-      Stage 79
-      분리/이식 중 app.js가 실수로 한 번 더 로드되거나
-      탭 버튼이 재초기화되어도 클릭 이벤트가 중복으로 쌓이지 않게 막는다.
-      화면/저장 데이터는 건드리지 않는다.
-    */
+    
     document.querySelectorAll(targetSelector).forEach((button) => {
       if (button.dataset.lumiNavBound === "1") return;
       button.dataset.lumiNavBound = "1";

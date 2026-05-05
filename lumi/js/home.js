@@ -13,7 +13,6 @@
   }
 
 
-
   const commonStatus = {
     left: "LUMI PHONE",
     right: "LB-0001",
