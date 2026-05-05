@@ -6663,37 +6663,6 @@
       .exchange-desc { font-size: 10px; }
     }
 
-    @media (max-width: 430px) {
-  #exchangeRewardGridV2828 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 9px;
-  }
-  .exchange-reward-card-v2828 {
-    min-height: 150px;
-    padding: 12px 9px 11px;
-    border-radius: 20px;
-  }
-  .exchange-reward-card-v2828 em {
-    font-size: 10px;
-  }
-  .exchange-reward-card-v2828 i {
-    width: 42px;
-    height: 42px;
-    font-size: 22px;
-    margin-bottom: 7px;
-  }
-  .exchange-reward-card-v2828 b {
-    font-size: 13px;
-    line-height: 1.25;
-    word-break: keep-all;
-  }
-  .exchange-reward-card-v2828 span {
-    font-size: 10.8px;
-    line-height: 1.35;
-    margin-top: 4px;
-  }
-}
-
 
 
     /* Record: memory card pagination patch */
@@ -12650,3 +12619,21 @@
       line-height: 1.7;
     }
   }
+
+    /* Patch 5: profile avatar image edge cleanup */
+    #page-profile .profile-avatar.has-image {
+      background: #fff;
+    }
+
+    #page-profile .profile-avatar.has-image img {
+      inset: -1px;
+      width: calc(100% + 2px);
+      height: calc(100% + 2px);
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: var(--pos-x, 50%) var(--pos-y, 50%);
+      transform: translateZ(0) scale(calc(var(--scale, 1) + 0.02));
+      transform-origin: var(--pos-x, 50%) var(--pos-y, 50%);
+      clip-path: circle(50% at 50% 50%);
+      backface-visibility: hidden;
+    }

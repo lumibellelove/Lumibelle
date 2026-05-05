@@ -2514,6 +2514,7 @@
         setMailSaved(mailState.currentId, nextSaved);
         mailSaveToggle.textContent = nextSaved ? "소장해제" : "소장하기";
         renderMailAll();
+        closeMailModal();
       });
       if (lumiLogListPrev) lumiLogListPrev.addEventListener("click", () => changeLumiLogPage("list", -1));
       if (lumiLogListNext) lumiLogListNext.addEventListener("click", () => changeLumiLogPage("list", 1));
@@ -3867,8 +3868,8 @@
     $("#lumiMsgReplayBtn", root)?.addEventListener("click", () => { if (currentId) openMessage(currentId, true); });
     $("#lumiMsgCloseBtn", root)?.addEventListener("click", showInbox);
     $("#lumiMsgView", root)?.addEventListener("click", (event) => { if (event.target && event.target.id === "lumiMsgView") showInbox(); });
-    $("#lumiMsgSaveBtn", root)?.addEventListener("click", () => { if (!currentId) return; setSaved(currentId, true); updateSaveButtons(); renderList(); });
-    $("#lumiMsgUnsaveBtn", root)?.addEventListener("click", () => { if (!currentId) return; setSaved(currentId, false); updateSaveButtons(); renderList(); if (box === "saved") showInbox(); });
+    $("#lumiMsgSaveBtn", root)?.addEventListener("click", () => { if (!currentId) return; setSaved(currentId, true); updateSaveButtons(); renderList(); showInbox(); });
+    $("#lumiMsgUnsaveBtn", root)?.addEventListener("click", () => { if (!currentId) return; setSaved(currentId, false); updateSaveButtons(); renderList(); showInbox(); });
     document.addEventListener("click", (event) => {
       const tab = event.target && event.target.closest ? event.target.closest("[data-page]") : null;
       if (tab && tab.dataset.page !== "message") releaseMessageScrollLock();
