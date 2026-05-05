@@ -415,21 +415,21 @@
 
                 <div class="profile-main-body">
                   <div class="profile-top-row">
-                    <div class="profile-avatar" aria-label="프로필 아이콘">👑</div>
+                    <div class="profile-avatar" id="profileAvatar" aria-label="프로필 아이콘">👑</div>
                     <div class="profile-name-block">
                       <small>LB-0001 · Lumibelle</small>
-                      <b>루루냐냐</b>
+                      <b id="profileNickname">루루냐냐</b>
                       <span>대표 칭호: <span id="profileEquippedTitleInline">첫 예매의 반짝임</span></span>
                     </div>
                   </div>
 
                   <div class="profile-chip-row" aria-label="프로필 요약">
-                    <span>오시 Lumibelle 👑</span>
-                    <span>생일 미등록</span>
+                    <span id="profileOshiChip">오시 Lumibelle 👑</span>
+                    <span id="profileBirthdayChip">생일 미등록</span>
                     <span>루미 체크인 1회</span>
                   </div>
 
-                  <p class="profile-copy">
+                  <p class="profile-copy" id="profileShareCopy">
                     루미벨과 함께 반짝이는 중 ✨<br />
                     오프라인 기록과 온라인 연결감을 루미폰에 천천히 모아가요.
                   </p>
@@ -468,7 +468,7 @@
               <div class="profile-detail-grid">
                 <section class="profile-detail-card">
                   <small>오시 설정</small>
-                  <b>Lumibelle 👑</b>
+                  <b id="profileOshiCard">Lumibelle 👑</b>
                   <p>한 명 고정이 아니라 팀 오시, 멤버 오시, DD, 고민 중 상태까지 나중에 선택 가능하게 연결해요.</p>
                 </section>
                 <section class="profile-detail-card">
@@ -486,7 +486,70 @@
               <div class="profile-message" id="profileMessage" aria-live="polite"></div>
 
               <div class="profile-note">
-                Stage 23은 프로필 화면 모양, 티켓 상세보기 1차 모달, 업적 상세보기와 칭호 장착 1차 연결까지 포함한 기준본이에요. 실제 꾸미기 모달과 공유 이미지는 다음 단계에서 연결하면 됩니다.
+                Stage 35는 프로필 UI 2차 정리본이에요. 프로필 꾸미기 샘플 저장, 칭호 탭 이동, 공유 미리보기 모달까지 프로필 탭 안에서만 연결했어요.
+              </div>
+
+              <div class="profile-modal" id="profileEditModal" aria-hidden="true">
+                <div class="profile-modal-backdrop" data-profile-close="edit"></div>
+                <div class="profile-modal-panel" role="dialog" aria-modal="true" aria-labelledby="profileEditTitle">
+                  <button type="button" class="profile-modal-close" data-profile-close="edit" aria-label="닫기">×</button>
+                  <p class="profile-modal-kicker">PROFILE EDIT</p>
+                  <h3 id="profileEditTitle">프로필 꾸미기</h3>
+                  <div class="profile-form-grid">
+                    <label>
+                      <span>닉네임</span>
+                      <input id="profileEditNickname" type="text" value="루루냐냐" maxlength="12" />
+                    </label>
+                    <label>
+                      <span>오시 설정</span>
+                      <select id="profileEditOshi">
+                        <option value="Lumibelle 👑">Lumibelle 👑</option>
+                        <option value="마리링 🎀⭐️">마리링 🎀⭐️</option>
+                        <option value="루루 🍼🐰">루루 🍼🐰</option>
+                        <option value="이로 👼🏻💎">이로 👼🏻💎</option>
+                        <option value="루나 🌙🐱">루나 🌙🐱</option>
+                        <option value="DD / 모두 좋아해요">DD / 모두 좋아해요</option>
+                        <option value="아직 고민 중">아직 고민 중</option>
+                      </select>
+                    </label>
+                    <label>
+                      <span>생일</span>
+                      <input id="profileEditBirthday" type="text" placeholder="예: 09.21" maxlength="5" />
+                    </label>
+                    <label>
+                      <span>프로필 아이콘</span>
+                      <select id="profileEditAvatar">
+                        <option value="👑">👑</option>
+                        <option value="🎀⭐️">🎀⭐️</option>
+                        <option value="🍼🐰">🍼🐰</option>
+                        <option value="👼🏻💎">👼🏻💎</option>
+                        <option value="🌙🐱">🌙🐱</option>
+                        <option value="✨">✨</option>
+                      </select>
+                    </label>
+                  </div>
+                  <button type="button" class="profile-modal-ok" id="profileEditSave">저장하기</button>
+                </div>
+              </div>
+
+              <div class="profile-modal" id="profileShareModal" aria-hidden="true">
+                <div class="profile-modal-backdrop" data-profile-close="share"></div>
+                <div class="profile-modal-panel" role="dialog" aria-modal="true" aria-labelledby="profileShareTitle">
+                  <button type="button" class="profile-modal-close" data-profile-close="share" aria-label="닫기">×</button>
+                  <p class="profile-modal-kicker">SHARE PREVIEW</p>
+                  <h3 id="profileShareTitle">프로필 공유 미리보기</h3>
+                  <div class="profile-share-preview" aria-label="프로필 공유 카드 미리보기">
+                    <div class="profile-share-cover"></div>
+                    <div class="profile-share-body">
+                      <div class="profile-share-avatar" id="profileShareAvatar">👑</div>
+                      <b id="profileShareNickname">루루냐냐</b>
+                      <small>LB-0001 · <span id="profileShareOshi">Lumibelle 👑</span></small>
+                      <p>대표 칭호: <span id="profileShareTitleText">첫 예매의 반짝임</span></p>
+                      <span>루미벨과 함께 반짝이는 중 ✨</span>
+                    </div>
+                  </div>
+                  <button type="button" class="profile-modal-ok" data-profile-close="share">확인했어요</button>
+                </div>
               </div>
             </div>
           </section>
