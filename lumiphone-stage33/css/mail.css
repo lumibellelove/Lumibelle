@@ -377,3 +377,195 @@ body.modal-open { overflow: hidden; }
   .mail-detail-head h3 { font-size: 20px; }
   .mail-detail-actions { grid-template-columns: 1fr; }
 }
+
+
+/* ===== Stage 41: mail UI second pass / mobile modal stability ===== */
+#page-mail .module-card {
+  overflow: hidden;
+}
+
+.mail-tabs button,
+.mail-filter-row button,
+.mail-split-card,
+.mail-split-pagination button,
+.mail-detail-close,
+.mail-detail-actions button {
+  -webkit-appearance: none;
+  appearance: none;
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.mail-split-card {
+  position: relative;
+  transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease, background-color .12s ease;
+}
+
+.mail-split-card:active {
+  transform: translateY(1px);
+}
+
+.mail-split-card:focus-visible,
+.mail-tabs button:focus-visible,
+.mail-filter-row button:focus-visible,
+.mail-split-pagination button:focus-visible,
+.mail-detail-actions button:focus-visible,
+.mail-detail-close:focus-visible {
+  outline: 3px solid rgba(255, 95, 168, .26);
+  outline-offset: 3px;
+}
+
+.mail-split-open {
+  pointer-events: none;
+}
+
+.mail-detail-modal {
+  min-height: 100vh;
+  min-height: 100dvh;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mail-detail-panel {
+  max-height: calc(100vh - 36px);
+  max-height: calc(100dvh - 36px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.mail-detail-backdrop {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.mail-detail-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  line-height: 1.1;
+}
+
+.mail-detail-primary,
+.mail-detail-secondary {
+  -webkit-text-fill-color: currentColor;
+}
+
+.mail-detail-secondary {
+  color: #b07693 !important;
+}
+
+.mail-detail-primary {
+  color: #fff !important;
+}
+
+body.mail-modal-open {
+  overflow: hidden;
+  width: 100%;
+}
+
+@media (max-width: 759px) {
+  #page-mail h2 {
+    font-size: 28px;
+    line-height: 1.05;
+  }
+
+  #page-mail > .module-card > p {
+    font-size: 14px;
+    line-height: 1.55;
+    margin-bottom: 14px;
+  }
+
+  .mail-tabs,
+  .mail-filter-row {
+    gap: 7px;
+    margin: 10px -2px 14px;
+    scrollbar-width: none;
+  }
+
+  .mail-tabs::-webkit-scrollbar,
+  .mail-filter-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mail-tabs button,
+  .mail-filter-row button {
+    min-height: 38px;
+    padding: 0 14px;
+    font-size: 12px;
+  }
+
+  .mail-split-list {
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .mail-split-card {
+    min-height: 128px;
+    border-radius: 22px;
+    padding: 15px 15px;
+    column-gap: 10px;
+  }
+
+  .mail-split-card b {
+    font-size: 16px;
+    line-height: 1.25;
+  }
+
+  .mail-split-card small {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .mail-split-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 15px;
+    font-size: 21px;
+  }
+
+  .mail-split-open {
+    min-height: 32px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+
+  .mail-detail-modal {
+    padding: 14px;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom));
+  }
+
+  .mail-detail-panel {
+    width: 100%;
+    max-height: calc(100dvh - 28px - env(safe-area-inset-bottom));
+    padding: 20px;
+    border-radius: 24px;
+  }
+
+  .mail-detail-close {
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .mail-detail-body {
+    font-size: 14px;
+    line-height: 1.65;
+    padding: 15px;
+    border-radius: 19px;
+  }
+
+  .mail-detail-note {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .mail-detail-actions button {
+    min-height: 48px;
+    font-size: 14px;
+  }
+}
