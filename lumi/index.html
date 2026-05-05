@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>LUMI PHONE v10.3 | Achievement Final Structure Patch</title>
+  <title>LUMI PHONE v10.3 | Release Login Start Fix</title>
   <meta name="theme-color" content="#fff7fb" />
 
   <style>
@@ -14261,9 +14261,7 @@
         clearMessage();
         loginView.classList.remove("active");
         appView.classList.add("active");
-        const initialPage = (location.hash || "#home").replace(/^#/, "") || "home";
-        const validPages = $$(".page").map((el) => el.id.replace(/^page-/, ""));
-        go(validPages.includes(initialPage) ? initialPage : "home");
+        go("home");
         updateClock();
       }
 
@@ -14272,6 +14270,9 @@
         loginView.classList.add("active");
         loginPin.value = "";
         clearMessage();
+        if (location.hash) {
+          history.replaceState(null, "", location.pathname + location.search);
+        }
       }
 
       function go(page) {
@@ -14283,9 +14284,6 @@
         $$(".tab").forEach((el) => el.classList.toggle("active", el.dataset.page === targetName));
         if (targetName === "message" && typeof window.showLumiMessageInbox === "function") {
           window.showLumiMessageInbox();
-        }
-        if (location.hash !== "#" + targetName) {
-          history.replaceState(null, "", "#" + targetName);
         }
         window.scrollTo({ top: 0, behavior: "auto" });
       }
@@ -16572,6 +16570,21 @@
       sampleBtn.addEventListener("click", openApp);
       newIdBtn.addEventListener("click", () => showMessage("온라인 팬도 루미 ID를 만들 수 있어요. 실제 발급 페이지에서는 닉네임, 이메일, 오시, 생일, PIN을 입력하게 됩니다."));
       forgotPinBtn.addEventListener("click", () => showMessage("PIN 분실 시 루미 ID, 닉네임, 이메일 등으로 문의 후 임시 PIN을 재설정하는 구조로 운영합니다."));
+
+      function forceLoginStartForPublicBuild() {
+        // 공개용 시작 화면은 항상 로그인 카드로 고정한다.
+        // 이전 테스트 URL의 #home/#ticket 등이 남아도 홈 화면으로 바로 들어가지 않게 한다.
+        appView.classList.remove("active");
+        loginView.classList.add("active");
+        $$(".page").forEach((el) => el.classList.toggle("active", el.id === "page-home"));
+        $$(".tab").forEach((el) => el.classList.toggle("active", el.dataset.page === "home"));
+        if (location.hash) {
+          history.replaceState(null, "", location.pathname + location.search);
+        }
+      }
+
+      forceLoginStartForPublicBuild();
+
       logoutBtn.addEventListener("click", closeApp);
 
       $$(".tab").forEach((button) => button.addEventListener("click", () => go(button.dataset.page)));
