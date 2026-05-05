@@ -65,6 +65,28 @@
     message.textContent = text;
   }
 
+  let gamezoneScrollY = 0;
+
+  function lockGamezonePageScroll() {
+    gamezoneScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    document.body.classList.add("gamezone-modal-lock");
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${gamezoneScrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
+  }
+
+  function unlockGamezonePageScroll() {
+    document.body.classList.remove("gamezone-modal-lock");
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.left = "";
+    document.body.style.right = "";
+    document.body.style.width = "";
+    window.scrollTo(0, gamezoneScrollY || 0);
+  }
+
   function openGamezoneModal(key) {
     const data = GAMEZONE_DETAILS[key] || GAMEZONE_DETAILS.ready;
     const modal = document.getElementById("gamezoneModal");
@@ -80,6 +102,7 @@
     if (body) body.textContent = data.body;
     if (info) info.textContent = data.info;
 
+    lockGamezonePageScroll();
     modal.classList.add("active");
     modal.setAttribute("aria-hidden", "false");
   }
@@ -89,6 +112,7 @@
     if (!modal) return;
     modal.classList.remove("active");
     modal.setAttribute("aria-hidden", "true");
+    unlockGamezonePageScroll();
   }
 
   function bootGamezone() {
