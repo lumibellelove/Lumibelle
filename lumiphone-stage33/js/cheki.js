@@ -14,6 +14,8 @@
     }
   };
 
+  let savedScrollY = 0;
+
   function setMessage(text) {
     const message = document.getElementById("chekiMessage");
     if (!message) return;
@@ -24,6 +26,18 @@
   function fillText(id, value) {
     const el = document.getElementById(id);
     if (el) el.textContent = value;
+  }
+
+  function lockBodyScroll() {
+    savedScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    document.body.classList.add("cheki-modal-open");
+    document.body.style.top = `-${savedScrollY}px`;
+  }
+
+  function unlockBodyScroll() {
+    document.body.classList.remove("cheki-modal-open");
+    document.body.style.top = "";
+    window.scrollTo(0, savedScrollY || 0);
   }
 
   function openDetail(id) {
@@ -43,36 +57,42 @@
     modal.hidden = false;
     modal.classList.add("open");
     modal.setAttribute("aria-hidden", "false");
-    document.body.classList.add("cheki-modal-open");
+    lockBodyScroll();
     setMessage("");
   }
 
   function closeDetail() {
     const modal = document.getElementById("chekiDetailModal");
-    if (!modal) return;
+    if (!modal || modal.hidden) return;
     modal.classList.remove("open");
     modal.setAttribute("aria-hidden", "true");
     modal.hidden = true;
-    document.body.classList.remove("cheki-modal-open");
+    unlockBodyScroll();
+  }
+
+  function bindPress(selector, handler) {
+    document.querySelectorAll(selector).forEach((button) => {
+      button.addEventListener("click", handler);
+      button.addEventListener("touchend", (event) => {
+        event.preventDefault();
+        handler.call(button, event);
+      }, { passive: false });
+    });
   }
 
   function boot() {
-    document.querySelectorAll("[data-cheki-action]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const action = button.dataset.chekiAction;
-        if (action === "view") {
-          openDetail(button.dataset.chekiId || "debut-live");
-        } else if (action === "request") {
-          setMessage("숙제체키 문의/요청 기능은 실제 데이터 연동 전 샘플이에요.");
-        } else {
-          setMessage("숙제체키 기록을 확인했어요.");
-        }
-      });
+    bindPress("[data-cheki-action]", function () {
+      const action = this.dataset.chekiAction;
+      if (action === "view") {
+        openDetail(this.dataset.chekiId || "debut-live");
+      } else if (action === "request") {
+        setMessage("숙제체키 문의/요청 기능은 실제 데이터 연동 전 샘플이에요.");
+      } else {
+        setMessage("숙제체키 기록을 확인했어요.");
+      }
     });
 
-    document.querySelectorAll("[data-cheki-close]").forEach((button) => {
-      button.addEventListener("click", closeDetail);
-    });
+    bindPress("[data-cheki-close]", closeDetail);
 
     const modal = document.getElementById("chekiDetailModal");
     if (modal) {
