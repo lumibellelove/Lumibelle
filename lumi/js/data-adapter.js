@@ -5,7 +5,7 @@
   const SAMPLE_DATA_PATH = "./data/lumi-sample-data.json";
 
   const fallbackData = {
-    version: "stage66-stamp-checkin-local-save",
+    version: "stage67-ticket-local-state",
     user: {
       lumiId: "LB-0001",
       nickname: "루루냐냐",
@@ -35,6 +35,7 @@
       { date: "2026.07.12", type: "반짝 포인트", title: "닉네임 콜 교환", desc: "교환소 사용 기록", amount: "-50P", minus: true }
     ],
     tickets: [],
+    ticketStates: {},
     letters: [],
     achievements: [],
     onair: {
@@ -77,6 +78,7 @@
       onair: { ...(baseData.onair || {}), ...((overrideData || {}).onair || {}) },
       exchange: { ...(baseData.exchange || {}), ...((overrideData || {}).exchange || {}) },
       stamps: { ...(baseData.stamps || {}), ...((overrideData || {}).stamps || {}) },
+      ticketStates: { ...(baseData.ticketStates || {}), ...((overrideData || {}).ticketStates || {}) },
       pointLogs: Array.isArray((overrideData || {}).pointLogs) ? (overrideData || {}).pointLogs : (baseData.pointLogs || [])
     };
   }
@@ -109,7 +111,7 @@
   }
 
   window.LumiData = {
-    stage: 66,
+    stage: 67,
     storageKey: STORAGE_KEY,
     getData,
     updateData,
