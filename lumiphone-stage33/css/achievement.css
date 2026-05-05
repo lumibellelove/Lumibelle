@@ -648,3 +648,63 @@ button.achievement-detail-ok:active {
   -webkit-text-fill-color: #ffffff !important;
   outline: none !important;
 }
+
+
+/* ===== Stage 40: iPhone achievement modal scroll/background stability ===== */
+body.achievement-modal-scroll-lock {
+  overflow: hidden !important;
+  width: 100% !important;
+  touch-action: none;
+}
+
+.achievement-detail-modal {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+  padding-top: max(20px, env(safe-area-inset-top));
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+  background: rgba(67, 43, 56, .22);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  isolation: isolate;
+  overscroll-behavior: none;
+}
+
+.achievement-detail-backdrop {
+  position: fixed;
+  inset: -3px;
+  width: calc(100vw + 6px);
+  height: calc(100vh + 6px);
+  height: calc(100dvh + 6px);
+  background: rgba(67, 43, 56, .24);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+.achievement-detail-panel {
+  z-index: 1;
+  max-height: calc(100dvh - 40px);
+  overscroll-behavior: contain;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+@supports not (height: 100dvh) {
+  .achievement-detail-modal {
+    height: 100vh;
+    min-height: 100vh;
+  }
+
+  .achievement-detail-backdrop {
+    height: calc(100vh + 6px);
+  }
+
+  .achievement-detail-panel {
+    max-height: calc(100vh - 40px);
+  }
+}
