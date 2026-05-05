@@ -4,11 +4,13 @@
   const VALID_SAMPLE_CODES = new Set(["LUMI-4827", "루미별-127", "별사탕-482", "핑크문-315"]);
   let onairCertified = false;
   let cheerSent = false;
+  let guideScrollY = 0;
 
   function showMessage(text) {
     const target = document.getElementById("onairMessage");
     if (!target) return;
-    target.textContent = text;
+    target.textContent = text || "";
+    target.classList.toggle("show", Boolean(text));
   }
 
   function normalizeCode(value) {
@@ -29,6 +31,28 @@
     setText("onairJoinCount", "1회");
     setText("onairRewardPoint", "+30P");
     setText("onairRewardXp", "+30XP");
+  }
+
+  function lockGuideScroll() {
+    if (document.body.classList.contains("onair-modal-open")) return;
+    guideScrollY = window.scrollY || window.pageYOffset || 0;
+    document.body.classList.add("modal-open", "onair-modal-open");
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${guideScrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
+  }
+
+  function unlockGuideScroll() {
+    if (!document.body.classList.contains("onair-modal-open")) return;
+    document.body.classList.remove("modal-open", "onair-modal-open");
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.left = "";
+    document.body.style.right = "";
+    document.body.style.width = "";
+    window.scrollTo(0, guideScrollY || 0);
   }
 
   function bootCodeForm() {
@@ -72,6 +96,10 @@
     }
 
     submit.addEventListener("click", submitCode);
+    submit.addEventListener("touchend", (event) => {
+      event.preventDefault();
+      submitCode();
+    }, { passive: false });
     input.addEventListener("keydown", (event) => {
       if (event.key === "Enter") submitCode();
     });
@@ -82,6 +110,7 @@
     if (!modal) return;
     modal.classList.add("is-open");
     modal.setAttribute("aria-hidden", "false");
+    lockGuideScroll();
   }
 
   function closeGuide() {
@@ -89,6 +118,7 @@
     if (!modal) return;
     modal.classList.remove("is-open");
     modal.setAttribute("aria-hidden", "true");
+    unlockGuideScroll();
   }
 
   function bootGuideModal() {
@@ -103,7 +133,7 @@
 
   function bootActions() {
     document.querySelectorAll("[data-onair-action]").forEach((button) => {
-      button.addEventListener("click", () => {
+      const runAction = () => {
         const action = button.dataset.onairAction;
         if (action === "cheer") {
           if (cheerSent) {
@@ -115,7 +145,9 @@
           showMessage("반짝 응원 샘플을 보냈어요. 실제 방송 연동 전에는 저장되지 않아요.");
         }
         if (action === "guide") openGuide();
-      });
+      };
+
+      button.addEventListener("click", runAction);
     });
   }
 
