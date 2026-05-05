@@ -63,6 +63,29 @@
   let currentPage = 1;
   let equippedTitle = "첫 예매의 반짝임";
   let selectedIndex = null;
+  let modalScrollY = 0;
+
+  function lockModalScroll() {
+    if (document.body.classList.contains("achievement-modal-scroll-lock")) return;
+    modalScrollY = window.scrollY || window.pageYOffset || 0;
+    document.body.classList.add("achievement-modal-scroll-lock");
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${modalScrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
+  }
+
+  function unlockModalScroll() {
+    if (!document.body.classList.contains("achievement-modal-scroll-lock")) return;
+    document.body.classList.remove("achievement-modal-scroll-lock");
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.left = "";
+    document.body.style.right = "";
+    document.body.style.width = "";
+    window.scrollTo(0, modalScrollY || 0);
+  }
 
   function getFiltered() {
     if (currentFilter === "전체") return achievements;
@@ -176,6 +199,7 @@
     if (!item || !modal) return;
     selectedIndex = index;
     updateDetailModal(item);
+    lockModalScroll();
     modal.classList.add("open");
     modal.setAttribute("aria-hidden", "false");
   }
@@ -185,6 +209,7 @@
     if (!modal) return;
     modal.classList.remove("open");
     modal.setAttribute("aria-hidden", "true");
+    unlockModalScroll();
   }
 
   function equipTitle(index) {
