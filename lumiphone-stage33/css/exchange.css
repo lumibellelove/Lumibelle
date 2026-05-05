@@ -357,3 +357,189 @@
   color: #c76693;
   border: 1px solid #f4cfdf;
 }
+
+/* ===== Stage 47: Exchange UI second pass ===== */
+.exchange-module {
+  overflow: hidden;
+}
+
+.exchange-balance-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.exchange-balance-card::after {
+  content: "";
+  position: absolute;
+  inset: auto -22px -34px auto;
+  width: 118px;
+  height: 118px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 95, 168, .18), transparent 68%);
+  pointer-events: none;
+}
+
+.exchange-tab,
+.exchange-card button,
+.exchange-detail-close,
+.exchange-detail-apply,
+.exchange-detail-ok {
+  -webkit-appearance: none;
+  appearance: none;
+  font-family: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.exchange-tab-row {
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-inline: 12px;
+}
+
+.exchange-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.exchange-card-top > div:last-child {
+  min-width: 0;
+}
+
+.exchange-icon {
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.exchange-card p {
+  flex: 1;
+}
+
+.exchange-card button {
+  margin-top: auto;
+}
+
+.exchange-card button:active,
+.exchange-tab:active,
+.exchange-detail-apply:active,
+.exchange-detail-ok:active,
+.exchange-detail-close:active {
+  transform: translateY(1px);
+}
+
+.exchange-message:not(:empty) {
+  border: 1px solid #f4cfdf;
+  border-radius: 999px;
+  background: #fff3f8;
+  padding: 10px 12px;
+}
+
+.exchange-detail-modal {
+  height: 100vh;
+  min-height: 100vh;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+@supports (height: 100dvh) {
+  .exchange-detail-modal {
+    height: 100dvh;
+    min-height: 100dvh;
+  }
+}
+
+.exchange-detail-modal.active {
+  display: flex;
+}
+
+.exchange-detail-card {
+  max-height: calc(100dvh - 42px);
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.exchange-detail-apply,
+.exchange-detail-ok {
+  min-height: 48px;
+  border-radius: 999px;
+  text-align: center;
+}
+
+.exchange-detail-ok {
+  background: #fff;
+  color: #b56d91;
+}
+
+.exchange-detail-close {
+  display: grid;
+  place-items: center;
+}
+
+body.modal-open-exchange {
+  overflow: hidden;
+  touch-action: none;
+}
+
+@media (max-width: 560px) {
+  .exchange-card-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .exchange-card {
+    border-radius: 24px;
+    padding: 16px;
+  }
+
+  .exchange-card-top {
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .exchange-icon {
+    flex-basis: 44px;
+    width: 44px;
+    height: 44px;
+    border-radius: 17px;
+    font-size: 20px;
+  }
+
+  .exchange-card h3 {
+    font-size: 18px;
+  }
+
+  .exchange-card p {
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .exchange-meta-row {
+    margin-top: 13px;
+  }
+
+  .exchange-price,
+  .exchange-chip {
+    min-height: 30px;
+    padding: 0 11px;
+    font-size: 12px;
+  }
+
+  .exchange-card button {
+    min-height: 48px;
+    border-radius: 18px;
+    font-size: 14px;
+  }
+
+  .exchange-detail-modal {
+    padding: 18px 14px;
+    align-items: center;
+  }
+
+  .exchange-detail-card {
+    width: min(100%, 420px);
+    border-radius: 30px;
+    padding: 26px 20px 20px;
+  }
+}
