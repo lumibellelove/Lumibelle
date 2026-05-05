@@ -43,7 +43,7 @@
 
   function getCurrentProfileFromScreen() {
     return normalizeProfile({
-      lumiId: document.getElementById("globalLumiId")?.textContent?.trim() || DEFAULT_PROFILE.lumiId,
+      lumiId: DEFAULT_PROFILE.lumiId,
       nickname: document.getElementById("profileNickname")?.textContent?.trim() || DEFAULT_PROFILE.nickname,
       oshi: document.getElementById("profileOshiCard")?.textContent?.trim() || DEFAULT_PROFILE.oshi,
       title: document.getElementById("profileEquippedTitleCard")?.textContent?.trim() || DEFAULT_PROFILE.title,
@@ -68,7 +68,10 @@
     const profile = normalizeProfile(profileInput);
     const birthdayText = profile.birthday && profile.birthday !== "미등록" ? profile.birthday : "미등록";
 
-    setText("globalLumiId", profile.lumiId);
+    const currentPage = document.body.dataset.currentPage || "home";
+    if (currentPage !== "home") {
+      setText("globalLumiId", profile.lumiId);
+    }
     setText("homeAvatar", profile.avatar);
     setText("homeProfileMeta", `${profile.lumiId} · ${profile.oshi}`);
     setText("homeNickname", profile.nickname);
@@ -87,6 +90,7 @@
     setText("profileShareAvatar", profile.avatar);
     setText("profileShareTitleText", profile.title);
     fillProfileForm(profile);
+    window.dispatchEvent(new CustomEvent("lumi:data-updated"));
   }
 
   async function loadProfileFromData() {

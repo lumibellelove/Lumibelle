@@ -31,6 +31,7 @@
 
     setActiveButton(safeName);
     document.body.dataset.currentPage = safeName;
+    window.dispatchEvent(new CustomEvent("lumi:page-changed", { detail: { page: safeName } }));
 
     if (options.pushHash !== false) {
       const nextHash = `#${safeName}`;
