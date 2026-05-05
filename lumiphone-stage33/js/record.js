@@ -6,8 +6,8 @@
     { icon: "💗", date: "2026.07.12", title: "첫 루미 방문", desc: "와준 순간을 남기는 방문 기록", cat: "체크인" },
     { icon: "📸", date: "2026.07.12", title: "첫 루미 체크인", desc: "촬영 · 교류 참여 완료 / 스탬프 +1", cat: "체크인" },
     { icon: "🎟️", date: "2026.07.12", title: "지난 티켓 저장", desc: "LUMI PASS 기록 보관", cat: "티켓" },
-    { icon: "📡", date: "2026.07.12", title: "온라인 연결", desc: "ON AIR 방문 기록 샘플", cat: "온라인" },
-    { icon: "✨", date: "2026.07.12", title: "반짝 응원", desc: "온라인 응원 기록 샘플", cat: "온라인" }
+    { icon: "📡", date: "2026.07.12", title: "온라인 연결", desc: "ON AIR 방문 기록", cat: "온라인" },
+    { icon: "✨", date: "2026.07.12", title: "반짝 응원", desc: "온라인 응원 기록", cat: "온라인" }
   ];
 
   let currentFilter = "전체";

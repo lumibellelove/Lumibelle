@@ -124,7 +124,7 @@
 
     document.querySelectorAll("[data-guide-action]").forEach((button) => {
       bindPress(button, () => {
-        setGuideMessage("가이드 기능은 실제 데이터 연동 전 샘플 상태예요.");
+        setGuideMessage("가이드 내용은 운영 상황에 맞춰 순서대로 업데이트돼요.");
       });
     });
 

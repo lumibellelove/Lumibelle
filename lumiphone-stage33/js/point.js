@@ -7,7 +7,7 @@
     { date: "2026.07.12", type: "물판 포인트", title: "특전권 15장 기준 적립", desc: "현장 물판 보상용 포인트", amount: "+1P" },
     { date: "2026.07.12", type: "반짝 포인트", title: "반짝 응원 참여", desc: "온라인 응원 기록", amount: "+30P" },
     { date: "2026.07.12", type: "반짝 XP", title: "첫 루미 체크인", desc: "특전회 참여 성장 기록", amount: "+70XP" },
-    { date: "2026.07.12", type: "반짝 포인트", title: "닉네임 콜 교환", desc: "교환소 사용 샘플", amount: "-50P", minus: true }
+    { date: "2026.07.12", type: "반짝 포인트", title: "닉네임 콜 교환", desc: "교환소 사용 기록", amount: "-50P", minus: true }
   ];
 
   let currentFilter = "전체";

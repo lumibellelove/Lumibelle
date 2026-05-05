@@ -51,7 +51,7 @@
     setText("profileBirthdayChip", birthday ? `생일 ${birthday}` : "생일 미등록");
     syncSharePreview();
     closeModal("profileEditModal");
-    setMessage("프로필 꾸미기 샘플이 화면에 반영됐어요. 실제 저장은 연동 단계에서 연결해요.");
+    setMessage("프로필 꾸미기가 화면에 반영됐어요.");
   }
 
   function goAchievement() {

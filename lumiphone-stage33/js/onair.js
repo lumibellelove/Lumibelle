@@ -27,7 +27,7 @@
     const statusCard = document.getElementById("onairStatusCard");
     if (statusCard) statusCard.classList.add("is-verified");
     setText("onairStatusTitle", "루미코드 인증 완료");
-    setText("onairStatusText", "오늘 방송 참여 샘플 기록이 확인됐어요. 실제 연동 전에는 저장되지 않아요.");
+    setText("onairStatusText", "오늘 방송 참여 기록이 확인됐어요.");
     setText("onairJoinCount", "1회");
     setText("onairRewardPoint", "+30P");
     setText("onairRewardXp", "+30XP");
@@ -81,7 +81,7 @@
       }
 
       if (onairCertified) {
-        showMessage("이미 오늘 방송 참여 샘플 인증이 완료됐어요.");
+        showMessage("이미 오늘 방송 참여 인증이 완료됐어요.");
         return;
       }
 
@@ -89,9 +89,9 @@
       const valid = Array.from(VALID_SAMPLE_CODES).some((code) => normalizeCode(code) === normalized);
       if (valid) {
         setOnairVerifiedState();
-        showMessage("루미코드 인증 샘플 완료! 반짝 포인트와 XP가 화면에 반영됐어요.");
+        showMessage("루미코드 인증 완료! 반짝 포인트와 XP가 반영됐어요.");
       } else {
-        showMessage("샘플 코드와 달라요. 예시 코드는 LUMI-4827 이에요.");
+        showMessage("루미코드가 맞지 않아요. 예시 코드는 LUMI-4827 이에요.");
       }
     }
 
@@ -137,12 +137,12 @@
         const action = button.dataset.onairAction;
         if (action === "cheer") {
           if (cheerSent) {
-            showMessage("오늘 반짝 응원 샘플은 이미 보냈어요.");
+            showMessage("오늘 반짝 응원은 이미 보냈어요.");
             return;
           }
           cheerSent = true;
           button.classList.add("is-done");
-          showMessage("반짝 응원 샘플을 보냈어요. 실제 방송 연동 전에는 저장되지 않아요.");
+          showMessage("반짝 응원을 보냈어요.");
         }
         if (action === "guide") openGuide();
       };

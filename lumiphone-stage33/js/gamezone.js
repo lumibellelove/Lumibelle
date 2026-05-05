@@ -24,7 +24,7 @@
       icon: "💌",
       title: "랜덤 대사",
       body: "멤버별 말투와 시즌 분위기에 맞춘 짧은 메시지를 해금하는 공간이에요.",
-      info: "마리링/루루/이로/루나 말투 데이터와 연결할 수 있지만, 지금은 준비중 안내만 연결해요."
+      info: "마리링/루루/이로/루나 말투 데이터와 연결할 수 있지만, 지금은 안내 보기만 연결해요."
     },
     season: {
       icon: "🎀",
@@ -40,7 +40,7 @@
     },
     ready: {
       icon: "🎮",
-      title: "미니게임 준비중",
+      title: "미니게임",
       body: "리듬게임, 터치 게임, AI 채팅형 콘텐츠는 루미폰 안정화 이후 별도 단계로 붙여요.",
       info: "지금은 탭 구조와 안내 모달만 먼저 연결한 상태예요."
     }
@@ -128,9 +128,9 @@
       button.addEventListener("click", () => {
         const action = button.dataset.gamezoneAction;
         if (action === "fortune") setGamezoneMessage("오늘의 운세는 다음 단계에서 반짝 포인트/XP 기록과 연결할 예정이에요.");
-        else if (action === "gacha") setGamezoneMessage("무료 카드 뽑기는 시즌 카드와 보관함 연결 전 샘플 상태예요.");
-        else if (action === "coming") setGamezoneMessage("이 기능은 준비중이에요. 팬 화면에는 실제 오픈 가능한 기능만 순서대로 연결해요.");
-        else setGamezoneMessage("게임존 기능은 실제 데이터 연동 전 샘플 상태예요.");
+        else if (action === "gacha") setGamezoneMessage("무료 카드 뽑기는 시즌 카드와 보관함이 열리면 이용할 수 있어요.");
+        else if (action === "coming") setGamezoneMessage("이 기능은 순서대로 열릴 예정이에요.");
+        else setGamezoneMessage("게임존 기능은 순서대로 열릴 예정이에요.");
       });
     });
 

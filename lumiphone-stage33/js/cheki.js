@@ -5,12 +5,12 @@
     "debut-live": {
       kicker: "숙제체키 기록",
       title: "데뷔 라이브 숙제체키",
-      desc: "현장 특전회에서 접수된 숙제체키 샘플 기록이에요.",
+      desc: "현장 특전회에서 접수된 숙제체키 기록이에요.",
       event: "2026.07.12 Debut Live",
       member: "마리링 / 루루",
       status: "데코/전달 준비 중",
       receive: "다음 라이브 현장 수령",
-      note: "실제 사진 업로드와 전달 완료 처리는 추후 스탭 기록과 연결할 예정이에요. 지금은 상세보기 흐름 확인용 샘플이에요."
+      note: "사진 업로드와 전달 완료 상태는 스탭 확인 후 기록에 반영돼요."
     }
   };
 
@@ -86,7 +86,7 @@
       if (action === "view") {
         openDetail(this.dataset.chekiId || "debut-live");
       } else if (action === "request") {
-        setMessage("숙제체키 문의/요청 기능은 실제 데이터 연동 전 샘플이에요.");
+        setMessage("숙제체키 문의/요청은 현장 안내에 따라 스탭에게 확인해 주세요.");
       } else {
         setMessage("숙제체키 기록을 확인했어요.");
       }
