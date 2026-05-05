@@ -17,6 +17,7 @@
       const forgotPinBtn = $("#forgotPinBtn");
       const loginLangButtons = $$('[data-lumi-lang]');
       const langStorageKey = "lumiLang";
+      const loginStateStorageKey = "lumiphone.loginState.v1";
       const logoutBtn = $("#logoutBtn");
       const statusTime = $("#statusTime");
       const homeClock = $("#homeClock");
@@ -136,6 +137,28 @@
         try { return localStorage.getItem(langStorageKey) || "kr"; } catch (error) { return "kr"; }
       }
 
+      function saveLoginState(id) {
+        try {
+          localStorage.setItem(loginStateStorageKey, JSON.stringify({ id: normId(id || sampleUser.id), type: "sample", savedAt: Date.now() }));
+        } catch (error) {}
+      }
+
+      function readLoginState() {
+        try {
+          const raw = localStorage.getItem(loginStateStorageKey);
+          if (!raw) return null;
+          const state = JSON.parse(raw);
+          const id = normId(state && state.id);
+          return id === sampleUser.id ? { id: id, type: state.type || "sample" } : null;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function clearLoginState() {
+        try { localStorage.removeItem(loginStateStorageKey); } catch (error) {}
+      }
+
       function setLumiLang(lang, announce) {
         const selected = ["kr", "en", "jp", "cn"].includes(lang) ? lang : "kr";
         loginLangButtons.forEach((button) => {
@@ -149,7 +172,9 @@
         }
       }
 
-      function openApp() {
+      function openApp(options) {
+        const settings = options || {};
+        if (settings.persist !== false) saveLoginState(sampleUser.id);
         clearMessage();
         loginView.classList.remove("active");
         appView.classList.add("active");
@@ -158,6 +183,7 @@
       }
 
       function closeApp() {
+        clearLoginState();
         appView.classList.remove("active");
         loginView.classList.add("active");
         loginPin.value = "";
@@ -2829,6 +2855,12 @@
       loadProfileState();
       renderProfileView();
       renderProfileEditor();
+
+      const savedLoginState = readLoginState();
+      if (savedLoginState) {
+        loginId.value = savedLoginState.id;
+        openApp({ persist: false });
+      }
 
       updateClock();
       setInterval(updateClock, 30000);
