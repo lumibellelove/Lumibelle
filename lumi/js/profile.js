@@ -1,6 +1,15 @@
 (() => {
   "use strict";
 
+  const DEFAULT_PROFILE = {
+    lumiId: "LB-0001",
+    nickname: "루루냐냐",
+    oshi: "Lumibelle 👑",
+    title: "첫 예매의 반짝임",
+    birthday: "미등록",
+    avatar: "👑"
+  };
+
   function setMessage(text) {
     const message = document.getElementById("profileMessage");
     if (!message) return;
@@ -12,9 +21,101 @@
     if (target) target.textContent = text;
   }
 
+  function setAllTitleText(title) {
+    document.querySelectorAll("#profileEquippedTitleInline").forEach((target) => {
+      target.textContent = title;
+    });
+    setText("profileEquippedTitleCard", title);
+    setText("profileShareTitleText", title);
+  }
+
+  function normalizeProfile(user = {}) {
+    return {
+      ...DEFAULT_PROFILE,
+      ...user,
+      nickname: user.nickname || DEFAULT_PROFILE.nickname,
+      oshi: user.oshi || DEFAULT_PROFILE.oshi,
+      title: user.title || DEFAULT_PROFILE.title,
+      birthday: user.birthday || DEFAULT_PROFILE.birthday,
+      avatar: user.avatar || DEFAULT_PROFILE.avatar
+    };
+  }
+
+  function getCurrentProfileFromScreen() {
+    return normalizeProfile({
+      lumiId: document.getElementById("globalLumiId")?.textContent?.trim() || DEFAULT_PROFILE.lumiId,
+      nickname: document.getElementById("profileNickname")?.textContent?.trim() || DEFAULT_PROFILE.nickname,
+      oshi: document.getElementById("profileOshiCard")?.textContent?.trim() || DEFAULT_PROFILE.oshi,
+      title: document.getElementById("profileEquippedTitleCard")?.textContent?.trim() || DEFAULT_PROFILE.title,
+      birthday: (document.getElementById("profileBirthdayChip")?.textContent || "").replace(/^생일\s*/, "").trim() || DEFAULT_PROFILE.birthday,
+      avatar: document.getElementById("profileAvatar")?.textContent?.trim() || DEFAULT_PROFILE.avatar
+    });
+  }
+
+  function fillProfileForm(profile) {
+    const nicknameInput = document.getElementById("profileEditNickname");
+    const oshiInput = document.getElementById("profileEditOshi");
+    const birthdayInput = document.getElementById("profileEditBirthday");
+    const avatarInput = document.getElementById("profileEditAvatar");
+
+    if (nicknameInput) nicknameInput.value = profile.nickname;
+    if (oshiInput) oshiInput.value = profile.oshi;
+    if (birthdayInput) birthdayInput.value = profile.birthday === "미등록" ? "" : profile.birthday;
+    if (avatarInput) avatarInput.value = profile.avatar;
+  }
+
+  function applyProfile(profileInput) {
+    const profile = normalizeProfile(profileInput);
+    const birthdayText = profile.birthday && profile.birthday !== "미등록" ? profile.birthday : "미등록";
+
+    setText("globalLumiId", profile.lumiId);
+    setText("homeAvatar", profile.avatar);
+    setText("homeProfileMeta", `${profile.lumiId} · ${profile.oshi}`);
+    setText("homeNickname", profile.nickname);
+
+    setText("profileMeta", `${profile.lumiId} · ${profile.oshi}`);
+    setText("profileNickname", profile.nickname);
+    setText("profileAvatar", profile.avatar);
+    setText("profileOshiChip", `오시 ${profile.oshi}`);
+    setText("profileOshiCard", profile.oshi);
+    setText("profileBirthdayChip", birthdayText === "미등록" ? "생일 미등록" : `생일 ${birthdayText}`);
+    setAllTitleText(profile.title);
+
+    setText("profileShareLumiId", profile.lumiId);
+    setText("profileShareNickname", profile.nickname);
+    setText("profileShareOshi", profile.oshi);
+    setText("profileShareAvatar", profile.avatar);
+    setText("profileShareTitleText", profile.title);
+    fillProfileForm(profile);
+  }
+
+  async function loadProfileFromData() {
+    if (!window.LumiData?.getData) {
+      applyProfile(DEFAULT_PROFILE);
+      return;
+    }
+
+    try {
+      const data = await window.LumiData.getData();
+      applyProfile(data.user || DEFAULT_PROFILE);
+    } catch (error) {
+      applyProfile(DEFAULT_PROFILE);
+    }
+  }
+
+  async function saveProfileToData(profile) {
+    if (!window.LumiData?.updateData) return;
+    try {
+      await window.LumiData.updateData({ user: profile });
+    } catch (error) {
+      // 화면 반영은 유지하고, 저장 실패만 조용히 넘긴다.
+    }
+  }
+
   function openModal(id) {
     const modal = document.getElementById(id);
     if (!modal) return;
+    if (id === "profileEditModal") fillProfileForm(getCurrentProfileFromScreen());
     modal.classList.add("is-open");
     modal.setAttribute("aria-hidden", "false");
   }
@@ -27,31 +128,21 @@
   }
 
   function syncSharePreview() {
-    const nickname = document.getElementById("profileNickname")?.textContent || "루루냐냐";
-    const oshi = document.getElementById("profileOshiCard")?.textContent || "Lumibelle 👑";
-    const title = document.getElementById("profileEquippedTitleInline")?.textContent || "첫 예매의 반짝임";
-    const avatar = document.getElementById("profileAvatar")?.textContent || "👑";
-
-    setText("profileShareNickname", nickname);
-    setText("profileShareOshi", oshi);
-    setText("profileShareTitleText", title);
-    setText("profileShareAvatar", avatar);
+    applyProfile(getCurrentProfileFromScreen());
   }
 
-  function saveProfileEdit() {
-    const nickname = document.getElementById("profileEditNickname")?.value.trim() || "루루냐냐";
-    const oshi = document.getElementById("profileEditOshi")?.value || "Lumibelle 👑";
-    const birthday = document.getElementById("profileEditBirthday")?.value.trim();
-    const avatar = document.getElementById("profileEditAvatar")?.value || "👑";
+  async function saveProfileEdit() {
+    const current = getCurrentProfileFromScreen();
+    const nickname = document.getElementById("profileEditNickname")?.value.trim() || DEFAULT_PROFILE.nickname;
+    const oshi = document.getElementById("profileEditOshi")?.value || DEFAULT_PROFILE.oshi;
+    const birthday = document.getElementById("profileEditBirthday")?.value.trim() || "미등록";
+    const avatar = document.getElementById("profileEditAvatar")?.value || DEFAULT_PROFILE.avatar;
+    const nextProfile = normalizeProfile({ ...current, nickname, oshi, birthday, avatar });
 
-    setText("profileNickname", nickname);
-    setText("profileAvatar", avatar);
-    setText("profileOshiChip", `오시 ${oshi}`);
-    setText("profileOshiCard", oshi);
-    setText("profileBirthdayChip", birthday ? `생일 ${birthday}` : "생일 미등록");
-    syncSharePreview();
+    applyProfile(nextProfile);
+    await saveProfileToData(nextProfile);
     closeModal("profileEditModal");
-    setMessage("프로필 꾸미기가 화면에 반영됐어요.");
+    setMessage("프로필 꾸미기가 저장됐어요. 새로고침 후에도 유지돼요.");
   }
 
   function goAchievement() {
@@ -128,8 +219,9 @@
     });
   }
 
-  function boot() {
+  async function boot() {
     bootDelegatedEvents();
+    await loadProfileFromData();
     syncSharePreview();
   }
 
