@@ -52,6 +52,7 @@
   let currentCat = "전체";
   let currentPage = 1;
   let selectedMail = null;
+  let mailScrollY = 0;
   const pageSize = 4;
 
   function filteredMails() {
@@ -109,6 +110,24 @@
     if (next) next.disabled = currentPage >= totalPages;
   }
 
+  function lockMailScroll() {
+    mailScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    document.body.classList.add("modal-open", "mail-modal-open");
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${mailScrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+  }
+
+  function unlockMailScroll() {
+    document.body.classList.remove("modal-open", "mail-modal-open");
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.left = "";
+    document.body.style.right = "";
+    window.scrollTo(0, mailScrollY || 0);
+  }
+
   function openMail(id) {
     const mail = mails.find((item) => item.id === id);
     const modal = document.getElementById("mailDetailModal");
@@ -133,7 +152,7 @@
 
     modal.classList.add("open");
     modal.setAttribute("aria-hidden", "false");
-    document.body.classList.add("modal-open");
+    lockMailScroll();
     setMessage("");
   }
 
@@ -142,14 +161,17 @@
     if (!modal) return;
     modal.classList.remove("open");
     modal.setAttribute("aria-hidden", "true");
-    document.body.classList.remove("modal-open");
+    unlockMailScroll();
   }
 
   function keepMail() {
     if (!selectedMail) return;
     const title = selectedMail.title;
+    const alreadyKept = selectedMail.box === "소장 우편";
     closeMail();
-    setMessage(`「${title}」 소장 우편 연결은 다음 단계에서 실제 저장 기능으로 붙일게요.`);
+    setMessage(alreadyKept
+      ? `「${title}」은 이미 소장 우편에 보관된 샘플이에요.`
+      : `「${title}」 소장 우편 연결은 다음 단계에서 실제 저장 기능으로 붙일게요.`);
   }
 
   function boot() {
