@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const pointLogs = [
+  const defaultPointLogs = [
     { date: "2026.07.12", type: "반짝 포인트", title: "데뷔 라이브 ON AIR 참여", desc: "루미코드 인증 보상", amount: "+50P" },
     { date: "2026.07.12", type: "반짝 XP", title: "첫 온라인 연결 기록", desc: "방송 참여 성장 기록", amount: "+50XP" },
     { date: "2026.07.12", type: "물판 포인트", title: "특전권 15장 기준 적립", desc: "현장 물판 보상용 포인트", amount: "+1P" },
@@ -10,9 +10,36 @@
     { date: "2026.07.12", type: "반짝 포인트", title: "닉네임 콜 교환", desc: "교환소 사용 기록", amount: "-50P", minus: true }
   ];
 
+  let pointLogs = [...defaultPointLogs];
   let currentFilter = "전체";
   let currentPage = 1;
   const perPage = 3;
+
+  function setText(id, text) {
+    const target = document.getElementById(id);
+    if (target) target.textContent = text;
+  }
+
+  function numberText(value, fallback = 0) {
+    const n = Number(value);
+    return Number.isFinite(n) ? String(n) : String(fallback);
+  }
+
+  function applyPointSummary(points = {}) {
+    const merchPoint = numberText(points.merchPoint, 0);
+    const sparkPoint = numberText(points.sparkPoint, 180);
+    const sparkXp = numberText(points.sparkXp, 120);
+    const stamp = points.stamp || "1 / 20";
+
+    setText("twinklePointBalance", sparkPoint);
+    setText("twinkleXpBalance", sparkXp);
+    setText("boothPointBalance", merchPoint);
+    setText("homeSparkXpValue", sparkXp);
+    setText("profileMerchPointValue", `${merchPoint}P`);
+    setText("profileSparkPointValue", `${sparkPoint}P`);
+    setText("profileSparkXpValue", `${sparkXp}XP`);
+    setText("profileStampValue", stamp);
+  }
 
   function getFilteredLogs() {
     if (currentFilter === "전체") return pointLogs;
@@ -52,6 +79,25 @@
     if (next) next.disabled = currentPage >= totalPages;
   }
 
+  async function loadPointData() {
+    if (!window.LumiData?.getData) {
+      pointLogs = [...defaultPointLogs];
+      applyPointSummary({ merchPoint: 1, sparkPoint: 180, sparkXp: 120, stamp: "1 / 20" });
+      renderPointLedger();
+      return;
+    }
+
+    try {
+      const data = await window.LumiData.getData();
+      pointLogs = Array.isArray(data.pointLogs) ? data.pointLogs : [...defaultPointLogs];
+      applyPointSummary(data.points || {});
+    } catch (error) {
+      pointLogs = [...defaultPointLogs];
+      applyPointSummary({ merchPoint: 1, sparkPoint: 180, sparkXp: 120, stamp: "1 / 20" });
+    }
+    renderPointLedger();
+  }
+
   function boot() {
     document.querySelectorAll("[data-point-filter]").forEach((button) => {
       button.addEventListener("click", () => {
@@ -82,7 +128,14 @@
       });
     }
 
-    renderPointLedger();
+    window.addEventListener("lumi:data-updated", (event) => {
+      const data = event.detail || {};
+      pointLogs = Array.isArray(data.pointLogs) ? data.pointLogs : pointLogs;
+      applyPointSummary(data.points || {});
+      renderPointLedger();
+    });
+
+    loadPointData();
   }
 
   if (document.readyState === "loading") {
