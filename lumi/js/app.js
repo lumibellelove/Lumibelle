@@ -15,8 +15,16 @@
   }
 
   function setActiveButton(name) {
+    /*
+      Stage 80
+      상단 탭과 홈 메뉴 버튼의 active 표시를 한 번에 맞춘다.
+      화면 디자인은 그대로 두고, 접근성 상태만 같이 정리한다.
+    */
     document.querySelectorAll(targetSelector).forEach((button) => {
-      button.classList.toggle("active", button.dataset.pageTarget === name);
+      const isActive = button.dataset.pageTarget === name;
+      button.classList.toggle("active", isActive);
+      if (isActive) button.setAttribute("aria-current", "page");
+      else button.removeAttribute("aria-current");
     });
   }
 
