@@ -34,6 +34,39 @@
     }
   };
 
+  let guideModalScrollY = 0;
+
+  function lockGuideScroll() {
+    if (document.body.classList.contains("guide-modal-scroll-lock")) return;
+    guideModalScrollY = window.scrollY || window.pageYOffset || 0;
+    document.body.classList.add("guide-modal-scroll-lock");
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${guideModalScrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
+  }
+
+  function unlockGuideScroll() {
+    if (!document.body.classList.contains("guide-modal-scroll-lock")) return;
+    document.body.classList.remove("guide-modal-scroll-lock");
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.left = "";
+    document.body.style.right = "";
+    document.body.style.width = "";
+    window.scrollTo(0, guideModalScrollY || 0);
+  }
+
+  function bindPress(button, handler) {
+    if (!button || typeof handler !== "function") return;
+    button.addEventListener("click", handler);
+    button.addEventListener("touchend", (event) => {
+      event.preventDefault();
+      handler(event);
+    }, { passive: false });
+  }
+
   function showGuidePanel(name) {
     const target = document.querySelector(`[data-guide-panel="${name}"]`);
     if (!target) return;
@@ -66,6 +99,7 @@
     title.textContent = data.title;
     body.innerHTML = data.body.map((item) => `<p>${item}</p>`).join("");
     note.textContent = data.note;
+    lockGuideScroll();
     modal.classList.add("open");
     modal.setAttribute("aria-hidden", "false");
     setGuideMessage("가이드 상세를 열었어요.");
@@ -76,25 +110,26 @@
     if (!modal) return;
     modal.classList.remove("open");
     modal.setAttribute("aria-hidden", "true");
+    unlockGuideScroll();
   }
 
   function bootGuide() {
     document.querySelectorAll("[data-guide-tab]").forEach((button) => {
-      button.addEventListener("click", () => showGuidePanel(button.dataset.guideTab));
+      bindPress(button, () => showGuidePanel(button.dataset.guideTab));
     });
 
     document.querySelectorAll("[data-guide-detail]").forEach((button) => {
-      button.addEventListener("click", () => openGuideDetail(button.dataset.guideDetail));
+      bindPress(button, () => openGuideDetail(button.dataset.guideDetail));
     });
 
     document.querySelectorAll("[data-guide-action]").forEach((button) => {
-      button.addEventListener("click", () => {
+      bindPress(button, () => {
         setGuideMessage("가이드 기능은 실제 데이터 연동 전 샘플 상태예요.");
       });
     });
 
     document.querySelectorAll("[data-guide-close]").forEach((button) => {
-      button.addEventListener("click", closeGuideDetail);
+      bindPress(button, closeGuideDetail);
     });
 
     document.addEventListener("keydown", (event) => {
