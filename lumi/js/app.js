@@ -10,6 +10,16 @@
     return raw.startsWith("page-") ? raw.slice(5) : raw;
   }
 
+  function normalizePageName(name) {
+    /*
+      Stage 81
+      존재하지 않는 해시/탭 이름으로 들어와도 빈 화면이 되지 않게
+      항상 실제 존재하는 페이지 이름으로 정리한다.
+      정상 탭 이동/저장 데이터/각 탭 내용은 건드리지 않는다.
+    */
+    return pageExists(name) ? name : "home";
+  }
+
   function pageExists(name) {
     return Boolean(document.getElementById(`page-${name}`));
   }
@@ -43,7 +53,7 @@
   }
 
   function showPage(name, options = {}) {
-    const safeName = pageExists(name) ? name : "home";
+    const safeName = normalizePageName(name);
     const target = document.getElementById(`page-${safeName}`);
     if (!target) return;
 
@@ -121,11 +131,21 @@
 
     bindNavigation();
     runNavigationCheck();
-    const initial = getPageNameFromHash();
+    const initialRaw = getPageNameFromHash();
+    const initial = normalizePageName(initialRaw);
     showPage(initial, { pushHash: false, resetScroll: false });
 
+    if (initialRaw !== initial && window.location.hash) {
+      history.replaceState(null, "", `#${initial}`);
+    }
+
     window.addEventListener("hashchange", () => {
-      showPage(getPageNameFromHash(), { pushHash: false });
+      const nextRaw = getPageNameFromHash();
+      const next = normalizePageName(nextRaw);
+      showPage(next, { pushHash: false });
+      if (nextRaw !== next && window.location.hash) {
+        history.replaceState(null, "", `#${next}`);
+      }
     });
   }
 
