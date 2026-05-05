@@ -5,7 +5,7 @@
   const SAMPLE_DATA_PATH = "./data/lumi-sample-data.json";
 
   const fallbackData = {
-    version: "stage62-onair-point-xp-local-save",
+    version: "stage63-exchange-local-redeem",
     user: {
       lumiId: "LB-0001",
       nickname: "루루냐냐",
@@ -68,6 +68,7 @@
       user: { ...(baseData.user || {}), ...((overrideData || {}).user || {}) },
       points: { ...(baseData.points || {}), ...((overrideData || {}).points || {}) },
       onair: { ...(baseData.onair || {}), ...((overrideData || {}).onair || {}) },
+      exchange: { ...(baseData.exchange || {}), ...((overrideData || {}).exchange || {}) },
       pointLogs: Array.isArray((overrideData || {}).pointLogs) ? (overrideData || {}).pointLogs : (baseData.pointLogs || [])
     };
   }
@@ -100,7 +101,7 @@
   }
 
   window.LumiData = {
-    stage: 62,
+    stage: 63,
     storageKey: STORAGE_KEY,
     getData,
     updateData,

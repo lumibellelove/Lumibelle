@@ -3,6 +3,7 @@
 
   const EXCHANGE_DETAILS = {
     water: {
+      cost: 30,
       kicker: "BROADCAST REACTION",
       title: "물 한 모금",
       lead: "방송 중 멤버에게 잠깐 쉬어가는 물 마시기 리액션을 보내는 가벼운 보상이에요.",
@@ -14,6 +15,7 @@
       note: "교환 신청 시 필요한 포인트와 이용 조건을 확인해 주세요."
     },
     nickname: {
+      cost: 50,
       kicker: "BROADCAST REACTION",
       title: "닉네임 콜",
       lead: "방송 중 루미나의 닉네임을 짧게 불러주는 리액션 보상이에요.",
@@ -25,6 +27,7 @@
       note: "방송 닉네임 공개는 강제가 아니라, 팬이 원할 때만 쓰는 구조로 유지해요."
     },
     cheer: {
+      cost: 80,
       kicker: "DIGITAL REWARD",
       title: "응원 한마디",
       lead: "루미나에게 짧은 응원 멘트를 남기는 디지털 보상이에요.",
@@ -36,6 +39,7 @@
       note: "소장형 우편/루미레터와 연결할 때는 멤버 부담이 커지지 않게 짧은 문구 중심이 좋아요."
     },
     stretch: {
+      cost: 30,
       kicker: "BROADCAST REACTION",
       title: "스트레칭 타임",
       lead: "방송 중 가볍게 쉬어가는 스트레칭 리액션 보상이에요.",
@@ -47,6 +51,7 @@
       note: "반짝 포인트 전용 보상이며 현장 물판 포인트와 합산하지 않아요."
     },
     aegyo: {
+      cost: 150,
       kicker: "MEMBER REACTION",
       title: "애교 대사",
       lead: "멤버별 말투에 맞춘 짧은 애교 대사 보상이에요.",
@@ -58,6 +63,7 @@
       note: "멤버별 말투 검수 후 실제 대사 목록을 연결하는 게 좋아요."
     },
     voice: {
+      cost: 300,
       kicker: "DIGITAL REWARD",
       title: "시크릿 보이스",
       lead: "소장형 짧은 보이스 메시지로 확장할 수 있는 디지털 보상이에요.",
@@ -69,6 +75,7 @@
       note: "실제 보이스 파일 운영은 저작권/보관/전달 방식까지 정리한 뒤 붙이는 게 안전해요."
     },
     header: {
+      cost: 500,
       kicker: "PROFILE CUSTOM",
       title: "프로필 헤더",
       lead: "루미폰 프로필 꾸미기용 디지털 헤더 보상이에요.",
@@ -80,6 +87,7 @@
       note: "이미지 리소스가 준비된 뒤 실제 장착 기능과 연결하면 돼요."
     },
     season: {
+      cost: 700,
       kicker: "SEASON LIMITED",
       title: "시즌 디지털 카드",
       lead: "생일, 데뷔일, 합류 이벤트 같은 기간 한정 디지털 보상이에요.",
@@ -93,11 +101,46 @@
   };
 
   let savedScrollY = 0;
+  let currentDetailKey = null;
+  let currentSparkPoint = 0;
 
   function setMessage(text) {
     const box = document.getElementById("exchangeMessage");
     if (!box) return;
-    box.textContent = text;
+    box.textContent = text || "";
+  }
+
+  function setText(id, text) {
+    const target = document.getElementById(id);
+    if (target) target.textContent = text;
+  }
+
+  function formatToday() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, "0");
+    const d = String(now.getDate()).padStart(2, "0");
+    return `${y}.${m}.${d}`;
+  }
+
+  function updateExchangeBalance(points = {}) {
+    currentSparkPoint = Number(points.sparkPoint || 0);
+    setText("exchangeBalanceValue", `${currentSparkPoint}p`);
+    const hint = currentSparkPoint > 0 ? "교환 가능한 반짝 포인트" : "반짝 포인트를 모아 교환해요";
+    setText("exchangeBalanceHint", hint);
+  }
+
+  async function loadExchangeData() {
+    if (!window.LumiData?.getData) {
+      updateExchangeBalance({ sparkPoint: 180 });
+      return;
+    }
+    try {
+      const data = await window.LumiData.getData();
+      updateExchangeBalance(data.points || {});
+    } catch (error) {
+      updateExchangeBalance({ sparkPoint: 180 });
+    }
   }
 
   function lockBodyScroll() {
@@ -137,10 +180,21 @@
     if (targetButton) targetButton.click();
   }
 
+  function setApplyButtonState(data) {
+    const apply = document.getElementById("exchangeDetailApply");
+    if (!apply || !data) return;
+    const cost = Number(data.cost || 0);
+    const enough = currentSparkPoint >= cost;
+    apply.textContent = enough ? `교환 신청하기 · ${cost}p` : `포인트 부족 · ${cost}p 필요`;
+    apply.disabled = !enough;
+    apply.classList.toggle("is-disabled", !enough);
+  }
+
   function openDetail(key) {
     const data = EXCHANGE_DETAILS[key];
     const modal = document.getElementById("exchangeDetailModal");
     if (!data || !modal) return;
+    currentDetailKey = key;
 
     document.getElementById("exchangeDetailKicker").textContent = data.kicker;
     document.getElementById("exchangeDetailTitle").textContent = data.title;
@@ -157,6 +211,7 @@
       `).join("");
     }
 
+    setApplyButtonState(data);
     modal.classList.add("active");
     modal.setAttribute("aria-hidden", "false");
     lockBodyScroll();
@@ -170,6 +225,75 @@
     modal.classList.remove("active");
     modal.setAttribute("aria-hidden", "true");
     unlockBodyScroll();
+  }
+
+  async function redeemCurrentItem() {
+    const item = EXCHANGE_DETAILS[currentDetailKey];
+    if (!item) return;
+    const cost = Number(item.cost || 0);
+
+    if (currentSparkPoint < cost) {
+      setMessage(`반짝 포인트가 부족해요. ${item.title} 교환에는 ${cost}p가 필요해요.`);
+      setApplyButtonState(item);
+      return;
+    }
+
+    if (!window.LumiData?.getData || !window.LumiData?.updateData) {
+      setMessage(`${item.title} 교환 신청이 기록됐어요.`);
+      closeDetail();
+      return;
+    }
+
+    try {
+      const data = await window.LumiData.getData();
+      const points = data.points || {};
+      const balance = Number(points.sparkPoint || 0);
+      if (balance < cost) {
+        currentSparkPoint = balance;
+        updateExchangeBalance(points);
+        setMessage(`반짝 포인트가 부족해요. 현재 ${balance}p를 보유 중이에요.`);
+        setApplyButtonState(item);
+        return;
+      }
+
+      const today = formatToday();
+      const previousLogs = Array.isArray(data.pointLogs) ? data.pointLogs : [];
+      const previousRequests = Array.isArray(data.exchange?.requests) ? data.exchange.requests : [];
+      const nextLog = {
+        date: today,
+        type: "반짝 포인트",
+        title: `${item.title} 교환`,
+        desc: "교환소 보상 신청",
+        amount: `-${cost}P`,
+        minus: true
+      };
+      const nextRequest = {
+        id: `exchange-${Date.now()}`,
+        key: currentDetailKey,
+        title: item.title,
+        cost,
+        status: "신청 완료",
+        createdAt: new Date().toISOString()
+      };
+
+      const next = await window.LumiData.updateData({
+        points: {
+          ...points,
+          sparkPoint: balance - cost
+        },
+        pointLogs: [nextLog, ...previousLogs],
+        exchange: {
+          ...(data.exchange || {}),
+          requests: [nextRequest, ...previousRequests]
+        }
+      });
+
+      updateExchangeBalance(next.points || {});
+      setMessage(`${item.title} 교환 신청 완료! 반짝 포인트 ${cost}p가 차감됐어요.`);
+      closeDetail();
+    } catch (error) {
+      setMessage("교환 신청 저장 중 문제가 생겼어요. 다시 시도해 주세요.");
+    }
   }
 
   function bindTabs() {
@@ -195,7 +319,7 @@
           goSongbook();
           return;
         }
-        setMessage("교환 신청은 실제 포인트 차감 연동 후 사용할 예정이에요.");
+        setMessage("상세 화면에서 교환 신청을 진행해 주세요.");
       });
     });
   }
@@ -208,10 +332,7 @@
 
     close?.addEventListener("click", closeDetail);
     ok?.addEventListener("click", closeDetail);
-    apply?.addEventListener("click", () => {
-      setMessage("교환 신청은 실제 포인트 차감 연동 후 사용할 예정이에요.");
-      closeDetail();
-    });
+    apply?.addEventListener("click", redeemCurrentItem);
     modal?.addEventListener("click", (event) => {
       if (event.target === modal) closeDetail();
     });
@@ -224,6 +345,12 @@
     bindTabs();
     bindActions();
     bindModal();
+    loadExchangeData();
+
+    window.addEventListener("lumi:data-updated", (event) => {
+      updateExchangeBalance((event.detail || {}).points || {});
+      if (currentDetailKey) setApplyButtonState(EXCHANGE_DETAILS[currentDetailKey]);
+    });
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
