@@ -119,6 +119,10 @@
         return digits ? "LB-" + digits.padStart(4, "0") : "";
       }
 
+      function normalizeLoginIdInput(value) {
+        return String(value || "").replace(/\D/g, "").slice(-4);
+      }
+
       function showMessage(text) {
         loginMsg.textContent = text;
         loginMsg.classList.add("show");
@@ -159,6 +163,36 @@
         try { localStorage.removeItem(loginStateStorageKey); } catch (error) {}
       }
 
+
+      function runReleaseDataResetPatch14() {
+        const resetKey = "lumiphone.releaseReset.patch14.v1";
+        try {
+          if (localStorage.getItem(resetKey) === "done") return;
+          [
+            "lumiSavedMailIds",
+            "lumiReadMailIds",
+            "lumiSavedLogIds",
+            "lumiReadLogIds",
+            "lumi_v108_msg_read",
+            "lumi_v108_msg_saved",
+            "lumi_v108_msg_replies",
+            "lumi_v256_stamp_title_rewards",
+            "lumiphone.representativeAchievement.v1"
+          ].forEach((key) => localStorage.removeItem(key));
+          Object.keys(localStorage).forEach((key) => {
+            if (
+              key.indexOf("lumiMessageSaved:") === 0 ||
+              key.indexOf("lumiphone.birthdayTicket.used.") === 0 ||
+              key.indexOf("lumiphone:onair:cheer:") === 0
+            ) {
+              localStorage.removeItem(key);
+            }
+          });
+          localStorage.setItem(resetKey, "done");
+        } catch (error) {}
+      }
+      runReleaseDataResetPatch14();
+
       function setLumiLang(lang, announce) {
         const selected = ["kr", "en", "jp", "cn"].includes(lang) ? lang : "kr";
         loginLangButtons.forEach((button) => {
@@ -186,6 +220,7 @@
         clearLoginState();
         appView.classList.remove("active");
         loginView.classList.add("active");
+        loginId.value = "";
         loginPin.value = "";
         clearMessage();
       }
@@ -821,7 +856,7 @@
         space: "루루의 방",
         birthdayMonth: "07",
         birthdayDay: "19",
-        joinedAt: "2026.07.12"
+        joinedAt: "2026.05.06"
       });
       const profileDefaultState = () => ({ cover: profileDefaultPart(), avatar: profileDefaultPart(), info: profileDefaultInfo() });
       let profileState = profileDefaultState();
@@ -881,7 +916,7 @@
           space: clampText(next.space || "루루의 방", 12),
           birthdayMonth: normalizeBirthdayMonth(next.birthdayMonth),
           birthdayDay: normalizeBirthdayDay(next.birthdayDay),
-          joinedAt: next.joinedAt || "2026.07.12"
+          joinedAt: next.joinedAt || "2026.05.06"
         };
       }
 
@@ -1335,7 +1370,7 @@
         ctx.textAlign = "left";
 
         const profileInfoForFooter = normalizeProfileInfo(profileState.info);
-        const footerJoinDate = profileInfoForFooter.joinedAt || "2026.07.12";
+        const footerJoinDate = profileInfoForFooter.joinedAt || "2026.05.06";
         const footerCardX = 134;
         const footerCardY = 122;
         const footerCardW = 812;
@@ -1586,7 +1621,7 @@
         const name = info.displayName || "루미나";
         const title = info.title || "나만의 루미나";
         const oshi = info.oshi || "루루 🍼🐰";
-        const joinedAt = info.joinedAt || "2026.07.12";
+        const joinedAt = info.joinedAt || "2026.05.06";
         const text = [
           "루미폰 프로필 카드",
           "",
@@ -2471,9 +2506,21 @@
 
       loginForm.addEventListener("submit", (event) => {
         event.preventDefault();
+        loginId.value = normalizeLoginIdInput(loginId.value);
         const ok = normId(loginId.value) === sampleUser.id && loginPin.value.trim() === sampleUser.pin;
         if (ok) { openApp(); return; }
-        showMessage("루미 ID 또는 PIN을 다시 확인해 주세요. 샘플 로그인은 LB-0001 / 1234 입니다.");
+        showMessage("루미 ID 또는 PIN을 다시 확인해 주세요. 샘플 루미로 보기는 아래 버튼을 이용해 주세요.");
+      });
+
+      loginId.addEventListener("input", () => {
+        const normalized = normalizeLoginIdInput(loginId.value);
+        if (loginId.value !== normalized) loginId.value = normalized;
+      });
+
+      loginId.addEventListener("paste", () => {
+        window.setTimeout(() => {
+          loginId.value = normalizeLoginIdInput(loginId.value);
+        }, 0);
       });
 
       setLumiLang(readLumiLang(), false);
@@ -2858,7 +2905,7 @@
 
       const savedLoginState = readLoginState();
       if (savedLoginState) {
-        loginId.value = savedLoginState.id;
+        loginId.value = normalizeLoginIdInput(savedLoginState.id);
         openApp({ persist: false });
       }
 
@@ -2981,7 +3028,7 @@
         if (guideNext) guideNext.disabled = guidePage >= totalPages;
         if (guideNote) {
           guideNote.textContent = guideFilter === "전체"
-            ? "가이드는 출시 전 샘플이에요. 실제 문의/이동 링크는 운영 기준이 확정된 뒤 연결합니다."
+            ? "가이드는 운영 기준에 맞춰 순차적으로 업데이트됩니다. 문의/이동 링크도 필요한 항목부터 연결할 예정이에요."
             : guideFilter + " 가이드만 보고 있어요. 필요한 항목을 누르면 설명이 열립니다.";
         }
       }
@@ -3047,7 +3094,7 @@
       let currentFilter = "전체";
       let currentPage = 1;
       let currentYear = 2026;
-      let currentMonth = 7;
+      let currentMonth = 5;
 
       function pad2(value) {
         return String(value).padStart(2, "0");
@@ -3064,7 +3111,7 @@
 
       function cardMatchesMonth(card) {
         const date = card.dataset.recordDate || "";
-        if (!date || date === "준비중") return currentYear === 2026 && currentMonth === 7;
+        if (!date || date === "준비중") return currentYear === 2026 && currentMonth === 5;
         return date.indexOf(currentMonthKey()) === 0;
       }
 
@@ -3093,7 +3140,7 @@
             recordMsg.textContent = currentMonthKey() + " 기록은 아직 없어요. 실제 데이터 연동 후 루미 ID 기준으로 월별 기록이 표시됩니다.";
           } else {
             recordMsg.textContent = currentFilter === "전체"
-              ? "기록은 실제 데이터 연동 전 샘플이에요. 나중에 루미 ID 기준으로 공연, 체크인, 온라인 연결 기록이 표시됩니다."
+              ? "루미폰 기록은 순차적으로 연동될 예정이에요. 루미 ID 기준으로 공연, 체크인, 온라인 연결 기록이 표시됩니다."
               : currentFilter + " 기록만 보고 있어요. 실제 데이터 연동 후 루미 ID 기준으로 자동 정리됩니다.";
           }
         }
@@ -3188,7 +3235,7 @@
         if (pointNext) pointNext.disabled = pointPage >= totalPages;
         if (pointMsg) {
           pointMsg.textContent = pointFilter === "전체"
-            ? "포인트 내역은 실제 데이터 연동 전 샘플이에요. 나중에 루미 ID 기준으로 적립과 사용 기록이 표시됩니다."
+            ? "포인트 내역은 순차적으로 연동될 예정이에요. 루미 ID 기준으로 적립과 사용 기록이 표시됩니다."
             : pointFilter + " 내역만 보고 있어요. 실제 데이터 연동 후 적립과 사용 기록이 자동 정리됩니다.";
         }
       }
@@ -3245,13 +3292,13 @@
       const events = [
         { date:"2026-07-12", type:"live", icon:"●", title:"Lumibelle Debut Live", desc:"입장 17:30 / 공연 18:00 · 내 예약 있음", tags:["라이브", "티켓함"] },
         { date:"2026-07-12", type:"event", icon:"★", title:"루미 체크인 · 특전회", desc:"특전회 참여 후 스탬프 +1 · 메아테 루루", tags:["체크인", "스탬프"] },
-        { date:"2026-07-20", type:"onair", icon:"◆", title:"ON AIR 테스트", desc:"방송 참여 기록 / 루미코드 연결 예정", tags:["ON AIR", "루미코드"] },
+        { date:"2026-07-20", type:"onair", icon:"◆", title:"ON AIR 연결", desc:"방송 참여 기록 / 루미코드 연결 예정", tags:["ON AIR", "루미코드"] },
         { date:"2026-07-25", type:"event", icon:"★", title:"루미레터 발송 예정", desc:"시즌 루미레터 · 문자함에서 확인 가능", tags:["루미레터", "이벤트"] },
         { date:"2026-08-17", type:"birthday", icon:"♥", title:"루루 생일", desc:"Birthday Ticket / 생일 메시지 후보", tags:["생일", "루루"] },
         { date:"2026-09-21", type:"birthday", icon:"♥", title:"마리링 생일", desc:"생일 문자 / 축하 기록 후보", tags:["생일", "마리링"] },
         { date:"2026-10-18", type:"event", icon:"★", title:"이로 · 루나 합류 / Stardust Magical 예정", desc:"확정 후 문자 · 업적 · 칭호 해금 등록", tags:["이벤트", "합류"] },
         { date:"2026-10-18", type:"live", icon:"●", title:"리리이베 합류 이벤트", desc:"4인 체제 전환 일정 후보", tags:["라이브", "이벤트"] },
-        { date:"2026-07-20", type:"onair", icon:"◆", title:"ON AIR 테스트", desc:"방송 참여 기록 / 루미코드 연결 예정", tags:["ON AIR", "루미코드"] }
+        { date:"2026-07-20", type:"onair", icon:"◆", title:"ON AIR 연결", desc:"방송 참여 기록 / 루미코드 연결 예정", tags:["ON AIR", "루미코드"] }
       ];
 
       function pad(n){ return String(n).padStart(2, "0"); }
@@ -4110,11 +4157,11 @@
   'use strict';
 
   var ACH = [
-    {id:'first-dot',cat:'live',state:'done',icon:'✨',name:'첫 번째 점',desc:'Lumibelle Debut Live에서 루미벨의 첫 번째 점을 함께 기록했어요.',progress:'1 / 1',reward:'칭호 「첫 번째 점」',title:'첫 번째 점',date:'2026.07.12',rule:'데뷔 라이브 참여 기록 또는 첫 공연 기록과 연결되는 업적이에요.'},
-    {id:'first-visit',cat:'live',state:'done',icon:'🎀',name:'첫 루미 방문',desc:'공연/물판/온라인으로 루미벨에게 처음 와준 기록이에요. 스탬프 기준은 아니고, 와줘서 고마워요 기록으로 남아요.',progress:'1 / 1',reward:'반짝 XP 후보',title:'처음 와준 루미나',date:'2026.07.12',rule:'첫 루미 방문 기록이 생기면 달성되는 기본 성장 업적이에요.'},
-    {id:'first-ticket',cat:'event',state:'done',icon:'🎫',name:'첫 티켓 보유',desc:'루미폰 티켓함에 첫 공연 티켓이 들어온 기록이에요.',progress:'1 / 1',reward:'티켓 기록',title:'첫 초대장',date:'2026.07.12',rule:'현재 티켓 또는 지난 티켓 기록과 연결되는 업적이에요.'},
-    {id:'welcome-ticket',cat:'event',state:'done',icon:'💝',name:'Welcome Ticket 보유',desc:'처음 루미벨을 만나러 온 루미나에게 지급되는 신규 이벤트권 기록이에요.',progress:'1 / 1',reward:'신규 이벤트 기록',title:'웰컴 루미나',date:'2026.07.12',rule:'Welcome Ticket 보유 기록이 연결되면 달성되는 업적이에요.'},
-    {id:'first-letter',cat:'online',state:'done',icon:'💌',name:'첫 루미레터 수신',desc:'루미폰에 도착한 우편/루미레터를 처음 확인한 기록이에요.',progress:'1 / 1',reward:'소장 기록',title:'편지를 받은 루미나',date:'2026.07.01',rule:'우편/루미레터 수신 기록이 연결되면 달성되는 업적이에요.'},
+    {id:'first-dot',cat:'live',state:'locked',icon:'✨',name:'첫 번째 점',desc:'Lumibelle Debut Live에서 루미벨의 첫 번째 점을 함께 기록하는 업적이에요.',progress:'미달성',reward:'조건 달성 후 해금',title:'',date:'미달성',rule:'데뷔 라이브 참여 기록 또는 첫 공연 기록과 연결되는 업적이에요.'},
+    {id:'first-visit',cat:'live',state:'locked',icon:'🎀',name:'첫 루미 방문',desc:'공연/물판/온라인으로 루미벨에게 처음 와준 기록이에요. 스탬프 기준은 아니고, 와줘서 고마워요 기록으로 남아요.',progress:'미달성',reward:'조건 달성 후 해금',title:'',date:'미달성',rule:'첫 루미 방문 기록이 생기면 달성되는 기본 성장 업적이에요.'},
+    {id:'first-ticket',cat:'event',state:'locked',icon:'🎫',name:'첫 티켓 보유',desc:'루미폰 티켓함에 첫 공연 티켓이 들어온 기록이에요.',progress:'미달성',reward:'조건 달성 후 해금',title:'',date:'미달성',rule:'현재 티켓 또는 지난 티켓 기록과 연결되는 업적이에요.'},
+    {id:'welcome-ticket',cat:'event',state:'locked',icon:'💝',name:'Welcome Ticket 보유',desc:'처음 루미벨을 만나러 온 루미나에게 지급되는 신규 이벤트권 기록이에요.',progress:'미달성',reward:'조건 달성 후 해금',title:'',date:'미달성',rule:'Welcome Ticket 보유 기록이 연결되면 달성되는 업적이에요.'},
+    {id:'first-letter',cat:'online',state:'locked',icon:'💌',name:'첫 루미레터 수신',desc:'루미폰에 도착한 우편/루미레터를 처음 확인한 기록이에요.',progress:'미달성',reward:'조건 달성 후 해금',title:'',date:'미달성',rule:'우편/루미레터 수신 기록이 연결되면 달성되는 업적이에요.'},
     {id:'first-checkin',cat:'field',state:'progress',icon:'📸',name:'첫 루미 체크인',desc:'특전회 촬영/교류 실제 참여 완료 시 달성되는 업적이에요.',progress:'0 / 1',reward:'스탬프 / 반짝 XP 후보',title:'첫 체크인',date:'진행중',rule:'루미 체크인은 스탬프 지급 기준이에요. 라이브 관람만으로는 달성되지 않아요.'},
     {id:'stamp-one',cat:'field',state:'progress',icon:'🌸',name:'스탬프 첫 장',desc:'루미 체크인으로 첫 스탬프를 받으면 열리는 성장 업적이에요.',progress:'0 / 1',reward:'반짝 XP 후보',title:'스탬프 첫 장',date:'진행중',rule:'스탬프는 기본 1일 1회, 이벤트 데이에는 추가 지급될 수 있어요.'},
     {id:'stamp-five',cat:'field',state:'progress',icon:'🌷',name:'스탬프 5개',desc:'루미 체크인을 차곡차곡 쌓아 5번째 스탬프에 도착하는 업적이에요.',progress:'0 / 5',reward:'반짝 XP 후보',title:'다섯 번의 반짝임',date:'진행중',rule:'루미 체크인 완료 기록 기준으로 카운트되는 성장 업적이에요.'},
@@ -4301,13 +4348,13 @@
 (function(){
   'use strict';
 
-  var STAMP_COUNT = 3;
+  var STAMP_COUNT = 0;
   var STAMP_REWARD_KEY = 'lumi_v256_stamp_title_rewards';
   var rewards = [
-    {key:'stamp5', need:5, label:'5개', title:'특별 우편 도착', desc:'다음 보상까지 2개 남았어요.'},
-    {key:'stamp10', need:10, label:'10개', title:'디지털 메시지 / 칭호 후보', desc:'다음 보상까지 7개 남았어요.'},
-    {key:'stamp15', need:15, label:'15개', title:'특별 편지 / 장식 후보', desc:'다음 보상까지 12개 남았어요.'},
-    {key:'stamp20', need:20, label:'20개', title:'1회차 완주 · 소장 우편 · 업적 해금', desc:'다음 보상까지 17개 남았어요.'}
+    {key:'stamp5', need:5, label:'5개', title:'특별 우편 도착', desc:'다음 보상까지 5개 남았어요.'},
+    {key:'stamp10', need:10, label:'10개', title:'디지털 메시지 / 칭호 후보', desc:'다음 보상까지 10개 남았어요.'},
+    {key:'stamp15', need:15, label:'15개', title:'특별 편지 / 장식 후보', desc:'다음 보상까지 15개 남았어요.'},
+    {key:'stamp20', need:20, label:'20개', title:'1회차 완주 · 소장 우편 · 업적 해금', desc:'다음 보상까지 20개 남았어요.'}
   ];
 
   function $(id){ return document.getElementById(id); }
@@ -4532,4 +4579,167 @@
     window.__v2828FinalObserver=new MutationObserver(function(){clearTimeout(timer); timer=setTimeout(run,90);});
     if(document.body) window.__v2828FinalObserver.observe(document.body,{childList:true,subtree:true});
   }
+})();
+
+/* Patch 11: Birthday Ticket month-based state only */
+(() => {
+  "use strict";
+
+  const PROFILE_KEY = "lumiphone.profile.v1";
+  const LOGIN_KEY = "lumiphone.loginState.v1";
+  const SAMPLE_ID = "LB-0001";
+
+  function normId(value) {
+    const digits = String(value || "").replace(/\D/g, "").slice(-4);
+    return digits ? "LB-" + digits.padStart(4, "0") : SAMPLE_ID;
+  }
+
+  function readLoginId() {
+    try {
+      const raw = localStorage.getItem(LOGIN_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      return normId(parsed && parsed.id);
+    } catch (error) {
+      return SAMPLE_ID;
+    }
+  }
+
+  function pad2(value) {
+    return String(value).padStart(2, "0");
+  }
+
+  function readProfileBirthday() {
+    let info = null;
+    try {
+      const raw = localStorage.getItem(PROFILE_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      info = parsed && parsed.info ? parsed.info : null;
+    } catch (error) {
+      info = null;
+    }
+
+    const source = info || {};
+    const month = parseInt(source.birthdayMonth || source.birthMonth || source.month || "07", 10);
+    const day = parseInt(source.birthdayDay || source.birthDay || source.day || "19", 10);
+    return {
+      month: Math.min(12, Math.max(1, Number.isFinite(month) ? month : 7)),
+      day: Math.min(31, Math.max(1, Number.isFinite(day) ? day : 19))
+    };
+  }
+
+  function lastDayOfMonth(year, month) {
+    return new Date(year, month, 0).getDate();
+  }
+
+  function birthdayUseKey(year) {
+    return "lumiphone.birthdayTicket.used." + readLoginId() + "." + year;
+  }
+
+  function isBirthdayUsed(year) {
+    try {
+      return localStorage.getItem(birthdayUseKey(year)) === "true";
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function getBirthdayTicketState(now) {
+    const today = now || new Date();
+    const year = today.getFullYear();
+    const birth = readProfileBirthday();
+    const last = lastDayOfMonth(year, birth.month);
+    const start = new Date(year, birth.month - 1, 1, 0, 0, 0, 0);
+    const end = new Date(year, birth.month - 1, last, 23, 59, 59, 999);
+    const used = isBirthdayUsed(year);
+    let state = "upcoming";
+    if (used) state = "used";
+    else if (today >= start && today <= end) state = "available";
+    else if (today > end) state = "expired";
+
+    const monthText = pad2(birth.month) + ".01 ~ " + pad2(birth.month) + "." + pad2(last);
+    return {
+      year: year,
+      month: birth.month,
+      day: birth.day,
+      last: last,
+      period: monthText,
+      state: state,
+      isActive: state === "available",
+      statusText: state === "used" ? "사용 완료" : state === "available" ? "사용 가능" : state === "expired" ? "올해 생일 기간 종료" : "생일 당월에 열려요",
+      statusShort: state === "used" ? "사용 완료" : state === "available" ? "미사용 / 기간 내" : state === "expired" ? "기간 종료" : "대기 중",
+      subText: state === "available" ? "생일 기념 촬영 특전권 · 생일 당월 사용 가능" : state === "used" ? "생일 기념 촬영 특전권 · 올해 사용 완료" : state === "expired" ? "생일 기념 촬영 특전권 · 올해 생일 기간 종료" : "생일 기념 촬영 특전권 · 생일 당월 1일에 열려요"
+    };
+  }
+
+  function setText(el, text) {
+    if (el) el.textContent = text;
+  }
+
+  function setHtml(el, html) {
+    if (el) el.innerHTML = html;
+  }
+
+  function updatePcBirthday(state) {
+    const section = document.querySelector(".ticket-pc-birthday-section");
+    if (!section) return;
+    setHtml(section.querySelector(".ticket-pc-date"), "사용 기간<br>" + state.period);
+    setText(section.querySelector(".ticket-pc-place"), state.subText);
+    setText(section.querySelector(".ticket-pc-entry strong"), state.period);
+    const statusCell = Array.from(section.querySelectorAll(".ticket-pc-meta div")).find((cell) => /STATUS/.test(cell.textContent || ""));
+    if (statusCell) setHtml(statusCell.querySelector("b"), state.statusShort.replace(" / ", "<br>"));
+  }
+
+  function updateMobileBirthday(state) {
+    document.querySelectorAll(".birthday-pass, .ticket-card.birthday").forEach((card) => {
+      setText(card.querySelector(".birthday-pass-period b"), state.period);
+      setText(card.querySelector(".ticket-number strong"), state.period);
+      setText(card.querySelector(".ticket-sub"), state.subText);
+      const statusCell = Array.from(card.querySelectorAll(".ticket-cell")).find((cell) => /STATUS/.test(cell.textContent || ""));
+      if (statusCell) setHtml(statusCell.querySelector("b"), state.statusShort.replace(" / ", "<br>"));
+    });
+  }
+
+  function updateWalletBirthday(state) {
+    document.querySelectorAll(".ticket-pc-wallet-card").forEach((card) => {
+      const title = card.querySelector("b");
+      if (!title || title.textContent.trim() !== "Birthday Ticket") return;
+      setText(card.querySelector("small"), state.state === "available" ? "사용 가능" : state.state === "used" ? "사용 완료" : state.state === "expired" ? "기간 종료" : "생일 등록 시");
+      setText(card.querySelector("span"), "생일 기념 촬영 특전권 · " + state.period);
+      const status = card.querySelector(".ticket-pc-card-actions span");
+      setText(status, state.statusText);
+      if (status) status.classList.toggle("active", state.isActive);
+    });
+  }
+
+  function updateTicketModal(state) {
+    const modal = document.getElementById("ticketDetailModal");
+    if (!modal || modal.classList.contains("hidden")) return;
+    const title = modal.querySelector("#ticketDetailTitle");
+    if (!title || title.textContent.trim() !== "Birthday Ticket") return;
+    setText(modal.querySelector("#ticketDetailValid"), state.period);
+    setText(modal.querySelector("#ticketDetailRule"), "본인 사용 · 양도 불가 · 사용 완료 후 재발급 불가");
+    setText(modal.querySelector("#ticketDetailCopy"), "Birthday Ticket은 생일 당월 1일부터 말일까지 사용할 수 있는 생일 기념 촬영 특전권이에요. 현재 상태: " + state.statusText + ".");
+  }
+
+  function applyBirthdayTicketState() {
+    const state = getBirthdayTicketState();
+    updatePcBirthday(state);
+    updateMobileBirthday(state);
+    updateWalletBirthday(state);
+    updateTicketModal(state);
+  }
+
+  document.addEventListener("click", (event) => {
+    if (event.target.closest('[data-perk="birthday"]')) {
+      setTimeout(applyBirthdayTicketState, 0);
+      setTimeout(applyBirthdayTicketState, 80);
+    }
+    if (event.target.closest("#profileApply, #profileEditorSaveTop, #profileSimpleOk")) {
+      setTimeout(applyBirthdayTicketState, 120);
+    }
+  });
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", applyBirthdayTicketState);
+  else applyBirthdayTicketState();
+  [120, 500, 1200, 2400].forEach((delay) => setTimeout(applyBirthdayTicketState, delay));
 })();
