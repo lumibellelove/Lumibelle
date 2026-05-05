@@ -5,7 +5,7 @@
   const SAMPLE_DATA_PATH = "./data/lumi-sample-data.json";
 
   const fallbackData = {
-    version: "stage67-ticket-local-state",
+    version: "stage69-mail-keep-local-save",
     user: {
       lumiId: "LB-0001",
       nickname: "루루냐냐",
@@ -79,7 +79,8 @@
       exchange: { ...(baseData.exchange || {}), ...((overrideData || {}).exchange || {}) },
       stamps: { ...(baseData.stamps || {}), ...((overrideData || {}).stamps || {}) },
       ticketStates: { ...(baseData.ticketStates || {}), ...((overrideData || {}).ticketStates || {}) },
-      pointLogs: Array.isArray((overrideData || {}).pointLogs) ? (overrideData || {}).pointLogs : (baseData.pointLogs || [])
+      pointLogs: Array.isArray((overrideData || {}).pointLogs) ? (overrideData || {}).pointLogs : (baseData.pointLogs || []),
+      letters: Array.isArray((overrideData || {}).letters) ? (overrideData || {}).letters : (baseData.letters || [])
     };
   }
 
@@ -111,7 +112,7 @@
   }
 
   window.LumiData = {
-    stage: 67,
+    stage: 69,
     storageKey: STORAGE_KEY,
     getData,
     updateData,
