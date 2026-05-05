@@ -30,6 +30,7 @@
     });
 
     setActiveButton(safeName);
+    document.body.dataset.currentPage = safeName;
 
     if (options.pushHash !== false) {
       const nextHash = `#${safeName}`;
@@ -56,7 +57,7 @@
     const missingPages = targets.filter((name) => !pageExists(name));
     const pagesWithoutTarget = pages.filter((name) => !targets.includes(name));
 
-    window.__LUMIPHONE_STAGE33_RESPONSIVE_CHECK__ = {
+    window.__LUMIPHONE_STAGE72_HOME_CLEANUP_CHECK__ = {
       pages,
       targets,
       missingPages,
