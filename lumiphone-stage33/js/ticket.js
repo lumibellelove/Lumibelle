@@ -123,7 +123,7 @@
       list.innerHTML = `<div class="ticket-split-empty">표시할 티켓이 없어요.</div>`;
     } else {
       list.innerHTML = visible.map((ticket) => `
-        <article class="ticket-split-card">
+        <article class="ticket-split-card ${ticket.tab === "현재 티켓" ? "is-current" : ""} ${ticket.tab === "특전권" ? "is-benefit" : ""} ${ticket.tab === "지난 티켓" ? "is-archive" : ""}">
           <div class="ticket-split-top">
             <span class="ticket-split-kind">${escapeHtml(ticket.kind)}</span>
             <span class="ticket-split-status">${escapeHtml(ticket.status)}</span>
@@ -215,7 +215,9 @@
   function bindModal() {
     const backdrop = document.getElementById("ticketModalBackdrop");
     const close = document.getElementById("ticketModalClose");
+    const ok = document.getElementById("ticketModalOk");
     if (close) close.addEventListener("click", closeTicketModal);
+    if (ok) ok.addEventListener("click", closeTicketModal);
     if (backdrop) {
       backdrop.addEventListener("click", (event) => {
         if (event.target === backdrop) closeTicketModal();
