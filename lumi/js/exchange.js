@@ -100,9 +100,13 @@
     }
   };
 
+  const STORAGE_KEY = window.LumiData?.storageKey || "lumiphone.stage59.localData";
+  const FALLBACK_POINTS = { merchPoint: 0, sparkPoint: 180, sparkXp: 120, stamp: "1 / 20" };
+
   let savedScrollY = 0;
   let currentDetailKey = null;
   let currentSparkPoint = 0;
+  let redeemProcessing = false;
 
   function setMessage(text) {
     const box = document.getElementById("exchangeMessage");
@@ -123,24 +127,82 @@
     return `${y}.${m}.${d}`;
   }
 
+  function safeParse(value) {
+    try { return value ? JSON.parse(value) : null; }
+    catch (error) { return null; }
+  }
+
+  function clone(value) {
+    return JSON.parse(JSON.stringify(value));
+  }
+
+  function readLocalDataDirect() {
+    return safeParse(window.localStorage.getItem(STORAGE_KEY)) || {};
+  }
+
+  function writeLocalDataDirect(data) {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data || {}));
+    window.dispatchEvent(new CustomEvent("lumi:data-updated", { detail: data || {} }));
+    return data;
+  }
+
+  async function getCurrentData() {
+    if (window.LumiData?.getData) {
+      try { return await window.LumiData.getData(); }
+      catch (error) { /* fallback below */ }
+    }
+    const local = readLocalDataDirect();
+    return {
+      user: local.user || {},
+      points: { ...FALLBACK_POINTS, ...(local.points || {}) },
+      pointLogs: Array.isArray(local.pointLogs) ? local.pointLogs : [],
+      exchange: local.exchange || {}
+    };
+  }
+
+  async function saveCurrentData(patch) {
+    if (window.LumiData?.updateData) {
+      return await window.LumiData.updateData(patch || {});
+    }
+
+    const current = await getCurrentData();
+    const next = {
+      ...current,
+      ...(patch || {}),
+      user: { ...(current.user || {}), ...((patch || {}).user || {}) },
+      points: { ...(current.points || {}), ...((patch || {}).points || {}) },
+      exchange: { ...(current.exchange || {}), ...((patch || {}).exchange || {}) },
+      pointLogs: Array.isArray((patch || {}).pointLogs) ? (patch || {}).pointLogs : (current.pointLogs || [])
+    };
+    return writeLocalDataDirect(next);
+  }
+
+  function applyPointSummaryEverywhere(points = {}) {
+    const merchPoint = Number(points.merchPoint || 0);
+    const sparkPoint = Number(points.sparkPoint || 0);
+    const sparkXp = Number(points.sparkXp || 0);
+    const stamp = points.stamp || "1 / 20";
+
+    setText("exchangeBalanceValue", `${sparkPoint}p`);
+    setText("exchangeBalanceHint", sparkPoint > 0 ? "교환 가능한 반짝 포인트" : "반짝 포인트를 모아 교환해요");
+    setText("twinklePointBalance", String(sparkPoint));
+    setText("twinkleXpBalance", String(sparkXp));
+    setText("boothPointBalance", String(merchPoint));
+    setText("homeSparkXpValue", String(sparkXp));
+    setText("profileMerchPointValue", `${merchPoint}P`);
+    setText("profileSparkPointValue", `${sparkPoint}P`);
+    setText("profileSparkXpValue", `${sparkXp}XP`);
+    setText("profileStampValue", stamp);
+  }
+
   function updateExchangeBalance(points = {}) {
     currentSparkPoint = Number(points.sparkPoint || 0);
-    setText("exchangeBalanceValue", `${currentSparkPoint}p`);
-    const hint = currentSparkPoint > 0 ? "교환 가능한 반짝 포인트" : "반짝 포인트를 모아 교환해요";
-    setText("exchangeBalanceHint", hint);
+    applyPointSummaryEverywhere({ ...FALLBACK_POINTS, ...points, sparkPoint: currentSparkPoint });
   }
 
   async function loadExchangeData() {
-    if (!window.LumiData?.getData) {
-      updateExchangeBalance({ sparkPoint: 180 });
-      return;
-    }
-    try {
-      const data = await window.LumiData.getData();
-      updateExchangeBalance(data.points || {});
-    } catch (error) {
-      updateExchangeBalance({ sparkPoint: 180 });
-    }
+    const data = await getCurrentData();
+    updateExchangeBalance({ ...FALLBACK_POINTS, ...(data.points || {}) });
   }
 
   function lockBodyScroll() {
@@ -185,9 +247,9 @@
     if (!apply || !data) return;
     const cost = Number(data.cost || 0);
     const enough = currentSparkPoint >= cost;
-    apply.textContent = enough ? `교환 신청하기 · ${cost}p` : `포인트 부족 · ${cost}p 필요`;
-    apply.disabled = !enough;
-    apply.classList.toggle("is-disabled", !enough);
+    apply.textContent = redeemProcessing ? "교환 처리 중..." : (enough ? `교환 신청하기 · ${cost}p` : `포인트 부족 · ${cost}p 필요`);
+    apply.disabled = redeemProcessing || !enough;
+    apply.classList.toggle("is-disabled", redeemProcessing || !enough);
   }
 
   function openDetail(key) {
@@ -228,37 +290,31 @@
   }
 
   async function redeemCurrentItem() {
+    if (redeemProcessing) return;
     const item = EXCHANGE_DETAILS[currentDetailKey];
     if (!item) return;
-    const cost = Number(item.cost || 0);
 
-    if (currentSparkPoint < cost) {
-      setMessage(`반짝 포인트가 부족해요. ${item.title} 교환에는 ${cost}p가 필요해요.`);
-      setApplyButtonState(item);
-      return;
-    }
-
-    if (!window.LumiData?.getData || !window.LumiData?.updateData) {
-      setMessage(`${item.title} 교환 신청이 기록됐어요.`);
-      closeDetail();
-      return;
-    }
+    redeemProcessing = true;
+    setApplyButtonState(item);
 
     try {
-      const data = await window.LumiData.getData();
-      const points = data.points || {};
+      const cost = Number(item.cost || 0);
+      const data = await getCurrentData();
+      const points = { ...FALLBACK_POINTS, ...(data.points || {}) };
       const balance = Number(points.sparkPoint || 0);
+
       if (balance < cost) {
         currentSparkPoint = balance;
         updateExchangeBalance(points);
         setMessage(`반짝 포인트가 부족해요. 현재 ${balance}p를 보유 중이에요.`);
-        setApplyButtonState(item);
         return;
       }
 
       const today = formatToday();
       const previousLogs = Array.isArray(data.pointLogs) ? data.pointLogs : [];
       const previousRequests = Array.isArray(data.exchange?.requests) ? data.exchange.requests : [];
+      const nextPoint = balance - cost;
+      const nextPoints = { ...points, sparkPoint: nextPoint };
       const nextLog = {
         date: today,
         type: "반짝 포인트",
@@ -276,11 +332,8 @@
         createdAt: new Date().toISOString()
       };
 
-      const next = await window.LumiData.updateData({
-        points: {
-          ...points,
-          sparkPoint: balance - cost
-        },
+      const next = await saveCurrentData({
+        points: nextPoints,
         pointLogs: [nextLog, ...previousLogs],
         exchange: {
           ...(data.exchange || {}),
@@ -288,17 +341,31 @@
         }
       });
 
-      updateExchangeBalance(next.points || {});
+      currentSparkPoint = nextPoint;
+      applyPointSummaryEverywhere(next.points || nextPoints);
       setMessage(`${item.title} 교환 신청 완료! 반짝 포인트 ${cost}p가 차감됐어요.`);
       closeDetail();
     } catch (error) {
       setMessage("교환 신청 저장 중 문제가 생겼어요. 다시 시도해 주세요.");
+    } finally {
+      redeemProcessing = false;
+      const itemAfter = EXCHANGE_DETAILS[currentDetailKey];
+      if (itemAfter) setApplyButtonState(itemAfter);
     }
+  }
+
+  function bindTap(element, handler) {
+    if (!element) return;
+    element.addEventListener("click", handler);
+    element.addEventListener("touchend", (event) => {
+      event.preventDefault();
+      handler(event);
+    }, { passive: false });
   }
 
   function bindTabs() {
     document.querySelectorAll("[data-exchange-tab]").forEach((button) => {
-      button.addEventListener("click", () => {
+      bindTap(button, () => {
         const name = button.dataset.exchangeTab || "all";
         showPanel(name);
       });
@@ -307,13 +374,11 @@
 
   function bindActions() {
     document.querySelectorAll("[data-exchange-detail]").forEach((button) => {
-      button.addEventListener("click", () => {
-        openDetail(button.dataset.exchangeDetail);
-      });
+      bindTap(button, () => openDetail(button.dataset.exchangeDetail));
     });
 
     document.querySelectorAll("[data-exchange-action]").forEach((button) => {
-      button.addEventListener("click", () => {
+      bindTap(button, () => {
         const action = button.dataset.exchangeAction;
         if (action === "songbook") {
           goSongbook();
@@ -330,9 +395,9 @@
     const ok = document.getElementById("exchangeDetailOk");
     const apply = document.getElementById("exchangeDetailApply");
 
-    close?.addEventListener("click", closeDetail);
-    ok?.addEventListener("click", closeDetail);
-    apply?.addEventListener("click", redeemCurrentItem);
+    bindTap(close, closeDetail);
+    bindTap(ok, closeDetail);
+    bindTap(apply, redeemCurrentItem);
     modal?.addEventListener("click", (event) => {
       if (event.target === modal) closeDetail();
     });
@@ -348,7 +413,8 @@
     loadExchangeData();
 
     window.addEventListener("lumi:data-updated", (event) => {
-      updateExchangeBalance((event.detail || {}).points || {});
+      const points = { ...FALLBACK_POINTS, ...((event.detail || {}).points || {}) };
+      updateExchangeBalance(points);
       if (currentDetailKey) setApplyButtonState(EXCHANGE_DETAILS[currentDetailKey]);
     });
   }

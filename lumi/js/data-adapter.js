@@ -5,7 +5,7 @@
   const SAMPLE_DATA_PATH = "./data/lumi-sample-data.json";
 
   const fallbackData = {
-    version: "stage63-exchange-local-redeem",
+    version: "stage65-point-ledger-cleanup",
     user: {
       lumiId: "LB-0001",
       nickname: "루루냐냐",
@@ -101,7 +101,7 @@
   }
 
   window.LumiData = {
-    stage: 63,
+    stage: 65,
     storageKey: STORAGE_KEY,
     getData,
     updateData,
