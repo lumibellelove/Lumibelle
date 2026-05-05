@@ -12,6 +12,39 @@
     if (dateTarget) dateTarget.textContent = `${dayNames[now.getDay()]} · ${pad(now.getMonth() + 1)}/${pad(now.getDate())}`;
   }
 
+
+
+  let statusbarOriginal = null;
+
+  function updateHomeStatusbar() {
+    const statusbar = document.querySelector(".statusbar");
+    if (!statusbar) return;
+    const items = statusbar.querySelectorAll("span");
+    if (items.length < 2) return;
+
+    if (!statusbarOriginal) {
+      statusbarOriginal = [items[0].textContent, items[1].textContent];
+    }
+
+    const isHome = document.body.dataset.currentPage === "home";
+    if (!isHome) {
+      items[0].textContent = statusbarOriginal[0] || "LUMI PHONE";
+      if (window.LumiData && typeof window.LumiData.getData === "function") {
+        window.LumiData.getData().then((data) => {
+          const id = data && data.user && data.user.lumiId ? data.user.lumiId : statusbarOriginal[1];
+          items[1].textContent = id || "LB-0001";
+        });
+      } else {
+        items[1].textContent = statusbarOriginal[1] || "LB-0001";
+      }
+      return;
+    }
+
+    const now = new Date();
+    items[0].textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    items[1].textContent = "LUMIBELLE ✦ 100%";
+  }
+
   function bootLogoutNotice() {
     const button = document.querySelector("[data-home-logout]");
     const message = document.getElementById("homeActionMessage");
@@ -26,7 +59,14 @@
 
   function boot() {
     updateClock();
-    window.setInterval(updateClock, 30000);
+    updateHomeStatusbar();
+    window.setInterval(() => {
+      updateClock();
+      updateHomeStatusbar();
+    }, 10000);
+    window.addEventListener("hashchange", updateHomeStatusbar);
+    window.addEventListener("lumi:data-updated", updateHomeStatusbar);
+    document.addEventListener("click", () => window.setTimeout(updateHomeStatusbar, 0));
     bootLogoutNotice();
   }
 
