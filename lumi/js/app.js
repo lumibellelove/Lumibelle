@@ -20,6 +20,20 @@
     });
   }
 
+  function resetPageScroll() {
+    /*
+      Stage 78
+      모바일에서 홈 하단까지 내려간 뒤 다른 탭을 누르면
+      새 탭도 중간 위치에서 시작해 보일 수 있어서,
+      탭 전환 직후 루미폰 화면을 맨 위로 정리한다.
+    */
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      const screen = document.querySelector(".screen");
+      if (screen && typeof screen.scrollTop === "number") screen.scrollTop = 0;
+    });
+  }
+
   function showPage(name, options = {}) {
     const safeName = pageExists(name) ? name : "home";
     const target = document.getElementById(`page-${safeName}`);
@@ -44,6 +58,10 @@
       if (window.location.hash !== nextHash) {
         history.replaceState(null, "", nextHash);
       }
+    }
+
+    if (options.resetScroll !== false) {
+      resetPageScroll();
     }
   }
 
@@ -80,7 +98,7 @@
     bindNavigation();
     runNavigationCheck();
     const initial = getPageNameFromHash();
-    showPage(initial, { pushHash: false });
+    showPage(initial, { pushHash: false, resetScroll: false });
 
     window.addEventListener("hashchange", () => {
       showPage(getPageNameFromHash(), { pushHash: false });
