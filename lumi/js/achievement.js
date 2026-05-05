@@ -65,6 +65,46 @@
   let selectedIndex = null;
   let modalScrollY = 0;
 
+  function setText(id, text) {
+    const target = document.getElementById(id);
+    if (target) target.textContent = text;
+  }
+
+  function syncTitleEverywhere(title) {
+    document.querySelectorAll("#profileEquippedTitleInline").forEach((target) => {
+      target.textContent = title;
+    });
+    setText("profileEquippedTitleCard", title);
+    setText("profileShareTitleText", title);
+    setText("equippedTitleText", title);
+  }
+
+  async function loadEquippedTitleFromData() {
+    if (!window.LumiData?.getData) return;
+    try {
+      const data = await window.LumiData.getData();
+      const savedTitle = data?.user?.title;
+      if (savedTitle) equippedTitle = savedTitle;
+    } catch (error) {
+      // 저장 데이터가 없어도 기본 칭호로 계속 진행한다.
+    }
+  }
+
+  async function saveEquippedTitleToData(title) {
+    if (!window.LumiData?.getData || !window.LumiData?.updateData) return;
+    try {
+      const data = await window.LumiData.getData();
+      await window.LumiData.updateData({
+        user: {
+          ...(data?.user || {}),
+          title
+        }
+      });
+    } catch (error) {
+      // 화면 반영은 유지하고 저장 실패만 조용히 넘긴다.
+    }
+  }
+
   function lockModalScroll() {
     if (document.body.classList.contains("achievement-modal-scroll-lock")) return;
     modalScrollY = window.scrollY || window.pageYOffset || 0;
@@ -99,10 +139,7 @@
   }
 
   function syncProfileTitle() {
-    const inline = document.getElementById("profileEquippedTitleInline");
-    const card = document.getElementById("profileEquippedTitleCard");
-    if (inline) inline.textContent = equippedTitle;
-    if (card) card.textContent = equippedTitle;
+    syncTitleEverywhere(equippedTitle);
   }
 
   function renderSummary() {
@@ -212,19 +249,23 @@
     unlockModalScroll();
   }
 
-  function equipTitle(index) {
+  async function equipTitle(index) {
     const item = achievements[index];
     if (!item || item.state !== "달성") {
       setMessage("아직 달성하지 않은 업적의 칭호는 장착할 수 없어요.");
       return;
     }
     equippedTitle = item.reward;
-    setMessage(`대표 칭호가 '${equippedTitle}'로 장착되었습니다.`);
+    syncTitleEverywhere(equippedTitle);
+    await saveEquippedTitleToData(equippedTitle);
+    setMessage(`대표 칭호가 '${equippedTitle}'로 장착되었습니다. 새로고침 후에도 유지돼요.`);
     render();
     if (selectedIndex === index) updateDetailModal(item);
   }
 
-  function boot() {
+  async function boot() {
+    await loadEquippedTitleFromData();
+
     document.querySelectorAll("[data-achievement-filter]").forEach((button) => {
       button.addEventListener("click", () => {
         currentFilter = button.dataset.achievementFilter || "전체";

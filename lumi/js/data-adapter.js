@@ -86,7 +86,7 @@
   }
 
   window.LumiData = {
-    stage: 59,
+    stage: 61,
     storageKey: STORAGE_KEY,
     getData,
     updateData,
