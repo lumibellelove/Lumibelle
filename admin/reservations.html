@@ -135,7 +135,7 @@ let eventPage=1;
 const EVENTS_PER_PAGE=4;
 // ADMIN_API_URL이 비어 있으면 mock 모드로 동작합니다.
 // 실제 Apps Script Web App URL이 확정되면 아래 문자열만 교체합니다.
-const ADMIN_API_URL="";
+const ADMIN_API_URL="https://script.google.com/macros/s/AKfycbwJRbaZDXnquhBTYaa4R1Onaq0pkDLUWPip0pjzoAcdkcUVNYCCZ2wHWtzCyQLZ0sboJQ/exec";
 const ADMIN_KEY=""; // 필요 시 관리자용 키를 전달합니다. 실운영 전 테스트 비밀번호와 분리 필요.
 const ACTIONS={
   search:'adminSearchReservation',
@@ -486,6 +486,36 @@ function apiRequest(params){
     document.body.appendChild(script);
   });
 }
+
+function getAdminResponseItems(res){
+  if(!res) return [];
+  if(Array.isArray(res.items)) return res.items;
+  if(Array.isArray(res.results)) return res.results;
+  if(Array.isArray(res.data)) return res.data;
+  if(res.data && Array.isArray(res.data.items)) return res.data.items;
+  if(res.data && Array.isArray(res.data.results)) return res.data.results;
+  if(res.data && Array.isArray(res.data.rows)) return res.data.rows;
+  if(res.updatedReservation) return [res.updatedReservation];
+  if(res.data && res.data.updatedReservation) return [res.data.updatedReservation];
+  if(res.reservation) return [res.reservation];
+  if(res.data && res.data.reservation) return [res.data.reservation];
+  if(res.data && (res.data.reservationNumber || res.data.rowId || res.data.lumiId || res.data.nickname)) return [res.data];
+  return [];
+}
+function getAdminUpdatedReservation(res,fallback){
+  if(!res) return fallback || null;
+  return res.updatedReservation || (res.data && res.data.updatedReservation) || res.reservation || (res.data && res.data.reservation) || (res.data && (res.data.reservationNumber || res.data.rowId) ? res.data : null) || fallback || null;
+}
+function getAdminWarnings(res){
+  const raw=[];
+  if(!res) return raw;
+  [res.warning,res.warnings,res.data&&res.data.warning,res.data&&res.data.warnings].forEach(v=>{
+    if(Array.isArray(v)) raw.push(...v);
+    else if(typeof v==='string' && v.trim()) raw.push(...v.split(',').map(x=>x.trim()).filter(Boolean));
+  });
+  return [...new Set(raw.filter(Boolean))];
+}
+
 function mockRequest(params){
   const action=params.action;
   if(action===ACTIONS.listPending){return {success:true,action,data:reservations.filter(r=>r.eventId===params.eventId&&['pending','hold'].includes(getStatusKey('payment',r.paymentStatus))).map(normalizeReservation),warning:'apiMockMode',timestamp:nowText()};}
@@ -666,12 +696,12 @@ async function runSmartSearch(){
     try{
       const res=await apiRequest({action:ACTIONS.search,eventId:selectedEventId,mode,query});
       if(res&&res.success!==false){
-        const data=Array.isArray(res.data)?res.data:(res.data?[res.data]:[]);
+        const data=getAdminResponseItems(res);
         data.map(normalizeReservation).filter(Boolean).forEach(item=>{
           const key=(item.reservationNumber||'')+'|'+(item.rowId||'');
           if(!seen.has(key)){seen.add(key);merged.push(item);}
         });
-        [].concat(res.warning||[]).filter(Boolean).forEach(w=>warnings.push(w));
+        getAdminWarnings(res).forEach(w=>warnings.push(w));
       }
     }catch(err){}
   }
@@ -691,10 +721,10 @@ function listToday(){
 }
 function handleListResponse(res){
   if(!res||res.success===false){q('results').innerHTML='<div class="notice"><p>'+displayError(res&&res.error)+'</p></div>';selected=null;currentResults=[];renderDetail();return}
-  const data=Array.isArray(res.data)?res.data:(res.data?[res.data]:[]);
+  const data=getAdminResponseItems(res);
   renderResults(data);
   if(data.length===1){selected=normalizeReservation(data[0]);renderDetail();}
-  const warnings=[].concat(res.warning||[]).filter(Boolean);
+  const warnings=getAdminWarnings(res);
   if(warnings.length) toast(warnings.map(warningText).join(' / '));
 }
 async function confirmPayment(){
@@ -703,7 +733,7 @@ async function confirmPayment(){
   try{
     const res=await apiRequest({action:ACTIONS.confirmPayment,eventId:selectedEventId,reservationNumber:selected.reservationNumber,rowId:selected.rowId,processedBy,memo:''});
     if(!res||res.success===false){toast(displayError(res&&res.error));return}
-    const updated=normalizeReservation(res.updatedReservation||res.data||selected);
+    const updated=normalizeReservation(getAdminUpdatedReservation(res,selected));
     selected=updated;
     if(!isApiMode()){
       const idx=reservations.findIndex(r=>r.reservationNumber===updated.reservationNumber);
@@ -713,7 +743,7 @@ async function confirmPayment(){
     renderResults([updated]);
     selected=updated;renderDetail();
     let msg='입금 확인 완료 처리되었습니다. 루미폰 티켓함에는 예약 확정 상태로 반영될 수 있습니다.';
-    const warnings=[].concat(res.warning||[]).filter(Boolean);
+    const warnings=getAdminWarnings(res);
     if((res.meateBenefitStatus||updated.benefitStatus)==='eligiblePending') msg+=' Lumibelle 메아테 혜택 대상입니다.';
     toast(msg);
     if(warnings.length)setTimeout(()=>toast(warnings.map(warningText).join(' / ')),900);
