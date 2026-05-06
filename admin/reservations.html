@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Reservation Admin | Lumibelle</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=SUIT:wght@500;600;700;800;900&display=swap');
+:root{--pink:#ff5fa8;--pink2:#d77ca7;--line:#f2d8e7;--text:#7f6a77;--muted:#b28ea2;--soft:#fff0f7;--purple:#f7efff;--green:#31a963;--orange:#d88935;--red:#d66363;--shadow:0 14px 32px rgba(232,191,211,.16)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}body{font-family:"SUIT","Noto Sans KR",system-ui,sans-serif;color:var(--text);background:radial-gradient(circle at 10% 5%,rgba(255,192,215,.32),transparent 28%),radial-gradient(circle at 90% 12%,rgba(202,167,255,.22),transparent 28%),linear-gradient(180deg,#fffafc,#fff0f7);overflow-x:hidden}a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:inherit}.wrap{width:min(1240px,calc(100% - 28px));margin:0 auto;padding:20px 0 52px}.hero,.panel,.card,.locked,.notice{border:1px solid var(--line);background:rgba(255,255,255,.9);box-shadow:var(--shadow);border-radius:28px}.hero{padding:34px 30px;background:linear-gradient(135deg,#fff0f7,#f7efff);position:relative;overflow:hidden}.hero:after{content:"✦";position:absolute;right:32px;top:26px;color:rgba(255,95,168,.22);font-size:42px}.eyebrow{display:inline-flex;min-height:30px;align-items:center;justify-content:center;padding:0 13px;border-radius:999px;background:#fff;border:1px solid #f0bfd4;color:var(--pink2);font-size:12px;font-weight:900;letter-spacing:.04em}.hero h1{font-family:"Cormorant Garamond",serif;color:var(--pink);font-size:74px;line-height:.88;margin:14px 0 8px}.hero p,.panel p,.card p,.notice p{font-weight:800;line-height:1.72}.top-actions,.actions,.search-actions{display:flex;gap:10px;flex-wrap:wrap}.top-actions{margin-top:16px}.btn{min-height:44px;border:0;border-radius:999px;padding:0 16px;background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;font-size:14px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:.16s ease}.btn:hover{transform:translateY(-1px)}.btn.sub{background:#fff;color:var(--pink2);border:1px solid #f0bfd4;box-shadow:0 4px 10px rgba(255,95,165,.08)}.btn.warn{background:linear-gradient(180deg,#ffbf7c,#d88935)}.btn.danger{background:linear-gradient(180deg,#ff9a9a,#d66363)}.btn:disabled{opacity:.48;cursor:not-allowed;transform:none}.layout{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:16px;margin-top:16px}.panel{padding:20px}.panel h2{margin:0 0 14px;color:var(--pink2);font-size:26px}.field{display:grid;gap:8px;margin-bottom:12px}.field label{font-size:12px;font-weight:900;color:var(--pink2)}input,select,textarea{width:100%;border:1px solid #f0bfd4;border-radius:18px;background:#fff;color:var(--text);font-weight:900;outline:none}input,select{height:48px;padding:0 14px}textarea{min-height:86px;padding:12px 14px;resize:vertical}.searchbox{display:grid;grid-template-columns:1fr auto;gap:10px}.result-list{display:grid;gap:10px;margin-top:14px}.result-card{border:1px solid #f0d1e1;background:#fff;border-radius:22px;padding:14px;display:grid;gap:10px}.result-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.result-title{font-weight:900;color:#7f526b}.mini{font-size:12px;color:var(--muted);font-weight:900}.info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.info{border:1px solid #f2d8e7;background:#fffafd;border-radius:18px;padding:11px}.info b{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}.info span{font-size:14px;font-weight:900;color:#715363;word-break:break-all}.chip{display:inline-flex;align-items:center;min-height:28px;border-radius:999px;padding:0 10px;border:1px solid #f0bfd4;background:#fff;color:var(--pink2);font-size:12px;font-weight:900}.chip.ok{color:var(--green);border-color:#bfe6ca;background:#f2fff5}.chip.warn{color:var(--orange);border-color:#f2d4a8;background:#fff8ee}.chip.danger{color:var(--red);border-color:#f4c3c3;background:#fff4f4}.detail-empty{display:grid;place-items:center;min-height:220px;text-align:center;color:var(--muted);font-weight:900}.notice{padding:14px;margin-top:12px;border-style:dashed;box-shadow:none;background:rgba(255,255,255,.68)}.notice.important{border-color:#f0bfd4;background:#fff4fa}.logbox{margin-top:12px;max-height:170px;overflow:auto;border-radius:18px;background:#fff;border:1px solid #f0d1e1;padding:10px}.log{font-size:12px;font-weight:900;line-height:1.55;padding:9px;border-bottom:1px dashed #f0d1e1}.log:last-child{border-bottom:0}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;background:#fff;border:1px solid #f0bfd4;border-radius:999px;padding:13px 18px;color:var(--pink2);font-weight:900;box-shadow:var(--shadow);transition:.18s ease;z-index:20}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.api-state{margin-top:12px;font-size:12px;font-weight:900;color:var(--muted)}.locked{width:min(560px,calc(100% - 32px));margin:80px auto;padding:32px;text-align:center}.footer{text-align:center;color:var(--muted);font-weight:800;font-size:12px;margin-top:26px}@media(max-width:980px){.layout{grid-template-columns:1fr}.hero h1{font-size:56px}.hero{padding:30px 22px}.searchbox{grid-template-columns:1fr}.info-grid{grid-template-columns:1fr}.btn{width:100%}.top-actions .btn{width:auto}}
+</style>
+</head>
+<body>
+<div id="locked" class="locked" hidden>
+  <span class="eyebrow">ADMIN LOCKED</span>
+  <h1 style="font-family:'Cormorant Garamond',serif;color:var(--pink);font-size:56px;margin:12px 0 4px">Reservation</h1>
+  <p>관리자 메인에서 먼저 입장해 주세요.</p>
+  <a class="btn" href="index.html">Admin Hub로 이동</a>
+</div>
+<main id="main" hidden>
+<div class="wrap">
+  <section class="hero">
+    <span class="eyebrow">OPERATION · RESERVATION</span>
+    <h1>Lumibelle<br>Reservation Admin</h1>
+    <p>예매/입금 관리 화면입니다. 입금 확인 완료는 예약 확정이며, 입장·체크인·스탬프·포인트는 자동 처리되지 않습니다.</p>
+    <div class="top-actions">
+      <a class="btn sub" href="index.html">Admin Hub</a>
+      <a class="btn sub" href="operation.html">Operation Hub</a>
+      <a class="btn sub" href="content-admin.html">Content Admin</a>
+    </div>
+    <div class="api-state" id="apiState">API 연결 상태: mock / 연결 자리만 마련</div>
+  </section>
+
+  <div class="layout">
+    <section class="panel">
+      <h2>예약자 검색</h2>
+      <div class="searchbox">
+        <input id="query" placeholder="예약번호 / 입금자명 / 닉네임 / 루미ID 입력" />
+        <button class="btn" id="resetBtn" type="button">초기화</button>
+      </div>
+      <div class="search-actions" style="margin-top:10px">
+        <button class="btn sub" id="searchReservationBtn" type="button">예약번호 검색</button>
+        <button class="btn sub" id="searchNameBtn" type="button">입금자명/닉네임 검색</button>
+        <button class="btn sub" id="searchLumiBtn" type="button">루미ID 검색</button>
+        <button class="btn sub" id="pendingBtn" type="button">입금 확인 대기만 보기</button>
+        <button class="btn sub" id="todayBtn" type="button">오늘 예매 보기</button>
+      </div>
+      <div class="notice important">
+        <p>입금자명/닉네임 검색은 다중 결과가 나올 수 있습니다. 여러 결과 상태에서는 입금 확인 완료 버튼이 활성화되지 않습니다.</p>
+      </div>
+      <div class="result-list" id="results"></div>
+    </section>
+
+    <aside class="panel">
+      <h2>예약 상세</h2>
+      <div class="field">
+        <label>처리자 / 관리자명</label>
+        <input id="processedBy" placeholder="스탭명/관리자명 입력" />
+      </div>
+      <div id="detail" class="detail-empty">검색 후 단일 예약을 선택해 주세요.</div>
+    </aside>
+  </div>
+  <div class="footer">입금 확인 완료는 예약 확정까지만 연결합니다. 현장 처리와 팬 기록은 각 전용 화면 기준을 지킵니다.</div>
+</div>
+</main>
+<div class="toast" id="toast">처리되었습니다.</div>
+<script>
+// Patch 50-6
+// ADMIN_API_URL이 비어 있으면 mock 모드로 동작합니다.
+// 실제 Apps Script Web App URL이 확정되면 아래 문자열만 교체합니다.
+const ADMIN_API_URL="";
+const ADMIN_KEY=""; // 필요 시 관리자용 키를 전달합니다. 실운영 전 테스트 비밀번호와 분리 필요.
+const ACTIONS={
+  search:'adminSearchReservation',
+  confirmPayment:'adminConfirmPayment',
+  listPending:'adminListPendingReservations'
+};
+const DB_STATUS={
+  payment:{
+    pending:{label:'입금 확인 전',raw:['입금확인대기','입금 확인 전','입금대기','pending']},
+    confirmed:{label:'예약 확정',adminLabel:'입금 확인 완료',raw:['입금확인완료','입금 확인 완료','confirmed']},
+    cancelled:{label:'예약 취소',adminLabel:'취소',raw:['취소','cancelled']},
+    refunded:{label:'환불 완료',adminLabel:'환불',raw:['환불','refunded']},
+    hold:{label:'확인 중',adminLabel:'확인 보류',raw:['확인 보류','보류','hold']}
+  },
+  entry:{
+    notEntered:{label:'아직 입장 전',adminLabel:'입장 전',raw:['미입장','입장 전','notEntered']},
+    entered:{label:'입장 완료',adminLabel:'입장 완료',raw:['입장완료','입장 완료','entered']},
+    noShow:{label:'미참석',adminLabel:'노쇼',raw:['노쇼','noShow']}
+  },
+  benefit:{
+    notEligible:{label:'Lumibelle 혜택 대상 아님'},
+    checking:{label:'확인 중'},
+    eligiblePending:{label:'Lumibelle 메아테 혜택 대상 / 현장 수령 가능'},
+    received:{label:'수령 완료'},
+    expired:{label:'기간 종료'}
+  }
+};
+const sampleReservations=[
+  {rowId:'2',reservationNumber:'LBT-0712-8724',lumiId:'LB-0001',eventId:'shine-me-up-20260712',eventName:'Shine Me UP : 데뷔 라이브',eventDate:'2026-07-12',venueName:'공연장명 입력 예정',venueAddress:'주소 입력 예정',nickname:'루루냐냐',email:'lumi@example.com',payerName:'스탭명/닉네임',ticketCount:1,ticketType:'일반 예매',meateTeam:'Lumibelle',agreementStatus:'동의',paymentStatus:'pending',paymentStatusLabel:'입금 확인 전',paymentConfirmedAt:'',processedBy:'',processedAt:'',entryStatus:'notEntered',entryStatusLabel:'아직 입장 전',entryTime:'',openTime:'17:30',startTime:'18:00',messageStatus:'',benefitStatus:'eligiblePending',guideNeeded:true,source:'방송 유입'},
+  {rowId:'3',reservationNumber:'LBT-0712-4512',lumiId:'LB-0002',eventId:'shine-me-up-20260712',eventName:'Shine Me UP : 데뷔 라이브',eventDate:'2026-07-12',venueName:'공연장명 입력 예정',venueAddress:'주소 입력 예정',nickname:'반짝루미',email:'sparkle@example.com',payerName:'반짝루미',ticketCount:2,ticketType:'일반 예매',meateTeam:'다른 출연팀',agreementStatus:'동의',paymentStatus:'confirmed',paymentStatusLabel:'예약 확정',paymentConfirmedAt:'2026-06-01 13:20',processedBy:'스탭명',processedAt:'2026-06-01 13:20',entryStatus:'notEntered',entryStatusLabel:'아직 입장 전',entryTime:'',openTime:'17:30',startTime:'18:00',messageStatus:'sent',benefitStatus:'notEligible',guideNeeded:false,source:'예매'},
+  {rowId:'4',reservationNumber:'LBT-0712-9988',lumiId:'',eventId:'shine-me-up-20260712',eventName:'Shine Me UP : 데뷔 라이브',eventDate:'2026-07-12',venueName:'공연장명 입력 예정',venueAddress:'주소 입력 예정',nickname:'처음루미',email:'first@example.com',payerName:'처음루미',ticketCount:1,ticketType:'일반 예매',meateTeam:'Lumibelle',agreementStatus:'동의',paymentStatus:'hold',paymentStatusLabel:'확인 중',paymentConfirmedAt:'',processedBy:'',processedAt:'',entryStatus:'notEntered',entryStatusLabel:'아직 입장 전',entryTime:'',openTime:'17:30',startTime:'18:00',messageStatus:'',benefitStatus:'eligiblePending',guideNeeded:true,source:'첫 현장 가능'},
+  {rowId:'5',reservationNumber:'LBT-0712-7777',lumiId:'LB-0007',eventId:'shine-me-up-20260712',eventName:'Shine Me UP : 데뷔 라이브',eventDate:'2026-07-12',venueName:'공연장명 입력 예정',venueAddress:'주소 입력 예정',nickname:'취소예시',email:'cancel@example.com',payerName:'취소예시',ticketCount:1,ticketType:'일반 예매',meateTeam:'정보 없음',agreementStatus:'동의',paymentStatus:'cancelled',paymentStatusLabel:'예약 취소',paymentConfirmedAt:'',processedBy:'',processedAt:'',entryStatus:'notEntered',entryStatusLabel:'아직 입장 전',entryTime:'',openTime:'17:30',startTime:'18:00',messageStatus:'',benefitStatus:'checking',guideNeeded:false,source:'예매'}
+];
+let reservations=JSON.parse(localStorage.getItem('lumiAdminReservationsMockV506')||'null')||sampleReservations;
+let selected=null;
+let currentResults=[];
+function q(id){return document.getElementById(id)}
+function isApiMode(){return !!ADMIN_API_URL.trim()}
+function saveMock(){localStorage.setItem('lumiAdminReservationsMockV506',JSON.stringify(reservations))}
+function toast(msg){const t=q('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove('show'),1700)}
+function nowText(){const now=new Date();return now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')}
+function getStatusKey(kind,value){
+  const v=String(value||'').trim();
+  if(!v) return kind==='payment'?'pending':'notEntered';
+  const set=DB_STATUS[kind]||{};
+  for(const key of Object.keys(set)){if((set[key].raw||[]).some(raw=>String(raw).toLowerCase()===v.toLowerCase())) return key;}
+  return v;
+}
+function statusLabel(kind,key,admin=false){const row=(DB_STATUS[kind]||{})[key];return row?(admin?(row.adminLabel||row.label):row.label):(key||'-')}
+function normalizeReservation(raw){
+  if(!raw) return null;
+  const paymentStatus=getStatusKey('payment',raw.paymentStatus||raw.paymentStatusKey||raw.rawPaymentStatus||raw['결제상태']);
+  const entryStatus=getStatusKey('entry',raw.entryStatus||raw.entryStatusKey||raw.rawEntryStatus||raw['입장상태']);
+  const meate=raw.meateTeam||raw.meate||raw['메아테']||'';
+  const benefit=raw.benefitStatus||deriveBenefitStatus(meate);
+  return {
+    rowId:raw.rowId||raw.rowNumber||raw.id||'',
+    reservationNumber:raw.reservationNumber||raw.ticketId||raw['예약번호']||'',
+    lumiId:raw.lumiId||raw.lumiID||raw['루미ID']||'',
+    eventId:raw.eventId||raw['공연ID']||'',
+    eventName:raw.eventName||raw['공연명']||'Shine Me UP : 데뷔 라이브',
+    eventDate:raw.eventDate||raw['공연일']||'2026-07-12',
+    venueName:raw.venueName||raw.venue||raw['장소']||'공연장명 입력 예정',
+    venueAddress:raw.venueAddress||raw.address||raw['주소']||'주소 입력 예정',
+    nickname:raw.nickname||raw['닉네임 + 숫자 4자리']||raw['닉네임']||'',
+    email:raw.email||raw['이메일 주소']||'',
+    payerName:raw.payerName||raw.depositorName||raw.depositor||raw['입금자명']||'',
+    ticketCount:raw.ticketCount||raw.count||raw['매수']||'',
+    ticketType:raw.ticketType||raw['티켓 종류']||'',
+    meateTeam:meate,
+    agreementStatus:raw.agreementStatus||raw.agreement||raw['안내 동의']||'',
+    paymentStatus,
+    paymentStatusLabel:raw.paymentStatusLabel||statusLabel('payment',paymentStatus),
+    paymentConfirmedAt:raw.paymentConfirmedAt||raw.processedAt||raw['입금확인시간']||'',
+    processedBy:raw.processedBy||raw['입금확인처리자']||raw['처리자']||'',
+    processedAt:raw.processedAt||raw.paymentConfirmedAt||raw['입금확인시간']||'',
+    entryStatus,
+    entryStatusLabel:raw.entryStatusLabel||statusLabel('entry',entryStatus),
+    entryTime:raw.entryTime||raw['입장시간']||'',
+    openTime:raw.openTime||raw.entryOpenTime||raw['입장 시간']||'17:30',
+    startTime:raw.startTime||raw['시작 시간']||'18:00',
+    messageStatus:raw.messageStatus||raw['메시지생성상태']||'',
+    benefitStatus:benefit,
+    guideNeeded:!!raw.guideNeeded,
+    source:raw.source||''
+  };
+}
+function deriveBenefitStatus(meate){
+  if(String(meate||'').toLowerCase()==='lumibelle'||meate==='루미벨') return 'eligiblePending';
+  if(!meate||meate==='정보 없음') return 'checking';
+  return 'notEligible';
+}
+function maskName(v){if(!v)return '-';return v.length<=2?v[0]+'*':v[0]+'*'.repeat(Math.max(1,v.length-2))+v.slice(-1)}
+function paymentChip(v){const key=getStatusKey('payment',v);if(key==='confirmed')return '<span class="chip ok">입금 확인 완료</span>'; if(key==='cancelled'||key==='refunded')return '<span class="chip danger">'+statusLabel('payment',key,true)+'</span>'; if(key==='hold')return '<span class="chip warn">확인 보류</span>'; return '<span class="chip warn">입금 확인 전</span>'}
+function entryChip(v){const key=getStatusKey('entry',v);if(key==='entered')return '<span class="chip ok">입장 완료</span>'; if(key==='noShow')return '<span class="chip danger">노쇼</span>'; return '<span class="chip">입장 전</span>'}
+function meateAdmin(r){const status=r.benefitStatus||deriveBenefitStatus(r.meateTeam);if(status==='eligiblePending')return 'Lumibelle 메아테 혜택 대상 / 현장 수령 가능'; if(status==='notEligible')return '다른 출연팀 메아테 / Lumibelle 혜택 대상 아님'; return '메아테 정보 없음'}
+function canConfirm(r){const by=q('processedBy').value.trim();const pay=getStatusKey('payment',r&&r.paymentStatus);return !!(r&&r.reservationNumber&&by&&(pay==='pending'||pay==='hold'))}
+function disabledReason(r){if(!r)return '단일 예약을 선택해 주세요.'; const pay=getStatusKey('payment',r.paymentStatus); if(!q('processedBy').value.trim())return '처리자 확인 후 입금 확인 완료 처리가 가능합니다.'; if(!r.reservationNumber)return '예약번호가 없습니다.'; if(pay==='confirmed')return '이미 입금 확인 완료된 예약입니다.'; if(pay==='cancelled'||pay==='refunded')return '취소/환불된 예약입니다. 상태 변경 전 책임자 확인이 필요합니다.'; return '입금 확인 완료가 가능합니다.'}
+function displayError(code){
+  const map={missingProcessedBy:'처리자 확인 후 다시 시도해 주세요.',alreadyConfirmed:'이미 입금 확인 완료된 예약입니다.',cancelledReservation:'취소된 예약입니다.',refundedReservation:'환불된 예약입니다.',notFound:'예약 정보를 찾을 수 없습니다.',multipleResults:'여러 결과가 있어 단일 예약을 선택해야 합니다.',permissionDenied:'관리자 권한 확인이 필요합니다.',missingSheet:'시트 설정 확인이 필요합니다.',missingHeader:'시트 헤더 설정 확인이 필요합니다.',missingQuery:'검색어를 입력해 주세요.'};
+  return map[code]||code||'처리 중 오류가 발생했습니다.';
+}
+function warningText(w){
+  const map={messageAlreadyExists:'이미 입금 확인 메시지 후보가 있습니다.',messageSheetNotReady:'메시지 시트가 아직 준비되지 않아 후보 상태만 기록되었습니다.',adminLogNotReady:'관리자 로그 시트가 아직 준비되지 않았습니다.',noLumiId:'루미ID가 없어 루미폰 티켓함에는 자동 표시되지 않습니다.',meateEligiblePending:'Lumibelle 메아테 혜택 대상 / 현장 수령 가능 상태입니다.',meateNotEligible:'Lumibelle 메아테 혜택 대상이 아닙니다.',apiMockMode:'현재 mock 모드입니다. 실제 시트에는 저장되지 않습니다.'};
+  return map[w]||w;
+}
+function updateApiState(){
+  const api=q('apiState');
+  if(!api)return;
+  api.textContent=isApiMode()?'API 연결 상태: 실제 API 연결 모드 · DB 이사 가능 응답 구조 사용':'API 연결 상태: mock 모드 · 실제 시트에는 저장되지 않음 · DB 이사 가능 응답 구조 준비';
+}
+function apiRequest(params){
+  if(!isApiMode()) return Promise.resolve(mockRequest(params));
+  const url=new URL(ADMIN_API_URL);
+  Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v==null?'':v));
+  if(ADMIN_KEY) url.searchParams.set('adminKey',ADMIN_KEY);
+  // Apps Script JSONP 응답을 우선 지원한다. JSON만 반환하는 배포도 callback을 무시하면 동작 가능하도록 에러를 표시한다.
+  return new Promise((resolve,reject)=>{
+    const cb='lumiAdminCb_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+    url.searchParams.set('callback',cb);
+    const script=document.createElement('script');
+    let done=false;
+    const timer=setTimeout(()=>{if(done)return;done=true;delete window[cb];script.remove();reject(new Error('apiTimeout'));},16000);
+    window[cb]=(res)=>{if(done)return;done=true;clearTimeout(timer);delete window[cb];script.remove();resolve(res)};
+    script.onerror=()=>{if(done)return;done=true;clearTimeout(timer);delete window[cb];script.remove();reject(new Error('apiLoadError'))};
+    script.src=url.toString();
+    document.body.appendChild(script);
+  });
+}
+function mockRequest(params){
+  const action=params.action;
+  if(action===ACTIONS.listPending){return {success:true,action,data:reservations.filter(r=>['pending','hold'].includes(getStatusKey('payment',r.paymentStatus))).map(normalizeReservation),warning:'apiMockMode',timestamp:nowText()};}
+  if(action===ACTIONS.search){
+    const query=String(params.query||'').trim().toLowerCase();
+    if(!query)return {success:false,action,error:'missingQuery',timestamp:nowText()};
+    const mode=params.mode;
+    let list=[];
+    if(mode==='reservationNumber') list=reservations.filter(r=>String(r.reservationNumber||'').toLowerCase()===query||String(r.reservationNumber||'').toLowerCase().includes(query)||String(r.reservationNumber||'').slice(-4)===query);
+    else if(mode==='reservationLast4') list=reservations.filter(r=>String(r.reservationNumber||'').slice(-4)===query);
+    else if(mode==='lumiId') list=reservations.filter(r=>String(r.lumiId||'').toLowerCase()===query);
+    else if(mode==='payerOrNickname') list=reservations.filter(r=>String(r.nickname||'').toLowerCase().includes(query)||String(r.payerName||r.depositorName||'').toLowerCase().includes(query));
+    else list=reservations.filter(r=>JSON.stringify(r).toLowerCase().includes(query));
+    if(!list.length) return {success:false,action,error:'notFound',timestamp:nowText()};
+    return {success:true,action,data:list.map(normalizeReservation),warning:'apiMockMode',timestamp:nowText()};
+  }
+  if(action===ACTIONS.confirmPayment){
+    const processedBy=String(params.processedBy||'').trim();
+    if(!processedBy)return {success:false,action,error:'missingProcessedBy',timestamp:nowText()};
+    const reservationNumber=String(params.reservationNumber||'');
+    const rowId=String(params.rowId||'');
+    const matches=reservations.filter(r=>(reservationNumber&&r.reservationNumber===reservationNumber)||(rowId&&String(r.rowId)===rowId));
+    if(!matches.length)return {success:false,action,error:'notFound',timestamp:nowText()};
+    if(matches.length>1)return {success:false,action,error:'multipleResults',timestamp:nowText()};
+    const target=matches[0];
+    const pay=getStatusKey('payment',target.paymentStatus);
+    if(pay==='confirmed')return {success:false,action,error:'alreadyConfirmed',timestamp:nowText()};
+    if(pay==='cancelled')return {success:false,action,error:'cancelledReservation',timestamp:nowText()};
+    if(pay==='refunded')return {success:false,action,error:'refundedReservation',timestamp:nowText()};
+    const previous=target.paymentStatus;
+    const stamp=nowText();
+    target.paymentStatus='confirmed';
+    target.paymentStatusLabel='예약 확정';
+    target.paymentConfirmedAt=stamp;
+    target.processedBy=processedBy;
+    target.processedAt=stamp;
+    target.messageStatus='paymentConfirmedCandidate';
+    target.benefitStatus=deriveBenefitStatus(target.meateTeam);
+    saveMock();
+    const warnings=['apiMockMode'];
+    if(!target.lumiId) warnings.push('noLumiId');
+    warnings.push(target.benefitStatus==='eligiblePending'?'meateEligiblePending':'meateNotEligible');
+    return {success:true,action,updatedReservation:normalizeReservation(target),previousPaymentStatus:previous,currentPaymentStatus:'confirmed',paymentConfirmedAt:stamp,processedBy,messageCandidateCreated:false,guideIncluded:!!target.guideNeeded,meateBenefitStatus:target.benefitStatus,warning:warnings,timestamp:stamp};
+  }
+  return {success:false,action,error:'invalidAction',timestamp:nowText()};
+}
+function renderResults(list,currentMode='search'){
+  currentResults=list.map(normalizeReservation).filter(Boolean);
+  const box=q('results');
+  selected=null; renderDetail();
+  if(!currentResults.length){box.innerHTML='<div class="notice"><p>조회 결과가 없어요. 예약번호, 입금자명, 닉네임, 루미ID를 다시 확인해 주세요.</p></div>';return}
+  const top=currentResults.length>1?'<div class="notice important"><p>여러 결과가 있어요. 단일 예약을 선택한 뒤 상세 카드에서 처리해 주세요.</p></div>':'';
+  box.innerHTML=top+currentResults.map((r,i)=>`<article class="result-card">
+    <div class="result-head"><div><div class="result-title">${r.reservationNumber}</div><div class="mini">${r.nickname} · ${r.lumiId||'루미ID 없음'} · ${r.eventId||'eventId 후보 없음'}</div></div><div>${paymentChip(r.paymentStatus)}</div></div>
+    <div class="info-grid">
+      <div class="info"><b>입금자명</b><span>${maskName(r.payerName)}</span></div>
+      <div class="info"><b>메아테 팀</b><span>${r.meateTeam||'정보 없음'}</span></div>
+      <div class="info"><b>티켓/매수</b><span>${r.ticketType||'-'} · ${r.ticketCount||'-'}매</span></div>
+      <div class="info"><b>입장상태</b><span>${entryChip(r.entryStatus)}</span></div>
+    </div>
+    <div class="actions"><button class="btn" type="button" onclick="selectReservation('${r.reservationNumber}','${r.rowId||''}')">이 예약 선택</button><button class="btn sub" type="button" onclick="selectReservation('${r.reservationNumber}','${r.rowId||''}')">상세 보기</button></div>
+  </article>`).join('');
+}
+function selectReservation(num,rowId=''){
+  selected=currentResults.find(r=>r.reservationNumber===num&&(rowId?String(r.rowId)===String(rowId):true))||reservations.map(normalizeReservation).find(r=>r.reservationNumber===num);
+  renderDetail();toast('예약을 선택했습니다.');
+}
+function info(label,value){return `<div class="info"><b>${label}</b><span>${value||'-'}</span></div>`}
+function renderDetail(){
+  const box=q('detail');
+  if(!selected){box.className='detail-empty';box.innerHTML=currentResults.length>1?'다중 결과 상태입니다.<br>예약 하나를 선택해 주세요.':'검색 후 단일 예약을 선택해 주세요.';return}
+  selected=normalizeReservation(selected);
+  box.className='';
+  const confirmDisabled=!canConfirm(selected);
+  const lumiMeate=selected.benefitStatus==='eligiblePending';
+  box.innerHTML=`<div class="card" style="padding:16px;box-shadow:none">
+    <div class="result-head"><div><div class="result-title">${selected.reservationNumber}</div><div class="mini">${selected.eventName} · ${selected.eventId||'eventId 후보 없음'}</div></div><div>${paymentChip(selected.paymentStatus)}</div></div>
+    <div class="info-grid" style="margin-top:12px">
+      ${info('닉네임',selected.nickname)}${info('루미ID',selected.lumiId||'없음')}${info('이메일 주소',selected.email)}${info('입금자명',selected.payerName)}
+      ${info('매수',selected.ticketCount?selected.ticketCount+'매':'-')}${info('티켓 종류',selected.ticketType)}${info('메아테 팀',selected.meateTeam||'정보 없음')}${info('안내 동의',selected.agreementStatus)}
+      ${info('결제상태',paymentChip(selected.paymentStatus)+'<br><span class="mini">팬 표시: '+statusLabel('payment',getStatusKey('payment',selected.paymentStatus))+'</span>')}${info('입금확인시간',selected.paymentConfirmedAt||'미기록')}${info('처리자',selected.processedBy||'미기록')}${info('입장상태',entryChip(selected.entryStatus)+'<br><span class="mini">팬 표시: '+statusLabel('entry',getStatusKey('entry',selected.entryStatus))+'</span>')}
+      ${info('입장시간',selected.entryTime||'미기록')}${info('공연일',selected.eventDate)}${info('입장/시작',selected.openTime+' / '+selected.startTime)}${info('장소',selected.venueName)}
+      ${info('주소',selected.venueAddress)}${info('입문 안내',selected.guideNeeded?'입문 가이드 링크 포함 후보':'기본 안내')}
+      ${info('DB 식별자',`reservationNumber: ${selected.reservationNumber}<br>lumiId: ${selected.lumiId||'-'}<br>eventId: ${selected.eventId||'-'}<br>rowId: ${selected.rowId||'임시값 없음'}`)}${info('메시지/혜택 상태',`messageStatus: ${selected.messageStatus||'-'}<br>benefitStatus: ${selected.benefitStatus||'-'}`)}
+    </div>
+    <div class="notice important"><p>입금 확인 완료는 예약 확정입니다.<br>입장, 방문, 체크인, 스탬프, 포인트, 특전권 사용은 각각 전용 화면에서 별도 처리합니다.</p></div>
+    <div class="notice"><p>${meateAdmin(selected)}${lumiMeate?'<br>실제 혜택 수령 완료와 포인트 지급은 현장 물판/특전회에서 처리합니다.':''}</p></div>
+    <div class="actions" style="margin-top:12px">
+      <button class="btn" type="button" ${confirmDisabled?'disabled':''} onclick="confirmPayment()">입금 확인 완료</button>
+      <button class="btn sub" type="button" onclick="readyOnly('보류')">보류</button>
+      <button class="btn danger" type="button" onclick="readyOnly('취소')">취소</button>
+      <button class="btn warn" type="button" onclick="readyOnly('환불')">환불</button>
+      <button class="btn sub" type="button" onclick="readyOnly('메모 남기기')">메모 남기기</button>
+      <button class="btn sub" type="button" onclick="toggleLogs()">로그 보기</button>
+    </div>
+    <div class="notice"><p>${disabledReason(selected)}</p></div>
+    <div class="logbox" id="logbox" hidden>
+      <div class="log">로그는 관리자/스탭 내부용입니다. 루미폰 팬 화면에는 노출하지 않습니다.</div>
+      <div class="log">후보 actionType: paymentConfirm / reservationNumber: ${selected.reservationNumber}</div>
+      <div class="log">message 후보: paymentConfirmed-${selected.reservationNumber}-${selected.lumiId||'noLumiId'}</div>
+      <div class="log">DB 이사 기준: 화면은 rowId가 아니라 reservationNumber/lumiId/eventId 중심으로 표시합니다.</div>
+    </div>
+  </div>`;
+}
+async function runSearch(mode){
+  const query=q('query').value.trim();
+  if(!query){toast('검색어를 입력해 주세요.');return}
+  const apiMode=mode==='reservation'?'reservationNumber':mode==='lumi'?'lumiId':'payerOrNickname';
+  try{
+    const res=await apiRequest({action:ACTIONS.search,mode:apiMode,query});
+    handleListResponse(res);
+  }catch(err){toast('API 호출 오류: '+err.message)}
+}
+async function listPending(){
+  try{const res=await apiRequest({action:ACTIONS.listPending});handleListResponse(res)}catch(err){toast('API 호출 오류: '+err.message)}
+}
+function listToday(){
+  if(isApiMode()){toast('오늘 예매 필터는 다음 API 확장 후보입니다. 현재는 입금 대기 목록 또는 검색을 사용해 주세요.');return}
+  renderResults(reservations.filter(r=>r.eventDate==='2026-07-12'));
+}
+function handleListResponse(res){
+  if(!res||res.success===false){q('results').innerHTML='<div class="notice"><p>'+displayError(res&&res.error)+'</p></div>';selected=null;currentResults=[];renderDetail();return}
+  const data=Array.isArray(res.data)?res.data:(res.data?[res.data]:[]);
+  renderResults(data);
+  if(data.length===1){selected=normalizeReservation(data[0]);renderDetail();}
+  const warnings=[].concat(res.warning||[]).filter(Boolean);
+  if(warnings.length) toast(warnings.map(warningText).join(' / '));
+}
+async function confirmPayment(){
+  if(!selected||!canConfirm(selected)){toast(disabledReason(selected));renderDetail();return}
+  const processedBy=q('processedBy').value.trim();
+  try{
+    const res=await apiRequest({action:ACTIONS.confirmPayment,reservationNumber:selected.reservationNumber,rowId:selected.rowId,processedBy,memo:''});
+    if(!res||res.success===false){toast(displayError(res&&res.error));return}
+    const updated=normalizeReservation(res.updatedReservation||res.data||selected);
+    selected=updated;
+    if(!isApiMode()){
+      const idx=reservations.findIndex(r=>r.reservationNumber===updated.reservationNumber);
+      if(idx>-1) reservations[idx]=updated;
+      saveMock();
+    }
+    renderResults([updated]);
+    selected=updated;renderDetail();
+    let msg='입금 확인 완료 처리되었습니다. 루미폰 티켓함에는 예약 확정 상태로 반영될 수 있습니다.';
+    const warnings=[].concat(res.warning||[]).filter(Boolean);
+    if((res.meateBenefitStatus||updated.benefitStatus)==='eligiblePending') msg+=' Lumibelle 메아테 혜택 대상입니다.';
+    toast(msg);
+    if(warnings.length)setTimeout(()=>toast(warnings.map(warningText).join(' / ')),900);
+  }catch(err){toast('API 호출 오류: '+err.message)}
+}
+function readyOnly(name){toast(name+' 기능은 준비 중입니다. 이번 패치에서는 실제 처리하지 않습니다.')}
+function toggleLogs(){const l=q('logbox');if(l)l.hidden=!l.hidden}
+q('searchReservationBtn').onclick=()=>runSearch('reservation');
+q('searchNameBtn').onclick=()=>runSearch('name');
+q('searchLumiBtn').onclick=()=>runSearch('lumi');
+q('pendingBtn').onclick=listPending;
+q('todayBtn').onclick=listToday;
+q('resetBtn').onclick=()=>{q('query').value='';selected=null;currentResults=[];q('results').innerHTML='';renderDetail();toast('초기화했습니다.')};
+q('processedBy').addEventListener('input',renderDetail);
+q('query').addEventListener('keydown',e=>{if(e.key==='Enter')runSearch('reservation')});
+const open=sessionStorage.getItem('lumiOfficeOpen')==='1';
+document.getElementById(open?'main':'locked').hidden=false;
+updateApiState();
+if(open){renderDetail();q('results').innerHTML='<div class="notice"><p>예약번호, 입금자명, 닉네임 또는 루미ID로 검색해 주세요.</p></div>';}
+</script>
+</body>
+</html>
