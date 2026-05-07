@@ -244,7 +244,7 @@ function maskName(v){if(!v)return '-';return v.length<=2?v[0]+'*':v[0]+'*'.repea
 function paymentChip(v){const key=getStatusKey('payment',v);if(key==='confirmed')return '<span class="chip ok">입금 확인 완료</span>'; if(key==='cancelled'||key==='refunded')return '<span class="chip danger">'+statusLabel('payment',key,true)+'</span>'; if(key==='hold')return '<span class="chip warn">확인 보류</span>'; return '<span class="chip warn">입금 확인 전</span>'}
 function entryChip(v){const key=getStatusKey('entry',v);if(key==='entered')return '<span class="chip ok">입장 완료</span>'; if(key==='noShow')return '<span class="chip danger">노쇼</span>'; return '<span class="chip">입장 전</span>'}
 function meateAdmin(r){const status=r.benefitStatus||deriveBenefitStatus(r.meateTeam);if(status==='eligiblePending')return 'Lumibelle 메아테 혜택 대상 / 현장 수령 가능'; if(status==='notEligible')return '다른 출연팀 메아테 / Lumibelle 혜택 대상 아님'; return '메아테 정보 없음'}
-function canConfirm(r){const by=q('processedBy').value.trim();const pay=getStatusKey('payment',r&&r.paymentStatus);return !!(r&&r.reservationNumber&&by&&(pay==='pending'||pay==='hold')&&canUseReservationAdmin(selectedEvent)&&selectedEvent.eventStatus!=='cancelled')}
+function canConfirm(r){const pay=getStatusKey('payment',r&&r.paymentStatus);return !!(r&&r.reservationNumber&&(pay==='pending'||pay==='hold')&&canUseReservationAdmin(selectedEvent)&&selectedEvent.eventStatus!=='cancelled')}
 function disabledReason(r){if(!r)return '단일 예약을 선택해 주세요.'; const pay=getStatusKey('payment',r.paymentStatus); if(selectedEvent&&selectedEvent.eventStatus==='cancelled')return '이 공연은 취소된 공연입니다. 예약/환불/공지 기록 확인 중심으로 관리해 주세요.'; if(selectedEvent&&!canUseReservationAdmin(selectedEvent))return reservationModeDisabledText(); if(!q('processedBy').value.trim())return '처리자 확인 후 입금 확인 완료 처리가 가능합니다.'; if(!r.reservationNumber)return '예약번호가 없습니다.'; if(pay==='confirmed')return '이미 입금 확인 완료된 예약입니다.'; if(pay==='cancelled'||pay==='refunded')return '취소/환불된 예약입니다. 상태 변경 전 책임자 확인이 필요합니다.'; return '입금 확인 완료가 가능합니다.'}
 function displayError(code){
   const map={missingProcessedBy:'처리자 확인 후 다시 시도해 주세요.',alreadyConfirmed:'이미 입금 확인 완료된 예약입니다.',cancelledReservation:'취소된 예약입니다.',refundedReservation:'환불된 예약입니다.',notFound:'예약 정보를 찾을 수 없습니다.',multipleResults:'여러 결과가 있어 단일 예약을 선택해야 합니다.',permissionDenied:'관리자 권한 확인이 필요합니다.',missingSheet:'시트 설정 확인이 필요합니다.',missingHeader:'시트 헤더 설정 확인이 필요합니다.',missingQuery:'검색어를 입력해 주세요.',externalReservationOnly:'외부 주최 예매 공연입니다. 루미벨 관리자에서 입금 확인을 처리하지 않습니다.',manualReservationOnly:'수동 기록용 공연입니다.',noReservationSource:'예매 관리 대상이 아닙니다.',reservationActionNotSupported:'이 공연에서는 예매/입금 관리 기능을 사용할 수 없습니다.'};
@@ -690,6 +690,7 @@ function renderDetail(){
       <button class="btn danger" type="button" onclick="readyOnly('취소')">취소</button>
       <button class="btn warn" type="button" onclick="readyOnly('환불')">환불</button>
     </div>
+    <p class="mini" style="margin:8px 4px 0;color:#b28ea2">입금 확인 완료가 눌리지 않으면 처리자/관리자명을 먼저 입력해 주세요.</p>
   </div>`;
 }
 function modalInfo(label,value){return `<div class="info"><b>${label}</b><span>${value||'-'}</span></div>`}
@@ -790,6 +791,11 @@ function handleListResponse(res){
 async function confirmPayment(){
   if(!selected||!canConfirm(selected)){toast(disabledReason(selected));renderDetail();return}
   const processedBy=q('processedBy').value.trim();
+  if(!processedBy){
+    toast('처리자/관리자명을 먼저 입력해 주세요.');
+    q('processedBy').focus();
+    return;
+  }
   try{
     const res=await apiRequest({action:ACTIONS.confirmPayment,eventId:selectedEventId,reservationNumber:selected.reservationNumber,rowId:selected.rowId,processedBy,memo:''});
     if(!res||res.success===false){toast(displayError(res&&res.error));return}
