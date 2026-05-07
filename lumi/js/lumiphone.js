@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_18_android_debug_20260508";
+      const APP_VERSION = "patch51_19_debug_fix_20260508";
       const LUMI_API_ENDPOINT = String(window.LUMI_API_ENDPOINT || "").trim();
       const LUMI_API_TIMEOUT_MS = 12000;
       let currentUser = null;
@@ -2623,7 +2623,7 @@
           setBootDebug("missingApiEndpoint: index.html의 window.LUMI_API_ENDPOINT 확인 필요");
           return Promise.reject(new Error("missingApiEndpoint"));
         }
-        setBootDebug("API request: " + String(payload.action || "unknown"));
+        appendBootDebug("API request: " + String(payload.action || "unknown"));
         return new Promise((resolve, reject) => {
           const callbackName = "__lumiphoneApiCallback_" + Date.now() + "_" + Math.random().toString(36).slice(2);
           const script = document.createElement("script");
