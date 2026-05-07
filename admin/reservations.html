@@ -140,7 +140,8 @@ const ADMIN_KEY=""; // 필요 시 관리자용 키를 전달합니다. 실운영
 const ACTIONS={
   search:'adminSearchReservation',
   confirmPayment:'adminConfirmPayment',
-  listPending:'adminListPendingReservations'
+  listPending:'adminListPendingReservations',
+  listAll:'adminListReservations'
 };
 const RESERVATION_SOURCE_LABELS={lumibelleSheet:'루미벨 직접 관리',externalLink:'외부 주최 예매',manual:'수동 기록용',none:'예매 없음'};
 const EVENT_TYPE_LABELS={all:'전체',hosted:'주최 라이브',external:'외부 겐바',birthday:'생탄',guest:'게스트',releaseEvent:'리리이베',joinEvent:'합류 이벤트',regular:'정기 라이브',special:'스페셜'};
@@ -181,6 +182,8 @@ sampleReservations.push({rowId:'10',reservationNumber:'LBT-0726-1001',lumiId:'LB
 let reservations=JSON.parse(localStorage.getItem('lumiAdminReservationsMockV508')||'null')||sampleReservations;
 let selected=null;
 let currentResults=[];
+let reservationCacheByEvent={};
+let reservationCacheLoadingByEvent={};
 function q(id){return document.getElementById(id)}
 function isApiMode(){return !!ADMIN_API_URL.trim()}
 function saveMock(){localStorage.setItem('lumiAdminReservationsMockV508',JSON.stringify(reservations))}
@@ -294,11 +297,12 @@ function selectEvent(eventId){
   selectedEventId=ev.eventId;
   selectedEvent=ev;
   selected=null;currentResults=[];
-  q('results').innerHTML='<div class="notice"><p>공연이 변경되었습니다. 선택된 공연 기준으로 다시 검색해 주세요.</p></div>';
+  q('results').innerHTML='<div class="notice"><p>공연이 변경되었습니다. 예약 목록을 불러온 뒤 검색해 주세요.</p></div>';
   renderEventPicker();
   renderSourceModeNotice();
   updateActionAvailability();
   renderDetail();
+  preloadSelectedEventReservations();
   toast('공연 선택을 변경했습니다.');
 }
 function setEventTab(tab){eventTab=tab;eventPage=1;renderEventPicker();}
@@ -485,6 +489,68 @@ function apiRequest(params){
     script.src=url.toString();
     document.body.appendChild(script);
   });
+}
+
+
+function getEventCacheKey(){return selectedEventId||'';}
+function normalizeForSearchText(value){return String(value||'').trim().toLowerCase().replace(/\s+/g,'');}
+function getLast4(value){return String(value||'').replace(/\D/g,'').slice(-4);}
+function preloadSelectedEventReservations(force=false){
+  if(!canUseReservationAdmin(selectedEvent)||selectedEvent.eventStatus==='cancelled')return Promise.resolve([]);
+  return loadSelectedEventReservations(force).catch(err=>{toast('예약 목록 불러오기 오류: '+err.message);return []});
+}
+function loadSelectedEventReservations(force=false){
+  if(!requireReservationAdmin())return Promise.resolve([]);
+  const key=getEventCacheKey();
+  if(!key)return Promise.resolve([]);
+  if(!isApiMode()){
+    reservationCacheByEvent[key]=reservations.filter(r=>r.eventId===key).map(normalizeReservation).filter(Boolean);
+    return Promise.resolve(reservationCacheByEvent[key]);
+  }
+  if(!force&&reservationCacheByEvent[key])return Promise.resolve(reservationCacheByEvent[key]);
+  if(!force&&reservationCacheLoadingByEvent[key])return reservationCacheLoadingByEvent[key];
+  const results=q('results');
+  if(results&&!currentResults.length)results.innerHTML='<div class="notice"><p>예약 목록을 불러오는 중입니다. 한 번 불러오면 검색은 화면 안에서 빠르게 처리됩니다.</p></div>';
+  reservationCacheLoadingByEvent[key]=apiRequest({action:ACTIONS.listAll,eventId:key}).then(res=>{
+    if(!res||res.success===false)throw new Error(displayError(res&&res.error));
+    const data=getAdminResponseItems(res).map(normalizeReservation).filter(Boolean);
+    reservationCacheByEvent[key]=data;
+    delete reservationCacheLoadingByEvent[key];
+    return data;
+  }).catch(err=>{delete reservationCacheLoadingByEvent[key];throw err});
+  return reservationCacheLoadingByEvent[key];
+}
+function filterReservationsInBrowser(list,query,mode='smart'){
+  const raw=String(query||'').trim();
+  const qNorm=normalizeForSearchText(raw);
+  const qDigits=String(raw||'').replace(/\D/g,'');
+  if(!qNorm&&!qDigits)return [];
+  return (list||[]).filter(item=>{
+    const r=normalizeReservation(item);
+    const reservationNumber=String(r.reservationNumber||'');
+    const lumiId=String(r.lumiId||'');
+    const nickname=String(r.nickname||'');
+    const payer=String(r.payerName||'');
+    const email=String(r.email||'');
+    const meate=String(r.meateTeam||'');
+    const all=[reservationNumber,lumiId,nickname,payer,email,meate,r.ticketType,r.paymentStatus,r.entryStatus].map(normalizeForSearchText).join(' ');
+    const matchReservation=normalizeForSearchText(reservationNumber).includes(qNorm)||(qDigits&&getLast4(reservationNumber)===qDigits);
+    const matchLumi=normalizeForSearchText(lumiId).includes(qNorm)||(qDigits&&getLast4(lumiId)===qDigits);
+    const matchName=normalizeForSearchText(nickname).includes(qNorm)||normalizeForSearchText(payer).includes(qNorm)||normalizeForSearchText(email).includes(qNorm);
+    if(mode==='reservationNumber')return matchReservation;
+    if(mode==='lumiId')return matchLumi;
+    if(mode==='payerOrNickname')return matchName;
+    return matchReservation||matchLumi||matchName||all.includes(qNorm);
+  });
+}
+function replaceReservationInCache(updated){
+  const key=getEventCacheKey();
+  if(!key||!reservationCacheByEvent[key])return;
+  const next=normalizeReservation(updated);
+  if(!next)return;
+  const idx=reservationCacheByEvent[key].findIndex(r=>(next.rowId&&String(r.rowId)===String(next.rowId))||(next.reservationNumber&&r.reservationNumber===next.reservationNumber));
+  if(idx>-1)reservationCacheByEvent[key][idx]=next;
+  else reservationCacheByEvent[key].push(next);
 }
 
 function getAdminResponseItems(res){
@@ -676,48 +742,42 @@ async function runSearch(mode){
   if(!query){toast('검색어를 입력해 주세요.');return}
   const apiMode=mode==='reservation'?'reservationNumber':mode==='lumi'?'lumiId':'payerOrNickname';
   try{
-    const res=await apiRequest({action:ACTIONS.search,eventId:selectedEventId,mode:apiMode,query});
-    handleListResponse(res);
-  }catch(err){toast('API 호출 오류: '+err.message)}
+    const list=await loadSelectedEventReservations();
+    const filtered=filterReservationsInBrowser(list,query,apiMode);
+    if(!filtered.length){handleListResponse({success:false,error:'notFound'});return}
+    renderResults(filtered);
+    if(filtered.length===1){selected=normalizeReservation(filtered[0]);renderDetail();}
+  }catch(err){toast('예약 목록 로드 오류: '+err.message)}
 }
 async function runSmartSearch(){
   if(!requireReservationAdmin())return;
   const query=q('query').value.trim();
   if(!query){toast('검색어를 입력해 주세요.');return}
-  const qLower=query.toLowerCase();
-  const qDigits=query.replace(/\D/g,'');
-  let modes=['payerOrNickname','reservationNumber','lumiId'];
-  if(qLower.startsWith('lbt-')||/^\d{4}$/.test(qDigits)) modes=['reservationNumber','lumiId','payerOrNickname'];
-  if(qLower.startsWith('lb-')) modes=['lumiId','reservationNumber','payerOrNickname'];
-  const merged=[];
-  const seen=new Set();
-  const warnings=[];
-  for(const mode of modes){
-    try{
-      const res=await apiRequest({action:ACTIONS.search,eventId:selectedEventId,mode,query});
-      if(res&&res.success!==false){
-        const data=getAdminResponseItems(res);
-        data.map(normalizeReservation).filter(Boolean).forEach(item=>{
-          const key=(item.reservationNumber||'')+'|'+(item.rowId||'');
-          if(!seen.has(key)){seen.add(key);merged.push(item);}
-        });
-        getAdminWarnings(res).forEach(w=>warnings.push(w));
-      }
-    }catch(err){}
-  }
-  if(!merged.length){handleListResponse({success:false,error:'notFound'});return}
-  renderResults(merged);
-  if(merged.length===1){selected=normalizeReservation(merged[0]);renderDetail();}
-  if(warnings.length) toast([...new Set(warnings)].map(warningText).join(' / '));
+  try{
+    const list=await loadSelectedEventReservations();
+    const filtered=filterReservationsInBrowser(list,query,'smart');
+    if(!filtered.length){handleListResponse({success:false,error:'notFound'});return}
+    renderResults(filtered);
+    if(filtered.length===1){selected=normalizeReservation(filtered[0]);renderDetail();}
+  }catch(err){toast('예약 목록 로드 오류: '+err.message)}
 }
 async function listPending(){
   if(!requireReservationAdmin())return;
-  try{const res=await apiRequest({action:ACTIONS.listPending,eventId:selectedEventId});handleListResponse(res)}catch(err){toast('API 호출 오류: '+err.message)}
+  try{
+    const list=await loadSelectedEventReservations();
+    const filtered=list.filter(r=>['pending','hold'].includes(getStatusKey('payment',r.paymentStatus)));
+    if(!filtered.length){handleListResponse({success:false,error:'notFound'});return}
+    renderResults(filtered,'pending');
+  }catch(err){toast('예약 목록 로드 오류: '+err.message)}
 }
-function listToday(){
+async function listToday(){
   if(!requireReservationAdmin())return;
-  if(isApiMode()){toast('오늘 예매 필터는 다음 API 확장 후보입니다. 현재는 입금 대기 목록 또는 검색을 사용해 주세요.');return}
-  renderResults(reservations.filter(r=>r.eventId===selectedEventId));
+  try{
+    const list=await loadSelectedEventReservations();
+    if(!list.length){handleListResponse({success:false,error:'notFound'});return}
+    renderResults(list,'all');
+    toast('선택한 공연의 예약 목록을 표시했습니다.');
+  }catch(err){toast('예약 목록 로드 오류: '+err.message)}
 }
 function handleListResponse(res){
   if(!res||res.success===false){q('results').innerHTML='<div class="notice"><p>'+displayError(res&&res.error)+'</p></div>';selected=null;currentResults=[];renderDetail();return}
@@ -735,6 +795,7 @@ async function confirmPayment(){
     if(!res||res.success===false){toast(displayError(res&&res.error));return}
     const updated=normalizeReservation(getAdminUpdatedReservation(res,selected));
     selected=updated;
+    replaceReservationInCache(updated);
     if(!isApiMode()){
       const idx=reservations.findIndex(r=>r.reservationNumber===updated.reservationNumber);
       if(idx>-1) reservations[idx]=updated;
@@ -771,7 +832,7 @@ eventTab=getEventGroup(selectedEvent);
 renderEventPicker();
 renderSourceModeNotice();
 updateActionAvailability();
-if(open&&canUseReservationAdmin(selectedEvent)){renderDetail();q('results').innerHTML='<div class="notice"><p>예약번호, 입금자명, 닉네임 또는 루미ID로 검색해 주세요.</p></div>';}
+if(open&&canUseReservationAdmin(selectedEvent)){renderDetail();q('results').innerHTML='<div class="notice"><p>예약 목록을 불러오는 중입니다. 이후 검색은 화면 안에서 빠르게 처리됩니다.</p></div>';preloadSelectedEventReservations().then(()=>{if(!currentResults.length)q('results').innerHTML='<div class="notice"><p>예약번호, 입금자명, 닉네임 또는 루미ID로 검색해 주세요.</p></div>';});}
 </script>
 </body>
 </html>
