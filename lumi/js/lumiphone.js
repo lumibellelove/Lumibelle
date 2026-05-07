@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_06_chrome_cache_guard_20260507";
+      const APP_VERSION = "patch51_11_login_persist_guard_20260508";
       const LUMI_API_ENDPOINT = String(window.LUMI_API_ENDPOINT || "").trim();
       const LUMI_API_TIMEOUT_MS = 12000;
       let currentUser = null;
@@ -22,10 +22,6 @@
 
       function clearLegacyStorageForChromePatch(force) {
         const keys = [
-          "lumiphone.loginState.v1",
-          "lumiphone.loginState",
-          "lumiLoginState",
-          "lumiPhoneLogin",
           "lumiApiEndpoint",
           "LUMI_API_ENDPOINT",
           "lumiphone.apiEndpoint",
