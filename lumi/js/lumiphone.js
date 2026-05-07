@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_16_save_before_open_20260508";
+      const APP_VERSION = "patch51_17_body_append_20260508";
       const LUMI_API_ENDPOINT = String(window.LUMI_API_ENDPOINT || "").trim();
       const LUMI_API_TIMEOUT_MS = 12000;
       let currentUser = null;
@@ -2661,7 +2661,7 @@
             reject(new Error("apiNetworkError"));
           };
           script.src = LUMI_API_ENDPOINT + (LUMI_API_ENDPOINT.indexOf("?") === -1 ? "?" : "&") + query.toString();
-          document.head.appendChild(script);
+          document.body.appendChild(script);
         });
       }
 
