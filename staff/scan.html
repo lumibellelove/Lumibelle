@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Lumibelle Staff Entry Check</title>
+  <!-- Patch 51-10: status labels Korean final + cancelled branch -->
 <style>
     @import url('https://fonts.googleapis.com/css2?family=SUIT:wght@600;700;800;900&display=swap');
 
@@ -381,12 +382,14 @@
       let html = '<div class="list">';
 
       items.forEach(function(item, index) {
+        const paymentText = normalizePaymentValue(item.paymentStatus) || "-";
+        const entryText = normalizeEntryValue(item.entryStatus) || "-";
         html += '<button class="result-btn" type="button" onclick="selectFromList(' + index + ')">';
         html += '<strong>' + escapeHtml(item.depositor || "-") + ' / ' + escapeHtml(item.nickname || "-") + '</strong>';
         html += '<p><b>메아테</b> ' + escapeHtml(item.meate || "-") + '</p>';
         html += '<p><b>예약번호</b> ' + escapeHtml(item.ticketId || "-") + '</p>';
         html += '<p><b>루미ID</b> ' + escapeHtml(item.lumiId || "-") + '</p>';
-        html += '<p><b>결제</b> ' + escapeHtml(item.paymentStatus || "-") + ' / <b>입장</b> ' + escapeHtml(item.entryStatus || "-") + '</p>';
+        html += '<p><b>결제</b> ' + escapeHtml(paymentText) + ' / <b>입장</b> ' + escapeHtml(entryText) + '</p>';
         html += '</button>';
       });
 
@@ -489,8 +492,12 @@
 
       if (normalizedEntry === "입장완료") {
         button = '<div class="msg ok">이미 입장완료 처리된 예약이에요.<br>입장시간: ' + escapeHtml(data.entryTime || "-") + '</div>';
-      } else if (normalizedPayment !== "입금확인완료") {
+      } else if (normalizedPayment === "취소") {
+        button = '<div class="msg err">취소된 예약이에요.<br>현장 책임자 확인 없이는 입장 처리하지 마세요.</div><button class="pink" type="button" style="margin-top:10px;" onclick="checkin()">책임자 확인 후 입장완료 처리</button>';
+      } else if (normalizedPayment === "입금확인대기") {
         button = '<div class="msg err">아직 입금확인완료가 아니에요.<br>현장 확인 후 처리해 주세요.</div><button class="pink" type="button" style="margin-top:10px;" onclick="checkin()">그래도 입장완료 처리</button>';
+      } else if (normalizedPayment !== "입금확인완료") {
+        button = '<div class="msg err">결제상태를 확인해 주세요.<br>현장 확인 후 처리해 주세요.</div><button class="pink" type="button" style="margin-top:10px;" onclick="checkin()">그래도 입장완료 처리</button>';
       } else {
         button = '<button class="pink" type="button" style="margin-top:10px;" onclick="checkin()">입장완료 처리</button>';
       }
