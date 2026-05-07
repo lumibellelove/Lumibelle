@@ -27,6 +27,7 @@
           "lumiphone.apiEndpoint",
           "lumiphone.version",
           "lumiphone.appVersion",
+          "lumiphone.loginState.v1",
           "lumiphone.releaseReset.patch14.v1"
         ];
         try {
@@ -3309,7 +3310,7 @@
         appendBootDebug("saved login found: " + (savedLoginState.lumiId || savedLoginState.id));
         currentUser = normalizeLumiUser(savedLoginState);
         loginId.value = normalizeLoginIdInput(savedLoginState.id);
-        openApp({ persist: false, user: currentUser });
+        openApp({ persist: true, user: currentUser });
       } else {
         appendBootDebug("saved login none");
       }
