@@ -2,7 +2,10 @@
     (() => {
       "use strict";
 
-      const sampleUser = { id: "LB-0001", pin: "1234", nickname: "루미나" };
+      const LUMI_API_ENDPOINT = String(window.LUMI_API_ENDPOINT || "").trim();
+      const LUMI_API_TIMEOUT_MS = 12000;
+      let currentUser = null;
+      let myReservations = [];
       const $ = (selector, root = document) => root.querySelector(selector);
       const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
@@ -141,9 +144,20 @@
         try { return localStorage.getItem(langStorageKey) || "kr"; } catch (error) { return "kr"; }
       }
 
-      function saveLoginState(id) {
+      function saveLoginState(user) {
         try {
-          localStorage.setItem(loginStateStorageKey, JSON.stringify({ id: normId(id || sampleUser.id), type: "sample", savedAt: Date.now() }));
+          const source = (user && typeof user === "object") ? user : { lumiId: user };
+          const id = normId(source.lumiId || source.id || "");
+          if (!id) return;
+          localStorage.setItem(loginStateStorageKey, JSON.stringify({
+            id: id,
+            lumiId: id,
+            nickname: source.nickname || "",
+            oshi: source.oshi || "",
+            level: source.level || "",
+            type: "api",
+            savedAt: Date.now()
+          }));
         } catch (error) {}
       }
 
@@ -152,11 +166,27 @@
           const raw = localStorage.getItem(loginStateStorageKey);
           if (!raw) return null;
           const state = JSON.parse(raw);
-          const id = normId(state && state.id);
-          return id === sampleUser.id ? { id: id, type: state.type || "sample" } : null;
+          const id = normId(state && (state.lumiId || state.id));
+          if (!id) return null;
+          return {
+            id: id,
+            lumiId: id,
+            nickname: state.nickname || "",
+            oshi: state.oshi || "",
+            level: state.level || "",
+            type: state.type || "api"
+          };
         } catch (error) {
           return null;
         }
+      }
+
+      function getCurrentLumiId() {
+        return normId((currentUser && (currentUser.lumiId || currentUser.id)) || "");
+      }
+
+      function getCurrentNickname() {
+        return (currentUser && currentUser.nickname) || "루미나";
       }
 
       function clearLoginState() {
@@ -206,14 +236,18 @@
         }
       }
 
-      function openApp(options) {
+      async function openApp(options) {
         const settings = options || {};
-        if (settings.persist !== false) saveLoginState(sampleUser.id);
+        if (settings.user) currentUser = normalizeLumiUser(settings.user);
+        if (settings.persist !== false && currentUser) saveLoginState(currentUser);
         clearMessage();
         loginView.classList.remove("active");
         appView.classList.add("active");
         go("home");
         updateClock();
+        if (currentUser && getCurrentLumiId()) {
+          await loadMyReservations(getCurrentLumiId());
+        }
       }
 
       function closeApp() {
@@ -251,7 +285,7 @@
       function updateMessageSaveButton(member) {
         const button = document.getElementById("messageSaveToggle");
         if (!button) return;
-        const target = String(member || "luna").toLowerCase();
+        const target = String(member || "coming-soon").toLowerCase();
         button.setAttribute("data-message-save", target);
         let saved = false;
         try {
@@ -264,17 +298,17 @@
       function renderMessageThread(member) {
         const phone = document.getElementById("messageThread") || document.querySelector("#page-message .message-phone");
         if (!phone) return;
-        const target = String(member || "luna").toLowerCase();
+        const target = String(member || "coming-soon").toLowerCase();
         const title = document.getElementById("messageDetailTitle");
         const sub = document.getElementById("messageDetailSub");
-        if (target === "luna") {
-          if (title) title.textContent = "루나 🌙🐱";
-          if (sub) sub.textContent = "ON AIR 메시지";
+        if (target === "coming-soon") {
+          if (title) title.textContent = "ON AIR 메시지";
+          if (sub) sub.textContent = "Coming Soon";
           phone.innerHTML = [
-            '<div class="bubble from">왔어? 안 그래도 마침 기다리고 있었는데 ㅎㅎ 🌙✨</div>',
-            '<div class="bubble from">ON AIR에서 보내준 응원, 루나한테 다 닿고 있다구.</div>',
+            '<div class="bubble from">Coming Soon</div>',
+            '<div class="bubble from">새로운 빛이 준비 중이에요</div>',
             '<div class="bubble to">오늘도 응원할게!</div>',
-            '<div class="bubble from">고마워. 멀리 있어도 우리 마음은 이렇게 이어져 있나 봐 ♡</div>'
+            '<div class="bubble from">자세한 내용은 추후 공개됩니다.</div>'
           ].join("");
         } else {
           if (title) title.textContent = "루루 🍼🐰";
@@ -292,14 +326,14 @@
 
       window.openLumiMessage = function(member) {
         go("message");
-        renderMessageThread(member || "luna");
+        renderMessageThread(member || "coming-soon");
       };
 
       document.addEventListener("click", function(event) {
         const openButton = event.target.closest("[data-message-open]");
         if (openButton) {
           event.preventDefault();
-          renderMessageThread(openButton.getAttribute("data-message-open") || "luna");
+          renderMessageThread(openButton.getAttribute("data-message-open") || "coming-soon");
           return;
         }
 
@@ -313,7 +347,7 @@
         const saveButton = event.target.closest("[data-message-save]");
         if (saveButton) {
           event.preventDefault();
-          const target = saveButton.getAttribute("data-message-save") || "luna";
+          const target = saveButton.getAttribute("data-message-save") || "coming-soon";
           let saved = false;
           try {
             saved = window.localStorage && window.localStorage.getItem("lumiMessageSaved:" + target) === "1";
@@ -361,51 +395,55 @@
         },
         {
           id: "debut-guide",
-          box: "inbox",
+          box: "pending",
           category: "live",
+          type: "preLive",
+          unlock: "reservationConfirmed",
           icon: "🎀",
-          from: "LUMI STAFF",
+          from: "LUMIBELLE 운영",
           meta: "라이브 안내 · 2026.07.12",
-          status: "읽음",
+          status: "scheduled",
           title: "Debut Live 안내",
-          preview: "입장 확인용 번호와 메아테 안내를 확인해 주세요.",
-          body: "현장에서는 루미 ID 또는 입장 확인용 번호를 먼저 보여주세요.\n\n메아테 혜택은 입장 시가 아니라 물판/특전회에서 확인 후 처리됩니다. 특전회에 참여한 기록은 루미 체크인으로 남고, 스탬프는 체크인 기준으로 지급돼요."
+          preview: "공연 일정과 입장 안내는 티켓함과 캘린더에서 확인할 수 있어요.",
+          body: "공연 일정과 입장 안내는 티켓함과 캘린더에서 확인할 수 있어요.\n\n현장에서는 루미 ID 또는 입장 확인용 번호를 먼저 보여주세요. 메아테 혜택은 입장 시 지급되는 것이 아니라, 물판/특전회에서 확인 후 처리됩니다."
         },
         {
           id: "after-live",
-          box: "inbox",
+          box: "pending",
           category: "member",
+          type: "afterLive",
+          unlock: "afterLiveEnd",
           icon: "🎀",
           from: "마리링",
-          meta: "공연 후 우편 · 오늘 18:00",
-          status: "NEW",
+          meta: "공연 종료 후 도착 예정",
+          status: "예약됨",
           title: "오늘 와줘서 고마워",
-          preview: "네가 남겨준 마음이 오늘 무대의 반짝임이 됐어.",
+          preview: "공연이 끝난 뒤 조건에 맞춰 도착하는 메시지예요.",
           body: "오늘 와줘서 고마워.\n\n네가 남겨준 마음이 오늘 무대의 반짝임이 됐어. 모든 순간에 답장을 남기지는 못해도, 루미벨은 루미나가 보내준 응원과 후기를 소중히 확인하고 있어. 다음에도 무대에서 꼭 만나자."
         },
         {
           id: "birthday-ticket",
-          box: "inbox",
+          box: "guide",
           category: "event",
           icon: "🎂",
           from: "루미폰",
-          meta: "이벤트 안내 · 생일 당월",
+          meta: "이벤트 안내 · 생일 등록 후",
           status: "읽음",
           title: "Birthday Ticket 안내",
-          preview: "생일 당월에 사용할 수 있는 특별한 촬영 티켓이에요.",
-          body: "Birthday Ticket은 생일 당월 1일부터 말일까지 사용할 수 있는 생일 기념 촬영 특전권이에요.\n\n본인 사용만 가능하며 양도할 수 없고, 사용 완료 후 재발급되지 않습니다. 실제 표시와 사용 가능 여부는 루미 ID 기록과 운영 확인 기준으로 적용됩니다."
+          preview: "생일을 등록하면 생일 시즌에 안내가 도착해요.",
+          body: "생일을 등록하면 생일 시즌에 Birthday Ticket 안내가 도착해요.\n\nBirthday Ticket은 팬 본인의 생일 등록값을 기준으로 표시됩니다. 본인 사용만 가능하며 양도할 수 없고, 사용 완료 후 재발급되지 않습니다."
         },
         {
           id: "lumi-log-note",
-          box: "inbox",
+          box: "guide",
           category: "live",
           icon: "📖",
           from: "LUMI LOG",
-          meta: "기록 안내 · 공연 후",
+          meta: "루미로그 안내 · 준비 중",
           status: "읽음",
-          title: "오늘의 마음은 루미로그에 남아요",
-          preview: "후기와 응원은 지나가는 글이 아니라 오래 남는 기록이 돼요.",
-          body: "공연 후 남겨준 후기와 응원은 지나가는 글이 아니라 루미벨의 기록 속에 오래 보관됩니다.\n\n리프 여부가 마음의 크기를 의미하지는 않아요. 대신 루미로그를 통해 그날의 셋리스트, 사진, 멤버의 한마디, 루미나가 남겨준 마음을 천천히 기록해요."
+          title: "루미로그 안내",
+          preview: "공연이 끝난 뒤, 그날의 기억이 루미로그와 추억의 시간에 정리돼요.",
+          body: "공연이 끝난 뒤, 그날의 기억이 루미로그와 추억의 시간에 정리돼요.\n\n루미벨은 루미나가 남겨준 후기와 응원을 소중히 확인하고, 지나가는 글이 아니라 오래 남는 기록으로 보관할 예정이에요."
         }
       ];
 
@@ -465,7 +503,7 @@
       function getMailItems(box) {
         const state = mailState[box] || mailState.inbox;
         const savedIds = readSavedMailIds();
-        const base = box === "saved" ? LUMI_MAIL_ITEMS.filter((item) => savedIds.includes(item.id)) : LUMI_MAIL_ITEMS;
+        const base = box === "saved" ? LUMI_MAIL_ITEMS.filter((item) => item.box !== "pending" && savedIds.includes(item.id)) : LUMI_MAIL_ITEMS.filter((item) => item.box === "inbox");
         return base.filter((item) => {
           if (state.filter === "all") return true;
           if (state.filter === "guide") {
@@ -512,7 +550,7 @@
       function updateMailTabBadge() {
         const badge = document.querySelector('.tab[data-page="mail"] .badge');
         if (!badge) return;
-        const unread = LUMI_MAIL_ITEMS.filter((mail) => !isMailRead(mail.id) && mail.status === "NEW").length;
+        const unread = LUMI_MAIL_ITEMS.filter((mail) => mail.box === "inbox" && !isMailRead(mail.id) && mail.status === "NEW").length;
         badge.textContent = unread || "";
         badge.style.display = unread ? "" : "none";
       }
@@ -574,74 +612,7 @@
         openMailModal(detailId);
       }
 
-      const LUMI_LOG_ITEMS = [
-        {
-          id: "debut-dday",
-          category: "joined",
-          label: "LIVE LOG",
-          labelType: "live",
-          from: "LUMI LOG",
-          meta: "2026.07.12 · 데뷔 라이브",
-          title: "2026.07.12 · 데뷔 라이브 D-DAY 기록",
-          preview: "첫 번째 점이 찍히는 날. 오늘의 분위기, 현장 사진, 짧은 멘트를 모아 루미로그로 남기는 영역입니다.",
-          body: "2026.07.12 · 데뷔 라이브 D-DAY 기록\n\n첫 번째 점이 찍히는 날. 오늘의 분위기, 현장 사진, 짧은 멘트를 모아 루미로그로 남기는 영역입니다.\n\n이 기록은 공홈 LUMI LOG와 연결되어, 내가 함께한 날의 기억을 내 루미폰 안에서 다시 볼 수 있게 해요."
-        },
-        {
-          id: "lulu-letter-day",
-          category: "letter",
-          label: "LUMI LETTER",
-          labelType: "letter",
-          from: "루루",
-          meta: "루미레터 · 공연 후",
-          title: "루루의 딸기빛 하루",
-          preview: "멤버가 직접 남긴 짧은 편지와 일기 느낌의 글을 볼 수 있어요. 문자보다 조금 길고, 우편보다 부담 없는 루미레터예요.",
-          body: "루루의 딸기빛 하루\n\n오늘 와줘서 고마워... 🐰🩷\n\n멤버가 직접 남긴 짧은 편지와 일기 느낌의 글을 볼 수 있는 루미레터예요. 문자보다 조금 길고, 우편보다 부담 없이 남는 작은 기록으로 보관돼요."
-        },
-        {
-          id: "official-log-link",
-          category: "live",
-          label: "LIVE LOG",
-          labelType: "live",
-          from: "LUMI LOG",
-          meta: "공식 루미로그 연결",
-          title: "공식 루미로그 연결",
-          preview: "공홈 LUMI LOG에 남겨진 공연 기록 중, 내가 연결된 공연 기록을 내 루미폰에서 다시 확인하는 영역이에요.",
-          body: "공식 루미로그 연결\n\n공홈 LUMI LOG에 남겨진 공연 기록 중, 내가 연결된 공연 기록을 내 루미폰에서 다시 확인하는 영역이에요.\n\n나중에는 셋리스트, 공연 사진, 멤버의 한마디, 루미나가 남겨준 후기까지 함께 연결할 수 있어요."
-        },
-        {
-          id: "join-day-upcoming",
-          category: "upcoming",
-          label: "COMING SOON",
-          labelType: "upcoming",
-          from: "LUMI LOG",
-          meta: "2026.10.18 · 예정된 기록",
-          title: "10.18 · 점이 선으로 이어지는 날",
-          preview: "이로와 루나 합류 이후 해금될 예정의 시즌 로그입니다. 확정 전에는 잠금 상태로만 표시됩니다.",
-          body: "10.18 · 점이 선으로 이어지는 날\n\n이로와 루나 합류 이후 해금될 예정의 시즌 로그입니다. 확정 전에는 잠금 상태로만 표시됩니다.\n\n루미벨의 이야기가 점에서 선으로 이어지는 순간을 이곳에 기록할 예정이에요."
-        },
-        {
-          id: "secret-color-letter",
-          category: "upcoming",
-          label: "COMING SOON",
-          labelType: "upcoming",
-          from: "LUMI LETTER",
-          meta: "9월 티저 공개 이후",
-          title: "?? · 새로운 색이 다가오고 있어요",
-          preview: "9월 티저 공개 이후 도착할 수 있는 비밀 루미레터 후보예요. 아직 이름을 말할 수 없는 누군가의 메시지입니다.",
-          body: "?? · 새로운 색이 다가오고 있어요\n\n9월 티저 공개 이후 도착할 수 있는 비밀 루미레터 후보예요. 아직 이름을 말할 수 없는 누군가의 메시지입니다.\n\n공개 전까지는 잠금된 기록처럼 보관돼요."
-        },
-        {
-          id: "online-heart-log",
-          category: "letter",
-          label: "LUMI LETTER",
-          labelType: "letter",
-          from: "ON AIR",
-          meta: "온라인 연결 기록",
-          title: "멀리 있어도 닿은 응원",
-          preview: "방송에서 보낸 반짝 응원과 루미코드 인증이 루미폰 안에서 연결되는 느낌의 기록입니다.",
-          body: "멀리 있어도 닿은 응원\n\n방송에서 보낸 반짝 응원과 루미코드 인증이 루미폰 안에서 연결되는 느낌의 기록입니다.\n\n오프라인 팬은 다녀온 기록을, 온라인 팬은 연결되어 있는 느낌을 남길 수 있도록 확장할 예정이에요."
-        }
-      ];
+      const LUMI_LOG_ITEMS = [];
 
       const lumiLogState = {
         list: { page: 0, filter: "all" },
@@ -854,8 +825,9 @@
         broadcastName: "리",
         title: "나만의 루미나",
         space: "루루의 방",
-        birthdayMonth: "07",
-        birthdayDay: "19",
+        birthdayMonth: "",
+        birthdayDay: "",
+        birthdayRegistered: false,
         joinedAt: "2026.05.06"
       });
       const profileDefaultState = () => ({ cover: profileDefaultPart(), avatar: profileDefaultPart(), info: profileDefaultInfo() });
@@ -895,18 +867,32 @@
       }
 
       function normalizeBirthdayMonth(value) {
-        const n = Math.min(12, Math.max(1, parseInt(value, 10) || 7));
+        const raw = String(value || "").trim();
+        if (!raw) return "";
+        const n = parseInt(raw, 10);
+        if (!Number.isFinite(n) || n < 1 || n > 12) return "";
         return String(n).padStart(2, "0");
       }
 
       function normalizeBirthdayDay(value) {
-        const n = Math.min(31, Math.max(1, parseInt(value, 10) || 19));
+        const raw = String(value || "").trim();
+        if (!raw) return "";
+        const n = parseInt(raw, 10);
+        if (!Number.isFinite(n) || n < 1 || n > 31) return "";
         return String(n).padStart(2, "0");
       }
 
       function normalizeProfileInfo(info) {
         const base = profileDefaultInfo();
         const next = Object.assign(base, info || {});
+        let birthdayMonth = normalizeBirthdayMonth(next.birthdayMonth);
+        let birthdayDay = normalizeBirthdayDay(next.birthdayDay);
+        let birthdayRegistered = next.birthdayRegistered === true || next.birthdayRegistered === "true";
+        if (!birthdayRegistered && birthdayMonth === "07" && birthdayDay === "19") {
+          birthdayMonth = "";
+          birthdayDay = "";
+        }
+        birthdayRegistered = Boolean(birthdayMonth && birthdayDay && (birthdayRegistered || next.birthdayMonth || next.birthdayDay));
         return {
           displayName: clampText(next.displayName || "루미나", 12) || "루미나",
           oshi: clampText(next.oshi || "루루 🍼🐰", 24) || "루루 🍼🐰",
@@ -914,8 +900,9 @@
           broadcastName: clampText(next.broadcastName || "리", 12),
           title: clampText(String(next.title || "나만의 루미나").replace(/^대표 칭호\s*·\s*/, "").replace("첫 번째 점을 따라온 루미나", "첫 번째 점"), 18),
           space: clampText(next.space || "루루의 방", 12),
-          birthdayMonth: normalizeBirthdayMonth(next.birthdayMonth),
-          birthdayDay: normalizeBirthdayDay(next.birthdayDay),
+          birthdayMonth,
+          birthdayDay,
+          birthdayRegistered,
           joinedAt: next.joinedAt || "2026.05.06"
         };
       }
@@ -1051,7 +1038,7 @@
 
       function profileBirthdayText(info) {
         const data = normalizeProfileInfo(info);
-        return data.birthdayMonth + "." + data.birthdayDay;
+        return data.birthdayRegistered && data.birthdayMonth && data.birthdayDay ? data.birthdayMonth + "." + data.birthdayDay : "생일 미등록";
       }
 
       function setCounter(name, value, max) {
@@ -1083,6 +1070,8 @@
 
       function populateBirthdaySelects() {
         if (!profileBirthdayMonth || !profileBirthdayDay || profileBirthdayMonth.options.length) return;
+        profileBirthdayMonth.add(new Option("월 선택", ""));
+        profileBirthdayDay.add(new Option("일 선택", ""));
         for (let i = 1; i <= 12; i += 1) {
           const value = String(i).padStart(2, "0");
           profileBirthdayMonth.add(new Option(value + "월", value));
@@ -1121,7 +1110,8 @@
           title: current.title,
           space: profileInputSpace ? profileInputSpace.value : current.space,
           birthdayMonth: profileBirthdayMonth ? profileBirthdayMonth.value : current.birthdayMonth,
-          birthdayDay: profileBirthdayDay ? profileBirthdayDay.value : current.birthdayDay
+          birthdayDay: profileBirthdayDay ? profileBirthdayDay.value : current.birthdayDay,
+          birthdayRegistered: Boolean((profileBirthdayMonth ? profileBirthdayMonth.value : current.birthdayMonth) && (profileBirthdayDay ? profileBirthdayDay.value : current.birthdayDay))
         }));
       }
 
@@ -1238,14 +1228,14 @@
       function achievementSummaryShareText() {
         const cards = getAchievementCards();
         const ownedCards = cards.filter(achievementIsOwned);
-        const progressCards = cards.filter((card) => (card.dataset.achievementStatus || "") === "진행 중");
+        const progressCards = cards.filter((card) => (card.dataset.achievementStatus || "") === "대기 중");
         const ownedTitles = Array.from(new Set(ownedCards.map((card) => card.dataset.achievementReward).filter(Boolean)));
         const representativeTitle = localStorage.getItem(representativeAchievementKey) || (ownedCards[0] && ownedCards[0].dataset.achievementTitle) || "-";
         const sampleCards = ownedCards.slice(0, 4).map((card) => (card.dataset.achievementIcon || "🏅") + " " + (card.dataset.achievementTitle || "업적")).join("\n");
         return "루미폰 업적 현황\n\n" +
           "달성 업적 " + ownedCards.length + " / " + cards.length + "\n" +
           "보유 칭호 " + ownedTitles.length + "개\n" +
-          "진행 중 " + progressCards.length + "개\n" +
+          "대기 중 " + progressCards.length + "개\n" +
           "대표 업적 " + representativeTitle + "\n\n" +
           "업적 도감\n" + (sampleCards || "아직 공개된 업적이 없어요") + "\n\n" +
           "https://lumibellelove.com/\n\n" +
@@ -1269,7 +1259,7 @@
         }
         const cards = getAchievementCards();
         const ownedCards = cards.filter(achievementIsOwned);
-        const progressCards = cards.filter((card) => (card.dataset.achievementStatus || "") === "진행 중");
+        const progressCards = cards.filter((card) => (card.dataset.achievementStatus || "") === "대기 중");
         const ownedTitles = Array.from(new Set(ownedCards.map((card) => card.dataset.achievementReward).filter(Boolean)));
         const representativeTitle = localStorage.getItem(representativeAchievementKey) || (ownedCards[0] && ownedCards[0].dataset.achievementTitle) || "-";
         return {
@@ -1278,7 +1268,7 @@
           icon: "✦",
           title: "나의 루미폰 업적",
           reward: "달성 " + ownedCards.length + " / " + cards.length + " · 칭호 " + ownedTitles.length + "개",
-          desc: "진행 중 " + progressCards.length + "개 · 대표 업적 " + representativeTitle,
+          desc: "대기 중 " + progressCards.length + "개 · 대표 업적 " + representativeTitle,
           date: new Date().toLocaleDateString("ko-KR").replace(/\. /g, ".").replace(/\.$/, ""),
           text: achievementSummaryShareText(),
           cards: ownedCards.slice(0, 4).map((card) => ({ icon: card.dataset.achievementIcon || "🏅", title: card.dataset.achievementTitle || "업적" }))
@@ -1402,7 +1392,7 @@
         ctx.fillText(footerJoinDate + " 개통", infoX, infoY + 52);
         ctx.fillStyle = pink;
         ctx.font = "900 36px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, infoX, infoY + 104);
+        ctx.fillText("LUMI ID · " + (getCurrentLumiId() || "-"), infoX, infoY + 104);
         ctx.fillStyle = muted;
         ctx.font = "900 27px sans-serif";
         ctx.fillText("왕도 라이브 아이돌 · lumibellelove.com", infoX, infoY + 150);
@@ -1625,7 +1615,7 @@
         const text = [
           "루미폰 프로필 카드",
           "",
-          name + " · " + sampleUser.id,
+          name + " · " + (getCurrentLumiId() || "-"),
           "오시: " + oshi,
           "대표 칭호: " + title,
           "",
@@ -1639,7 +1629,7 @@
           kicker: "PROFILE CARD",
           icon: "♡",
           title: name,
-          reward: "LUMI ID · " + sampleUser.id,
+          reward: "LUMI ID · " + (getCurrentLumiId() || "-"),
           desc: "오시: " + oshi,
           small: "대표 칭호 · " + title,
           space: info.space || "루루의 방",
@@ -1835,7 +1825,7 @@
 
         ctx.fillStyle = muted;
         ctx.font = "900 39px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, leftX, contentTop + 70);
+        ctx.fillText("LUMI ID · " + (getCurrentLumiId() || "-"), leftX, contentTop + 70);
 
         ctx.fillStyle = deep;
         ctx.font = "900 43px sans-serif";
@@ -1944,7 +1934,7 @@
         ctx.fillText((payload.date || "2026.07.12") + " 개통", infoX, infoY + 80);
         ctx.fillStyle = pink;
         ctx.font = "900 48px sans-serif";
-        ctx.fillText("LUMI ID · " + sampleUser.id, infoX, infoY + 144);
+        ctx.fillText("LUMI ID · " + (getCurrentLumiId() || "-"), infoX, infoY + 144);
         ctx.fillStyle = muted;
         ctx.font = "900 34px sans-serif";
         ctx.fillText("왕도 라이브 아이돌 · lumibellelove.com", infoX, infoY + 194);
@@ -2218,13 +2208,13 @@
       function updateAchievementSummary() {
         const cards = getAchievementCards();
         const ownedCards = cards.filter(achievementIsOwned);
-        const progressCards = cards.filter((card) => (card.dataset.achievementStatus || "") === "진행 중");
+        const progressCards = cards.filter((card) => (card.dataset.achievementStatus || "") === "대기 중");
         const ownedTitles = Array.from(new Set(ownedCards.map((card) => card.dataset.achievementReward).filter(Boolean)));
         if (achievementSummaryDone) achievementSummaryDone.textContent = ownedCards.length + " / " + cards.length;
         if (achievementSummaryTitles) achievementSummaryTitles.textContent = ownedTitles.length + "개";
 
         const progressCard = progressCards[0] || null;
-        if (achievementSummaryProgress) achievementSummaryProgress.textContent = progressCard ? (progressCard.dataset.achievementProgress || "진행 중") : "0개";
+        if (achievementSummaryProgress) achievementSummaryProgress.textContent = progressCard ? (progressCard.dataset.achievementProgress || "대기 중") : "0개";
         if (achievementSummaryProgressName) achievementSummaryProgressName.textContent = progressCard ? (progressCard.dataset.achievementTitle || "이어가는 기록") : "이어가는 기록";
         if (achievementSummaryProgressIcon) achievementSummaryProgressIcon.textContent = progressCard ? (progressCard.dataset.achievementIcon || "✨") : "✨";
         if (achievementSummaryProgressCard) {
@@ -2504,12 +2494,254 @@
         }
       }
 
-      loginForm.addEventListener("submit", (event) => {
+      function normalizeLumiUser(user) {
+        const source = user || {};
+        const id = normId(source.lumiId || source.id || "");
+        return {
+          id: id,
+          lumiId: id,
+          nickname: source.nickname || source.name || "루미나",
+          oshi: source.oshi || "",
+          level: source.level || ""
+        };
+      }
+
+      function fetchLumiApi(params) {
+        const payload = Object.assign({}, params || {});
+        if (!LUMI_API_ENDPOINT) {
+          return Promise.reject(new Error("missingApiEndpoint"));
+        }
+        return new Promise((resolve, reject) => {
+          const callbackName = "__lumiphoneApiCallback_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+          const script = document.createElement("script");
+          let done = false;
+          const timer = window.setTimeout(() => {
+            cleanup();
+            reject(new Error("apiTimeout"));
+          }, LUMI_API_TIMEOUT_MS);
+
+          function cleanup() {
+            if (done) return;
+            done = true;
+            window.clearTimeout(timer);
+            try { delete window[callbackName]; } catch (error) { window[callbackName] = undefined; }
+            if (script && script.parentNode) script.parentNode.removeChild(script);
+          }
+
+          window[callbackName] = (data) => {
+            cleanup();
+            resolve(data || {});
+          };
+
+          const query = new URLSearchParams();
+          Object.keys(payload).forEach((key) => {
+            if (payload[key] !== undefined && payload[key] !== null) query.set(key, String(payload[key]));
+          });
+          query.set("callback", callbackName);
+          query.set("_", String(Date.now()));
+          script.onerror = () => {
+            cleanup();
+            reject(new Error("apiNetworkError"));
+          };
+          script.src = LUMI_API_ENDPOINT + (LUMI_API_ENDPOINT.indexOf("?") === -1 ? "?" : "&") + query.toString();
+          document.head.appendChild(script);
+        });
+      }
+
+      async function loginLumiPhone(lumiId, pin) {
+        const response = await fetchLumiApi({ action: "lumiLogin", lumiId: lumiId, pin: pin });
+        if (!response || response.ok !== true) {
+          throw new Error((response && (response.message || response.error)) || "loginFailed");
+        }
+        return normalizeLumiUser(response.user || response.data || {});
+      }
+
+      async function getMyReservations(lumiId) {
+        const response = await fetchLumiApi({ action: "lumiGetMyReservations", lumiId: lumiId });
+        if (!response || response.ok !== true) {
+          throw new Error((response && (response.message || response.error)) || "reservationLoadFailed");
+        }
+        return Array.isArray(response.reservations) ? response.reservations : (response.data && Array.isArray(response.data.reservations) ? response.data.reservations : []);
+      }
+
+      function escapeHtml(value) {
+        return String(value == null ? "" : value).replace(/[&<>'"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[ch]));
+      }
+
+      function normalizeReservationItem(item) {
+        const source = item || {};
+        const eventDate = source.eventDate || source.date || "";
+        return {
+          eventId: source.eventId || "",
+          eventTitle: source.eventTitle || source.eventName || source.title || "공연명 확인 중",
+          eventDate: eventDate,
+          venueName: source.venueName || source.location || source.venue || "공연장 확인 중",
+          reservationNumber: source.reservationNumber || source.reserveNo || source.number || "-",
+          paymentStatus: source.paymentStatus || "pending",
+          reservationStatus: source.reservationStatus || "reserved",
+          meate: source.meate || source.oshimember || source.oshi || "-",
+          eventStatus: source.eventStatus || "",
+          startTime: source.startTime || ""
+        };
+      }
+
+      function isPastReservation(item) {
+        const status = String(item.eventStatus || "").toLowerCase();
+        if (["ended", "closed", "finished", "past"].includes(status)) return true;
+        if (!item.eventDate) return false;
+        const today = new Date();
+        const todayKey = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
+        return String(item.eventDate) < todayKey;
+      }
+
+      function paymentLabel(status) {
+        const key = String(status || "").toLowerCase();
+        if (key === "confirmed") return "입금 확인 완료";
+        if (key === "cancelled" || key === "canceled") return "예약 취소";
+        return "입금 확인 대기";
+      }
+
+      function reservationStatusLabel(status) {
+        const key = String(status || "").toLowerCase();
+        if (key === "cancelled" || key === "canceled") return "예약 취소";
+        if (key === "checkedin") return "입장 완료";
+        if (key === "reserved") return "예약 접수";
+        return status || "예약 접수";
+      }
+
+      function ticketHref(item) {
+        if (!item.eventId) return "#";
+        return "/ticket/?eventId=" + encodeURIComponent(item.eventId);
+      }
+
+      function reservationTicketHtml(item) {
+        const href = ticketHref(item);
+        return '<article class="ticket-card lumi-pass">' +
+          '<div class="ticket-inner">' +
+          '<div class="ticket-kicker">CURRENT RESERVATION</div>' +
+          '<div class="ticket-title">' + escapeHtml(item.eventTitle) + '</div>' +
+          '<div class="ticket-sub">' + escapeHtml(item.eventDate || "날짜 확인 중") + ' · ' + escapeHtml(item.venueName) + '</div>' +
+          '<div class="ticket-number"><small>RESERVATION NO.</small><strong>' + escapeHtml(item.reservationNumber) + '</strong></div>' +
+          '<div class="ticket-meta">' +
+          '<div class="ticket-cell"><small>PAYMENT</small><b>' + escapeHtml(paymentLabel(item.paymentStatus)) + '</b></div>' +
+          '<div class="ticket-cell"><small>STATUS</small><b>' + escapeHtml(reservationStatusLabel(item.reservationStatus)) + '</b></div>' +
+          '<div class="ticket-cell"><small>MEATE</small><b>' + escapeHtml(item.meate || "-") + '</b></div>' +
+          '<div class="ticket-cell"><small>LUMI ID</small><b>' + escapeHtml(getCurrentLumiId() || "-") + '</b></div>' +
+          '</div>' +
+          '<a class="btn sub ticket-api-link" href="' + escapeHtml(href) + '">티켓 페이지 보기</a>' +
+          '</div>' +
+          '</article>';
+      }
+
+      function pastTicketHtml(item) {
+        const href = ticketHref(item);
+        return '<article class="plain-row">' +
+          '<b>' + escapeHtml(item.eventTitle) + '</b>' +
+          '<span>' + escapeHtml(item.eventDate || "날짜 확인 중") + ' · ' + escapeHtml(item.venueName) + '<br>예약번호 ' + escapeHtml(item.reservationNumber) + ' · ' + escapeHtml(paymentLabel(item.paymentStatus)) + '</span>' +
+          '<a class="btn sub ticket-api-link" href="' + escapeHtml(href) + '">추억 보기</a>' +
+          '</article>';
+      }
+
+      function pcCurrentTicketHtml(item) {
+        const href = ticketHref(item);
+        return '<h3>현재 예약 티켓</h3>' +
+          '<article class="ticket-pc-pass">' +
+          '<div class="ticket-pc-pass-inner">' +
+          '<div class="ticket-pc-top"><span class="ticket-pc-label">LUMIBELLE RESERVATION</span><span class="ticket-pc-date">' + escapeHtml(item.eventDate || "날짜 확인 중") + '<br>' + escapeHtml(item.startTime || "") + '</span></div>' +
+          '<div class="ticket-pc-title-en">' + escapeHtml(item.eventTitle) + '</div>' +
+          '<div class="ticket-pc-place">' + escapeHtml(item.venueName) + '</div>' +
+          '<div class="ticket-pc-entry"><small>RESERVATION NO.</small><strong>' + escapeHtml(item.reservationNumber) + '</strong></div>' +
+          '<div class="ticket-pc-meta">' +
+          '<div><small>PAYMENT</small><b>' + escapeHtml(paymentLabel(item.paymentStatus)) + '</b></div>' +
+          '<div><small>STATUS</small><b>' + escapeHtml(reservationStatusLabel(item.reservationStatus)) + '</b></div>' +
+          '<div><small>MEATE</small><b>' + escapeHtml(item.meate || "-") + '</b></div>' +
+          '<div><small>LUMI ID</small><b>' + escapeHtml(getCurrentLumiId() || "-") + '</b></div>' +
+          '</div>' +
+          '<p class="ticket-pc-help"><a class="btn sub ticket-api-link" href="' + escapeHtml(href) + '">티켓 페이지 보기</a></p>' +
+          '</div>' +
+          '</article>';
+      }
+
+      function pcPastTicketHtml(item) {
+        const href = ticketHref(item);
+        return '<article class="ticket-pc-wallet-card">' +
+          '<small>' + escapeHtml(item.eventDate || "날짜 확인 중") + '</small>' +
+          '<b>' + escapeHtml(item.eventTitle) + '</b>' +
+          '<span>' + escapeHtml(item.venueName) + '<br>예약번호 ' + escapeHtml(item.reservationNumber) + '</span>' +
+          '<div class="ticket-pc-card-actions"><a href="' + escapeHtml(href) + '">추억 보기</a><span>' + escapeHtml(paymentLabel(item.paymentStatus)) + '</span></div>' +
+          '</article>';
+      }
+
+      function renderMyReservations(reservations) {
+        const normalized = (reservations || []).map(normalizeReservationItem);
+        const current = normalized.filter((item) => !isPastReservation(item));
+        const past = normalized.filter(isPastReservation).sort((a, b) => String(b.eventDate || "").localeCompare(String(a.eventDate || "")));
+
+        const currentList = document.querySelector("#ticket-current .ticket-paged-list");
+        if (currentList) {
+          currentList.innerHTML = current.length
+            ? current.map((item) => '<div class="ticket-page-item">' + reservationTicketHtml(item) + '</div>').join("")
+            : '<div class="ticket-page-item"><article class="info-card"><small>예약 없음</small><b>아직 연결된 예매 내역이 없습니다.</b><span>루미 ID로 예매가 연결되면 이곳에 현재 티켓이 표시돼요.</span></article></div>';
+        }
+
+        const pastList = document.querySelector("#ticket-past .ticket-paged-list");
+        if (pastList) {
+          pastList.innerHTML = past.length
+            ? past.map((item) => '<div class="ticket-page-item">' + pastTicketHtml(item) + '</div>').join("")
+            : '<div class="ticket-page-item"><article class="plain-row"><b>지난 티켓 없음</b><span>공연이 끝난 뒤 연결된 예매 기록이 이곳에 보관돼요.</span></article></div>';
+        }
+
+        const pcCurrent = document.querySelector(".ticket-pc-current-section");
+        if (pcCurrent) {
+          pcCurrent.innerHTML = current.length
+            ? pcCurrentTicketHtml(current[0])
+            : '<h3>현재 예약 티켓</h3><article class="info-card"><small>예약 없음</small><b>아직 연결된 예매 내역이 없습니다.</b><span>루미 ID로 예매가 연결되면 이곳에 입장 확인용 티켓이 표시돼요.</span></article>';
+        }
+
+        const pcPastGrid = document.querySelector("#ticket-pc-past .ticket-pc-wallet-grid");
+        if (pcPastGrid) {
+          pcPastGrid.innerHTML = past.length
+            ? past.map(pcPastTicketHtml).join("")
+            : '<article class="ticket-pc-wallet-card is-locked"><small>지난 티켓</small><b>공연 후 기록 예정</b><span>종료된 공연 티켓은 공연이 끝난 뒤 이곳에 저장돼요.</span><div class="ticket-pc-card-actions"><span>대기</span><span>기록 예정</span></div></article>';
+        }
+
+        initTicketPagers();
+      }
+
+      async function loadMyReservations(lumiId) {
+        try {
+          renderMyReservations([]);
+          const reservations = await getMyReservations(lumiId);
+          myReservations = reservations;
+          renderMyReservations(myReservations);
+        } catch (error) {
+          myReservations = [];
+          renderMyReservations([]);
+          if (String(error && error.message) === "missingApiEndpoint") {
+            showMessage("루미폰 API 주소가 아직 설정되지 않았어요. LUMI_API_ENDPOINT를 Apps Script 웹앱 URL로 설정해 주세요.");
+          }
+        }
+      }
+
+      loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
+        clearMessage();
         loginId.value = normalizeLoginIdInput(loginId.value);
-        const ok = normId(loginId.value) === sampleUser.id && loginPin.value.trim() === sampleUser.pin;
-        if (ok) { openApp(); return; }
-        showMessage("루미 ID 또는 PIN을 다시 확인해 주세요. 샘플 루미로 보기는 아래 버튼을 이용해 주세요.");
+        const lumiId = normId(loginId.value);
+        const pin = loginPin.value.trim();
+        if (!lumiId || !pin) {
+          showMessage("루미 ID와 PIN을 입력해 주세요.");
+          return;
+        }
+        try {
+          const user = await loginLumiPhone(lumiId, pin);
+          await openApp({ user: user });
+        } catch (error) {
+          const msg = String(error && error.message || "");
+          if (msg === "missingApiEndpoint") showMessage("루미폰 API 주소가 아직 설정되지 않았어요. LUMI_API_ENDPOINT를 Apps Script 웹앱 URL로 설정해 주세요.");
+          else if (msg === "apiTimeout" || msg === "apiNetworkError") showMessage("루미폰 서버 연결을 확인해 주세요.");
+          else showMessage("루미 ID 또는 PIN을 확인해 주세요.");
+        }
       });
 
       loginId.addEventListener("input", () => {
@@ -2528,7 +2760,10 @@
         button.addEventListener("click", () => setLumiLang(button.dataset.lumiLang, true));
       });
 
-      sampleBtn.addEventListener("click", openApp);
+      if (sampleBtn) {
+        sampleBtn.hidden = true;
+        sampleBtn.setAttribute("aria-hidden", "true");
+      }
       newIdBtn.addEventListener("click", () => showMessage("온라인 팬도 루미 ID를 만들 수 있어요. 실제 발급 페이지에서는 닉네임, 이메일, 오시, 생일, PIN을 입력하게 됩니다."));
       forgotPinBtn.addEventListener("click", () => showMessage("PIN 분실 시 루미 ID, 닉네임, 이메일 등으로 문의 후 임시 PIN을 재설정하는 구조로 운영합니다."));
       logoutBtn.addEventListener("click", closeApp);
@@ -2905,8 +3140,9 @@
 
       const savedLoginState = readLoginState();
       if (savedLoginState) {
+        currentUser = normalizeLumiUser(savedLoginState);
         loginId.value = normalizeLoginIdInput(savedLoginState.id);
-        openApp({ persist: false });
+        openApp({ persist: false, user: currentUser });
       }
 
       updateClock();
@@ -3137,11 +3373,11 @@
         if (recordPageNext) recordPageNext.disabled = currentPage >= totalPages;
         if (recordMsg) {
           if (!list.length) {
-            recordMsg.textContent = currentMonthKey() + " 기록은 아직 없어요. 실제 데이터 연동 후 루미 ID 기준으로 월별 기록이 표시됩니다.";
+            recordMsg.textContent = currentMonthKey() + " 기록은 아직 없어요. 활동 기록이 연결되면 이곳에 표시돼요.";
           } else {
             recordMsg.textContent = currentFilter === "전체"
-              ? "루미폰 기록은 순차적으로 연동될 예정이에요. 루미 ID 기준으로 공연, 체크인, 온라인 연결 기록이 표시됩니다."
-              : currentFilter + " 기록만 보고 있어요. 실제 데이터 연동 후 루미 ID 기준으로 자동 정리됩니다.";
+              ? "아직 기록이 없어요. 루미벨과 함께한 순간이 생기면 이곳에 차곡차곡 남아요."
+              : currentFilter + " 기록은 아직 없어요. 활동 기록이 연결되면 이곳에 표시돼요.";
           }
         }
       }
@@ -3235,8 +3471,8 @@
         if (pointNext) pointNext.disabled = pointPage >= totalPages;
         if (pointMsg) {
           pointMsg.textContent = pointFilter === "전체"
-            ? "포인트 내역은 순차적으로 연동될 예정이에요. 루미 ID 기준으로 적립과 사용 기록이 표시됩니다."
-            : pointFilter + " 내역만 보고 있어요. 실제 데이터 연동 후 적립과 사용 기록이 자동 정리됩니다.";
+            ? "아직 적립 내역이 없어요. 활동 기록이 연결되면 이곳에 표시돼요."
+            : pointFilter + " 내역은 아직 없어요. 활동 기록이 연결되면 이곳에 표시돼요.";
         }
       }
 
@@ -3258,7 +3494,7 @@
         item.addEventListener("click", () => {
           const title = item.dataset.pointTitle || "포인트 내역";
           const date = item.dataset.pointDate || "";
-          const desc = item.dataset.pointDesc || "루미폰 포인트 기록이에요.";
+          const desc = item.dataset.pointDesc || "활동 기록이 연결되면 이곳에 표시돼요.";
           if (typeof window.openProfileSimpleModal === "function") {
             window.openProfileSimpleModal("포인트 내역", [title, date, desc]);
             return;
@@ -3290,15 +3526,10 @@
       let currentPage = 0;
 
       const events = [
-        { date:"2026-07-12", type:"live", icon:"●", title:"Lumibelle Debut Live", desc:"입장 17:30 / 공연 18:00 · 내 예약 있음", tags:["라이브", "티켓함"] },
-        { date:"2026-07-12", type:"event", icon:"★", title:"루미 체크인 · 특전회", desc:"특전회 참여 후 스탬프 +1 · 메아테 루루", tags:["체크인", "스탬프"] },
-        { date:"2026-07-20", type:"onair", icon:"◆", title:"ON AIR 연결", desc:"방송 참여 기록 / 루미코드 연결 예정", tags:["ON AIR", "루미코드"] },
-        { date:"2026-07-25", type:"event", icon:"★", title:"루미레터 발송 예정", desc:"시즌 루미레터 · 문자함에서 확인 가능", tags:["루미레터", "이벤트"] },
-        { date:"2026-08-17", type:"birthday", icon:"♥", title:"루루 생일", desc:"Birthday Ticket / 생일 메시지 후보", tags:["생일", "루루"] },
-        { date:"2026-09-21", type:"birthday", icon:"♥", title:"마리링 생일", desc:"생일 문자 / 축하 기록 후보", tags:["생일", "마리링"] },
-        { date:"2026-10-18", type:"event", icon:"★", title:"이로 · 루나 합류 / Stardust Magical 예정", desc:"확정 후 문자 · 업적 · 칭호 해금 등록", tags:["이벤트", "합류"] },
-        { date:"2026-10-18", type:"live", icon:"●", title:"리리이베 합류 이벤트", desc:"4인 체제 전환 일정 후보", tags:["라이브", "이벤트"] },
-        { date:"2026-07-20", type:"onair", icon:"◆", title:"ON AIR 연결", desc:"방송 참여 기록 / 루미코드 연결 예정", tags:["ON AIR", "루미코드"] }
+        { date:"2026-07-12", type:"live", icon:"●", title:"Lumibelle Debut Live", desc:"입장 17:30 / 공연 18:00 · 티켓함에서 확인", tags:["라이브", "티켓함"] },
+        { date:"2026-08-17", type:"birthday", icon:"♥", title:"루루 생일", desc:"축하 예정", tags:["생일", "루루"] },
+        { date:"2026-09-21", type:"birthday", icon:"♥", title:"마리링 생일", desc:"축하 예정", tags:["생일", "마리링"] },
+        { date:"2026-10-18", type:"event", icon:"★", title:"새로운 빛이 열리는 날", desc:"자세한 내용은 추후 공개됩니다.", tags:["이벤트", "예정"] }
       ];
 
       function pad(n){ return String(n).padStart(2, "0"); }
@@ -3432,6 +3663,7 @@
   }
 
   const ON_AIR_CHEER_COOLDOWN_MS = 30000;
+  const ON_AIR_CHEER_ENABLED = false;
 
   function getTodayCheerKey(){
     const today = new Date().toISOString().slice(0, 10);
@@ -3457,7 +3689,7 @@
     const root = document.getElementById('page-onair');
     if (!root) return;
     const buttons = Array.from(root.querySelectorAll('[data-onair-cheer]'));
-    const locked = remainMs > 0;
+    const locked = !ON_AIR_CHEER_ENABLED || remainMs > 0;
     buttons.forEach((button) => {
       button.disabled = locked;
       button.setAttribute('aria-disabled', locked ? 'true' : 'false');
@@ -3477,6 +3709,12 @@
     const data = getTodayCheerData();
     const count = Number(data.count) || 0;
     const remainMs = getCheerRemainMs(data);
+    if (!ON_AIR_CHEER_ENABLED) {
+      if (countEl) countEl.textContent = '반짝 응원 준비 중';
+      if (detailEl) detailEl.textContent = '방송이 시작되면 사용할 수 있어요.';
+      setOnAirCheerButtonsLocked(0);
+      return;
+    }
     if (countEl) countEl.textContent = '오늘 보낸 반짝 응원 ' + count + '회';
     if (detailEl) {
       if (messageOverride) {
@@ -3507,9 +3745,9 @@
     if (messageButton) {
       event.preventDefault();
       event.stopPropagation();
-      const member = messageButton.getAttribute('data-onair-message') || 'luna';
+      const member = messageButton.getAttribute('data-onair-message') || 'coming-soon';
       if (typeof window.lumiOpenMessageById === 'function') {
-        window.lumiOpenMessageById(member === 'luna' ? 'lunar-secret-onair' : member);
+        window.lumiOpenMessageById(member === 'coming-soon' ? 'coming-soon-secret-onair' : member);
       } else if (typeof window.openLumiMessage === 'function') {
         window.openLumiMessage(member);
       } else if (typeof window.openProfileSimpleModal === 'function') {
@@ -3522,6 +3760,11 @@
     if (cheerButton) {
       event.preventDefault();
       event.stopPropagation();
+      if (!ON_AIR_CHEER_ENABLED) {
+        renderOnAirCheerStatus('방송이 시작되면 사용할 수 있어요.');
+        cheerButton.blur();
+        return;
+      }
 
       const now = Date.now();
       const label = cheerButton.getAttribute('data-onair-cheer') || '반짝 응원';
@@ -3580,52 +3823,53 @@
       birthday: "🐰🎀🎉\n오늘은 너의 날이네...!\n태어나줘서 고마워... 오늘 하루가 조금 더 특별하고 행복하기를 루루가 기도할게...🐰🍀\n루루도 오늘은 더 많이 좋아해도 될까...? 🍼🩷"
     },
     iro: {
-      status: "ready",
-      firstVisit: "여행자…가 아니라 루미나! 이로이론나 색으로 네 하루를 바꿔줄게!",
-      liveThanks: "오늘 와줘서 아자스! 네 응원 덕분에 행복지수 완전 올라갔어!",
-      comeback: "오랜만이잖아! 이리내 이리내, 다시 와준 거 완전 기억해둘게.",
-      onlineSupport: "랜선 너머 응원도 다 들렸어! 소리질러—는 아니고, 마음으로 크게 받았어!",
-      birthday: "생일 축하해! 오늘 하루는 네 세상의 색이 제일 반짝이는 날이었으면 좋겠어."
+      status: "locked",
+      firstVisit: "Coming Soon\n새로운 빛이 준비 중이에요",
+      liveThanks: "Coming Soon\n새로운 빛이 준비 중이에요",
+      comeback: "Coming Soon\n새로운 빛이 준비 중이에요",
+      onlineSupport: "Coming Soon\n새로운 빛이 준비 중이에요",
+      birthday: "Coming Soon\n새로운 빛이 준비 중이에요"
     },
-    lunar: {
-      status: "ready",
-      firstVisit: "왔어? 안 그래도 마침 기다리고 있었는데 ㅎㅎ\n루나는 언제든 네 마음속에 있다구? 보고 싶을 때마다 늘 항상 곁에 있을게 🌙✨",
-      liveThanks: "루나를 보고 있는 눈이 너무 반짝반짝해서 무대에서도 너만 봤는데.. 혹시 너도 느꼈어?\n사실 있지 오늘은 네가 있어서 더 잘하고 싶었어\n항상 더 빛나게 노래할게! 그러니까 끝까지 루나랑 함께해 줘 ♡",
-      comeback: "어제도 그저께도 네가 언제 다시 오지 않을까 늘 생각했어 ㅜㅜ\n어젯밤 루나 꿈에도 네가 나와서 지인짜 기뻤단 말이야\n루나는 정말 너무너무 보고 싶었는데! 우리 이렇게 다시 보니까 더 좋다 그치~?",
-      onlineSupport: "오늘은 평소보다 응원하는 목소리가 더 크던데?\n멀리 있어도 나를 사랑하는 그 마음이 루나한테 다 닿고 있다구 ㅎㅎ\n진짜 신기하지? 사랑하는 마음이 우리를 이렇게 이어 주나 봐\n항상 루나가 많이 고마워 😽",
-      birthday: "오늘 생일이지? 잊지 않고 있었어!\n약간은 욕심일 수 있지만..\n네 생일 제일 먼저 축하해 주는 사람이 그게 루나였으면 좋겠다고 생각했어\n생일 너무 축하해 오늘 가장 행복한 하루 보내기! 루나랑 꼬옥 약속 ♡"
+    comingSoon: {
+      status: "locked",
+      firstVisit: "Coming Soon\n새로운 빛이 준비 중이에요",
+      liveThanks: "Coming Soon\n새로운 빛이 준비 중이에요",
+      comeback: "Coming Soon\n새로운 빛이 준비 중이에요",
+      onlineSupport: "Coming Soon\n새로운 빛이 준비 중이에요",
+      birthday: "Coming Soon\n새로운 빛이 준비 중이에요"
     }
   };
   const MEMBER_MESSAGES = window.LUMI_MEMBER_MESSAGES;
   const MESSAGES = [
     {
-      id:"lunar-online-cheer",
-      date:"ON AIR 참여 후",
-      from:"루나 🌙🐱",
+      id:"coming-soon-online-cheer",
+      box:"pending",
+      status:"scheduled",
+      unlock:"afterOnAir",
+      date:"ON AIR 종료 후",
+      from:"Coming Soon",
       tag:"온라인",
-      type:"online",
-      title:"멀리 있어도 다 닿고 있어",
-      preview:"온라인으로 보내준 응원이 루나한테 도착했어요.",
-      icon:"🌙",
-      lines:[
-        "왔어? 안 그래도 마침 기다리고 있었는데 ㅎㅎ 🌙✨",
-        "오늘은 평소보다 응원하는 마음이 더 크게 느껴지던데?",
-        "멀리 있어도 나를 사랑하는 그 마음이 루나한테 다 닿고 있다구 ㅎㅎ",
-        "진짜 신기하지? 사랑하는 마음이 우리를 이렇게 이어 주나 봐."
-      ],
-      choices:["멀리서도 응원할게","다 닿았다니 기뻐","루나도 고마워"],
+      type:"onairAfter",
+      title:"Coming Soon",
+      preview:"새로운 빛이 준비 중이에요",
+      icon:"✦",
+      lines:["Coming Soon", "새로운 빛이 준비 중이에요", "자세한 내용은 추후 공개됩니다."],
+      choices:["확인했어요","기다릴게요","추후 공개를 기다릴게요"],
       after:{
-        "멀리서도 응원할게":["응! 멀리 있어도 우리 마음은 이어져 있으니까.","루나가 다 느낄게 🌙✨"],
-        "다 닿았다니 기뻐":["다 닿고 있다구 ㅎㅎ","그러니까 앞으로도 루나한테 많이 보내줘."],
-        "루나도 고마워":["루나가 더 고마워 😽","오늘도 사랑하는 마음으로 이어져 줘서."]
+        "확인했어요":["Coming Soon", "새로운 빛이 준비 중이에요"],
+        "기다릴게요":["Coming Soon", "새로운 빛이 준비 중이에요"],
+        "추후 공개를 기다릴게요":["자세한 내용은 추후 공개됩니다."]
       }
     },
     {
       id:"lulu-live-today",
-      date:"오늘 12:00",
+      box:"pending",
+      status:"scheduled",
+      unlock:"liveDay",
+      date:"공연 당일",
       from:"루루 🍼🐰",
       tag:"라이브",
-      type:"live",
+      type:"liveDay",
       title:"루미나, 오늘 오는 날이지?",
       preview:"날씨랑 입장번호 챙겨서 조심히 와야 해.",
       icon:"🐰",
@@ -3639,10 +3883,13 @@
     },
     {
       id:"mariring-online-cheer",
-      date:"오늘 18:00",
+      box:"pending",
+      status:"scheduled",
+      unlock:"afterOnAir",
+      date:"ON AIR 종료 후",
       from:"마리링 🎀⭐️",
       tag:"온라인",
-      type:"online",
+      type:"onairAfter",
       title:"멀리서도 마음이 닿았어",
       preview:"직접 만나지 못해도 그 마음은 분명히 닿을 거야.",
       icon:"🎀",
@@ -3656,10 +3903,13 @@
     },
     {
       id:"lulu-return-welcome",
-      date:"오랜만에 접속",
+      box:"pending",
+      status:"scheduled",
+      unlock:"afterReturn",
+      date:"복귀 조건 달성 후",
       from:"루루 🍼🐰",
       tag:"복귀",
-      type:"return",
+      type:"comeback",
       title:"다시 와줘서 고마워",
       preview:"오랜만에 루미폰에 돌아온 루미나를 위한 문자예요.",
       icon:"🐰",
@@ -3672,24 +3922,28 @@
       }
     },
     {
-      id:"lunar-secret-onair",
+      id:"coming-soon-secret-onair",
+      box:"pending",
+      status:"scheduled",
+      unlock:"afterOnAir",
       date:"ON AIR 종료 후",
-      from:"루나 🌙🐱",
+      from:"Coming Soon",
       tag:"비밀",
-      type:"secret",
-      title:"방송이 끝난 뒤의 달빛",
-      preview:"ON AIR 이후 조용히 도착하는 시크릿 메시지예요.",
-      icon:"🌙",
-      lines:["방송 끝났는데도 아직 보고 있었어? ㅎㅎ", "오늘 보내준 반짝 응원, 루나한테 조용히 남아있어.", "이건 여기까지 와준 너한테만 남기는 작은 달빛 메시지야 🌙✨"],
-      choices:["비밀로 간직할게","오늘도 함께했어","다음 방송도 올게"],
+      type:"onairAfter",
+      title:"Coming Soon",
+      preview:"새로운 빛이 준비 중이에요",
+      icon:"✦",
+      lines:["Coming Soon", "새로운 빛이 준비 중이에요", "자세한 내용은 추후 공개됩니다."],
+      choices:["확인했어요","기다릴게요","추후 공개를 기다릴게요"],
       after:{
-        "비밀로 간직할게":["좋아. 우리만 아는 작은 달빛으로 남겨두자 ♡"],
-        "오늘도 함께했어":["응, 다 느껴졌어. 멀리 있어도 마음은 닿는다구."],
-        "다음 방송도 올게":["기다리고 있을게. 루나는 늘 항상 곁에 있을게 🌙✨"]
+        "확인했어요":["Coming Soon", "새로운 빛이 준비 중이에요"],
+        "기다릴게요":["Coming Soon", "새로운 빛이 준비 중이에요"],
+        "추후 공개를 기다릴게요":["자세한 내용은 추후 공개됩니다."]
       }
     },
     {
       id:"staff-lumi-guide",
+      box:"inbox",
       date:"운영 안내",
       from:"루미폰 운영",
       tag:"운영",
@@ -3707,10 +3961,13 @@
     },
     {
       id:"lumi-letter-0712",
-      date:"2026.07.12",
+      box:"pending",
+      status:"scheduled",
+      unlock:"afterLiveEnd",
+      date:"공연 후",
       from:"루미레터",
       tag:"루미레터",
-      type:"lumiletter",
+      type:"afterLive",
       title:"데뷔 라이브의 첫 페이지",
       preview:"공연 후 루미로그와 함께 남는 공식 루미레터예요.",
       icon:"💌",
@@ -3718,20 +3975,23 @@
       choices:[]
     },
     {
-      id:"birthday-lunar",
-      date:"생일 당월",
-      from:"루나 🌙🐱",
+      id:"coming-soon-birthday",
+      box:"pending",
+      status:"scheduled",
+      unlock:"birthdaySeason",
+      date:"생일 시즌",
+      from:"Coming Soon",
       tag:"생일",
       type:"birthday",
-      title:"제일 먼저 축하해 주고 싶었어",
-      preview:"Birthday Ticket과 함께 도착하는 루나의 생일 축하 문자예요.",
-      icon:"🎂",
-      lines:["오늘 생일이지? 잊지 않고 있었어!","약간은 욕심일 수 있지만..","네 생일 제일 먼저 축하해 주는 사람이 그게 루나였으면 좋겠다고 생각했어.","생일 너무 축하해. 오늘 가장 행복한 하루 보내기! 루나랑 꼬옥 약속 ♡"],
-      choices:["고마워 루나","오늘 행복할게","꼬옥 약속"],
+      title:"Coming Soon",
+      preview:"새로운 빛이 준비 중이에요",
+      icon:"✦",
+      lines:["Coming Soon", "새로운 빛이 준비 중이에요", "자세한 내용은 추후 공개됩니다."],
+      choices:["확인했어요","기다릴게요","추후 공개를 기다릴게요"],
       after:{
-        "고마워 루나":["루나가 제일 먼저 축하해주고 싶었어. 오늘은 정말 많이 행복해야 해 ♡"],
-        "오늘 행복할게":["좋아! 루나랑 약속한 거야. 오늘 하루 가장 반짝이게 보내기 🌙✨"],
-        "꼬옥 약속":["꼬옥 약속! 루나도 오늘 네 행복을 제일 먼저 빌게 ♡"]
+        "확인했어요":["Coming Soon", "새로운 빛이 준비 중이에요"],
+        "기다릴게요":["Coming Soon", "새로운 빛이 준비 중이에요"],
+        "추후 공개를 기다릴게요":["자세한 내용은 추후 공개됩니다."]
       }
     }
   ];
@@ -3743,6 +4003,22 @@
   function getObj(k){ try { return JSON.parse(localStorage.getItem(k)||"{}"); } catch(e) { return {}; } }
   function setObj(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
   function fanText(value){ return String(value == null ? "" : value); }
+  function isComingSoonMessage(m){
+    const id = String((m && m.id) || "");
+    const from = String((m && m.from) || "");
+    return id.indexOf("coming-soon") === 0 || from === "Coming Soon" || m && m.comingSoon === true;
+  }
+  function isPendingMessage(m){
+    const boxName = String((m && m.box) || "inbox");
+    const statusName = String((m && m.status) || "");
+    const typeName = String((m && m.type) || "");
+    const hiddenTypes = ["afterLive", "comeback", "birthday", "onairAfter", "preLive", "liveDay"];
+    return boxName === "pending" || statusName === "scheduled" || statusName === "pending" || !!(m && m.unlock) || hiddenTypes.includes(typeName);
+  }
+  function isVisibleInboxMessage(m){
+    const boxName = String((m && m.box) || "inbox");
+    return boxName === "inbox" && !isPendingMessage(m) && !isComingSoonMessage(m);
+  }
   function perPage(){ return window.matchMedia && window.matchMedia("(max-width: 430px)").matches ? 3 : 6; }
   let box = "inbox", filter = "all", page = 1, currentId = null, timers = [];
   function pageEl(){ return document.getElementById("page-message"); }
@@ -3773,7 +4049,9 @@
     const root = pageEl();
     const term = (($("#lumiMsgSearch", root)||{}).value || "").trim().toLowerCase();
     return MESSAGES.filter(m => {
-      if (box === "saved" && !isSaved(m.id)) return false;
+      if (box === "saved") {
+        if (!isSaved(m.id) || !isVisibleInboxMessage(m)) return false;
+      } else if (!isVisibleInboxMessage(m)) return false;
       if (filter !== "all" && m.type !== filter) return false;
       if (term) {
         const hay = [m.from,m.tag,m.title,m.preview,m.type].concat(m.lines||[]).join(" ").toLowerCase();
@@ -3783,7 +4061,7 @@
     });
   }
   function updateBadges(){
-    const unreadItems = MESSAGES.filter(m => !isRead(m.id));
+    const unreadItems = MESSAGES.filter(m => isVisibleInboxMessage(m) && !isRead(m.id));
     const unread = unreadItems.length;
     const messageMini = document.querySelector('.app-icon[data-go="message"] .mini, .kawaii-app-icon[data-go="message"] .mini');
     if (messageMini) { messageMini.textContent = unread > 0 ? String(Math.min(unread,9)) : ""; messageMini.style.display = unread > 0 ? "inline-flex" : "none"; }
@@ -3793,15 +4071,15 @@
     const homeKicker = document.getElementById("homeMessageKicker");
     if (homeCard) {
       homeCard.classList.remove("hidden");
-      const first = unreadItems[0];
-      if (first) {
-        if (homeKicker) homeKicker.textContent = unread > 1 ? "NEW MESSAGES" : "NEW MESSAGE";
-        if (homeTitle) homeTitle.textContent = first.from + "에게서 새 문자 " + unread + "통";
-        if (homePreview) homePreview.textContent = first.preview || first.title || "도착한 문자를 확인해 주세요.";
+      const publicUnreadItems = unreadItems.filter(m => isVisibleInboxMessage(m));
+      if (publicUnreadItems.length > 0) {
+        if (homeKicker) homeKicker.textContent = publicUnreadItems.length > 1 ? "NEW MESSAGES" : "NEW MESSAGE";
+        if (homeTitle) homeTitle.textContent = "새 문자 확인";
+        if (homePreview) homePreview.textContent = "도착한 문자를 확인해 주세요.";
       } else {
-        if (homeKicker) homeKicker.textContent = "MESSAGE";
-        if (homeTitle) homeTitle.textContent = "문자함";
-        if (homePreview) homePreview.textContent = "새 문자는 없지만, 도착했던 메시지를 다시 볼 수 있어요.";
+        if (homeKicker) homeKicker.textContent = "NEW MESSAGE";
+        if (homeTitle) homeTitle.textContent = "새 문자 확인";
+        if (homePreview) homePreview.textContent = "도착한 문자를 확인해 주세요.";
       }
     }
   }
@@ -3956,10 +4234,10 @@
     renderList();
   }
   window.showLumiMessageInbox = function(){ box = "inbox"; filter = "all"; page = 1; bind(); const root = pageEl(); if (root) { const s = $("#lumiMsgSearch", root); if (s) s.value = ""; $$(".lumiMsg-tabs button", root).forEach(b => b.classList.toggle("active", (b.dataset.lumimsgBox || "inbox") === "inbox")); $$("#lumiMsgFilters button", root).forEach(b => b.classList.toggle("active", (b.dataset.lumimsgFilter || "all") === "all")); } showInbox(); };
-  window.lumiOpenMessageById = function(id){ bind(); showMessagePage(); setTimeout(() => openMessage(id || "lunar-online-cheer", true), 30); };
+  window.lumiOpenMessageById = function(id){ bind(); showMessagePage(); setTimeout(() => openMessage(id || "coming-soon-online-cheer", true), 30); };
   window.openLumiMessage = function(member){
-    const key = String(member || "luna").toLowerCase();
-    const id = key.includes("luna") || key.includes("lunar") ? "lunar-online-cheer" : key.includes("lulu") ? "lulu-live-today" : key.includes("mariring") ? "mariring-online-cheer" : "lunar-online-cheer";
+    const key = String(member || "coming-soon").toLowerCase();
+    const id = key.includes("lulu") ? "lulu-live-today" : key.includes("mariring") ? "mariring-online-cheer" : "coming-soon-online-cheer";
     window.lumiOpenMessageById(id);
   };
   function ready(){ bind(); renderList(); }
@@ -4033,31 +4311,31 @@
   const DETAIL_MAP = {
     welcome: {
       title: "Welcome Ticket",
-      sub: "첫 루미 ID 발급 기념 특전권",
-      valid: "발급일로부터 운영 지정 기간",
+      sub: "신규 이벤트 환영 특전권",
+      valid: "발급 후 안내된 기간",
       rule: "본인 사용 · 1회 사용 후 완료 처리",
-      copy: "처음 루미폰을 연 루미나에게 도착하는 환영 특전권이에요. 루미 ID를 만든 모든 사람에게 자동 지급되는 티켓이 아니라, 신규 이벤트 참가 조건을 확인한 사람에게 지급되는 특전권이에요."
+      copy: "처음 루미벨을 만나러 온 루미나를 위한 환영 특전권이에요. 루미벨 공식 계정과 멤버 계정 팔로우 인증 후, 현장에서 스탭 확인을 거쳐 발급돼요. 발급이 완료되면 루미폰 티켓함에 자동으로 표시됩니다."
     },
     join: {
       title: "Join Ticket",
-      sub: "이로 · 루나 합류 이벤트 특전권",
+      sub: "새로운 빛이 열리는 날 공개돼요.",
       valid: "10.18 이벤트 이후 지정 기간",
-      rule: "이로/루나 등 지정 멤버 전용 가능",
-      copy: "새로운 멤버를 찍먹하고 알아갈 수 있게 준비하는 합류 이벤트권이에요. 현재는 잠금 상태로 표시되고, 이벤트 오픈 후 해금될 예정이에요."
+      rule: "자세한 내용은 추후 공개됩니다.",
+      copy: "Coming Soon. 새로운 빛이 준비 중이에요"
     },
     meate: {
       title: "메아테 특전권",
-      sub: "메아테 지정 감사 특전권",
-      valid: "공연/이벤트별 1회 기준",
-      rule: "메아테 특전권과 물판 포인트는 별도",
-      copy: "루미벨 또는 멤버를 메아테로 지정해준 마음에 대한 감사 기록이에요. 현장 운영 기준에 따라 사용 가능 여부를 확인해요."
+      sub: "메아테 팀 기준 특전권",
+      valid: "입금 확인 후 표시",
+      rule: "현장 수령은 스탭 확인 후 진행",
+      copy: "입금 완료 후, 예매 시 선택한 메아테 팀 기준으로 루미벨 메아테 혜택 대상 여부가 표시돼요. 메아테가 Lumibelle인 경우 메아테 특전권이 티켓함에 표시되며, 현장 수령과 사용은 스탭 확인 후 진행됩니다."
     },
     birthday: {
-      title: "Birthday Ticket",
-      sub: "생일 기념 촬영 특전권",
-      valid: "생일 당월 1일 ~ 말일",
+      title: "Birthday Ticket 안내",
+      sub: "생일을 등록하면 생일 시즌에 열려요.",
+      valid: "생일 등록 후 표시",
       rule: "본인 사용 · 양도 불가 · 사용 완료 후 재발급 불가",
-      copy: "생일을 등록한 루미 ID 보유자에게 1년에 1회 지급되는 생일 기념 촬영 특전권이에요. 사용 가능 기간과 멤버는 운영 기준에 따라 표시돼요."
+      copy: "생일을 등록하면 생일 시즌에 Birthday Ticket이 열려요. 사용 가능 기간은 생일 당월 1일부터 말일까지예요. 실제 사용은 현장에서 스탭 확인 후 진행됩니다."
     }
   };
 
@@ -4073,13 +4351,13 @@
       '<div class="perk-ticket-visual">' +
         '<small>LUMIBELLE SPECIAL PASS</small>' +
         '<h4 id="ticketDetailTitle">Welcome Ticket</h4>' +
-        '<p id="ticketDetailSub">첫 루미 ID 발급 기념 특전권</p>' +
+        '<p id="ticketDetailSub">신규 이벤트 환영 특전권</p>' +
         '<div class="perk-valid">' +
-          '<div><b>사용 기간</b><span id="ticketDetailValid">발급일로부터 운영 지정 기간</span></div>' +
+          '<div><b>사용 기간</b><span id="ticketDetailValid">발급 후 안내된 기간</span></div>' +
           '<div><b>사용 기준</b><span id="ticketDetailRule">본인 사용 · 1회 사용 후 완료 처리</span></div>' +
         '</div>' +
       '</div>' +
-      '<p class="ticket-detail-copy" id="ticketDetailCopy">처음 루미폰을 연 루미나에게 도착하는 환영 특전권이에요.</p>' +
+      '<p class="ticket-detail-copy" id="ticketDetailCopy">처음 루미벨을 만나러 온 루미나를 위한 환영 특전권이에요.</p>' +
       '<button class="ticket-detail-ok" type="button">확인했어요</button>' +
     '</article>';
     document.body.appendChild(modal);
@@ -4162,15 +4440,15 @@
     {id:'first-ticket',cat:'event',state:'locked',icon:'🎫',name:'첫 티켓 보유',desc:'루미폰 티켓함에 첫 공연 티켓이 들어온 기록이에요.',progress:'미달성',reward:'조건 달성 후 해금',title:'',date:'미달성',rule:'현재 티켓 또는 지난 티켓 기록과 연결되는 업적이에요.'},
     {id:'welcome-ticket',cat:'event',state:'locked',icon:'💝',name:'Welcome Ticket 보유',desc:'처음 루미벨을 만나러 온 루미나에게 지급되는 신규 이벤트권 기록이에요.',progress:'미달성',reward:'조건 달성 후 해금',title:'',date:'미달성',rule:'Welcome Ticket 보유 기록이 연결되면 달성되는 업적이에요.'},
     {id:'first-letter',cat:'online',state:'locked',icon:'💌',name:'첫 루미레터 수신',desc:'루미폰에 도착한 우편/루미레터를 처음 확인한 기록이에요.',progress:'미달성',reward:'조건 달성 후 해금',title:'',date:'미달성',rule:'우편/루미레터 수신 기록이 연결되면 달성되는 업적이에요.'},
-    {id:'first-checkin',cat:'field',state:'progress',icon:'📸',name:'첫 루미 체크인',desc:'특전회 촬영/교류 실제 참여 완료 시 달성되는 업적이에요.',progress:'0 / 1',reward:'스탬프 / 반짝 XP 후보',title:'첫 체크인',date:'진행중',rule:'루미 체크인은 스탬프 지급 기준이에요. 라이브 관람만으로는 달성되지 않아요.'},
-    {id:'stamp-one',cat:'field',state:'progress',icon:'🌸',name:'스탬프 첫 장',desc:'루미 체크인으로 첫 스탬프를 받으면 열리는 성장 업적이에요.',progress:'0 / 1',reward:'반짝 XP 후보',title:'스탬프 첫 장',date:'진행중',rule:'스탬프는 기본 1일 1회, 이벤트 데이에는 추가 지급될 수 있어요.'},
-    {id:'stamp-five',cat:'field',state:'progress',icon:'🌷',name:'스탬프 5개',desc:'루미 체크인을 차곡차곡 쌓아 5번째 스탬프에 도착하는 업적이에요.',progress:'0 / 5',reward:'반짝 XP 후보',title:'다섯 번의 반짝임',date:'진행중',rule:'루미 체크인 완료 기록 기준으로 카운트되는 성장 업적이에요.'},
-    {id:'stamp-ten',cat:'field',state:'progress',icon:'🌹',name:'스탬프 10개',desc:'루미 체크인 10회에 도착하면 열리는 중간 성장 업적이에요.',progress:'0 / 10',reward:'칭호 후보',title:'열 번의 약속',date:'진행중',rule:'루미 체크인 완료 기록 기준으로 카운트되는 성장 업적이에요.'},
-    {id:'stamp-twenty',cat:'field',state:'progress',icon:'🏵️',name:'스탬프 20개 완주',desc:'한 회차 스탬프를 완주하면 열리는 업적이에요. 보상 수령 후 다음 회차로 이어져요.',progress:'0 / 20',reward:'완주 보상 후보',title:'스탬프 완주자',date:'진행중',rule:'20회 완주 후 보상 수령 가능하며, 기록은 사라지지 않아요.'},
-    {id:'first-onair',cat:'online',state:'progress',icon:'📡',name:'첫 ON AIR 방문',desc:'방송 중 ON AIR 페이지를 통해 루미벨과 온라인으로 연결된 기록이에요.',progress:'0 / 1',reward:'반짝 포인트 / 반짝 XP 후보',title:'온라인으로 닿은 마음',date:'진행중',rule:'ON AIR 방문 기록 또는 방송 보러가기 클릭 기록과 연결할 수 있어요.'},
-    {id:'first-lumicode',cat:'online',state:'progress',icon:'🔑',name:'첫 루미코드 인증',desc:'방송이나 이벤트에서 공개된 루미코드를 처음 인증한 기록이에요.',progress:'0 / 1',reward:'루미코드 기록',title:'첫 번째 코드',date:'진행중',rule:'실제 루미코드 인증 기능은 추후 연결 예정이에요.'},
-    {id:'first-meate',cat:'event',state:'progress',icon:'💗',name:'첫 메아테 지정',desc:'공연 예매에서 루미벨 또는 멤버를 처음 메아테로 지정한 기록이에요.',progress:'0 / 1',reward:'메아테 기록',title:'처음의 메아테',date:'진행중',rule:'예약/티켓 데이터의 메아테 값과 연결될 예정이에요.'},
-    {id:'birthday-ticket',cat:'event',state:'progress',icon:'🎂',name:'Birthday Ticket 보유',desc:'생일 시즌에 Birthday Ticket이 지급되면 확인할 수 있는 이벤트 업적이에요.',progress:'예정',reward:'생일 기념 기록',title:'생일의 주인공',date:'생일 기준에 따라 표시',rule:'Birthday Ticket은 특전권의 한 종류지만, 생일 시즌에는 상단에 특별 표시됩니다.'},
+    {id:'first-checkin',cat:'field',state:'locked',icon:'📸',name:'첫 루미 체크인',desc:'특전회 촬영/교류 실제 참여 완료 시 달성되는 업적이에요.',progress:'0 / 1',reward:'스탬프 / 반짝 XP 후보',title:'첫 체크인',date:'미달성',rule:'루미 체크인은 스탬프 지급 기준이에요. 라이브 관람만으로는 달성되지 않아요.'},
+    {id:'stamp-one',cat:'field',state:'locked',icon:'🌸',name:'스탬프 첫 장',desc:'루미 체크인으로 첫 스탬프를 받으면 열리는 성장 업적이에요.',progress:'0 / 1',reward:'반짝 XP 후보',title:'스탬프 첫 장',date:'미달성',rule:'스탬프는 기본 1일 1회, 이벤트 데이에는 추가 지급될 수 있어요.'},
+    {id:'stamp-five',cat:'field',state:'locked',icon:'🌷',name:'스탬프 5개',desc:'루미 체크인을 차곡차곡 쌓으면 5번째 스탬프에 도착하는 업적이에요.',progress:'0 / 5',reward:'반짝 XP 후보',title:'다섯 번의 반짝임',date:'미달성',rule:'루미 체크인 완료 기록 기준으로 카운트되는 성장 업적이에요.'},
+    {id:'stamp-ten',cat:'field',state:'locked',icon:'🌹',name:'스탬프 10개',desc:'루미 체크인 10회에 도착하면 열리는 중간 성장 업적이에요.',progress:'0 / 10',reward:'칭호 후보',title:'열 번의 약속',date:'미달성',rule:'루미 체크인 완료 기록 기준으로 카운트되는 성장 업적이에요.'},
+    {id:'stamp-twenty',cat:'field',state:'locked',icon:'🏵️',name:'스탬프 20개 완주',desc:'한 회차 스탬프를 완주하면 열리는 업적이에요. 보상 수령 후 다음 회차로 이어져요.',progress:'0 / 20',reward:'완주 보상 후보',title:'스탬프 완주자',date:'미달성',rule:'20회 완주 후 보상 수령 가능하며, 기록은 사라지지 않아요.'},
+    {id:'first-onair',cat:'online',state:'locked',icon:'📡',name:'첫 ON AIR 방문',desc:'방송 중 ON AIR 페이지를 통해 루미벨과 온라인으로 연결된 기록이에요.',progress:'0 / 1',reward:'반짝 포인트 / 반짝 XP 후보',title:'온라인으로 닿은 마음',date:'미달성',rule:'ON AIR 방문 기록 또는 방송 보러가기 클릭 기록과 연결할 수 있어요.'},
+    {id:'first-lumicode',cat:'online',state:'locked',icon:'🔑',name:'첫 루미코드 인증',desc:'방송이나 이벤트에서 공개된 루미코드를 처음 인증한 기록이에요.',progress:'0 / 1',reward:'루미코드 기록',title:'첫 번째 코드',date:'미달성',rule:'실제 루미코드 인증 기능은 추후 연결 예정이에요.'},
+    {id:'first-meate',cat:'event',state:'locked',icon:'💗',name:'첫 메아테 지정',desc:'공연 예매에서 Lumibelle을 처음 메아테로 지정한 기록이에요.',progress:'0 / 1',reward:'메아테 기록',title:'처음의 메아테',date:'미달성',rule:'예약/티켓 데이터의 메아테 값과 연결될 예정이에요.'},
+    {id:'birthday-ticket',cat:'event',state:'locked',icon:'🎂',name:'Birthday Ticket 보유',desc:'생일 시즌에 Birthday Ticket이 지급되면 확인할 수 있는 이벤트 업적이에요.',progress:'예정',reward:'생일 기념 기록',title:'생일의 주인공',date:'생일 기준에 따라 표시',rule:'Birthday Ticket은 특전권의 한 종류지만, 생일 시즌에는 상단에 특별 표시됩니다.'},
     {id:'new-color-line',cat:'secret',state:'locked',icon:'🔐',name:'새로운 색이 다가오는 중',desc:'공개 전 멤버와 관련된 해금 예정 업적이에요.',progress:'공개 전 잠금',reward:'공개 후 해금 예정',title:'',date:'잠금',rule:'공개 전에는 이름과 상세 조건을 표시하지 않습니다.'},
     {id:'angel-blue',cat:'secret',state:'locked',icon:'💎',name:'Angel Blue Coming Soon',desc:'푸른 색의 새로운 조각이 다가오고 있어요.',progress:'공개 전 잠금',reward:'공개 후 해금 예정',title:'',date:'잠금',rule:'공개 전에는 이름과 상세 조건을 표시하지 않습니다.'},
     {id:'secret-line',cat:'secret',state:'secret',icon:'❔',name:'???',desc:'조건을 만족하면 갑자기 해금되는 비밀 업적이에요.',progress:'숨김',reward:'비밀 칭호 후보',title:'',date:'미공개',rule:'비공개 숨김 업적은 해금 전까지 상세 조건을 공개하지 않습니다.'}
@@ -4209,7 +4487,7 @@
 
   function stateLabel(a) {
     if (a.state === 'done') return '달성';
-    if (a.state === 'progress') return '진행중';
+    if (a.state === 'progress') return '대기 중';
     if (a.state === 'locked') return '잠금';
     if (a.state === 'secret') return '숨김';
     return a.state || '';
@@ -4374,7 +4652,7 @@
     if(!grid) return;
     var html = '';
     for(var i=1;i<=20;i++){
-      html += '<div class="stamp ' + (i > STAMP_COUNT ? 'empty' : '') + '">' + (i <= STAMP_COUNT ? '✦' : '✧') + '</div>';
+      html += '<div class="stamp ' + (i > STAMP_COUNT ? 'empty' : '') + '">' + (i <= STAMP_COUNT ? '🌸' : '✧') + '</div>';
     }
     grid.innerHTML = html;
   }
@@ -4387,12 +4665,12 @@
   function rewardLabel(state){
     if(state === 'done') return '완료';
     if(state === 'ready') return '수령 가능';
-    return '진행중';
+    return '대기 중';
   }
   function rewardButton(state){
     if(state === 'done') return '수령 완료';
     if(state === 'ready') return '보상 수령';
-    return '아직 진행중';
+    return '아직 시작 전';
   }
 
   function renderStampRewards(){
@@ -4619,12 +4897,15 @@
     }
 
     const source = info || {};
-    const month = parseInt(source.birthdayMonth || source.birthMonth || source.month || "07", 10);
-    const day = parseInt(source.birthdayDay || source.birthDay || source.day || "19", 10);
-    return {
-      month: Math.min(12, Math.max(1, Number.isFinite(month) ? month : 7)),
-      day: Math.min(31, Math.max(1, Number.isFinite(day) ? day : 19))
-    };
+    const birthdayRegistered = source.birthdayRegistered === true || source.birthdayRegistered === "true";
+    const rawMonth = String(source.birthdayMonth || source.birthMonth || source.month || "").trim();
+    const rawDay = String(source.birthdayDay || source.birthDay || source.day || "").trim();
+    if (!birthdayRegistered && rawMonth === "07" && rawDay === "19") return { registered: false, month: null, day: null };
+    const month = parseInt(rawMonth, 10);
+    const day = parseInt(rawDay, 10);
+    const hasBirthdayValue = Boolean(rawMonth && rawDay);
+    const valid = (birthdayRegistered || hasBirthdayValue) && Number.isFinite(month) && month >= 1 && month <= 12 && Number.isFinite(day) && day >= 1 && day <= 31;
+    return valid ? { registered: true, month, day } : { registered: false, month: null, day: null };
   }
 
   function lastDayOfMonth(year, month) {
@@ -4647,6 +4928,25 @@
     const today = now || new Date();
     const year = today.getFullYear();
     const birth = readProfileBirthday();
+    if (!birth.registered) {
+      return {
+        year: year,
+        month: null,
+        day: null,
+        last: null,
+        period: "생일 등록 후 표시",
+        state: "unregistered",
+        isActive: false,
+        titleText: "Birthday Ticket 안내",
+        labelText: "BIRTHDAY TICKET GUIDE",
+        entryLabel: "BIRTHDAY GUIDE",
+        periodLabel: "상태",
+        statusText: "생일 등록 후 열림",
+        statusShort: "생일 등록 후 열림",
+        subText: "생일을 등록하면 생일 시즌에 열려요.",
+        detailCopy: "생일을 등록하면 생일 시즌에 Birthday Ticket이 열려요. 사용 가능 기간은 생일 당월 1일부터 말일까지예요. 실제 사용은 현장에서 스탭 확인 후 진행됩니다."
+      };
+    }
     const last = lastDayOfMonth(year, birth.month);
     const start = new Date(year, birth.month - 1, 1, 0, 0, 0, 0);
     const end = new Date(year, birth.month - 1, last, 23, 59, 59, 999);
@@ -4665,9 +4965,14 @@
       period: monthText,
       state: state,
       isActive: state === "available",
-      statusText: state === "used" ? "사용 완료" : state === "available" ? "사용 가능" : state === "expired" ? "올해 생일 기간 종료" : "생일 당월에 열려요",
+      titleText: "Birthday Ticket",
+      labelText: "HAPPY BIRTHDAY · SPECIAL TICKET",
+      entryLabel: "BIRTHDAY MONTH",
+      periodLabel: "사용 기간",
+      statusText: state === "used" ? "Birthday Ticket 사용 완료" : state === "available" ? "Birthday Ticket 사용 가능" : state === "expired" ? "올해 Birthday Ticket 사용 기간이 지났어요" : "생일 당월에 열려요",
       statusShort: state === "used" ? "사용 완료" : state === "available" ? "미사용 / 기간 내" : state === "expired" ? "기간 종료" : "대기 중",
-      subText: state === "available" ? "생일 기념 촬영 특전권 · 생일 당월 사용 가능" : state === "used" ? "생일 기념 촬영 특전권 · 올해 사용 완료" : state === "expired" ? "생일 기념 촬영 특전권 · 올해 생일 기간 종료" : "생일 기념 촬영 특전권 · 생일 당월 1일에 열려요"
+      subText: state === "available" ? "생일 기념 촬영 특전권 · Birthday Ticket 사용 가능" : state === "used" ? "생일 기념 촬영 특전권 · 올해 사용 완료" : state === "expired" ? "생일 기념 촬영 특전권 · 올해 사용 기간 종료" : "생일 기념 촬영 특전권 · 생일 당월 1일에 열려요",
+      detailCopy: "Birthday Ticket은 생일 당월 1일부터 말일까지 사용할 수 있는 생일 기념 촬영 특전권이에요. 현재 상태: " + (state === "used" ? "Birthday Ticket 사용 완료" : state === "available" ? "Birthday Ticket 사용 가능" : state === "expired" ? "올해 Birthday Ticket 사용 기간이 지났어요" : "생일 당월에 열려요") + "."
     };
   }
 
@@ -4679,11 +4984,27 @@
     if (el) el.innerHTML = html;
   }
 
+  function isBirthdayTicketVisible(state) {
+    return state && (state.state === "available" || state.state === "used");
+  }
+
+  function updateBirthdayTicketVisibility(state) {
+    const visible = isBirthdayTicketVisible(state);
+    document.querySelectorAll("[data-birthday-ticket-card]").forEach((el) => {
+      el.hidden = !visible;
+    });
+  }
+
   function updatePcBirthday(state) {
     const section = document.querySelector(".ticket-pc-birthday-section");
     if (!section) return;
-    setHtml(section.querySelector(".ticket-pc-date"), "사용 기간<br>" + state.period);
+    const sectionTitle = section.querySelector("h3");
+    setText(sectionTitle, state.titleText || "Birthday Ticket");
+    setText(section.querySelector(".ticket-pc-label"), state.labelText || "HAPPY BIRTHDAY · SPECIAL TICKET");
+    setHtml(section.querySelector(".ticket-pc-date"), (state.periodLabel || "사용 기간") + "<br>" + state.period);
+    setText(section.querySelector(".ticket-pc-title-en"), state.titleText || "Birthday Ticket");
     setText(section.querySelector(".ticket-pc-place"), state.subText);
+    setText(section.querySelector(".ticket-pc-entry small"), state.entryLabel || "BIRTHDAY MONTH");
     setText(section.querySelector(".ticket-pc-entry strong"), state.period);
     const statusCell = Array.from(section.querySelectorAll(".ticket-pc-meta div")).find((cell) => /STATUS/.test(cell.textContent || ""));
     if (statusCell) setHtml(statusCell.querySelector("b"), state.statusShort.replace(" / ", "<br>"));
@@ -4691,7 +5012,11 @@
 
   function updateMobileBirthday(state) {
     document.querySelectorAll(".birthday-pass, .ticket-card.birthday").forEach((card) => {
+      setText(card.querySelector(".birthday-pass-label"), state.labelText || "HAPPY BIRTHDAY · SPECIAL TICKET");
+      setText(card.querySelector(".birthday-pass-period small"), state.periodLabel || "사용 기간");
       setText(card.querySelector(".birthday-pass-period b"), state.period);
+      setText(card.querySelector(".ticket-title"), state.titleText || "Birthday Ticket");
+      setText(card.querySelector(".ticket-number small"), state.entryLabel || "BIRTHDAY MONTH");
       setText(card.querySelector(".ticket-number strong"), state.period);
       setText(card.querySelector(".ticket-sub"), state.subText);
       const statusCell = Array.from(card.querySelectorAll(".ticket-cell")).find((cell) => /STATUS/.test(cell.textContent || ""));
@@ -4703,8 +5028,8 @@
     document.querySelectorAll(".ticket-pc-wallet-card").forEach((card) => {
       const title = card.querySelector("b");
       if (!title || title.textContent.trim() !== "Birthday Ticket") return;
-      setText(card.querySelector("small"), state.state === "available" ? "사용 가능" : state.state === "used" ? "사용 완료" : state.state === "expired" ? "기간 종료" : "생일 등록 시");
-      setText(card.querySelector("span"), "생일 기념 촬영 특전권 · " + state.period);
+      setText(card.querySelector("small"), state.state === "available" ? "사용 가능" : state.state === "used" ? "사용 완료" : state.state === "expired" ? "기간 종료" : "생일 등록 후 열림");
+      setText(card.querySelector("span"), state.state === "unregistered" ? "생일을 등록하면 생일 시즌에 열려요." : "생일 기념 촬영 특전권 · " + state.period);
       const status = card.querySelector(".ticket-pc-card-actions span");
       setText(status, state.statusText);
       if (status) status.classList.toggle("active", state.isActive);
@@ -4715,14 +5040,17 @@
     const modal = document.getElementById("ticketDetailModal");
     if (!modal || modal.classList.contains("hidden")) return;
     const title = modal.querySelector("#ticketDetailTitle");
-    if (!title || title.textContent.trim() !== "Birthday Ticket") return;
+    if (!title || !/^Birthday Ticket/.test(title.textContent.trim())) return;
+    setText(title, state.titleText || "Birthday Ticket");
+    setText(modal.querySelector("#ticketDetailSub"), state.state === "unregistered" ? "생일을 등록하면 생일 시즌에 열려요." : "생일 기념 촬영 특전권");
     setText(modal.querySelector("#ticketDetailValid"), state.period);
     setText(modal.querySelector("#ticketDetailRule"), "본인 사용 · 양도 불가 · 사용 완료 후 재발급 불가");
-    setText(modal.querySelector("#ticketDetailCopy"), "Birthday Ticket은 생일 당월 1일부터 말일까지 사용할 수 있는 생일 기념 촬영 특전권이에요. 현재 상태: " + state.statusText + ".");
+    setText(modal.querySelector("#ticketDetailCopy"), state.detailCopy || ("Birthday Ticket은 생일 당월 1일부터 말일까지 사용할 수 있는 생일 기념 촬영 특전권이에요. 현재 상태: " + state.statusText + "."));
   }
 
   function applyBirthdayTicketState() {
     const state = getBirthdayTicketState();
+    updateBirthdayTicketVisibility(state);
     updatePcBirthday(state);
     updateMobileBirthday(state);
     updateWalletBirthday(state);
