@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_22_reservation_debug_20260508";
+      const APP_VERSION = "patch51_23_entry_status_loading_20260508";
       const LUMI_API_ENDPOINT = String(window.LUMI_API_ENDPOINT || "").trim();
       const LUMI_API_TIMEOUT_MS = 12000;
       let currentUser = null;
@@ -2698,6 +2698,7 @@
           reservationNumber: source.reservationNumber || source.reserveNo || source.number || "-",
           paymentStatus: source.paymentStatus || "pending",
           reservationStatus: source.reservationStatus || "reserved",
+          entryStatus: source.entryStatus || "",
           meate: source.meate || source.oshimember || source.oshi || "-",
           eventStatus: source.eventStatus || "",
           startTime: source.startTime || ""
@@ -2711,6 +2712,16 @@
         const today = new Date();
         const todayKey = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
         return String(item.eventDate) < todayKey;
+      }
+
+      function isEntryDone(item) {
+        const es = String(item.entryStatus || "").toLowerCase();
+        return es === "entered" || es === "입장완료" || es === "입장 완료" || es === "checkedin";
+      }
+
+      function ticketStatusLabel(item) {
+        if (isEntryDone(item)) return "입장 완료";
+        return paymentLabel(item.paymentStatus);
       }
 
       function paymentLabel(status) {
@@ -2742,8 +2753,8 @@
           '<div class="ticket-sub">' + escapeHtml(item.eventDate || "날짜 확인 중") + ' · ' + escapeHtml(item.venueName) + '</div>' +
           '<div class="ticket-number"><small>RESERVATION NO.</small><strong>' + escapeHtml(item.reservationNumber) + '</strong></div>' +
           '<div class="ticket-meta">' +
-          '<div class="ticket-cell"><small>PAYMENT</small><b>' + escapeHtml(paymentLabel(item.paymentStatus)) + '</b></div>' +
-          '<div class="ticket-cell"><small>STATUS</small><b>' + escapeHtml(reservationStatusLabel(item.reservationStatus)) + '</b></div>' +
+          '<div class="ticket-cell"><small>PAYMENT</small><b>' + escapeHtml(ticketStatusLabel(item)) + '</b></div>' +
+          '<div class="ticket-cell"><small>STATUS</small><b>' + escapeHtml(isEntryDone(item) ? "입장 완료" : reservationStatusLabel(item.reservationStatus)) + '</b></div>' +
           '<div class="ticket-cell"><small>MEATE</small><b>' + escapeHtml(item.meate || "-") + '</b></div>' +
           '<div class="ticket-cell"><small>LUMI ID</small><b>' + escapeHtml(getCurrentLumiId() || "-") + '</b></div>' +
           '</div>' +
@@ -2771,8 +2782,8 @@
           '<div class="ticket-pc-place">' + escapeHtml(item.venueName) + '</div>' +
           '<div class="ticket-pc-entry"><small>RESERVATION NO.</small><strong>' + escapeHtml(item.reservationNumber) + '</strong></div>' +
           '<div class="ticket-pc-meta">' +
-          '<div><small>PAYMENT</small><b>' + escapeHtml(paymentLabel(item.paymentStatus)) + '</b></div>' +
-          '<div><small>STATUS</small><b>' + escapeHtml(reservationStatusLabel(item.reservationStatus)) + '</b></div>' +
+          '<div><small>PAYMENT</small><b>' + escapeHtml(ticketStatusLabel(item)) + '</b></div>' +
+          '<div><small>STATUS</small><b>' + escapeHtml(isEntryDone(item) ? "입장 완료" : reservationStatusLabel(item.reservationStatus)) + '</b></div>' +
           '<div><small>MEATE</small><b>' + escapeHtml(item.meate || "-") + '</b></div>' +
           '<div><small>LUMI ID</small><b>' + escapeHtml(getCurrentLumiId() || "-") + '</b></div>' +
           '</div>' +
@@ -2806,7 +2817,7 @@
           const title = ticketCard.querySelector("b");
           const desc = ticketCard.querySelector("span");
           if (item) {
-            if (small) small.textContent = paymentLabel(item.paymentStatus);
+            if (small) small.textContent = isEntryDone(item) ? "입장 완료" : ticketStatusLabel(item);
             if (title) title.textContent = item.reservationNumber || "예약번호 확인 중";
             if (desc) desc.textContent = (item.eventTitle || "공연명 확인 중") + " · " + (item.eventDate || "날짜 확인 중");
           } else {
@@ -2871,16 +2882,24 @@
         initTicketPagers();
       }
 
+      function renderReservationsLoading() {
+        const loadingHtml = '<div class="ticket-page-item"><article class="info-card"><small>잠시만요</small><b>티켓 불러오는 중...</b><span>예매 정보를 확인하고 있어요.</span></article></div>';
+        const el1 = document.querySelector("#ticket-current .ticket-paged-list");
+        const el2 = document.querySelector(".ticket-pc-current-section");
+        if (el1) el1.innerHTML = loadingHtml;
+        if (el2) el2.innerHTML = '<h3>현재 예약 티켓</h3>' + loadingHtml;
+      }
+
       async function loadMyReservations(lumiId) {
         try {
-          renderMyReservations([]);
+          renderReservationsLoading();
           const reservations = await getMyReservations(lumiId);
           myReservations = reservations;
           renderMyReservations(myReservations);
         } catch (error) {
           myReservations = [];
           renderMyReservations([]);
-          setBootDebug("reservation UI error: " + String(error && error.message ? error.message : error));
+          appendBootDebug("reservation UI error: " + String(error && error.message ? error.message : error));
           if (String(error && error.message) === "missingApiEndpoint") {
             showMessage("루미폰 API 주소가 아직 설정되지 않았어요. LUMI_API_ENDPOINT를 Apps Script 웹앱 URL로 설정해 주세요.");
           }
