@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_21_cloudflare_fetch_20260508";
+      const APP_VERSION = "patch51_22_reservation_debug_20260508";
       const LUMI_API_ENDPOINT = String(window.LUMI_API_ENDPOINT || "").trim();
       const LUMI_API_TIMEOUT_MS = 12000;
       let currentUser = null;
@@ -2671,10 +2671,16 @@
       async function getMyReservations(lumiId) {
         const response = await fetchLumiApi({ action: "lumiGetMyReservations", lumiId: lumiId });
         if (!response || response.ok !== true) {
-          setBootDebug("reservation load failed: " + String((response && (response.message || response.error)) || "reservationLoadFailed"));
+          appendBootDebug("reservation load failed: " + String((response && (response.message || response.error)) || "reservationLoadFailed"));
           throw new Error((response && (response.message || response.error)) || "reservationLoadFailed");
         }
-        return Array.isArray(response.reservations) ? response.reservations : (response.data && Array.isArray(response.data.reservations) ? response.data.reservations : []);
+        const list = Array.isArray(response.reservations) ? response.reservations : (response.data && Array.isArray(response.data.reservations) ? response.data.reservations : []);
+        appendBootDebug("reservations count: " + list.length);
+        if (list.length > 0) {
+          const first = list[0];
+          appendBootDebug("first item: eventId=" + first.eventId + " date=" + first.eventDate + " pay=" + first.paymentStatus);
+        }
+        return list;
       }
 
       function escapeHtml(value) {
@@ -2828,8 +2834,10 @@
 
       function renderMyReservations(reservations) {
         const normalized = (reservations || []).map(normalizeReservationItem);
+        appendBootDebug("render: normalized=" + normalized.length);
         const current = normalized.filter((item) => !isPastReservation(item));
         const past = normalized.filter(isPastReservation).sort((a, b) => String(b.eventDate || "").localeCompare(String(a.eventDate || "")));
+        appendBootDebug("render: current=" + current.length + " past=" + past.length + (normalized[0] ? " date=" + normalized[0].eventDate : ""));
 
         const currentList = document.querySelector("#ticket-current .ticket-paged-list");
         if (currentList) {
