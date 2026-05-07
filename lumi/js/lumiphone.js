@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_14_login_save_debug_20260508";
+      const APP_VERSION = "patch51_15_login_state_protect_20260508";
       const LUMI_API_ENDPOINT = String(window.LUMI_API_ENDPOINT || "").trim();
       const LUMI_API_TIMEOUT_MS = 12000;
       let currentUser = null;
@@ -27,7 +27,6 @@
           "lumiphone.apiEndpoint",
           "lumiphone.version",
           "lumiphone.appVersion",
-          "lumiphone.loginState.v1",
           "lumiphone.releaseReset.patch14.v1"
         ];
         try {
