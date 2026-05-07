@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_24_debug_hidden_20260508";
+      const APP_VERSION = "patch51_25_event_end_past_ticket_20260508";
       const LUMI_API_ENDPOINT = String(window.LUMI_API_ENDPOINT || "").trim();
       const DEBUG_MODE = new URLSearchParams(window.location.search).get("debug") === "1";
       const LUMI_API_TIMEOUT_MS = 12000;
@@ -2681,7 +2681,7 @@
         appendBootDebug("reservations count: " + list.length);
         if (list.length > 0) {
           const first = list[0];
-          appendBootDebug("first item: eventId=" + first.eventId + " date=" + first.eventDate + " pay=" + first.paymentStatus);
+          appendBootDebug("first item: eventId=" + first.eventId + " date=" + first.eventDate + " end=" + String(first.eventEndAt || "") + " pay=" + first.paymentStatus);
         }
         return list;
       }
@@ -2697,6 +2697,8 @@
           eventId: source.eventId || "",
           eventTitle: source.eventTitle || source.eventName || source.title || "공연명 확인 중",
           eventDate: eventDate,
+          eventStartAt: source.eventStartAt || source.startAt || source.eventStart || "",
+          eventEndAt: source.eventEndAt || source.endAt || source.eventEnd || "",
           venueName: source.venueName || source.location || source.venue || "공연장 확인 중",
           reservationNumber: source.reservationNumber || source.reserveNo || source.number || "-",
           paymentStatus: source.paymentStatus || "pending",
@@ -2708,7 +2710,27 @@
         };
       }
 
+      function parseLumiDateTime(value) {
+        const text = String(value || "").trim();
+        if (!text) return null;
+        const localMatch = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+        if (localMatch) {
+          const year = Number(localMatch[1]);
+          const month = Number(localMatch[2]) - 1;
+          const day = Number(localMatch[3]);
+          const hour = Number(localMatch[4] || 0);
+          const minute = Number(localMatch[5] || 0);
+          const second = Number(localMatch[6] || 0);
+          const date = new Date(year, month, day, hour, minute, second);
+          return Number.isNaN(date.getTime()) ? null : date;
+        }
+        const fallback = new Date(text);
+        return Number.isNaN(fallback.getTime()) ? null : fallback;
+      }
+
       function isPastReservation(item) {
+        const eventEnd = parseLumiDateTime(item && item.eventEndAt);
+        if (eventEnd) return Date.now() >= eventEnd.getTime();
         const status = String(item.eventStatus || "").toLowerCase();
         if (["ended", "closed", "finished", "past"].includes(status)) return true;
         if (!item.eventDate) return false;
@@ -2850,7 +2872,7 @@
         const normalized = (reservations || []).map(normalizeReservationItem);
         appendBootDebug("render: normalized=" + normalized.length);
         const current = normalized.filter((item) => !isPastReservation(item));
-        const past = normalized.filter(isPastReservation).sort((a, b) => String(b.eventDate || "").localeCompare(String(a.eventDate || "")));
+        const past = normalized.filter(isPastReservation).sort((a, b) => String(b.eventEndAt || b.eventDate || "").localeCompare(String(a.eventEndAt || a.eventDate || "")));
         appendBootDebug("render: current=" + current.length + " past=" + past.length + (normalized[0] ? " date=" + normalized[0].eventDate : ""));
 
         const currentList = document.querySelector("#ticket-current .ticket-paged-list");
