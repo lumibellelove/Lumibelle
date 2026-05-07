@@ -2672,6 +2672,47 @@
           '</article>';
       }
 
+      function updateHomeReservationSummary(reservations) {
+        const normalized = (reservations || []).map(normalizeReservationItem);
+        const current = normalized.filter((item) => !isPastReservation(item));
+        const item = current[0] || null;
+
+        const ticketCard = document.querySelector(".home-grid .home-card.no-icon.pass");
+        const summaryCard = Array.from(document.querySelectorAll(".home-grid .home-card.no-icon")).find((card) => {
+          return card !== ticketCard && card.id !== "homeMessageCard" && card.textContent.indexOf("현재 예약") !== -1;
+        });
+
+        if (ticketCard) {
+          const small = ticketCard.querySelector("small");
+          const title = ticketCard.querySelector("b");
+          const desc = ticketCard.querySelector("span");
+          if (item) {
+            if (small) small.textContent = paymentLabel(item.paymentStatus);
+            if (title) title.textContent = item.reservationNumber || "예약번호 확인 중";
+            if (desc) desc.textContent = (item.eventTitle || "공연명 확인 중") + " · " + (item.eventDate || "날짜 확인 중");
+          } else {
+            if (small) small.textContent = "예약된 공연 없음";
+            if (title) title.textContent = "티켓 준비 중";
+            if (desc) desc.textContent = "예매가 확인되면 입장 확인용 번호가 이곳에 표시돼요.";
+          }
+        }
+
+        if (summaryCard) {
+          const small = summaryCard.querySelector("small");
+          const title = summaryCard.querySelector("b");
+          const desc = summaryCard.querySelector("span");
+          if (item) {
+            if (small) small.textContent = "현재 예약 " + String(current.length) + "건";
+            if (title) title.textContent = item.eventTitle || "공연명 확인 중";
+            if (desc) desc.textContent = (item.venueName || "공연장 확인 중") + " · " + paymentLabel(item.paymentStatus);
+          } else {
+            if (small) small.textContent = "현재 예약";
+            if (title) title.textContent = "예약된 공연이 없어요.";
+            if (desc) desc.textContent = "예매가 확인되면 티켓함에 표시돼요.";
+          }
+        }
+      }
+
       function renderMyReservations(reservations) {
         const normalized = (reservations || []).map(normalizeReservationItem);
         const current = normalized.filter((item) => !isPastReservation(item));
@@ -2705,6 +2746,7 @@
             : '<article class="ticket-pc-wallet-card is-locked"><small>지난 티켓</small><b>공연 후 기록 예정</b><span>종료된 공연 티켓은 공연이 끝난 뒤 이곳에 저장돼요.</span><div class="ticket-pc-card-actions"><span>대기</span><span>기록 예정</span></div></article>';
         }
 
+        updateHomeReservationSummary(normalized);
         initTicketPagers();
       }
 
