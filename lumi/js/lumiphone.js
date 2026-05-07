@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_15_login_state_protect_20260508";
+      const APP_VERSION = "patch51_16_save_before_open_20260508";
       const LUMI_API_ENDPOINT = String(window.LUMI_API_ENDPOINT || "").trim();
       const LUMI_API_TIMEOUT_MS = 12000;
       let currentUser = null;
@@ -2899,6 +2899,7 @@
         }
         try {
           const user = await loginLumiPhone(lumiId, pin);
+          saveLoginState(user);
           await openApp({ user: user });
         } catch (error) {
           const msg = String(error && error.message || "");
