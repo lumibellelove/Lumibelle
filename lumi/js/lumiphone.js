@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_13_login_restore_api_fail_safe_20260508";
+      const APP_VERSION = "patch51_14_login_save_debug_20260508";
       const LUMI_API_ENDPOINT = String(window.LUMI_API_ENDPOINT || "").trim();
       const LUMI_API_TIMEOUT_MS = 12000;
       let currentUser = null;
@@ -120,7 +120,6 @@
       const loginLangButtons = $$('[data-lumi-lang]');
       const langStorageKey = "lumiLang";
       const loginStateStorageKey = "lumiphone.loginState.v1";
-      const loginStateBackupKey = "lumiphone.loginState.backup.v1";
       const logoutBtn = $("#logoutBtn");
       const statusTime = $("#statusTime");
       const homeClock = $("#homeClock");
@@ -244,38 +243,39 @@
         try { return localStorage.getItem(langStorageKey) || "kr"; } catch (error) { return "kr"; }
       }
 
-      function makeLoginStatePayload(user) {
-        const source = (user && typeof user === "object") ? user : { lumiId: user };
-        const id = normId(source.lumiId || source.id || "");
-        if (!id) return null;
-        return {
-          id: id,
-          lumiId: id,
-          nickname: source.nickname || "",
-          oshi: source.oshi || "",
-          level: source.level || "",
-          type: "api",
-          savedAt: Date.now()
-        };
-      }
-
       function saveLoginState(user) {
-        const payload = makeLoginStatePayload(user);
-        if (!payload) {
-          appendBootDebug("login save skipped: missing id");
-          return;
+        try {
+          const source = (user && typeof user === "object") ? user : { lumiId: user };
+          const id = normId(source.lumiId || source.id || "");
+          if (!id) {
+            appendBootDebug("saveLoginState skipped: empty id");
+            return;
+          }
+          const payload = {
+            id: id,
+            lumiId: id,
+            nickname: source.nickname || "",
+            oshi: source.oshi || "",
+            level: source.level || "",
+            type: "api",
+            savedAt: Date.now()
+          };
+          localStorage.setItem(loginStateStorageKey, JSON.stringify(payload));
+          const savedRaw = localStorage.getItem(loginStateStorageKey);
+          if (savedRaw) {
+            appendBootDebug("login saved OK: " + id);
+          } else {
+            appendBootDebug("login save FAILED: " + id);
+          }
+        } catch (error) {
+          appendBootDebug("login save error: " + String(error && error.message ? error.message : error));
         }
-        const text = JSON.stringify(payload);
-        let saved = false;
-        try { localStorage.setItem(loginStateStorageKey, text); saved = true; } catch (error) { appendBootDebug("local login save failed"); }
-        try { localStorage.setItem(loginStateBackupKey, text); } catch (error) {}
-        try { sessionStorage.setItem(loginStateStorageKey, text); } catch (error) {}
-        appendBootDebug(saved ? "login saved: " + payload.lumiId : "login save fallback: " + payload.lumiId);
       }
 
-      function parseLoginState(raw) {
-        if (!raw) return null;
+      function readLoginState() {
         try {
+          const raw = localStorage.getItem(loginStateStorageKey);
+          if (!raw) return null;
           const state = JSON.parse(raw);
           const id = normId(state && (state.lumiId || state.id));
           if (!id) return null;
@@ -292,22 +292,6 @@
         }
       }
 
-      function readLoginState() {
-        let state = null;
-        try { state = parseLoginState(localStorage.getItem(loginStateStorageKey)); } catch (error) {}
-        if (!state) {
-          try { state = parseLoginState(localStorage.getItem(loginStateBackupKey)); } catch (error) {}
-          if (state) {
-            try { localStorage.setItem(loginStateStorageKey, JSON.stringify(Object.assign({}, state, { savedAt: Date.now() }))); } catch (error) {}
-          }
-        }
-        if (!state) {
-          try { state = parseLoginState(sessionStorage.getItem(loginStateStorageKey)); } catch (error) {}
-        }
-        appendBootDebug(state ? "saved login found: " + state.lumiId : "saved login none");
-        return state;
-      }
-
       function getCurrentLumiId() {
         return normId((currentUser && (currentUser.lumiId || currentUser.id)) || "");
       }
@@ -318,8 +302,6 @@
 
       function clearLoginState() {
         try { localStorage.removeItem(loginStateStorageKey); } catch (error) {}
-        try { localStorage.removeItem(loginStateBackupKey); } catch (error) {}
-        try { sessionStorage.removeItem(loginStateStorageKey); } catch (error) {}
       }
 
 
@@ -368,14 +350,14 @@
       async function openApp(options) {
         const settings = options || {};
         if (settings.user) currentUser = normalizeLumiUser(settings.user);
-        if (currentUser) saveLoginState(currentUser);
+        if (settings.persist !== false && currentUser) saveLoginState(currentUser);
         clearMessage();
         loginView.classList.remove("active");
         appView.classList.add("active");
         go("home");
         updateClock();
         if (currentUser && getCurrentLumiId()) {
-          loadMyReservations(getCurrentLumiId(), { keepExisting: true });
+          await loadMyReservations(getCurrentLumiId());
         }
       }
 
@@ -2689,7 +2671,9 @@
           setBootDebug("login failed: " + String((response && (response.message || response.error)) || "loginFailed"));
           throw new Error((response && (response.message || response.error)) || "loginFailed");
         }
-        return normalizeLumiUser(response.user || response.data || {});
+        const user = normalizeLumiUser(response.user || response.data || {});
+        appendBootDebug("login success: " + (user.lumiId || user.id || lumiId));
+        return user;
       }
 
       async function getMyReservations(lumiId) {
@@ -2887,23 +2871,17 @@
         initTicketPagers();
       }
 
-      async function loadMyReservations(lumiId, options) {
-        const settings = options || {};
-        const hadExisting = Array.isArray(myReservations) && myReservations.length > 0;
+      async function loadMyReservations(lumiId) {
         try {
-          if (!settings.keepExisting && !hadExisting) renderMyReservations([]);
+          renderMyReservations([]);
           const reservations = await getMyReservations(lumiId);
           myReservations = reservations;
           renderMyReservations(myReservations);
-          appendBootDebug("reservation restored: " + myReservations.length);
         } catch (error) {
-          const msg = String(error && error.message ? error.message : error);
-          setBootDebug("reservation UI error: " + msg + " / login kept");
-          if (!hadExisting) {
-            myReservations = [];
-            renderMyReservations([]);
-          }
-          if (msg === "missingApiEndpoint") {
+          myReservations = [];
+          renderMyReservations([]);
+          setBootDebug("reservation UI error: " + String(error && error.message ? error.message : error));
+          if (String(error && error.message) === "missingApiEndpoint") {
             showMessage("루미폰 API 주소가 아직 설정되지 않았어요. LUMI_API_ENDPOINT를 Apps Script 웹앱 URL로 설정해 주세요.");
           }
         }
@@ -3328,10 +3306,12 @@
 
       const savedLoginState = readLoginState();
       if (savedLoginState) {
+        appendBootDebug("saved login found: " + (savedLoginState.lumiId || savedLoginState.id));
         currentUser = normalizeLumiUser(savedLoginState);
         loginId.value = normalizeLoginIdInput(savedLoginState.id);
-        appendBootDebug("auto openApp: " + currentUser.lumiId);
-        openApp({ persist: true, user: currentUser });
+        openApp({ persist: false, user: currentUser });
+      } else {
+        appendBootDebug("saved login none");
       }
 
       updateClock();
