@@ -361,6 +361,7 @@
         updateClock();
         if (currentUser && getCurrentLumiId()) {
           await loadMyReservations(getCurrentLumiId());
+          await loadMyMessages(getCurrentLumiId());
         }
       }
 
@@ -561,6 +562,62 @@
         }
       ];
 
+      let LUMI_RUNTIME_MAIL_ITEMS = null;
+
+      function getAllMailItems() {
+        return Array.isArray(LUMI_RUNTIME_MAIL_ITEMS) ? LUMI_RUNTIME_MAIL_ITEMS : LUMI_MAIL_ITEMS;
+      }
+
+      function memberLabelFromKey(key) {
+        const value = String(key || "").trim().toLowerCase();
+        if (value === "mariring") return "마리링";
+        if (value === "lulu") return "루루";
+        if (value === "iro") return "이로";
+        if (value === "lunar" || value === "luna") return "루나";
+        return "루미벨";
+      }
+
+      function messageIconFromType(item) {
+        const type = String(item && item.messageType || "").toLowerCase();
+        const senderType = String(item && item.senderType || "").toLowerCase();
+        if (senderType === "member") return "💌";
+        if (type === "entrycomplete") return "🎀";
+        if (type === "paymentconfirmed") return "🎫";
+        if (type === "beforelive" || type === "prelive") return "📣";
+        if (type === "afterlive") return "✨";
+        if (type === "birthday") return "🎂";
+        return "💌";
+      }
+
+      function normalizeLumiMessageItem(item) {
+        const source = item || {};
+        const senderType = String(source.senderType || "system").trim();
+        const senderMember = String(source.senderMember || "system").trim();
+        const from = senderType === "member" ? memberLabelFromKey(senderMember) : (source.from || "LUMIBELLE 운영");
+        const createdAt = source.createdAt || source.visibleFrom || "";
+        const title = source.title || "루미벨에서 도착한 메시지";
+        const body = source.body || source.preview || "";
+        const id = String(source.messageId || source.id || ("message_" + Date.now() + "_" + Math.random())).trim();
+        const isReadValue = String(source.isRead == null ? "" : source.isRead).toLowerCase();
+        const isRead = source.isRead === true || isReadValue === "true" || isReadValue === "1" || isReadValue === "읽음";
+        return {
+          id: id,
+          messageId: id,
+          box: "inbox",
+          category: senderType === "member" ? "member" : (source.category || "event"),
+          messageType: source.messageType || "",
+          senderType: senderType,
+          senderMember: senderMember,
+          icon: source.icon || messageIconFromType(source),
+          from: from,
+          meta: source.meta || (createdAt ? String(createdAt) : "루미폰 메시지"),
+          status: isRead ? "읽음" : "NEW",
+          title: title,
+          preview: source.preview || String(body).replace(/\s+/g, " ").slice(0, 64),
+          body: body
+        };
+      }
+
       const mailState = {
         inbox: { page: 0, filter: "all" },
         saved: { page: 0, filter: "all" },
@@ -586,7 +643,7 @@
       }
 
       function isMailRead(id) {
-        const item = LUMI_MAIL_ITEMS.find((mail) => mail.id === String(id));
+        const item = getAllMailItems().find((mail) => mail.id === String(id));
         return Boolean(item && item.status !== "NEW") || readMailIds(MAIL_READ_KEY).includes(String(id));
       }
 
@@ -617,7 +674,8 @@
       function getMailItems(box) {
         const state = mailState[box] || mailState.inbox;
         const savedIds = readSavedMailIds();
-        const base = box === "saved" ? LUMI_MAIL_ITEMS.filter((item) => item.box !== "pending" && savedIds.includes(item.id)) : LUMI_MAIL_ITEMS.filter((item) => item.box === "inbox");
+        const allMailItems = getAllMailItems();
+        const base = box === "saved" ? allMailItems.filter((item) => item.box !== "pending" && savedIds.includes(item.id)) : allMailItems.filter((item) => item.box === "inbox");
         return base.filter((item) => {
           if (state.filter === "all") return true;
           if (state.filter === "guide") {
@@ -664,7 +722,7 @@
       function updateMailTabBadge() {
         const badge = document.querySelector('.tab[data-page="mail"] .badge');
         if (!badge) return;
-        const unread = LUMI_MAIL_ITEMS.filter((mail) => mail.box === "inbox" && !isMailRead(mail.id) && mail.status === "NEW").length;
+        const unread = getAllMailItems().filter((mail) => mail.box === "inbox" && !isMailRead(mail.id) && mail.status === "NEW").length;
         badge.textContent = unread || "";
         badge.style.display = unread ? "" : "none";
       }
@@ -676,7 +734,7 @@
       }
 
       function openMailModal(id) {
-        const item = LUMI_MAIL_ITEMS.find((mail) => mail.id === id);
+        const item = getAllMailItems().find((mail) => mail.id === id);
         const modal = document.getElementById("mailModal");
         if (!item || !modal) return;
         mailState.currentId = id;
@@ -2686,6 +2744,17 @@
         return list;
       }
 
+      async function getMyMessages(lumiId) {
+        const response = await fetchLumiApi({ action: "lumiGetMessages", lumiId: lumiId });
+        if (!response || response.ok !== true) {
+          appendBootDebug("message load failed: " + String((response && (response.message || response.error)) || "messageLoadFailed"));
+          throw new Error((response && (response.message || response.error)) || "messageLoadFailed");
+        }
+        const list = Array.isArray(response.messages) ? response.messages : (response.data && Array.isArray(response.data.messages) ? response.data.messages : []);
+        appendBootDebug("messages count: " + list.length);
+        return list;
+      }
+
       function escapeHtml(value) {
         return String(value == null ? "" : value).replace(/[&<>'"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[ch]));
       }
@@ -2913,6 +2982,30 @@
         const el2 = document.querySelector(".ticket-pc-current-section");
         if (el1) el1.innerHTML = loadingHtml;
         if (el2) el2.innerHTML = '<h3>현재 예약 티켓</h3>' + loadingHtml;
+      }
+
+      async function loadMyMessages(lumiId) {
+        try {
+          const messages = await getMyMessages(lumiId);
+          if (Array.isArray(messages) && messages.length) {
+            LUMI_RUNTIME_MAIL_ITEMS = messages
+              .filter((item) => {
+                const member = String(item && item.senderMember || "").toLowerCase();
+                return member !== "iro" && member !== "lunar" && member !== "luna";
+              })
+              .map(normalizeLumiMessageItem);
+            mailState.inbox.page = 0;
+            mailState.saved.page = 0;
+            renderMailAll();
+            appendBootDebug("messages UI applied: " + LUMI_RUNTIME_MAIL_ITEMS.length);
+          } else {
+            appendBootDebug("messages empty: mock fallback kept");
+            renderMailAll();
+          }
+        } catch (error) {
+          appendBootDebug("message UI fallback: " + String(error && error.message ? error.message : error));
+          renderMailAll();
+        }
       }
 
       async function loadMyReservations(lumiId) {
