@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_17_body_append_20260508";
+      const APP_VERSION = "patch51_18_android_debug_20260508";
       const LUMI_API_ENDPOINT = String(window.LUMI_API_ENDPOINT || "").trim();
       const LUMI_API_TIMEOUT_MS = 12000;
       let currentUser = null;
@@ -2654,13 +2654,18 @@
           });
           query.set("callback", callbackName);
           query.set("_", String(Date.now()));
+          query.set("_t", String(Date.now()));
           query.set("_v", APP_VERSION);
-          script.onerror = () => {
+          const finalSrc = LUMI_API_ENDPOINT + (LUMI_API_ENDPOINT.indexOf("?") === -1 ? "?" : "&") + query.toString();
+          appendBootDebug("req: " + String(payload.action || "unknown") + " / " + finalSrc.slice(0, 60));
+          script.onload = () => { appendBootDebug("onload: " + String(payload.action || "unknown")); };
+          script.onerror = (ev) => {
             cleanup();
-            setBootDebug("apiNetworkError: " + String(payload.action || "unknown"));
+            const errType = ev && ev.type ? ev.type : "unknown";
+            setBootDebug("onerror: " + String(payload.action || "unknown") + " type:" + errType + " / " + finalSrc.slice(0, 60));
             reject(new Error("apiNetworkError"));
           };
-          script.src = LUMI_API_ENDPOINT + (LUMI_API_ENDPOINT.indexOf("?") === -1 ? "?" : "&") + query.toString();
+          script.src = finalSrc;
           document.body.appendChild(script);
         });
       }
