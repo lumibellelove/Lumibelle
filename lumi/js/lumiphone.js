@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_19_debug_fix_20260508";
+      const APP_VERSION = "patch51_20_full_debug_20260508";
       const LUMI_API_ENDPOINT = String(window.LUMI_API_ENDPOINT || "").trim();
       const LUMI_API_TIMEOUT_MS = 12000;
       let currentUser = null;
@@ -2619,8 +2619,9 @@
 
       function fetchLumiApi(params) {
         const payload = Object.assign({}, params || {});
+        appendBootDebug("ENTER fetchLumiApi: " + String(payload.action || "unknown"));
         if (!LUMI_API_ENDPOINT) {
-          setBootDebug("missingApiEndpoint: index.html의 window.LUMI_API_ENDPOINT 확인 필요");
+          appendBootDebug("missingApiEndpoint");
           return Promise.reject(new Error("missingApiEndpoint"));
         }
         appendBootDebug("API request: " + String(payload.action || "unknown"));
@@ -2895,6 +2896,7 @@
       loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         clearMessage();
+        appendBootDebug("LOGIN submit start");
         loginId.value = normalizeLoginIdInput(loginId.value);
         const lumiId = normId(loginId.value);
         const pin = loginPin.value.trim();
@@ -2908,7 +2910,8 @@
           await openApp({ user: user });
         } catch (error) {
           const msg = String(error && error.message || "");
-          setBootDebug("login UI error: " + msg);
+          appendBootDebug("LOGIN catch: " + msg);
+          appendBootDebug("login UI error: " + msg);
           if (msg === "missingApiEndpoint") showMessage("루미폰 API 주소가 아직 설정되지 않았어요. LUMI_API_ENDPOINT를 Apps Script 웹앱 URL로 설정해 주세요.");
           else if (msg === "apiTimeout" || msg === "apiNetworkError") showMessage("루미폰 서버 연결을 확인해 주세요. debug: " + msg);
           else showMessage("루미 ID 또는 PIN을 확인해 주세요.");
