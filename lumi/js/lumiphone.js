@@ -2,8 +2,9 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_23_entry_status_loading_20260508";
+      const APP_VERSION = "patch51_24_debug_hidden_20260508";
       const LUMI_API_ENDPOINT = String(window.LUMI_API_ENDPOINT || "").trim();
+      const DEBUG_MODE = new URLSearchParams(window.location.search).get("debug") === "1";
       const LUMI_API_TIMEOUT_MS = 12000;
       let currentUser = null;
       let myReservations = [];
@@ -11,6 +12,7 @@
 
       function setBootDebug(text) {
         bootDebugText = String(text || "");
+        if (!DEBUG_MODE) return;
         const target = document.getElementById("lumiChromeDebugText");
         if (target) target.textContent = bootDebugText;
       }
@@ -79,6 +81,7 @@
       }
 
       function installChromeRecoveryPanel() {
+        if (!DEBUG_MODE) return;
         const parent = (loginForm && loginForm.parentNode) || loginView || document.body;
         if (!parent || document.getElementById("lumiChromeRecoveryBox")) return;
         const box = document.createElement("div");
@@ -2942,7 +2945,7 @@
         }, 0);
       });
 
-      installChromeRecoveryPanel();
+      if (DEBUG_MODE) installChromeRecoveryPanel();
       setLumiLang(readLumiLang(), false);
       loginLangButtons.forEach((button) => {
         button.addEventListener("click", () => setLumiLang(button.dataset.lumiLang, true));
