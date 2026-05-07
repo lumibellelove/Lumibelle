@@ -2,10 +2,113 @@
     (() => {
       "use strict";
 
+      const APP_VERSION = "patch51_06_chrome_cache_guard_20260507";
       const LUMI_API_ENDPOINT = String(window.LUMI_API_ENDPOINT || "").trim();
       const LUMI_API_TIMEOUT_MS = 12000;
       let currentUser = null;
       let myReservations = [];
+      let bootDebugText = "";
+
+      function setBootDebug(text) {
+        bootDebugText = String(text || "");
+        const target = document.getElementById("lumiChromeDebugText");
+        if (target) target.textContent = bootDebugText;
+      }
+
+      function appendBootDebug(text) {
+        const next = String(text || "");
+        setBootDebug(bootDebugText ? bootDebugText + " / " + next : next);
+      }
+
+      function clearLegacyStorageForChromePatch(force) {
+        const keys = [
+          "lumiphone.loginState.v1",
+          "lumiphone.loginState",
+          "lumiLoginState",
+          "lumiPhoneLogin",
+          "lumiApiEndpoint",
+          "LUMI_API_ENDPOINT",
+          "lumiphone.apiEndpoint",
+          "lumiphone.version",
+          "lumiphone.appVersion",
+          "lumiphone.releaseReset.patch14.v1"
+        ];
+        try {
+          const current = window.localStorage ? localStorage.getItem("lumiphone.appVersion") : APP_VERSION;
+          if (force || current !== APP_VERSION) {
+            keys.forEach((key) => {
+              try { localStorage.removeItem(key); } catch (error) {}
+              try { sessionStorage.removeItem(key); } catch (error) {}
+            });
+            try { localStorage.setItem("lumiphone.appVersion", APP_VERSION); } catch (error) {}
+            appendBootDebug(force ? "storage reset forced" : "storage reset for " + APP_VERSION);
+          }
+        } catch (error) {
+          appendBootDebug("storage reset skipped: " + String(error && error.message ? error.message : error));
+        }
+      }
+
+      function unregisterServiceWorkersForChromePatch(force) {
+        if (!("serviceWorker" in navigator)) return;
+        try {
+          navigator.serviceWorker.getRegistrations().then((registrations) => {
+            if (!registrations || !registrations.length) {
+              if (force) appendBootDebug("service worker none");
+              return;
+            }
+            registrations.forEach((registration) => registration.unregister());
+            appendBootDebug("service worker unregistered: " + registrations.length);
+          }).catch((error) => appendBootDebug("service worker check failed: " + String(error && error.message ? error.message : error)));
+        } catch (error) {
+          appendBootDebug("service worker check failed: " + String(error && error.message ? error.message : error));
+        }
+      }
+
+      function clearBrowserCachesForChromePatch() {
+        if (!("caches" in window)) return Promise.resolve();
+        return caches.keys().then((keys) => Promise.all(keys.map((key) => caches.delete(key)))).then((deleted) => {
+          appendBootDebug("cache cleared: " + deleted.length);
+        }).catch((error) => appendBootDebug("cache clear skipped: " + String(error && error.message ? error.message : error)));
+      }
+
+      function forceChromeRecoveryReload() {
+        setBootDebug("Chrome recovery reload running...");
+        clearLegacyStorageForChromePatch(true);
+        unregisterServiceWorkersForChromePatch(true);
+        clearBrowserCachesForChromePatch().finally(() => {
+          const url = new URL(window.location.href);
+          url.searchParams.set("lumiReload", String(Date.now()));
+          window.location.replace(url.toString());
+        });
+      }
+
+      function installChromeRecoveryPanel() {
+        const parent = (loginForm && loginForm.parentNode) || loginView || document.body;
+        if (!parent || document.getElementById("lumiChromeRecoveryBox")) return;
+        const box = document.createElement("div");
+        box.id = "lumiChromeRecoveryBox";
+        box.style.marginTop = "12px";
+        box.style.padding = "12px";
+        box.style.border = "1px solid #f0bfd4";
+        box.style.borderRadius = "18px";
+        box.style.background = "#fff8ee";
+        box.style.color = "#b96b2f";
+        box.style.fontSize = "12px";
+        box.style.fontWeight = "900";
+        box.style.lineHeight = "1.55";
+        box.innerHTML = '<div>APP VERSION: ' + APP_VERSION + '</div>' +
+          '<div>API: ' + (LUMI_API_ENDPOINT ? '설정됨' : '미설정') + '</div>' +
+          '<div id="lumiChromeDebugText">' + (bootDebugText || 'debug ready') + '</div>' +
+          '<button type="button" id="lumiChromeForceReloadBtn" style="margin-top:8px;min-height:36px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d77ca7;font-weight:900;padding:0 12px;cursor:pointer;">Chrome 일반모드 강제 새로고침</button>';
+        parent.appendChild(box);
+        const btn = document.getElementById("lumiChromeForceReloadBtn");
+        if (btn) btn.addEventListener("click", forceChromeRecoveryReload);
+      }
+
+      clearLegacyStorageForChromePatch(false);
+      unregisterServiceWorkersForChromePatch(false);
+      if (!LUMI_API_ENDPOINT) setBootDebug("missing LUMI_API_ENDPOINT");
+      else setBootDebug("API endpoint ready");
       const $ = (selector, root = document) => root.querySelector(selector);
       const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
@@ -2509,14 +2612,17 @@
       function fetchLumiApi(params) {
         const payload = Object.assign({}, params || {});
         if (!LUMI_API_ENDPOINT) {
+          setBootDebug("missingApiEndpoint: index.html의 window.LUMI_API_ENDPOINT 확인 필요");
           return Promise.reject(new Error("missingApiEndpoint"));
         }
+        setBootDebug("API request: " + String(payload.action || "unknown"));
         return new Promise((resolve, reject) => {
           const callbackName = "__lumiphoneApiCallback_" + Date.now() + "_" + Math.random().toString(36).slice(2);
           const script = document.createElement("script");
           let done = false;
           const timer = window.setTimeout(() => {
             cleanup();
+            setBootDebug("apiTimeout: " + String(payload.action || "unknown"));
             reject(new Error("apiTimeout"));
           }, LUMI_API_TIMEOUT_MS);
 
@@ -2530,6 +2636,7 @@
 
           window[callbackName] = (data) => {
             cleanup();
+            setBootDebug("API success: " + String(payload.action || "unknown"));
             resolve(data || {});
           };
 
@@ -2539,8 +2646,10 @@
           });
           query.set("callback", callbackName);
           query.set("_", String(Date.now()));
+          query.set("_v", APP_VERSION);
           script.onerror = () => {
             cleanup();
+            setBootDebug("apiNetworkError: " + String(payload.action || "unknown"));
             reject(new Error("apiNetworkError"));
           };
           script.src = LUMI_API_ENDPOINT + (LUMI_API_ENDPOINT.indexOf("?") === -1 ? "?" : "&") + query.toString();
@@ -2551,6 +2660,7 @@
       async function loginLumiPhone(lumiId, pin) {
         const response = await fetchLumiApi({ action: "lumiLogin", lumiId: lumiId, pin: pin });
         if (!response || response.ok !== true) {
+          setBootDebug("login failed: " + String((response && (response.message || response.error)) || "loginFailed"));
           throw new Error((response && (response.message || response.error)) || "loginFailed");
         }
         return normalizeLumiUser(response.user || response.data || {});
@@ -2559,6 +2669,7 @@
       async function getMyReservations(lumiId) {
         const response = await fetchLumiApi({ action: "lumiGetMyReservations", lumiId: lumiId });
         if (!response || response.ok !== true) {
+          setBootDebug("reservation load failed: " + String((response && (response.message || response.error)) || "reservationLoadFailed"));
           throw new Error((response && (response.message || response.error)) || "reservationLoadFailed");
         }
         return Array.isArray(response.reservations) ? response.reservations : (response.data && Array.isArray(response.data.reservations) ? response.data.reservations : []);
@@ -2759,6 +2870,7 @@
         } catch (error) {
           myReservations = [];
           renderMyReservations([]);
+          setBootDebug("reservation UI error: " + String(error && error.message ? error.message : error));
           if (String(error && error.message) === "missingApiEndpoint") {
             showMessage("루미폰 API 주소가 아직 설정되지 않았어요. LUMI_API_ENDPOINT를 Apps Script 웹앱 URL로 설정해 주세요.");
           }
@@ -2780,8 +2892,9 @@
           await openApp({ user: user });
         } catch (error) {
           const msg = String(error && error.message || "");
+          setBootDebug("login UI error: " + msg);
           if (msg === "missingApiEndpoint") showMessage("루미폰 API 주소가 아직 설정되지 않았어요. LUMI_API_ENDPOINT를 Apps Script 웹앱 URL로 설정해 주세요.");
-          else if (msg === "apiTimeout" || msg === "apiNetworkError") showMessage("루미폰 서버 연결을 확인해 주세요.");
+          else if (msg === "apiTimeout" || msg === "apiNetworkError") showMessage("루미폰 서버 연결을 확인해 주세요. debug: " + msg);
           else showMessage("루미 ID 또는 PIN을 확인해 주세요.");
         }
       });
@@ -2797,6 +2910,7 @@
         }, 0);
       });
 
+      installChromeRecoveryPanel();
       setLumiLang(readLumiLang(), false);
       loginLangButtons.forEach((button) => {
         button.addEventListener("click", () => setLumiLang(button.dataset.lumiLang, true));
