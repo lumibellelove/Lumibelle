@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_20_full_debug_20260508";
+      const APP_VERSION = "patch51_21_cloudflare_fetch_20260508";
       const LUMI_API_ENDPOINT = String(window.LUMI_API_ENDPOINT || "").trim();
       const LUMI_API_TIMEOUT_MS = 12000;
       let currentUser = null;
@@ -2617,58 +2617,44 @@
         };
       }
 
-      function fetchLumiApi(params) {
+      async function fetchLumiApi(params) {
         const payload = Object.assign({}, params || {});
         appendBootDebug("ENTER fetchLumiApi: " + String(payload.action || "unknown"));
         if (!LUMI_API_ENDPOINT) {
           appendBootDebug("missingApiEndpoint");
-          return Promise.reject(new Error("missingApiEndpoint"));
+          throw new Error("missingApiEndpoint");
         }
         appendBootDebug("API request: " + String(payload.action || "unknown"));
-        return new Promise((resolve, reject) => {
-          const callbackName = "__lumiphoneApiCallback_" + Date.now() + "_" + Math.random().toString(36).slice(2);
-          const script = document.createElement("script");
-          let done = false;
-          const timer = window.setTimeout(() => {
-            cleanup();
-            setBootDebug("apiTimeout: " + String(payload.action || "unknown"));
-            reject(new Error("apiTimeout"));
-          }, LUMI_API_TIMEOUT_MS);
 
-          function cleanup() {
-            if (done) return;
-            done = true;
-            window.clearTimeout(timer);
-            try { delete window[callbackName]; } catch (error) { window[callbackName] = undefined; }
-            if (script && script.parentNode) script.parentNode.removeChild(script);
-          }
-
-          window[callbackName] = (data) => {
-            cleanup();
-            setBootDebug("API success: " + String(payload.action || "unknown"));
-            resolve(data || {});
-          };
-
-          const query = new URLSearchParams();
-          Object.keys(payload).forEach((key) => {
-            if (payload[key] !== undefined && payload[key] !== null) query.set(key, String(payload[key]));
-          });
-          query.set("callback", callbackName);
-          query.set("_", String(Date.now()));
-          query.set("_t", String(Date.now()));
-          query.set("_v", APP_VERSION);
-          const finalSrc = LUMI_API_ENDPOINT + (LUMI_API_ENDPOINT.indexOf("?") === -1 ? "?" : "&") + query.toString();
-          appendBootDebug("req: " + String(payload.action || "unknown") + " / " + finalSrc.slice(0, 60));
-          script.onload = () => { appendBootDebug("onload: " + String(payload.action || "unknown")); };
-          script.onerror = (ev) => {
-            cleanup();
-            const errType = ev && ev.type ? ev.type : "unknown";
-            setBootDebug("onerror: " + String(payload.action || "unknown") + " type:" + errType + " / " + finalSrc.slice(0, 60));
-            reject(new Error("apiNetworkError"));
-          };
-          script.src = finalSrc;
-          document.body.appendChild(script);
+        const query = new URLSearchParams();
+        Object.keys(payload).forEach((key) => {
+          if (payload[key] !== undefined && payload[key] !== null) query.set(key, String(payload[key]));
         });
+        query.set("_", String(Date.now()));
+        query.set("_v", APP_VERSION);
+
+        const url = LUMI_API_ENDPOINT + (LUMI_API_ENDPOINT.indexOf("?") === -1 ? "?" : "&") + query.toString();
+        appendBootDebug("fetch: " + url.slice(0, 80));
+
+        const controller = new AbortController();
+        const timer = window.setTimeout(() => {
+          controller.abort();
+          appendBootDebug("apiTimeout: " + String(payload.action || "unknown"));
+        }, LUMI_API_TIMEOUT_MS);
+
+        try {
+          const response = await fetch(url, { signal: controller.signal });
+          window.clearTimeout(timer);
+          if (!response.ok) throw new Error("apiNetworkError");
+          const data = await response.json();
+          appendBootDebug("fetch success: " + String(payload.action || "unknown"));
+          return data;
+        } catch (err) {
+          window.clearTimeout(timer);
+          const msg = err && err.name === "AbortError" ? "apiTimeout" : "apiNetworkError";
+          appendBootDebug("fetch error: " + msg + " / " + String(err && err.message || ""));
+          throw new Error(msg);
+        }
       }
 
       async function loginLumiPhone(lumiId, pin) {
