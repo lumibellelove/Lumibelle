@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_35_fix1_visits_timeline_20260509";
+      const APP_VERSION = "patch51_35_fix2_visits_debug_20260509";
       // PATCH 51-32-fix5: const로 고정하면 window.LUMI_API_ENDPOINT가 나중에 세팅될 때
       // IIFE 내부 변수는 이미 ""로 굳어버림. 함수로 바꿔서 호출 시점에 항상 최신값 읽기.
       function LUMI_API_ENDPOINT() { return String(window.LUMI_API_ENDPOINT || "").trim(); }
@@ -3978,36 +3978,51 @@
         }
         if (recordMsg) recordMsg.textContent = "기록을 불러오는 중…";
 
-        const url = endpoint + (endpoint.indexOf("?") === -1 ? "?" : "&") +
-          new URLSearchParams({ action: "lumiGetVisits", lumiId: lumiId, _: Date.now() }).toString();
+        // window.__lumiFetchApi 브릿지가 있으면 사용, 없으면 native fetch
+        var apiCall;
+        if (typeof window.__lumiFetchApi === "function") {
+          apiCall = window.__lumiFetchApi({ action: "lumiGetVisits", lumiId: lumiId });
+        } else {
+          const url = endpoint + (endpoint.indexOf("?") === -1 ? "?" : "&") +
+            new URLSearchParams({ action: "lumiGetVisits", lumiId: lumiId, _: Date.now() }).toString();
+          apiCall = fetch(url).then(function(r) { return r.json(); });
+        }
 
-        fetch(url)
-          .then(function(r) { return r.json(); })
+        apiCall
           .then(function(data) {
+            console.log("[lumi] loadVisits response:", data);
             if (data && data.ok && Array.isArray(data.visits)) {
               runtimeVisits = data.visits;
-              // PATCH 51-35-fix1: 방문 기록이 있으면 가장 최신 기록의 월로 자동 이동
+              console.log("[lumi] loadVisits visits count:", runtimeVisits.length, "| first:", runtimeVisits[0] || null);
+
+              // 가장 최신 방문 기록의 월로 자동 이동
               if (runtimeVisits.length > 0) {
-                const latestDateStr = runtimeVisits
-                  .map(function(v) { return (v.eventDate || v.visitedAt || "").slice(0, 7); })
-                  .filter(Boolean)
+                var latestDateStr = runtimeVisits
+                  .map(function(v) { return String(v.eventDate || v.visitedAt || "").slice(0, 7); })
+                  .filter(function(s) { return /^\d{4}-\d{2}$/.test(s); })
                   .sort()
-                  .reverse()[0]; // "2026-07" 형식
+                  .pop(); // "2026-07"
+                console.log("[lumi] loadVisits latestDateStr:", latestDateStr);
                 if (latestDateStr) {
-                  const parts = latestDateStr.split("-");
-                  const y = parseInt(parts[0], 10);
-                  const m = parseInt(parts[1], 10);
-                  if (!isNaN(y) && !isNaN(m)) {
+                  var y = parseInt(latestDateStr.slice(0, 4), 10);
+                  var m = parseInt(latestDateStr.slice(5, 7), 10);
+                  if (y > 0 && m >= 1 && m <= 12) {
                     currentYear  = y;
                     currentMonth = m;
                     currentPage  = 1;
+                    console.log("[lumi] loadVisits jumped to:", currentYear, currentMonth);
                   }
                 }
               }
+            } else {
+              console.warn("[lumi] loadVisits: unexpected response:", data);
             }
             renderRecordPage();
           })
-          .catch(function() { renderRecordPage(); });
+          .catch(function(err) {
+            console.error("[lumi] loadVisits error:", err);
+            renderRecordPage();
+          });
       }
 
       // ── 이벤트 등록 ───────────────────────────────────────────
