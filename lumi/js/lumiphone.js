@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_39_fix1_session_20260509";
+      const APP_VERSION = "patch51_40_last_page_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -153,6 +153,7 @@
       const loginLangButtons = $$('[data-lumi-lang]');
       const langStorageKey = "lumiLang";
       const loginStateStorageKey = "lumiphone.loginState.v1";
+      const lastPageStorageKey = "lumiphone.lastPage.v1"; // PATCH 51-40: 마지막 탭 저장
       const logoutBtn = $("#logoutBtn");
       const statusTime = $("#statusTime");
       const homeClock = $("#homeClock");
@@ -396,7 +397,17 @@
         clearMessage();
         loginView.classList.remove("active");
         appView.classList.add("active");  // ← 화면 즉시 표시 (API 기다리지 않음)
-        go("home");
+
+        // PATCH 51-40: 새로고침/자동 로그인 시 마지막으로 보던 탭 복원
+        let initialPage = "home";
+        try {
+          const savedPage = localStorage.getItem(lastPageStorageKey);
+          if (savedPage && document.getElementById("page-" + savedPage)) {
+            initialPage = savedPage;
+          }
+        } catch (error) {}
+
+        go(initialPage);
         updateClock();
 
         if (!(currentUser && getCurrentLumiId())) return;
@@ -468,6 +479,8 @@
 
       function closeApp() {
         clearLoginState();
+        // PATCH 51-40: 로그아웃 후에는 마지막 탭 기록 제거 → 재로그인 시 home 시작
+        try { localStorage.removeItem(lastPageStorageKey); } catch (error) {}
         appView.classList.remove("active");
         loginView.classList.add("active");
         loginId.value = "";
@@ -478,6 +491,8 @@
 
       function go(page) {
         const targetName = page || "home";
+        // PATCH 51-40: 마지막 탭 저장. 잘못된 값은 다음 openApp에서 page 존재 여부로 fallback 처리.
+        try { localStorage.setItem(lastPageStorageKey, targetName); } catch (error) {}
         if (typeof closeProfileSimpleModal === "function") closeProfileSimpleModal();
         $$(".page").forEach((el) => el.classList.toggle("active", el.id === "page-" + targetName));
         $$(".tab").forEach((el) => el.classList.toggle("active", el.dataset.page === targetName));
