@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_35_fix2_visits_debug_20260509";
+      const APP_VERSION = "patch51_35_fix3_date_parse_20260509";
       // PATCH 51-32-fix5: const로 고정하면 window.LUMI_API_ENDPOINT가 나중에 세팅될 때
       // IIFE 내부 변수는 이미 ""로 굳어버림. 함수로 바꿔서 호출 시점에 항상 최신값 읽기.
       function LUMI_API_ENDPOINT() { return String(window.LUMI_API_ENDPOINT || "").trim(); }
@@ -3867,9 +3867,13 @@
 
       function filteredVisits() {
         return runtimeVisits.filter(function(v) {
-          const matchFilter = currentFilter === "전체" || visitTypeToCategory(v.visitType) === currentFilter;
-          const dateStr = (v.eventDate || v.visitedAt || "").slice(0, 7).replace("-", ".");
-          const matchMonth = dateStr === (currentYear + "." + pad2(currentMonth));
+          var matchFilter = currentFilter === "전체" || visitTypeToCategory(v.visitType) === currentFilter;
+          // PATCH 51-35-fix3: new Date()로 파싱 (시트에서 Date 객체 직렬화 형태로 올 수 있음)
+          var raw = v.eventDate || v.visitedAt || "";
+          var d = new Date(raw);
+          var matchMonth = !isNaN(d.getTime()) &&
+            d.getFullYear() === currentYear &&
+            (d.getMonth() + 1) === currentMonth;
           return matchFilter && matchMonth;
         });
       }
@@ -3894,11 +3898,16 @@
             '<em>안내</em></article>';
         } else {
           recordCardList.innerHTML = pageItems.map(function(v) {
-            const cat  = visitTypeToCategory(v.visitType);
-            const icon = visitTypeToIcon(v.visitType);
-            const date = (v.eventDate || v.visitedAt || "").slice(0, 10).replace(/-/g, ".");
-            const title = v.eventTitle || "루미벨 공연";
-            const desc  = v.note || (cat + " · " + date);
+            var cat  = visitTypeToCategory(v.visitType);
+            var icon = visitTypeToIcon(v.visitType);
+            // PATCH 51-35-fix3: new Date()로 파싱해서 yyyy.MM.dd 형식으로 표시
+            var raw = v.eventDate || v.visitedAt || "";
+            var d = new Date(raw);
+            var date = isNaN(d.getTime())
+              ? raw.slice(0, 10).replace(/-/g, ".")
+              : d.getFullYear() + "." + pad2(d.getMonth() + 1) + "." + pad2(d.getDate());
+            var title = v.eventTitle || "루미벨 공연";
+            var desc  = v.note || (cat + " · " + date);
             return '<article class="record-memory-card" ' +
               'data-record-category="' + cat + '" ' +
               'data-record-title="' + title + '" ' +
@@ -3993,25 +4002,35 @@
             console.log("[lumi] loadVisits response:", data);
             if (data && data.ok && Array.isArray(data.visits)) {
               runtimeVisits = data.visits;
+
+              // PATCH 51-35-fix3: Date 객체로 파싱 (시트에서 "Sun Jul 12 2026..." 형태로 올 수 있음)
+              function parseVisitDate(v) {
+                var raw = v.eventDate || v.visitedAt || "";
+                if (!raw) return null;
+                var d = new Date(raw);
+                return isNaN(d.getTime()) ? null : d;
+              }
+
+              // 최신순 정렬
+              runtimeVisits.sort(function(a, b) {
+                var da = parseVisitDate(a), db = parseVisitDate(b);
+                if (!da && !db) return 0;
+                if (!da) return 1;
+                if (!db) return -1;
+                return db.getTime() - da.getTime();
+              });
+
               console.log("[lumi] loadVisits visits count:", runtimeVisits.length, "| first:", runtimeVisits[0] || null);
 
               // 가장 최신 방문 기록의 월로 자동 이동
               if (runtimeVisits.length > 0) {
-                var latestDateStr = runtimeVisits
-                  .map(function(v) { return String(v.eventDate || v.visitedAt || "").slice(0, 7); })
-                  .filter(function(s) { return /^\d{4}-\d{2}$/.test(s); })
-                  .sort()
-                  .pop(); // "2026-07"
-                console.log("[lumi] loadVisits latestDateStr:", latestDateStr);
-                if (latestDateStr) {
-                  var y = parseInt(latestDateStr.slice(0, 4), 10);
-                  var m = parseInt(latestDateStr.slice(5, 7), 10);
-                  if (y > 0 && m >= 1 && m <= 12) {
-                    currentYear  = y;
-                    currentMonth = m;
-                    currentPage  = 1;
-                    console.log("[lumi] loadVisits jumped to:", currentYear, currentMonth);
-                  }
+                var latestDate = parseVisitDate(runtimeVisits[0]);
+                console.log("[lumi] loadVisits latestDate:", latestDate);
+                if (latestDate) {
+                  currentYear  = latestDate.getFullYear();
+                  currentMonth = latestDate.getMonth() + 1;
+                  currentPage  = 1;
+                  console.log("[lumi] jumped to:", currentYear, currentMonth);
                 }
               }
             } else {
