@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_46_fix1_debug_bridge_20260509";
+      const APP_VERSION = "patch51_47_homework_cheki_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -449,6 +449,13 @@
           appendBootDebug("visits cache: " + cachedVisits.length + " items");
         }
 
+        // PATCH 51-47: 숙제체키 캐시 즉시 복원
+        const cachedCheki = cacheRead_(lid, "cheki", 24 * 60 * 60 * 1000);
+        if (cachedCheki && Array.isArray(cachedCheki)) {
+          renderHomeworkCheki(cachedCheki);
+          appendBootDebug("cheki cache: " + cachedCheki.length + " items");
+        }
+
         // PATCH 51-37: API는 백그라운드 병렬 실행 (await 없음 → 화면 진입 차단 안 함)
         function runBackgroundRefresh(lid) {
           function doRefresh() {
@@ -459,6 +466,9 @@
             }),
             loadMyMessages(lid).catch(function(e) {
               appendBootDebug("bg message error: " + String(e && e.message || e));
+            }),
+            loadMyCheki(lid).catch(function(e) { // PATCH 51-47
+              appendBootDebug("bg cheki error: " + String(e && e.message || e));
             })
           ]);
           }
@@ -3395,6 +3405,112 @@
           }
         }
       }
+
+      // ── PATCH 51-47: 숙제체키 ────────────────────────────────
+
+      // 멤버 라벨/아이콘 매핑
+      function chekiMemberLabel(member) {
+        var m = String(member || "").trim().toLowerCase();
+        if (m === "mariring" || m === "마리링") return "마리링 🎀⭐";
+        if (m === "lulu" || m === "루루")       return "루루 🍼🐰";
+        return member || "루미벨";
+      }
+
+      // 상태 배지 레이블
+      function chekiStatusLabel(status) {
+        var s = String(status || "").trim();
+        if (s === "접수됨")   return { label: "접수됨",   cls: "status-pending" };
+        if (s === "준비 중")  return { label: "준비 중",  cls: "status-progress" };
+        if (s === "수령 가능") return { label: "수령 가능", cls: "status-ready" };
+        if (s === "수령 완료") return { label: "수령 완료", cls: "status-done" };
+        return { label: s || "대기 중", cls: "status-pending" };
+      }
+
+      function renderHomeworkCheki(items) {
+        const list = items || [];
+
+        // ── 홈 요약 카드 업데이트
+        const readyCount = list.filter(function(c) {
+          return String(c.status || "").trim() === "수령 가능";
+        }).length;
+        // 홈 "수령 가능 숙제체키" b 태그 업데이트 (ID 없으므로 텍스트로 찾음)
+        try {
+          const homeCards = document.querySelectorAll(".home-card.no-icon");
+          homeCards.forEach(function(card) {
+            const small = card.querySelector("small");
+            if (small && small.textContent.includes("숙제체키")) {
+              const b = card.querySelector("b");
+              const span = card.querySelector("span");
+              if (b) b.textContent = readyCount + "장";
+              if (span) span.textContent = readyCount > 0
+                ? "수령 가능한 숙제체키가 있어요."
+                : "신청 내역이 확인되면 이곳에 표시돼요.";
+            }
+          });
+        } catch(e) {}
+
+        // ── 숙제체키 탭 렌더
+        const mainCard = document.querySelector(".homework-main-card");
+        const pickupCard = document.querySelector(".homework-pickup-card");
+        if (!mainCard) return;
+
+        if (list.length === 0) {
+          mainCard.innerHTML =
+            '<div class="homework-main-head"><strong>숙제체키 없음</strong>' +
+            '<span class="homework-code">대기 중</span></div>' +
+            '<p>신청한 숙제체키가 있으면 이곳에 표시돼요.</p>';
+          if (pickupCard) pickupCard.style.display = "none";
+          return;
+        }
+
+        // 카드 목록 렌더 (mainCard 안에 전부)
+        mainCard.innerHTML = list.map(function(item) {
+          var st = chekiStatusLabel(item.status);
+          var member = chekiMemberLabel(item.member);
+          var plan = item.receivePlan ? "수령 예정: " + item.receivePlan : "";
+          var method = item.receiveMethod ? "수령 방법: " + item.receiveMethod : "";
+          var ctrl = item.controlNo ? "관리번호: " + item.controlNo : "";
+          return '<div class="homework-main-head">' +
+            '<strong>' + member + '</strong>' +
+            '<span class="homework-code ' + st.cls + '">' + st.label + '</span>' +
+            '</div>' +
+            (plan   ? '<p>' + plan   + '</p>' : '') +
+            (method ? '<p>' + method + '</p>' : '') +
+            (ctrl   ? '<p>' + ctrl   + '</p>' : '') +
+            (item.note ? '<p class="homework-note">' + item.note + '</p>' : '');
+        }).join('<hr style="margin:10px 0;border:none;border-top:1px solid #f0d6e8">');
+
+        // 수령 가능이 있으면 pickup 안내 표시
+        if (pickupCard) {
+          if (readyCount > 0) {
+            pickupCard.style.display = "";
+            pickupCard.innerHTML =
+              '<strong>수령 안내</strong>' +
+              '<p>현장에서 루미 ID 또는 닉네임을 스탭에게 보여주세요. 수령 완료 처리 후 기록에 남아요.</p>';
+          } else {
+            pickupCard.style.display = "none";
+          }
+        }
+      }
+
+      async function loadMyCheki(lumiId) {
+        try {
+          const response = await fetchLumiApi({ action: "lumiGetHomeworkCheki", lumiId: lumiId });
+          if (!response || response.ok !== true) {
+            appendBootDebug("cheki load failed: " + String((response && (response.error || response.message)) || "failed"));
+            return;
+          }
+          const items = Array.isArray(response.cheki) ? response.cheki : [];
+          cacheWrite_(lumiId, "cheki", items); // 캐시 저장
+          renderHomeworkCheki(items);
+          appendBootDebug("cheki loaded: " + items.length + " items");
+        } catch (error) {
+          const errMsg = String(error && error.message ? error.message : error);
+          appendBootDebug("cheki error: " + errMsg);
+          // 에러 시 기존 캐시 유지 (renderHomeworkCheki 재호출 안 함)
+        }
+      }
+      // ─────────────────────────────────────────────────────────
 
       loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
