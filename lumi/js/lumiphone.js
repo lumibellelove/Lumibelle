@@ -3034,6 +3034,10 @@
             LUMI_RUNTIME_MESSAGE_ITEMS = publicMessages
               .filter((item) => getLumiMessageChannel(item) === "message")
               .map(normalizeRuntimeChatMessage);
+            // PATCH 51-29-3: 문자함 렌더 IIFE는 별도 클로저 스코프이므로
+            // window 브릿지를 통해 runtime items를 공유한다.
+            window.__lumiRuntimeMessageItems = LUMI_RUNTIME_MESSAGE_ITEMS;
+            console.log("[lumiMsg] bridge set:", window.__lumiRuntimeMessageItems.length, "items");
             mailState.inbox.page = 0;
             mailState.saved.page = 0;
             renderMailAll();
@@ -4354,7 +4358,12 @@
   function setObj(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
   function fanText(value){ return String(value == null ? "" : value); }
   function getAllLumiMessageItems(){
-    return Array.isArray(LUMI_RUNTIME_MESSAGE_ITEMS) ? LUMI_RUNTIME_MESSAGE_ITEMS : MESSAGES;
+    // PATCH 51-29-3: LUMI_RUNTIME_MESSAGE_ITEMS는 로그인 IIFE의 클로저 변수라
+    // 이 문자함 IIFE에서 직접 참조하면 항상 undefined → MESSAGES(mock) 폴백됨.
+    // window.__lumiRuntimeMessageItems 브릿지를 경유해 읽는다.
+    const runtimeItems = window.__lumiRuntimeMessageItems;
+    console.log("[lumiMsg] getAllLumiMessageItems runtimeItems:", runtimeItems);
+    return Array.isArray(runtimeItems) && runtimeItems.length > 0 ? runtimeItems : MESSAGES;
   }
   function normalizeRuntimeChatMessage(item){
     const source = item || {};
@@ -4434,12 +4443,15 @@
     const root = pageEl();
     const term = (($("#lumiMsgSearch", root)||{}).value || "").trim().toLowerCase();
     const rawItems = getAllLumiMessageItems();
+    // PATCH 51-29-3 DEBUG
+    console.log("[lumiMsg] filtered() rawItems (sourceItems):", rawItems);
     const items = Array.isArray(rawItems) ? rawItems.map(m => {
       if (m && (m.lines || m.box || m.type)) return m;
       return normalizeRuntimeChatMessage(m);
     }) : [];
+    console.log("[lumiMsg] filtered() normalized items (messageItems):", items);
 
-    return items.filter(m => {
+    const result = items.filter(m => {
       if (box === "saved") {
         if (!isSaved(m.id) || !isVisibleInboxMessage(m)) return false;
       } else if (!isVisibleInboxMessage(m)) return false;
@@ -4450,6 +4462,8 @@
       }
       return true;
     });
+    console.log("[lumiMsg] filtered() result (filteredMessages):", result);
+    return result;
   }
   function updateBadges(){
     const unreadItems = getAllLumiMessageItems().filter(m => isVisibleInboxMessage(m) && !isRead(m.id));
