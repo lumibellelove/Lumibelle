@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_34_mock_dom_cleanup_20260508";
+      const APP_VERSION = "patch51_35_visits_20260508";
       // PATCH 51-32-fix5: const로 고정하면 window.LUMI_API_ENDPOINT가 나중에 세팅될 때
       // IIFE 내부 변수는 이미 ""로 굳어버림. 함수로 바꿔서 호출 시점에 항상 최신값 읽기.
       function LUMI_API_ENDPOINT() { return String(window.LUMI_API_ENDPOINT || "").trim(); }
@@ -366,21 +366,6 @@
         appView.classList.add("active");
         go("home");
         updateClock();
-
-        // PATCH 51-34: 로그인 직후 mock 우편/문자 잔상 제거
-        LUMI_MESSAGES_LOAD_DONE = false;
-        LUMI_RUNTIME_MAIL_ITEMS = [];
-        LUMI_RUNTIME_MESSAGE_ITEMS = [];
-        window.__lumiRuntimeMailItems = [];
-        window.__lumiRuntimeMessageItems = [];
-        window.__lumiMessagesLoadDone = false;
-
-        // 기존 mock DOM을 즉시 비우고 로딩/빈 상태로 교체한다.
-        renderMailAll();
-        if (typeof window.showLumiMessageInbox === "function") {
-          window.showLumiMessageInbox();
-        }
-
         if (currentUser && getCurrentLumiId()) {
           await loadMyReservations(getCurrentLumiId());
           // PATCH 51-32-fix6: window.LUMI_API_ENDPOINT가 lumiphone.js 이후에 세팅되는 경우
@@ -643,13 +628,14 @@
       }
 
       function getAllMailItems() {
-        // PATCH 51-32-fix5:
-        // - API 로드 완료(LUMI_MESSAGES_LOAD_DONE)됐으면 runtime 배열만 사용 (빈 배열 포함)
-        // - 로드 전이면 mock 보여줌 (깜빡임 허용, 빈 화면보다 나음)
+        // PATCH 51-33: 로드 완료 후에는 항상 runtime 배열만 사용
         if (LUMI_MESSAGES_LOAD_DONE) {
           return Array.isArray(LUMI_RUNTIME_MAIL_ITEMS) ? LUMI_RUNTIME_MAIL_ITEMS : [];
         }
-        return Array.isArray(LUMI_RUNTIME_MAIL_ITEMS) ? LUMI_RUNTIME_MAIL_ITEMS : LUMI_MAIL_ITEMS;
+        // 로드 중이지만 로그인 상태(API 모드)면 mock 억제 → 로딩 상태로 표시
+        if (LUMI_API_ENDPOINT() && getCurrentLumiId()) return [];
+        // 비로그인/오프라인이면 mock 표시
+        return LUMI_MAIL_ITEMS;
       }
 
       function memberLabelFromKey(key) {
@@ -856,9 +842,16 @@
         const empty = document.getElementById(box === "saved" ? "mailSavedEmpty" : "mailInboxEmpty");
         if (!list || !pager || !text || !prev || !next || !empty) return;
 
+        // PATCH 51-33: 로그인 상태에서 API 로드 미완료면 로딩 문구 표시
+        if (!LUMI_MESSAGES_LOAD_DONE && LUMI_API_ENDPOINT() && getCurrentLumiId()) {
+          list.innerHTML = '<p style="text-align:center;color:var(--sub,#c9a0bc);padding:24px 0;font-size:14px;">우편을 불러오는 중…</p>';
+          empty.classList.add("hidden");
+          pager.classList.add("hidden");
+          return;
+        }
+
         const state = mailState[box];
         const items = getMailItems(box);
-        const isLoadingMessages = box === "inbox" && LUMI_MESSAGES_LOAD_DONE === false && Array.isArray(LUMI_RUNTIME_MAIL_ITEMS) && LUMI_RUNTIME_MAIL_ITEMS.length === 0;
         const mailPageSize = window.matchMedia && window.matchMedia("(min-width: 760px)").matches ? 4 : MAIL_PAGE_SIZE;
         const totalPages = Math.max(1, Math.ceil(items.length / mailPageSize));
         state.page = Math.min(Math.max(0, state.page), totalPages - 1);
@@ -874,9 +867,6 @@
             '<span class="mail-status-chip' + statusClass + '">' + status + '</span>' +
           '</button>';
         }).join("");
-        if (!items.length) {
-          empty.textContent = isLoadingMessages ? "우편을 불러오는 중…" : "조건에 맞는 우편이 없어요.";
-        }
         empty.classList.toggle("hidden", items.length > 0);
         pager.classList.toggle("hidden", items.length <= mailPageSize);
         text.textContent = (state.page + 1) + " / " + totalPages;
@@ -903,11 +893,7 @@
         const item = getAllMailItems().find((mail) => String(mail.id) === targetOpenId || String(mail.messageId) === targetOpenId);
         const modal = document.getElementById("mailModal");
         console.log("[lumi] openMailModal:", targetOpenId, item ? (item.messageId || item.id || "(no id)") : "item not found");
-        if (!item || !modal) {
-          // PATCH 51-34: stale mock 버튼 클릭 시 남은 DOM을 즉시 다시 그린다.
-          renderMailAll();
-          return;
-        }
+        if (!item || !modal) return;
         mailState.currentId = id;
         const icon = document.getElementById("mailModalIcon");
         const meta = document.getElementById("mailModalMeta");
@@ -3179,11 +3165,11 @@
             console.log("[lumi] loadMyMessages split: mail=", mailItems.length, "| sms=", smsItems.length);
             console.log("[lumi] loadMyMessages mail items:", mailItems);
             LUMI_MESSAGES_LOAD_DONE = true;
-            window.__lumiMessagesLoadDone = true;
             LUMI_RUNTIME_MAIL_ITEMS = mailItems;
             LUMI_RUNTIME_MESSAGE_ITEMS = smsItems;
             window.__lumiRuntimeMessageItems = LUMI_RUNTIME_MESSAGE_ITEMS;
             window.__lumiRuntimeMailItems = LUMI_RUNTIME_MAIL_ITEMS;
+            window.__lumiMessagesLoadDone = true; // PATCH 51-33: 문자함 IIFE 로딩 완료 신호
             console.log("[lumiMsg] bridge set:", window.__lumiRuntimeMessageItems.length, "sms /", window.__lumiRuntimeMailItems.length, "mail");
             mailState.inbox.page = 0;
             mailState.saved.page = 0;
@@ -3192,10 +3178,10 @@
             appendBootDebug("messages UI split applied: mail=" + LUMI_RUNTIME_MAIL_ITEMS.length + " sms=" + LUMI_RUNTIME_MESSAGE_ITEMS.length);
           } else {
             LUMI_MESSAGES_LOAD_DONE = true;
-            window.__lumiMessagesLoadDone = true;
             LUMI_RUNTIME_MAIL_ITEMS = [];
             window.__lumiRuntimeMailItems = [];
             window.__lumiRuntimeMessageItems = window.__lumiRuntimeMessageItems || [];
+            window.__lumiMessagesLoadDone = true;
             appendBootDebug("messages empty: no API mail items");
             renderMailAll();
           }
@@ -3211,10 +3197,10 @@
             return;
           }
           LUMI_MESSAGES_LOAD_DONE = true;
-          window.__lumiMessagesLoadDone = true;
           LUMI_RUNTIME_MAIL_ITEMS = [];
           window.__lumiRuntimeMailItems = [];
           window.__lumiRuntimeMessageItems = window.__lumiRuntimeMessageItems || [];
+          window.__lumiMessagesLoadDone = true;
           appendBootDebug("message UI fallback: " + errMsg);
           renderMailAll();
         }
@@ -3835,126 +3821,188 @@
 
 
 /* ===== merged from record-memory-pagination-js ===== */
+/* PATCH 51-35: visits API 연동으로 교체 */
 (() => {
       "use strict";
-      const recordCards = Array.from(document.querySelectorAll("#recordCardList .record-memory-card"));
+      const recordCardList  = document.getElementById("recordCardList");
       const recordFilterButtons = Array.from(document.querySelectorAll(".record-filter-pill"));
-      const recordPagePrev = document.querySelector("#recordPagePrev");
-      const recordPageNext = document.querySelector("#recordPageNext");
-      const recordPageText = document.querySelector("#recordPageText");
-      const recordMsg = document.querySelector("#recordMsg");
+      const recordPagePrev  = document.querySelector("#recordPagePrev");
+      const recordPageNext  = document.querySelector("#recordPageNext");
+      const recordPageText  = document.querySelector("#recordPageText");
+      const recordMsg       = document.querySelector("#recordMsg");
       const recordMonthPrev = document.querySelector("#recordMonthPrev");
       const recordMonthNext = document.querySelector("#recordMonthNext");
       const recordMonthLabel = document.querySelector("#recordMonthLabel");
       const pageSize = 4;
-      const minYear = 2026;
+      const minYear  = 2026;
       let currentFilter = "전체";
-      let currentPage = 1;
-      let currentYear = 2026;
-      let currentMonth = 5;
+      let currentPage   = 1;
+      let currentYear   = new Date().getFullYear();
+      let currentMonth  = new Date().getMonth() + 1;
+      let runtimeVisits = []; // API 로드된 방문 기록
 
-      function pad2(value) {
-        return String(value).padStart(2, "0");
-      }
-
-      function currentMonthKey() {
-        return currentYear + "." + pad2(currentMonth);
-      }
+      function pad2(v) { return String(v).padStart(2, "0"); }
+      function currentMonthKey() { return currentYear + "." + pad2(currentMonth); }
 
       function updateMonthLabel() {
         if (recordMonthLabel) recordMonthLabel.textContent = currentYear + "년 " + pad2(currentMonth) + "월";
         if (recordMonthPrev) recordMonthPrev.disabled = currentYear <= minYear && currentMonth <= 1;
       }
 
-      function cardMatchesMonth(card) {
-        const date = card.dataset.recordDate || "";
-        if (!date || date === "준비중") return currentYear === 2026 && currentMonth === 5;
-        return date.indexOf(currentMonthKey()) === 0;
+      // visitType → 필터 카테고리 매핑
+      function visitTypeToCategory(visitType) {
+        if (visitType === "live") return "라이브";
+        if (visitType === "checkin") return "체크인";
+        if (visitType === "online") return "온라인";
+        return "라이브";
       }
 
-      function filteredRecords() {
-        return recordCards.filter((card) => {
-          const matchesFilter = currentFilter === "전체" || card.dataset.recordCategory === currentFilter;
-          return matchesFilter && cardMatchesMonth(card);
+      // visitType → 아이콘
+      function visitTypeToIcon(visitType) {
+        if (visitType === "live") return "🎤";
+        if (visitType === "checkin") return "📸";
+        if (visitType === "online") return "📡";
+        return "🎤";
+      }
+
+      function filteredVisits() {
+        return runtimeVisits.filter(function(v) {
+          const matchFilter = currentFilter === "전체" || visitTypeToCategory(v.visitType) === currentFilter;
+          const dateStr = (v.eventDate || v.visitedAt || "").slice(0, 7).replace("-", ".");
+          const matchMonth = dateStr === (currentYear + "." + pad2(currentMonth));
+          return matchFilter && matchMonth;
         });
       }
 
       function renderRecordPage() {
-        if (!recordCards.length) return;
         updateMonthLabel();
-        const list = filteredRecords();
+        if (!recordCardList) return;
+
+        const list = filteredVisits();
         const totalPages = Math.max(1, Math.ceil(list.length / pageSize));
-        if (currentPage > totalPages) currentPage = totalPages;
-        if (currentPage < 1) currentPage = 1;
-        const start = (currentPage - 1) * pageSize;
-        const visibleSet = new Set(list.slice(start, start + pageSize));
-        recordCards.forEach((card) => { card.hidden = !visibleSet.has(card); });
+        currentPage = Math.min(Math.max(1, currentPage), totalPages);
+
+        const pageItems = list.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+        if (pageItems.length === 0) {
+          recordCardList.innerHTML =
+            '<article class="record-memory-card" data-record-category="전체">' +
+            '<span class="record-memory-icon">🕰️</span>' +
+            '<time>' + currentMonthKey() + '</time>' +
+            '<b>' + (runtimeVisits.length === 0 ? "아직 기록이 없어요" : currentMonthKey() + " 기록 없음") + '</b>' +
+            '<span>' + (runtimeVisits.length === 0 ? "루미벨과 함께한 순간이 생기면 이곳에 차곡차곡 남아요." : "이 달에는 기록이 없어요.") + '</span>' +
+            '<em>안내</em></article>';
+        } else {
+          recordCardList.innerHTML = pageItems.map(function(v) {
+            const cat  = visitTypeToCategory(v.visitType);
+            const icon = visitTypeToIcon(v.visitType);
+            const date = (v.eventDate || v.visitedAt || "").slice(0, 10).replace(/-/g, ".");
+            const title = v.eventTitle || "루미벨 공연";
+            const desc  = v.note || (cat + " · " + date);
+            return '<article class="record-memory-card" ' +
+              'data-record-category="' + cat + '" ' +
+              'data-record-title="' + title + '" ' +
+              'data-record-date="' + date + '" ' +
+              'data-record-desc="' + desc + '">' +
+              '<span class="record-memory-icon">' + icon + '</span>' +
+              '<time>' + date + '</time>' +
+              '<b>' + title + '</b>' +
+              '<span>' + desc + '</span>' +
+              '<em>' + cat + '</em>' +
+              '</article>';
+          }).join("");
+
+          // 카드 클릭 이벤트
+          Array.from(recordCardList.querySelectorAll(".record-memory-card")).forEach(function(card) {
+            card.addEventListener("click", function() {
+              const t = card.dataset.recordTitle || "기록";
+              const d = card.dataset.recordDate  || "";
+              const s = card.dataset.recordDesc  || "루미벨과 이어진 기록이에요.";
+              if (typeof window.openProfileSimpleModal === "function") {
+                window.openProfileSimpleModal("추억의 시간", [t, d, s]);
+              } else {
+                alert(t + "\n" + d + "\n" + s);
+              }
+            });
+          });
+        }
+
         if (recordPageText) recordPageText.textContent = currentPage + " / " + totalPages;
         if (recordPagePrev) recordPagePrev.disabled = currentPage <= 1;
         if (recordPageNext) recordPageNext.disabled = currentPage >= totalPages;
         if (recordMsg) {
-          if (!list.length) {
-            recordMsg.textContent = currentMonthKey() + " 기록은 아직 없어요. 활동 기록이 연결되면 이곳에 표시돼요.";
-          } else {
-            recordMsg.textContent = currentFilter === "전체"
-              ? "아직 기록이 없어요. 루미벨과 함께한 순간이 생기면 이곳에 차곡차곡 남아요."
-              : currentFilter + " 기록은 아직 없어요. 활동 기록이 연결되면 이곳에 표시돼요.";
-          }
+          recordMsg.textContent = runtimeVisits.length > 0
+            ? "라이브 방문 " + runtimeVisits.filter(function(v){ return v.visitType === "live"; }).length + "회 기록됨"
+            : "활동 기록이 연결되면 이곳에 표시돼요.";
+        }
+
+        // record-stat-card 라이브 수치 갱신
+        const statCards = document.querySelectorAll(".record-stat-card");
+        if (statCards.length >= 1) {
+          const liveCount = runtimeVisits.filter(function(v){ return v.visitType === "live"; }).length;
+          statCards[0].querySelector("b").textContent = liveCount + "회";
         }
       }
 
       function setRecordFilter(filter) {
         currentFilter = filter || "전체";
         currentPage = 1;
-        recordFilterButtons.forEach((button) => {
-          button.classList.toggle("active", button.dataset.recordFilter === currentFilter);
+        recordFilterButtons.forEach(function(btn) {
+          btn.classList.toggle("active", btn.dataset.recordFilter === currentFilter);
         });
         renderRecordPage();
       }
 
       function moveMonth(delta) {
-        let nextMonth = currentMonth + delta;
-        let nextYear = currentYear;
-        while (nextMonth < 1) { nextMonth += 12; nextYear -= 1; }
-        while (nextMonth > 12) { nextMonth -= 12; nextYear += 1; }
-        if (nextYear < minYear) return;
-        currentYear = nextYear;
-        currentMonth = nextMonth;
-        currentPage = 1;
+        let m = currentMonth + delta, y = currentYear;
+        while (m < 1)  { m += 12; y -= 1; }
+        while (m > 12) { m -= 12; y += 1; }
+        if (y < minYear) return;
+        currentYear = y; currentMonth = m; currentPage = 1;
         renderRecordPage();
       }
 
-      recordFilterButtons.forEach((button) => {
-        button.addEventListener("click", () => setRecordFilter(button.dataset.recordFilter || "전체"));
-      });
-      if (recordMonthPrev) recordMonthPrev.addEventListener("click", () => moveMonth(-1));
-      if (recordMonthNext) recordMonthNext.addEventListener("click", () => moveMonth(1));
-      if (recordPagePrev) {
-        recordPagePrev.addEventListener("click", () => {
-          currentPage -= 1;
-          renderRecordPage();
-        });
+      // ── API 로드 ──────────────────────────────────────────────
+      function loadVisits() {
+        const lumiId = typeof window.__lumiGetCurrentId === "function" ? window.__lumiGetCurrentId() : "";
+        const endpoint = window.LUMI_API_ENDPOINT || "";
+        if (!lumiId || !endpoint) { renderRecordPage(); return; }
+
+        if (recordMsg) recordMsg.textContent = "기록을 불러오는 중…";
+
+        const url = endpoint + (endpoint.indexOf("?") === -1 ? "?" : "&") +
+          new URLSearchParams({ action: "lumiGetVisits", lumiId: lumiId, _: Date.now() }).toString();
+
+        fetch(url)
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (data && data.ok && Array.isArray(data.visits)) {
+              runtimeVisits = data.visits;
+            }
+            renderRecordPage();
+          })
+          .catch(function() { renderRecordPage(); });
       }
-      if (recordPageNext) {
-        recordPageNext.addEventListener("click", () => {
-          currentPage += 1;
-          renderRecordPage();
-        });
-      }
-      recordCards.forEach((card) => {
-        card.addEventListener("click", () => {
-          const title = card.dataset.recordTitle || "기록";
-          const date = card.dataset.recordDate || "";
-          const desc = card.dataset.recordDesc || "루미벨과 이어진 기록이에요.";
-          if (typeof window.openProfileSimpleModal === "function") {
-            window.openProfileSimpleModal("추억의 시간", [title, date, desc]);
-            return;
-          }
-          alert(title + "\n" + date + "\n" + desc);
-        });
+
+      // ── 이벤트 등록 ───────────────────────────────────────────
+      recordFilterButtons.forEach(function(btn) {
+        btn.addEventListener("click", function() { setRecordFilter(btn.dataset.recordFilter || "전체"); });
       });
+      if (recordMonthPrev) recordMonthPrev.addEventListener("click", function() { moveMonth(-1); });
+      if (recordMonthNext) recordMonthNext.addEventListener("click", function() { moveMonth(1); });
+      if (recordPagePrev)  recordPagePrev.addEventListener("click",  function() { currentPage -= 1; renderRecordPage(); });
+      if (recordPageNext)  recordPageNext.addEventListener("click",  function() { currentPage += 1; renderRecordPage(); });
+
+      // 기록 탭 클릭 시 로드
+      document.addEventListener("click", function(e) {
+        const tab = e.target && e.target.closest ? e.target.closest('[data-page="record"],[data-go="record"]') : null;
+        if (tab) { setTimeout(loadVisits, 50); }
+      });
+
+      // 초기 렌더 (API 로드 전 빈 상태)
       renderRecordPage();
     })();
+
 
 
 
@@ -4525,14 +4573,16 @@
   function setObj(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
   function fanText(value){ return String(value == null ? "" : value); }
   function getAllLumiMessageItems(){
-    // PATCH 51-34: 로그인 직후 runtime이 []인 로딩 상태에서는 mock 문자로 폴백하지 않는다.
+    // PATCH 51-29-3: LUMI_RUNTIME_MESSAGE_ITEMS는 로그인 IIFE의 클로저 변수라
+    // 이 문자함 IIFE에서 직접 참조하면 항상 undefined → MESSAGES(mock) 폴백됨.
+    // window.__lumiRuntimeMessageItems 브릿지를 경유해 읽는다.
     const runtimeItems = window.__lumiRuntimeMessageItems;
-    const loadDone = window.__lumiMessagesLoadDone;
-    console.log("[lumiMsg] getAllLumiMessageItems runtimeItems:", runtimeItems, "loadDone:", loadDone);
-    if (loadDone === false) return [];
-    if (Array.isArray(runtimeItems)) {
-      if (runtimeItems.length > 0) return runtimeItems;
-      if (loadDone === true) return [];
+    console.log("[lumiMsg] getAllLumiMessageItems runtimeItems:", runtimeItems);
+    // PATCH 51-33: 로드 완료 전에도 로그인+API 모드면 mock 억제
+    if (Array.isArray(runtimeItems)) return runtimeItems;
+    if (window.__lumiMessagesLoadDone === false || window.__lumiMessagesLoadDone === undefined) {
+      // 브릿지가 세팅 전이고 window.LUMI_API_ENDPOINT가 있으면 로딩 중
+      if (window.LUMI_API_ENDPOINT) return [];
     }
     return MESSAGES;
   }
@@ -4671,8 +4721,14 @@
     list.style.display = "grid";
     list.style.gap = "10px";
     list.style.minHeight = "1px";
-    // PATCH 51-34: 문자함 stale mock DOM을 먼저 비운 뒤 새 목록을 계산한다.
-    list.innerHTML = "";
+
+    // PATCH 51-33: 로딩 중 상태 표시
+    if (!window.__lumiMessagesLoadDone && window.LUMI_API_ENDPOINT) {
+      list.innerHTML = '<p style="text-align:center;color:var(--sub,#c9a0bc);padding:24px 0;font-size:14px;">문자를 불러오는 중…</p>';
+      if (empty) empty.classList.add("hidden");
+      if (pager) pager.classList.add("hidden");
+      return;
+    }
     const items = filtered();
     const pp = perPage();
     const total = Math.max(1, Math.ceil(items.length / pp));
@@ -4704,9 +4760,6 @@
     if (prev) prev.disabled = page <= 1;
     if (next) next.disabled = page >= total;
     if (pager) pager.classList.toggle("hidden", items.length <= pp && page === 1);
-    if (empty && !items.length) {
-      empty.textContent = window.__lumiMessagesLoadDone === false ? "문자를 불러오는 중…" : "조건에 맞는 문자가 없어요.";
-    }
     if (empty) empty.classList.toggle("hidden", items.length > 0);
     updateBadges();
   }
