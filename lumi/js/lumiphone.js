@@ -704,6 +704,45 @@
         };
       }
 
+      // PATCH 51-32-fix8: normalizeRuntimeChatMessage는 문자함 IIFE 전용이라
+      // 로그인 IIFE(loadMyMessages)에서 호출하면 ReferenceError.
+      // 동일한 출력 구조를 가진 함수를 이 스코프에 직접 선언.
+      function normalizeSmsItem(source) {
+        source = source || {};
+        const type = normalizeMessageTypeKey(source.messageType || source.type);
+        const senderType = String(source.senderType || "system").trim().toLowerCase();
+        const senderMember = String(source.senderMember || "system").trim().toLowerCase();
+        const from = senderType === "member" ? memberLabelFromKey(senderMember) : (source.from || "LUMIBELLE 운영");
+        const body = String(source.body || source.preview || "").trim();
+        const date = String(source.createdAt || source.visibleFrom || source.date || "루미폰 메시지");
+        const id = String(source.messageId || source.id || ("sms_" + Date.now() + "_" + Math.random())).trim();
+        const icon = messageIconFromType(source);
+        let tag = source.tag || "운영";
+        let filterType = "staff";
+        if (type === "livereminder" || type === "entrycomplete") { tag = source.tag || "라이브"; filterType = "live"; }
+        if (type === "birthdaynotice") { tag = source.tag || "생일"; filterType = "birthday"; }
+        if (type === "welcometicket" || type === "jointicket") { tag = source.tag || "티켓"; filterType = "staff"; }
+        if (senderType === "member") { tag = source.tag || "루미레터"; filterType = "lumiletter"; }
+        const isReadValue = String(source.isRead == null ? "" : source.isRead).toLowerCase();
+        const isRead = source.isRead === true || isReadValue === "true" || isReadValue === "1" || isReadValue === "읽음";
+        return {
+          id: id,
+          messageId: id,
+          box: "inbox",
+          status: isRead ? "read" : "NEW",
+          date: date,
+          from: from,
+          tag: tag,
+          type: filterType,
+          messageType: source.messageType || "",
+          title: source.title || "루미벨에서 도착한 문자",
+          preview: source.preview || body.replace(/\s+/g, " ").slice(0, 80),
+          icon: icon,
+          lines: body ? body.split(/\n+/).filter(Boolean) : [source.title || "루미벨에서 도착한 문자예요."],
+          choices: []
+        };
+      }
+
       const mailState = {
         inbox: { page: 0, filter: "all" },
         saved: { page: 0, filter: "all" },
@@ -3113,7 +3152,7 @@
             const mailItems = normalized.filter((item) => item.channel === "mail");
             const smsItems = publicMessages
               .filter((item) => getLumiMessageChannel(item) === "message")
-              .map(normalizeRuntimeChatMessage);
+              .map(normalizeSmsItem); // PATCH 51-32-fix8: 로그인 IIFE 스코프 내 함수 사용
             console.log("[lumi] loadMyMessages split: mail=", mailItems.length, "| sms=", smsItems.length);
             console.log("[lumi] loadMyMessages mail items:", mailItems);
             LUMI_MESSAGES_LOAD_DONE = true;
