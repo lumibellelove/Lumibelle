@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_36_fix1_cache_20260509";
+      const APP_VERSION = "patch51_37_bg_refresh_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -389,56 +389,66 @@
 
         clearMessage();
         loginView.classList.remove("active");
-        appView.classList.add("active");
+        appView.classList.add("active");  // ← 화면 즉시 표시 (API 기다리지 않음)
         go("home");
         updateClock();
 
-        if (currentUser && getCurrentLumiId()) {
-          const lid = getCurrentLumiId();
+        if (!(currentUser && getCurrentLumiId())) return;
 
-          // PATCH 51-36: 캐시가 있으면 즉시 복원해서 빈 화면 방지
-          const cachedMail = cacheRead_(lid, "mail", 24 * 60 * 60 * 1000); // 24시간
-          const cachedSms  = cacheRead_(lid, "sms",  24 * 60 * 60 * 1000);
-          const cachedRes  = cacheRead_(lid, "reservations", 24 * 60 * 60 * 1000);
-          if (cachedRes) {
-            myReservations = cachedRes;
-            renderMyReservations(cachedRes);
-          }
-          if (cachedMail || cachedSms) {
-            LUMI_RUNTIME_MAIL_ITEMS     = Array.isArray(cachedMail) ? cachedMail : [];
-            LUMI_RUNTIME_MESSAGE_ITEMS  = Array.isArray(cachedSms)  ? cachedSms  : [];
-            window.__lumiRuntimeMailItems     = LUMI_RUNTIME_MAIL_ITEMS;
-            window.__lumiRuntimeMessageItems  = LUMI_RUNTIME_MESSAGE_ITEMS;
-            LUMI_MESSAGES_LOAD_DONE    = true;   // 캐시로 "로딩 중" 상태 해제
-            window.__lumiMessagesLoadDone = true;
-            renderMailAll();
-            if (typeof window.showLumiMessageInbox === "function") window.showLumiMessageInbox();
-            appendBootDebug("cache restored: mail=" + LUMI_RUNTIME_MAIL_ITEMS.length + " sms=" + LUMI_RUNTIME_MESSAGE_ITEMS.length);
-          }
+        const lid = getCurrentLumiId();
 
-          // 예약 + 메시지 API 호출 (캐시 있어도 백그라운드 갱신)
-          await loadMyReservations(lid);
-          // PATCH 51-32-fix6: window.LUMI_API_ENDPOINT가 lumiphone.js 이후에 세팅되는 경우
-          // 최대 2초(100ms×20) 폴링 후 세팅되면 loadMyMessages 진행.
-          if (!LUMI_API_ENDPOINT()) {
-            appendBootDebug("openApp: LUMI_API_ENDPOINT empty, polling...");
-            console.log("[lumi] openApp: LUMI_API_ENDPOINT empty at call time, polling window...");
-            await new Promise(function(resolve) {
-              var attempts = 0;
-              var poll = setInterval(function() {
-                attempts++;
-                if (LUMI_API_ENDPOINT() || attempts >= 20) {
-                  clearInterval(poll);
-                  const found = !!LUMI_API_ENDPOINT();
-                  appendBootDebug("openApp: poll done, endpoint=" + (found ? "found" : "still empty") + " attempts=" + attempts);
-                  console.log("[lumi] openApp poll done: endpoint=", LUMI_API_ENDPOINT() || "(empty)", "attempts=", attempts);
-                  resolve();
-                }
-              }, 100);
-            });
-          }
-          await loadMyMessages(lid);
+        // PATCH 51-37: 캐시 즉시 복원 (동기, 0ms)
+        const cachedRes  = cacheRead_(lid, "reservations", 24 * 60 * 60 * 1000);
+        const cachedMail = cacheRead_(lid, "mail",         24 * 60 * 60 * 1000);
+        const cachedSms  = cacheRead_(lid, "sms",          24 * 60 * 60 * 1000);
+
+        if (cachedRes) {
+          myReservations = cachedRes;
+          renderMyReservations(cachedRes);
         }
+        if (cachedMail || cachedSms) {
+          LUMI_RUNTIME_MAIL_ITEMS    = Array.isArray(cachedMail) ? cachedMail : [];
+          LUMI_RUNTIME_MESSAGE_ITEMS = Array.isArray(cachedSms)  ? cachedSms  : [];
+          window.__lumiRuntimeMailItems    = LUMI_RUNTIME_MAIL_ITEMS;
+          window.__lumiRuntimeMessageItems = LUMI_RUNTIME_MESSAGE_ITEMS;
+          LUMI_MESSAGES_LOAD_DONE      = true;
+          window.__lumiMessagesLoadDone = true;
+          renderMailAll();
+          if (typeof window.showLumiMessageInbox === "function") window.showLumiMessageInbox();
+          appendBootDebug("cache restored: mail=" + LUMI_RUNTIME_MAIL_ITEMS.length + " sms=" + LUMI_RUNTIME_MESSAGE_ITEMS.length);
+        }
+
+        // PATCH 51-37: API는 백그라운드 병렬 실행 (await 없음 → 화면 진입 차단 안 함)
+        function runBackgroundRefresh(lid) {
+          function doRefresh() {
+            Promise.all([
+              loadMyReservations(lid).catch(function(e) {
+                appendBootDebug("bg reservation error: " + String(e && e.message || e));
+              }),
+              loadMyMessages(lid).catch(function(e) {
+                appendBootDebug("bg message error: " + String(e && e.message || e));
+              })
+            ]);
+          }
+
+          if (LUMI_API_ENDPOINT()) {
+            doRefresh();
+          } else {
+            // endpoint가 나중에 세팅되는 경우 최대 2초 폴링
+            appendBootDebug("openApp: LUMI_API_ENDPOINT empty, polling for bg refresh...");
+            var attempts = 0;
+            var poll = setInterval(function() {
+              attempts++;
+              if (LUMI_API_ENDPOINT() || attempts >= 20) {
+                clearInterval(poll);
+                appendBootDebug("openApp: poll done attempts=" + attempts + " found=" + !!LUMI_API_ENDPOINT());
+                if (LUMI_API_ENDPOINT()) doRefresh();
+              }
+            }, 100);
+          }
+        }
+
+        runBackgroundRefresh(lid);
       }
 
       function closeApp() {
