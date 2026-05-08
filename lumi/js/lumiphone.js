@@ -656,7 +656,9 @@
           messageType: source.messageType || "",
           senderType: senderType,
           senderMember: senderMember,
-          icon: source.icon || messageIconFromType(source),
+          // PATCH 51-30-fix: source.icon(시트/API 원본값)은 무시하고
+          // messageIconFromType으로 항상 강제 적용 (📎 등 구 아이콘 차단)
+          icon: messageIconFromType(source),
           from: from,
           meta: source.meta || (createdAt ? String(createdAt) : "루미폰 메시지"),
           status: isRead ? "읽음" : "NEW",
@@ -4316,7 +4318,7 @@
       type:"staff",
       title:"루미폰 기록 안내",
       preview:"티켓, 포인트, 스탬프 기록이 이상할 때 확인하는 안내예요.",
-      icon:"📎",
+      icon:"👑", // PATCH 51-30-fix: 구 클립 아이콘 제거
       lines:["루미폰 기록은 공연/특전회/ON AIR 기록을 천천히 연결하는 공간이에요.", "기록이 다르게 보이면 루미 ID와 날짜를 알려주세요.", "스탭 확인 후 가능한 범위에서 수정해드릴게요."],
       choices:["확인했어요","문의할게요","루미 ID 준비할게요"],
       after:{
@@ -4386,7 +4388,8 @@
     const body = String(source.body || source.preview || "").trim();
     const date = String(source.createdAt || source.visibleFrom || source.date || "루미폰 메시지");
     const id = String(source.messageId || source.id || ("runtime_msg_" + Date.now() + "_" + Math.random())).trim();
-    const icon = source.icon || messageIconFromType(source);
+    // PATCH 51-30-fix: source.icon 무시, messageIconFromType 강제
+    const icon = messageIconFromType(source);
     let tag = source.tag || "운영";
     let filterType = "staff";
     if (type === "livereminder" || type === "entrycomplete") { tag = source.tag || "라이브"; filterType = "live"; }
