@@ -2,7 +2,31 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_35_fix3_date_parse_20260509";
+      const APP_VERSION = "patch51_36_cache_20260509";
+      const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
+
+      // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
+      // 키: lumiId 기반으로 격리. APP_VERSION 포함해서 버전 바뀌면 자동 무효화.
+      const CACHE_VERSION = "v1"; // 캐시 구조 변경 시 올려서 무효화
+      function cacheKey_(lumiId, type) {
+        return "lumiphone.cache." + CACHE_VERSION + "." + type + "." + String(lumiId || "").toLowerCase();
+      }
+      function cacheWrite_(lumiId, type, data) {
+        try {
+          localStorage.setItem(cacheKey_(lumiId, type), JSON.stringify({ ts: Date.now(), data: data }));
+        } catch(e) {}
+      }
+      function cacheRead_(lumiId, type, maxAgeMs) {
+        try {
+          const raw = localStorage.getItem(cacheKey_(lumiId, type));
+          if (!raw) return null;
+          const obj = JSON.parse(raw);
+          if (!obj || !obj.data) return null;
+          if (maxAgeMs && (Date.now() - obj.ts) > maxAgeMs) return null; // 만료
+          return obj.data;
+        } catch(e) { return null; }
+      }
+      // ──────────────────────────────────────────────────────────
       // PATCH 51-32-fix5: const로 고정하면 window.LUMI_API_ENDPOINT가 나중에 세팅될 때
       // IIFE 내부 변수는 이미 ""로 굳어버림. 함수로 바꿔서 호출 시점에 항상 최신값 읽기.
       function LUMI_API_ENDPOINT() { return String(window.LUMI_API_ENDPOINT || "").trim(); }
@@ -366,8 +390,27 @@
         appView.classList.add("active");
         go("home");
         updateClock();
+
         if (currentUser && getCurrentLumiId()) {
-          await loadMyReservations(getCurrentLumiId());
+          const lid = getCurrentLumiId();
+
+          // PATCH 51-36: 캐시가 있으면 즉시 복원해서 빈 화면 방지
+          const cachedMail = cacheRead_(lid, "mail", 24 * 60 * 60 * 1000); // 24시간
+          const cachedSms  = cacheRead_(lid, "sms",  24 * 60 * 60 * 1000);
+          if (cachedMail || cachedSms) {
+            LUMI_RUNTIME_MAIL_ITEMS     = Array.isArray(cachedMail) ? cachedMail : [];
+            LUMI_RUNTIME_MESSAGE_ITEMS  = Array.isArray(cachedSms)  ? cachedSms  : [];
+            window.__lumiRuntimeMailItems     = LUMI_RUNTIME_MAIL_ITEMS;
+            window.__lumiRuntimeMessageItems  = LUMI_RUNTIME_MESSAGE_ITEMS;
+            LUMI_MESSAGES_LOAD_DONE    = true;   // 캐시로 "로딩 중" 상태 해제
+            window.__lumiMessagesLoadDone = true;
+            renderMailAll();
+            if (typeof window.showLumiMessageInbox === "function") window.showLumiMessageInbox();
+            appendBootDebug("cache restored: mail=" + LUMI_RUNTIME_MAIL_ITEMS.length + " sms=" + LUMI_RUNTIME_MESSAGE_ITEMS.length);
+          }
+
+          // 예약 + 메시지 API 호출 (캐시 있어도 백그라운드 갱신)
+          await loadMyReservations(lid);
           // PATCH 51-32-fix6: window.LUMI_API_ENDPOINT가 lumiphone.js 이후에 세팅되는 경우
           // 최대 2초(100ms×20) 폴링 후 세팅되면 loadMyMessages 진행.
           if (!LUMI_API_ENDPOINT()) {
@@ -387,7 +430,7 @@
               }, 100);
             });
           }
-          await loadMyMessages(getCurrentLumiId());
+          await loadMyMessages(lid);
         }
       }
 
@@ -3170,6 +3213,9 @@
             window.__lumiRuntimeMessageItems = LUMI_RUNTIME_MESSAGE_ITEMS;
             window.__lumiRuntimeMailItems = LUMI_RUNTIME_MAIL_ITEMS;
             window.__lumiMessagesLoadDone = true; // PATCH 51-33: 문자함 IIFE 로딩 완료 신호
+            // PATCH 51-36: API 성공 데이터를 캐시에 저장
+            cacheWrite_(lumiId, "mail", mailItems);
+            cacheWrite_(lumiId, "sms",  smsItems);
             console.log("[lumiMsg] bridge set:", window.__lumiRuntimeMessageItems.length, "sms /", window.__lumiRuntimeMailItems.length, "mail");
             mailState.inbox.page = 0;
             mailState.saved.page = 0;
@@ -3977,17 +4023,43 @@
         const endpoint = window.LUMI_API_ENDPOINT || "";
         if (!lumiId || !endpoint) { renderRecordPage(); return; }
 
-        // 로딩 중 표시
-        if (recordCardList) {
-          recordCardList.innerHTML =
-            '<article class="record-memory-card" data-record-category="전체">' +
-            '<span class="record-memory-icon">🕰️</span><time></time>' +
-            '<b>기록을 불러오는 중…</b><span>잠시만 기다려 주세요.</span><em></em>' +
-            '</article>';
+        function parseVisitDate(v) {
+          var raw = v.eventDate || v.visitedAt || "";
+          if (!raw) return null;
+          var d = new Date(raw);
+          return isNaN(d.getTime()) ? null : d;
         }
-        if (recordMsg) recordMsg.textContent = "기록을 불러오는 중…";
 
-        // window.__lumiFetchApi 브릿지가 있으면 사용, 없으면 native fetch
+        function jumpToLatest(visits) {
+          if (!visits || !visits.length) return;
+          var latest = parseVisitDate(visits[0]);
+          if (latest) {
+            currentYear  = latest.getFullYear();
+            currentMonth = latest.getMonth() + 1;
+            currentPage  = 1;
+            console.log("[lumi] jumped to:", currentYear, currentMonth);
+          }
+        }
+
+        // PATCH 51-36: 캐시가 있으면 즉시 렌더 (빈 화면/로딩 중 방지)
+        const cachedVisits = cacheRead_(lumiId, "visits", 24 * 60 * 60 * 1000);
+        if (cachedVisits && Array.isArray(cachedVisits) && cachedVisits.length > 0) {
+          runtimeVisits = cachedVisits;
+          jumpToLatest(runtimeVisits);
+          renderRecordPage();
+        } else {
+          // 캐시 없을 때만 로딩 중 표시
+          if (recordCardList) {
+            recordCardList.innerHTML =
+              '<article class="record-memory-card" data-record-category="전체">' +
+              '<span class="record-memory-icon">🕰️</span><time></time>' +
+              '<b>기록을 불러오는 중…</b><span>잠시만 기다려 주세요.</span><em></em>' +
+              '</article>';
+          }
+          if (recordMsg) recordMsg.textContent = "기록을 불러오는 중…";
+        }
+
+        // 백그라운드로 API 최신값 호출 (캐시 유무와 무관)
         var apiCall;
         if (typeof window.__lumiFetchApi === "function") {
           apiCall = window.__lumiFetchApi({ action: "lumiGetVisits", lumiId: lumiId });
@@ -4001,38 +4073,19 @@
           .then(function(data) {
             console.log("[lumi] loadVisits response:", data);
             if (data && data.ok && Array.isArray(data.visits)) {
-              runtimeVisits = data.visits;
-
-              // PATCH 51-35-fix3: Date 객체로 파싱 (시트에서 "Sun Jul 12 2026..." 형태로 올 수 있음)
-              function parseVisitDate(v) {
-                var raw = v.eventDate || v.visitedAt || "";
-                if (!raw) return null;
-                var d = new Date(raw);
-                return isNaN(d.getTime()) ? null : d;
-              }
-
               // 최신순 정렬
-              runtimeVisits.sort(function(a, b) {
+              data.visits.sort(function(a, b) {
                 var da = parseVisitDate(a), db = parseVisitDate(b);
                 if (!da && !db) return 0;
                 if (!da) return 1;
                 if (!db) return -1;
                 return db.getTime() - da.getTime();
               });
-
-              console.log("[lumi] loadVisits visits count:", runtimeVisits.length, "| first:", runtimeVisits[0] || null);
-
-              // 가장 최신 방문 기록의 월로 자동 이동
-              if (runtimeVisits.length > 0) {
-                var latestDate = parseVisitDate(runtimeVisits[0]);
-                console.log("[lumi] loadVisits latestDate:", latestDate);
-                if (latestDate) {
-                  currentYear  = latestDate.getFullYear();
-                  currentMonth = latestDate.getMonth() + 1;
-                  currentPage  = 1;
-                  console.log("[lumi] jumped to:", currentYear, currentMonth);
-                }
-              }
+              runtimeVisits = data.visits;
+              // PATCH 51-36: API 성공 시 캐시 갱신
+              cacheWrite_(lumiId, "visits", runtimeVisits);
+              console.log("[lumi] loadVisits count:", runtimeVisits.length);
+              jumpToLatest(runtimeVisits);
             } else {
               console.warn("[lumi] loadVisits: unexpected response:", data);
             }
@@ -4040,7 +4093,7 @@
           })
           .catch(function(err) {
             console.error("[lumi] loadVisits error:", err);
-            renderRecordPage();
+            renderRecordPage(); // 캐시로 이미 렌더됐으면 조용히 유지
           });
       }
 
