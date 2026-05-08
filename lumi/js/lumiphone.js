@@ -823,8 +823,10 @@
         if (wasUnread) {
           setMailRead(id, true);
           renderMailAll();
-          markLumiMessageReadRemote(item.messageId || "");
         }
+        // PATCH 51-32-fix: 로컬에서 이미 읽음이어도 DB 메시지면 서버 읽음 처리를 한 번 더 시도한다.
+        // 테스트/캐시/localStorage 때문에 local=읽음, DB=false가 갈라지는 상황을 복구하기 위함.
+        markLumiMessageReadRemote(item.messageId || "");
         if (save) save.textContent = isMailSaved(id) ? "소장해제" : "소장하기";
         modal.classList.remove("hidden");
         modal.setAttribute("aria-hidden", "false");
@@ -4645,7 +4647,7 @@
     const wasUnread = m.status !== "read";
     markRead(m.id);
     renderList();
-    if (wasUnread && m.messageId && typeof window.__lumiFetchApi === "function" && typeof window.__lumiGetCurrentId === "function") {
+    if (m.messageId && typeof window.__lumiFetchApi === "function" && typeof window.__lumiGetCurrentId === "function") {
       const lumiId = window.__lumiGetCurrentId();
       if (lumiId) {
         window.__lumiFetchApi({
