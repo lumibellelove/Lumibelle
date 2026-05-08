@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_51_meate_benefit_20260509";
+      const APP_VERSION = "patch51_52_achievements_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -252,6 +252,7 @@
       let achievementCurrentPage = 1;
       const achievementPageSize = 6;
       const representativeAchievementKey = 'lumiphone.representativeAchievement.v1';
+      let runtimeEquippedTitleFromApi = ''; // PATCH 51-52: API 조회용 장착 칭호 표시
 
       function normId(value) {
         const digits = String(value || "").replace(/\D/g, "").slice(-4);
@@ -477,6 +478,13 @@
           appendBootDebug("points cache: merch=" + (((cachedPoints.totals || {}).merch) || 0) + " xp=" + (((cachedPoints.totals || {}).xp) || 0) + " site=" + (((cachedPoints.totals || {}).site) || 0));
         }
 
+        // PATCH 51-52: 업적/칭호 캐시 즉시 복원
+        const cachedAchievements = cacheRead_(lid, "achievements", 24 * 60 * 60 * 1000);
+        if (cachedAchievements) {
+          renderAchievementsFromApi(cachedAchievements);
+          appendBootDebug("achievements cache: " + (((cachedAchievements.achievements || []).length) || 0) + " items");
+        }
+
         // PATCH 51-37: API는 백그라운드 병렬 실행 (await 없음 → 화면 진입 차단 안 함)
         function runBackgroundRefresh(lid) {
           function doRefresh() {
@@ -499,6 +507,9 @@
             }),
             loadMyPoints(lid).catch(function(e) { // PATCH 51-50
               appendBootDebug("bg points error: " + String(e && e.message || e));
+            }),
+            loadMyAchievements(lid).catch(function(e) { // PATCH 51-52
+              appendBootDebug("bg achievements error: " + String(e && e.message || e));
             })
           ]);
           }
@@ -2748,15 +2759,152 @@
         renderAchievementPage();
       }
 
+
+      // PATCH 51-52: 업적/칭호 조회 데이터 표시 전용
+      function normalizeApiAchievementStatus(status) {
+        const raw = String(status || "").trim().toLowerCase();
+        if (raw === "achieved" || raw === "complete" || raw === "completed" || raw === "달성" || raw === "달성 완료") return "달성 완료";
+        if (raw === "progress" || raw === "progressing" || raw === "진행" || raw === "진행 중" || raw === "대기 중") return "진행 중";
+        if (raw === "hidden" || raw === "숨김") return "숨김";
+        return "잠김";
+      }
+
+      function rewardTitleFromAchievement(item) {
+        const raw = String((item && (item.rewardText || item.reward || item.titleReward)) || "").trim();
+        return raw.replace(/^칭호\s*[:：]\s*/, "").trim() || (item && item.title) || "-";
+      }
+
+      function achievementProgressText(item, statusLabel) {
+        if (statusLabel === "달성 완료") return "완료";
+        const current = Number(item && item.progressCurrent || 0);
+        const target = Number(item && item.progressTarget || 0);
+        if (target > 0) return String(current) + " / " + String(target);
+        return statusLabel === "진행 중" ? "진행 중" : "미달성";
+      }
+
+      function findAchievementCardForApi(item) {
+        const title = String(item && item.title || "").trim();
+        const key = String(item && item.achievementKey || "").trim();
+        const aliasByKey = {
+          first_visit: "첫 번째 점",
+          stamp_20: "스탬프 카드 완주자"
+        };
+        const targetTitle = title || aliasByKey[key] || "";
+        const cards = getAchievementCards();
+        return cards.find((card) => card.dataset.achievementTitle === targetTitle) ||
+          (aliasByKey[key] ? cards.find((card) => card.dataset.achievementTitle === aliasByKey[key]) : null) ||
+          null;
+      }
+
+      function applyAchievementItemToCard(card, item) {
+        if (!card || !item) return;
+        const statusLabel = normalizeApiAchievementStatus(item.status);
+        const owned = statusLabel === "달성 완료";
+        const progressText = achievementProgressText(item, statusLabel);
+        const rewardTitle = rewardTitleFromAchievement(item);
+        const title = String(item.title || card.dataset.achievementTitle || "업적").trim();
+        const icon = String(item.icon || card.dataset.achievementIcon || (owned ? "✦" : "🔒")).trim();
+        const category = String(item.category || card.dataset.achievementCategory || "기본").trim();
+        const date = String(item.achievedAt || (owned ? card.dataset.achievementDate || "" : statusLabel)).trim();
+
+        card.dataset.achievementTitle = title;
+        card.dataset.achievementIcon = icon;
+        card.dataset.achievementStatus = statusLabel;
+        card.dataset.achievementCategory = category;
+        card.dataset.achievementDesc = String(item.note || card.dataset.achievementDesc || "루미벨과 함께한 기록이에요.");
+        card.dataset.achievementCondition = String(item.conditionText || card.dataset.achievementCondition || "-");
+        card.dataset.achievementProgress = progressText;
+        card.dataset.achievementReward = rewardTitle;
+        card.dataset.achievementDate = date || (owned ? "달성 완료" : statusLabel);
+        card.dataset.achievementOwned = owned ? "true" : "false";
+        card.dataset.achievementKey = String(item.achievementKey || "");
+        card.classList.toggle("locked", statusLabel === "잠김");
+        card.classList.toggle("progressing", statusLabel === "진행 중");
+        card.classList.toggle("hidden-achievement", statusLabel === "숨김");
+
+        const iconEl = card.querySelector(".achievement-icon");
+        const stateEl = card.querySelector(".achievement-state");
+        const titleEl = card.querySelector("h3");
+        const rewardEl = card.querySelector(".achievement-title-line");
+        if (iconEl) iconEl.textContent = icon;
+        if (stateEl) {
+          stateEl.textContent = statusLabel;
+          stateEl.classList.toggle("locked", !owned && statusLabel !== "진행 중");
+        }
+        if (titleEl) titleEl.textContent = title;
+        if (rewardEl) rewardEl.textContent = owned || statusLabel === "진행 중" ? ("보상 칭호: " + rewardTitle) : "조건 달성 후 해금";
+      }
+
+      function updateTitleOptionsFromApi(titles, equippedTitle) {
+        const activeTitles = Array.isArray(titles) ? titles.filter((item) => String(item.status || "active") === "active") : [];
+        runtimeEquippedTitleFromApi = equippedTitle || (activeTitles.find((item) => item.equipped) || {}).titleName || "";
+        if (runtimeEquippedTitleFromApi) {
+          if (profileTitlePill) profileTitlePill.textContent = runtimeEquippedTitleFromApi;
+          if (profileSelectedTitle) profileSelectedTitle.textContent = runtimeEquippedTitleFromApi;
+          if (profileInputTitle) profileInputTitle.value = runtimeEquippedTitleFromApi;
+        }
+        const existingValues = new Set($$(".profile-title-option[data-title-value]").map((button) => button.dataset.titleValue));
+        const optionHost = profileTitleModal && profileTitleModal.querySelector(".profile-title-options, .profile-setting-list, .profile-title-list");
+        activeTitles.forEach((item) => {
+          const titleName = String(item.titleName || "").trim();
+          if (!titleName || existingValues.has(titleName) || !optionHost) return;
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "profile-title-option";
+          btn.dataset.titleValue = titleName;
+          btn.textContent = titleName;
+          btn.addEventListener("click", () => selectProfileTitle(titleName));
+          optionHost.appendChild(btn);
+          existingValues.add(titleName);
+        });
+        if (runtimeEquippedTitleFromApi) updateProfileTitleOptions(runtimeEquippedTitleFromApi);
+      }
+
+      function renderAchievementsFromApi(payload) {
+        const data = payload || {};
+        const achievements = Array.isArray(data.achievements) ? data.achievements : [];
+        const titles = Array.isArray(data.titles) ? data.titles : [];
+        achievements.forEach((item) => {
+          const card = findAchievementCardForApi(item);
+          if (card) applyAchievementItemToCard(card, item);
+        });
+        updateTitleOptionsFromApi(titles, data.equippedTitle || "");
+
+        const summary = data.summary || {};
+        if (achievementSummaryDone) {
+          const total = achievements.length || getAchievementCards().length;
+          const achieved = Number(summary.achieved != null ? summary.achieved : achievements.filter((item) => normalizeApiAchievementStatus(item.status) === "달성 완료").length);
+          achievementSummaryDone.textContent = achieved + " / " + total;
+        }
+        if (achievementSummaryTitles) {
+          const titleCount = Number(summary.titles != null ? summary.titles : titles.length);
+          achievementSummaryTitles.textContent = titleCount + "개";
+        }
+        updateAchievementSummary();
+        renderAchievementPage();
+      }
+
+      async function loadMyAchievements(lumiId) {
+        const id = normId(lumiId || getCurrentLumiId());
+        if (!id || !LUMI_API_ENDPOINT()) return null;
+        const payload = await fetchLumiApi({ action: "lumiGetMyAchievements", lumiId: id });
+        if (payload && payload.ok) {
+          cacheWrite_(id, "achievements", payload);
+          renderAchievementsFromApi(payload);
+        }
+        return payload;
+      }
+
       function renderProfileView() {
         applyImagePart(profileCoverImg, profileState.cover);
         applyImagePart(profileAvatarImg, profileState.avatar);
         if (profileCover) profileCover.classList.toggle("has-image", Boolean(profileState.cover.src));
         if (profileAvatar) profileAvatar.classList.toggle("has-image", Boolean(profileState.avatar.src));
         const info = normalizeProfileInfo(profileState.info);
+        const displayTitle = runtimeEquippedTitleFromApi || info.title;
         if (profileDisplayName) profileDisplayName.textContent = info.displayName;
         if (profileMeta) profileMeta.textContent = "오시: " + info.oshi;
-        if (profileTitlePill) profileTitlePill.textContent = info.title;
+        if (profileTitlePill) profileTitlePill.textContent = displayTitle;
         if (profileSpaceTag) profileSpaceTag.textContent = "📍 " + info.space;
         if (profileBirthdayTag) profileBirthdayTag.textContent = "🎂 " + profileBirthdayText(info);
         if (profileJoinTag) profileJoinTag.textContent = "";
