@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_48_fix1_ticket_ui_20260509";
+      const APP_VERSION = "patch51_49_fix1_checkins_schema_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -463,6 +463,13 @@
           appendBootDebug("lumiTickets cache: " + cachedLumiTickets.length + " items");
         }
 
+        // PATCH 51-49: 루미 체크인/스탬프 캐시 즉시 복원
+        const cachedCheckins = cacheRead_(lid, "checkins", 24 * 60 * 60 * 1000);
+        if (cachedCheckins) {
+          renderCheckins(cachedCheckins);
+          appendBootDebug("checkins cache: stamps=" + (cachedCheckins.totalStamps || 0));
+        }
+
         // PATCH 51-37: API는 백그라운드 병렬 실행 (await 없음 → 화면 진입 차단 안 함)
         function runBackgroundRefresh(lid) {
           function doRefresh() {
@@ -479,6 +486,9 @@
             }),
             loadMyLumiTickets(lid).catch(function(e) { // PATCH 51-48
               appendBootDebug("bg lumiTickets error: " + String(e && e.message || e));
+            }),
+            loadMyCheckins(lid).catch(function(e) { // PATCH 51-49
+              appendBootDebug("bg checkins error: " + String(e && e.message || e));
             })
           ]);
           }
@@ -3758,6 +3768,109 @@
           appendBootDebug("lumiTickets loaded: " + items.length + " items");
         } catch (error) {
           appendBootDebug("lumiTickets error: " + String(error && error.message ? error.message : error));
+        }
+      }
+      // ──────────────────────────────────────────────────────────
+
+      // ── PATCH 51-49: 루미 체크인 / 스탬프 ─────────────────────
+      // visits(라이브 방문)와 완전히 분리. checkins는 특전권 사용 후 촬영·교류 특전 참여 기록.
+
+      function renderCheckins(data) {
+        if (!data) return;
+        var totalStamps  = parseInt(data.totalStamps  || 0, 10);
+        var checkinCount = parseInt(data.checkinCount || 0, 10);
+        var cycle        = parseInt(data.cycle        || 1, 10);   // 현재 회차
+        var cycleStamps  = parseInt(data.cycleStamps  || 0, 10);   // 현재 회차 스탬프 수
+        var maxPerCycle  = 20;
+
+        // ── 기록탭 stat 카드 (record-stat-card) — 기존 DOM 유지, 숫자만 교체
+        try {
+          var statCards = Array.from(document.querySelectorAll(".record-stat-card"));
+          statCards.forEach(function(card) {
+            var small = card.querySelector("small");
+            var b     = card.querySelector("b");
+            if (!small || !b) return;
+            if (small.textContent.trim() === "체크인") b.textContent = checkinCount + "회";
+            if (small.textContent.trim() === "스탬프")  b.textContent = totalStamps  + "개";
+          });
+        } catch(e) {}
+
+        // ── 포인트 탭 요약 카드 (point-ledger-summary-card) 스탬프 수치
+        try {
+          var pointCards = Array.from(document.querySelectorAll(".point-ledger-summary-card"));
+          pointCards.forEach(function(card) {
+            var small = card.querySelector("small");
+            var b     = card.querySelector("b");
+            if (small && b && small.textContent.trim() === "스탬프") {
+              b.textContent = cycleStamps + "개";
+            }
+          });
+        } catch(e) {}
+
+        // ── 모바일 스탬프 탭 (.stamp-status)
+        try {
+          var statusEl = document.querySelector(".stamp-status");
+          if (statusEl) {
+            var bEl    = statusEl.querySelector("b");
+            var spanEl = statusEl.querySelector("span");
+            if (bEl) bEl.textContent = cycle + "회차";
+            if (spanEl) spanEl.textContent = "현재 스탬프 " + cycleStamps + " / " + maxPerCycle;
+          }
+          // 스탬프 칸 (stamp-cell) 채우기
+          var cells = Array.from(document.querySelectorAll(".stamp-grid .stamp-cell"));
+          cells.forEach(function(cell, idx) {
+            var stamp = idx + 1;
+            if (stamp <= cycleStamps) {
+              cell.classList.add("done");
+            } else {
+              cell.classList.remove("done");
+            }
+          });
+        } catch(e) {}
+
+        // ── PC 스탬프 탭 (.stamp-pc-wrap)
+        try {
+          // status-chip
+          var chip = document.querySelector(".stamp-pc-wrap .status-chip");
+          if (chip) chip.textContent = cycle + "회차 " + cycleStamps + " / " + maxPerCycle;
+          // progress bar
+          var fill = document.querySelector(".stamp-pc-wrap .progress-fill");
+          if (fill) fill.style.width = Math.round((cycleStamps / maxPerCycle) * 100) + "%";
+          // pc-lead 텍스트
+          var lead = document.querySelector(".stamp-pc-wrap .stamp-pc-lead");
+          if (lead) {
+            var nextMilestone = [5, 10, 15, 20].find(function(m) { return m > cycleStamps; });
+            if (nextMilestone) {
+              lead.textContent = "다음 혜택까지 " + (nextMilestone - cycleStamps) + "개 남았어요. 20개 달성 시 초기화가 아니라 " + cycle + "회차 완료로 기록됩니다.";
+            } else {
+              lead.textContent = cycle + "회차 완주 달성! 다음 회차로 이어집니다.";
+            }
+          }
+          // PC 스탬프 그리드 (#stampGridPc)
+          var pcGrid = document.getElementById("stampGridPc");
+          if (pcGrid) {
+            var html = "";
+            for (var i = 1; i <= maxPerCycle; i++) {
+              html += '<span class="stamp' + (i <= cycleStamps ? "" : " empty") + '">' + i + '</span>';
+            }
+            pcGrid.innerHTML = html;
+          }
+        } catch(e) {}
+      }
+
+      async function loadMyCheckins(lumiId) {
+        try {
+          const response = await fetchLumiApi({ action: "lumiGetMyCheckins", lumiId: lumiId });
+          if (!response || response.ok !== true) {
+            appendBootDebug("checkins load failed: " + String((response && (response.error || response.message)) || "failed"));
+            return;
+          }
+          const data = response.summary || {};
+          cacheWrite_(lumiId, "checkins", data);
+          renderCheckins(data);
+          appendBootDebug("checkins loaded: stamps=" + (data.totalStamps || 0) + " checkins=" + (data.checkinCount || 0));
+        } catch (error) {
+          appendBootDebug("checkins error: " + String(error && error.message ? error.message : error));
         }
       }
       // ──────────────────────────────────────────────────────────
