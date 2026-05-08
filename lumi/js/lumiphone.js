@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_52_fix1_achievement_pc_mobile_sync_20260509";
+      const APP_VERSION = "patch51_52_fix2_achievement_pc_renderer_sync_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -2866,6 +2866,10 @@
 
       function renderAchievementsFromApi(payload) {
         const data = payload || {};
+        window.__lumiLatestAchievementsPayload = data; // PATCH 51-52-fix2: PC 전용 업적 렌더러 동기화용
+        if (typeof window.__lumiUpdatePcAchievements === "function") {
+          try { window.__lumiUpdatePcAchievements(data); } catch (error) {}
+        }
         const achievements = Array.isArray(data.achievements) ? data.achievements : [];
         const titles = Array.isArray(data.titles) ? data.titles : [];
         achievements.forEach((item) => {
@@ -6386,6 +6390,80 @@
 
   var currentFilter = 'all';
 
+  function pcNormalizeApiStatus(status) {
+    var raw = String(status || '').trim().toLowerCase();
+    if (raw === 'achieved' || raw === 'complete' || raw === 'completed' || raw === '달성' || raw === '달성 완료') return 'done';
+    if (raw === 'progress' || raw === 'progressing' || raw === '진행' || raw === '진행 중' || raw === '대기 중') return 'progress';
+    if (raw === 'hidden' || raw === '숨김') return 'secret';
+    return 'locked';
+  }
+
+  function pcProgressText(item, state) {
+    if (state === 'done') return '1 / 1';
+    var cur = Number(item && item.progressCurrent || 0);
+    var target = Number(item && item.progressTarget || 0);
+    if (target > 0) return String(cur) + ' / ' + String(target);
+    return state === 'progress' ? '진행중' : '미달성';
+  }
+
+  function pcRewardText(item) {
+    return String(item && (item.rewardText || item.reward || '') || '').trim() || '조건 달성 후 해금';
+  }
+
+  function pcTitleReward(item) {
+    var raw = pcRewardText(item);
+    var m = raw.match(/^칭호\s*[:：]\s*(.+)$/);
+    return m ? String(m[1] || '').trim() : '';
+  }
+
+  function pcAchievementIdForApi(item) {
+    var key = String(item && item.achievementKey || '').trim();
+    var title = String(item && item.title || '').trim();
+    var byKey = {
+      first_visit: 'first-dot',
+      stamp_1: 'stamp-one',
+      stamp_20: 'stamp-twenty'
+    };
+    if (byKey[key]) return byKey[key];
+    var byTitle = {
+      '첫 번째 점': 'first-dot',
+      '첫 번째 꽃도장': 'stamp-one',
+      '꽃도장 한 판 완성': 'stamp-twenty',
+      '첫 루미 체크인': 'first-checkin'
+    };
+    return byTitle[title] || '';
+  }
+
+  function applyApiAchievementToPc(item) {
+    var id = pcAchievementIdForApi(item);
+    if (!id) return;
+    var target = ACH.find(function(a){ return a.id === id; });
+    if (!target) return;
+    var state = pcNormalizeApiStatus(item.status);
+    var reward = pcRewardText(item);
+    var titleReward = pcTitleReward(item);
+    target.state = state;
+    target.icon = String(item.icon || target.icon || '✦');
+    target.name = String(item.title || target.name || '업적');
+    target.desc = String(item.conditionText || target.desc || '루미벨과 함께한 기록이에요.');
+    target.progress = pcProgressText(item, state);
+    target.reward = reward;
+    target.title = titleReward;
+    target.date = String(item.achievedAt || (state === 'done' ? '달성 완료' : state === 'progress' ? '진행중' : '미달성'));
+    target.rule = String(item.conditionText || target.rule || '-');
+  }
+
+  function applyApiAchievementsPayload(payload) {
+    var data = payload || {};
+    var achievements = Array.isArray(data.achievements) ? data.achievements : [];
+    achievements.forEach(applyApiAchievementToPc);
+    drawList();
+  }
+
+  window.__lumiUpdatePcAchievements = function(payload) {
+    try { applyApiAchievementsPayload(payload); } catch(e) {}
+  };
+
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
@@ -6532,6 +6610,7 @@
     initialized = true;
     bindMenu();
     drawList();
+    if (window.__lumiLatestAchievementsPayload) applyApiAchievementsPayload(window.__lumiLatestAchievementsPayload);
   }
 
   if (document.readyState === 'loading') {
@@ -6547,6 +6626,7 @@
       initialized = true;
       bindMenu();
       drawList();
+      if (window.__lumiLatestAchievementsPayload) applyApiAchievementsPayload(window.__lumiLatestAchievementsPayload);
     }
   });
 })();
