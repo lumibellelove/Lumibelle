@@ -563,6 +563,40 @@
       ];
 
       let LUMI_RUNTIME_MAIL_ITEMS = null;
+      let LUMI_RUNTIME_MESSAGE_ITEMS = null;
+
+      const LUMI_SMS_MESSAGE_TYPES = new Set([
+        "paymentconfirmed",
+        "entrycomplete",
+        "reservationconfirmed",
+        "birthdaynotice",
+        "jointicket",
+        "welcometicket",
+        "livereminder",
+        "systemshort"
+      ]);
+
+      const LUMI_MAIL_MESSAGE_TYPES = new Set([
+        "afterliveletter",
+        "memberletter",
+        "lumiletter",
+        "archiveletter",
+        "eventstory",
+        "seasonletter"
+      ]);
+
+      function normalizeMessageTypeKey(value) {
+        return String(value || "").trim().toLowerCase().replace(/[\s_\-]/g, "");
+      }
+
+      function getLumiMessageChannel(item) {
+        const key = normalizeMessageTypeKey(item && (item.messageType || item.type));
+        if (LUMI_MAIL_MESSAGE_TYPES.has(key)) return "mail";
+        if (LUMI_SMS_MESSAGE_TYPES.has(key)) return "message";
+        const senderType = String(item && item.senderType || "").trim().toLowerCase();
+        if (senderType === "member") return "mail";
+        return "message";
+      }
 
       function getAllMailItems() {
         return Array.isArray(LUMI_RUNTIME_MAIL_ITEMS) ? LUMI_RUNTIME_MAIL_ITEMS : LUMI_MAIL_ITEMS;
@@ -600,10 +634,12 @@
         const id = String(source.messageId || source.id || ("message_" + Date.now() + "_" + Math.random())).trim();
         const isReadValue = String(source.isRead == null ? "" : source.isRead).toLowerCase();
         const isRead = source.isRead === true || isReadValue === "true" || isReadValue === "1" || isReadValue === "읽음";
+        const channel = getLumiMessageChannel(source);
         return {
           id: id,
           messageId: id,
-          box: "inbox",
+          box: channel === "mail" ? "inbox" : "message",
+          channel: channel,
           category: senderType === "member" ? "member" : (source.category || "event"),
           messageType: source.messageType || "",
           senderType: senderType,
@@ -614,7 +650,8 @@
           status: isRead ? "읽음" : "NEW",
           title: title,
           preview: source.preview || String(body).replace(/\s+/g, " ").slice(0, 64),
-          body: body
+          body: body,
+          createdAt: createdAt
         };
       }
 
@@ -2987,17 +3024,21 @@
       async function loadMyMessages(lumiId) {
         try {
           const messages = await getMyMessages(lumiId);
-          if (Array.isArray(messages) && messages.length) {
-            LUMI_RUNTIME_MAIL_ITEMS = messages
-              .filter((item) => {
-                const member = String(item && item.senderMember || "").toLowerCase();
-                return member !== "iro" && member !== "lunar" && member !== "luna";
-              })
-              .map(normalizeLumiMessageItem);
+          if (Array.isArray(messages)) {
+            const publicMessages = messages.filter((item) => {
+              const member = String(item && item.senderMember || "").toLowerCase();
+              return member !== "iro" && member !== "lunar" && member !== "luna";
+            });
+            const normalized = publicMessages.map(normalizeLumiMessageItem);
+            LUMI_RUNTIME_MAIL_ITEMS = normalized.filter((item) => item.channel === "mail");
+            LUMI_RUNTIME_MESSAGE_ITEMS = publicMessages
+              .filter((item) => getLumiMessageChannel(item) === "message")
+              .map(normalizeRuntimeChatMessage);
             mailState.inbox.page = 0;
             mailState.saved.page = 0;
             renderMailAll();
-            appendBootDebug("messages UI applied: " + LUMI_RUNTIME_MAIL_ITEMS.length);
+            if (typeof window.showLumiMessageInbox === "function") window.showLumiMessageInbox();
+            appendBootDebug("messages UI split applied: mail=" + LUMI_RUNTIME_MAIL_ITEMS.length + " sms=" + LUMI_RUNTIME_MESSAGE_ITEMS.length);
           } else {
             appendBootDebug("messages empty: mock fallback kept");
             renderMailAll();
@@ -4312,6 +4353,41 @@
   function getObj(k){ try { return JSON.parse(localStorage.getItem(k)||"{}"); } catch(e) { return {}; } }
   function setObj(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
   function fanText(value){ return String(value == null ? "" : value); }
+  function getAllLumiMessageItems(){
+    return Array.isArray(LUMI_RUNTIME_MESSAGE_ITEMS) ? LUMI_RUNTIME_MESSAGE_ITEMS : MESSAGES;
+  }
+  function normalizeRuntimeChatMessage(item){
+    const source = item || {};
+    const type = normalizeMessageTypeKey(source.messageType || source.type);
+    const senderType = String(source.senderType || "system").trim().toLowerCase();
+    const senderMember = String(source.senderMember || "system").trim().toLowerCase();
+    const from = senderType === "member" ? memberLabelFromKey(senderMember) : (source.from || "LUMIBELLE 운영");
+    const body = String(source.body || source.preview || "").trim();
+    const date = String(source.createdAt || source.visibleFrom || source.date || "루미폰 메시지");
+    const id = String(source.messageId || source.id || ("runtime_msg_" + Date.now() + "_" + Math.random())).trim();
+    const icon = source.icon || messageIconFromType(source);
+    let tag = source.tag || "운영";
+    let filterType = "staff";
+    if (type === "livereminder" || type === "entrycomplete") { tag = source.tag || "라이브"; filterType = "live"; }
+    if (type === "birthdaynotice") { tag = source.tag || "생일"; filterType = "birthday"; }
+    if (type === "welcometicket" || type === "jointicket") { tag = source.tag || "티켓"; filterType = "staff"; }
+    if (senderType === "member") { tag = source.tag || "루미레터"; filterType = "lumiletter"; }
+    return {
+      id: id,
+      box: "inbox",
+      status: source.isRead === true ? "read" : "NEW",
+      date: date,
+      from: from,
+      tag: tag,
+      type: filterType,
+      messageType: source.messageType || "",
+      title: source.title || "루미벨에서 도착한 문자",
+      preview: source.preview || body.replace(/\s+/g, " ").slice(0, 80),
+      icon: icon,
+      lines: body ? body.split(/\n+/).filter(Boolean) : [source.title || "루미벨에서 도착한 문자예요."],
+      choices: []
+    };
+  }
   function isComingSoonMessage(m){
     const id = String((m && m.id) || "");
     const from = String((m && m.from) || "");
@@ -4357,7 +4433,7 @@
   function filtered(){
     const root = pageEl();
     const term = (($("#lumiMsgSearch", root)||{}).value || "").trim().toLowerCase();
-    return MESSAGES.filter(m => {
+    return getAllLumiMessageItems().filter(m => {
       if (box === "saved") {
         if (!isSaved(m.id) || !isVisibleInboxMessage(m)) return false;
       } else if (!isVisibleInboxMessage(m)) return false;
@@ -4370,7 +4446,7 @@
     });
   }
   function updateBadges(){
-    const unreadItems = MESSAGES.filter(m => isVisibleInboxMessage(m) && !isRead(m.id));
+    const unreadItems = getAllLumiMessageItems().filter(m => isVisibleInboxMessage(m) && !isRead(m.id));
     const unread = unreadItems.length;
     const messageMini = document.querySelector('.app-icon[data-go="message"] .mini, .kawaii-app-icon[data-go="message"] .mini');
     if (messageMini) { messageMini.textContent = unread > 0 ? String(Math.min(unread,9)) : ""; messageMini.style.display = unread > 0 ? "inline-flex" : "none"; }
@@ -4489,7 +4565,8 @@
   function openMessage(id, animate){
     const root = pageEl(); if (!root) return;
     clearTimers();
-    const m = MESSAGES.find(x => x.id === id) || MESSAGES[0];
+    const allMessages = getAllLumiMessageItems();
+    const m = allMessages.find(x => x.id === id) || allMessages[0];
     currentId = m.id;
     markRead(m.id);
     renderList();
