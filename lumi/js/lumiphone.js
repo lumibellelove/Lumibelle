@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_40_fix1_last_page_record_20260509";
+      const APP_VERSION = "patch51_41_home_stable_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -36,6 +36,7 @@
       const LUMI_API_TIMEOUT_MS = 12000;
       let currentUser = null;
       let myReservations = [];
+      let reservationsLoadState = "idle"; // PATCH 51-41: idle/loading/loaded/error
       let bootDebugText = "";
 
       function setBootDebug(text) {
@@ -3160,6 +3161,32 @@
           '</article>';
       }
 
+      // PATCH 51-41: 홈 예약 카드가 API 로드 전/timeout 때 "없음"으로 깜빡이지 않게 안정화
+      function updateHomeReservationLoading() {
+        const ticketCard = document.querySelector(".home-grid .home-card.no-icon.pass");
+        const summaryCard = Array.from(document.querySelectorAll(".home-grid .home-card.no-icon")).find((card) => {
+          return card !== ticketCard && card.id !== "homeMessageCard" && card.textContent.indexOf("현재 예약") !== -1;
+        });
+
+        if (ticketCard) {
+          const small = ticketCard.querySelector("small");
+          const title = ticketCard.querySelector("b");
+          const desc = ticketCard.querySelector("span");
+          if (small) small.textContent = "티켓 확인 중";
+          if (title) title.textContent = "예약 정보를 불러오는 중…";
+          if (desc) desc.textContent = "확인되는 즉시 티켓함에 표시돼요.";
+        }
+
+        if (summaryCard) {
+          const small = summaryCard.querySelector("small");
+          const title = summaryCard.querySelector("b");
+          const desc = summaryCard.querySelector("span");
+          if (small) small.textContent = "현재 예약 확인 중";
+          if (title) title.textContent = "예약 정보를 확인하고 있어요.";
+          if (desc) desc.textContent = "잠시 후 자동으로 갱신돼요.";
+        }
+      }
+
       function updateHomeReservationSummary(reservations) {
         const normalized = (reservations || []).map(normalizeReservationItem);
         const current = normalized.filter((item) => !isPastReservation(item));
@@ -3178,6 +3205,10 @@
             if (small) small.textContent = isEntryDone(item) ? "입장 완료" : ticketStatusLabel(item);
             if (title) title.textContent = item.reservationNumber || "예약번호 확인 중";
             if (desc) desc.textContent = (item.eventTitle || "공연명 확인 중") + " · " + (item.eventDate || "날짜 확인 중");
+          } else if (reservationsLoadState !== "loaded") {
+            if (small) small.textContent = "티켓 확인 중";
+            if (title) title.textContent = "예약 정보를 불러오는 중…";
+            if (desc) desc.textContent = "확인되는 즉시 티켓함에 표시돼요.";
           } else {
             if (small) small.textContent = "예약된 공연 없음";
             if (title) title.textContent = "티켓 준비 중";
@@ -3193,6 +3224,10 @@
             if (small) small.textContent = "현재 예약 " + String(current.length) + "건";
             if (title) title.textContent = item.eventTitle || "공연명 확인 중";
             if (desc) desc.textContent = (item.venueName || "공연장 확인 중") + " · " + paymentLabel(item.paymentStatus);
+          } else if (reservationsLoadState !== "loaded") {
+            if (small) small.textContent = "현재 예약 확인 중";
+            if (title) title.textContent = "예약 정보를 확인하고 있어요.";
+            if (desc) desc.textContent = "잠시 후 자동으로 갱신돼요.";
           } else {
             if (small) small.textContent = "현재 예약";
             if (title) title.textContent = "예약된 공연이 없어요.";
@@ -3202,6 +3237,7 @@
       }
 
       function renderMyReservations(reservations) {
+        if (reservationsLoadState !== "loading") reservationsLoadState = "loaded";
         const normalized = (reservations || []).map(normalizeReservationItem);
         appendBootDebug("render: normalized=" + normalized.length);
         const current = normalized.filter((item) => !isPastReservation(item));
@@ -3241,6 +3277,8 @@
       }
 
       function renderReservationsLoading() {
+        reservationsLoadState = "loading";
+        updateHomeReservationLoading();
         const loadingHtml = '<div class="ticket-page-item"><article class="info-card"><small>잠시만요</small><b>티켓 불러오는 중...</b><span>예매 정보를 확인하고 있어요.</span></article></div>';
         const el1 = document.querySelector("#ticket-current .ticket-paged-list");
         const el2 = document.querySelector(".ticket-pc-current-section");
@@ -3323,18 +3361,23 @@
 
       async function loadMyReservations(lumiId) {
         try {
-          renderReservationsLoading();
+          // PATCH 51-41: 캐시/기존 예약 화면이 있으면 로딩 카드로 덮어쓰지 않음
+          if (!Array.isArray(myReservations) || myReservations.length === 0) {
+            renderReservationsLoading();
+          }
           const reservations = await getMyReservations(lumiId);
+          reservationsLoadState = "loaded";
           myReservations = reservations;
           cacheWrite_(lumiId, "reservations", reservations); // PATCH 51-36: 캐시 저장
           renderMyReservations(myReservations);
         } catch (error) {
           const errMsg = String(error && error.message ? error.message : error);
           appendBootDebug("reservation UI error: " + errMsg);
-          // PATCH 51-39: 에러/timeout 시 캐시가 있으면 empty render 금지
+          // PATCH 51-41: 에러/timeout 시 캐시가 있으면 유지, 없으면 "없음"으로 확정하지 않음
           if (!myReservations || myReservations.length === 0) {
-            myReservations = [];
-            renderMyReservations([]);
+            reservationsLoadState = "error";
+            updateHomeReservationLoading();
+            appendBootDebug("reservation error without cache: keep loading/soft state");
           } else {
             appendBootDebug("keeping cached reservations after error");
             renderMyReservations(myReservations); // 캐시 유지 렌더
@@ -3999,6 +4042,7 @@
       let currentYear   = new Date().getFullYear();
       let currentMonth  = new Date().getMonth() + 1;
       let runtimeVisits = []; // API 로드된 방문 기록
+      let visitsLoadState = "idle"; // PATCH 51-41: idle/loading/loaded/error
 
       function pad2(v) { return String(v).padStart(2, "0"); }
       function currentMonthKey() { return currentYear + "." + pad2(currentMonth); }
@@ -4048,12 +4092,13 @@
         const pageItems = list.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
         if (pageItems.length === 0) {
+          const waiting = runtimeVisits.length === 0 && visitsLoadState !== "loaded";
           recordCardList.innerHTML =
             '<article class="record-memory-card" data-record-category="전체">' +
             '<span class="record-memory-icon">🕰️</span>' +
-            '<time>' + currentMonthKey() + '</time>' +
-            '<b>' + (runtimeVisits.length === 0 ? "아직 기록이 없어요" : currentMonthKey() + " 기록 없음") + '</b>' +
-            '<span>' + (runtimeVisits.length === 0 ? "루미벨과 함께한 순간이 생기면 이곳에 차곡차곡 남아요." : "이 달에는 기록이 없어요.") + '</span>' +
+            '<time>' + (waiting ? "" : currentMonthKey()) + '</time>' +
+            '<b>' + (waiting ? "기록을 불러오는 중…" : (runtimeVisits.length === 0 ? "아직 기록이 없어요" : currentMonthKey() + " 기록 없음")) + '</b>' +
+            '<span>' + (waiting ? "잠시 후 자동으로 갱신돼요." : (runtimeVisits.length === 0 ? "루미벨과 함께한 순간이 생기면 이곳에 차곡차곡 남아요." : "이 달에는 기록이 없어요.")) + '</span>' +
             '<em>안내</em></article>';
         } else {
           recordCardList.innerHTML = pageItems.map(function(v) {
@@ -4099,9 +4144,10 @@
         if (recordPagePrev) recordPagePrev.disabled = currentPage <= 1;
         if (recordPageNext) recordPageNext.disabled = currentPage >= totalPages;
         if (recordMsg) {
+          const waiting = runtimeVisits.length === 0 && visitsLoadState !== "loaded";
           recordMsg.textContent = runtimeVisits.length > 0
             ? "라이브 방문 " + runtimeVisits.filter(function(v){ return v.visitType === "live"; }).length + "회 기록됨"
-            : "활동 기록이 연결되면 이곳에 표시돼요.";
+            : (waiting ? "기록을 불러오는 중…" : "활동 기록이 연결되면 이곳에 표시돼요.");
         }
 
         // record-stat-card 라이브 수치 갱신
@@ -4134,7 +4180,11 @@
       function loadVisits() {
         const lumiId = typeof window.__lumiGetCurrentId === "function" ? window.__lumiGetCurrentId() : "";
         const endpoint = window.LUMI_API_ENDPOINT || "";
-        if (!lumiId || !endpoint) { renderRecordPage(); return; }
+        if (!lumiId || !endpoint) {
+          if (runtimeVisits.length === 0) visitsLoadState = "loading";
+          renderRecordPage();
+          return;
+        }
 
         function parseVisitDate(v) {
           var raw = v.eventDate || v.visitedAt || "";
@@ -4161,10 +4211,12 @@
         // 캐시가 있으면 즉시 렌더 (빈 화면/로딩 중 방지)
         const cachedVisits = _cacheRead(lumiId, "visits", 24 * 60 * 60 * 1000);
         if (cachedVisits && Array.isArray(cachedVisits) && cachedVisits.length > 0) {
+          visitsLoadState = "loaded";
           runtimeVisits = cachedVisits;
           jumpToLatest(runtimeVisits);
           renderRecordPage();
         } else {
+          visitsLoadState = "loading";
           // 캐시 없을 때만 로딩 중 표시
           if (recordCardList) {
             recordCardList.innerHTML =
@@ -4198,6 +4250,7 @@
                 if (!db) return -1;
                 return db.getTime() - da.getTime();
               });
+              visitsLoadState = "loaded";
               runtimeVisits = data.visits;
               // PATCH 51-36: API 성공 시 캐시 갱신 (window 브릿지 사용)
               _cacheWrite(lumiId, "visits", runtimeVisits);
@@ -4205,12 +4258,14 @@
               jumpToLatest(runtimeVisits);
             } else {
               console.warn("[lumi] loadVisits: unexpected response:", data);
+              if (runtimeVisits.length === 0) visitsLoadState = "error";
             }
             renderRecordPage();
           })
           .catch(function(err) {
             console.error("[lumi] loadVisits error:", err);
-            renderRecordPage(); // 캐시로 이미 렌더됐으면 조용히 유지
+            if (runtimeVisits.length === 0) visitsLoadState = "error";
+            renderRecordPage(); // 캐시로 이미 렌더됐으면 조용히 유지, 없으면 soft 대기 상태
           });
       }
 
