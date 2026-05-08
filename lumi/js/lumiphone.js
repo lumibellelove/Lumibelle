@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_47_homework_cheki_20260509";
+      const APP_VERSION = "patch51_47_fix1_ui_restore_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -3120,19 +3120,27 @@
 
       function reservationTicketHtml(item) {
         const href = ticketHref(item);
+        const entryCode = getEntryCode_(item.reservationNumber || "");
+        const paymentSt = ticketStatusLabel(item);
+        const entrySt   = isEntryDone(item) ? "입장완료" : "미입장";
         return '<article class="ticket-card lumi-pass">' +
           '<div class="ticket-inner">' +
-          '<div class="ticket-kicker">CURRENT RESERVATION</div>' +
-          '<div class="ticket-title">' + escapeHtml(item.eventTitle) + '</div>' +
-          '<div class="ticket-sub">' + escapeHtml(item.eventDate || "날짜 확인 중") + ' · ' + escapeHtml(item.venueName) + '</div>' +
-          '<div class="ticket-number"><small>RESERVATION NO.</small><strong>' + escapeHtml(item.reservationNumber) + '</strong></div>' +
-          '<div class="ticket-meta">' +
-          '<div class="ticket-cell"><small>PAYMENT</small><b>' + escapeHtml(ticketStatusLabel(item)) + '</b></div>' +
-          '<div class="ticket-cell"><small>STATUS</small><b>' + escapeHtml(isEntryDone(item) ? "입장 완료" : reservationStatusLabel(item.reservationStatus)) + '</b></div>' +
-          '<div class="ticket-cell"><small>MEATE</small><b>' + escapeHtml(item.meate || "-") + '</b></div>' +
-          '<div class="ticket-cell"><small>LUMI ID</small><b>' + escapeHtml(getCurrentLumiId() || "-") + '</b></div>' +
+          '<div class="lumi-pass-top">' +
+            '<div class="lumi-pass-label">LUMI PASS · E-TICKET</div>' +
+            '<div class="lumi-pass-date">' + escapeHtml(formatTicketDate(item.eventDate)) + '<br>' +
+            (item.openTime ? 'OPEN ' + escapeHtml(item.openTime) + ' · ' : '') +
+            'START ' + escapeHtml(item.startTime || "18:00") + '</div>' +
           '</div>' +
-          '<a class="btn sub ticket-api-link" href="' + escapeHtml(href) + '">티켓 페이지 보기</a>' +
+          '<div class="lumi-pass-title">LUMI PASS</div>' +
+          '<div class="lumi-pass-sub">Stardust Admission Ticket · ' + escapeHtml(item.eventTitle) + '</div>' +
+          '<div class="lumi-pass-place">' + escapeHtml(paymentSt) + ' · ' + escapeHtml(entrySt) + (item.meate ? ' · 메아테 ' + escapeHtml(item.meate) : '') + '</div>' +
+          '<div class="lumi-entry-box"><small>ENTRY NO.</small><strong>' + escapeHtml(entryCode || item.reservationNumber) + '</strong></div>' +
+          '<div class="ticket-meta">' +
+            '<div class="ticket-cell"><small>RESERVATION</small><b>' + escapeHtml(paymentSt) + '</b></div>' +
+            '<div class="ticket-cell"><small>STATUS</small><b>' + escapeHtml(entrySt) + '</b></div>' +
+            '<div class="ticket-cell"><small>MEATE</small><b>' + escapeHtml(item.meate || "-") + '</b></div>' +
+            '<div class="ticket-cell"><small>BENEFIT</small><b>' + escapeHtml(item.meate === "Lumibelle" || item.meate === "루미벨" ? "처리 대상" : "-") + '</b></div>' +
+          '</div>' +
           '</div>' +
           '</article>';
       }
@@ -3148,22 +3156,49 @@
 
       function pcCurrentTicketHtml(item) {
         const href = ticketHref(item);
+        const entryCode = getEntryCode_(item.reservationNumber || "");
+        const statusLabel = (isEntryDone(item) ? "입장완료" : paymentLabel(item.paymentStatus)) +
+          " / " + (isEntryDone(item) ? "입장완료" : "미입장");
         return '<h3>현재 예약 티켓</h3>' +
-          '<article class="ticket-pc-pass">' +
+          '<article class="ticket-pc-pass ticket-pc-stardust">' +
           '<div class="ticket-pc-pass-inner">' +
-          '<div class="ticket-pc-top"><span class="ticket-pc-label">LUMIBELLE RESERVATION</span><span class="ticket-pc-date">' + escapeHtml(item.eventDate || "날짜 확인 중") + '<br>' + escapeHtml(item.startTime || "") + '</span></div>' +
-          '<div class="ticket-pc-title-en">' + escapeHtml(item.eventTitle) + '</div>' +
-          '<div class="ticket-pc-place">' + escapeHtml(item.venueName) + '</div>' +
-          '<div class="ticket-pc-entry"><small>RESERVATION NO.</small><strong>' + escapeHtml(item.reservationNumber) + '</strong></div>' +
-          '<div class="ticket-pc-meta">' +
-          '<div><small>PAYMENT</small><b>' + escapeHtml(ticketStatusLabel(item)) + '</b></div>' +
-          '<div><small>STATUS</small><b>' + escapeHtml(isEntryDone(item) ? "입장 완료" : reservationStatusLabel(item.reservationStatus)) + '</b></div>' +
-          '<div><small>MEATE</small><b>' + escapeHtml(item.meate || "-") + '</b></div>' +
-          '<div><small>LUMI ID</small><b>' + escapeHtml(getCurrentLumiId() || "-") + '</b></div>' +
+          '<div class="ticket-pc-top">' +
+            '<span class="ticket-pc-label">LUMI PASS · E-TICKET</span>' +
+            '<span class="ticket-pc-date">' + escapeHtml(formatTicketDate(item.eventDate)) + '<br>' +
+            (item.openTime ? 'OPEN ' + escapeHtml(item.openTime) + ' · ' : '') +
+            'START ' + escapeHtml(item.startTime || "18:00") + '</span>' +
           '</div>' +
-          '<p class="ticket-pc-help"><a class="btn sub ticket-api-link" href="' + escapeHtml(href) + '">티켓 페이지 보기</a></p>' +
+          '<div class="ticket-pc-title-en">LUMI PASS</div>' +
+          '<div class="ticket-pc-title-ko">' + escapeHtml(item.eventTitle) + '</div>' +
+          '<div class="ticket-pc-place">' + escapeHtml(item.venueName || "") + '</div>' +
+          '<div class="ticket-pc-entry"><small>ENTRY NO.</small><strong>' + escapeHtml(entryCode || item.reservationNumber) + '</strong></div>' +
+          '<div class="ticket-pc-note">이 티켓은 루미벨의 이야기에 들어가는 작은 초대장입니다.<br>입장 시 현장 확인 시 입장번호를 보여주세요.</div>' +
+          '<div class="ticket-pc-meta">' +
+            '<div><small>RESERVATION</small><b>' + escapeHtml(item.reservationNumber) + '</b></div>' +
+            '<div><small>MEATE</small><b>' + escapeHtml(item.meate || "-") + '</b></div>' +
+            '<div><small>TYPE</small><b>' + escapeHtml(item.ticketType || "사전예약") + '</b></div>' +
+            '<div><small>STATUS</small><b>' + escapeHtml(statusLabel) + '</b></div>' +
+          '</div>' +
+          '<div class="ticket-pc-qr"><i>▣</i><p><b>QR은 보조 확인용입니다.</b><br>입장 확인은 예약번호/입장번호/닉네임 기준으로 진행됩니다.</p></div>' +
+          '<div class="ticket-pc-chips"><span>QR은 보조 확인용</span><span>현장에서 제시</span></div>' +
           '</div>' +
           '</article>';
+      }
+
+      function getEntryCode_(reservationNumber) {
+        var digits = String(reservationNumber || "").replace(/\D/g, "");
+        return digits ? digits.slice(-4) : "";
+      }
+
+      function formatTicketDate(dateStr) {
+        if (!dateStr) return "";
+        var d = new Date(dateStr);
+        if (isNaN(d.getTime())) return String(dateStr);
+        var days = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
+        var y = d.getFullYear();
+        var m = String(d.getMonth()+1).padStart(2,"0");
+        var day = String(d.getDate()).padStart(2,"0");
+        return y + "." + m + "." + day + " " + days[d.getDay()];
       }
 
       function pcPastTicketHtml(item) {
@@ -3429,64 +3464,75 @@
       function renderHomeworkCheki(items) {
         const list = items || [];
 
-        // ── 홈 요약 카드 업데이트
+        // ── 홈 요약 카드 업데이트 (기존 home-card 구조 유지, 숫자/텍스트만 교체)
         const readyCount = list.filter(function(c) {
           return String(c.status || "").trim() === "수령 가능";
         }).length;
-        // 홈 "수령 가능 숙제체키" b 태그 업데이트 (ID 없으므로 텍스트로 찾음)
         try {
           const homeCards = document.querySelectorAll(".home-card.no-icon");
           homeCards.forEach(function(card) {
             const small = card.querySelector("small");
             if (small && small.textContent.includes("숙제체키")) {
-              const b = card.querySelector("b");
+              const b    = card.querySelector("b");
               const span = card.querySelector("span");
               if (b) b.textContent = readyCount + "장";
-              if (span) span.textContent = readyCount > 0
-                ? "수령 가능한 숙제체키가 있어요."
-                : "신청 내역이 확인되면 이곳에 표시돼요.";
+              if (span) {
+                const pendingCount = list.filter(function(c) {
+                  return String(c.status || "").trim() !== "수령 완료";
+                }).length;
+                span.textContent = pendingCount > 0
+                  ? "준비 중 " + pendingCount + "장 · 상태는 숙제체키 탭에서 확인"
+                  : "신청 내역이 확인되면 이곳에 표시돼요.";
+              }
             }
           });
         } catch(e) {}
 
-        // ── 숙제체키 탭 렌더
-        const mainCard = document.querySelector(".homework-main-card");
+        // ── 숙제체키 탭 렌더 (최종 안정본 구조: homework-main-card / dl.homework-info-list)
+        const mainCard   = document.querySelector(".homework-main-card");
         const pickupCard = document.querySelector(".homework-pickup-card");
         if (!mainCard) return;
 
         if (list.length === 0) {
+          // 비어 있을 때 — 안정본 기본 구조 유지
           mainCard.innerHTML =
-            '<div class="homework-main-head"><strong>숙제체키 없음</strong>' +
-            '<span class="homework-code">대기 중</span></div>' +
-            '<p>신청한 숙제체키가 있으면 이곳에 표시돼요.</p>';
+            '<div class="homework-main-head">' +
+              '<strong>숙제체키 없음</strong>' +
+              '<span class="homework-code">대기 중</span>' +
+            '</div>' +
+            '<dl class="homework-info-list">' +
+              '<div><dt>안내</dt><dd>신청한 숙제체키가 있으면 이곳에 표시돼요.</dd></div>' +
+            '</dl>';
           if (pickupCard) pickupCard.style.display = "none";
           return;
         }
 
-        // 카드 목록 렌더 (mainCard 안에 전부)
-        mainCard.innerHTML = list.map(function(item) {
-          var st = chekiStatusLabel(item.status);
+        // 항목이 있을 때 — 첫 번째 항목을 main-card에, 나머지는 뒤에 추가
+        mainCard.innerHTML = list.map(function(item, idx) {
+          var st     = chekiStatusLabel(item.status);
           var member = chekiMemberLabel(item.member);
-          var plan = item.receivePlan ? "수령 예정: " + item.receivePlan : "";
-          var method = item.receiveMethod ? "수령 방법: " + item.receiveMethod : "";
-          var ctrl = item.controlNo ? "관리번호: " + item.controlNo : "";
-          return '<div class="homework-main-head">' +
-            '<strong>' + member + '</strong>' +
-            '<span class="homework-code ' + st.cls + '">' + st.label + '</span>' +
+          var rows   = [];
+          if (item.requestedAt) rows.push('<div><dt>접수일</dt><dd>' + escapeHtml(item.requestedAt.slice(0,10).replace(/-/g,".")) + '</dd></div>');
+          rows.push('<div><dt>상태</dt><dd>' + escapeHtml(item.status || "대기 중") + '</dd></div>');
+          if (item.receivePlan)   rows.push('<div><dt>수령 예정</dt><dd>' + escapeHtml(item.receivePlan)   + '</dd></div>');
+          if (item.receiveMethod) rows.push('<div><dt>수령 방식</dt><dd>' + escapeHtml(item.receiveMethod) + '</dd></div>');
+          if (item.controlNo)     rows.push('<div><dt>관리번호</dt><dd>'  + escapeHtml(item.controlNo)     + '</dd></div>');
+          if (item.note)          rows.push('<div><dt>메모</dt><dd>'       + escapeHtml(item.note)          + '</dd></div>');
+          return (idx > 0 ? '<hr style="margin:10px 0;border:none;border-top:1px solid #f0d6e8">' : '') +
+            '<div class="homework-main-head">' +
+              '<strong>' + escapeHtml(member) + '</strong>' +
+              '<span class="homework-code">' + escapeHtml(item.homeworkChekiId || "") + '</span>' +
             '</div>' +
-            (plan   ? '<p>' + plan   + '</p>' : '') +
-            (method ? '<p>' + method + '</p>' : '') +
-            (ctrl   ? '<p>' + ctrl   + '</p>' : '') +
-            (item.note ? '<p class="homework-note">' + item.note + '</p>' : '');
-        }).join('<hr style="margin:10px 0;border:none;border-top:1px solid #f0d6e8">');
+            '<dl class="homework-info-list">' + rows.join("") + '</dl>';
+        }).join("");
 
-        // 수령 가능이 있으면 pickup 안내 표시
+        // 수령 가능이면 pickup 안내 표시, 아니면 숨김
         if (pickupCard) {
           if (readyCount > 0) {
             pickupCard.style.display = "";
             pickupCard.innerHTML =
               '<strong>수령 안내</strong>' +
-              '<p>현장에서 루미 ID 또는 닉네임을 스탭에게 보여주세요. 수령 완료 처리 후 기록에 남아요.</p>';
+              '<p>상태가 수령 가능으로 바뀌면 다음 루미벨 특전회/물판에서 확인 후 받을 수 있어요. 현장에서는 루미 ID 또는 닉네임을 보여주세요.</p>';
           } else {
             pickupCard.style.display = "none";
           }
