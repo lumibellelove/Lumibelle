@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_38_login_feedback_20260509";
+      const APP_VERSION = "patch51_38_fix1_login_btn_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -451,6 +451,14 @@
         runBackgroundRefresh(lid);
       }
 
+      // PATCH 51-38-fix1: 로그인 버튼 상태 원복 헬퍼 (closeApp/로그아웃 시 반드시 호출)
+      function resetLoginButton() {
+        const btn = loginForm && loginForm.querySelector("button[type='submit']");
+        if (!btn) return;
+        btn.disabled = false;
+        btn.textContent = "루미폰 열기";
+      }
+
       function closeApp() {
         clearLoginState();
         appView.classList.remove("active");
@@ -458,6 +466,7 @@
         loginId.value = "";
         loginPin.value = "";
         clearMessage();
+        resetLoginButton(); // PATCH 51-38-fix1: 버튼 고착 방지
       }
 
       function go(page) {
@@ -3311,19 +3320,20 @@
           const user = await loginLumiPhone(lumiId, pin);
           saveLoginState(user);
           await openApp({ user: user });
-          // openApp은 즉시 반환되므로(백그라운드 갱신) 버튼 복원 불필요
+          // openApp 성공 후엔 loginView가 hidden 상태 → 버튼 복원 불필요하지만 안전하게 처리
         } catch (error) {
-          // 실패 시 버튼 원복
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText || "루미폰 열기";
-          }
           const msg = String(error && error.message || "");
           appendBootDebug("LOGIN catch: " + msg);
           appendBootDebug("login UI error: " + msg);
           if (msg === "missingApiEndpoint") showMessage("루미폰 API 주소가 아직 설정되지 않았어요. LUMI_API_ENDPOINT를 Apps Script 웹앱 URL로 설정해 주세요.");
           else if (msg === "apiTimeout" || msg === "apiNetworkError") showMessage("루미폰 서버 연결을 확인해 주세요. debug: " + msg);
           else showMessage("루미 ID 또는 PIN을 확인해 주세요.");
+        } finally {
+          // PATCH 51-38-fix1: 성공/실패 모두 버튼 원복 (로그아웃 후 재사용 대비)
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText || "루미폰 열기";
+          }
         }
       });
 
