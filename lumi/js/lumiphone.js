@@ -573,8 +573,8 @@
         }
       ];
 
-      let LUMI_RUNTIME_MAIL_ITEMS = null;
-      let LUMI_RUNTIME_MESSAGE_ITEMS = null;
+      let LUMI_RUNTIME_MAIL_ITEMS = LUMI_API_ENDPOINT ? [] : null;
+      let LUMI_RUNTIME_MESSAGE_ITEMS = LUMI_API_ENDPOINT ? [] : null;
 
       const LUMI_SMS_MESSAGE_TYPES = new Set([
         "paymentconfirmed",
@@ -610,7 +610,11 @@
       }
 
       function getAllMailItems() {
-        return Array.isArray(LUMI_RUNTIME_MAIL_ITEMS) ? LUMI_RUNTIME_MAIL_ITEMS : LUMI_MAIL_ITEMS;
+        // PATCH 51-32-fix3: API 엔드포인트가 있는 실제 운영 상태에서는
+        // API 로드 전 mock 기본 우편을 먼저 보여주지 않는다.
+        if (Array.isArray(LUMI_RUNTIME_MAIL_ITEMS)) return LUMI_RUNTIME_MAIL_ITEMS;
+        if (LUMI_API_ENDPOINT && getCurrentLumiId()) return [];
+        return LUMI_MAIL_ITEMS;
       }
 
       function memberLabelFromKey(key) {
@@ -718,7 +722,11 @@
       function markLumiMessageReadRemote(messageId) {
         const targetId = String(messageId || "").trim();
         const lumiId = getCurrentLumiId();
-        if (!targetId || !lumiId) return;
+        if (DEBUG_MODE) console.log("[lumi] markRead request:", targetId || "(no messageId)", lumiId || "(no lumiId)");
+        if (!targetId || !lumiId) {
+          if (DEBUG_MODE) console.warn("[lumi] markRead skipped: missing target/lumiId", { messageId: targetId, lumiId: lumiId });
+          return;
+        }
         fetchLumiApi({
           action: "lumiMarkMessageRead",
           lumiId: lumiId,
@@ -814,6 +822,7 @@
       function openMailModal(id) {
         const item = getAllMailItems().find((mail) => mail.id === id);
         const modal = document.getElementById("mailModal");
+        if (DEBUG_MODE) console.log("[lumi] openMailModal:", id, item ? (item.messageId || item.id || "(no id)") : "item not found");
         if (!item || !modal) return;
         mailState.currentId = id;
         const icon = document.getElementById("mailModalIcon");
