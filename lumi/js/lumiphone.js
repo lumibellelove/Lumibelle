@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_48_lumi_tickets_20260509";
+      const APP_VERSION = "patch51_48_fix1_ticket_ui_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -3603,7 +3603,7 @@
         const list = items || [];
         const available = list.filter(function(t) { return t.status === "available"; }).length;
 
-        // ── 홈 요약 카드 (보유 티켓 small 포함된 카드 업데이트)
+        // ── 홈 요약 카드 (기존 DOM 구조 유지, 숫자/문구만 교체)
         try {
           const noIconCards = Array.from(document.querySelectorAll(".home-grid .home-card.no-icon"));
           const ticketSummaryCard = noIconCards.find(function(card) {
@@ -3620,71 +3620,129 @@
           }
         } catch(e) {}
 
-        // ── PC 특전권 섹션 (#ticket-pc-benefit .ticket-pc-wallet-grid)
-        const pcBenefitGrid = document.querySelector("#ticket-pc-benefit .ticket-pc-wallet-grid");
-        if (pcBenefitGrid) {
-          if (list.length === 0) {
-            pcBenefitGrid.innerHTML =
-              '<article class="ticket-pc-wallet-card">' +
-                '<small>보유 티켓 없음</small><b>특전권 없음</b>' +
-                '<span>보유 중인 특전권/이벤트권이 있으면 이곳에 표시돼요.</span>' +
-                '<div class="ticket-pc-card-actions"><span>없음</span></div>' +
-              '</article>';
-          } else {
-            pcBenefitGrid.innerHTML = list.map(function(t) {
-              var typeLabel   = LUMI_TICKET_TYPE_LABELS[t.ticketType] || t.ticketType || "";
-              var statusLabel = LUMI_TICKET_STATUS_LABELS[t.status] || t.status || "";
-              var memberName  = lumiTicketMemberName(t.member);
-              var expireText  = t.expireAt ? "~ " + String(t.expireAt).slice(0,10).replace(/-/g,".") : "제한 없음";
-              var isAvailable = t.status === "available";
-              return '<article class="ticket-pc-wallet-card' + (isAvailable ? "" : " is-locked") + '">' +
-                '<small>' + escapeHtml(typeLabel) + '</small>' +
-                '<b>' + escapeHtml(t.ticketName || "특전권") + '</b>' +
-                '<span>' + escapeHtml(memberName) + ' · 유효기간 ' + escapeHtml(expireText) +
-                  (t.note ? " · " + escapeHtml(t.note) : "") + "</span>" +
-                '<div class="ticket-pc-card-actions">' +
-                  '<span class="' + (isAvailable ? "active" : "") + '">' + escapeHtml(statusLabel) + "</span>" +
-                "</div>" +
-              "</article>";
-            }).join("");
+        // ── PC #ticket-pc-benefit: data-perk 속성으로 카드 찾아서 상태만 업데이트
+        // 전체 innerHTML 교체 금지 — 기존 4카드(welcome/join/meate/birthday) 구조 유지
+        try {
+          var pcGrid = document.querySelector("#ticket-pc-benefit .ticket-pc-wallet-grid");
+          if (pcGrid) {
+            // ticketType → data-perk 매핑
+            var perkMap = { welcome:"welcome", join:"join", meate:"meate", birthday:"birthday", event:"welcome", general:"welcome" };
+            list.forEach(function(t) {
+              var perk = perkMap[t.ticketType] || t.ticketType;
+              var card = pcGrid.querySelector('[data-perk="' + perk + '"]');
+              if (!card) return;
+              var cardEl = card.closest(".ticket-pc-wallet-card");
+              if (!cardEl) return;
+              var statusEl = cardEl.querySelector(".ticket-pc-card-actions span");
+              var smallEl  = cardEl.querySelector("small");
+              var spanEl   = cardEl.querySelector("b + span, small + b + span, span:not(.ticket-pc-card-actions span)");
+              // is-locked 해제 (available)
+              if (t.status === "available") {
+                cardEl.classList.remove("is-locked");
+                if (statusEl) { statusEl.textContent = "사용 가능"; statusEl.className = "active"; }
+              } else if (t.status === "used") {
+                cardEl.classList.remove("is-locked");
+                if (statusEl) { statusEl.textContent = "사용 완료"; statusEl.className = ""; }
+              } else if (t.status === "pending") {
+                cardEl.classList.remove("is-locked");
+                if (statusEl) { statusEl.textContent = "확인 중"; statusEl.className = ""; }
+              }
+              // small 레이블 갱신
+              if (smallEl && t.source) {
+                var typeLabel = LUMI_TICKET_TYPE_LABELS[t.ticketType] || "";
+                if (typeLabel) smallEl.textContent = typeLabel;
+              }
+              // span 설명 갱신 (note 있으면)
+              if (t.note) {
+                var descEl = cardEl.querySelector("span:not(.ticket-pc-card-actions span):not([class])");
+                if (descEl) descEl.textContent = lumiTicketMemberName(t.member) + " · " + t.note;
+              }
+            });
           }
-        }
+        } catch(e) {}
 
-        // ── 모바일 특전권 섹션 (#ticket-benefit .ticket-paged-list)
-        const benefitPagedList = document.querySelector("#ticket-benefit .ticket-paged-list");
-        if (benefitPagedList) {
-          if (list.length === 0) {
-            benefitPagedList.innerHTML =
-              '<div class="ticket-page-item" data-ticket-category="전체">' +
-                '<article class="ticket-card soft"><div class="ticket-inner">' +
-                  '<div class="ticket-kicker">SPECIAL TICKET</div>' +
-                  '<div class="ticket-title">보유 티켓 없음</div>' +
-                  '<div class="ticket-sub">보유 중인 특전권/이벤트권이 있으면 이곳에 표시돼요.</div>' +
-                '</div></article></div>';
-          } else {
-            var categoryMap = { welcome:"이벤트", join:"이벤트", birthday:"생일", meate:"메아테", event:"이벤트", general:"이벤트" };
-            benefitPagedList.innerHTML = list.map(function(t) {
-              var typeLabel   = LUMI_TICKET_TYPE_LABELS[t.ticketType] || t.ticketType || "";
-              var category    = categoryMap[t.ticketType] || "이벤트";
+        // ── 모바일 #ticket-benefit: 기존 ticket-page-item들의 카드 상태만 업데이트
+        // ticket-paged-list 전체 innerHTML 교체 금지
+        // Welcome Ticket(이벤트), Birthday Ticket(생일) 카드는 이미 HTML에 있음
+        // → API 데이터로 상태 셀만 갱신
+        try {
+          var benefitList = document.querySelector("#ticket-benefit .ticket-paged-list");
+          if (!benefitList) return;
+
+          // ticketType → category 매핑 (data-ticket-category 값 기준)
+          var categoryMap = {
+            welcome:  "이벤트",
+            join:     "이벤트",
+            birthday: "생일",
+            meate:    "메아테",
+            event:    "이벤트",
+            general:  "이벤트"
+          };
+          // ticketType → ticket-title 텍스트로 카드 찾기
+          var titleMap = {
+            welcome:  "Welcome Ticket",
+            join:     "Join Ticket",
+            birthday: "Birthday Ticket",
+            meate:    "메아테 특전권"
+          };
+
+          list.forEach(function(t) {
+            var expectedTitle = titleMap[t.ticketType];
+            if (!expectedTitle) return; // 매핑 없는 타입은 skip
+
+            // 해당 제목의 카드 찾기
+            var allItems = Array.from(benefitList.querySelectorAll(".ticket-page-item"));
+            var targetItem = allItems.find(function(item) {
+              var titleEl = item.querySelector(".ticket-title");
+              return titleEl && titleEl.textContent.trim() === expectedTitle;
+            });
+
+            if (!targetItem) {
+              // 카드가 없으면 — API 전용 신규 카드 추가 (기존 카드 구조로)
               var memberName  = lumiTicketMemberName(t.member);
               var statusLabel = LUMI_TICKET_STATUS_LABELS[t.status] || t.status || "";
               var expireText  = t.expireAt ? String(t.expireAt).slice(0,10).replace(/-/g,".") + "까지" : "제한 없음";
               var issuedText  = t.issuedAt ? String(t.issuedAt).slice(0,10).replace(/-/g,".") + " 지급" : "";
-              return '<div class="ticket-page-item" data-ticket-category="' + escapeHtml(category) + '">' +
+              var cat = categoryMap[t.ticketType] || "이벤트";
+              var newItem = document.createElement("div");
+              newItem.className = "ticket-page-item";
+              newItem.dataset.ticketCategory = cat;
+              newItem.innerHTML =
                 '<article class="ticket-card soft"><div class="ticket-inner">' +
                   '<div class="ticket-kicker">SPECIAL TICKET</div>' +
-                  '<div class="ticket-title">' + escapeHtml(t.ticketName || "특전권") + "</div>" +
-                  '<div class="ticket-sub">' + escapeHtml(typeLabel) + (t.note ? " · " + escapeHtml(t.note) : "") + "</div>" +
+                  '<div class="ticket-title">' + escapeHtml(t.ticketName || expectedTitle) + '</div>' +
+                  '<div class="ticket-sub">' + escapeHtml(t.note || "") + '</div>' +
                   '<div class="ticket-meta">' +
-                    '<div class="ticket-cell"><small>사용 가능 멤버</small><b>' + escapeHtml(memberName) + "</b></div>" +
-                    '<div class="ticket-cell"><small>상태</small><b>' + escapeHtml(statusLabel) + "</b></div>" +
-                    '<div class="ticket-cell"><small>유효기간</small><b>' + escapeHtml(expireText) + "</b></div>" +
-                    (issuedText ? '<div class="ticket-cell"><small>지급일</small><b>' + escapeHtml(issuedText) + "</b></div>" : "") +
-                  "</div>" +
-                "</div></article></div>";
-            }).join("");
-          }
-        }
+                    '<div class="ticket-cell"><small>사용 가능 멤버</small><b>' + escapeHtml(memberName) + '</b></div>' +
+                    '<div class="ticket-cell"><small>상태</small><b>' + escapeHtml(statusLabel) + '</b></div>' +
+                    '<div class="ticket-cell"><small>유효기간</small><b>' + escapeHtml(expireText) + '</b></div>' +
+                    (issuedText ? '<div class="ticket-cell"><small>지급일</small><b>' + escapeHtml(issuedText) + '</b></div>' : '') +
+                  '</div>' +
+                '</div></article>';
+              benefitList.insertBefore(newItem, benefitList.firstChild);
+              return;
+            }
+
+            // 기존 카드 찾음 → 상태 셀만 업데이트
+            var statusCells = Array.from(targetItem.querySelectorAll(".ticket-cell"));
+            statusCells.forEach(function(cell) {
+              var smallEl = cell.querySelector("small");
+              if (!smallEl) return;
+              if (smallEl.textContent === "상태") {
+                var bEl = cell.querySelector("b");
+                if (bEl) bEl.textContent = LUMI_TICKET_STATUS_LABELS[t.status] || t.status || "";
+              }
+              if (smallEl.textContent === "사용 가능 멤버") {
+                var bEl = cell.querySelector("b");
+                if (bEl) bEl.textContent = lumiTicketMemberName(t.member);
+              }
+              if (smallEl.textContent === "유효기간" && t.expireAt) {
+                var bEl = cell.querySelector("b");
+                if (bEl) bEl.textContent = String(t.expireAt).slice(0,10).replace(/-/g,".") + "까지";
+              }
+            });
+          });
+        } catch(e) {}
       }
 
       async function loadMyLumiTickets(lumiId) {
