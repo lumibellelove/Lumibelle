@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_35_visits_20260508";
+      const APP_VERSION = "patch51_35_fix1_visits_timeline_20260509";
       // PATCH 51-32-fix5: const로 고정하면 window.LUMI_API_ENDPOINT가 나중에 세팅될 때
       // IIFE 내부 변수는 이미 ""로 굳어버림. 함수로 바꿔서 호출 시점에 항상 최신값 읽기.
       function LUMI_API_ENDPOINT() { return String(window.LUMI_API_ENDPOINT || "").trim(); }
@@ -3968,6 +3968,14 @@
         const endpoint = window.LUMI_API_ENDPOINT || "";
         if (!lumiId || !endpoint) { renderRecordPage(); return; }
 
+        // 로딩 중 표시
+        if (recordCardList) {
+          recordCardList.innerHTML =
+            '<article class="record-memory-card" data-record-category="전체">' +
+            '<span class="record-memory-icon">🕰️</span><time></time>' +
+            '<b>기록을 불러오는 중…</b><span>잠시만 기다려 주세요.</span><em></em>' +
+            '</article>';
+        }
         if (recordMsg) recordMsg.textContent = "기록을 불러오는 중…";
 
         const url = endpoint + (endpoint.indexOf("?") === -1 ? "?" : "&") +
@@ -3978,6 +3986,24 @@
           .then(function(data) {
             if (data && data.ok && Array.isArray(data.visits)) {
               runtimeVisits = data.visits;
+              // PATCH 51-35-fix1: 방문 기록이 있으면 가장 최신 기록의 월로 자동 이동
+              if (runtimeVisits.length > 0) {
+                const latestDateStr = runtimeVisits
+                  .map(function(v) { return (v.eventDate || v.visitedAt || "").slice(0, 7); })
+                  .filter(Boolean)
+                  .sort()
+                  .reverse()[0]; // "2026-07" 형식
+                if (latestDateStr) {
+                  const parts = latestDateStr.split("-");
+                  const y = parseInt(parts[0], 10);
+                  const m = parseInt(parts[1], 10);
+                  if (!isNaN(y) && !isNaN(m)) {
+                    currentYear  = y;
+                    currentMonth = m;
+                    currentPage  = 1;
+                  }
+                }
+              }
             }
             renderRecordPage();
           })
