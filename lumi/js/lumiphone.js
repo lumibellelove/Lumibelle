@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_33_message_loading_mock_block_20260508";
+      const APP_VERSION = "patch51_34_mock_dom_cleanup_20260508";
       // PATCH 51-32-fix5: const로 고정하면 window.LUMI_API_ENDPOINT가 나중에 세팅될 때
       // IIFE 내부 변수는 이미 ""로 굳어버림. 함수로 바꿔서 호출 시점에 항상 최신값 읽기.
       function LUMI_API_ENDPOINT() { return String(window.LUMI_API_ENDPOINT || "").trim(); }
@@ -366,6 +366,21 @@
         appView.classList.add("active");
         go("home");
         updateClock();
+
+        // PATCH 51-34: 로그인 직후 mock 우편/문자 잔상 제거
+        LUMI_MESSAGES_LOAD_DONE = false;
+        LUMI_RUNTIME_MAIL_ITEMS = [];
+        LUMI_RUNTIME_MESSAGE_ITEMS = [];
+        window.__lumiRuntimeMailItems = [];
+        window.__lumiRuntimeMessageItems = [];
+        window.__lumiMessagesLoadDone = false;
+
+        // 기존 mock DOM을 즉시 비우고 로딩/빈 상태로 교체한다.
+        renderMailAll();
+        if (typeof window.showLumiMessageInbox === "function") {
+          window.showLumiMessageInbox();
+        }
+
         if (currentUser && getCurrentLumiId()) {
           await loadMyReservations(getCurrentLumiId());
           // PATCH 51-32-fix6: window.LUMI_API_ENDPOINT가 lumiphone.js 이후에 세팅되는 경우
@@ -628,14 +643,13 @@
       }
 
       function getAllMailItems() {
-        // PATCH 51-33: 로드 완료 후에는 항상 runtime 배열만 사용
+        // PATCH 51-32-fix5:
+        // - API 로드 완료(LUMI_MESSAGES_LOAD_DONE)됐으면 runtime 배열만 사용 (빈 배열 포함)
+        // - 로드 전이면 mock 보여줌 (깜빡임 허용, 빈 화면보다 나음)
         if (LUMI_MESSAGES_LOAD_DONE) {
           return Array.isArray(LUMI_RUNTIME_MAIL_ITEMS) ? LUMI_RUNTIME_MAIL_ITEMS : [];
         }
-        // 로드 중이지만 로그인 상태(API 모드)면 mock 억제 → 로딩 상태로 표시
-        if (LUMI_API_ENDPOINT() && getCurrentLumiId()) return [];
-        // 비로그인/오프라인이면 mock 표시
-        return LUMI_MAIL_ITEMS;
+        return Array.isArray(LUMI_RUNTIME_MAIL_ITEMS) ? LUMI_RUNTIME_MAIL_ITEMS : LUMI_MAIL_ITEMS;
       }
 
       function memberLabelFromKey(key) {
@@ -842,16 +856,9 @@
         const empty = document.getElementById(box === "saved" ? "mailSavedEmpty" : "mailInboxEmpty");
         if (!list || !pager || !text || !prev || !next || !empty) return;
 
-        // PATCH 51-33: 로그인 상태에서 API 로드 미완료면 로딩 문구 표시
-        if (!LUMI_MESSAGES_LOAD_DONE && LUMI_API_ENDPOINT() && getCurrentLumiId()) {
-          list.innerHTML = '<p style="text-align:center;color:var(--sub,#c9a0bc);padding:24px 0;font-size:14px;">우편을 불러오는 중…</p>';
-          empty.classList.add("hidden");
-          pager.classList.add("hidden");
-          return;
-        }
-
         const state = mailState[box];
         const items = getMailItems(box);
+        const isLoadingMessages = box === "inbox" && LUMI_MESSAGES_LOAD_DONE === false && Array.isArray(LUMI_RUNTIME_MAIL_ITEMS) && LUMI_RUNTIME_MAIL_ITEMS.length === 0;
         const mailPageSize = window.matchMedia && window.matchMedia("(min-width: 760px)").matches ? 4 : MAIL_PAGE_SIZE;
         const totalPages = Math.max(1, Math.ceil(items.length / mailPageSize));
         state.page = Math.min(Math.max(0, state.page), totalPages - 1);
@@ -867,6 +874,9 @@
             '<span class="mail-status-chip' + statusClass + '">' + status + '</span>' +
           '</button>';
         }).join("");
+        if (!items.length) {
+          empty.textContent = isLoadingMessages ? "우편을 불러오는 중…" : "조건에 맞는 우편이 없어요.";
+        }
         empty.classList.toggle("hidden", items.length > 0);
         pager.classList.toggle("hidden", items.length <= mailPageSize);
         text.textContent = (state.page + 1) + " / " + totalPages;
@@ -893,7 +903,11 @@
         const item = getAllMailItems().find((mail) => String(mail.id) === targetOpenId || String(mail.messageId) === targetOpenId);
         const modal = document.getElementById("mailModal");
         console.log("[lumi] openMailModal:", targetOpenId, item ? (item.messageId || item.id || "(no id)") : "item not found");
-        if (!item || !modal) return;
+        if (!item || !modal) {
+          // PATCH 51-34: stale mock 버튼 클릭 시 남은 DOM을 즉시 다시 그린다.
+          renderMailAll();
+          return;
+        }
         mailState.currentId = id;
         const icon = document.getElementById("mailModalIcon");
         const meta = document.getElementById("mailModalMeta");
@@ -3165,11 +3179,11 @@
             console.log("[lumi] loadMyMessages split: mail=", mailItems.length, "| sms=", smsItems.length);
             console.log("[lumi] loadMyMessages mail items:", mailItems);
             LUMI_MESSAGES_LOAD_DONE = true;
+            window.__lumiMessagesLoadDone = true;
             LUMI_RUNTIME_MAIL_ITEMS = mailItems;
             LUMI_RUNTIME_MESSAGE_ITEMS = smsItems;
             window.__lumiRuntimeMessageItems = LUMI_RUNTIME_MESSAGE_ITEMS;
             window.__lumiRuntimeMailItems = LUMI_RUNTIME_MAIL_ITEMS;
-            window.__lumiMessagesLoadDone = true; // PATCH 51-33: 문자함 IIFE 로딩 완료 신호
             console.log("[lumiMsg] bridge set:", window.__lumiRuntimeMessageItems.length, "sms /", window.__lumiRuntimeMailItems.length, "mail");
             mailState.inbox.page = 0;
             mailState.saved.page = 0;
@@ -3178,10 +3192,10 @@
             appendBootDebug("messages UI split applied: mail=" + LUMI_RUNTIME_MAIL_ITEMS.length + " sms=" + LUMI_RUNTIME_MESSAGE_ITEMS.length);
           } else {
             LUMI_MESSAGES_LOAD_DONE = true;
+            window.__lumiMessagesLoadDone = true;
             LUMI_RUNTIME_MAIL_ITEMS = [];
             window.__lumiRuntimeMailItems = [];
             window.__lumiRuntimeMessageItems = window.__lumiRuntimeMessageItems || [];
-            window.__lumiMessagesLoadDone = true;
             appendBootDebug("messages empty: no API mail items");
             renderMailAll();
           }
@@ -3197,10 +3211,10 @@
             return;
           }
           LUMI_MESSAGES_LOAD_DONE = true;
+          window.__lumiMessagesLoadDone = true;
           LUMI_RUNTIME_MAIL_ITEMS = [];
           window.__lumiRuntimeMailItems = [];
           window.__lumiRuntimeMessageItems = window.__lumiRuntimeMessageItems || [];
-          window.__lumiMessagesLoadDone = true;
           appendBootDebug("message UI fallback: " + errMsg);
           renderMailAll();
         }
@@ -4511,16 +4525,14 @@
   function setObj(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
   function fanText(value){ return String(value == null ? "" : value); }
   function getAllLumiMessageItems(){
-    // PATCH 51-29-3: LUMI_RUNTIME_MESSAGE_ITEMS는 로그인 IIFE의 클로저 변수라
-    // 이 문자함 IIFE에서 직접 참조하면 항상 undefined → MESSAGES(mock) 폴백됨.
-    // window.__lumiRuntimeMessageItems 브릿지를 경유해 읽는다.
+    // PATCH 51-34: 로그인 직후 runtime이 []인 로딩 상태에서는 mock 문자로 폴백하지 않는다.
     const runtimeItems = window.__lumiRuntimeMessageItems;
-    console.log("[lumiMsg] getAllLumiMessageItems runtimeItems:", runtimeItems);
-    // PATCH 51-33: 로드 완료 전에도 로그인+API 모드면 mock 억제
-    if (Array.isArray(runtimeItems)) return runtimeItems;
-    if (window.__lumiMessagesLoadDone === false || window.__lumiMessagesLoadDone === undefined) {
-      // 브릿지가 세팅 전이고 window.LUMI_API_ENDPOINT가 있으면 로딩 중
-      if (window.LUMI_API_ENDPOINT) return [];
+    const loadDone = window.__lumiMessagesLoadDone;
+    console.log("[lumiMsg] getAllLumiMessageItems runtimeItems:", runtimeItems, "loadDone:", loadDone);
+    if (loadDone === false) return [];
+    if (Array.isArray(runtimeItems)) {
+      if (runtimeItems.length > 0) return runtimeItems;
+      if (loadDone === true) return [];
     }
     return MESSAGES;
   }
@@ -4659,14 +4671,8 @@
     list.style.display = "grid";
     list.style.gap = "10px";
     list.style.minHeight = "1px";
-
-    // PATCH 51-33: 로딩 중 상태 표시
-    if (!window.__lumiMessagesLoadDone && window.LUMI_API_ENDPOINT) {
-      list.innerHTML = '<p style="text-align:center;color:var(--sub,#c9a0bc);padding:24px 0;font-size:14px;">문자를 불러오는 중…</p>';
-      if (empty) empty.classList.add("hidden");
-      if (pager) pager.classList.add("hidden");
-      return;
-    }
+    // PATCH 51-34: 문자함 stale mock DOM을 먼저 비운 뒤 새 목록을 계산한다.
+    list.innerHTML = "";
     const items = filtered();
     const pp = perPage();
     const total = Math.max(1, Math.ceil(items.length / pp));
@@ -4698,6 +4704,9 @@
     if (prev) prev.disabled = page <= 1;
     if (next) next.disabled = page >= total;
     if (pager) pager.classList.toggle("hidden", items.length <= pp && page === 1);
+    if (empty && !items.length) {
+      empty.textContent = window.__lumiMessagesLoadDone === false ? "문자를 불러오는 중…" : "조건에 맞는 문자가 없어요.";
+    }
     if (empty) empty.classList.toggle("hidden", items.length > 0);
     updateBadges();
   }
