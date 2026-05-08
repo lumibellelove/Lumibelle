@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_52_fix2_achievement_pc_renderer_sync_20260509";
+      const APP_VERSION = "patch51_53_onair_logs_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -485,6 +485,13 @@
           appendBootDebug("achievements cache: " + (((cachedAchievements.achievements || []).length) || 0) + " items");
         }
 
+        // PATCH 51-53: ON AIR 기록 캐시 즉시 복원
+        const cachedOnAirLogs = cacheRead_(lid, "onAirLogs", 24 * 60 * 60 * 1000);
+        if (cachedOnAirLogs) {
+          renderOnAirLogs(cachedOnAirLogs);
+          appendBootDebug("onAir cache: " + (((cachedOnAirLogs.logs || []).length) || 0) + " items");
+        }
+
         // PATCH 51-37: API는 백그라운드 병렬 실행 (await 없음 → 화면 진입 차단 안 함)
         function runBackgroundRefresh(lid) {
           function doRefresh() {
@@ -510,6 +517,9 @@
             }),
             loadMyAchievements(lid).catch(function(e) { // PATCH 51-52
               appendBootDebug("bg achievements error: " + String(e && e.message || e));
+            }),
+            loadMyOnAirLogs(lid).catch(function(e) { // PATCH 51-53
+              appendBootDebug("bg onair error: " + String(e && e.message || e));
             })
           ]);
           }
@@ -4050,6 +4060,15 @@
         var cycleStamps  = parseInt(data.cycleStamps  || 0, 10);   // 현재 회차 스탬프 수
         var maxPerCycle  = 20;
 
+        // PATCH 51-52-fix3: PC stamp restore renderer가 늦게 실행되며 STAMP_COUNT=0으로
+        // 스탬프 그리드를 다시 그리는 문제 방지. checkins 기준 값을 window에 공유한다.
+        try {
+          window.__lumiStampTotalStamps = totalStamps;
+          window.__lumiStampCheckinCount = checkinCount;
+          window.__lumiStampCycle = cycle;
+          window.__lumiStampCycleStamps = cycleStamps;
+        } catch(e) {}
+
         // ── 기록탭 stat 카드 (record-stat-card) — 기존 DOM 유지, 숫자만 교체
         try {
           var statCards = Array.from(document.querySelectorAll(".record-stat-card"));
@@ -4276,6 +4295,133 @@
           appendBootDebug("points loaded: merch=" + (payload.totals.merch || 0) + " xp=" + (payload.totals.xp || 0) + " site=" + (payload.totals.site || 0));
         } catch (error) {
           appendBootDebug("points error: " + String(error && error.message ? error.message : error));
+        }
+      }
+      // ──────────────────────────────────────────────────────────
+      // PATCH 51-53: ON AIR / 루미코드 / 반짝응원 기록 조회 1차
+      // 기존 ON AIR 탭 구조를 갈아엎지 않고 숫자/최근 기록만 주입한다.
+      function normalizeOnAirPayload(data) {
+        var payload = data || {};
+        var logs = Array.isArray(payload.logs) ? payload.logs : (Array.isArray(payload) ? payload : []);
+        var summary = payload.summary || {};
+        if (!summary || typeof summary !== "object") summary = {};
+        var lumiCode = Number(summary.lumiCode || 0) || 0;
+        var sparkle = Number(summary.sparkle || 0) || 0;
+        var total = Number(summary.total || 0) || 0;
+        if (!total && logs.length) {
+          logs.forEach(function(item) {
+            if (String(item.status || "active") !== "active") return;
+            total += 1;
+            if (String(item.logType || "") === "lumiCode") lumiCode += 1;
+            if (String(item.logType || "") === "sparkle") sparkle += Math.max(1, Number(item.amount || 1) || 1);
+          });
+        }
+        return { logs: logs, summary: { lumiCode: lumiCode, sparkle: sparkle, total: total } };
+      }
+
+      function onAirDateText(value) {
+        var raw = String(value || "").trim();
+        if (!raw) return "기록";
+        return raw.slice(0, 10).replace(/-/g, ".");
+      }
+
+      function onAirTypeLabel(type) {
+        var key = String(type || "").trim();
+        if (key === "lumiCode") return "루미코드";
+        if (key === "sparkle") return "반짝응원";
+        if (key === "chat") return "채팅";
+        if (key === "mission") return "미션";
+        if (key === "event") return "이벤트";
+        return "ON AIR";
+      }
+
+      function onAirIcon(type) {
+        var key = String(type || "").trim();
+        if (key === "lumiCode") return "📡";
+        if (key === "sparkle") return "✨";
+        if (key === "chat") return "💬";
+        if (key === "mission") return "🎯";
+        return "✦";
+      }
+
+      function ensureOnAirLogHost(root) {
+        if (!root) return null;
+        var host = root.querySelector("[data-lumi-onair-log-host]");
+        if (host) return host;
+        var rewardPanel = root.querySelector('[data-onair-panel="reward"]');
+        var cheerPanel = root.querySelector('[data-onair-panel="cheer"]');
+        var target = rewardPanel || cheerPanel || root;
+        host = document.createElement("div");
+        host.className = "onair-note-card";
+        host.setAttribute("data-lumi-onair-log-host", "1");
+        host.innerHTML = '<b>최근 ON AIR 기록</b><span data-lumi-onair-log-summary>연결된 온라인 기록이 이곳에 표시돼요.</span><div data-lumi-onair-log-list></div>';
+        target.appendChild(host);
+        return host;
+      }
+
+      function renderOnAirLogs(data) {
+        var payload = normalizeOnAirPayload(data);
+        var logs = payload.logs.filter(function(item) { return String(item.status || "active") === "active"; });
+        var summary = payload.summary;
+        var root = document.getElementById("page-onair");
+        if (!root) return;
+
+        // 기존 반짝응원 상태 카드 숫자/문구만 업데이트
+        try {
+          var statusCard = root.querySelector("[data-onair-cheer-status]");
+          if (statusCard) {
+            var countEl = statusCard.querySelector("[data-onair-cheer-count]");
+            var detailEl = statusCard.querySelector("[data-onair-cheer-detail]");
+            if (countEl) countEl.textContent = "루미코드 " + summary.lumiCode + "회 · 반짝응원 " + summary.sparkle + "회";
+            if (detailEl) detailEl.textContent = logs.length ? "최근 ON AIR 기록 " + logs.length + "개가 연결됐어요." : "아직 연결된 ON AIR 기록이 없어요.";
+          }
+        } catch (error) {}
+
+        // 기존 ON AIR 탭에 작은 최근 기록 박스만 추가/갱신. 전체 재렌더 금지.
+        try {
+          var host = ensureOnAirLogHost(root);
+          if (!host) return;
+          var summaryEl = host.querySelector("[data-lumi-onair-log-summary]");
+          var list = host.querySelector("[data-lumi-onair-log-list]");
+          if (summaryEl) summaryEl.textContent = "루미코드 " + summary.lumiCode + "회 · 반짝응원 " + summary.sparkle + "회";
+          if (list) {
+            Array.from(list.querySelectorAll('[data-lumi-api-onair="1"]')).forEach(function(node) { node.remove(); });
+            logs.slice(0, 5).reverse().forEach(function(item) {
+              var row = document.createElement("article");
+              row.className = "record-memory-card";
+              row.setAttribute("data-lumi-api-onair", "1");
+              var label = onAirTypeLabel(item.logType);
+              var date = onAirDateText(item.createdAt);
+              var title = item.message || label;
+              var sub = (item.broadcastTitle || "ON AIR") + (item.code ? " · " + item.code : " · " + label);
+              row.innerHTML =
+                '<span class="record-memory-icon">' + onAirIcon(item.logType) + '</span>' +
+                '<time>' + escapeHtml(date) + '</time>' +
+                '<b>' + escapeHtml(title) + '</b>' +
+                '<span>' + escapeHtml(sub) + '</span>' +
+                '<em>' + escapeHtml(label) + '</em>';
+              list.insertBefore(row, list.firstChild);
+            });
+          }
+        } catch (error) {}
+      }
+
+      async function loadMyOnAirLogs(lumiId) {
+        try {
+          const response = await fetchLumiApi({ action: "lumiGetMyOnAirLogs", lumiId: lumiId });
+          if (!response || response.ok !== true) {
+            appendBootDebug("onair load failed: " + String((response && (response.error || response.message)) || "failed"));
+            return;
+          }
+          const payload = {
+            logs: Array.isArray(response.logs) ? response.logs : [],
+            summary: response.summary || { lumiCode: 0, sparkle: 0, total: 0 }
+          };
+          cacheWrite_(lumiId, "onAirLogs", payload);
+          renderOnAirLogs(payload);
+          appendBootDebug("onair loaded: code=" + (payload.summary.lumiCode || 0) + " sparkle=" + (payload.summary.sparkle || 0));
+        } catch (error) {
+          appendBootDebug("onair error: " + String(error && error.message ? error.message : error));
         }
       }
       // ──────────────────────────────────────────────────────────
@@ -6636,7 +6782,14 @@
 (function(){
   'use strict';
 
+  // PATCH 51-52-fix3: checkins 연동값을 우선 사용.
+  // 이 PC 복구 렌더러가 늦게 실행되며 0개로 덮어쓰지 않도록 매 렌더마다 최신값을 읽는다.
   var STAMP_COUNT = 0;
+  function getLiveStampCount(){
+    var n = Number(window.__lumiStampCycleStamps);
+    if (Number.isFinite(n) && n >= 0) return n;
+    return STAMP_COUNT || 0;
+  }
   var STAMP_REWARD_KEY = 'lumi_v256_stamp_title_rewards';
   var rewards = [
     {key:'stamp5', need:5, label:'5개', title:'특별 우편 도착', desc:'다음 보상까지 5개 남았어요.'},
@@ -6660,16 +6813,18 @@
   function renderStampGrid(){
     var grid = $('stampGridPc');
     if(!grid) return;
+    var liveCount = getLiveStampCount();
     var html = '';
     for(var i=1;i<=20;i++){
-      html += '<div class="stamp ' + (i > STAMP_COUNT ? 'empty' : '') + '">' + (i <= STAMP_COUNT ? '🌸' : '✧') + '</div>';
+      html += '<div class="stamp ' + (i > liveCount ? 'empty' : '') + '">' + (i <= liveCount ? '🌸' : '✧') + '</div>';
     }
     grid.innerHTML = html;
   }
 
   function rewardState(r, claimed){
+    var liveCount = getLiveStampCount();
     if(claimed.indexOf(r.key) !== -1) return 'done';
-    if(STAMP_COUNT >= r.need) return 'ready';
+    if(liveCount >= r.need) return 'ready';
     return 'lock';
   }
   function rewardLabel(state){
@@ -6689,7 +6844,8 @@
     var claimed = readRewards();
     list.innerHTML = rewards.map(function(r){
       var state = rewardState(r, claimed);
-      var pct = Math.max(0, Math.min(100, Math.round((STAMP_COUNT / r.need) * 100)));
+      var liveCount = getLiveStampCount();
+      var pct = Math.max(0, Math.min(100, Math.round((liveCount / r.need) * 100)));
       return '<div class="reward" data-stamp-reward="' + r.key + '">'
         + '<b>' + r.label + '<span class="stamp-reward-state ' + state + '">' + rewardLabel(state) + '</span></b>'
         + '<span>' + r.title + '</span>'
