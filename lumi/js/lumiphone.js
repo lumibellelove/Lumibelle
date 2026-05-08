@@ -575,6 +575,7 @@
 
       let LUMI_RUNTIME_MAIL_ITEMS = LUMI_API_ENDPOINT ? [] : null;
       let LUMI_RUNTIME_MESSAGE_ITEMS = LUMI_API_ENDPOINT ? [] : null;
+      let LUMI_MESSAGES_LOAD_DONE = !LUMI_API_ENDPOINT;
 
       const LUMI_SMS_MESSAGE_TYPES = new Set([
         "paymentconfirmed",
@@ -722,9 +723,9 @@
       function markLumiMessageReadRemote(messageId) {
         const targetId = String(messageId || "").trim();
         const lumiId = getCurrentLumiId();
-        if (DEBUG_MODE) console.log("[lumi] markRead request:", targetId || "(no messageId)", lumiId || "(no lumiId)");
+        console.log("[lumi] markRead request:", targetId || "(no messageId)", lumiId || "(no lumiId)");
         if (!targetId || !lumiId) {
-          if (DEBUG_MODE) console.warn("[lumi] markRead skipped: missing target/lumiId", { messageId: targetId, lumiId: lumiId });
+          console.warn("[lumi] markRead skipped: missing target/lumiId", { messageId: targetId, lumiId: lumiId });
           return;
         }
         fetchLumiApi({
@@ -732,12 +733,13 @@
           lumiId: lumiId,
           messageId: targetId
         }).then((response) => {
-          if (DEBUG_MODE) console.log("[lumi] markRead ok:", targetId, "ok=" + Boolean(response && response.ok));
+          console.log("[lumi] markRead ok:", targetId, "ok=" + Boolean(response && response.ok), response);
         }).catch((error) => {
           // API 실패해도 이미 열린 상세/로컬 읽음 상태는 유지한다.
-          if (DEBUG_MODE) console.warn("[lumi] markRead failed:", targetId, error);
+          console.warn("[lumi] markRead failed:", targetId, error);
         });
       }
+      window.__lumiMarkMessageReadRemote = markLumiMessageReadRemote;
 
       function readSavedMailIds() {
         return readMailIds(MAIL_SAVE_KEY);
@@ -820,9 +822,10 @@
       }
 
       function openMailModal(id) {
-        const item = getAllMailItems().find((mail) => mail.id === id);
+        const targetOpenId = String(id || "");
+        const item = getAllMailItems().find((mail) => String(mail.id) === targetOpenId || String(mail.messageId) === targetOpenId);
         const modal = document.getElementById("mailModal");
-        if (DEBUG_MODE) console.log("[lumi] openMailModal:", id, item ? (item.messageId || item.id || "(no id)") : "item not found");
+        console.log("[lumi] openMailModal:", targetOpenId, item ? (item.messageId || item.id || "(no id)") : "item not found");
         if (!item || !modal) return;
         mailState.currentId = id;
         const icon = document.getElementById("mailModalIcon");
@@ -3084,6 +3087,7 @@
               return member !== "iro" && member !== "lunar" && member !== "luna";
             });
             const normalized = publicMessages.map(normalizeLumiMessageItem);
+            LUMI_MESSAGES_LOAD_DONE = true;
             LUMI_RUNTIME_MAIL_ITEMS = normalized.filter((item) => item.channel === "mail");
             LUMI_RUNTIME_MESSAGE_ITEMS = publicMessages
               .filter((item) => getLumiMessageChannel(item) === "message")
@@ -3098,10 +3102,14 @@
             if (typeof window.showLumiMessageInbox === "function") window.showLumiMessageInbox();
             appendBootDebug("messages UI split applied: mail=" + LUMI_RUNTIME_MAIL_ITEMS.length + " sms=" + LUMI_RUNTIME_MESSAGE_ITEMS.length);
           } else {
-            appendBootDebug("messages empty: mock fallback kept");
+            LUMI_MESSAGES_LOAD_DONE = true;
+            if (LUMI_API_ENDPOINT) LUMI_RUNTIME_MAIL_ITEMS = [];
+            appendBootDebug("messages empty: no API mail items");
             renderMailAll();
           }
         } catch (error) {
+          LUMI_MESSAGES_LOAD_DONE = true;
+          if (LUMI_API_ENDPOINT) LUMI_RUNTIME_MAIL_ITEMS = [];
           appendBootDebug("message UI fallback: " + String(error && error.message ? error.message : error));
           renderMailAll();
         }
@@ -4655,20 +4663,25 @@
   function openMessage(id, animate){
     const root = pageEl(); if (!root) return;
     clearTimers();
-    const allMessages = getAllLumiMessageItems();
-    const m = allMessages.find(x => x.id === id) || allMessages[0];
+    const sourceMessages = getAllLumiMessageItems();
+    const allMessages = Array.isArray(sourceMessages) ? sourceMessages.map(m => {
+      if (m && (m.lines || m.box || m.type)) return m;
+      return normalizeRuntimeChatMessage(m);
+    }) : [];
+    const m = allMessages.find(x => String(x.id) === String(id) || String(x.messageId) === String(id)) || allMessages[0];
     if (!m) return;
     currentId = m.id;
     const wasUnread = m.status !== "read";
     markRead(m.id);
     renderList();
-    if (m.messageId && typeof window.__lumiFetchApi === "function" && typeof window.__lumiGetCurrentId === "function") {
+    console.log("[lumiMsg] markRead request:", m.messageId || m.id || "(no messageId)");
+    if ((m.messageId || m.id) && typeof window.__lumiFetchApi === "function" && typeof window.__lumiGetCurrentId === "function") {
       const lumiId = window.__lumiGetCurrentId();
       if (lumiId) {
         window.__lumiFetchApi({
           action: "lumiMarkMessageRead",
           lumiId: lumiId,
-          messageId: m.messageId
+          messageId: m.messageId || m.id
         }).then((response) => {
           console.log("[lumiMsg] markRead ok:", m.messageId, "ok=" + Boolean(response && response.ok));
         }).catch((error) => {
