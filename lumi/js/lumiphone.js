@@ -3847,13 +3847,24 @@
             }
           }
           // PC 스탬프 그리드 (#stampGridPc)
+          // PATCH 51-49-fix2: 최종 안정본의 꽃/별 도장 UI를 보존한다.
+          // 기존 DOM을 숫자 1~20으로 재생성하지 말고, 기존 셀의 상태와 아이콘만 갱신한다.
           var pcGrid = document.getElementById("stampGridPc");
           if (pcGrid) {
-            var html = "";
-            for (var i = 1; i <= maxPerCycle; i++) {
-              html += '<span class="stamp' + (i <= cycleStamps ? "" : " empty") + '">' + i + '</span>';
-            }
-            pcGrid.innerHTML = html;
+            var pcCells = Array.from(pcGrid.children || []);
+            pcCells.forEach(function(cell, idx) {
+              var active = (idx + 1) <= cycleStamps;
+              cell.classList.toggle("empty", !active);
+              cell.classList.toggle("done", active);
+              // 기존 셀이 숫자로 오염된 경우에도 꽃/별 UI로 되돌린다.
+              if (/^\s*\d+\s*$/.test(cell.textContent || "")) {
+                cell.textContent = active ? "🌸" : "✧";
+              } else if (!String(cell.textContent || "").trim()) {
+                cell.textContent = active ? "🌸" : "✧";
+              } else if ((cell.textContent || "").indexOf("🌸") >= 0 || (cell.textContent || "").indexOf("✧") >= 0) {
+                cell.textContent = active ? "🌸" : "✧";
+              }
+            });
           }
         } catch(e) {}
       }
