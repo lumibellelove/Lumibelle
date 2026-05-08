@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_37_bg_refresh_20260509";
+      const APP_VERSION = "patch51_38_login_feedback_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -3297,11 +3297,27 @@
           showMessage("루미 ID와 PIN을 입력해 주세요.");
           return;
         }
+
+        // PATCH 51-38: 중복 submit 방지 + 즉각 시각 피드백
+        const submitBtn = loginForm.querySelector("button[type='submit']");
+        const originalText = submitBtn ? submitBtn.textContent : "";
+        if (submitBtn && submitBtn.disabled) return; // 이미 처리 중이면 무시
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = "여는 중…";
+        }
+
         try {
           const user = await loginLumiPhone(lumiId, pin);
           saveLoginState(user);
           await openApp({ user: user });
+          // openApp은 즉시 반환되므로(백그라운드 갱신) 버튼 복원 불필요
         } catch (error) {
+          // 실패 시 버튼 원복
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText || "루미폰 열기";
+          }
           const msg = String(error && error.message || "");
           appendBootDebug("LOGIN catch: " + msg);
           appendBootDebug("login UI error: " + msg);
