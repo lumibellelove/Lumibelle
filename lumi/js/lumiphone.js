@@ -4354,7 +4354,10 @@
   function setObj(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
   function fanText(value){ return String(value == null ? "" : value); }
   function getAllLumiMessageItems(){
-    return Array.isArray(LUMI_RUNTIME_MESSAGE_ITEMS) ? LUMI_RUNTIME_MESSAGE_ITEMS : MESSAGES;
+    if (Array.isArray(LUMI_RUNTIME_MESSAGE_ITEMS) && LUMI_RUNTIME_MESSAGE_ITEMS.length) {
+      return LUMI_RUNTIME_MESSAGE_ITEMS.map(normalizeRuntimeChatMessage);
+    }
+    return MESSAGES;
   }
   function normalizeRuntimeChatMessage(item){
     const source = item || {};
