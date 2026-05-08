@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_30_member_message_style_20260508";
+      const APP_VERSION = "patch51_32_message_read_sync_20260508";
       const LUMI_API_ENDPOINT = String(window.LUMI_API_ENDPOINT || "").trim();
       const DEBUG_MODE = new URLSearchParams(window.location.search).get("debug") === "1";
       const LUMI_API_TIMEOUT_MS = 12000;
@@ -354,6 +354,11 @@
         const settings = options || {};
         if (settings.user) currentUser = normalizeLumiUser(settings.user);
         if (settings.persist !== false && currentUser) saveLoginState(currentUser);
+
+        // PATCH 51-32: 문자함 IIFE에서 API 읽음 처리를 호출할 수 있도록 최소 브릿지만 노출
+        window.__lumiFetchApi = function(params) { return fetchLumiApi(params); };
+        window.__lumiGetCurrentId = function() { return getCurrentLumiId(); };
+
         clearMessage();
         loginView.classList.remove("active");
         appView.classList.add("active");
@@ -704,6 +709,22 @@
         writeMailIds(MAIL_READ_KEY, ids);
       }
 
+      function markLumiMessageReadRemote(messageId) {
+        const targetId = String(messageId || "").trim();
+        const lumiId = getCurrentLumiId();
+        if (!targetId || !lumiId) return;
+        fetchLumiApi({
+          action: "lumiMarkMessageRead",
+          lumiId: lumiId,
+          messageId: targetId
+        }).then((response) => {
+          if (DEBUG_MODE) console.log("[lumi] markRead ok:", targetId, "ok=" + Boolean(response && response.ok));
+        }).catch((error) => {
+          // API 실패해도 이미 열린 상세/로컬 읽음 상태는 유지한다.
+          if (DEBUG_MODE) console.warn("[lumi] markRead failed:", targetId, error);
+        });
+      }
+
       function readSavedMailIds() {
         return readMailIds(MAIL_SAVE_KEY);
       }
@@ -798,9 +819,11 @@
         if (meta) meta.textContent = item.from + " · " + item.meta;
         if (title) title.textContent = item.title;
         if (body) body.textContent = item.body;
-        if (!isMailRead(id)) {
+        const wasUnread = !isMailRead(id);
+        if (wasUnread) {
           setMailRead(id, true);
           renderMailAll();
+          markLumiMessageReadRemote(item.messageId || "");
         }
         if (save) save.textContent = isMailSaved(id) ? "소장해제" : "소장하기";
         modal.classList.remove("hidden");
@@ -4396,10 +4419,13 @@
     if (type === "birthdaynotice") { tag = source.tag || "생일"; filterType = "birthday"; }
     if (type === "welcometicket" || type === "jointicket") { tag = source.tag || "티켓"; filterType = "staff"; }
     if (senderType === "member") { tag = source.tag || "루미레터"; filterType = "lumiletter"; }
+    const isReadValue = String(source.isRead == null ? "" : source.isRead).toLowerCase();
+    const isRead = source.isRead === true || isReadValue === "true" || isReadValue === "1" || isReadValue === "읽음";
     return {
       id: id,
+      messageId: id,
       box: "inbox",
-      status: source.isRead === true ? "read" : "NEW",
+      status: isRead ? "read" : "NEW",
       date: date,
       from: from,
       tag: tag,
@@ -4614,9 +4640,25 @@
     clearTimers();
     const allMessages = getAllLumiMessageItems();
     const m = allMessages.find(x => x.id === id) || allMessages[0];
+    if (!m) return;
     currentId = m.id;
+    const wasUnread = m.status !== "read";
     markRead(m.id);
     renderList();
+    if (wasUnread && m.messageId && typeof window.__lumiFetchApi === "function" && typeof window.__lumiGetCurrentId === "function") {
+      const lumiId = window.__lumiGetCurrentId();
+      if (lumiId) {
+        window.__lumiFetchApi({
+          action: "lumiMarkMessageRead",
+          lumiId: lumiId,
+          messageId: m.messageId
+        }).then((response) => {
+          console.log("[lumiMsg] markRead ok:", m.messageId, "ok=" + Boolean(response && response.ok));
+        }).catch((error) => {
+          console.warn("[lumiMsg] markRead failed:", m.messageId, error);
+        });
+      }
+    }
     const title = $("#lumiMsgChatTitle", root), date = $("#lumiMsgChatDate", root), tag = $("#lumiMsgChatTag", root), log = $("#lumiMsgChatLog", root), replies = $("#lumiMsgReplies", root), view = $("#lumiMsgView", root);
     if (title) title.textContent = m.from + " · " + m.title;
     if (date) date.textContent = m.date;
