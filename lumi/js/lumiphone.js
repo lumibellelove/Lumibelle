@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_25_event_end_past_ticket_20260508";
+      const APP_VERSION = "patch51_30_member_message_style_20260508";
       const LUMI_API_ENDPOINT = String(window.LUMI_API_ENDPOINT || "").trim();
       const DEBUG_MODE = new URLSearchParams(window.location.search).get("debug") === "1";
       const LUMI_API_TIMEOUT_MS = 12000;
@@ -604,23 +604,35 @@
 
       function memberLabelFromKey(key) {
         const value = String(key || "").trim().toLowerCase();
-        if (value === "mariring") return "마리링";
-        if (value === "lulu") return "루루";
-        if (value === "iro") return "이로";
-        if (value === "lunar" || value === "luna") return "루나";
-        return "루미벨";
+        if (value === "mariring") return "마리링 🎀⭐";
+        if (value === "lulu") return "루루 🍼🐰";
+        // 공개 전 멤버는 팬 화면에서 이름/오시마크를 직접 노출하지 않는다.
+        if (value === "iro" || value === "lunar" || value === "luna") return "새로운 빛";
+        return "LUMIBELLE 운영";
       }
 
+      // Patch 51-30: system/member message label and icon styling
       function messageIconFromType(item) {
-        const type = String(item && item.messageType || "").toLowerCase();
+        const type = normalizeMessageTypeKey(item && (item.messageType || item.type));
         const senderType = String(item && item.senderType || "").toLowerCase();
-        if (senderType === "member") return "💌";
-        if (type === "entrycomplete") return "🎀";
+        const senderMember = String(item && item.senderMember || "").toLowerCase();
+
+        if (senderType === "member") {
+          if (senderMember === "mariring") return "🎀⭐";
+          if (senderMember === "lulu") return "🍼🐰";
+          // 공개 전 멤버는 직접 오시마크 노출 금지
+          if (senderMember === "iro" || senderMember === "lunar" || senderMember === "luna") return "✦";
+          return "💌";
+        }
+
         if (type === "paymentconfirmed") return "🎫";
-        if (type === "beforelive" || type === "prelive") return "📣";
-        if (type === "afterlive") return "✨";
-        if (type === "birthday") return "🎂";
-        return "💌";
+        if (type === "entrycomplete") return "🎀";
+        if (type === "birthdaynotice" || type === "birthday") return "🎂";
+        if (type === "welcometicket" || type === "jointicket") return "🎟️";
+        if (type === "livereminder" || type === "beforelive" || type === "prelive") return "📣";
+
+        // 운영/system 기본 아이콘: 클립/문서 느낌 대신 루미벨 운영용 티아라
+        return "👑";
       }
 
       function normalizeLumiMessageItem(item) {
