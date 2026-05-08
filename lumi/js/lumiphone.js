@@ -368,9 +368,22 @@
         updateClock();
         if (currentUser && getCurrentLumiId()) {
           await loadMyReservations(getCurrentLumiId());
-          // PATCH 51-32-fix5: 선제적 [] 덮어쓰기 제거.
-          // LUMI_MESSAGES_LOAD_DONE=false 상태에서는 getAllMailItems가 mock을 보여주고
-          // loadMyMessages 완료 후 LUMI_MESSAGES_LOAD_DONE=true로 바뀌어 API 데이터로 교체됨.
+          // PATCH 51-32-fix6: window.LUMI_API_ENDPOINT가 lumiphone.js 이후에 세팅되는 경우
+          // 최대 2초(100ms×20) 폴링 후 세팅되면 loadMyMessages 진행.
+          if (!LUMI_API_ENDPOINT()) {
+            appendBootDebug("openApp: LUMI_API_ENDPOINT empty, polling...");
+            await new Promise(function(resolve) {
+              var attempts = 0;
+              var poll = setInterval(function() {
+                attempts++;
+                if (LUMI_API_ENDPOINT() || attempts >= 20) {
+                  clearInterval(poll);
+                  appendBootDebug("openApp: poll done, endpoint=" + (LUMI_API_ENDPOINT() ? "found" : "still empty") + " attempts=" + attempts);
+                  resolve();
+                }
+              }, 100);
+            });
+          }
           await loadMyMessages(getCurrentLumiId());
         }
       }
@@ -3108,14 +3121,26 @@
             appendBootDebug("messages UI split applied: mail=" + LUMI_RUNTIME_MAIL_ITEMS.length + " sms=" + LUMI_RUNTIME_MESSAGE_ITEMS.length);
           } else {
             LUMI_MESSAGES_LOAD_DONE = true;
-            if (LUMI_API_ENDPOINT()) LUMI_RUNTIME_MAIL_ITEMS = [];
+            LUMI_RUNTIME_MAIL_ITEMS = [];
+            window.__lumiRuntimeMailItems = [];
+            window.__lumiRuntimeMessageItems = window.__lumiRuntimeMessageItems || [];
             appendBootDebug("messages empty: no API mail items");
             renderMailAll();
           }
         } catch (error) {
+          const errMsg = String(error && error.message ? error.message : error);
+          // PATCH 51-32-fix6: window.LUMI_API_ENDPOINT가 lumiphone.js 실행 후 세팅되는 경우
+          // missingApiEndpoint 에러 → 500ms 뒤 window 값 있으면 재시도 1회
+          if (errMsg === "missingApiEndpoint" && window.LUMI_API_ENDPOINT) {
+            appendBootDebug("missingApiEndpoint → retry in 500ms (window value found)");
+            setTimeout(function() { loadMyMessages(lumiId); }, 500);
+            return;
+          }
           LUMI_MESSAGES_LOAD_DONE = true;
-          if (LUMI_API_ENDPOINT()) LUMI_RUNTIME_MAIL_ITEMS = [];
-          appendBootDebug("message UI fallback: " + String(error && error.message ? error.message : error));
+          LUMI_RUNTIME_MAIL_ITEMS = [];
+          window.__lumiRuntimeMailItems = [];
+          window.__lumiRuntimeMessageItems = window.__lumiRuntimeMessageItems || [];
+          appendBootDebug("message UI fallback: " + errMsg);
           renderMailAll();
         }
       }
