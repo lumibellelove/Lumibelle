@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_40_last_page_20260509";
+      const APP_VERSION = "patch51_40_fix1_last_page_record_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -467,6 +467,15 @@
         }
 
         runBackgroundRefresh(lid);
+
+        // PATCH 51-40-fix1: 마지막 탭이 기록이면 탭 복원 후 기록 데이터도 다시 로드
+        if (initialPage === "record") {
+          setTimeout(function() {
+            if (typeof window.__lumiLoadVisits === "function") {
+              window.__lumiLoadVisits();
+            }
+          }, 80);
+        }
       }
 
       // PATCH 51-38-fix1: 로그인 버튼 상태 원복 헬퍼 (closeApp/로그아웃 시 반드시 호출)
@@ -4204,6 +4213,9 @@
             renderRecordPage(); // 캐시로 이미 렌더됐으면 조용히 유지
           });
       }
+
+      // PATCH 51-40-fix1: openApp/go 복원 흐름에서도 기록 로더를 호출할 수 있게 전역 브릿지 노출
+      window.__lumiLoadVisits = loadVisits;
 
       // ── 이벤트 등록 ───────────────────────────────────────────
       recordFilterButtons.forEach(function(btn) {
