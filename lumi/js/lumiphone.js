@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_45_init_stable_20260509";
+      const APP_VERSION = "patch51_46_fix1_debug_bridge_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -33,6 +33,8 @@
       // IIFE 내부 변수는 이미 ""로 굳어버림. 함수로 바꿔서 호출 시점에 항상 최신값 읽기.
       function LUMI_API_ENDPOINT() { return String(window.LUMI_API_ENDPOINT || "").trim(); }
       const DEBUG_MODE = new URLSearchParams(window.location.search).get("debug") === "1";
+      // PATCH 51-46: 별도 IIFE에서 접근 가능하도록 window 브릿지로 노출
+      window.__LUMI_DEBUG_MODE = DEBUG_MODE;
       const LUMI_API_TIMEOUT_MS = 12000;
       let currentUser = null;
       let myReservations = [];
@@ -4251,7 +4253,7 @@
             currentMonth = latest.getMonth() + 1;
             currentPage  = 1;
             recordAutoJumpDone = true;
-            if (DEBUG_MODE) console.log("[lumi] jumped to:", currentYear, currentMonth);
+            if (window.__LUMI_DEBUG_MODE) console.log("[lumi] jumped to:", currentYear, currentMonth);
           }
         }
 
@@ -4297,7 +4299,7 @@
 
           apiCall
             .then(function(data) {
-              if (DEBUG_MODE) console.log("[lumi] loadVisits response:", data);
+              if (window.__LUMI_DEBUG_MODE) console.log("[lumi] loadVisits response:", data);
               if (data && data.ok && Array.isArray(data.visits)) {
                 // 최신순 정렬
                 data.visits.sort(function(a, b) {
@@ -4308,19 +4310,18 @@
                   return db.getTime() - da.getTime();
                 });
                 visitsLoadState = "loaded";
-                runtimeVisits = data.visits;
-                // PATCH 51-36: API 성공 시 캐시 갱신 (window 브릿지 사용)
+                runtimeVisits = data.visits; // PATCH 51-46: 빈 배열도 그대로 반영 (이전 캐시 덮어쓰기)
                 _cacheWrite(lumiId, "visits", runtimeVisits);
-                if (DEBUG_MODE) console.log("[lumi] loadVisits count:", runtimeVisits.length);
+                if (window.__LUMI_DEBUG_MODE) console.log("[lumi] loadVisits count:", runtimeVisits.length);
                 jumpToLatest(runtimeVisits);
               } else {
-                if (DEBUG_MODE) console.warn("[lumi] loadVisits: unexpected response:", data);
-                if (runtimeVisits.length === 0) visitsLoadState = "error";
+                if (window.__LUMI_DEBUG_MODE) console.warn("[lumi] loadVisits: unexpected response:", data);
+                visitsLoadState = runtimeVisits.length === 0 ? "error" : "loaded";
               }
               renderRecordPage();
             })
             .catch(function(err) {
-              if (DEBUG_MODE) console.error("[lumi] loadVisits error:", err);
+              if (window.__LUMI_DEBUG_MODE) console.error("[lumi] loadVisits error:", err);
               if (runtimeVisits.length === 0) visitsLoadState = "error";
               renderRecordPage();
             });
@@ -4934,7 +4935,7 @@
   function fanText(value){ return String(value == null ? "" : value); }
   function getAllLumiMessageItems(){
     const runtimeItems = window.__lumiRuntimeMessageItems;
-    if (DEBUG_MODE) console.log("[lumiMsg] getAllLumiMessageItems runtimeItems:", runtimeItems);
+    if (window.__LUMI_DEBUG_MODE) console.log("[lumiMsg] getAllLumiMessageItems runtimeItems:", runtimeItems);
     // 로드 완료 후에는 항상 runtime 배열만 사용 (undefined면 빈 배열, mock 금지)
     if (window.__lumiMessagesLoadDone === true) {
       return Array.isArray(runtimeItems) ? runtimeItems : [];
@@ -5039,12 +5040,12 @@
     const term = (($("#lumiMsgSearch", root)||{}).value || "").trim().toLowerCase();
     const rawItems = getAllLumiMessageItems();
     // PATCH 51-29-3 DEBUG
-    if (DEBUG_MODE) console.log("[lumiMsg] filtered() rawItems (sourceItems):", rawItems);
+    if (window.__LUMI_DEBUG_MODE) console.log("[lumiMsg] filtered() rawItems (sourceItems):", rawItems);
     const items = Array.isArray(rawItems) ? rawItems.map(m => {
       if (m && (m.lines || m.box || m.type)) return m;
       return normalizeRuntimeChatMessage(m);
     }) : [];
-    if (DEBUG_MODE) console.log("[lumiMsg] filtered() normalized items (messageItems):", items);
+    if (window.__LUMI_DEBUG_MODE) console.log("[lumiMsg] filtered() normalized items (messageItems):", items);
 
     const result = items.filter(m => {
       if (box === "saved") {
@@ -5057,7 +5058,7 @@
       }
       return true;
     });
-    if (DEBUG_MODE) console.log("[lumiMsg] filtered() result (filteredMessages):", result);
+    if (window.__LUMI_DEBUG_MODE) console.log("[lumiMsg] filtered() result (filteredMessages):", result);
     return result;
   }
   function updateBadges(){
@@ -5211,7 +5212,7 @@
     const wasUnread = m.status !== "read";
     markRead(m.id);
     renderList();
-    if (DEBUG_MODE) console.log("[lumiMsg] markRead request:", m.messageId || m.id || "(no messageId)");
+    if (window.__LUMI_DEBUG_MODE) console.log("[lumiMsg] markRead request:", m.messageId || m.id || "(no messageId)");
     if ((m.messageId || m.id) && typeof window.__lumiFetchApi === "function" && typeof window.__lumiGetCurrentId === "function") {
       const lumiId = window.__lumiGetCurrentId();
       if (lumiId) {
@@ -5220,9 +5221,9 @@
           lumiId: lumiId,
           messageId: m.messageId || m.id
         }).then((response) => {
-          if (DEBUG_MODE) console.log("[lumiMsg] markRead ok:", m.messageId, "ok=" + Boolean(response && response.ok));
+          if (window.__LUMI_DEBUG_MODE) console.log("[lumiMsg] markRead ok:", m.messageId, "ok=" + Boolean(response && response.ok));
         }).catch((error) => {
-          if (DEBUG_MODE) console.warn("[lumiMsg] markRead failed:", m.messageId, error);
+          if (window.__LUMI_DEBUG_MODE) console.warn("[lumiMsg] markRead failed:", m.messageId, error);
         });
       }
     }
