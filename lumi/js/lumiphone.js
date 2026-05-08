@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_52_achievements_20260509";
+      const APP_VERSION = "patch51_52_fix1_achievement_pc_mobile_sync_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -2782,18 +2782,22 @@
         return statusLabel === "진행 중" ? "진행 중" : "미달성";
       }
 
-      function findAchievementCardForApi(item) {
+      function findAchievementCardsForApi(item) {
         const title = String(item && item.title || "").trim();
         const key = String(item && item.achievementKey || "").trim();
         const aliasByKey = {
           first_visit: "첫 번째 점",
-          stamp_20: "스탬프 카드 완주자"
+          stamp_1: "첫 루미 체크인",
+          stamp_20: "꽃도장 한 판 완성"
         };
-        const targetTitle = title || aliasByKey[key] || "";
+        const candidates = Array.from(new Set([title, aliasByKey[key]].filter(Boolean)));
         const cards = getAchievementCards();
-        return cards.find((card) => card.dataset.achievementTitle === targetTitle) ||
-          (aliasByKey[key] ? cards.find((card) => card.dataset.achievementTitle === aliasByKey[key]) : null) ||
-          null;
+        const matched = cards.filter((card) => candidates.includes(String(card.dataset.achievementTitle || "").trim()));
+        return matched;
+      }
+
+      function findAchievementCardForApi(item) {
+        return findAchievementCardsForApi(item)[0] || null;
       }
 
       function applyAchievementItemToCard(card, item) {
@@ -2865,8 +2869,8 @@
         const achievements = Array.isArray(data.achievements) ? data.achievements : [];
         const titles = Array.isArray(data.titles) ? data.titles : [];
         achievements.forEach((item) => {
-          const card = findAchievementCardForApi(item);
-          if (card) applyAchievementItemToCard(card, item);
+          const cards = findAchievementCardsForApi(item);
+          cards.forEach((card) => applyAchievementItemToCard(card, item));
         });
         updateTitleOptionsFromApi(titles, data.equippedTitle || "");
 
