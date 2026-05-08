@@ -470,6 +470,13 @@
           appendBootDebug("checkins cache: stamps=" + (cachedCheckins.totalStamps || 0));
         }
 
+        // PATCH 51-50: 포인트 3종 캐시 즉시 복원
+        const cachedPoints = cacheRead_(lid, "points", 24 * 60 * 60 * 1000);
+        if (cachedPoints) {
+          renderPoints(cachedPoints);
+          appendBootDebug("points cache: merch=" + (((cachedPoints.totals || {}).merch) || 0) + " xp=" + (((cachedPoints.totals || {}).xp) || 0) + " site=" + (((cachedPoints.totals || {}).site) || 0));
+        }
+
         // PATCH 51-37: API는 백그라운드 병렬 실행 (await 없음 → 화면 진입 차단 안 함)
         function runBackgroundRefresh(lid) {
           function doRefresh() {
@@ -489,6 +496,9 @@
             }),
             loadMyCheckins(lid).catch(function(e) { // PATCH 51-49
               appendBootDebug("bg checkins error: " + String(e && e.message || e));
+            }),
+            loadMyPoints(lid).catch(function(e) { // PATCH 51-50
+              appendBootDebug("bg points error: " + String(e && e.message || e));
             })
           ]);
           }
@@ -3886,6 +3896,133 @@
       }
       // ──────────────────────────────────────────────────────────
 
+
+      // ── PATCH 51-50: 포인트 3종 조회 / 표시 ───────────────────
+      // merch(물판 포인트) / xp(반짝 XP) / site(홈페이지 포인트)는 절대 합산하지 않는다.
+
+      function normalizePointPayload(data) {
+        data = data || {};
+        var totals = data.totals || {};
+        return {
+          totals: {
+            merch: parseInt(totals.merch || 0, 10) || 0,
+            xp: parseInt(totals.xp || 0, 10) || 0,
+            site: parseInt(totals.site || 0, 10) || 0
+          },
+          points: Array.isArray(data.points) ? data.points : []
+        };
+      }
+
+      function pointTypeLabel(type) {
+        var key = String(type || "").trim().toLowerCase();
+        if (key === "merch") return "물판 포인트";
+        if (key === "xp") return "반짝 XP";
+        if (key === "site") return "반짝 포인트";
+        return "포인트";
+      }
+
+      function pointTypeUnit(type) {
+        var key = String(type || "").trim().toLowerCase();
+        if (key === "xp") return "XP";
+        return "p";
+      }
+
+      function pointTypeIcon(type) {
+        var key = String(type || "").trim().toLowerCase();
+        if (key === "merch") return "🎟️";
+        if (key === "xp") return "✨";
+        if (key === "site") return "💎";
+        return "✦";
+      }
+
+      function pointDateText(value) {
+        var raw = String(value || "").trim();
+        if (!raw) return "";
+        return raw.slice(0, 10).replace(/-/g, ".");
+      }
+
+      function renderPoints(data) {
+        var payload = normalizePointPayload(data);
+        var totals = payload.totals;
+        var points = payload.points;
+
+        // 포인트 탭 요약 카드: 기존 카드/DOM 유지, 숫자만 교체
+        try {
+          var cards = Array.from(document.querySelectorAll(".point-ledger-summary-card"));
+          cards.forEach(function(card) {
+            var small = card.querySelector("small");
+            var b = card.querySelector("b");
+            if (!small || !b) return;
+            var label = small.textContent.trim();
+            if (label === "물판 포인트") b.textContent = totals.merch + " p";
+            if (label === "반짝 XP") b.textContent = totals.xp + " XP";
+            if (label === "반짝 포인트" || label === "홈페이지 포인트") b.textContent = totals.site + " p";
+          });
+        } catch(e) {}
+
+        // 프로필 요약 카드도 기존 DOM 유지, 숫자만 교체
+        try {
+          var profileStats = Array.from(document.querySelectorAll(".profile-stat"));
+          profileStats.forEach(function(card) {
+            var small = card.querySelector("small");
+            var b = card.querySelector("b");
+            if (!small || !b) return;
+            var label = small.textContent.trim();
+            if (label === "물판 포인트") b.textContent = totals.merch + "P";
+            if (label === "반짝 XP") b.textContent = totals.xp + "XP";
+            if (label === "반짝 포인트" || label === "홈페이지 포인트") b.textContent = totals.site + "P";
+          });
+        } catch(e) {}
+
+        // 최근 포인트 내역: 기존 타임라인 shell 유지. API 항목만 prepend/교체.
+        try {
+          var timeline = document.getElementById("pointLedgerTimeline");
+          if (timeline) {
+            Array.from(timeline.querySelectorAll('[data-lumi-api-point="1"]')).forEach(function(node) { node.remove(); });
+            points.filter(function(item) { return String(item.status || "active") === "active"; }).slice(0, 6).reverse().forEach(function(item) {
+              var type = String(item.pointType || "").trim().toLowerCase();
+              var amount = parseInt(item.amount || 0, 10) || 0;
+              var label = pointTypeLabel(type);
+              var unit = pointTypeUnit(type);
+              var reason = item.reason || item.note || label;
+              var date = pointDateText(item.createdAt || "");
+              var article = document.createElement("article");
+              article.className = "point-ledger-item";
+              article.setAttribute("data-lumi-api-point", "1");
+              article.setAttribute("data-point-category", label);
+              article.setAttribute("data-point-title", reason);
+              article.setAttribute("data-point-date", date || "");
+              article.setAttribute("data-point-desc", (item.note || reason || "포인트 내역") + " · " + label + " " + (amount >= 0 ? "+" : "") + amount + unit);
+              article.innerHTML =
+                '<span class="point-ledger-icon">' + pointTypeIcon(type) + '</span>' +
+                '<time>' + escapeHtml(date || "기록") + '</time>' +
+                '<b>' + escapeHtml(reason) + '</b>' +
+                '<span>' + escapeHtml(label + ' · ' + (item.sourceType || '기록')) + '</span>' +
+                '<em>' + escapeHtml(label + ' ' + (amount >= 0 ? '+' : '') + amount + unit) + '</em>';
+              timeline.insertBefore(article, timeline.firstChild);
+            });
+            if (typeof window.__lumiRefreshPointLedger === "function") window.__lumiRefreshPointLedger();
+          }
+        } catch(e) {}
+      }
+
+      async function loadMyPoints(lumiId) {
+        try {
+          const response = await fetchLumiApi({ action: "lumiGetMyPoints", lumiId: lumiId });
+          if (!response || response.ok !== true) {
+            appendBootDebug("points load failed: " + String((response && (response.error || response.message)) || "failed"));
+            return;
+          }
+          const payload = { points: Array.isArray(response.points) ? response.points : [], totals: response.totals || { merch: 0, xp: 0, site: 0 } };
+          cacheWrite_(lumiId, "points", payload);
+          renderPoints(payload);
+          appendBootDebug("points loaded: merch=" + (payload.totals.merch || 0) + " xp=" + (payload.totals.xp || 0) + " site=" + (payload.totals.site || 0));
+        } catch (error) {
+          appendBootDebug("points error: " + String(error && error.message ? error.message : error));
+        }
+      }
+      // ──────────────────────────────────────────────────────────
+
       loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         clearMessage();
@@ -4862,7 +4999,7 @@
       "use strict";
       const pointRoot = document.getElementById("page-point");
       if (!pointRoot) return;
-      const pointItems = Array.from(pointRoot.querySelectorAll(".point-ledger-item"));
+      let pointItems = Array.from(pointRoot.querySelectorAll(".point-ledger-item"));
       const pointFilterButtons = Array.from(pointRoot.querySelectorAll(".point-ledger-filter-pill"));
       const pointPrev = document.getElementById("pointLedgerPrev");
       const pointNext = document.getElementById("pointLedgerNext");
@@ -4877,7 +5014,12 @@
         return pointItems.filter((item) => item.dataset.pointCategory === pointFilter);
       }
 
+      function refreshPointItems() {
+        pointItems = Array.from(pointRoot.querySelectorAll(".point-ledger-item"));
+      }
+
       function renderPointLedger() {
+        refreshPointItems();
         if (!pointItems.length) return;
         const list = filteredPointItems();
         const totalPages = Math.max(1, Math.ceil(list.length / pageSize));
