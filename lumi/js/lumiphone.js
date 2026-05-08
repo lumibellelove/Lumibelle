@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_41_home_stable_20260509";
+      const APP_VERSION = "patch51_42_record_month_stable_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -4043,6 +4043,9 @@
       let currentMonth  = new Date().getMonth() + 1;
       let runtimeVisits = []; // API 로드된 방문 기록
       let visitsLoadState = "idle"; // PATCH 51-41: idle/loading/loaded/error
+      // PATCH 51-42: 월 이동 중 API 응답이 도착해도 사용자가 보고 있는 월을 다시 밀어내지 않도록 보호
+      let recordUserMovedMonth = false;
+      let recordAutoJumpDone = false;
 
       function pad2(v) { return String(v).padStart(2, "0"); }
       function currentMonthKey() { return currentYear + "." + pad2(currentMonth); }
@@ -4158,6 +4161,23 @@
         }
       }
 
+      // PATCH 51-42: 월 이동 시 이전 카드가 한 프레임 겹쳐 보이는 잔상 완화
+      function renderRecordPageAfterMonthMove() {
+        if (!recordCardList) {
+          renderRecordPage();
+          return;
+        }
+        var h = recordCardList.offsetHeight || 0;
+        if (h) recordCardList.style.minHeight = h + "px";
+        recordCardList.innerHTML = "";
+        window.requestAnimationFrame(function() {
+          renderRecordPage();
+          window.requestAnimationFrame(function() {
+            if (recordCardList) recordCardList.style.minHeight = "";
+          });
+        });
+      }
+
       function setRecordFilter(filter) {
         currentFilter = filter || "전체";
         currentPage = 1;
@@ -4172,8 +4192,9 @@
         while (m < 1)  { m += 12; y -= 1; }
         while (m > 12) { m -= 12; y += 1; }
         if (y < minYear) return;
+        recordUserMovedMonth = true; // PATCH 51-42: 이후 API 최신값 도착으로 월이 강제 복귀하지 않게 함
         currentYear = y; currentMonth = m; currentPage = 1;
-        renderRecordPage();
+        renderRecordPageAfterMonthMove();
       }
 
       // ── API 로드 ──────────────────────────────────────────────
@@ -4195,11 +4216,14 @@
 
         function jumpToLatest(visits) {
           if (!visits || !visits.length) return;
+          // PATCH 51-42: 최초 자동 이동은 1회만. 사용자가 월 이동을 누른 뒤에는 API 응답이 와도 월을 덮어쓰지 않음.
+          if (recordAutoJumpDone || recordUserMovedMonth) return;
           var latest = parseVisitDate(visits[0]);
           if (latest) {
             currentYear  = latest.getFullYear();
             currentMonth = latest.getMonth() + 1;
             currentPage  = 1;
+            recordAutoJumpDone = true;
             console.log("[lumi] jumped to:", currentYear, currentMonth);
           }
         }
