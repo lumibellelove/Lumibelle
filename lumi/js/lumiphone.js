@@ -3,7 +3,9 @@
       "use strict";
 
       const APP_VERSION = "patch51_32_message_read_sync_20260508";
-      const LUMI_API_ENDPOINT = String(window.LUMI_API_ENDPOINT || "").trim();
+      // PATCH 51-32-fix5: const로 고정하면 window.LUMI_API_ENDPOINT가 나중에 세팅될 때
+      // IIFE 내부 변수는 이미 ""로 굳어버림. 함수로 바꿔서 호출 시점에 항상 최신값 읽기.
+      function LUMI_API_ENDPOINT() { return String(window.LUMI_API_ENDPOINT || "").trim(); }
       const DEBUG_MODE = new URLSearchParams(window.location.search).get("debug") === "1";
       const LUMI_API_TIMEOUT_MS = 12000;
       let currentUser = null;
@@ -96,7 +98,7 @@
         box.style.fontWeight = "900";
         box.style.lineHeight = "1.55";
         box.innerHTML = '<div>APP VERSION: ' + APP_VERSION + '</div>' +
-          '<div>API: ' + (LUMI_API_ENDPOINT ? '설정됨' : '미설정') + '</div>' +
+          '<div>API: ' + (LUMI_API_ENDPOINT() ? '설정됨' : '미설정') + '</div>' +
           '<div id="lumiChromeDebugText">' + (bootDebugText || 'debug ready') + '</div>' +
           '<button type="button" id="lumiChromeForceReloadBtn" style="margin-top:8px;min-height:36px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d77ca7;font-weight:900;padding:0 12px;cursor:pointer;">Chrome 일반모드 강제 새로고침</button>';
         parent.appendChild(box);
@@ -106,7 +108,7 @@
 
       clearLegacyStorageForChromePatch(false);
       unregisterServiceWorkersForChromePatch(false);
-      if (!LUMI_API_ENDPOINT) setBootDebug("missing LUMI_API_ENDPOINT");
+      if (!LUMI_API_ENDPOINT()) setBootDebug("missing LUMI_API_ENDPOINT");
       else setBootDebug("API endpoint ready");
       const $ = (selector, root = document) => root.querySelector(selector);
       const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -366,12 +368,9 @@
         updateClock();
         if (currentUser && getCurrentLumiId()) {
           await loadMyReservations(getCurrentLumiId());
-          // PATCH 51-32-fix2: API 메시지를 불러오는 동안 기본 mock 우편이 먼저 보였다가
-          // 실제 DB 우편으로 바뀌는 깜빡임을 막는다.
-          LUMI_RUNTIME_MAIL_ITEMS = [];
-          LUMI_RUNTIME_MESSAGE_ITEMS = [];
-          window.__lumiRuntimeMessageItems = [];
-          renderMailAll();
+          // PATCH 51-32-fix5: 선제적 [] 덮어쓰기 제거.
+          // LUMI_MESSAGES_LOAD_DONE=false 상태에서는 getAllMailItems가 mock을 보여주고
+          // loadMyMessages 완료 후 LUMI_MESSAGES_LOAD_DONE=true로 바뀌어 API 데이터로 교체됨.
           await loadMyMessages(getCurrentLumiId());
         }
       }
@@ -573,9 +572,11 @@
         }
       ];
 
-      let LUMI_RUNTIME_MAIL_ITEMS = LUMI_API_ENDPOINT ? [] : null;
-      let LUMI_RUNTIME_MESSAGE_ITEMS = LUMI_API_ENDPOINT ? [] : null;
-      let LUMI_MESSAGES_LOAD_DONE = !LUMI_API_ENDPOINT;
+      // PATCH 51-32-fix5: 초기값은 항상 null. window.LUMI_API_ENDPOINT가 늦게 세팅되므로
+      // 로드 시점 체크가 의미없음. openApp에서 []로 교체 후 loadMyMessages가 채움.
+      let LUMI_RUNTIME_MAIL_ITEMS = null;
+      let LUMI_RUNTIME_MESSAGE_ITEMS = null;
+      let LUMI_MESSAGES_LOAD_DONE = false;
 
       const LUMI_SMS_MESSAGE_TYPES = new Set([
         "paymentconfirmed",
@@ -611,11 +612,13 @@
       }
 
       function getAllMailItems() {
-        // PATCH 51-32-fix3: API 엔드포인트가 있는 실제 운영 상태에서는
-        // API 로드 전 mock 기본 우편을 먼저 보여주지 않는다.
-        if (Array.isArray(LUMI_RUNTIME_MAIL_ITEMS)) return LUMI_RUNTIME_MAIL_ITEMS;
-        if (LUMI_API_ENDPOINT && getCurrentLumiId()) return [];
-        return LUMI_MAIL_ITEMS;
+        // PATCH 51-32-fix5:
+        // - API 로드 완료(LUMI_MESSAGES_LOAD_DONE)됐으면 runtime 배열만 사용 (빈 배열 포함)
+        // - 로드 전이면 mock 보여줌 (깜빡임 허용, 빈 화면보다 나음)
+        if (LUMI_MESSAGES_LOAD_DONE) {
+          return Array.isArray(LUMI_RUNTIME_MAIL_ITEMS) ? LUMI_RUNTIME_MAIL_ITEMS : [];
+        }
+        return Array.isArray(LUMI_RUNTIME_MAIL_ITEMS) ? LUMI_RUNTIME_MAIL_ITEMS : LUMI_MAIL_ITEMS;
       }
 
       function memberLabelFromKey(key) {
@@ -2775,7 +2778,7 @@
       async function fetchLumiApi(params) {
         const payload = Object.assign({}, params || {});
         appendBootDebug("ENTER fetchLumiApi: " + String(payload.action || "unknown"));
-        if (!LUMI_API_ENDPOINT) {
+        if (!LUMI_API_ENDPOINT()) {
           appendBootDebug("missingApiEndpoint");
           throw new Error("missingApiEndpoint");
         }
@@ -2788,7 +2791,7 @@
         query.set("_", String(Date.now()));
         query.set("_v", APP_VERSION);
 
-        const url = LUMI_API_ENDPOINT + (LUMI_API_ENDPOINT.indexOf("?") === -1 ? "?" : "&") + query.toString();
+        const url = LUMI_API_ENDPOINT() + (LUMI_API_ENDPOINT().indexOf("?") === -1 ? "?" : "&") + query.toString();
         appendBootDebug("fetch: " + url.slice(0, 80));
 
         const controller = new AbortController();
@@ -3095,7 +3098,9 @@
             // PATCH 51-29-3: 문자함 렌더 IIFE는 별도 클로저 스코프이므로
             // window 브릿지를 통해 runtime items를 공유한다.
             window.__lumiRuntimeMessageItems = LUMI_RUNTIME_MESSAGE_ITEMS;
-            console.log("[lumiMsg] bridge set:", window.__lumiRuntimeMessageItems.length, "items");
+            // PATCH 51-32-fix5: 우편함도 동일하게 window 브릿지 세팅 (진단/디버그용)
+            window.__lumiRuntimeMailItems = LUMI_RUNTIME_MAIL_ITEMS;
+            console.log("[lumiMsg] bridge set:", window.__lumiRuntimeMessageItems.length, "sms /", window.__lumiRuntimeMailItems.length, "mail");
             mailState.inbox.page = 0;
             mailState.saved.page = 0;
             renderMailAll();
@@ -3103,13 +3108,13 @@
             appendBootDebug("messages UI split applied: mail=" + LUMI_RUNTIME_MAIL_ITEMS.length + " sms=" + LUMI_RUNTIME_MESSAGE_ITEMS.length);
           } else {
             LUMI_MESSAGES_LOAD_DONE = true;
-            if (LUMI_API_ENDPOINT) LUMI_RUNTIME_MAIL_ITEMS = [];
+            if (LUMI_API_ENDPOINT()) LUMI_RUNTIME_MAIL_ITEMS = [];
             appendBootDebug("messages empty: no API mail items");
             renderMailAll();
           }
         } catch (error) {
           LUMI_MESSAGES_LOAD_DONE = true;
-          if (LUMI_API_ENDPOINT) LUMI_RUNTIME_MAIL_ITEMS = [];
+          if (LUMI_API_ENDPOINT()) LUMI_RUNTIME_MAIL_ITEMS = [];
           appendBootDebug("message UI fallback: " + String(error && error.message ? error.message : error));
           renderMailAll();
         }
