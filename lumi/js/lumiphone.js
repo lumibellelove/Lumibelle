@@ -4354,10 +4354,7 @@
   function setObj(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
   function fanText(value){ return String(value == null ? "" : value); }
   function getAllLumiMessageItems(){
-    if (Array.isArray(LUMI_RUNTIME_MESSAGE_ITEMS) && LUMI_RUNTIME_MESSAGE_ITEMS.length) {
-      return LUMI_RUNTIME_MESSAGE_ITEMS.map(normalizeRuntimeChatMessage);
-    }
-    return MESSAGES;
+    return Array.isArray(LUMI_RUNTIME_MESSAGE_ITEMS) ? LUMI_RUNTIME_MESSAGE_ITEMS : MESSAGES;
   }
   function normalizeRuntimeChatMessage(item){
     const source = item || {};
@@ -4436,7 +4433,13 @@
   function filtered(){
     const root = pageEl();
     const term = (($("#lumiMsgSearch", root)||{}).value || "").trim().toLowerCase();
-    return getAllLumiMessageItems().filter(m => {
+    const rawItems = getAllLumiMessageItems();
+    const items = Array.isArray(rawItems) ? rawItems.map(m => {
+      if (m && (m.lines || m.box || m.type)) return m;
+      return normalizeRuntimeChatMessage(m);
+    }) : [];
+
+    return items.filter(m => {
       if (box === "saved") {
         if (!isSaved(m.id) || !isVisibleInboxMessage(m)) return false;
       } else if (!isVisibleInboxMessage(m)) return false;
@@ -4476,6 +4479,9 @@
     clearTimers();
     const list = $("#lumiMsgList", root), empty = $("#lumiMsgEmpty", root), pager = $("#lumiMsgPager", root);
     if (!list) return;
+    list.style.display = "grid";
+    list.style.gap = "10px";
+    list.style.minHeight = "1px";
     const items = filtered();
     const pp = perPage();
     const total = Math.max(1, Math.ceil(items.length / pp));
@@ -4484,8 +4490,17 @@
     items.slice((page-1)*pp, page*pp).forEach(m => {
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = "lumiMsg-item";
+      btn.className = "lumiMsg-item message-preview-card";
       btn.dataset.lumimsgId = m.id;
+      btn.style.display = "grid";
+      btn.style.width = "100%";
+      btn.style.textAlign = "left";
+      btn.style.marginBottom = "10px";
+      btn.style.border = "1px solid var(--line, #f2d8e7)";
+      btn.style.borderRadius = "22px";
+      btn.style.background = "#fff";
+      btn.style.padding = "13px";
+      btn.style.color = "#76586a";
       let state = "읽음", cls = "read";
       if (!isRead(m.id)) { state = "NEW"; cls = ""; }
       else if (isSaved(m.id)) { state = "소장"; cls = "saved"; }
