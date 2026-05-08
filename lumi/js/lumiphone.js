@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_44_record_sms_fix_20260509";
+      const APP_VERSION = "patch51_45_init_stable_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -397,18 +397,12 @@
 
         clearMessage();
         loginView.classList.remove("active");
-        appView.classList.add("active");  // ← 화면 즉시 표시 (API 기다리지 않음)
+        appView.classList.add("active");
 
-        // PATCH 51-40: 새로고침/자동 로그인 시 마지막으로 보던 탭 복원
-        let initialPage = "home";
-        try {
-          const savedPage = localStorage.getItem(lastPageStorageKey);
-          if (savedPage && document.getElementById("page-" + savedPage)) {
-            initialPage = savedPage;
-          }
-        } catch (error) {}
-
-        go(initialPage);
+        // PATCH 51-45: 안정화 단계에서는 새 진입 시 항상 home 고정
+        // (공홈 재진입과 새로고침을 구분할 수 없어 기록탭 복원이 오히려 혼란스러운 문제)
+        // lastPage 복원은 추후 별도 패치에서 재활성화
+        go("home");
         updateClock();
 
         if (!(currentUser && getCurrentLumiId())) return;
@@ -416,24 +410,41 @@
         const lid = getCurrentLumiId();
 
         // PATCH 51-37: 캐시 즉시 복원 (동기, 0ms)
-        const cachedRes  = cacheRead_(lid, "reservations", 24 * 60 * 60 * 1000);
-        const cachedMail = cacheRead_(lid, "mail",         24 * 60 * 60 * 1000);
-        const cachedSms  = cacheRead_(lid, "sms",          24 * 60 * 60 * 1000);
+        const cachedRes    = cacheRead_(lid, "reservations", 24 * 60 * 60 * 1000);
+        const cachedMail   = cacheRead_(lid, "mail",         24 * 60 * 60 * 1000);
+        const cachedSms    = cacheRead_(lid, "sms",          24 * 60 * 60 * 1000);
+        const cachedVisits = cacheRead_(lid, "visits",       24 * 60 * 60 * 1000);
 
         if (cachedRes) {
           myReservations = cachedRes;
           renderMyReservations(cachedRes);
         }
-        if (cachedMail || cachedSms) {
-          LUMI_RUNTIME_MAIL_ITEMS    = Array.isArray(cachedMail) ? cachedMail : [];
-          LUMI_RUNTIME_MESSAGE_ITEMS = Array.isArray(cachedSms)  ? cachedSms  : [];
-          window.__lumiRuntimeMailItems    = LUMI_RUNTIME_MAIL_ITEMS;
+
+        // PATCH 51-45: mail과 sms를 독립적으로 복원 (한쪽만 있어도 다른 쪽을 [] 확정하지 않음)
+        if (cachedMail) {
+          LUMI_RUNTIME_MAIL_ITEMS = cachedMail;
+          window.__lumiRuntimeMailItems = LUMI_RUNTIME_MAIL_ITEMS;
+        }
+        if (cachedSms) {
+          LUMI_RUNTIME_MESSAGE_ITEMS = cachedSms;
           window.__lumiRuntimeMessageItems = LUMI_RUNTIME_MESSAGE_ITEMS;
-          LUMI_MESSAGES_LOAD_DONE      = true;
-          window.__lumiMessagesLoadDone = true;
+        }
+        if (cachedMail || cachedSms) {
+          // 캐시가 있는 쪽만 확정, 없는 쪽은 API 결과 기다림
+          if (cachedMail && cachedSms) {
+            LUMI_MESSAGES_LOAD_DONE   = true;
+            window.__lumiMessagesLoadDone = true;
+          }
+          // 한쪽만 있으면 loadDone=false 유지 → API 완료 후 확정
           renderMailAll();
           if (typeof window.showLumiMessageInbox === "function") window.showLumiMessageInbox();
-          appendBootDebug("cache restored: mail=" + LUMI_RUNTIME_MAIL_ITEMS.length + " sms=" + LUMI_RUNTIME_MESSAGE_ITEMS.length);
+          appendBootDebug("cache restored: mail=" + (cachedMail ? cachedMail.length : "miss") + " sms=" + (cachedSms ? cachedSms.length : "miss"));
+        }
+
+        // PATCH 51-45: visits 캐시 즉시 window 브릿지로 전달 (기록 탭 0회 방지)
+        if (cachedVisits && Array.isArray(cachedVisits) && cachedVisits.length > 0) {
+          window.__lumiCachedVisits = cachedVisits; // 기록 IIFE가 읽어서 즉시 렌더
+          appendBootDebug("visits cache: " + cachedVisits.length + " items");
         }
 
         // PATCH 51-37: API는 백그라운드 병렬 실행 (await 없음 → 화면 진입 차단 안 함)
@@ -468,15 +479,6 @@
         }
 
         runBackgroundRefresh(lid);
-
-        // PATCH 51-40-fix1: 마지막 탭이 기록이면 탭 복원 후 기록 데이터도 다시 로드
-        if (initialPage === "record") {
-          setTimeout(function() {
-            if (typeof window.__lumiLoadVisits === "function") {
-              window.__lumiLoadVisits();
-            }
-          }, 80);
-        }
       }
 
       // PATCH 51-38-fix1: 로그인 버튼 상태 원복 헬퍼 (closeApp/로그아웃 시 반드시 호출)
@@ -697,6 +699,7 @@
 
       const LUMI_SMS_MESSAGE_TYPES = new Set([
         "paymentconfirmed",
+        "paymentconfirm",  // PATCH 51-45: 시트에 paymentConfirm으로 저장된 경우도 허용
         "entrycomplete",
         "reservationconfirmed",
         "birthdaynotice",
@@ -3307,7 +3310,7 @@
             LUMI_RUNTIME_MESSAGE_ITEMS = smsItems;
             window.__lumiRuntimeMessageItems = LUMI_RUNTIME_MESSAGE_ITEMS;
             window.__lumiRuntimeMailItems = LUMI_RUNTIME_MAIL_ITEMS;
-            window.__lumiMessagesLoadDone = true; // PATCH 51-33: 문자함 IIFE 로딩 완료 신호
+            window.__lumiMessagesLoadDone = true;
             // PATCH 51-36: API 성공 데이터를 캐시에 저장
             cacheWrite_(lumiId, "mail", mailItems);
             cacheWrite_(lumiId, "sms",  smsItems);
@@ -3315,7 +3318,10 @@
             mailState.inbox.page = 0;
             mailState.saved.page = 0;
             renderMailAll();
+            // PATCH 51-45: 문자함 IIFE에 강제 재렌더 신호 (캐시 없이 첫 로드된 경우 반영)
             if (typeof window.showLumiMessageInbox === "function") window.showLumiMessageInbox();
+            // 문자함이 현재 활성 탭이면 bind()도 호출해서 리스트 강제 갱신
+            if (typeof window.__lumiRefreshMessageList === "function") window.__lumiRefreshMessageList();
             appendBootDebug("messages UI split applied: mail=" + LUMI_RUNTIME_MAIL_ITEMS.length + " sms=" + LUMI_RUNTIME_MESSAGE_ITEMS.length);
           } else {
             // PATCH 51-39: API 응답이 빈 배열이어도 캐시가 있으면 UI를 비우지 않음
@@ -4041,11 +4047,30 @@
       let currentPage   = 1;
       let currentYear   = new Date().getFullYear();
       let currentMonth  = new Date().getMonth() + 1;
-      let runtimeVisits = []; // API 로드된 방문 기록
-      let visitsLoadState = "idle"; // PATCH 51-41: idle/loading/loaded/error
-      // PATCH 51-42: 월 이동 중 API 응답이 도착해도 사용자가 보고 있는 월을 다시 밀어내지 않도록 보호
+      // PATCH 51-45: openApp에서 visits 캐시를 window 브릿지로 미리 전달받으면 즉시 복원
+      let runtimeVisits = (function() {
+        var cached = window.__lumiCachedVisits;
+        if (Array.isArray(cached) && cached.length > 0) return cached;
+        return [];
+      })();
+      let visitsLoadState = runtimeVisits.length > 0 ? "loaded" : "idle"; // PATCH 51-41
       let recordUserMovedMonth = false;
-      let recordAutoJumpDone = false;
+      let recordAutoJumpDone   = runtimeVisits.length > 0;
+
+      // PATCH 51-45: 캐시에서 복원된 경우 즉시 최신 월로 이동
+      if (runtimeVisits.length > 0) {
+        (function() {
+          for (var i = 0; i < runtimeVisits.length; i++) {
+            var raw = runtimeVisits[i].eventDate || runtimeVisits[i].visitedAt || "";
+            var d = new Date(raw);
+            if (!isNaN(d.getTime())) {
+              currentYear  = d.getFullYear();
+              currentMonth = d.getMonth() + 1;
+              break;
+            }
+          }
+        })();
+      }
 
       function pad2(v) { return String(v).padStart(2, "0"); }
       function currentMonthKey() { return currentYear + "." + pad2(currentMonth); }
@@ -5251,6 +5276,8 @@
     renderList();
   }
   window.showLumiMessageInbox = function(){ box = "inbox"; filter = "all"; page = 1; bind(); const root = pageEl(); if (root) { const s = $("#lumiMsgSearch", root); if (s) s.value = ""; $$(".lumiMsg-tabs button", root).forEach(b => b.classList.toggle("active", (b.dataset.lumimsgBox || "inbox") === "inbox")); $$("#lumiMsgFilters button", root).forEach(b => b.classList.toggle("active", (b.dataset.lumimsgFilter || "all") === "all")); } showInbox(); };
+  // PATCH 51-45: API 로드 완료 후 문자함 강제 재렌더용 브릿지
+  window.__lumiRefreshMessageList = function() { renderList(); };
   window.lumiOpenMessageById = function(id){ bind(); showMessagePage(); setTimeout(() => openMessage(id || "coming-soon-online-cheer", true), 30); };
   window.openLumiMessage = function(member){
     const key = String(member || "coming-soon").toLowerCase();
