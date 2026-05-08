@@ -366,6 +366,12 @@
         updateClock();
         if (currentUser && getCurrentLumiId()) {
           await loadMyReservations(getCurrentLumiId());
+          // PATCH 51-32-fix2: API 메시지를 불러오는 동안 기본 mock 우편이 먼저 보였다가
+          // 실제 DB 우편으로 바뀌는 깜빡임을 막는다.
+          LUMI_RUNTIME_MAIL_ITEMS = [];
+          LUMI_RUNTIME_MESSAGE_ITEMS = [];
+          window.__lumiRuntimeMessageItems = [];
+          renderMailAll();
           await loadMyMessages(getCurrentLumiId());
         }
       }
