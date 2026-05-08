@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_49_fix1_checkins_schema_20260509";
+      const APP_VERSION = "patch51_51_meate_benefit_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -3135,6 +3135,106 @@
         return "입금 확인 대기";
       }
 
+      // PATCH 51-51: 메아테 혜택 표시 전용 헬퍼
+      // 예약 데이터의 meate/paymentStatus만 읽고, 특전권 자동 발급/포인트 자동 지급은 하지 않음.
+      function normalizeMeateValue_(value) {
+        return String(value || "").trim();
+      }
+
+      function isLumibelleMeate_(value) {
+        var raw = normalizeMeateValue_(value);
+        var key = raw.toLowerCase().replace(/[\s_\-·・.]/g, "");
+        return key === "lumibelle" || key === "루미벨";
+      }
+
+      function isPaymentConfirmed_(status) {
+        var raw = String(status || "").trim();
+        var key = raw.toLowerCase().replace(/[\s_\-]/g, "");
+        return key === "confirmed" || key === "paid" || key === "paymentconfirmed" || raw === "입금 완료" || raw === "입금확인완료" || raw === "입금 확인 완료";
+      }
+
+      function meateBenefitState(item) {
+        var meate = normalizeMeateValue_(item && item.meate);
+        var hasMeate = Boolean(meate && meate !== "-");
+        var confirmed = isPaymentConfirmed_(item && item.paymentStatus);
+        if (!item) {
+          return { state:"none", meate:"-", label:"예매 정보 없음", shortLabel:"예매 없음", desc:"예약 티켓이 연결되면 메아테 혜택 대상 여부가 표시돼요.", cardSmall:"메아테 안내", active:false, locked:true };
+        }
+        if (!confirmed) {
+          return { state:"pending", meate:meate || "-", label:"입금 확인 후 메아테 혜택 확정", shortLabel:"확인 중", desc:"입금 확인 후, 예매 시 선택한 메아테 팀 기준으로 루미벨 혜택 대상 여부가 표시돼요.", cardSmall:"입금 확인 후 표시", active:false, locked:false };
+        }
+        if (hasMeate && isLumibelleMeate_(meate)) {
+          return { state:"eligible", meate:meate, label:"루미벨 메아테 혜택 대상", shortLabel:"혜택 대상", desc:"Lumibelle 메아테 선택이 확인되어 루미벨 메아테 혜택 대상이에요. 현장 물판/특전회에서 스탭 확인 후 안내돼요.", cardSmall:"메아테 혜택 대상", active:true, locked:false };
+        }
+        return { state:"notEligible", meate:meate || "다른 팀", label:"루미벨 혜택 대상 아님", shortLabel:"대상 아님", desc:"이번 예매의 메아테는 " + (meate || "다른 팀") + " 기준이에요. 루미벨 메아테 혜택 대상은 아니지만, 공연 기록은 그대로 남아요.", cardSmall:"루미벨 혜택 대상 아님", active:false, locked:true };
+      }
+
+      function updateTextIfExists_(root, selector, text) {
+        var el = root && root.querySelector ? root.querySelector(selector) : null;
+        if (el) el.textContent = text;
+      }
+
+      function findTicketBenefitItemByTitle_(titleText) {
+        var list = document.querySelector("#ticket-benefit .ticket-paged-list");
+        if (!list) return null;
+        return Array.from(list.querySelectorAll(".ticket-page-item")).find(function(item) {
+          var title = item.querySelector(".ticket-title, .plain-row b, b");
+          return title && String(title.textContent || "").trim().indexOf(titleText) >= 0;
+        }) || null;
+      }
+
+      function updateMeateBenefitUi(reservations) {
+        var normalized = Array.isArray(reservations) ? reservations.map(normalizeReservationItem) : [];
+        var current = normalized.filter(function(item) { return !isPastReservation(item); });
+        var item = current[0] || normalized[0] || null;
+        var state = meateBenefitState(item);
+
+        try {
+          var pcBtn = document.querySelector('#ticket-pc-benefit [data-perk="meate"]');
+          var pcCard = pcBtn ? pcBtn.closest(".ticket-pc-wallet-card") : null;
+          if (pcCard) {
+            pcCard.classList.toggle("is-locked", Boolean(state.locked));
+            updateTextIfExists_(pcCard, "small", state.cardSmall);
+            updateTextIfExists_(pcCard, "b", "메아테 특전권");
+            var desc = Array.from(pcCard.children).find(function(el) { return el.tagName === "SPAN"; });
+            if (desc) desc.textContent = state.desc;
+            var statusSpan = pcCard.querySelector(".ticket-pc-card-actions span");
+            if (statusSpan) {
+              statusSpan.textContent = state.active ? "사용 가능" : state.shortLabel;
+              statusSpan.classList.toggle("active", Boolean(state.active));
+            }
+          }
+        } catch(e) {}
+
+        try {
+          var mobileItem = findTicketBenefitItemByTitle_("메아테");
+          if (mobileItem) {
+            var titleEl = mobileItem.querySelector(".ticket-title, .plain-row b, b");
+            if (titleEl) titleEl.textContent = "메아테 특전권";
+            var subEl = mobileItem.querySelector(".ticket-sub, .plain-row span");
+            if (subEl) subEl.textContent = state.desc;
+            var smallEl = mobileItem.querySelector(".ticket-kicker, small");
+            if (smallEl) smallEl.textContent = state.cardSmall;
+            var statusCells = Array.from(mobileItem.querySelectorAll(".ticket-cell"));
+            statusCells.forEach(function(cell) {
+              var small = cell.querySelector("small");
+              var b = cell.querySelector("b");
+              if (!small || !b) return;
+              var label = String(small.textContent || "").trim();
+              if (label === "상태" || label === "STATUS") b.textContent = state.label;
+              if (label === "메아테" || label === "MEATE") b.textContent = state.meate;
+              if (label === "혜택" || label === "BENEFIT") b.textContent = state.shortLabel;
+            });
+            var chips = Array.from(mobileItem.querySelectorAll("button, .btn, .status-chip, .mail-status-chip, .ticket-chip"));
+            var statusChip = chips.find(function(el) { return String(el.textContent || "").indexOf("상세") < 0; });
+            if (statusChip) {
+              statusChip.textContent = state.active ? "사용 가능" : state.shortLabel;
+              statusChip.classList.toggle("active", Boolean(state.active));
+            }
+          }
+        } catch(e) {}
+      }
+
       function reservationStatusLabel(status) {
         const key = String(status || "").toLowerCase();
         if (key === "cancelled" || key === "canceled") return "예약 취소";
@@ -3169,7 +3269,7 @@
             '<div class="ticket-cell"><small>RESERVATION</small><b>' + escapeHtml(paymentSt) + '</b></div>' +
             '<div class="ticket-cell"><small>STATUS</small><b>' + escapeHtml(entrySt) + '</b></div>' +
             '<div class="ticket-cell"><small>MEATE</small><b>' + escapeHtml(item.meate || "-") + '</b></div>' +
-            '<div class="ticket-cell"><small>BENEFIT</small><b>' + escapeHtml(item.meate === "Lumibelle" || item.meate === "루미벨" ? "처리 대상" : "-") + '</b></div>' +
+            '<div class="ticket-cell"><small>BENEFIT</small><b>' + escapeHtml(meateBenefitState(item).shortLabel) + '</b></div>' +
           '</div>' +
           '</div>' +
           '</article>';
@@ -3210,7 +3310,7 @@
             '<div><small>STATUS</small><b>' + escapeHtml(statusLabel) + '</b></div>' +
           '</div>' +
           '<div class="ticket-pc-qr"><i>▣</i><p><b>QR은 보조 확인용입니다.</b><br>입장 확인은 예약번호/입장번호/닉네임 기준으로 진행됩니다.</p></div>' +
-          '<div class="ticket-pc-chips"><span>QR은 보조 확인용</span><span>현장에서 제시</span></div>' +
+          '<div class="ticket-pc-chips"><span>QR은 보조 확인용</span><span>현장에서 제시</span><span>' + escapeHtml(meateBenefitState(item).label) + '</span></div>' +
           '</div>' +
           '</article>';
       }
@@ -3353,6 +3453,7 @@
         }
 
         updateHomeReservationSummary(normalized);
+        updateMeateBenefitUi(normalized); // PATCH 51-51: 예약 meate/paymentStatus 기반 혜택 표시
         initTicketPagers();
       }
 
