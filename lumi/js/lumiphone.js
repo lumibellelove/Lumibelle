@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_47_fix1_ui_restore_20260509";
+      const APP_VERSION = "patch51_48_lumi_tickets_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -456,6 +456,13 @@
           appendBootDebug("cheki cache: " + cachedCheki.length + " items");
         }
 
+        // PATCH 51-48: 특전권/이벤트권 캐시 즉시 복원
+        const cachedLumiTickets = cacheRead_(lid, "lumiTickets", 24 * 60 * 60 * 1000);
+        if (cachedLumiTickets && Array.isArray(cachedLumiTickets)) {
+          renderLumiTickets(cachedLumiTickets);
+          appendBootDebug("lumiTickets cache: " + cachedLumiTickets.length + " items");
+        }
+
         // PATCH 51-37: API는 백그라운드 병렬 실행 (await 없음 → 화면 진입 차단 안 함)
         function runBackgroundRefresh(lid) {
           function doRefresh() {
@@ -469,6 +476,9 @@
             }),
             loadMyCheki(lid).catch(function(e) { // PATCH 51-47
               appendBootDebug("bg cheki error: " + String(e && e.message || e));
+            }),
+            loadMyLumiTickets(lid).catch(function(e) { // PATCH 51-48
+              appendBootDebug("bg lumiTickets error: " + String(e && e.message || e));
             })
           ]);
           }
@@ -3557,6 +3567,142 @@
         }
       }
       // ─────────────────────────────────────────────────────────
+
+      // ── PATCH 51-48: 특전권 / 이벤트권 / Birthday Ticket ──────
+
+      const LUMI_TICKET_MEMBER_LABELS = {
+        mariring: "마리링 🎀⭐",
+        lulu:     "루루 🍼🐰",
+        team:     "루미벨 전체",
+        system:   "루미벨"
+      };
+      const LUMI_TICKET_HIDDEN_MEMBERS = new Set(["iro", "lunar", "luna"]);
+      const LUMI_TICKET_TYPE_LABELS = {
+        welcome:  "신규 이벤트",
+        join:     "합류 이벤트",
+        birthday: "생일",
+        meate:    "메아테",
+        event:    "이벤트",
+        general:  "일반"
+      };
+      const LUMI_TICKET_STATUS_LABELS = {
+        available:  "사용 가능",
+        used:       "사용 완료",
+        expired:    "만료",
+        pending:    "확인 중",
+        cancelled:  "취소"
+      };
+
+      function lumiTicketMemberName(member) {
+        var m = String(member || "").trim().toLowerCase();
+        if (LUMI_TICKET_HIDDEN_MEMBERS.has(m)) return "공개 예정 멤버";
+        return LUMI_TICKET_MEMBER_LABELS[m] || member || "루미벨";
+      }
+
+      function renderLumiTickets(items) {
+        const list = items || [];
+        const available = list.filter(function(t) { return t.status === "available"; }).length;
+
+        // ── 홈 요약 카드 (보유 티켓 small 포함된 카드 업데이트)
+        try {
+          const noIconCards = Array.from(document.querySelectorAll(".home-grid .home-card.no-icon"));
+          const ticketSummaryCard = noIconCards.find(function(card) {
+            var small = card.querySelector("small");
+            return small && (small.textContent.includes("보유 티켓") || small.textContent.includes("특전권"));
+          });
+          if (ticketSummaryCard) {
+            var b    = ticketSummaryCard.querySelector("b");
+            var span = ticketSummaryCard.querySelector("span");
+            if (b) b.textContent = available + "장";
+            if (span) span.textContent = available > 0
+              ? "사용 가능 " + available + "장 · 티켓함에서 확인"
+              : "보유 티켓이 생기면 이곳에 표시돼요.";
+          }
+        } catch(e) {}
+
+        // ── PC 특전권 섹션 (#ticket-pc-benefit .ticket-pc-wallet-grid)
+        const pcBenefitGrid = document.querySelector("#ticket-pc-benefit .ticket-pc-wallet-grid");
+        if (pcBenefitGrid) {
+          if (list.length === 0) {
+            pcBenefitGrid.innerHTML =
+              '<article class="ticket-pc-wallet-card">' +
+                '<small>보유 티켓 없음</small><b>특전권 없음</b>' +
+                '<span>보유 중인 특전권/이벤트권이 있으면 이곳에 표시돼요.</span>' +
+                '<div class="ticket-pc-card-actions"><span>없음</span></div>' +
+              '</article>';
+          } else {
+            pcBenefitGrid.innerHTML = list.map(function(t) {
+              var typeLabel   = LUMI_TICKET_TYPE_LABELS[t.ticketType] || t.ticketType || "";
+              var statusLabel = LUMI_TICKET_STATUS_LABELS[t.status] || t.status || "";
+              var memberName  = lumiTicketMemberName(t.member);
+              var expireText  = t.expireAt ? "~ " + String(t.expireAt).slice(0,10).replace(/-/g,".") : "제한 없음";
+              var isAvailable = t.status === "available";
+              return '<article class="ticket-pc-wallet-card' + (isAvailable ? "" : " is-locked") + '">' +
+                '<small>' + escapeHtml(typeLabel) + '</small>' +
+                '<b>' + escapeHtml(t.ticketName || "특전권") + '</b>' +
+                '<span>' + escapeHtml(memberName) + ' · 유효기간 ' + escapeHtml(expireText) +
+                  (t.note ? " · " + escapeHtml(t.note) : "") + "</span>" +
+                '<div class="ticket-pc-card-actions">' +
+                  '<span class="' + (isAvailable ? "active" : "") + '">' + escapeHtml(statusLabel) + "</span>" +
+                "</div>" +
+              "</article>";
+            }).join("");
+          }
+        }
+
+        // ── 모바일 특전권 섹션 (#ticket-benefit .ticket-paged-list)
+        const benefitPagedList = document.querySelector("#ticket-benefit .ticket-paged-list");
+        if (benefitPagedList) {
+          if (list.length === 0) {
+            benefitPagedList.innerHTML =
+              '<div class="ticket-page-item" data-ticket-category="전체">' +
+                '<article class="ticket-card soft"><div class="ticket-inner">' +
+                  '<div class="ticket-kicker">SPECIAL TICKET</div>' +
+                  '<div class="ticket-title">보유 티켓 없음</div>' +
+                  '<div class="ticket-sub">보유 중인 특전권/이벤트권이 있으면 이곳에 표시돼요.</div>' +
+                '</div></article></div>';
+          } else {
+            var categoryMap = { welcome:"이벤트", join:"이벤트", birthday:"생일", meate:"메아테", event:"이벤트", general:"이벤트" };
+            benefitPagedList.innerHTML = list.map(function(t) {
+              var typeLabel   = LUMI_TICKET_TYPE_LABELS[t.ticketType] || t.ticketType || "";
+              var category    = categoryMap[t.ticketType] || "이벤트";
+              var memberName  = lumiTicketMemberName(t.member);
+              var statusLabel = LUMI_TICKET_STATUS_LABELS[t.status] || t.status || "";
+              var expireText  = t.expireAt ? String(t.expireAt).slice(0,10).replace(/-/g,".") + "까지" : "제한 없음";
+              var issuedText  = t.issuedAt ? String(t.issuedAt).slice(0,10).replace(/-/g,".") + " 지급" : "";
+              return '<div class="ticket-page-item" data-ticket-category="' + escapeHtml(category) + '">' +
+                '<article class="ticket-card soft"><div class="ticket-inner">' +
+                  '<div class="ticket-kicker">SPECIAL TICKET</div>' +
+                  '<div class="ticket-title">' + escapeHtml(t.ticketName || "특전권") + "</div>" +
+                  '<div class="ticket-sub">' + escapeHtml(typeLabel) + (t.note ? " · " + escapeHtml(t.note) : "") + "</div>" +
+                  '<div class="ticket-meta">' +
+                    '<div class="ticket-cell"><small>사용 가능 멤버</small><b>' + escapeHtml(memberName) + "</b></div>" +
+                    '<div class="ticket-cell"><small>상태</small><b>' + escapeHtml(statusLabel) + "</b></div>" +
+                    '<div class="ticket-cell"><small>유효기간</small><b>' + escapeHtml(expireText) + "</b></div>" +
+                    (issuedText ? '<div class="ticket-cell"><small>지급일</small><b>' + escapeHtml(issuedText) + "</b></div>" : "") +
+                  "</div>" +
+                "</div></article></div>";
+            }).join("");
+          }
+        }
+      }
+
+      async function loadMyLumiTickets(lumiId) {
+        try {
+          const response = await fetchLumiApi({ action: "lumiGetMyTickets", lumiId: lumiId });
+          if (!response || response.ok !== true) {
+            appendBootDebug("lumiTickets load failed: " + String((response && (response.error || response.message)) || "failed"));
+            return;
+          }
+          const items = Array.isArray(response.tickets) ? response.tickets : [];
+          cacheWrite_(lumiId, "lumiTickets", items);
+          renderLumiTickets(items);
+          appendBootDebug("lumiTickets loaded: " + items.length + " items");
+        } catch (error) {
+          appendBootDebug("lumiTickets error: " + String(error && error.message ? error.message : error));
+        }
+      }
+      // ──────────────────────────────────────────────────────────
 
       loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
