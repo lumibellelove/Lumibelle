@@ -2,12 +2,11 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_36_cache_20260509";
+      const APP_VERSION = "patch51_36_fix1_cache_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
-      // 키: lumiId 기반으로 격리. APP_VERSION 포함해서 버전 바뀌면 자동 무효화.
-      const CACHE_VERSION = "v1"; // 캐시 구조 변경 시 올려서 무효화
+      const CACHE_VERSION = "v1";
       function cacheKey_(lumiId, type) {
         return "lumiphone.cache." + CACHE_VERSION + "." + type + "." + String(lumiId || "").toLowerCase();
       }
@@ -22,10 +21,13 @@
           if (!raw) return null;
           const obj = JSON.parse(raw);
           if (!obj || !obj.data) return null;
-          if (maxAgeMs && (Date.now() - obj.ts) > maxAgeMs) return null; // 만료
+          if (maxAgeMs && (Date.now() - obj.ts) > maxAgeMs) return null;
           return obj.data;
         } catch(e) { return null; }
       }
+      // 별도 IIFE에서도 접근할 수 있도록 window 브릿지 노출
+      window.__lumiCacheRead  = function(lumiId, type, maxAgeMs) { return cacheRead_(lumiId, type, maxAgeMs); };
+      window.__lumiCacheWrite = function(lumiId, type, data)      { cacheWrite_(lumiId, type, data); };
       // ──────────────────────────────────────────────────────────
       // PATCH 51-32-fix5: const로 고정하면 window.LUMI_API_ENDPOINT가 나중에 세팅될 때
       // IIFE 내부 변수는 이미 ""로 굳어버림. 함수로 바꿔서 호출 시점에 항상 최신값 읽기.
@@ -397,6 +399,11 @@
           // PATCH 51-36: 캐시가 있으면 즉시 복원해서 빈 화면 방지
           const cachedMail = cacheRead_(lid, "mail", 24 * 60 * 60 * 1000); // 24시간
           const cachedSms  = cacheRead_(lid, "sms",  24 * 60 * 60 * 1000);
+          const cachedRes  = cacheRead_(lid, "reservations", 24 * 60 * 60 * 1000);
+          if (cachedRes) {
+            myReservations = cachedRes;
+            renderMyReservations(cachedRes);
+          }
           if (cachedMail || cachedSms) {
             LUMI_RUNTIME_MAIL_ITEMS     = Array.isArray(cachedMail) ? cachedMail : [];
             LUMI_RUNTIME_MESSAGE_ITEMS  = Array.isArray(cachedSms)  ? cachedSms  : [];
@@ -3257,6 +3264,7 @@
           renderReservationsLoading();
           const reservations = await getMyReservations(lumiId);
           myReservations = reservations;
+          cacheWrite_(lumiId, "reservations", reservations); // PATCH 51-36: 캐시 저장
           renderMyReservations(myReservations);
         } catch (error) {
           myReservations = [];
@@ -4041,8 +4049,12 @@
           }
         }
 
-        // PATCH 51-36: 캐시가 있으면 즉시 렌더 (빈 화면/로딩 중 방지)
-        const cachedVisits = cacheRead_(lumiId, "visits", 24 * 60 * 60 * 1000);
+        // PATCH 51-36-fix1: 별도 IIFE 스코프라 cacheRead_ 직접 접근 불가 → window 브릿지 사용
+        const _cacheRead  = typeof window.__lumiCacheRead  === "function" ? window.__lumiCacheRead  : function() { return null; };
+        const _cacheWrite = typeof window.__lumiCacheWrite === "function" ? window.__lumiCacheWrite : function() {};
+
+        // 캐시가 있으면 즉시 렌더 (빈 화면/로딩 중 방지)
+        const cachedVisits = _cacheRead(lumiId, "visits", 24 * 60 * 60 * 1000);
         if (cachedVisits && Array.isArray(cachedVisits) && cachedVisits.length > 0) {
           runtimeVisits = cachedVisits;
           jumpToLatest(runtimeVisits);
@@ -4082,8 +4094,8 @@
                 return db.getTime() - da.getTime();
               });
               runtimeVisits = data.visits;
-              // PATCH 51-36: API 성공 시 캐시 갱신
-              cacheWrite_(lumiId, "visits", runtimeVisits);
+              // PATCH 51-36: API 성공 시 캐시 갱신 (window 브릿지 사용)
+              _cacheWrite(lumiId, "visits", runtimeVisits);
               console.log("[lumi] loadVisits count:", runtimeVisits.length);
               jumpToLatest(runtimeVisits);
             } else {
