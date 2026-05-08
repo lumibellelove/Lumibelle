@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_38_fix1_login_btn_20260509";
+      const APP_VERSION = "patch51_39_fix1_session_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -56,8 +56,10 @@
           "LUMI_API_ENDPOINT",
           "lumiphone.apiEndpoint",
           "lumiphone.version",
-          "lumiphone.appVersion",
-          "lumiphone.releaseReset.patch14.v1"
+          "lumiphone.appVersion"
+          // PATCH 51-39-fix1: lumiphone.releaseReset.patch14.v1는 여기서 지우지 않음.
+          // 이 키가 지워지면 APP_VERSION 변경마다 runReleaseDataResetPatch14()가 재실행되어
+          // lumi_v108_msg_read(읽음 기록) 등을 삭제하고 NEW가 되살아나는 버그 발생.
         ];
         try {
           const current = window.localStorage ? localStorage.getItem("lumiphone.appVersion") : APP_VERSION;
@@ -292,6 +294,8 @@
             savedAt: Date.now()
           };
           localStorage.setItem(loginStateStorageKey, JSON.stringify(payload));
+          // PATCH 51-39: sessionStorage에도 세션 플래그 저장 (탭 새로고침 즉시 진입용)
+          try { sessionStorage.setItem("lumiphone.session.active", id); } catch(e) {}
           const savedRaw = localStorage.getItem(loginStateStorageKey);
           if (savedRaw) {
             appendBootDebug("login saved OK: " + id);
@@ -333,6 +337,7 @@
 
       function clearLoginState() {
         try { localStorage.removeItem(loginStateStorageKey); } catch (error) {}
+        try { sessionStorage.removeItem("lumiphone.session.active"); } catch(e) {} // PATCH 51-39
       }
 
 
@@ -342,10 +347,11 @@
           if (localStorage.getItem(resetKey) === "done") return;
           [
             "lumiSavedMailIds",
-            "lumiReadMailIds",
+            // PATCH 51-39-fix1: 읽음 상태 키는 삭제하지 않음
+            // "lumiReadMailIds",     ← 우편 읽음 기록 — 보존
             "lumiSavedLogIds",
             "lumiReadLogIds",
-            "lumi_v108_msg_read",
+            // "lumi_v108_msg_read",  ← 문자 읽음 기록 — 보존
             "lumi_v108_msg_saved",
             "lumi_v108_msg_replies",
             "lumi_v256_stamp_title_rewards",
@@ -421,14 +427,15 @@
         // PATCH 51-37: API는 백그라운드 병렬 실행 (await 없음 → 화면 진입 차단 안 함)
         function runBackgroundRefresh(lid) {
           function doRefresh() {
-            Promise.all([
-              loadMyReservations(lid).catch(function(e) {
-                appendBootDebug("bg reservation error: " + String(e && e.message || e));
-              }),
-              loadMyMessages(lid).catch(function(e) {
-                appendBootDebug("bg message error: " + String(e && e.message || e));
-              })
-            ]);
+          // PATCH 51-39: allSettled → 한쪽 실패해도 나머지 계속
+          Promise.allSettled([
+            loadMyReservations(lid).catch(function(e) {
+              appendBootDebug("bg reservation error: " + String(e && e.message || e));
+            }),
+            loadMyMessages(lid).catch(function(e) {
+              appendBootDebug("bg message error: " + String(e && e.message || e));
+            })
+          ]);
           }
 
           if (LUMI_API_ENDPOINT()) {
@@ -3249,13 +3256,20 @@
             if (typeof window.showLumiMessageInbox === "function") window.showLumiMessageInbox();
             appendBootDebug("messages UI split applied: mail=" + LUMI_RUNTIME_MAIL_ITEMS.length + " sms=" + LUMI_RUNTIME_MESSAGE_ITEMS.length);
           } else {
-            LUMI_MESSAGES_LOAD_DONE = true;
-            LUMI_RUNTIME_MAIL_ITEMS = [];
-            window.__lumiRuntimeMailItems = [];
-            window.__lumiRuntimeMessageItems = window.__lumiRuntimeMessageItems || [];
-            window.__lumiMessagesLoadDone = true;
-            appendBootDebug("messages empty: no API mail items");
-            renderMailAll();
+            // PATCH 51-39: API 응답이 빈 배열이어도 캐시가 있으면 UI를 비우지 않음
+            if (!Array.isArray(LUMI_RUNTIME_MAIL_ITEMS) || LUMI_RUNTIME_MAIL_ITEMS.length === 0) {
+              LUMI_RUNTIME_MAIL_ITEMS = [];
+              window.__lumiRuntimeMailItems = [];
+              window.__lumiRuntimeMessageItems = window.__lumiRuntimeMessageItems || [];
+              LUMI_MESSAGES_LOAD_DONE = true;
+              window.__lumiMessagesLoadDone = true;
+              appendBootDebug("messages empty: no API mail items");
+              renderMailAll();
+            } else {
+              LUMI_MESSAGES_LOAD_DONE = true;
+              window.__lumiMessagesLoadDone = true;
+              appendBootDebug("messages empty from API but cache kept");
+            }
           }
         } catch (error) {
           const errMsg = String(error && error.message ? error.message : error);
@@ -3269,12 +3283,17 @@
             return;
           }
           LUMI_MESSAGES_LOAD_DONE = true;
-          LUMI_RUNTIME_MAIL_ITEMS = [];
-          window.__lumiRuntimeMailItems = [];
-          window.__lumiRuntimeMessageItems = window.__lumiRuntimeMessageItems || [];
           window.__lumiMessagesLoadDone = true;
           appendBootDebug("message UI fallback: " + errMsg);
-          renderMailAll();
+          // PATCH 51-39: timeout/에러 시 캐시가 있으면 UI를 비우지 않음
+          if (!Array.isArray(LUMI_RUNTIME_MAIL_ITEMS) || LUMI_RUNTIME_MAIL_ITEMS.length === 0) {
+            LUMI_RUNTIME_MAIL_ITEMS = [];
+            window.__lumiRuntimeMailItems = [];
+            window.__lumiRuntimeMessageItems = window.__lumiRuntimeMessageItems || [];
+            renderMailAll();
+          } else {
+            appendBootDebug("keeping cached UI after error");
+          }
         }
       }
 
@@ -3286,10 +3305,17 @@
           cacheWrite_(lumiId, "reservations", reservations); // PATCH 51-36: 캐시 저장
           renderMyReservations(myReservations);
         } catch (error) {
-          myReservations = [];
-          renderMyReservations([]);
-          appendBootDebug("reservation UI error: " + String(error && error.message ? error.message : error));
-          if (String(error && error.message) === "missingApiEndpoint") {
+          const errMsg = String(error && error.message ? error.message : error);
+          appendBootDebug("reservation UI error: " + errMsg);
+          // PATCH 51-39: 에러/timeout 시 캐시가 있으면 empty render 금지
+          if (!myReservations || myReservations.length === 0) {
+            myReservations = [];
+            renderMyReservations([]);
+          } else {
+            appendBootDebug("keeping cached reservations after error");
+            renderMyReservations(myReservations); // 캐시 유지 렌더
+          }
+          if (errMsg === "missingApiEndpoint") {
             showMessage("루미폰 API 주소가 아직 설정되지 않았어요. LUMI_API_ENDPOINT를 Apps Script 웹앱 URL로 설정해 주세요.");
           }
         }
@@ -3732,15 +3758,34 @@
       renderProfileView();
       renderProfileEditor();
 
-      const savedLoginState = readLoginState();
-      if (savedLoginState) {
+      // PATCH 51-39: 세션/자동 로그인 강화
+      // sessionStorage에 세션 플래그가 있으면 API 재인증 없이 즉시 앱 진입
+      // localStorage에 저장된 유저 정보로 바로 openApp() 호출
+      (function() {
+        const savedLoginState = readLoginState();
+        if (!savedLoginState) {
+          appendBootDebug("saved login none");
+          return;
+        }
         appendBootDebug("saved login found: " + (savedLoginState.lumiId || savedLoginState.id));
         currentUser = normalizeLumiUser(savedLoginState);
         loginId.value = normalizeLoginIdInput(savedLoginState.id);
-        openApp({ persist: true, user: currentUser });
-      } else {
-        appendBootDebug("saved login none");
-      }
+
+        // sessionStorage 플래그가 있으면 즉시 진입 (새로고침 등 같은 세션)
+        var sessionActive = false;
+        try { sessionActive = !!sessionStorage.getItem("lumiphone.session.active"); } catch(e) {}
+
+        if (sessionActive) {
+          appendBootDebug("session active: instant openApp");
+          openApp({ persist: true, user: currentUser });
+        } else {
+          // 새 탭/첫 로드: savedLoginState만으로도 바로 진입 (서버 재인증 없이)
+          // 로그인 상태가 localStorage에 있으면 신뢰 → 즉시 진입 + sessionStorage 플래그 갱신
+          appendBootDebug("saved login: auto openApp (no re-auth)");
+          try { sessionStorage.setItem("lumiphone.session.active", savedLoginState.lumiId || savedLoginState.id); } catch(e) {}
+          openApp({ persist: true, user: currentUser });
+        }
+      })();
 
       updateClock();
       setInterval(updateClock, 30000);
@@ -4765,7 +4810,17 @@
     if (type === "welcometicket" || type === "jointicket") { tag = source.tag || "티켓"; filterType = "staff"; }
     if (senderType === "member") { tag = source.tag || "루미레터"; filterType = "lumiletter"; }
     const isReadValue = String(source.isRead == null ? "" : source.isRead).toLowerCase();
-    const isRead = source.isRead === true || isReadValue === "true" || isReadValue === "1" || isReadValue === "읽음";
+    const isReadFromApi = source.isRead === true || isReadValue === "true" || isReadValue === "1" || isReadValue === "읽음";
+    // PATCH 51-39: local read state 우선 병합 (API 응답이 느리거나 실패해도 NEW 재등장 방지)
+    // KEY.read는 문자함 IIFE 스코프라 직접 접근 불가 → localStorage에서 직접 읽음
+    var isReadLocal = false;
+    try {
+      var readRaw = localStorage.getItem("lumi_v108_msg_read");
+      var readIds = readRaw ? JSON.parse(readRaw) : [];
+      var msgId = String(source.messageId || source.id || "").trim();
+      if (msgId) isReadLocal = Array.isArray(readIds) && readIds.includes(msgId);
+    } catch(e) {}
+    const isRead = isReadFromApi || isReadLocal;
     return {
       id: id,
       messageId: id,
