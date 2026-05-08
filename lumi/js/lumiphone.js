@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_43_log_cleanup_20260509";
+      const APP_VERSION = "patch51_44_record_sms_fix_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -4188,11 +4188,13 @@
       }
 
       function moveMonth(delta) {
-        let m = currentMonth + delta, y = currentYear;
+        // PATCH 51-44: parseInt 보장 (문자열로 저장됐을 경우 "5"+1="51" 버그 방지)
+        let m = parseInt(currentMonth, 10) + parseInt(delta, 10);
+        let y = parseInt(currentYear, 10);
         while (m < 1)  { m += 12; y -= 1; }
         while (m > 12) { m -= 12; y += 1; }
         if (y < minYear) return;
-        recordUserMovedMonth = true; // PATCH 51-42: 이후 API 최신값 도착으로 월이 강제 복귀하지 않게 함
+        recordUserMovedMonth = true;
         currentYear = y; currentMonth = m; currentPage = 1;
         renderRecordPageAfterMonthMove();
       }
@@ -4253,44 +4255,65 @@
         }
 
         // 백그라운드로 API 최신값 호출 (캐시 유무와 무관)
-        var apiCall;
-        if (typeof window.__lumiFetchApi === "function") {
-          apiCall = window.__lumiFetchApi({ action: "lumiGetVisits", lumiId: lumiId });
-        } else {
-          const url = endpoint + (endpoint.indexOf("?") === -1 ? "?" : "&") +
-            new URLSearchParams({ action: "lumiGetVisits", lumiId: lumiId, _: Date.now() }).toString();
-          apiCall = fetch(url).then(function(r) { return r.json(); });
+        // PATCH 51-44: __lumiFetchApi 브릿지가 없으면 잠깐 기다렸다가 재시도
+        function doApiCall() {
+          var apiCall;
+          if (typeof window.__lumiFetchApi === "function") {
+            apiCall = window.__lumiFetchApi({ action: "lumiGetVisits", lumiId: lumiId });
+          } else if (endpoint) {
+            const url = endpoint + (endpoint.indexOf("?") === -1 ? "?" : "&") +
+              new URLSearchParams({ action: "lumiGetVisits", lumiId: lumiId, _: Date.now() }).toString();
+            apiCall = fetch(url).then(function(r) { return r.json(); });
+          } else {
+            if (runtimeVisits.length === 0) visitsLoadState = "error";
+            renderRecordPage();
+            return;
+          }
+
+          apiCall
+            .then(function(data) {
+              if (DEBUG_MODE) console.log("[lumi] loadVisits response:", data);
+              if (data && data.ok && Array.isArray(data.visits)) {
+                // 최신순 정렬
+                data.visits.sort(function(a, b) {
+                  var da = parseVisitDate(a), db = parseVisitDate(b);
+                  if (!da && !db) return 0;
+                  if (!da) return 1;
+                  if (!db) return -1;
+                  return db.getTime() - da.getTime();
+                });
+                visitsLoadState = "loaded";
+                runtimeVisits = data.visits;
+                // PATCH 51-36: API 성공 시 캐시 갱신 (window 브릿지 사용)
+                _cacheWrite(lumiId, "visits", runtimeVisits);
+                if (DEBUG_MODE) console.log("[lumi] loadVisits count:", runtimeVisits.length);
+                jumpToLatest(runtimeVisits);
+              } else {
+                if (DEBUG_MODE) console.warn("[lumi] loadVisits: unexpected response:", data);
+                if (runtimeVisits.length === 0) visitsLoadState = "error";
+              }
+              renderRecordPage();
+            })
+            .catch(function(err) {
+              if (DEBUG_MODE) console.error("[lumi] loadVisits error:", err);
+              if (runtimeVisits.length === 0) visitsLoadState = "error";
+              renderRecordPage();
+            });
         }
 
-        apiCall
-          .then(function(data) {
-            if (DEBUG_MODE) console.log("[lumi] loadVisits response:", data);
-            if (data && data.ok && Array.isArray(data.visits)) {
-              // 최신순 정렬
-              data.visits.sort(function(a, b) {
-                var da = parseVisitDate(a), db = parseVisitDate(b);
-                if (!da && !db) return 0;
-                if (!da) return 1;
-                if (!db) return -1;
-                return db.getTime() - da.getTime();
-              });
-              visitsLoadState = "loaded";
-              runtimeVisits = data.visits;
-              // PATCH 51-36: API 성공 시 캐시 갱신 (window 브릿지 사용)
-              _cacheWrite(lumiId, "visits", runtimeVisits);
-              if (DEBUG_MODE) console.log("[lumi] loadVisits count:", runtimeVisits.length);
-              jumpToLatest(runtimeVisits);
-            } else {
-              if (DEBUG_MODE) console.warn("[lumi] loadVisits: unexpected response:", data);
-              if (runtimeVisits.length === 0) visitsLoadState = "error";
+        // __lumiFetchApi 브릿지가 아직 없으면 최대 1초 대기 후 실행
+        if (typeof window.__lumiFetchApi === "function") {
+          doApiCall();
+        } else {
+          var bridgeWait = 0;
+          var bridgePoll = setInterval(function() {
+            bridgeWait += 100;
+            if (typeof window.__lumiFetchApi === "function" || bridgeWait >= 1000) {
+              clearInterval(bridgePoll);
+              doApiCall();
             }
-            renderRecordPage();
-          })
-          .catch(function(err) {
-            if (DEBUG_MODE) console.error("[lumi] loadVisits error:", err);
-            if (runtimeVisits.length === 0) visitsLoadState = "error";
-            renderRecordPage(); // 캐시로 이미 렌더됐으면 조용히 유지, 없으면 soft 대기 상태
-          });
+          }, 100);
+        }
       }
 
       // PATCH 51-40-fix1: openApp/go 복원 흐름에서도 기록 로더를 호출할 수 있게 전역 브릿지 노출
@@ -4885,17 +4908,17 @@
   function setObj(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
   function fanText(value){ return String(value == null ? "" : value); }
   function getAllLumiMessageItems(){
-    // PATCH 51-29-3: LUMI_RUNTIME_MESSAGE_ITEMS는 로그인 IIFE의 클로저 변수라
-    // 이 문자함 IIFE에서 직접 참조하면 항상 undefined → MESSAGES(mock) 폴백됨.
-    // window.__lumiRuntimeMessageItems 브릿지를 경유해 읽는다.
     const runtimeItems = window.__lumiRuntimeMessageItems;
     if (DEBUG_MODE) console.log("[lumiMsg] getAllLumiMessageItems runtimeItems:", runtimeItems);
-    // PATCH 51-33: 로드 완료 전에도 로그인+API 모드면 mock 억제
-    if (Array.isArray(runtimeItems)) return runtimeItems;
-    if (window.__lumiMessagesLoadDone === false || window.__lumiMessagesLoadDone === undefined) {
-      // 브릿지가 세팅 전이고 window.LUMI_API_ENDPOINT가 있으면 로딩 중
-      if (window.LUMI_API_ENDPOINT) return [];
+    // 로드 완료 후에는 항상 runtime 배열만 사용 (undefined면 빈 배열, mock 금지)
+    if (window.__lumiMessagesLoadDone === true) {
+      return Array.isArray(runtimeItems) ? runtimeItems : [];
     }
+    // 로드 중이고 runtime이 배열이면 그것 사용
+    if (Array.isArray(runtimeItems)) return runtimeItems;
+    // 로드 전이고 API 모드면 mock 억제 (로딩 중 표시)
+    if (window.LUMI_API_ENDPOINT) return [];
+    // 비로그인/오프라인이면 mock 표시
     return MESSAGES;
   }
   function normalizeRuntimeChatMessage(item){
