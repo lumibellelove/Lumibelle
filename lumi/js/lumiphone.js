@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_53_onair_logs_20260509";
+      const APP_VERSION = "patch51_54_profile_view_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -295,6 +295,13 @@
             nickname: source.nickname || "",
             oshi: source.oshi || "",
             level: source.level || "",
+            // PATCH 51-54: 프로필 표시용 확장 필드도 세션에 보존
+            createdAt: source.createdAt || "",
+            joinedAt: source.joinedAt || source.createdAt || "",
+            birthMonth: source.birthMonth || source.birthdayMonth || "",
+            birthDay: source.birthDay || source.birthdayDay || "",
+            profileMessage: source.profileMessage || "",
+            equippedTitle: source.equippedTitle || "",
             type: "api",
             savedAt: Date.now()
           };
@@ -325,6 +332,12 @@
             nickname: state.nickname || "",
             oshi: state.oshi || "",
             level: state.level || "",
+            createdAt: state.createdAt || "",
+            joinedAt: state.joinedAt || state.createdAt || "",
+            birthMonth: state.birthMonth || state.birthdayMonth || "",
+            birthDay: state.birthDay || state.birthdayDay || "",
+            profileMessage: state.profileMessage || "",
+            equippedTitle: state.equippedTitle || "",
             type: state.type || "api"
           };
         } catch (error) {
@@ -411,6 +424,9 @@
         if (!(currentUser && getCurrentLumiId())) return;
 
         const lid = getCurrentLumiId();
+
+        // PATCH 51-54: 로그인 응답/lumi_users 기반 프로필 표시값 즉시 반영
+        syncProfileInfoFromUser(currentUser);
 
         // PATCH 51-37: 캐시 즉시 복원 (동기, 0ms)
         const cachedRes    = cacheRead_(lid, "reservations", 24 * 60 * 60 * 1000);
@@ -1403,8 +1419,50 @@
           birthdayMonth,
           birthdayDay,
           birthdayRegistered,
+          profileMessage: clampText(next.profileMessage || "", 60),
           joinedAt: next.joinedAt || "2026.05.06"
         };
+      }
+
+      function formatProfileJoinDate(value) {
+        const raw = String(value || "").trim();
+        if (!raw) return "";
+        const m = raw.match(/^(\d{4})[-.](\d{1,2})[-.](\d{1,2})/);
+        if (m) return m[1] + "." + String(m[2]).padStart(2, "0") + "." + String(m[3]).padStart(2, "0");
+        return raw.slice(0, 10).replace(/-/g, ".");
+      }
+
+      function normalizeOshiForProfile(value) {
+        const raw = String(value || "").trim();
+        if (!raw) return "";
+        const lower = raw.toLowerCase();
+        if (lower === "lumibelle" || raw === "루미벨") return "Lumibelle";
+        if (lower === "mariring" || raw === "마리링") return "마리링 🎀⭐";
+        if (lower === "lulu" || raw === "루루") return "루루 🍼🐰";
+        if (lower === "team" || raw === "팀") return "Lumibelle";
+        return raw;
+      }
+
+      function syncProfileInfoFromUser(user) {
+        if (!user || typeof user !== "object") return;
+        const current = normalizeProfileInfo(profileState && profileState.info);
+        const nextInfo = Object.assign({}, current);
+        if (user.nickname) nextInfo.displayName = user.nickname;
+        const normalizedOshi = normalizeOshiForProfile(user.oshi);
+        if (normalizedOshi) nextInfo.oshi = normalizedOshi;
+        const title = user.equippedTitle || runtimeEquippedTitleFromApi;
+        if (title) nextInfo.title = title;
+        const joined = formatProfileJoinDate(user.joinedAt || user.createdAt);
+        if (joined) nextInfo.joinedAt = joined;
+        if (user.birthMonth || user.birthdayMonth) nextInfo.birthdayMonth = user.birthMonth || user.birthdayMonth;
+        if (user.birthDay || user.birthdayDay) nextInfo.birthdayDay = user.birthDay || user.birthdayDay;
+        if (user.profileMessage) nextInfo.profileMessage = user.profileMessage;
+        nextInfo.birthdayRegistered = Boolean(nextInfo.birthdayMonth && nextInfo.birthdayDay);
+        profileState = normalizeProfileState(Object.assign({}, profileState, { info: nextInfo }));
+        profileDraft = cloneProfileState(profileState);
+        saveProfileState();
+        if (typeof renderProfileView === "function") renderProfileView();
+        if (typeof renderProfileEditor === "function") renderProfileEditor();
       }
 
       function normalizeProfileState(state) {
@@ -3147,7 +3205,13 @@
           lumiId: id,
           nickname: source.nickname || source.name || "루미나",
           oshi: source.oshi || "",
-          level: source.level || ""
+          level: source.level || "",
+          createdAt: source.createdAt || "",
+          joinedAt: source.joinedAt || source.createdAt || "",
+          birthMonth: source.birthMonth || source.birthdayMonth || "",
+          birthDay: source.birthDay || source.birthdayDay || "",
+          profileMessage: source.profileMessage || "",
+          equippedTitle: source.equippedTitle || ""
         };
       }
 
