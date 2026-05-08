@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_42_record_month_stable_20260509";
+      const APP_VERSION = "patch51_43_log_cleanup_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -883,9 +883,9 @@
       function markLumiMessageReadRemote(messageId) {
         const targetId = String(messageId || "").trim();
         const lumiId = getCurrentLumiId();
-        console.log("[lumi] markRead request:", targetId || "(no messageId)", lumiId || "(no lumiId)");
+        if (DEBUG_MODE) console.log("[lumi] markRead request:", targetId || "(no messageId)", lumiId || "(no lumiId)");
         if (!targetId || !lumiId) {
-          console.warn("[lumi] markRead skipped: missing target/lumiId", { messageId: targetId, lumiId: lumiId });
+          if (DEBUG_MODE) console.warn("[lumi] markRead skipped: missing target/lumiId", { messageId: targetId, lumiId: lumiId });
           return;
         }
         fetchLumiApi({
@@ -893,10 +893,10 @@
           lumiId: lumiId,
           messageId: targetId
         }).then((response) => {
-          console.log("[lumi] markRead ok:", targetId, "ok=" + Boolean(response && response.ok), response);
+          if (DEBUG_MODE) console.log("[lumi] markRead ok:", targetId, "ok=" + Boolean(response && response.ok), response);
         }).catch((error) => {
           // API 실패해도 이미 열린 상세/로컬 읽음 상태는 유지한다.
-          console.warn("[lumi] markRead failed:", targetId, error);
+          if (DEBUG_MODE) console.warn("[lumi] markRead failed:", targetId, error);
         });
       }
       window.__lumiMarkMessageReadRemote = markLumiMessageReadRemote;
@@ -993,7 +993,7 @@
         const targetOpenId = String(id || "");
         const item = getAllMailItems().find((mail) => String(mail.id) === targetOpenId || String(mail.messageId) === targetOpenId);
         const modal = document.getElementById("mailModal");
-        console.log("[lumi] openMailModal:", targetOpenId, item ? (item.messageId || item.id || "(no id)") : "item not found");
+        if (DEBUG_MODE) console.log("[lumi] openMailModal:", targetOpenId, item ? (item.messageId || item.id || "(no id)") : "item not found");
         if (!item || !modal) return;
         mailState.currentId = id;
         const icon = document.getElementById("mailModalIcon");
@@ -3008,14 +3008,14 @@
 
       async function getMyMessages(lumiId) {
         const response = await fetchLumiApi({ action: "lumiGetMessages", lumiId: lumiId });
-        console.log("[lumi] getMyMessages raw response:", response);
+        if (DEBUG_MODE) console.log("[lumi] getMyMessages raw response:", response);
         if (!response || response.ok !== true) {
-          console.warn("[lumi] getMyMessages failed:", response);
+          if (DEBUG_MODE) console.warn("[lumi] getMyMessages failed:", response);
           appendBootDebug("message load failed: " + String((response && (response.message || response.error)) || "messageLoadFailed"));
           throw new Error((response && (response.message || response.error)) || "messageLoadFailed");
         }
         const list = Array.isArray(response.messages) ? response.messages : (response.data && Array.isArray(response.data.messages) ? response.data.messages : []);
-        console.log("[lumi] getMyMessages list count:", list.length, "| first item:", list[0] || null);
+        if (DEBUG_MODE) console.log("[lumi] getMyMessages list count:", list.length, "| first item:", list[0] || null);
         appendBootDebug("messages count: " + list.length);
         return list;
       }
@@ -3290,7 +3290,7 @@
         try {
           const messages = await getMyMessages(lumiId);
           if (Array.isArray(messages)) {
-            console.log("[lumi] loadMyMessages: messages arrived, count=", messages.length);
+            if (DEBUG_MODE) console.log("[lumi] loadMyMessages: messages arrived, count=", messages.length);
             const publicMessages = messages.filter((item) => {
               const member = String(item && item.senderMember || "").toLowerCase();
               return member !== "iro" && member !== "lunar" && member !== "luna";
@@ -3300,8 +3300,8 @@
             const smsItems = publicMessages
               .filter((item) => getLumiMessageChannel(item) === "message")
               .map(normalizeSmsItem); // PATCH 51-32-fix8: 로그인 IIFE 스코프 내 함수 사용
-            console.log("[lumi] loadMyMessages split: mail=", mailItems.length, "| sms=", smsItems.length);
-            console.log("[lumi] loadMyMessages mail items:", mailItems);
+            if (DEBUG_MODE) console.log("[lumi] loadMyMessages split: mail=", mailItems.length, "| sms=", smsItems.length);
+            if (DEBUG_MODE) console.log("[lumi] loadMyMessages mail items:", mailItems);
             LUMI_MESSAGES_LOAD_DONE = true;
             LUMI_RUNTIME_MAIL_ITEMS = mailItems;
             LUMI_RUNTIME_MESSAGE_ITEMS = smsItems;
@@ -3311,7 +3311,7 @@
             // PATCH 51-36: API 성공 데이터를 캐시에 저장
             cacheWrite_(lumiId, "mail", mailItems);
             cacheWrite_(lumiId, "sms",  smsItems);
-            console.log("[lumiMsg] bridge set:", window.__lumiRuntimeMessageItems.length, "sms /", window.__lumiRuntimeMailItems.length, "mail");
+            if (DEBUG_MODE) console.log("[lumiMsg] bridge set:", window.__lumiRuntimeMessageItems.length, "sms /", window.__lumiRuntimeMailItems.length, "mail");
             mailState.inbox.page = 0;
             mailState.saved.page = 0;
             renderMailAll();
@@ -3335,12 +3335,12 @@
           }
         } catch (error) {
           const errMsg = String(error && error.message ? error.message : error);
-          console.error("[lumi] loadMyMessages catch:", errMsg);
+          if (DEBUG_MODE) console.error("[lumi] loadMyMessages catch:", errMsg);
           // PATCH 51-32-fix6: window.LUMI_API_ENDPOINT가 lumiphone.js 실행 후 세팅되는 경우
           // missingApiEndpoint 에러 → 500ms 뒤 window 값 있으면 재시도 1회
           if (errMsg === "missingApiEndpoint" && window.LUMI_API_ENDPOINT) {
             appendBootDebug("missingApiEndpoint → retry in 500ms (window value found)");
-            console.log("[lumi] loadMyMessages: missingApiEndpoint, retrying in 500ms...");
+            if (DEBUG_MODE) console.log("[lumi] loadMyMessages: missingApiEndpoint, retrying in 500ms...");
             setTimeout(function() { loadMyMessages(lumiId); }, 500);
             return;
           }
@@ -4224,7 +4224,7 @@
             currentMonth = latest.getMonth() + 1;
             currentPage  = 1;
             recordAutoJumpDone = true;
-            console.log("[lumi] jumped to:", currentYear, currentMonth);
+            if (DEBUG_MODE) console.log("[lumi] jumped to:", currentYear, currentMonth);
           }
         }
 
@@ -4264,7 +4264,7 @@
 
         apiCall
           .then(function(data) {
-            console.log("[lumi] loadVisits response:", data);
+            if (DEBUG_MODE) console.log("[lumi] loadVisits response:", data);
             if (data && data.ok && Array.isArray(data.visits)) {
               // 최신순 정렬
               data.visits.sort(function(a, b) {
@@ -4278,16 +4278,16 @@
               runtimeVisits = data.visits;
               // PATCH 51-36: API 성공 시 캐시 갱신 (window 브릿지 사용)
               _cacheWrite(lumiId, "visits", runtimeVisits);
-              console.log("[lumi] loadVisits count:", runtimeVisits.length);
+              if (DEBUG_MODE) console.log("[lumi] loadVisits count:", runtimeVisits.length);
               jumpToLatest(runtimeVisits);
             } else {
-              console.warn("[lumi] loadVisits: unexpected response:", data);
+              if (DEBUG_MODE) console.warn("[lumi] loadVisits: unexpected response:", data);
               if (runtimeVisits.length === 0) visitsLoadState = "error";
             }
             renderRecordPage();
           })
           .catch(function(err) {
-            console.error("[lumi] loadVisits error:", err);
+            if (DEBUG_MODE) console.error("[lumi] loadVisits error:", err);
             if (runtimeVisits.length === 0) visitsLoadState = "error";
             renderRecordPage(); // 캐시로 이미 렌더됐으면 조용히 유지, 없으면 soft 대기 상태
           });
@@ -4889,7 +4889,7 @@
     // 이 문자함 IIFE에서 직접 참조하면 항상 undefined → MESSAGES(mock) 폴백됨.
     // window.__lumiRuntimeMessageItems 브릿지를 경유해 읽는다.
     const runtimeItems = window.__lumiRuntimeMessageItems;
-    console.log("[lumiMsg] getAllLumiMessageItems runtimeItems:", runtimeItems);
+    if (DEBUG_MODE) console.log("[lumiMsg] getAllLumiMessageItems runtimeItems:", runtimeItems);
     // PATCH 51-33: 로드 완료 전에도 로그인+API 모드면 mock 억제
     if (Array.isArray(runtimeItems)) return runtimeItems;
     if (window.__lumiMessagesLoadDone === false || window.__lumiMessagesLoadDone === undefined) {
@@ -4991,12 +4991,12 @@
     const term = (($("#lumiMsgSearch", root)||{}).value || "").trim().toLowerCase();
     const rawItems = getAllLumiMessageItems();
     // PATCH 51-29-3 DEBUG
-    console.log("[lumiMsg] filtered() rawItems (sourceItems):", rawItems);
+    if (DEBUG_MODE) console.log("[lumiMsg] filtered() rawItems (sourceItems):", rawItems);
     const items = Array.isArray(rawItems) ? rawItems.map(m => {
       if (m && (m.lines || m.box || m.type)) return m;
       return normalizeRuntimeChatMessage(m);
     }) : [];
-    console.log("[lumiMsg] filtered() normalized items (messageItems):", items);
+    if (DEBUG_MODE) console.log("[lumiMsg] filtered() normalized items (messageItems):", items);
 
     const result = items.filter(m => {
       if (box === "saved") {
@@ -5009,7 +5009,7 @@
       }
       return true;
     });
-    console.log("[lumiMsg] filtered() result (filteredMessages):", result);
+    if (DEBUG_MODE) console.log("[lumiMsg] filtered() result (filteredMessages):", result);
     return result;
   }
   function updateBadges(){
@@ -5163,7 +5163,7 @@
     const wasUnread = m.status !== "read";
     markRead(m.id);
     renderList();
-    console.log("[lumiMsg] markRead request:", m.messageId || m.id || "(no messageId)");
+    if (DEBUG_MODE) console.log("[lumiMsg] markRead request:", m.messageId || m.id || "(no messageId)");
     if ((m.messageId || m.id) && typeof window.__lumiFetchApi === "function" && typeof window.__lumiGetCurrentId === "function") {
       const lumiId = window.__lumiGetCurrentId();
       if (lumiId) {
@@ -5172,9 +5172,9 @@
           lumiId: lumiId,
           messageId: m.messageId || m.id
         }).then((response) => {
-          console.log("[lumiMsg] markRead ok:", m.messageId, "ok=" + Boolean(response && response.ok));
+          if (DEBUG_MODE) console.log("[lumiMsg] markRead ok:", m.messageId, "ok=" + Boolean(response && response.ok));
         }).catch((error) => {
-          console.warn("[lumiMsg] markRead failed:", m.messageId, error);
+          if (DEBUG_MODE) console.warn("[lumiMsg] markRead failed:", m.messageId, error);
         });
       }
     }
