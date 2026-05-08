@@ -372,13 +372,16 @@
           // 최대 2초(100ms×20) 폴링 후 세팅되면 loadMyMessages 진행.
           if (!LUMI_API_ENDPOINT()) {
             appendBootDebug("openApp: LUMI_API_ENDPOINT empty, polling...");
+            console.log("[lumi] openApp: LUMI_API_ENDPOINT empty at call time, polling window...");
             await new Promise(function(resolve) {
               var attempts = 0;
               var poll = setInterval(function() {
                 attempts++;
                 if (LUMI_API_ENDPOINT() || attempts >= 20) {
                   clearInterval(poll);
-                  appendBootDebug("openApp: poll done, endpoint=" + (LUMI_API_ENDPOINT() ? "found" : "still empty") + " attempts=" + attempts);
+                  const found = !!LUMI_API_ENDPOINT();
+                  appendBootDebug("openApp: poll done, endpoint=" + (found ? "found" : "still empty") + " attempts=" + attempts);
+                  console.log("[lumi] openApp poll done: endpoint=", LUMI_API_ENDPOINT() || "(empty)", "attempts=", attempts);
                   resolve();
                 }
               }, 100);
@@ -2856,11 +2859,14 @@
 
       async function getMyMessages(lumiId) {
         const response = await fetchLumiApi({ action: "lumiGetMessages", lumiId: lumiId });
+        console.log("[lumi] getMyMessages raw response:", response);
         if (!response || response.ok !== true) {
+          console.warn("[lumi] getMyMessages failed:", response);
           appendBootDebug("message load failed: " + String((response && (response.message || response.error)) || "messageLoadFailed"));
           throw new Error((response && (response.message || response.error)) || "messageLoadFailed");
         }
         const list = Array.isArray(response.messages) ? response.messages : (response.data && Array.isArray(response.data.messages) ? response.data.messages : []);
+        console.log("[lumi] getMyMessages list count:", list.length, "| first item:", list[0] || null);
         appendBootDebug("messages count: " + list.length);
         return list;
       }
@@ -3098,20 +3104,22 @@
         try {
           const messages = await getMyMessages(lumiId);
           if (Array.isArray(messages)) {
+            console.log("[lumi] loadMyMessages: messages arrived, count=", messages.length);
             const publicMessages = messages.filter((item) => {
               const member = String(item && item.senderMember || "").toLowerCase();
               return member !== "iro" && member !== "lunar" && member !== "luna";
             });
             const normalized = publicMessages.map(normalizeLumiMessageItem);
-            LUMI_MESSAGES_LOAD_DONE = true;
-            LUMI_RUNTIME_MAIL_ITEMS = normalized.filter((item) => item.channel === "mail");
-            LUMI_RUNTIME_MESSAGE_ITEMS = publicMessages
+            const mailItems = normalized.filter((item) => item.channel === "mail");
+            const smsItems = publicMessages
               .filter((item) => getLumiMessageChannel(item) === "message")
               .map(normalizeRuntimeChatMessage);
-            // PATCH 51-29-3: 문자함 렌더 IIFE는 별도 클로저 스코프이므로
-            // window 브릿지를 통해 runtime items를 공유한다.
+            console.log("[lumi] loadMyMessages split: mail=", mailItems.length, "| sms=", smsItems.length);
+            console.log("[lumi] loadMyMessages mail items:", mailItems);
+            LUMI_MESSAGES_LOAD_DONE = true;
+            LUMI_RUNTIME_MAIL_ITEMS = mailItems;
+            LUMI_RUNTIME_MESSAGE_ITEMS = smsItems;
             window.__lumiRuntimeMessageItems = LUMI_RUNTIME_MESSAGE_ITEMS;
-            // PATCH 51-32-fix5: 우편함도 동일하게 window 브릿지 세팅 (진단/디버그용)
             window.__lumiRuntimeMailItems = LUMI_RUNTIME_MAIL_ITEMS;
             console.log("[lumiMsg] bridge set:", window.__lumiRuntimeMessageItems.length, "sms /", window.__lumiRuntimeMailItems.length, "mail");
             mailState.inbox.page = 0;
@@ -3129,10 +3137,12 @@
           }
         } catch (error) {
           const errMsg = String(error && error.message ? error.message : error);
+          console.error("[lumi] loadMyMessages catch:", errMsg);
           // PATCH 51-32-fix6: window.LUMI_API_ENDPOINT가 lumiphone.js 실행 후 세팅되는 경우
           // missingApiEndpoint 에러 → 500ms 뒤 window 값 있으면 재시도 1회
           if (errMsg === "missingApiEndpoint" && window.LUMI_API_ENDPOINT) {
             appendBootDebug("missingApiEndpoint → retry in 500ms (window value found)");
+            console.log("[lumi] loadMyMessages: missingApiEndpoint, retrying in 500ms...");
             setTimeout(function() { loadMyMessages(lumiId); }, 500);
             return;
           }
