@@ -43,6 +43,16 @@
         <div class="hint">검색 결과는 최대 30명까지 표시합니다. 비밀번호 원문은 목록에 표시하지 않습니다.</div>
         <div id="searchStatus" class="status">검색어를 입력해 주세요.</div>
         <div id="results" class="results"></div>
+        <hr style="border:0;border-top:1px dashed #f2d8e7;margin:22px 0" />
+        <h2>신규 루미 ID 간편 발급</h2>
+        <div class="hint">현장에서는 최소 정보만 입력해 빠르게 발급합니다. 생일/본인확인 질문/비밀번호 변경은 팬이 루미폰에서 직접 설정하게 안내해 주세요.</div>
+        <div class="field"><label for="newNickname">닉네임</label><input id="newNickname" type="text" placeholder="예: 루미나" /></div>
+        <div class="field"><label for="newEmail">이메일</label><input id="newEmail" type="email" placeholder="mail@example.com" /></div>
+        <div class="field"><label for="newOshi">오시</label><select id="newOshi"><option value="Lumibelle">Lumibelle</option><option value="마리링">마리링</option><option value="루루">루루</option><option value="DD">DD</option><option value="아직 고민 중">아직 고민 중</option><option value="미설정">미설정</option></select></div>
+        <div class="field"><label for="newProcessedBy">처리자</label><input id="newProcessedBy" type="text" placeholder="스탭명/닉네임" value="admin" /></div>
+        <div class="field"><label for="newMemo">메모</label><textarea id="newMemo" placeholder="예: 현장 신규 루미 ID 발급"></textarea></div>
+        <button class="btn" id="createUserBtn" type="button">신규 루미 ID 발급</button>
+        <div id="createStatus" class="status" style="display:none"></div>
       </section>
 
       <section class="panel">
@@ -93,6 +103,7 @@ let selectedUser=null;
 const $=s=>document.querySelector(s);
 const query=$('#query'), searchBtn=$('#searchBtn'), searchStatus=$('#searchStatus'), results=$('#results');
 const detailTitle=$('#detailTitle'), detailSub=$('#detailSub'), detailStatus=$('#detailStatus'), emptyDetail=$('#emptyDetail'), detailBody=$('#detailBody'), infoGrid=$('#infoGrid'), detailStatusBox=$('#detailStatusBox'), tempResult=$('#tempResult');
+const newNickname=$('#newNickname'), newEmail=$('#newEmail'), newOshi=$('#newOshi'), newProcessedBy=$('#newProcessedBy'), newMemo=$('#newMemo'), createUserBtn=$('#createUserBtn'), createStatus=$('#createStatus');
 const recoveryQuestion=$('#recoveryQuestion'), recoveryAnswer=$('#recoveryAnswer'), email=$('#email'), emailVerified=$('#emailVerified'), processedBy=$('#processedBy'), memo=$('#memo');
 RECOVERY_QUESTIONS.forEach(q=>{const o=document.createElement('option');o.value=q;o.textContent=q;recoveryQuestion.appendChild(o)});
 function setStatus(el,text,type){el.textContent=text;el.className='status'+(type?' '+type:'')}
@@ -205,8 +216,34 @@ async function issueTempPassword(){
   }catch(e){setStatus(tempResult,'API 오류: '+e.message,'bad');setStatus(detailStatusBox,'API 오류: '+e.message,'bad')}
   finally{$('#issueTempBtn').disabled=false}
 }
+
+async function createLumiUser(){
+  const nickname=(newNickname&&newNickname.value||'').trim();
+  const emailValue=(newEmail&&newEmail.value||'').trim();
+  const oshiValue=(newOshi&&newOshi.value||'Lumibelle').trim();
+  if(!nickname){createStatus.style.display='block';setStatus(createStatus,'닉네임을 입력해 주세요.','warn');return;}
+  if(!emailValue){createStatus.style.display='block';setStatus(createStatus,'이메일을 입력해 주세요.','warn');return;}
+  if(!confirm('신규 루미 ID를 발급할까요?\n닉네임: '+nickname+'\n이메일: '+emailValue)){return;}
+  createUserBtn.disabled=true;
+  createStatus.style.display='block';
+  setStatus(createStatus,'신규 루미 ID를 발급하는 중이에요…','warn');
+  try{
+    const res=await apiCall({action:'adminCreateLumiUser',nickname,email:emailValue,oshi:oshiValue,processedBy:(newProcessedBy.value||'admin'),memo:(newMemo.value||'')});
+    if(!res.ok){setStatus(createStatus,'발급 실패: '+(res.error||res.message||'unknown'),'bad');return;}
+    const data=res.data||res;
+    const lumiId=data.lumiId||'';
+    const temp=data.tempPassword||'';
+    setStatus(createStatus,'신규 루미 ID: '+lumiId+'\n임시 비밀번호: '+temp+'\n팬에게 이 값을 전달하고, 로그인 후 직접 비밀번호를 변경하도록 안내해 주세요.','ok');
+    if(query){query.value=lumiId;}
+    await searchUsers();
+    if(lumiId){await loadDetail(lumiId,{keepTempResult:false});}
+    try { createStatus.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e) {}
+  }catch(e){setStatus(createStatus,'API 오류: '+e.message,'bad')}
+  finally{createUserBtn.disabled=false}
+}
+
 searchBtn.addEventListener('click',searchUsers); query.addEventListener('keydown',e=>{if(e.key==='Enter')searchUsers()});
-$('#saveRecoveryBtn').addEventListener('click',saveRecovery); $('#issueTempBtn').addEventListener('click',issueTempPassword);
+$('#saveRecoveryBtn').addEventListener('click',saveRecovery); $('#issueTempBtn').addEventListener('click',issueTempPassword); if(createUserBtn) createUserBtn.addEventListener('click',createLumiUser);
 </script>
 </body>
 </html>
