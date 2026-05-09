@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'secpatch2_2b_recovery_ui_lock_dropdown_20260509';
+      const APP_VERSION = 'secpatch2_2d_temp_password_prompt_20260509';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -304,6 +304,11 @@
             equippedTitle: source.equippedTitle || "",
             // SecPatch1: 서버 발급 sessionToken 저장
             sessionToken: source.sessionToken || "",
+            // Security Patch 2-2D: 임시 비밀번호 변경 유도용 상태 보존
+            passwordType: source.passwordType || source.pinType || "",
+            mustChangePassword: source.mustChangePassword === true || String(source.mustChangePassword || source.mustChangePin || "").toLowerCase() === "true",
+            passwordRule: source.passwordRule || "",
+            passwordUpdatedAt: source.passwordUpdatedAt || source.pinUpdatedAt || "",
             type: "api",
             savedAt: Date.now()
           };
@@ -340,6 +345,10 @@
             birthDay: state.birthDay || state.birthdayDay || "",
             profileMessage: state.profileMessage || "",
             equippedTitle: state.equippedTitle || "",
+            passwordType: state.passwordType || state.pinType || "",
+            mustChangePassword: state.mustChangePassword === true || String(state.mustChangePassword || state.mustChangePin || "").toLowerCase() === "true",
+            passwordRule: state.passwordRule || "",
+            passwordUpdatedAt: state.passwordUpdatedAt || state.pinUpdatedAt || "",
             type: state.type || "api",
             // SecPatch1: 저장된 sessionToken 복원
             sessionToken: state.sessionToken || ""
@@ -406,6 +415,36 @@
         }
       }
 
+
+      function isMustChangePasswordUser_(user) {
+        if (!user) return false;
+        const type = String(user.passwordType || user.pinType || "").trim().toLowerCase();
+        const must = user.mustChangePassword === true || String(user.mustChangePassword || user.mustChangePin || "").trim().toLowerCase() === "true";
+        return must || type === "temporary" || type === "temp";
+      }
+
+      function showTemporaryPasswordNotice_() {
+        if (!isMustChangePasswordUser_(currentUser)) return;
+        if (document.getElementById("lumiTempPasswordNotice")) return;
+        const styleId = "lumiTempPasswordNoticeStyle";
+        if (!document.getElementById(styleId)) {
+          const style = document.createElement("style");
+          style.id = styleId;
+          style.textContent = "#lumiTempPasswordNotice{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(84,48,74,.26);backdrop-filter:blur(6px)}.lumi-temp-password-card{width:min(430px,100%);border:1px solid #f2bdd5;border-radius:26px;background:#fff;box-shadow:0 24px 70px rgba(110,62,91,.2);padding:22px;color:#6b445b}.lumi-temp-password-card h3{margin:0 0 8px;font-size:22px;color:#e06fa3}.lumi-temp-password-card p{margin:0 0 16px;font-size:13px;font-weight:800;line-height:1.65;color:#8a5d75}.lumi-temp-password-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.lumi-temp-password-actions button{min-height:42px;border-radius:999px;font-weight:900;cursor:pointer}.lumi-temp-password-primary{border:0;background:#ff5ba5;color:#fff;box-shadow:0 10px 24px rgba(255,91,165,.2)}.lumi-temp-password-later{border:1px solid #f0bfd4;background:#fff;color:#9a5b7b}";
+          document.head.appendChild(style);
+        }
+        const notice = document.createElement("div");
+        notice.id = "lumiTempPasswordNotice";
+        notice.innerHTML = '<div class="lumi-temp-password-card" role="dialog" aria-modal="true" aria-label="임시 비밀번호 변경 안내"><h3>임시 비밀번호로 로그인했어요</h3><p>현장에서 발급받은 임시 비밀번호는 안전을 위해 직접 새 비밀번호로 변경해 주세요. 새 비밀번호는 영문, 숫자, 특수문자를 사용할 수 있어요.</p><div class="lumi-temp-password-actions"><button type="button" class="lumi-temp-password-primary" id="lumiTempPasswordChange">비밀번호 변경하기</button><button type="button" class="lumi-temp-password-later" id="lumiTempPasswordLater">나중에 하기</button></div></div>';
+        document.body.appendChild(notice);
+        const close = function() { try { notice.remove(); } catch(e) {} };
+        notice.querySelector("#lumiTempPasswordLater").addEventListener("click", close);
+        notice.querySelector("#lumiTempPasswordChange").addEventListener("click", function() {
+          close();
+          try { openLumiRecoveryModal("reset"); } catch(e) { if (forgotPinBtn) forgotPinBtn.click(); }
+        });
+      }
+
       async function openApp(options) {
         const settings = options || {};
         if (settings.user) currentUser = normalizeLumiUser(settings.user);
@@ -424,6 +463,7 @@
         // lastPage 복원은 추후 별도 패치에서 재활성화
         go("home");
         updateClock();
+        window.setTimeout(showTemporaryPasswordNotice_, 450);
 
         if (!(currentUser && getCurrentLumiId())) return;
 
@@ -3322,6 +3362,10 @@
           birthDay: source.birthDay || source.birthdayDay || "",
           profileMessage: source.profileMessage || "",
           equippedTitle: source.equippedTitle || "",
+          passwordType: source.passwordType || source.pinType || "",
+          mustChangePassword: source.mustChangePassword === true || String(source.mustChangePassword || source.mustChangePin || "").toLowerCase() === "true",
+          passwordRule: source.passwordRule || "",
+          passwordUpdatedAt: source.passwordUpdatedAt || source.pinUpdatedAt || "",
           // SecPatch1-fix1: openApp/normalize 과정에서 로그인 토큰이 지워지지 않도록 보존
           sessionToken: source.sessionToken || ""
         };
@@ -5017,10 +5061,18 @@
         return modal;
       }
 
-      function openLumiRecoveryModal() {
+      function openLumiRecoveryModal(mode) {
         const modal = ensureLumiRecoveryModal();
         modal.classList.add("show");
         modal.setAttribute("aria-hidden", "false");
+        if (mode) {
+          const tab = modal.querySelector('[data-recovery-tab="' + mode + '"]');
+          if (tab) tab.click();
+        }
+        if (mode === "reset") {
+          const idInput = modal.querySelector("#recoveryResetLumiId");
+          if (idInput) idInput.value = getCurrentLumiId() || idInput.value || "";
+        }
       }
 
       function closeLumiRecoveryModal() {
