@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'secpatch2_2d_temp_password_prompt_20260509';
+      const APP_VERSION = 'secpatch2_2e_login_password_20chars_20260509';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -150,6 +150,17 @@
       const loginId = $("#loginId");
       const loginPin = $("#loginPin");
       const loginMsg = $("#loginMsg");
+
+      // Security Patch 2-2E: 로그인 비밀번호 입력칸은 더 이상 4자리 PIN 전용이 아님.
+      // index.html에 남아 있는 maxlength/inputmode/pattern 속성을 JS에서 보정한다.
+      if (loginPin) {
+        loginPin.setAttribute("maxlength", "20");
+        loginPin.setAttribute("autocomplete", "current-password");
+        loginPin.setAttribute("placeholder", "비밀번호");
+        loginPin.setAttribute("inputmode", "text");
+        loginPin.removeAttribute("pattern");
+      }
+
       const sampleBtn = $("#sampleBtn");
       const newIdBtn = $("#newIdBtn");
       const forgotPinBtn = $("#forgotPinBtn");
