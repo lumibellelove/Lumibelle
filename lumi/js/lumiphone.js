@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'secpatch2_1_fix2_post_worker_20260509';
+      const APP_VERSION = 'secpatch2_1_fix3_password_rabbit_20260509';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -3407,7 +3407,7 @@
         try {
           const response = await fetch(LUMI_API_ENDPOINT(), {
             method: "POST",
-            headers: { "Content-Type": "text/plain;charset=UTF-8" },
+            headers: { "Content-Type": "application/json;charset=UTF-8" },
             body: JSON.stringify(payload),
             signal: controller.signal
           });
@@ -3422,7 +3422,7 @@
             if (match && match[1]) data = JSON.parse(match[1]);
           }
           if (!data) throw new Error("apiParseError");
-          appendBootDebug("POST success: " + String(payload.action || "unknown") + " keys=" + Object.keys(data || {}).join(","));
+          appendBootDebug("POST success: " + String(payload.action || "unknown"));
           if (data && data.ok === false && (data.error === "unauthorized" || data.code === 401)) {
             appendBootDebug("unauthorized: auto logout triggered by " + String(payload.action || "unknown"));
             if (typeof closeApp === "function") closeApp();
@@ -4806,30 +4806,30 @@
       }
 
       // ──────────────────────────────────────────────────────────
-      // Security Patch 2-1: 이메일 기반 루미 ID 찾기 / PIN 재설정
+      // Security Patch 2-1-fix3: 이메일 기반 루미 ID 찾기 / 비밀번호 재설정
       // - 루미 ID는 화면에 직접 표시하지 않고 등록 이메일로 발송
-      // - PIN 재설정은 등록 이메일 인증코드 + 본인확인 답변 + 새 PIN으로 처리
+      // - 비밀번호 재설정은 등록 이메일 인증코드 + 본인확인 답변 + 새 비밀번호로 처리
       function ensureLumiRecoveryModal() {
         let modal = document.getElementById("lumiRecoveryModal");
         if (modal) return modal;
 
         const style = document.createElement("style");
         style.id = "lumiRecoveryModalStyle";
-        style.textContent = "#lumiRecoveryModal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(84,48,74,.38);backdrop-filter:blur(8px)}#lumiRecoveryModal.show{display:flex}.lumi-recovery-box{width:min(520px,100%);max-height:88vh;overflow:auto;border:1px solid #f2bdd5;border-radius:28px;background:#fff;box-shadow:0 24px 80px rgba(110,62,91,.22);padding:24px;color:#6b445b}.lumi-recovery-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}.lumi-recovery-head h3{margin:0;font-size:24px;color:#e06fa3}.lumi-recovery-head p{margin:6px 0 0;font-size:13px;font-weight:800;color:#9a7087;line-height:1.5}.lumi-recovery-close{width:36px;height:36px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d77ca7;font-size:22px;font-weight:900;cursor:pointer}.lumi-recovery-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 16px}.lumi-recovery-tab{min-height:42px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#9a5b7b;font-weight:900;cursor:pointer}.lumi-recovery-tab.active{background:#ff5ba5;color:#fff;box-shadow:0 10px 24px rgba(255,91,165,.22)}.lumi-recovery-panel{display:none}.lumi-recovery-panel.active{display:block}.lumi-recovery-field{margin:10px 0}.lumi-recovery-field label{display:block;margin-bottom:6px;font-size:12px;font-weight:900;color:#b36d93}.lumi-recovery-field input{width:100%;box-sizing:border-box;min-height:44px;border-radius:16px;border:1px solid #f0bfd4;background:#fff8fc;color:#6b445b;font-weight:900;padding:0 14px;outline:none}.lumi-recovery-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.lumi-recovery-action{width:100%;min-height:46px;margin-top:12px;border:0;border-radius:999px;background:#ff5ba5;color:#fff;font-weight:900;cursor:pointer}.lumi-recovery-subaction{width:100%;min-height:42px;margin-top:8px;border:1px solid #f0bfd4;border-radius:999px;background:#fff;color:#d77ca7;font-weight:900;cursor:pointer}.lumi-recovery-result{min-height:20px;margin-top:12px;padding:12px;border-radius:16px;background:#fff5fb;border:1px dashed #f0bfd4;font-size:13px;font-weight:900;color:#8a5d75;line-height:1.5}.lumi-recovery-note{margin-top:12px;font-size:12px;font-weight:800;color:#9a7087;line-height:1.55}";
+        style.textContent = "#lumiRecoveryModal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(84,48,74,.38);backdrop-filter:blur(8px)}#lumiRecoveryModal.show{display:flex}.lumi-recovery-box{width:min(520px,100%);max-height:88vh;overflow:auto;border:1px solid #f2bdd5;border-radius:28px;background:#fff;box-shadow:0 24px 80px rgba(110,62,91,.22);padding:24px;color:#6b445b}.lumi-recovery-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}.lumi-recovery-head h3{margin:0;font-size:24px;color:#e06fa3}.lumi-recovery-head p{margin:6px 0 0;font-size:13px;font-weight:800;color:#9a7087;line-height:1.5}.lumi-recovery-close{width:36px;height:36px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d77ca7;font-size:22px;font-weight:900;cursor:pointer}.lumi-recovery-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 16px}.lumi-recovery-tab{min-height:42px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#9a5b7b;font-weight:900;cursor:pointer}.lumi-recovery-tab.active{background:#ff5ba5;color:#fff;box-shadow:0 10px 24px rgba(255,91,165,.22)}.lumi-recovery-panel{display:none}.lumi-recovery-panel.active{display:block}.lumi-recovery-field{margin:10px 0}.lumi-recovery-field label{display:block;margin-bottom:6px;font-size:12px;font-weight:900;color:#b36d93}.lumi-recovery-field input{width:100%;box-sizing:border-box;min-height:44px;border-radius:16px;border:1px solid #f0bfd4;background:#fff8fc;color:#6b445b;font-weight:900;padding:0 14px;outline:none}.lumi-recovery-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.lumi-recovery-action{width:100%;min-height:46px;margin-top:12px;border:0;border-radius:999px;background:#ff5ba5;color:#fff;font-weight:900;cursor:pointer}.lumi-recovery-subaction{width:100%;min-height:42px;margin-top:8px;border:1px solid #f0bfd4;border-radius:999px;background:#fff;color:#d77ca7;font-weight:900;cursor:pointer}.lumi-recovery-result{min-height:20px;margin-top:12px;padding:12px;border-radius:16px;background:#fff5fb;border:1px dashed #f0bfd4;font-size:13px;font-weight:900;color:#8a5d75;line-height:1.5}.lumi-recovery-note{margin-top:12px;font-size:12px;font-weight:800;color:#9a7087;line-height:1.55}.lumi-recovery-field input:disabled,.lumi-recovery-action:disabled,.lumi-recovery-subaction:disabled{opacity:.62;cursor:wait}.lumi-password-wrap{position:relative}.lumi-password-wrap input{padding-right:52px}.lumi-password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d77ca7;font-size:17px;font-weight:900;cursor:pointer;line-height:1;display:grid;place-items:center;overflow:visible}.lumi-password-toggle.is-visible{background:#fff1f8;box-shadow:0 8px 20px rgba(255,91,165,.18)}.lumi-password-heart{position:absolute;left:50%;top:50%;pointer-events:none;animation:lumiRabbitHeart .72s ease-out forwards;font-size:12px;color:#ff6aa8;filter:drop-shadow(0 4px 8px rgba(255,91,165,.2))}@keyframes lumiRabbitHeart{0%{opacity:0;transform:translate(-50%,-50%) scale(.65)}20%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--heart-x,0px)),calc(-50% - 34px)) scale(1.25)}}";
         document.head.appendChild(style);
 
         modal = document.createElement("div");
         modal.id = "lumiRecoveryModal";
         modal.setAttribute("aria-hidden", "true");
         modal.innerHTML = '' +
-          '<div class="lumi-recovery-box" role="dialog" aria-modal="true" aria-label="루미 ID와 PIN 찾기">' +
+          '<div class="lumi-recovery-box" role="dialog" aria-modal="true" aria-label="루미 ID와 비밀번호 찾기">' +
             '<div class="lumi-recovery-head">' +
-              '<div><h3>루미 ID / PIN 찾기</h3><p>등록 이메일 인증으로 더 안전하게 루미 ID를 찾고 PIN을 재설정해요.</p></div>' +
+              '<div><h3>루미 ID / 비밀번호 찾기</h3><p>등록 이메일 인증으로 더 안전하게 루미 ID를 찾고 비밀번호를 재설정해요.</p></div>' +
               '<button type="button" class="lumi-recovery-close" data-recovery-close>×</button>' +
             '</div>' +
             '<div class="lumi-recovery-tabs">' +
               '<button type="button" class="lumi-recovery-tab active" data-recovery-tab="find">루미 ID 찾기</button>' +
-              '<button type="button" class="lumi-recovery-tab" data-recovery-tab="reset">PIN 재설정</button>' +
+              '<button type="button" class="lumi-recovery-tab" data-recovery-tab="reset">비밀번호 재설정</button>' +
             '</div>' +
             '<section class="lumi-recovery-panel active" data-recovery-panel="find">' +
               '<div class="lumi-recovery-field"><label>닉네임</label><input id="recoveryFindNickname" autocomplete="nickname" placeholder="예: 루루나나"></div>' +
@@ -4847,9 +4847,9 @@
               '<div class="lumi-recovery-result" id="recoveryQuestionResult">루미 ID를 입력한 뒤 인증코드를 받아 주세요.</div>' +
               '<div class="lumi-recovery-field"><label>이메일 인증코드</label><input id="recoveryResetCode" inputmode="numeric" maxlength="6" placeholder="메일로 받은 6자리 코드"></div>' +
               '<div class="lumi-recovery-field"><label>본인확인 답변</label><input id="recoveryResetAnswer" placeholder="답변 입력"></div>' +
-              '<div class="lumi-recovery-field"><label>새 PIN 숫자 4자리</label><input id="recoveryResetPin" inputmode="numeric" maxlength="4" placeholder="예: 1234"></div>' +
-              '<button type="button" class="lumi-recovery-action" id="recoveryResetSubmit">PIN 재설정</button>' +
-              '<div class="lumi-recovery-note">기존 PIN은 보여주지 않고, 등록 이메일 인증 후 새 PIN으로 재설정해요.</div>' +
+              '<div class="lumi-recovery-field"><label>새 비밀번호</label><div class="lumi-password-wrap"><input id="recoveryResetPin" type="password" autocomplete="new-password" maxlength="20" placeholder="영문/숫자/특수문자 4~20자"><button type="button" class="lumi-password-toggle" data-password-toggle="recoveryResetPin" aria-label="비밀번호 보기">🐰</button></div></div>' +
+              '<button type="button" class="lumi-recovery-action" id="recoveryResetSubmit">비밀번호 재설정</button>' +
+              '<div class="lumi-recovery-note">기존 비밀번호는 보여주지 않고, 등록 이메일 인증 후 새 비밀번호로 재설정해요.</div>' +
             '</section>' +
           '</div>';
         document.body.appendChild(modal);
@@ -4865,6 +4865,41 @@
         const findResult = modal.querySelector("#recoveryFindResult");
         const questionResult = modal.querySelector("#recoveryQuestionResult");
         const resetIdInput = modal.querySelector("#recoveryResetLumiId");
+        const resetPasswordInput = modal.querySelector("#recoveryResetPin");
+        function setRecoveryButtonLoading(button, isLoading, loadingText) {
+          if (!button) return function() {};
+          const originalText = button.textContent;
+          button.disabled = Boolean(isLoading);
+          if (isLoading && loadingText) button.textContent = loadingText;
+          return function restoreRecoveryButton() {
+            button.disabled = false;
+            button.textContent = originalText;
+          };
+        }
+        function playRabbitPasswordHeart(button) {
+          if (!button) return;
+          const xs = [-8, 0, 8];
+          xs.forEach(function(x, idx) {
+            const heart = document.createElement("span");
+            heart.className = "lumi-password-heart";
+            heart.textContent = "♡";
+            heart.style.setProperty("--heart-x", String(x) + "px");
+            heart.style.animationDelay = String(idx * 0.055) + "s";
+            button.appendChild(heart);
+            window.setTimeout(function() { try { heart.remove(); } catch(e) {} }, 900);
+          });
+        }
+        modal.querySelectorAll("[data-password-toggle]").forEach(function(button) {
+          button.addEventListener("click", function() {
+            const target = modal.querySelector("#" + button.getAttribute("data-password-toggle"));
+            if (!target) return;
+            const willShow = target.type === "password";
+            target.type = willShow ? "text" : "password";
+            button.classList.toggle("is-visible", willShow);
+            button.setAttribute("aria-label", willShow ? "비밀번호 숨기기" : "비밀번호 보기");
+            playRabbitPasswordHeart(button);
+          });
+        });
 
         modal.querySelector("#recoveryFindSubmit").addEventListener("click", async () => {
           const nickname = modal.querySelector("#recoveryFindNickname").value.trim();
@@ -4875,6 +4910,8 @@
             findResult.textContent = "닉네임, 생일, 본인확인 답변을 모두 입력해 주세요.";
             return;
           }
+          const findButton = modal.querySelector("#recoveryFindSubmit");
+          const restoreFindButton = setRecoveryButtonLoading(findButton, true, "메일 보내는 중…");
           findResult.textContent = "등록 이메일을 확인하는 중…";
           try {
             const response = await postLumiApi({ action: "lumiFindIdEmail", nickname, birthMonth, birthDay, recoveryAnswer });
@@ -4888,6 +4925,8 @@
             }
           } catch (error) {
             findResult.textContent = "루미폰 서버 연결을 확인해 주세요.";
+          } finally {
+            restoreFindButton();
           }
         });
 
@@ -4898,6 +4937,8 @@
             questionResult.textContent = "루미 ID를 입력해 주세요.";
             return;
           }
+          const codeButton = modal.querySelector("#recoveryCodeSubmit");
+          const restoreCodeButton = setRecoveryButtonLoading(codeButton, true, "인증코드 보내는 중…");
           questionResult.textContent = "인증코드를 발송하는 중…";
           try {
             const response = await postLumiApi({ action: "lumiRequestPinResetCode", lumiId });
@@ -4911,6 +4952,8 @@
             }
           } catch (error) {
             questionResult.textContent = "루미폰 서버 연결을 확인해 주세요.";
+          } finally {
+            restoreCodeButton();
           }
         });
 
@@ -4921,29 +4964,43 @@
           const recoveryAnswer = modal.querySelector("#recoveryResetAnswer").value.trim();
           const newPin = modal.querySelector("#recoveryResetPin").value.trim();
           if (!lumiId || !code || !recoveryAnswer || !newPin) {
-            questionResult.textContent = "루미 ID, 인증코드, 답변, 새 PIN을 모두 입력해 주세요.";
+            questionResult.textContent = "루미 ID, 인증코드, 답변, 새 비밀번호를 모두 입력해 주세요.";
             return;
           }
           if (!/^\d{6}$/.test(code)) {
             questionResult.textContent = "인증코드는 숫자 6자리로 입력해 주세요.";
             return;
           }
-          if (!/^\d{4}$/.test(newPin)) {
-            questionResult.textContent = "PIN은 숫자 4자리로 입력해 주세요.";
+          if (newPin.length < 4 || newPin.length > 20 || /\s/.test(newPin)) {
+            questionResult.textContent = "비밀번호는 4~20자, 공백 없이 입력해 주세요.";
             return;
           }
-          questionResult.textContent = "PIN을 재설정하는 중…";
+          const resetButton = modal.querySelector("#recoveryResetSubmit");
+          const restoreResetButton = setRecoveryButtonLoading(resetButton, true, "재설정하는 중…");
+          questionResult.textContent = "비밀번호를 재설정하는 중…";
           try {
             const response = await postLumiApi({ action: "lumiResetPinWithCode", lumiId, code, recoveryAnswer, newPin });
             if (response && response.ok === true) {
-              questionResult.textContent = "PIN이 재설정됐어요. 새 PIN으로 로그인해 주세요.";
+              questionResult.textContent = "비밀번호가 재설정됐어요. 새 비밀번호로 로그인해 주세요.";
               loginId.value = lumiId;
               loginPin.value = "";
+              modal.querySelector("#recoveryResetCode").value = "";
+              modal.querySelector("#recoveryResetAnswer").value = "";
+              modal.querySelector("#recoveryResetPin").value = "";
+              if (resetPasswordInput) resetPasswordInput.type = "password";
+              const toggle = modal.querySelector('[data-password-toggle="recoveryResetPin"]');
+              if (toggle) {
+                toggle.classList.remove("is-visible");
+                toggle.setAttribute("aria-label", "비밀번호 보기");
+              }
+              window.setTimeout(function() { closeLumiRecoveryModal(); }, 1200);
             } else {
-              questionResult.textContent = String((response && (response.message || response.error)) || "PIN을 재설정하지 못했어요.");
+              questionResult.textContent = String((response && (response.message || response.error)) || "비밀번호를 재설정하지 못했어요.");
             }
           } catch (error) {
             questionResult.textContent = "루미폰 서버 연결을 확인해 주세요.";
+          } finally {
+            restoreResetButton();
           }
         });
         return modal;
@@ -4970,7 +5027,7 @@
         const lumiId = normId(loginId.value);
         const pin = loginPin.value.trim();
         if (!lumiId || !pin) {
-          showMessage("루미 ID와 PIN을 입력해 주세요.");
+          showMessage("루미 ID와 비밀번호를 입력해 주세요.");
           return;
         }
 
@@ -4994,7 +5051,7 @@
           appendBootDebug("login UI error: " + msg);
           if (msg === "missingApiEndpoint") showMessage("루미폰 API 주소가 아직 설정되지 않았어요. LUMI_API_ENDPOINT를 Apps Script 웹앱 URL로 설정해 주세요.");
           else if (msg === "apiTimeout" || msg === "apiNetworkError") showMessage("루미폰 서버 연결을 확인해 주세요. debug: " + msg);
-          else showMessage("루미 ID 또는 PIN을 확인해 주세요.");
+          else showMessage("루미 ID 또는 비밀번호를 확인해 주세요.");
         } finally {
           // PATCH 51-38-fix1: 성공/실패 모두 버튼 원복 (로그아웃 후 재사용 대비)
           if (submitBtn) {
@@ -5025,7 +5082,7 @@
         sampleBtn.hidden = true;
         sampleBtn.setAttribute("aria-hidden", "true");
       }
-      newIdBtn.addEventListener("click", () => showMessage("온라인 팬도 루미 ID를 만들 수 있어요. 실제 발급 페이지에서는 닉네임, 이메일, 오시, 생일, PIN을 입력하게 됩니다."));
+      newIdBtn.addEventListener("click", () => showMessage("온라인 팬도 루미 ID를 만들 수 있어요. 실제 발급 페이지에서는 닉네임, 이메일, 오시, 생일, 비밀번호를 입력하게 됩니다."));
       forgotPinBtn.addEventListener("click", openLumiRecoveryModal);
       logoutBtn.addEventListener("click", closeApp);
 
