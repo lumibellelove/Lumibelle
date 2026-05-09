@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'secpatch1_session_token_20260509';
+      const APP_VERSION = 'secpatch2_1_email_recovery_20260509';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -3387,8 +3387,57 @@
         }
       }
 
+
+      async function postLumiApi(params) {
+        const payload = Object.assign({}, params || {});
+        payload._ = String(Date.now());
+        payload._v = APP_VERSION;
+        appendBootDebug("POST action: " + String(payload.action || "unknown"));
+        if (!LUMI_API_ENDPOINT()) {
+          appendBootDebug("missingApiEndpoint");
+          throw new Error("missingApiEndpoint");
+        }
+
+        const controller = new AbortController();
+        const timer = window.setTimeout(() => {
+          controller.abort();
+          appendBootDebug("postTimeout: " + String(payload.action || "unknown"));
+        }, LUMI_API_TIMEOUT_MS);
+
+        try {
+          const response = await fetch(LUMI_API_ENDPOINT(), {
+            method: "POST",
+            body: JSON.stringify(payload),
+            signal: controller.signal
+          });
+          window.clearTimeout(timer);
+          if (!response.ok) throw new Error("apiNetworkError");
+          const text = await response.text();
+          let data = null;
+          try {
+            data = JSON.parse(text);
+          } catch (jsonError) {
+            const match = String(text || "").match(/^[^(]+\(([\s\S]*)\);?$/);
+            if (match && match[1]) data = JSON.parse(match[1]);
+          }
+          if (!data) throw new Error("apiParseError");
+          appendBootDebug("POST success: " + String(payload.action || "unknown"));
+          if (data && data.ok === false && (data.error === "unauthorized" || data.code === 401)) {
+            appendBootDebug("unauthorized: auto logout triggered by " + String(payload.action || "unknown"));
+            if (typeof closeApp === "function") closeApp();
+            throw new Error("unauthorized");
+          }
+          return data;
+        } catch (err) {
+          window.clearTimeout(timer);
+          const msg = err && err.name === "AbortError" ? "apiTimeout" : (err && err.message ? err.message : "apiNetworkError");
+          appendBootDebug("POST error: " + msg + " / " + String(err && err.message || ""));
+          throw new Error(msg);
+        }
+      }
+
       async function loginLumiPhone(lumiId, pin) {
-        const response = await fetchLumiApi({ action: "lumiLogin", lumiId: lumiId, pin: pin });
+        const response = await postLumiApi({ action: "lumiLogin", lumiId: lumiId, pin: pin });
         if (!response || response.ok !== true) {
           setBootDebug("login failed: " + String((response && (response.message || response.error)) || "loginFailed"));
           throw new Error((response && (response.message || response.error)) || "loginFailed");
@@ -4756,8 +4805,9 @@
       }
 
       // ──────────────────────────────────────────────────────────
-      // Patch 51-58: 루미 ID 찾기 / PIN 재설정 1차
-      // 기존 로그인 흐름은 유지하고, forgotPinBtn 클릭 시 복구 모달만 연다.
+      // Security Patch 2-1: 이메일 기반 루미 ID 찾기 / PIN 재설정
+      // - 루미 ID는 화면에 직접 표시하지 않고 등록 이메일로 발송
+      // - PIN 재설정은 등록 이메일 인증코드 + 본인확인 답변 + 새 PIN으로 처리
       function ensureLumiRecoveryModal() {
         let modal = document.getElementById("lumiRecoveryModal");
         if (modal) return modal;
@@ -4773,7 +4823,7 @@
         modal.innerHTML = '' +
           '<div class="lumi-recovery-box" role="dialog" aria-modal="true" aria-label="루미 ID와 PIN 찾기">' +
             '<div class="lumi-recovery-head">' +
-              '<div><h3>루미 ID / PIN 찾기</h3><p>본인확인 정보가 맞으면 루미 ID를 찾거나 PIN을 새로 설정할 수 있어요.</p></div>' +
+              '<div><h3>루미 ID / PIN 찾기</h3><p>등록 이메일 인증으로 더 안전하게 루미 ID를 찾고 PIN을 재설정해요.</p></div>' +
               '<button type="button" class="lumi-recovery-close" data-recovery-close>×</button>' +
             '</div>' +
             '<div class="lumi-recovery-tabs">' +
@@ -4787,17 +4837,18 @@
                 '<div class="lumi-recovery-field"><label>생일 일</label><input id="recoveryFindDay" inputmode="numeric" placeholder="예: 9"></div>' +
               '</div>' +
               '<div class="lumi-recovery-field"><label>본인확인 답변</label><input id="recoveryFindAnswer" placeholder="예: 루미벨"></div>' +
-              '<button type="button" class="lumi-recovery-action" id="recoveryFindSubmit">루미 ID 찾기</button>' +
-              '<div class="lumi-recovery-result" id="recoveryFindResult">입력한 정보로 루미 ID를 찾아요.</div>' +
+              '<button type="button" class="lumi-recovery-action" id="recoveryFindSubmit">등록 이메일로 루미 ID 받기</button>' +
+              '<div class="lumi-recovery-result" id="recoveryFindResult">정보가 일치하면 등록된 이메일로 루미 ID를 보내요.</div>' +
             '</section>' +
             '<section class="lumi-recovery-panel" data-recovery-panel="reset">' +
               '<div class="lumi-recovery-field"><label>루미 ID</label><input id="recoveryResetLumiId" placeholder="LB-0001"></div>' +
-              '<button type="button" class="lumi-recovery-subaction" id="recoveryQuestionSubmit">본인확인 질문 불러오기</button>' +
-              '<div class="lumi-recovery-result" id="recoveryQuestionResult">루미 ID를 입력한 뒤 질문을 불러와 주세요.</div>' +
+              '<button type="button" class="lumi-recovery-subaction" id="recoveryCodeSubmit">등록 이메일로 인증코드 받기</button>' +
+              '<div class="lumi-recovery-result" id="recoveryQuestionResult">루미 ID를 입력한 뒤 인증코드를 받아 주세요.</div>' +
+              '<div class="lumi-recovery-field"><label>이메일 인증코드</label><input id="recoveryResetCode" inputmode="numeric" maxlength="6" placeholder="메일로 받은 6자리 코드"></div>' +
               '<div class="lumi-recovery-field"><label>본인확인 답변</label><input id="recoveryResetAnswer" placeholder="답변 입력"></div>' +
               '<div class="lumi-recovery-field"><label>새 PIN 숫자 4자리</label><input id="recoveryResetPin" inputmode="numeric" maxlength="4" placeholder="예: 1234"></div>' +
               '<button type="button" class="lumi-recovery-action" id="recoveryResetSubmit">PIN 재설정</button>' +
-              '<div class="lumi-recovery-note">기존 PIN은 보여주지 않고 새 PIN으로 재설정해요.</div>' +
+              '<div class="lumi-recovery-note">기존 PIN은 보여주지 않고, 등록 이메일 인증 후 새 PIN으로 재설정해요.</div>' +
             '</section>' +
           '</div>';
         document.body.appendChild(modal);
@@ -4823,33 +4874,34 @@
             findResult.textContent = "닉네임, 생일, 본인확인 답변을 모두 입력해 주세요.";
             return;
           }
-          findResult.textContent = "루미 ID를 찾는 중…";
+          findResult.textContent = "등록 이메일을 확인하는 중…";
           try {
-            const response = await fetchLumiApi({ action: "lumiFindId", nickname, birthMonth, birthDay, recoveryAnswer });
-            if (response && response.ok === true && response.lumiId) {
-              findResult.textContent = "찾은 루미 ID: " + response.lumiId;
-              if (resetIdInput) resetIdInput.value = response.lumiId;
+            const response = await postLumiApi({ action: "lumiFindIdEmail", nickname, birthMonth, birthDay, recoveryAnswer });
+            if (response && response.ok === true) {
+              findResult.textContent = (response.emailMasked ? response.emailMasked + "로 " : "등록된 이메일로 ") + "루미 ID를 보냈어요. 메일함을 확인해 주세요.";
             } else {
-              findResult.textContent = String((response && (response.message || response.error)) || "일치하는 루미 ID를 찾을 수 없습니다.");
+              findResult.textContent = String((response && (response.message || response.error)) || "일치하는 정보를 찾을 수 없습니다.");
             }
           } catch (error) {
             findResult.textContent = "루미폰 서버 연결을 확인해 주세요.";
           }
         });
 
-        modal.querySelector("#recoveryQuestionSubmit").addEventListener("click", async () => {
+        modal.querySelector("#recoveryCodeSubmit").addEventListener("click", async () => {
           const lumiId = normId(resetIdInput.value);
           resetIdInput.value = lumiId;
           if (!lumiId) {
             questionResult.textContent = "루미 ID를 입력해 주세요.";
             return;
           }
-          questionResult.textContent = "질문을 불러오는 중…";
+          questionResult.textContent = "인증코드를 발송하는 중…";
           try {
-            const response = await fetchLumiApi({ action: "lumiGetRecoveryQuestion", lumiId });
-            questionResult.textContent = response && response.ok === true
-              ? "본인확인 질문: " + String(response.recoveryQuestion || "관리자에게 문의해 주세요.")
-              : String((response && (response.message || response.error)) || "질문을 불러오지 못했어요.");
+            const response = await postLumiApi({ action: "lumiRequestPinResetCode", lumiId });
+            if (response && response.ok === true) {
+              questionResult.textContent = (response.emailMasked ? response.emailMasked + "로 " : "등록 이메일로 ") + "인증코드를 보냈어요. " + (response.recoveryQuestion ? "본인확인 질문: " + response.recoveryQuestion : "본인확인 답변도 함께 입력해 주세요.");
+            } else {
+              questionResult.textContent = String((response && (response.message || response.error)) || "인증코드를 발송하지 못했어요.");
+            }
           } catch (error) {
             questionResult.textContent = "루미폰 서버 연결을 확인해 주세요.";
           }
@@ -4858,10 +4910,15 @@
         modal.querySelector("#recoveryResetSubmit").addEventListener("click", async () => {
           const lumiId = normId(resetIdInput.value);
           resetIdInput.value = lumiId;
+          const code = modal.querySelector("#recoveryResetCode").value.trim();
           const recoveryAnswer = modal.querySelector("#recoveryResetAnswer").value.trim();
           const newPin = modal.querySelector("#recoveryResetPin").value.trim();
-          if (!lumiId || !recoveryAnswer || !newPin) {
-            questionResult.textContent = "루미 ID, 답변, 새 PIN을 모두 입력해 주세요.";
+          if (!lumiId || !code || !recoveryAnswer || !newPin) {
+            questionResult.textContent = "루미 ID, 인증코드, 답변, 새 PIN을 모두 입력해 주세요.";
+            return;
+          }
+          if (!/^\d{6}$/.test(code)) {
+            questionResult.textContent = "인증코드는 숫자 6자리로 입력해 주세요.";
             return;
           }
           if (!/^\d{4}$/.test(newPin)) {
@@ -4870,7 +4927,7 @@
           }
           questionResult.textContent = "PIN을 재설정하는 중…";
           try {
-            const response = await fetchLumiApi({ action: "lumiResetPin", lumiId, recoveryAnswer, newPin });
+            const response = await postLumiApi({ action: "lumiResetPinWithCode", lumiId, code, recoveryAnswer, newPin });
             if (response && response.ok === true) {
               questionResult.textContent = "PIN이 재설정됐어요. 새 PIN으로 로그인해 주세요.";
               loginId.value = lumiId;
