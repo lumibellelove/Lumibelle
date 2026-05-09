@@ -4806,6 +4806,7 @@
       }
 
       // ──────────────────────────────────────────────────────────
+      // Security Patch 2-2C: 로그인/메일 발송 UX 안정화
       // Security Patch 2-2B: 이메일 기반 복구 UI 안정화 / 로그인 잠금 문구 / 생일 드롭다운
       // - 루미 ID는 화면에 직접 표시하지 않고 등록 이메일로 발송
       // - 비밀번호 재설정은 등록 이메일 인증코드 + 본인확인 답변 + 새 비밀번호로 처리
@@ -5045,13 +5046,23 @@
         const submitBtn = loginForm.querySelector("button[type='submit']");
         const originalText = submitBtn ? submitBtn.textContent : "";
         if (submitBtn && submitBtn.disabled) return; // 이미 처리 중이면 무시
+        let loginLoadingTimers = [];
         if (submitBtn) {
           submitBtn.disabled = true;
-          submitBtn.textContent = "여는 중…";
+          submitBtn.textContent = "계정 확인 중…";
+          loginLoadingTimers = [
+            window.setTimeout(function() {
+              if (submitBtn && submitBtn.disabled) submitBtn.textContent = "보안 확인 중…";
+            }, 1200),
+            window.setTimeout(function() {
+              if (submitBtn && submitBtn.disabled) submitBtn.textContent = "기록을 불러오는 중…";
+            }, 3200)
+          ];
         }
 
         try {
           const user = await loginLumiPhone(lumiId, pin);
+          if (submitBtn && submitBtn.disabled) submitBtn.textContent = "루미폰 여는 중…";
           saveLoginState(user);
           await openApp({ user: user });
           // openApp 성공 후엔 loginView가 hidden 상태 → 버튼 복원 불필요하지만 안전하게 처리
@@ -5065,6 +5076,10 @@
           else if (msg && msg !== "loginFailed") showMessage(msg);
           else showMessage("루미 ID 또는 비밀번호를 확인해 주세요.");
         } finally {
+          // Security Patch 2-2C: 로그인 로딩 문구 타이머 정리
+          loginLoadingTimers.forEach(function(timerId) {
+            try { window.clearTimeout(timerId); } catch (e) {}
+          });
           // PATCH 51-38-fix1: 성공/실패 모두 버튼 원복 (로그아웃 후 재사용 대비)
           if (submitBtn) {
             submitBtn.disabled = false;
