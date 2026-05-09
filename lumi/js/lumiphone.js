@@ -3405,7 +3405,7 @@
         query.set("_v", APP_VERSION);
 
         // SecPatch1: lumiLogin/lumiFindId/lumiGetRecoveryQuestion/lumiResetPin 제외하고 sessionToken 자동 첨부
-        const _noTokenActions = new Set(["lumiLogin", "lumiFindId", "lumiFindIdEmail", "lumiRequestPinResetCode", "lumiResetPinWithCode", "lumiGetRecoveryQuestion", "lumiResetPin"]);
+        const _noTokenActions = new Set(["lumiLogin", "lumiFindId", "lumiFindIdEmail", "lumiRequestSignupEmailCode", "lumiSignupWithCode", "lumiRequestPinResetCode", "lumiResetPinWithCode", "lumiGetRecoveryQuestion", "lumiResetPin"]);
         if (!_noTokenActions.has(payload.action)) {
           const _storedToken = (function() {
             try {
@@ -5173,6 +5173,174 @@
         return modal;
       }
 
+
+      function ensureLumiSignupModal() {
+        let modal = document.getElementById("lumiSignupModal");
+        if (modal) return modal;
+        const styleId = "lumiSignupModalStyle";
+        if (!document.getElementById(styleId)) {
+          const style = document.createElement("style");
+          style.id = styleId;
+          style.textContent = "#lumiSignupModal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(84,48,74,.38);backdrop-filter:blur(8px)}#lumiSignupModal.show{display:flex}.lumi-signup-box{width:min(540px,100%);max-height:88vh;overflow:auto;border:1px solid #f2bdd5;border-radius:28px;background:#fff;box-shadow:0 24px 80px rgba(110,62,91,.22);padding:24px;color:#6b445b}.lumi-signup-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}.lumi-signup-head h3{margin:0;font-size:24px;color:#e06fa3}.lumi-signup-head p{margin:6px 0 0;font-size:13px;font-weight:800;color:#9a7087;line-height:1.5}.lumi-signup-close{width:36px;height:36px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d77ca7;font-size:22px;font-weight:900;cursor:pointer}.lumi-signup-field{margin:10px 0}.lumi-signup-field label{display:block;margin-bottom:6px;font-size:12px;font-weight:900;color:#b36d93}.lumi-signup-field input,.lumi-signup-field select{width:100%;box-sizing:border-box;min-height:44px;border-radius:16px;border:1px solid #f0bfd4;background:#fff8fc;color:#6b445b;font-weight:900;padding:0 14px;outline:none}.lumi-signup-field select{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#d77ca7 50%),linear-gradient(135deg,#d77ca7 50%,transparent 50%);background-position:calc(100% - 18px) 19px,calc(100% - 12px) 19px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:34px;cursor:pointer}.lumi-signup-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.lumi-signup-action{width:100%;min-height:46px;margin-top:12px;border:0;border-radius:999px;background:#ff5ba5;color:#fff;font-weight:900;cursor:pointer}.lumi-signup-subaction{width:100%;min-height:42px;margin-top:8px;border:1px solid #f0bfd4;border-radius:999px;background:#fff;color:#d77ca7;font-weight:900;cursor:pointer}.lumi-signup-result{min-height:20px;margin-top:12px;padding:12px;border-radius:16px;background:#fff5fb;border:1px dashed #f0bfd4;font-size:13px;font-weight:900;color:#8a5d75;line-height:1.5}.lumi-signup-result.success{background:#f5fff8;border-color:#bfe7cc;color:#3a8b53}.lumi-signup-note{margin-top:10px;font-size:12px;font-weight:800;color:#9a7087;line-height:1.55}.lumi-signup-field input:disabled,.lumi-signup-field select:disabled,.lumi-signup-action:disabled,.lumi-signup-subaction:disabled{opacity:.62;cursor:wait}.lumi-signup-password-wrap{position:relative}.lumi-signup-password-wrap input{padding-right:52px}";
+          document.head.appendChild(style);
+        }
+        const questionOptions = [
+          "나만의 비밀 단어는?",
+          "키우는 반려동물의 이름은?",
+          "좋아하는 음식은?",
+          "좋아하는 색은?",
+          "좌우명은?",
+          "처음 루미벨을 알게 된 계기는?",
+          "좋아하는 아이돌은?"
+        ].map(function(q) { return '<option value="' + q.replace(/"/g, '&quot;') + '">' + q + '</option>'; }).join("");
+        const oshiOptions = [
+          '<option value="Lumibelle">Lumibelle</option>',
+          '<option value="마리링">마리링</option>',
+          '<option value="루루">루루</option>',
+          '<option value="DD">DD</option>',
+          '<option value="아직 고민 중">아직 고민 중</option>'
+        ].join("");
+        modal = document.createElement("div");
+        modal.id = "lumiSignupModal";
+        modal.setAttribute("aria-hidden", "true");
+        modal.innerHTML = '' +
+          '<div class="lumi-signup-box" role="dialog" aria-modal="true" aria-label="루미 ID 만들기">' +
+            '<div class="lumi-signup-head">' +
+              '<div><h3>루미 ID 만들기</h3><p>루미폰에서 티켓, 우편, 기록을 확인할 수 있는 루미 ID를 만들어요.</p></div>' +
+              '<button type="button" class="lumi-signup-close" data-signup-close>×</button>' +
+            '</div>' +
+            '<div class="lumi-signup-field"><label>닉네임</label><input id="signupNickname" autocomplete="nickname" placeholder="예: 루루나나"></div>' +
+            '<div class="lumi-signup-field"><label>이메일</label><input id="signupEmail" type="email" autocomplete="email" placeholder="메일 인증이 가능한 이메일"></div>' +
+            '<button type="button" class="lumi-signup-subaction" id="signupCodeSend">이메일 인증코드 받기</button>' +
+            '<div class="lumi-signup-result" id="signupCodeResult">이메일 인증 후 루미 ID를 만들 수 있어요.</div>' +
+            '<div class="lumi-signup-field"><label>이메일 인증코드</label><input id="signupEmailCode" inputmode="numeric" maxlength="6" placeholder="메일로 받은 6자리 코드"></div>' +
+            '<div class="lumi-signup-row">' +
+              '<div class="lumi-signup-field"><label>비밀번호</label><div class="lumi-signup-password-wrap"><input id="signupPassword" type="password" autocomplete="new-password" maxlength="20" placeholder="4~20자"><button type="button" class="lumi-password-toggle" data-password-toggle="signupPassword" aria-label="비밀번호 보기">🐰</button></div></div>' +
+              '<div class="lumi-signup-field"><label>비밀번호 확인</label><div class="lumi-signup-password-wrap"><input id="signupPasswordConfirm" type="password" autocomplete="new-password" maxlength="20" placeholder="한 번 더 입력"><button type="button" class="lumi-password-toggle" data-password-toggle="signupPasswordConfirm" aria-label="비밀번호 보기">🐰</button></div></div>' +
+            '</div>' +
+            '<div class="lumi-signup-field"><label>오시 선택</label><select id="signupOshi">' + oshiOptions + '</select></div>' +
+            '<div class="lumi-signup-field"><label>본인확인 질문</label><select id="signupRecoveryQuestion">' + questionOptions + '</select></div>' +
+            '<div class="lumi-signup-field"><label>본인확인 답변</label><input id="signupRecoveryAnswer" placeholder="비밀번호 찾기에 사용할 답변"></div>' +
+            '<button type="button" class="lumi-signup-action" id="signupSubmit">루미 ID 만들기</button>' +
+            '<div class="lumi-signup-note">입력한 이메일과 본인확인 질문/답변은 루미 ID 찾기와 비밀번호 재설정에 사용돼요. 답변은 다른 사람에게 알려주지 마세요.</div>' +
+          '</div>';
+        document.body.appendChild(modal);
+
+        function closeSignupModal() {
+          modal.classList.remove("show");
+          modal.setAttribute("aria-hidden", "true");
+        }
+        function signupBtnLoading(btn, text) {
+          if (!btn) return function(){};
+          const original = btn.textContent;
+          btn.disabled = true;
+          btn.textContent = text;
+          return function() { btn.disabled = false; btn.textContent = original; };
+        }
+        function signupRetrySeconds(response) {
+          if (!response) return 0;
+          if (Number(response.retryAfterSeconds || 0) > 0) return Math.ceil(Number(response.retryAfterSeconds));
+          const msg = String(response.message || response.error || "");
+          const m = msg.match(/(\d+)\s*초\s*후/);
+          return m ? Number(m[1]) : 0;
+        }
+        function signupCountdown(btn, resultEl, seconds) {
+          let remain = Math.max(1, Number(seconds || 60));
+          btn.disabled = true;
+          const tick = function() {
+            btn.textContent = remain + "초 후 다시 요청";
+            if (resultEl) resultEl.textContent = "인증 메일은 " + remain + "초 후 다시 요청할 수 있어요.";
+            remain -= 1;
+            if (remain < 0) {
+              window.clearInterval(timer);
+              btn.disabled = false;
+              btn.textContent = "이메일 인증코드 받기";
+              if (resultEl) resultEl.textContent = "다시 요청할 수 있어요.";
+            }
+          };
+          tick();
+          const timer = window.setInterval(tick, 1000);
+        }
+
+        modal.querySelectorAll("[data-signup-close]").forEach((btn) => btn.addEventListener("click", closeSignupModal));
+        modal.addEventListener("click", (event) => { if (event.target === modal) closeSignupModal(); });
+
+        modal.querySelector("#signupCodeSend").addEventListener("click", async function() {
+          const email = modal.querySelector("#signupEmail").value.trim();
+          const result = modal.querySelector("#signupCodeResult");
+          if (!email) { result.textContent = "이메일을 입력해 주세요."; return; }
+          const btn = modal.querySelector("#signupCodeSend");
+          const restore = signupBtnLoading(btn, "인증코드 보내는 중…");
+          result.classList.remove("success");
+          result.textContent = "인증코드를 발송하는 중…";
+          let countdown = false;
+          try {
+            const response = await postLumiApi({ action: "lumiRequestSignupEmailCode", email });
+            if (response && response.ok === true && response.emailSent) {
+              result.classList.add("success");
+              result.textContent = (response.emailMasked || email) + "로 인증코드를 보냈어요.";
+              countdown = true;
+              signupCountdown(btn, result, 60);
+            } else {
+              const retry = signupRetrySeconds(response);
+              if (retry > 0) { countdown = true; signupCountdown(btn, result, retry); }
+              else result.textContent = String((response && (response.message || response.error)) || "인증코드를 발송하지 못했어요.");
+            }
+          } catch (e) {
+            result.textContent = "루미폰 서버 연결을 확인해 주세요.";
+          } finally {
+            if (!countdown) restore();
+          }
+        });
+
+        modal.querySelector("#signupSubmit").addEventListener("click", async function() {
+          const nickname = modal.querySelector("#signupNickname").value.trim();
+          const email = modal.querySelector("#signupEmail").value.trim();
+          const code = modal.querySelector("#signupEmailCode").value.trim();
+          const password = modal.querySelector("#signupPassword").value.trim();
+          const passwordConfirm = modal.querySelector("#signupPasswordConfirm").value.trim();
+          const oshi = modal.querySelector("#signupOshi").value.trim();
+          const recoveryQuestion = modal.querySelector("#signupRecoveryQuestion").value.trim();
+          const recoveryAnswer = modal.querySelector("#signupRecoveryAnswer").value.trim();
+          const result = modal.querySelector("#signupCodeResult");
+          result.classList.remove("success");
+          if (!nickname || !email || !code || !password || !passwordConfirm || !oshi || !recoveryQuestion || !recoveryAnswer) {
+            result.textContent = "닉네임, 이메일, 인증코드, 비밀번호, 오시, 본인확인 질문/답변을 모두 입력해 주세요.";
+            return;
+          }
+          if (!/^\d{6}$/.test(code)) { result.textContent = "인증코드는 숫자 6자리로 입력해 주세요."; return; }
+          if (password !== passwordConfirm) { result.textContent = "비밀번호 확인이 일치하지 않아요."; return; }
+          if (password.length < 4 || password.length > 20 || /\s/.test(password)) { result.textContent = "비밀번호는 4~20자, 공백 없이 입력해 주세요."; return; }
+          const btn = modal.querySelector("#signupSubmit");
+          const restore = signupBtnLoading(btn, "루미 ID 만드는 중…");
+          result.textContent = "루미 ID를 만드는 중…";
+          try {
+            const response = await postLumiApi({ action: "lumiSignupWithCode", nickname, email, code, password, passwordConfirm, oshi, recoveryQuestion, recoveryAnswer });
+            if (response && response.ok === true && response.lumiId) {
+              result.classList.add("success");
+              result.textContent = "루미 ID가 만들어졌어요: " + response.lumiId + "\n로그인 화면에 자동 입력했어요.";
+              loginId.value = String(response.lumiId || "").replace(/\D/g, "").slice(-4);
+              loginPin.value = "";
+              showMessage("루미 ID가 만들어졌어요. 방금 설정한 비밀번호로 로그인해 주세요.");
+              window.setTimeout(closeSignupModal, 1500);
+            } else {
+              result.textContent = String((response && (response.message || response.error)) || "루미 ID를 만들지 못했어요.");
+            }
+          } catch (e) {
+            result.textContent = "루미폰 서버 연결을 확인해 주세요.";
+          } finally {
+            restore();
+          }
+        });
+        return modal;
+      }
+
+      function openLumiSignupModal() {
+        const modal = ensureLumiSignupModal();
+        modal.classList.add("show");
+        modal.setAttribute("aria-hidden", "false");
+      }
+
       function openLumiRecoveryModal(mode) {
         const modal = ensureLumiRecoveryModal();
         modal.classList.add("show");
@@ -5273,7 +5441,7 @@
         sampleBtn.hidden = true;
         sampleBtn.setAttribute("aria-hidden", "true");
       }
-      newIdBtn.addEventListener("click", () => showMessage("온라인 팬도 루미 ID를 만들 수 있어요. 실제 발급 페이지에서는 닉네임, 이메일, 오시, 생일, 비밀번호를 입력하게 됩니다."));
+      newIdBtn.addEventListener("click", openLumiSignupModal);
       forgotPinBtn.addEventListener("click", openLumiRecoveryModal);
       logoutBtn.addEventListener("click", closeApp);
 
