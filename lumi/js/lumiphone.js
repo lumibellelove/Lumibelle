@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'lumi_signup_patch1_fix2D_profile_server_mock_fix_20260510';
+      const APP_VERSION = 'lumi_signup_patch1_fix2E_profile_load_badge_birthday_20260510';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -1672,6 +1672,10 @@
         if (typeof renderProfileView === "function") renderProfileView();
         if (typeof renderProfileEditor === "function") renderProfileEditor();
         syncRecordJoinDateFromUser(currentUser || user);
+        // fix2E: 서버 프로필 반영 시 티켓 쪽 생일 상태도 같이 갱신
+        if (typeof window.__lumiApplyBirthdayTicketState === "function") {
+          window.__lumiApplyBirthdayTicketState();
+        }
       }
 
       function normalizeProfileState(state) {
@@ -3185,6 +3189,11 @@
           saveLoginState(currentUser);
           syncProfileInfoFromUser(currentUser);
           syncRecordJoinDateFromUser(currentUser);
+          // fix2E: 서버 생일값 반영 후 Birthday Ticket 즉시 재계산
+          if (typeof window.__lumiApplyBirthdayTicketState === "function") {
+            window.__lumiApplyBirthdayTicketState();
+            window.setTimeout(window.__lumiApplyBirthdayTicketState, 80);
+          }
           // Admin Users Patch 1-fix1:
           // 로그인 직후 응답/캐시가 normal로 남아 있어도, 프로필 재조회에서 temporary 상태를 받으면
           // 임시 비밀번호 변경 안내 모달을 다시 띄운다.
@@ -3466,6 +3475,12 @@
           birthMonth: source.birthMonth || source.birthdayMonth || "",
           birthDay: source.birthDay || source.birthdayDay || "",
           profileMessage: source.profileMessage || "",
+          // fix2E: 서버에서 내려온 프로필 꾸미기 필드를 normalize 과정에서 보존
+          displayName: source.displayName || "",
+          space: source.space || "",
+          letterName: source.letterName || "",
+          broadcastName: source.broadcastName || "",
+          birthdayRegistered: source.birthdayRegistered === true || String(source.birthdayRegistered || "").toLowerCase() === "true",
           equippedTitle: source.equippedTitle || "",
           passwordType: source.passwordType || source.pinType || "",
           mustChangePassword: source.mustChangePassword === true || String(source.mustChangePassword || source.mustChangePin || "").toLowerCase() === "true",
@@ -8627,6 +8642,9 @@
     updateWalletBirthday(state);
     updateTicketModal(state);
   }
+
+  // fix2E: 로그인/프로필 API 반영 후 바깥 IIFE에서도 생일 티켓을 즉시 갱신할 수 있게 노출
+  window.__lumiApplyBirthdayTicketState = applyBirthdayTicketState;
 
   document.addEventListener("click", (event) => {
     if (event.target.closest('[data-perk="birthday"]')) {
