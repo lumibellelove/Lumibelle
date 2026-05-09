@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'patch51_57_fix2_record_day_visit_semantics_20260509';
+      const APP_VERSION = 'patch51_57_fix3_record_join_profile_refresh_20260509';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -430,6 +430,16 @@
         // PATCH 51-57: 기록 탭 루미 ID 생성일/DAY 즉시 반영
         syncRecordJoinDateFromUser(currentUser);
 
+        // PATCH 51-57-fix3: 저장 세션이 오래되어 createdAt이 비어 있을 수 있으므로
+        // profile 캐시가 있으면 먼저 보강한다.
+        const cachedProfile = cacheRead_(lid, "profile", 24 * 60 * 60 * 1000);
+        if (cachedProfile && cachedProfile.user) {
+          currentUser = normalizeLumiUser(Object.assign({}, currentUser || {}, cachedProfile.user));
+          saveLoginState(currentUser);
+          syncProfileInfoFromUser(currentUser);
+          syncRecordJoinDateFromUser(currentUser);
+        }
+
         // PATCH 51-37: 캐시 즉시 복원 (동기, 0ms)
         const cachedRes    = cacheRead_(lid, "reservations", 24 * 60 * 60 * 1000);
         const cachedMail   = cacheRead_(lid, "mail",         24 * 60 * 60 * 1000);
@@ -522,6 +532,9 @@
           function doRefresh() {
           // PATCH 51-39: allSettled → 한쪽 실패해도 나머지 계속
           Promise.allSettled([
+            loadMyProfile(lid).catch(function(e) { // PATCH 51-57-fix3
+              appendBootDebug("bg profile error: " + String(e && e.message || e));
+            }),
             loadMyReservations(lid).catch(function(e) {
               appendBootDebug("bg reservation error: " + String(e && e.message || e));
             }),
@@ -1356,7 +1369,7 @@
         birthdayMonth: "",
         birthdayDay: "",
         birthdayRegistered: false,
-        joinedAt: "2026.05.06"
+        joinedAt: ""
       });
       const profileDefaultState = () => ({ cover: profileDefaultPart(), avatar: profileDefaultPart(), info: profileDefaultInfo() });
       let profileState = profileDefaultState();
@@ -1432,7 +1445,7 @@
           birthdayDay,
           birthdayRegistered,
           profileMessage: clampText(next.profileMessage || "", 60),
-          joinedAt: next.joinedAt || "2026.05.06"
+          joinedAt: next.joinedAt || ""
         };
       }
 
@@ -1445,24 +1458,47 @@
       }
 
 
-      // PATCH 51-57-fix2: 기록 탭 상단 의미 복구
+      // PATCH 51-57-fix3: 기록 탭 상단 의미 복구 + createdAt 우선순위 고정
       // 왼쪽: 루미 ID 생성일(createdAt) 기준 DAY / 오른쪽: 첫 루미 방문일 영역 보존
+      function getExplicitProfileJoinRaw(user) {
+        const candidates = [];
+        if (user && typeof user === "object") {
+          candidates.push(user.createdAt, user.joinedAt);
+        }
+        if (currentUser && typeof currentUser === "object") {
+          candidates.push(currentUser.createdAt, currentUser.joinedAt);
+        }
+        // profileState.info.joinedAt은 예전 기본값(2026.05.06)이 남아 있을 수 있으므로
+        // 명시적인 사용자/캐시 값이 없을 때만 마지막 후보로 본다.
+        if (profileState && profileState.info) {
+          candidates.push(profileState.info.joinedAt);
+        }
+        for (let i = 0; i < candidates.length; i++) {
+          const raw = String(candidates[i] || "").trim();
+          if (!raw) continue;
+          // 51-57 이전 기본 하드코딩값은 실제 createdAt으로 보지 않는다.
+          if (raw === "2026.05.06" || raw === "2026-05-06") continue;
+          return raw;
+        }
+        return "";
+      }
+
+      function calculateInclusiveDayFromJoin(joined) {
+        const m = String(joined || "").match(/^(\d{4})\.(\d{2})\.(\d{2})/);
+        if (!m) return "DAY 1";
+        const start = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        if (isNaN(start.getTime())) return "DAY 1";
+        const diff = Math.floor((today.getTime() - start.getTime()) / 86400000) + 1;
+        return "DAY " + Math.max(1, diff);
+      }
+
       function syncRecordJoinDateFromUser(user) {
-        const rawJoin = (user && (user.createdAt || user.joinedAt)) || (profileState && profileState.info && profileState.info.joinedAt) || "";
+        const rawJoin = getExplicitProfileJoinRaw(user);
         const joined = formatProfileJoinDate(rawJoin);
         if (!joined) return;
-
-        const m = joined.match(/^(\d{4})\.(\d{2})\.(\d{2})/);
-        let dayLabel = "DAY 1";
-        if (m) {
-          const start = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-          const now = new Date();
-          const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-          if (!isNaN(start.getTime())) {
-            const diff = Math.floor((today.getTime() - start.getTime()) / 86400000) + 1;
-            dayLabel = "DAY " + Math.max(1, diff);
-          }
-        }
+        const dayLabel = calculateInclusiveDayFromJoin(joined);
 
         Array.from(document.querySelectorAll(".record-hero-card")).forEach(function(card) {
           const label = card.querySelector("small");
@@ -1479,8 +1515,7 @@
             return;
           }
 
-          // 두 번째 카드: 첫 루미 방문일 영역. 51-57에서 잘못 바꾼 '루미 ID 생성일' 표기를 복구하고 값은 건드리지 않음.
-          // 방문일 값은 visits/첫 방문 기록 기준으로 별도 관리한다.
+          // 두 번째 카드: 첫 루미 방문일 영역. 값은 visits/첫 방문 기록 렌더러가 관리한다.
           if (labelText.indexOf("루미 ID 생성일") !== -1 || labelText.indexOf("첫 루미 방문일") !== -1) {
             label.textContent = "첫 루미 방문일";
             if (desc) desc.textContent = "오프라인 기록과 온라인 연결감을 함께 저장해요";
@@ -3015,6 +3050,20 @@
         }
         updateAchievementSummary();
         renderAchievementPage();
+      }
+
+      async function loadMyProfile(lumiId) {
+        const id = normId(lumiId || getCurrentLumiId());
+        if (!id || !LUMI_API_ENDPOINT()) return null;
+        const payload = await fetchLumiApi({ action: "lumiGetMyProfile", lumiId: id });
+        if (payload && payload.ok && payload.user) {
+          cacheWrite_(id, "profile", payload);
+          currentUser = normalizeLumiUser(Object.assign({}, currentUser || {}, payload.user));
+          saveLoginState(currentUser);
+          syncProfileInfoFromUser(currentUser);
+          syncRecordJoinDateFromUser(currentUser);
+        }
+        return payload;
       }
 
       async function loadMyAchievements(lumiId) {
