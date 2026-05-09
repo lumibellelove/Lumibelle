@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_55_shop_items_20260509";
+      const APP_VERSION = "patch51_55_fix1_shop_ui_mapping_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -6999,8 +6999,8 @@
     {cat:'song', icon:'🎫', title:'노래 신청권', point:'500p', desc:'노래책에 등록된 신청 가능 곡 중 1곡을 신청하는 후보. 멤버 컨디션과 방송 상황에 따라 조정될 수 있어요.'},
     {cat:'season', icon:'🎴', title:'시즌 디지털 카드', point:'700p', desc:'카드 앨범에 남길 수 있는 시즌 한정 디지털 카드 후보.'}
   ];
-  var labels={all:'전체',special:'스페셜',merch:'물판',reaction:'방송 리액션',digital:'디지털 보상',song:'노래 보상',season:'시즌 보상'};
-  var order=['all','special','merch','reaction','digital','song','season'];
+  var labels={all:'전체',reaction:'방송 리액션',digital:'디지털 보상',song:'노래 보상',season:'시즌 보상'};
+  var order=['all','reaction','digital','song','season'];
   function qs(s,r){return (r||document).querySelector(s)}
   function qsa(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
   function cleanTextValue(v){
@@ -7107,22 +7107,41 @@
     if(point==='site') return '💌';
     return '✦';
   }
+  function exchangeCatForShopItem(item){
+    var cat=String(item.category||'').trim();
+    var point=String(item.pointType||'').trim();
+    var status=String(item.status||'').trim();
+    // PATCH 51-55-fix1: 최종 안정본 탭은 유지한다.
+    // special/site 보상은 디지털 보상 후보로 묶고, merch/info는 별도 탭을 만들지 않고 전체에서만 안내 카드로 보여준다.
+    if(cat==='merch'||point==='merch'||status==='info') return 'allOnly';
+    if(cat==='special'||point==='site') return 'digital';
+    if(labels[cat] && cat!=='all') return cat;
+    return 'digital';
+  }
   function apiShopRewards(){
     var payload=window.__lumiShopItemsPayload||null;
     var items=payload&&Array.isArray(payload.items)?payload.items:[];
-    if(!items.length) return null;
-    return items.map(function(item){
+    if(!items.length) return [];
+    return items.filter(function(item){
+      return String(item.status||'').trim() !== 'hidden';
+    }).map(function(item){
       var cost=Number(item.cost||0);
       var ptype=String(item.pointType||'site');
-      var costText=ptype==='none'||item.status==='info'?'안내':pointLabel(ptype)+' '+cost+'p';
+      var status=String(item.status||'preparing');
+      var cat=exchangeCatForShopItem(item);
+      var costText=(ptype==='none'||status==='info')?'안내':pointLabel(ptype)+' '+cost+'p';
       var lim=limitText(item);
       var desc=String(item.description||item.note||'교환소 보상이에요.');
-      if(lim) desc += ' · '+lim;
-      return {cat:String(item.category||'special'), icon:iconForShopItem(item), title:String(item.itemName||'교환소 아이템'), point:costText, desc:desc, status:String(item.status||'preparing'), itemId:String(item.itemId||''), source:'api'};
+      if(cat==='allOnly') desc += ' · 현장 스탭 확인 후 사용';
+      else if(lim) desc += ' · '+lim;
+      return {cat:cat, icon:iconForShopItem(item), title:String(item.itemName||'교환소 아이템'), point:costText, desc:desc, status:status, itemId:String(item.itemId||''), source:'api'};
     });
   }
   function currentExchangeRewards(){
-    return apiShopRewards() || rewards;
+    // PATCH 51-55-fix1: API 아이템으로 안정본 보상 후보를 교체하지 않고, 기존 후보 뒤에 추가한다.
+    // 이렇게 해야 2열 카드 밀도와 기본 탭 구성이 유지된다.
+    var api=apiShopRewards();
+    return rewards.concat(api);
   }
   function cardHtml(item){
     var label=statusLabel(item.status||'preparing');
@@ -7139,7 +7158,7 @@
     var msg=qs('#exchangeMsgV2827',shell.page) || qs('#exchangeMsg',shell.page);
     if(msg){
       msg.innerHTML=cat==='all'
-        ? (apiShopRewards() ? '교환소 아이템을 불러왔어요. 실제 신청과 포인트 차감은 아직 연결하지 않았어요.' : '지금은 보상 후보와 포인트 기준을 먼저 잡아둔 상태예요. 실제 신청, 차감, 멤버별 가능 범위는 추후 공개됩니다.')
+        ? (apiShopRewards().length ? '교환소 아이템을 불러왔어요. 홈페이지 포인트 보상은 후보로, 물판 포인트는 현장 안내 카드로 표시해요. 실제 신청과 차감은 아직 연결하지 않았어요.' : '지금은 보상 후보와 포인트 기준을 먼저 잡아둔 상태예요. 실제 신청, 차감, 멤버별 가능 범위는 추후 공개됩니다.')
         : '<strong>'+labels[cat]+'</strong> 후보만 보고 있어요. 실제 신청, 차감, 멤버별 가능 범위는 추후 공개됩니다.';
     }
   }
