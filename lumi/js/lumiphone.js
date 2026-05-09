@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'secpatch2_1_email_recovery_20260509';
+      const APP_VERSION = 'secpatch2_1_fix2_post_worker_20260509';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -3407,7 +3407,7 @@
         try {
           const response = await fetch(LUMI_API_ENDPOINT(), {
             method: "POST",
-            headers: { "Content-Type": "application/json;charset=UTF-8" },
+            headers: { "Content-Type": "text/plain;charset=UTF-8" },
             body: JSON.stringify(payload),
             signal: controller.signal
           });
@@ -3422,7 +3422,7 @@
             if (match && match[1]) data = JSON.parse(match[1]);
           }
           if (!data) throw new Error("apiParseError");
-          appendBootDebug("POST success: " + String(payload.action || "unknown"));
+          appendBootDebug("POST success: " + String(payload.action || "unknown") + " keys=" + Object.keys(data || {}).join(","));
           if (data && data.ok === false && (data.error === "unauthorized" || data.code === 401)) {
             appendBootDebug("unauthorized: auto logout triggered by " + String(payload.action || "unknown"));
             if (typeof closeApp === "function") closeApp();
