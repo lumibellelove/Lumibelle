@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_54_profile_view_20260509";
+      const APP_VERSION = "patch51_55_shop_items_20260509";
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -508,6 +508,13 @@
           appendBootDebug("onAir cache: " + (((cachedOnAirLogs.logs || []).length) || 0) + " items");
         }
 
+        // PATCH 51-55: 교환소 아이템 캐시 즉시 복원
+        const cachedShopItems = cacheRead_(lid, "shopItems", 24 * 60 * 60 * 1000);
+        if (cachedShopItems) {
+          renderShopItems(cachedShopItems);
+          appendBootDebug("shopItems cache: " + (((cachedShopItems.items || []).length) || 0) + " items");
+        }
+
         // PATCH 51-37: API는 백그라운드 병렬 실행 (await 없음 → 화면 진입 차단 안 함)
         function runBackgroundRefresh(lid) {
           function doRefresh() {
@@ -536,6 +543,9 @@
             }),
             loadMyOnAirLogs(lid).catch(function(e) { // PATCH 51-53
               appendBootDebug("bg onair error: " + String(e && e.message || e));
+            }),
+            loadMyShopItems(lid).catch(function(e) { // PATCH 51-55
+              appendBootDebug("bg shopItems error: " + String(e && e.message || e));
             })
           ]);
           }
@@ -4488,6 +4498,36 @@
           appendBootDebug("onair error: " + String(error && error.message ? error.message : error));
         }
       }
+      // PATCH 51-55: 교환소 조회/표시 1차 연동
+      function normalizeShopPayload(data) {
+        const items = Array.isArray(data && data.items) ? data.items : (Array.isArray(data) ? data : []);
+        return { items: items, count: Number((data && data.count) || items.length || 0) };
+      }
+
+      function renderShopItems(data) {
+        const payload = normalizeShopPayload(data);
+        window.__lumiShopItemsPayload = payload;
+        if (typeof window.__lumiRenderExchangeV2828 === "function") {
+          try { window.__lumiRenderExchangeV2828(window.__lumiExchangeSelectedCatV2828 || "all"); } catch (error) {}
+        }
+      }
+
+      async function loadMyShopItems(lumiId) {
+        try {
+          const response = await fetchLumiApi({ action: "lumiGetShopItems", lumiId: lumiId });
+          if (!response || response.ok !== true) {
+            appendBootDebug("shopItems load failed: " + String((response && (response.error || response.message)) || "failed"));
+            return;
+          }
+          const payload = { items: Array.isArray(response.items) ? response.items : [], count: Number(response.count || 0) };
+          cacheWrite_(lumiId, "shopItems", payload);
+          renderShopItems(payload);
+          appendBootDebug("shopItems loaded: " + payload.items.length + " items");
+        } catch (error) {
+          appendBootDebug("shopItems error: " + String(error && error.message ? error.message : error));
+        }
+      }
+
       // ──────────────────────────────────────────────────────────
 
       loginForm.addEventListener("submit", async (event) => {
@@ -6959,8 +6999,8 @@
     {cat:'song', icon:'🎫', title:'노래 신청권', point:'500p', desc:'노래책에 등록된 신청 가능 곡 중 1곡을 신청하는 후보. 멤버 컨디션과 방송 상황에 따라 조정될 수 있어요.'},
     {cat:'season', icon:'🎴', title:'시즌 디지털 카드', point:'700p', desc:'카드 앨범에 남길 수 있는 시즌 한정 디지털 카드 후보.'}
   ];
-  var labels={all:'전체',reaction:'방송 리액션',digital:'디지털 보상',song:'노래 보상',season:'시즌 보상'};
-  var order=['all','reaction','digital','song','season'];
+  var labels={all:'전체',special:'스페셜',merch:'물판',reaction:'방송 리액션',digital:'디지털 보상',song:'노래 보상',season:'시즌 보상'};
+  var order=['all','special','merch','reaction','digital','song','season'];
   function qs(s,r){return (r||document).querySelector(s)}
   function qsa(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
   function cleanTextValue(v){
@@ -7032,19 +7072,74 @@
     if(oldGrid){oldGrid.setAttribute('aria-hidden','true'); oldGrid.style.display='none'; oldGrid.style.pointerEvents='none';}
     return {page:page,tabs:tabs,grid:grid};
   }
+  function escExchangeText(v){
+    return String(v == null ? '' : v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});
+  }
+  function pointLabel(type){
+    var key=String(type||'').trim();
+    if(key==='site') return '홈페이지 포인트';
+    if(key==='merch') return '물판 포인트';
+    if(key==='xp') return '반짝 XP';
+    if(key==='none') return '안내';
+    return key || '포인트';
+  }
+  function statusLabel(status){
+    var key=String(status||'').trim();
+    if(key==='active') return '교환 가능';
+    if(key==='preparing') return '준비중';
+    if(key==='closed') return '종료';
+    if(key==='info') return '안내';
+    return key || '준비중';
+  }
+  function limitText(item){
+    var type=String(item.limitType||'none').trim();
+    var count=Number(item.limitCount||0);
+    if(type==='monthly') return '월 '+(count||1)+'회';
+    if(type==='daily') return '일 '+(count||1)+'회';
+    if(type==='once') return '1회 한정';
+    return '';
+  }
+  function iconForShopItem(item){
+    var cat=String(item.category||'').trim();
+    var point=String(item.pointType||'').trim();
+    if(cat==='merch'||point==='merch') return '🎫';
+    if(item.status==='info') return '💡';
+    if(point==='site') return '💌';
+    return '✦';
+  }
+  function apiShopRewards(){
+    var payload=window.__lumiShopItemsPayload||null;
+    var items=payload&&Array.isArray(payload.items)?payload.items:[];
+    if(!items.length) return null;
+    return items.map(function(item){
+      var cost=Number(item.cost||0);
+      var ptype=String(item.pointType||'site');
+      var costText=ptype==='none'||item.status==='info'?'안내':pointLabel(ptype)+' '+cost+'p';
+      var lim=limitText(item);
+      var desc=String(item.description||item.note||'교환소 보상이에요.');
+      if(lim) desc += ' · '+lim;
+      return {cat:String(item.category||'special'), icon:iconForShopItem(item), title:String(item.itemName||'교환소 아이템'), point:costText, desc:desc, status:String(item.status||'preparing'), itemId:String(item.itemId||''), source:'api'};
+    });
+  }
+  function currentExchangeRewards(){
+    return apiShopRewards() || rewards;
+  }
   function cardHtml(item){
-    return '<div class="exchange-reward-card-v2828" data-lumi-exchange-cat="'+item.cat+'"><em>'+item.point+'</em><i>'+item.icon+'</i><b>'+item.title+'</b><span>'+item.desc+'</span><button type="button" disabled>준비중</button></div>';
+    var label=statusLabel(item.status||'preparing');
+    var cls='exchange-reward-card-v2828 status-'+String(item.status||'preparing');
+    return '<div class="'+cls+'" data-lumi-exchange-cat="'+escExchangeText(item.cat)+'" data-lumi-shop-item="'+escExchangeText(item.itemId||'')+'"><em>'+escExchangeText(item.point)+'</em><i>'+escExchangeText(item.icon)+'</i><b>'+escExchangeText(item.title)+'</b><span>'+escExchangeText(item.desc)+'</span><button type="button" disabled>'+escExchangeText(label)+'</button></div>';
   }
   function renderExchange(cat){
     var shell=ensureExchangeShell(); if(!shell) return;
     cat=labels[cat]?cat:'all'; window.__lumiExchangeSelectedCatV2828=cat;
     qsa('[data-lumi-exchange-filter]',shell.tabs).forEach(function(btn){btn.classList.toggle('active',btn.getAttribute('data-lumi-exchange-filter')===cat);});
-    var data=rewards.filter(function(item){return cat==='all'||item.cat===cat});
+    var allRewards=currentExchangeRewards();
+    var data=allRewards.filter(function(item){return cat==='all'||item.cat===cat});
     shell.grid.innerHTML=data.map(cardHtml).join('');
     var msg=qs('#exchangeMsgV2827',shell.page) || qs('#exchangeMsg',shell.page);
     if(msg){
       msg.innerHTML=cat==='all'
-        ? '지금은 보상 후보와 포인트 기준을 먼저 잡아둔 상태예요. 실제 신청, 차감, 멤버별 가능 범위는 추후 공개됩니다.'
+        ? (apiShopRewards() ? '교환소 아이템을 불러왔어요. 실제 신청과 포인트 차감은 아직 연결하지 않았어요.' : '지금은 보상 후보와 포인트 기준을 먼저 잡아둔 상태예요. 실제 신청, 차감, 멤버별 가능 범위는 추후 공개됩니다.')
         : '<strong>'+labels[cat]+'</strong> 후보만 보고 있어요. 실제 신청, 차감, 멤버별 가능 범위는 추후 공개됩니다.';
     }
   }
