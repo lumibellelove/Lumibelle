@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'patch51_58_fix1_id_find_fallback_20260509';
+      const APP_VERSION = 'secpatch1_session_token_20260509';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -302,6 +302,8 @@
             birthDay: source.birthDay || source.birthdayDay || "",
             profileMessage: source.profileMessage || "",
             equippedTitle: source.equippedTitle || "",
+            // SecPatch1: 서버 발급 sessionToken 저장
+            sessionToken: source.sessionToken || "",
             type: "api",
             savedAt: Date.now()
           };
@@ -338,7 +340,9 @@
             birthDay: state.birthDay || state.birthdayDay || "",
             profileMessage: state.profileMessage || "",
             equippedTitle: state.equippedTitle || "",
-            type: state.type || "api"
+            type: state.type || "api",
+            // SecPatch1: 저장된 sessionToken 복원
+            sessionToken: state.sessionToken || ""
           };
         } catch (error) {
           return null;
@@ -3337,8 +3341,22 @@
         query.set("_", String(Date.now()));
         query.set("_v", APP_VERSION);
 
+        // SecPatch1: lumiLogin/lumiFindId/lumiGetRecoveryQuestion/lumiResetPin 제외하고 sessionToken 자동 첨부
+        const _noTokenActions = new Set(["lumiLogin", "lumiFindId", "lumiGetRecoveryQuestion", "lumiResetPin"]);
+        if (!_noTokenActions.has(payload.action)) {
+          const _storedToken = (function() {
+            try {
+              const _raw = localStorage.getItem("lumiphone.loginState.v1");
+              if (!_raw) return "";
+              const _obj = JSON.parse(_raw);
+              return (_obj && _obj.sessionToken) || "";
+            } catch(e) { return ""; }
+          })();
+          if (_storedToken) query.set("sessionToken", _storedToken);
+        }
+
         const url = LUMI_API_ENDPOINT() + (LUMI_API_ENDPOINT().indexOf("?") === -1 ? "?" : "&") + query.toString();
-        appendBootDebug("fetch: " + url.slice(0, 80));
+        appendBootDebug("fetch action: " + String(payload.action || "unknown")); // SecPatch1: URL/PIN/token 노출 방지
 
         const controller = new AbortController();
         const timer = window.setTimeout(() => {
@@ -3352,6 +3370,12 @@
           if (!response.ok) throw new Error("apiNetworkError");
           const data = await response.json();
           appendBootDebug("fetch success: " + String(payload.action || "unknown"));
+          // SecPatch1: unauthorized 응답 감지 시 자동 로그아웃
+          if (data && data.ok === false && (data.error === "unauthorized" || data.code === 401)) {
+            appendBootDebug("unauthorized: auto logout triggered by " + String(payload.action || "unknown"));
+            if (typeof closeApp === "function") closeApp();
+            throw new Error("unauthorized");
+          }
           return data;
         } catch (err) {
           window.clearTimeout(timer);
@@ -3368,6 +3392,8 @@
           throw new Error((response && (response.message || response.error)) || "loginFailed");
         }
         const user = normalizeLumiUser(response.user || response.data || {});
+        // SecPatch1: 서버 발급 sessionToken을 user 객체에 추가 → saveLoginState에서 저장됨
+        if (response.sessionToken) user.sessionToken = response.sessionToken;
         appendBootDebug("login success: " + (user.lumiId || user.id || lumiId));
         return user;
       }
