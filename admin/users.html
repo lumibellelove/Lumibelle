@@ -67,7 +67,7 @@
             </section>
             <section>
               <h2>임시 비밀번호 발급</h2>
-              <p class="hint">발급 시 pin이 임시 비밀번호로 바뀌고 passwordType=temporary, mustChangePassword=TRUE가 됩니다. 팬은 로그인 후 직접 새 비밀번호로 변경합니다.</p>
+              <p class="hint">발급 시 pin이 현장 전달용 임시 비밀번호로 바뀌고 passwordType=temporary, mustChangePassword=TRUE가 됩니다. 임시 비밀번호 예시는 lumi1234 형식입니다.</p>
               <div class="field"><label for="processedBy">처리자</label><input id="processedBy" type="text" placeholder="스탭명/닉네임" value="admin" /></div>
               <div class="field"><label for="memo">메모</label><textarea id="memo" placeholder="예: 현장 임시 비밀번호 재발급"></textarea></div>
               <button class="btn warn" id="issueTempBtn" type="button">임시 비밀번호 발급</button>
@@ -180,7 +180,7 @@ async function issueTempPassword(){
     const res=await apiCall({action:'adminIssueTempPassword',lumiId:selectedUser.lumiId,processedBy:processedBy.value||'admin',memo:memo.value||''});
     if(!res.ok){setStatus(tempResult,'발급 실패: '+(res.error||res.message||'unknown'),'bad');return;}
     const temp=(res.data&&res.data.tempPassword)||res.tempPassword||'';
-    setStatus(tempResult,'임시 비밀번호: '+temp+'\n팬에게 이 값을 전달하고, 로그인 후 직접 변경하도록 안내해 주세요.','ok');
+    setStatus(tempResult,'임시 비밀번호: '+temp+'\n팬에게 이 값을 전달하고, 로그인 후 직접 변경하도록 안내해 주세요. 예: lumi1234','ok');
     await loadDetail(selectedUser.lumiId);
   }catch(e){setStatus(tempResult,'API 오류: '+e.message,'bad')}
   finally{$('#issueTempBtn').disabled=false}
