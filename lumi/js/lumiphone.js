@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'lumi_signup_patch1_fix2B_qa_fixes_20260510';
+      const APP_VERSION = 'lumi_signup_patch1_fix2C_signup_ux_ghost_fix_20260510';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -1169,6 +1169,9 @@
       function updateMailTabBadge() {
         const badge = document.querySelector('.tab[data-page="mail"] .badge');
         if (!badge) return;
+        // API 모드에서 로드 완료 전에는 배지 숨김 (유령 알림 방지)
+        const apiMode = !!(LUMI_API_ENDPOINT() && getCurrentLumiId());
+        if (apiMode && !LUMI_MESSAGES_LOAD_DONE) { badge.textContent = ""; badge.style.display = "none"; return; }
         const unread = getAllMailItems().filter((mail) => mail.box === "inbox" && !isMailRead(mail.id) && mail.status === "NEW").length;
         badge.textContent = unread || "";
         badge.style.display = unread ? "" : "none";
@@ -4001,76 +4004,57 @@
       async function loadMyMessages(lumiId) {
         try {
           const messages = await getMyMessages(lumiId);
-          if (Array.isArray(messages)) {
-            if (DEBUG_MODE) console.log("[lumi] loadMyMessages: messages arrived, count=", messages.length);
-            const publicMessages = messages.filter((item) => {
-              const member = String(item && item.senderMember || "").toLowerCase();
-              return member !== "iro" && member !== "lunar" && member !== "luna";
-            });
-            const normalized = publicMessages.map(normalizeLumiMessageItem);
-            const mailItems = normalized.filter((item) => item.channel === "mail");
-            const smsItems = publicMessages
-              .filter((item) => getLumiMessageChannel(item) === "message")
-              .map(normalizeSmsItem); // PATCH 51-32-fix8: 로그인 IIFE 스코프 내 함수 사용
-            if (DEBUG_MODE) console.log("[lumi] loadMyMessages split: mail=", mailItems.length, "| sms=", smsItems.length);
-            if (DEBUG_MODE) console.log("[lumi] loadMyMessages mail items:", mailItems);
-            LUMI_MESSAGES_LOAD_DONE = true;
-            LUMI_RUNTIME_MAIL_ITEMS = mailItems;
-            LUMI_RUNTIME_MESSAGE_ITEMS = smsItems;
-            window.__lumiRuntimeMessageItems = LUMI_RUNTIME_MESSAGE_ITEMS;
-            window.__lumiRuntimeMailItems = LUMI_RUNTIME_MAIL_ITEMS;
-            window.__lumiMessagesLoadDone = true;
-            // PATCH 51-36: API 성공 데이터를 캐시에 저장
-            cacheWrite_(lumiId, "mail", mailItems);
-            cacheWrite_(lumiId, "sms",  smsItems);
-            if (DEBUG_MODE) console.log("[lumiMsg] bridge set:", window.__lumiRuntimeMessageItems.length, "sms /", window.__lumiRuntimeMailItems.length, "mail");
-            mailState.inbox.page = 0;
-            mailState.saved.page = 0;
-            renderMailAll();
-            // PATCH 51-45: 문자함 IIFE에 강제 재렌더 신호 (캐시 없이 첫 로드된 경우 반영)
-            if (typeof window.showLumiMessageInbox === "function") window.showLumiMessageInbox();
-            // 문자함이 현재 활성 탭이면 bind()도 호출해서 리스트 강제 갱신
-            if (typeof window.__lumiRefreshMessageList === "function") window.__lumiRefreshMessageList();
-            appendBootDebug("messages UI split applied: mail=" + LUMI_RUNTIME_MAIL_ITEMS.length + " sms=" + LUMI_RUNTIME_MESSAGE_ITEMS.length);
-          } else {
-            // PATCH 51-39: API 응답이 빈 배열이어도 캐시가 있으면 UI를 비우지 않음
-            if (!Array.isArray(LUMI_RUNTIME_MAIL_ITEMS) || LUMI_RUNTIME_MAIL_ITEMS.length === 0) {
-              LUMI_RUNTIME_MAIL_ITEMS = [];
-              window.__lumiRuntimeMailItems = [];
-              window.__lumiRuntimeMessageItems = window.__lumiRuntimeMessageItems || [];
-              LUMI_MESSAGES_LOAD_DONE = true;
-              window.__lumiMessagesLoadDone = true;
-              appendBootDebug("messages empty: no API mail items");
-              renderMailAll();
-            } else {
-              LUMI_MESSAGES_LOAD_DONE = true;
-              window.__lumiMessagesLoadDone = true;
-              appendBootDebug("messages empty from API but cache kept");
-            }
-          }
+          // getMyMessages는 항상 배열을 반환하거나 throw — 비배열 분기는 방어용
+          const safeMessages = Array.isArray(messages) ? messages : [];
+          if (DEBUG_MODE) console.log("[lumi] loadMyMessages: messages arrived, count=", safeMessages.length);
+          const publicMessages = safeMessages.filter((item) => {
+            const member = String(item && item.senderMember || "").toLowerCase();
+            return member !== "iro" && member !== "lunar" && member !== "luna";
+          });
+          const normalized = publicMessages.map(normalizeLumiMessageItem);
+          const mailItems = normalized.filter((item) => item.channel === "mail");
+          const smsItems = publicMessages
+            .filter((item) => getLumiMessageChannel(item) === "message")
+            .map(normalizeSmsItem);
+          if (DEBUG_MODE) console.log("[lumi] loadMyMessages split: mail=", mailItems.length, "| sms=", smsItems.length);
+          // API 성공 — 빈 배열이어도 캐시 버리고 실제 결과로 확정 (유령 알림 방지)
+          LUMI_MESSAGES_LOAD_DONE = true;
+          LUMI_RUNTIME_MAIL_ITEMS = mailItems;
+          LUMI_RUNTIME_MESSAGE_ITEMS = smsItems;
+          window.__lumiRuntimeMessageItems = LUMI_RUNTIME_MESSAGE_ITEMS;
+          window.__lumiRuntimeMailItems = LUMI_RUNTIME_MAIL_ITEMS;
+          window.__lumiMessagesLoadDone = true;
+          cacheWrite_(lumiId, "mail", mailItems);
+          cacheWrite_(lumiId, "sms",  smsItems);
+          mailState.inbox.page = 0;
+          mailState.saved.page = 0;
+          renderMailAll();
+          if (typeof window.showLumiMessageInbox === "function") window.showLumiMessageInbox();
+          if (typeof window.__lumiRefreshMessageList === "function") window.__lumiRefreshMessageList();
+          appendBootDebug(safeMessages.length === 0
+            ? "messages empty from API: cache cleared"
+            : "messages UI split applied: mail=" + mailItems.length + " sms=" + smsItems.length);
         } catch (error) {
           const errMsg = String(error && error.message ? error.message : error);
           if (DEBUG_MODE) console.error("[lumi] loadMyMessages catch:", errMsg);
-          // PATCH 51-32-fix6: window.LUMI_API_ENDPOINT가 lumiphone.js 실행 후 세팅되는 경우
-          // missingApiEndpoint 에러 → 500ms 뒤 window 값 있으면 재시도 1회
+          // missingApiEndpoint → 500ms 뒤 재시도 1회
           if (errMsg === "missingApiEndpoint" && window.LUMI_API_ENDPOINT) {
             appendBootDebug("missingApiEndpoint → retry in 500ms (window value found)");
-            if (DEBUG_MODE) console.log("[lumi] loadMyMessages: missingApiEndpoint, retrying in 500ms...");
             setTimeout(function() { loadMyMessages(lumiId); }, 500);
             return;
           }
+          // timeout/네트워크 에러: loadDone 확정하되 캐시 유지 (기존 정책)
           LUMI_MESSAGES_LOAD_DONE = true;
           window.__lumiMessagesLoadDone = true;
-          appendBootDebug("message UI fallback: " + errMsg);
-          // PATCH 51-39: timeout/에러 시 캐시가 있으면 UI를 비우지 않음
+          appendBootDebug("message load error (cache kept): " + errMsg);
           if (!Array.isArray(LUMI_RUNTIME_MAIL_ITEMS) || LUMI_RUNTIME_MAIL_ITEMS.length === 0) {
             LUMI_RUNTIME_MAIL_ITEMS = [];
             window.__lumiRuntimeMailItems = [];
+            LUMI_RUNTIME_MESSAGE_ITEMS = LUMI_RUNTIME_MESSAGE_ITEMS || [];
             window.__lumiRuntimeMessageItems = window.__lumiRuntimeMessageItems || [];
             renderMailAll();
-          } else {
-            appendBootDebug("keeping cached UI after error");
           }
+          // 캐시가 있으면 기존 UI 유지 (에러/타임아웃 시에만)
         }
       }
 
@@ -5442,12 +5426,69 @@
           try {
             const response = await postLumiApi({ action: "lumiSignupWithCode", nickname, email, code, password, passwordConfirm, oshi, recoveryQuestion, recoveryAnswer });
             if (response && response.ok === true && response.lumiId) {
-              result.classList.add("success");
-              result.textContent = "루미 ID가 만들어졌어요: " + response.lumiId + "\n로그인 화면에 자동 입력했어요.";
-              loginId.value = String(response.lumiId || "").replace(/\D/g, "").slice(-4);
+              const issuedId = String(response.lumiId || "");
+              // 자동 닫힘 없음 — 사용자가 직접 확인 후 루미폰 열기
+              loginId.value = issuedId.replace(/\D/g, "").slice(-4);
               loginPin.value = "";
-              showMessage("루미 ID가 만들어졌어요. 방금 설정한 비밀번호로 로그인해 주세요.");
-              window.setTimeout(closeSignupModal, 1500);
+
+              // 입력 필드 전체 비활성화
+              modal.querySelectorAll("input, select, button:not(#signupSuccessOpen):not(#signupSuccessCopy)").forEach(function(el) {
+                el.disabled = true;
+              });
+
+              // 성공 화면 렌더링
+              const box = modal.querySelector(".lumi-signup-box");
+              if (box) {
+                box.innerHTML =
+                  '<div style="padding:8px 0 4px;">' +
+                    '<div style="text-align:center;margin-bottom:18px;">' +
+                      '<div style="font-size:36px;margin-bottom:8px;">✨</div>' +
+                      '<h3 style="margin:0 0 6px;font-size:22px;color:#e06fa3;">루미 ID가 만들어졌어요!</h3>' +
+                      '<p style="margin:0;font-size:13px;font-weight:800;color:#9a7087;line-height:1.6;">입력한 이메일로 루미 ID 안내 메일도 발송했어요.</p>' +
+                    '</div>' +
+                    '<div style="background:#fff5fb;border:1px solid #f0bfd4;border-radius:20px;padding:18px 20px;margin-bottom:18px;text-align:center;">' +
+                      '<div style="font-size:12px;font-weight:900;color:#b36d93;margin-bottom:6px;">나의 루미 ID</div>' +
+                      '<div style="font-size:28px;font-weight:900;color:#e06fa3;letter-spacing:2px;" id="signupSuccessId">' + issuedId + '</div>' +
+                    '</div>' +
+                    '<button type="button" id="signupSuccessCopy" style="width:100%;min-height:44px;margin-bottom:10px;border:1px solid #f0bfd4;border-radius:999px;background:#fff;color:#d77ca7;font-weight:900;font-size:15px;cursor:pointer;">루미 ID 복사</button>' +
+                    '<button type="button" id="signupSuccessOpen" style="width:100%;min-height:48px;border:0;border-radius:999px;background:#ff5ba5;color:#fff;font-weight:900;font-size:15px;cursor:pointer;">루미폰 열기</button>' +
+                    '<p style="margin:14px 0 0;font-size:12px;font-weight:800;color:#9a7087;text-align:center;line-height:1.6;">방금 설정한 비밀번호로 로그인해 주세요.</p>' +
+                  '</div>';
+
+                // 복사 버튼
+                const copyBtn = box.querySelector("#signupSuccessCopy");
+                if (copyBtn) {
+                  copyBtn.addEventListener("click", function() {
+                    try {
+                      navigator.clipboard.writeText(issuedId).then(function() {
+                        copyBtn.textContent = "복사됐어요 ✓";
+                        copyBtn.style.background = "#f5fff8";
+                        copyBtn.style.borderColor = "#bfe7cc";
+                        copyBtn.style.color = "#3a8b53";
+                        window.setTimeout(function() {
+                          copyBtn.textContent = "루미 ID 복사";
+                          copyBtn.style.background = "";
+                          copyBtn.style.borderColor = "";
+                          copyBtn.style.color = "";
+                        }, 2000);
+                      }).catch(function() {
+                        copyBtn.textContent = issuedId + " (직접 복사해 주세요)";
+                      });
+                    } catch (e) {
+                      copyBtn.textContent = issuedId + " (직접 복사해 주세요)";
+                    }
+                  });
+                }
+
+                // 루미폰 열기 버튼 — 클릭 시에만 모달 닫기
+                const openBtn = box.querySelector("#signupSuccessOpen");
+                if (openBtn) {
+                  openBtn.addEventListener("click", function() {
+                    closeSignupModal();
+                    showMessage("루미 ID가 만들어졌어요. 비밀번호를 입력해 루미폰을 열어 주세요.");
+                  });
+                }
+              }
             } else {
               result.textContent = String((response && (response.message || response.error)) || "루미 ID를 만들지 못했어요.");
               if (codeBtn) codeBtn.disabled = false; // 실패 시 인증코드 버튼 복원
@@ -5669,10 +5710,7 @@
           showProfileError("표시 닉네임을 입력해 주세요.");
           return;
         }
-        if (!profileDraft.info.space) {
-          showProfileError("나의 공간을 입력해 주세요.");
-          return;
-        }
+        // space/letterName/broadcastName은 선택 입력 — 필수 검증 없음
 
         const nextState = normalizeProfileState(profileDraft);
         const beforeOshi = normalizeProfileInfo(profileState.info).oshi;
@@ -7260,7 +7298,10 @@
     return result;
   }
   function updateBadges(){
-    const unreadItems = getAllLumiMessageItems().filter(m => isVisibleInboxMessage(m) && !isRead(m.id));
+    // 2순위 유령 알림 방지: API 모드에서 loadDone 전에는 배지/홈 알림을 0으로 처리
+    const apiMode = !!(window.LUMI_API_ENDPOINT && window.__lumiGetCurrentId && window.__lumiGetCurrentId());
+    const loadDone = window.__lumiMessagesLoadDone === true;
+    const unreadItems = (apiMode && !loadDone) ? [] : getAllLumiMessageItems().filter(m => isVisibleInboxMessage(m) && !isRead(m.id));
     const unread = unreadItems.length;
     const messageMini = document.querySelector('.app-icon[data-go="message"] .mini, .kawaii-app-icon[data-go="message"] .mini');
     if (messageMini) { messageMini.textContent = unread > 0 ? String(Math.min(unread,9)) : ""; messageMini.style.display = unread > 0 ? "inline-flex" : "none"; }
@@ -7270,6 +7311,13 @@
     const homeKicker = document.getElementById("homeMessageKicker");
     if (homeCard) {
       homeCard.classList.remove("hidden");
+      // API 모드 로딩 중에는 홈 카드에 로딩 문구 표시
+      if (apiMode && !loadDone) {
+        if (homeKicker) homeKicker.textContent = "MESSAGE";
+        if (homeTitle) homeTitle.textContent = "문자함";
+        if (homePreview) homePreview.textContent = "문자를 불러오는 중…";
+        return;
+      }
       const publicUnreadItems = unreadItems.filter(m => isVisibleInboxMessage(m));
       const first = publicUnreadItems[0];
       if (first) {
