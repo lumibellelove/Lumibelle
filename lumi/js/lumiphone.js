@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'lumi_signup_patch1_fix2C_signup_ux_ghost_fix_20260510';
+      const APP_VERSION = 'lumi_signup_patch1_fix2D_profile_server_mock_fix_20260510';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -187,6 +187,7 @@
       const profileCover = $("#profileCover");
       const profileAvatar = $("#profileAvatar");
       const profileDisplayName = $("#profileDisplayName");
+      const profileLumiId = $("#profileLumiId"); // fix2D: LUMI ID 카드 표시용
       const profileMeta = $("#profileMeta");
       const profileTitlePill = $("#profileTitlePill");
       
@@ -318,6 +319,11 @@
             birthDay: source.birthDay || source.birthdayDay || "",
             profileMessage: source.profileMessage || "",
             equippedTitle: source.equippedTitle || "",
+            // fix2D: 프로필 꾸미기 서버 저장 필드
+            displayName: source.displayName || "",
+            space: source.space || "",
+            letterName: source.letterName || "",
+            broadcastName: source.broadcastName || "",
             // SecPatch1: 서버 발급 sessionToken 저장
             sessionToken: source.sessionToken || "",
             // Security Patch 2-2D: 임시 비밀번호 변경 유도용 상태 보존
@@ -361,6 +367,11 @@
             birthDay: state.birthDay || state.birthdayDay || "",
             profileMessage: state.profileMessage || "",
             equippedTitle: state.equippedTitle || "",
+            // fix2D: 프로필 꾸미기 서버 저장 필드 복원
+            displayName: state.displayName || "",
+            space: state.space || "",
+            letterName: state.letterName || "",
+            broadcastName: state.broadcastName || "",
             passwordType: state.passwordType || state.pinType || "",
             mustChangePassword: state.mustChangePassword === true || String(state.mustChangePassword || state.mustChangePin || "").toLowerCase() === "true",
             passwordRule: state.passwordRule || "",
@@ -1638,7 +1649,9 @@
         if (!user || typeof user !== "object") return;
         const current = normalizeProfileInfo(profileState && profileState.info);
         const nextInfo = Object.assign({}, current);
-        if (user.nickname) nextInfo.displayName = user.nickname;
+        // displayName: 서버 저장값 우선, 없으면 가입 닉네임(nickname) 사용
+        if (user.displayName) nextInfo.displayName = user.displayName;
+        else if (user.nickname) nextInfo.displayName = user.nickname;
         const normalizedOshi = normalizeOshiForProfile(user.oshi);
         if (normalizedOshi) nextInfo.oshi = normalizedOshi;
         const title = user.equippedTitle || runtimeEquippedTitleFromApi;
@@ -1648,6 +1661,10 @@
         if (user.birthMonth || user.birthdayMonth) nextInfo.birthdayMonth = user.birthMonth || user.birthdayMonth;
         if (user.birthDay || user.birthdayDay) nextInfo.birthdayDay = user.birthDay || user.birthdayDay;
         if (user.profileMessage) nextInfo.profileMessage = user.profileMessage;
+        // fix2D: 서버 저장된 프로필 꾸미기 필드 반영
+        if (user.space !== undefined) nextInfo.space = user.space || "";
+        if (user.letterName !== undefined) nextInfo.letterName = user.letterName || "";
+        if (user.broadcastName !== undefined) nextInfo.broadcastName = user.broadcastName || "";
         nextInfo.birthdayRegistered = Boolean(nextInfo.birthdayMonth && nextInfo.birthdayDay);
         profileState = normalizeProfileState(Object.assign({}, profileState, { info: nextInfo }));
         profileDraft = cloneProfileState(profileState);
@@ -3197,7 +3214,9 @@
         const info = normalizeProfileInfo(profileState.info);
         const displayTitle = runtimeEquippedTitleFromApi || info.title;
         if (profileDisplayName) profileDisplayName.textContent = info.displayName;
-        if (profileMeta) profileMeta.textContent = "오시: " + info.oshi;
+        // fix2D: LUMI ID는 항상 currentUser 기준 (mock/하드코딩 금지)
+        if (profileLumiId) profileLumiId.textContent = "LUMI ID · " + (getCurrentLumiId() || "-");
+        if (profileMeta) profileMeta.textContent = info.oshi ? "오시: " + info.oshi : "";
         if (profileTitlePill) profileTitlePill.textContent = displayTitle;
         if (profileSpaceTag) {
           if (info.space) {
@@ -3208,7 +3227,17 @@
             profileSpaceTag.hidden = true;
           }
         }
-        if (profileBirthdayTag) profileBirthdayTag.textContent = "🎂 " + profileBirthdayText(info);
+        // fix2D: 생일 없으면 태그 hidden
+        if (profileBirthdayTag) {
+          const hasBirthday = info.birthdayRegistered && info.birthdayMonth && info.birthdayDay;
+          if (hasBirthday) {
+            profileBirthdayTag.textContent = "🎂 " + profileBirthdayText(info);
+            profileBirthdayTag.hidden = false;
+          } else {
+            profileBirthdayTag.textContent = "";
+            profileBirthdayTag.hidden = true;
+          }
+        }
         if (profileJoinTag) profileJoinTag.textContent = "";
       }
 
@@ -5701,7 +5730,7 @@
         });
       }
 
-      function commitProfileSave(confirmedOshiChange) {
+      async function commitProfileSave(confirmedOshiChange) {
         profileTextComposing = false;
         trimAllProfileInputs();
         updateProfileCounters();
@@ -5737,6 +5766,62 @@
         }
         renderProfileView();
         closeProfileEditor(false);
+
+        // fix2D: 서버에 프로필 꾸미기 값 저장 (displayName/생일/공간/문자이름/방송닉네임)
+        // 실패해도 localStorage 저장은 완료됐으므로 UI를 막지 않음
+        if (LUMI_API_ENDPOINT() && getCurrentLumiId()) {
+          const savedInfo = normalizeProfileInfo(profileState.info);
+          const lid = getCurrentLumiId();
+          postLumiApi({
+            action: "lumiUpdateMyProfile",
+            lumiId: lid,
+            sessionToken: (currentUser && currentUser.sessionToken) || "",
+            displayName: savedInfo.displayName || "",
+            birthMonth: savedInfo.birthdayMonth || "",
+            birthDay: savedInfo.birthdayDay || "",
+            space: savedInfo.space || "",
+            letterName: savedInfo.letterName || "",
+            broadcastName: savedInfo.broadcastName || "",
+            profileMessage: savedInfo.profileMessage || ""
+          }).then(function(res) {
+            if (res && res.ok) {
+              appendBootDebug("profile server save OK");
+              // 저장 성공 후 currentUser 전체 갱신
+              if (currentUser) {
+                currentUser = Object.assign({}, currentUser, {
+                  displayName: savedInfo.displayName || "",
+                  birthMonth: savedInfo.birthdayMonth || "",
+                  birthDay: savedInfo.birthdayDay || "",
+                  space: savedInfo.space || "",
+                  letterName: savedInfo.letterName || "",
+                  broadcastName: savedInfo.broadcastName || "",
+                  profileMessage: savedInfo.profileMessage || ""
+                });
+                saveLoginState(currentUser);
+              }
+              // profile 캐시도 전체 갱신
+              if (lid) {
+                const profileCachePayload = {
+                  ok: true,
+                  user: Object.assign({}, currentUser || {}, {
+                    displayName: savedInfo.displayName || "",
+                    birthMonth: savedInfo.birthdayMonth || "",
+                    birthDay: savedInfo.birthdayDay || "",
+                    space: savedInfo.space || "",
+                    letterName: savedInfo.letterName || "",
+                    broadcastName: savedInfo.broadcastName || "",
+                    profileMessage: savedInfo.profileMessage || ""
+                  })
+                };
+                cacheWrite_(lid, "profile", profileCachePayload);
+              }
+            } else {
+              appendBootDebug("profile server save failed: " + String((res && res.message) || "unknown"));
+            }
+          }).catch(function(err) {
+            appendBootDebug("profile server save error: " + String(err && err.message || err));
+          });
+        }
       }
 
       if (profileApply) {
@@ -7178,8 +7263,10 @@
     }
     // 로드 중이고 runtime이 배열이면 그것 사용
     if (Array.isArray(runtimeItems)) return runtimeItems;
-    // 로드 전이고 API 모드면 mock 억제 (로딩 중 표시)
-    if (window.LUMI_API_ENDPOINT) return [];
+    // API 모드 판단: endpoint 또는 로그인된 userId가 있으면 API 모드 → mock 금지
+    const isApiMode = !!(window.LUMI_API_ENDPOINT && String(window.LUMI_API_ENDPOINT).trim()) ||
+                      !!(window.__lumiGetCurrentId && window.__lumiGetCurrentId());
+    if (isApiMode) return []; // API 모드에서는 mock MESSAGES 사용 금지
     // 비로그인/오프라인이면 mock 표시
     return MESSAGES;
   }
