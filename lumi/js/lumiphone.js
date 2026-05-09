@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'lumi_signup_patch1_fix2E_profile_load_badge_birthday_20260510';
+      const APP_VERSION = 'lumi_signup_patch1_fix2F_birthday_visible_badge_zero_20260510';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -8571,7 +8571,9 @@
   }
 
   function isBirthdayTicketVisible(state) {
-    return state && (state.state === "available" || state.state === "used");
+    // fix2F: 생일이 등록되어 있으면 티켓함에서 상태(대기/사용가능/기간종료/사용완료)를 보여준다.
+    // 미등록 상태만 숨김. 기존 available/used 한정은 서버 생일 반영 후에도 카드가 안 보이는 QA를 유발함.
+    return !!(state && state.state && state.state !== "unregistered");
   }
 
   function updateBirthdayTicketVisibility(state) {
