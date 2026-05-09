@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'lumi_signup_patch1_fix2A_account_isolation_20260510';
+      const APP_VERSION = 'lumi_signup_patch1_fix2B_qa_fixes_20260510';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -1459,10 +1459,10 @@
       const profileDefaultInfo = () => ({
         displayName: "루미나",
         oshi: "루루 🍼🐰",
-        letterName: "루리",
-        broadcastName: "리",
+        letterName: "",
+        broadcastName: "",
         title: "나만의 루미나",
-        space: "루루의 방",
+        space: "",
         birthdayMonth: "",
         birthdayDay: "",
         birthdayRegistered: false,
@@ -1534,10 +1534,10 @@
         return {
           displayName: clampText(next.displayName || "루미나", 12) || "루미나",
           oshi: clampText(next.oshi || "루루 🍼🐰", 24) || "루루 🍼🐰",
-          letterName: clampText(next.letterName || "루리", 10),
-          broadcastName: clampText(next.broadcastName || "리", 12),
+          letterName: clampText(next.letterName || "", 10),
+          broadcastName: clampText(next.broadcastName || "", 12),
           title: clampText(String(next.title || "나만의 루미나").replace(/^대표 칭호\s*·\s*/, "").replace("첫 번째 점을 따라온 루미나", "첫 번째 점"), 18),
-          space: clampText(next.space || "루루의 방", 12),
+          space: clampText(next.space || "", 12),
           birthdayMonth,
           birthdayDay,
           birthdayRegistered,
@@ -2385,7 +2385,7 @@
           reward: "LUMI ID · " + (getCurrentLumiId() || "-"),
           desc: "오시: " + oshi,
           small: "대표 칭호 · " + title,
-          space: info.space || "루루의 방",
+          space: info.space || "",
           birthday: profileBirthdayText(info),
           date: joinedAt,
           cover: coverPart.src || "",
@@ -3196,7 +3196,15 @@
         if (profileDisplayName) profileDisplayName.textContent = info.displayName;
         if (profileMeta) profileMeta.textContent = "오시: " + info.oshi;
         if (profileTitlePill) profileTitlePill.textContent = displayTitle;
-        if (profileSpaceTag) profileSpaceTag.textContent = "📍 " + info.space;
+        if (profileSpaceTag) {
+          if (info.space) {
+            profileSpaceTag.textContent = "📍 " + info.space;
+            profileSpaceTag.hidden = false;
+          } else {
+            profileSpaceTag.textContent = "";
+            profileSpaceTag.hidden = true;
+          }
+        }
         if (profileBirthdayTag) profileBirthdayTag.textContent = "🎂 " + profileBirthdayText(info);
         if (profileJoinTag) profileJoinTag.textContent = "";
       }
@@ -5393,6 +5401,19 @@
           }
         });
 
+        // 버그 1 수정: Enter 키로 signupCodeSend가 우발적으로 발동되는 것 방지
+        modal.addEventListener("keydown", function(e) {
+          if (e.key !== "Enter") return;
+          const active = document.activeElement;
+          // 인증코드 요청 버튼에 포커스가 없고, 입력 필드에서 Enter를 누를 때
+          // signupCodeSend가 form submit처럼 동작하는 것 방지
+          if (active && active.id === "signupCodeSend") return; // 명시적 포커스는 허용
+          const codeBtn = modal.querySelector("#signupCodeSend");
+          if (codeBtn && !codeBtn.disabled && active && active.tagName === "INPUT") {
+            e.preventDefault(); // 인증코드 버튼 자동 발동 차단
+          }
+        });
+
         modal.querySelector("#signupSubmit").addEventListener("click", async function() {
           const nickname = modal.querySelector("#signupNickname").value.trim();
           const email = modal.querySelector("#signupEmail").value.trim();
@@ -5412,6 +5433,10 @@
           if (password !== passwordConfirm) { result.textContent = "비밀번호 확인이 일치하지 않아요."; return; }
           if (password.length < 4 || password.length > 20 || /\s/.test(password)) { result.textContent = "비밀번호는 4~20자, 공백 없이 입력해 주세요."; return; }
           const btn = modal.querySelector("#signupSubmit");
+          if (btn && btn.disabled) return; // 중복 제출 방지
+          // 제출 중에는 인증코드 요청 버튼도 비활성화 (중복 발송 방지)
+          const codeBtn = modal.querySelector("#signupCodeSend");
+          if (codeBtn) codeBtn.disabled = true;
           const restore = signupBtnLoading(btn, "루미 ID 만드는 중…");
           result.textContent = "루미 ID를 만드는 중…";
           try {
@@ -5425,9 +5450,11 @@
               window.setTimeout(closeSignupModal, 1500);
             } else {
               result.textContent = String((response && (response.message || response.error)) || "루미 ID를 만들지 못했어요.");
+              if (codeBtn) codeBtn.disabled = false; // 실패 시 인증코드 버튼 복원
             }
           } catch (e) {
             result.textContent = "루미폰 서버 연결을 확인해 주세요.";
+            if (codeBtn) codeBtn.disabled = false;
           } finally {
             restore();
           }
@@ -7244,14 +7271,15 @@
     if (homeCard) {
       homeCard.classList.remove("hidden");
       const publicUnreadItems = unreadItems.filter(m => isVisibleInboxMessage(m));
-      if (publicUnreadItems.length > 0) {
+      const first = publicUnreadItems[0];
+      if (first) {
         if (homeKicker) homeKicker.textContent = publicUnreadItems.length > 1 ? "NEW MESSAGES" : "NEW MESSAGE";
-        if (homeTitle) homeTitle.textContent = "새 문자 확인";
-        if (homePreview) homePreview.textContent = "도착한 문자를 확인해 주세요.";
+        if (homeTitle) homeTitle.textContent = first.from ? first.from + "에게서 새 문자 " + publicUnreadItems.length + "통" : "새 문자 확인";
+        if (homePreview) homePreview.textContent = first.preview || first.title || "도착한 문자를 확인해 주세요.";
       } else {
-        if (homeKicker) homeKicker.textContent = "NEW MESSAGE";
-        if (homeTitle) homeTitle.textContent = "새 문자 확인";
-        if (homePreview) homePreview.textContent = "도착한 문자를 확인해 주세요.";
+        if (homeKicker) homeKicker.textContent = "MESSAGE";
+        if (homeTitle) homeTitle.textContent = "문자함";
+        if (homePreview) homePreview.textContent = "새 문자는 없지만, 도착했던 메시지를 다시 볼 수 있어요.";
       }
     }
   }
