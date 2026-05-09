@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'lumi_signup_patch1_fix2F_birthday_visible_badge_zero_20260510';
+      const APP_VERSION = 'lumi_signup_patch1_fix2G_birthday_visible_badge_zero_20260510';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -539,25 +539,38 @@
           renderMyReservations(cachedRes);
         }
 
-        // PATCH 51-45: mail과 sms를 독립적으로 복원 (한쪽만 있어도 다른 쪽을 [] 확정하지 않음)
-        if (cachedMail) {
-          LUMI_RUNTIME_MAIL_ITEMS = cachedMail;
-          window.__lumiRuntimeMailItems = LUMI_RUNTIME_MAIL_ITEMS;
-        }
-        if (cachedSms) {
-          LUMI_RUNTIME_MESSAGE_ITEMS = cachedSms;
-          window.__lumiRuntimeMessageItems = LUMI_RUNTIME_MESSAGE_ITEMS;
-        }
-        if (cachedMail || cachedSms) {
-          // 캐시가 있는 쪽만 확정, 없는 쪽은 API 결과 기다림
-          if (cachedMail && cachedSms) {
-            LUMI_MESSAGES_LOAD_DONE   = true;
-            window.__lumiMessagesLoadDone = true;
-          }
-          // 한쪽만 있으면 loadDone=false 유지 → API 완료 후 확정
+        // fix2G: API 로그인 모드에서는 mail/sms 캐시를 즉시 복원하지 않는다.
+        // 캐시 우편이 먼저 보였다가 API 빈 결과로 사라지는 “유령 알림 1” 방지.
+        const apiMessageMode = !!(LUMI_API_ENDPOINT() && lid);
+        if (apiMessageMode) {
+          LUMI_MESSAGES_LOAD_DONE = false;
+          window.__lumiMessagesLoadDone = false;
+          LUMI_RUNTIME_MAIL_ITEMS = [];
+          LUMI_RUNTIME_MESSAGE_ITEMS = [];
+          window.__lumiRuntimeMailItems = [];
+          window.__lumiRuntimeMessageItems = [];
           renderMailAll();
           if (typeof window.showLumiMessageInbox === "function") window.showLumiMessageInbox();
-          appendBootDebug("cache restored: mail=" + (cachedMail ? cachedMail.length : "miss") + " sms=" + (cachedSms ? cachedSms.length : "miss"));
+          appendBootDebug("mail/sms cache skipped in API mode");
+        } else {
+          // PATCH 51-45: 오프라인/데모 모드에서만 mail과 sms를 독립적으로 복원
+          if (cachedMail) {
+            LUMI_RUNTIME_MAIL_ITEMS = cachedMail;
+            window.__lumiRuntimeMailItems = LUMI_RUNTIME_MAIL_ITEMS;
+          }
+          if (cachedSms) {
+            LUMI_RUNTIME_MESSAGE_ITEMS = cachedSms;
+            window.__lumiRuntimeMessageItems = LUMI_RUNTIME_MESSAGE_ITEMS;
+          }
+          if (cachedMail || cachedSms) {
+            if (cachedMail && cachedSms) {
+              LUMI_MESSAGES_LOAD_DONE   = true;
+              window.__lumiMessagesLoadDone = true;
+            }
+            renderMailAll();
+            if (typeof window.showLumiMessageInbox === "function") window.showLumiMessageInbox();
+            appendBootDebug("cache restored: mail=" + (cachedMail ? cachedMail.length : "miss") + " sms=" + (cachedSms ? cachedSms.length : "miss"));
+          }
         }
 
         // PATCH 51-45: visits 캐시 즉시 window 브릿지로 전달 (기록 탭 0회 방지)
@@ -8445,53 +8458,47 @@
   }
 
   function readProfileBirthday() {
-    let info = null;
+    // fix2G: 서버에서 내려온 loginState.birthMonth/birthDay를 최우선으로 사용한다.
+    // 기존 profileState가 생일 없는 상태로 남아 있어도 Birthday Ticket이 unregistered로 떨어지지 않게 한다.
+    function normalizeSource(source) {
+      source = source || {};
+      const birthdayRegistered = source.birthdayRegistered === true || String(source.birthdayRegistered || "").toLowerCase() === "true";
+      const rawMonth = String(source.birthdayMonth || source.birthMonth || source.month || "").trim();
+      const rawDay = String(source.birthdayDay || source.birthDay || source.day || "").trim();
+      if (!birthdayRegistered && rawMonth === "07" && rawDay === "19") return null;
+      const month = parseInt(rawMonth, 10);
+      const day = parseInt(rawDay, 10);
+      const hasBirthdayValue = Boolean(rawMonth && rawDay);
+      const valid = (birthdayRegistered || hasBirthdayValue) && Number.isFinite(month) && month >= 1 && month <= 12 && Number.isFinite(day) && day >= 1 && day <= 31;
+      return valid ? { registered: true, month, day } : null;
+    }
+
+    const lid = readLoginId();
+    const currentLid = String(lid || "").trim().toUpperCase();
+
+    // 1) loginState 우선: 새 크롬/서버 저장값 반영의 기준
     try {
-      // Lumi Signup Patch 1-fix2A: 계정별 격리 원칙
-      // - lumiId가 있으면 반드시 lumiphone.profile.v2.{lid} 만 읽는다.
-      // - per-user profile이 없으면 null 처리 (글로벌 PROFILE_KEY fallback 금지).
-      // - lumiId가 없는 비로그인 상태에서만 PROFILE_KEY를 허용하지 않고, 그냥 null 처리.
-      const lid = readLoginId();
+      const loginRaw = localStorage.getItem(LOGIN_KEY);
+      const loginParsed = loginRaw ? JSON.parse(loginRaw) : null;
+      const loginId = loginParsed && (loginParsed.id || loginParsed.lumiId) ? String(loginParsed.id || loginParsed.lumiId).trim().toUpperCase() : "";
+      if (currentLid && loginId === currentLid) {
+        const fromLogin = normalizeSource(loginParsed);
+        if (fromLogin) return fromLogin;
+      }
+    } catch(e) {}
+
+    // 2) 계정별 profileState 보조
+    try {
       if (lid) {
         const perUserKey = "lumiphone.profile.v2." + lid.toLowerCase();
         const raw = localStorage.getItem(perUserKey);
         const parsed = raw ? JSON.parse(raw) : null;
-        info = parsed && parsed.info ? parsed.info : null;
+        const fromProfile = normalizeSource(parsed && parsed.info ? parsed.info : null);
+        if (fromProfile) return fromProfile;
       }
-      // lumiId가 없으면 info = null 그대로 유지 (Birthday Ticket 표시 안 함)
-    } catch (error) {
-      info = null;
-    }
+    } catch (error) {}
 
-    // 생일 보강: loginState의 birthMonth/birthDay만 허용
-    // (글로벌 profileState 읽기 금지 — 다른 계정 오염 방지)
-    if (!info || (!info.birthdayMonth && !info.birthMonth)) {
-      try {
-        const loginRaw = localStorage.getItem(LOGIN_KEY);
-        const loginParsed = loginRaw ? JSON.parse(loginRaw) : null;
-        // loginState의 id가 현재 readLoginId()와 일치할 때만 사용
-        const loginId = loginParsed && loginParsed.id ? String(loginParsed.id).trim().toUpperCase() : "";
-        const currentLid = readLoginId().toUpperCase();
-        if (loginId && loginId === currentLid && (loginParsed.birthMonth || loginParsed.birthdayMonth)) {
-          info = Object.assign({}, info || {}, {
-            birthdayMonth: loginParsed.birthMonth || loginParsed.birthdayMonth || "",
-            birthdayDay: loginParsed.birthDay || loginParsed.birthdayDay || "",
-            birthdayRegistered: !!(loginParsed.birthMonth || loginParsed.birthdayMonth)
-          });
-        }
-      } catch(e) {}
-    }
-
-    const source = info || {};
-    const birthdayRegistered = source.birthdayRegistered === true || source.birthdayRegistered === "true";
-    const rawMonth = String(source.birthdayMonth || source.birthMonth || source.month || "").trim();
-    const rawDay = String(source.birthdayDay || source.birthDay || source.day || "").trim();
-    if (!birthdayRegistered && rawMonth === "07" && rawDay === "19") return { registered: false, month: null, day: null };
-    const month = parseInt(rawMonth, 10);
-    const day = parseInt(rawDay, 10);
-    const hasBirthdayValue = Boolean(rawMonth && rawDay);
-    const valid = (birthdayRegistered || hasBirthdayValue) && Number.isFinite(month) && month >= 1 && month <= 12 && Number.isFinite(day) && day >= 1 && day <= 31;
-    return valid ? { registered: true, month, day } : { registered: false, month: null, day: null };
+    return { registered: false, month: null, day: null };
   }
 
   function lastDayOfMonth(year, month) {
@@ -8643,6 +8650,13 @@
     updateMobileBirthday(state);
     updateWalletBirthday(state);
     updateTicketModal(state);
+    // fix2G: 생일 등록 상태면 숨김/인라인 display 잔상을 강제로 제거한다.
+    if (isBirthdayTicketVisible(state)) {
+      document.querySelectorAll("[data-birthday-ticket-card]").forEach((el) => {
+        el.hidden = false;
+        if (el.style && el.style.display === "none") el.style.display = "";
+      });
+    }
   }
 
   // fix2E: 로그인/프로필 API 반영 후 바깥 IIFE에서도 생일 티켓을 즉시 갱신할 수 있게 노출
