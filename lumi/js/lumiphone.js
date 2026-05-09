@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'secpatch2_2h_fix1_question_display_split_20260510';
+      const APP_VERSION = 'lumi_signup_patch1_fix1_modal_cleanup_20260510';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -5181,7 +5181,7 @@
         if (!document.getElementById(styleId)) {
           const style = document.createElement("style");
           style.id = styleId;
-          style.textContent = "#lumiSignupModal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(84,48,74,.38);backdrop-filter:blur(8px)}#lumiSignupModal.show{display:flex}.lumi-signup-box{width:min(540px,100%);max-height:88vh;overflow:auto;border:1px solid #f2bdd5;border-radius:28px;background:#fff;box-shadow:0 24px 80px rgba(110,62,91,.22);padding:24px;color:#6b445b}.lumi-signup-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}.lumi-signup-head h3{margin:0;font-size:24px;color:#e06fa3}.lumi-signup-head p{margin:6px 0 0;font-size:13px;font-weight:800;color:#9a7087;line-height:1.5}.lumi-signup-close{width:36px;height:36px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d77ca7;font-size:22px;font-weight:900;cursor:pointer}.lumi-signup-field{margin:10px 0}.lumi-signup-field label{display:block;margin-bottom:6px;font-size:12px;font-weight:900;color:#b36d93}.lumi-signup-field input,.lumi-signup-field select{width:100%;box-sizing:border-box;min-height:44px;border-radius:16px;border:1px solid #f0bfd4;background:#fff8fc;color:#6b445b;font-weight:900;padding:0 14px;outline:none}.lumi-signup-field select{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#d77ca7 50%),linear-gradient(135deg,#d77ca7 50%,transparent 50%);background-position:calc(100% - 18px) 19px,calc(100% - 12px) 19px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:34px;cursor:pointer}.lumi-signup-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.lumi-signup-action{width:100%;min-height:46px;margin-top:12px;border:0;border-radius:999px;background:#ff5ba5;color:#fff;font-weight:900;cursor:pointer}.lumi-signup-subaction{width:100%;min-height:42px;margin-top:8px;border:1px solid #f0bfd4;border-radius:999px;background:#fff;color:#d77ca7;font-weight:900;cursor:pointer}.lumi-signup-result{min-height:20px;margin-top:12px;padding:12px;border-radius:16px;background:#fff5fb;border:1px dashed #f0bfd4;font-size:13px;font-weight:900;color:#8a5d75;line-height:1.5}.lumi-signup-result.success{background:#f5fff8;border-color:#bfe7cc;color:#3a8b53}.lumi-signup-note{margin-top:10px;font-size:12px;font-weight:800;color:#9a7087;line-height:1.55}.lumi-signup-field input:disabled,.lumi-signup-field select:disabled,.lumi-signup-action:disabled,.lumi-signup-subaction:disabled{opacity:.62;cursor:wait}.lumi-signup-password-wrap{position:relative}.lumi-signup-password-wrap input{padding-right:52px}";
+          style.textContent = "#lumiSignupModal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(84,48,74,.38);backdrop-filter:blur(8px)}#lumiSignupModal.show{display:flex}.lumi-signup-box{width:min(540px,100%);max-height:88vh;overflow:auto;border:1px solid #f2bdd5;border-radius:28px;background:#fff;box-shadow:0 24px 80px rgba(110,62,91,.22);padding:24px;color:#6b445b}.lumi-signup-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}.lumi-signup-head h3{margin:0;font-size:24px;color:#e06fa3}.lumi-signup-head p{margin:6px 0 0;font-size:13px;font-weight:800;color:#9a7087;line-height:1.5}.lumi-signup-close{width:36px;height:36px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d77ca7;font-size:22px;font-weight:900;cursor:pointer}.lumi-signup-field{margin:10px 0}.lumi-signup-field label{display:block;margin-bottom:6px;font-size:12px;font-weight:900;color:#b36d93}.lumi-signup-field input,.lumi-signup-field select{width:100%;box-sizing:border-box;min-height:44px;border-radius:16px;border:1px solid #f0bfd4;background:#fff8fc;color:#6b445b;font-weight:900;padding:0 14px;outline:none}.lumi-signup-field select{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#d77ca7 50%),linear-gradient(135deg,#d77ca7 50%,transparent 50%);background-position:calc(100% - 18px) 19px,calc(100% - 12px) 19px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:34px;cursor:pointer}.lumi-signup-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.lumi-signup-action{width:100%;min-height:46px;margin-top:12px;border:0;border-radius:999px;background:#ff5ba5;color:#fff;font-weight:900;cursor:pointer}.lumi-signup-subaction{width:100%;min-height:42px;margin-top:8px;border:1px solid #f0bfd4;border-radius:999px;background:#fff;color:#d77ca7;font-weight:900;cursor:pointer}.lumi-signup-result{min-height:20px;margin-top:12px;padding:12px;border-radius:16px;background:#fff5fb;border:1px dashed #f0bfd4;font-size:13px;font-weight:900;color:#8a5d75;line-height:1.5}.lumi-signup-result.success{background:#f5fff8;border-color:#bfe7cc;color:#3a8b53}.lumi-signup-note{margin-top:10px;font-size:12px;font-weight:800;color:#9a7087;line-height:1.55}.lumi-signup-field input:disabled,.lumi-signup-field select:disabled,.lumi-signup-action:disabled,.lumi-signup-subaction:disabled{opacity:.62;cursor:wait}.lumi-signup-password-wrap{position:relative}.lumi-signup-password-wrap input{padding-right:52px}.lumi-signup-password-wrap .lumi-password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d77ca7;font-size:17px;font-weight:900;cursor:pointer;line-height:1;display:grid;place-items:center;overflow:visible}.lumi-signup-password-wrap .lumi-password-toggle.is-visible{background:#fff1f8;box-shadow:0 8px 20px rgba(255,91,165,.18)}.lumi-signup-password-wrap .lumi-password-heart{position:absolute;left:50%;top:50%;pointer-events:none;animation:lumiSignupRabbitHeart .72s ease-out forwards;font-size:12px;color:#ff6aa8;filter:drop-shadow(0 4px 8px rgba(255,91,165,.2))}@keyframes lumiSignupRabbitHeart{0%{opacity:0;transform:translate(-50%,-50%) scale(.65)}20%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--heart-x,0px)),calc(-50% - 34px)) scale(1.25)}}";
           document.head.appendChild(style);
         }
         const questionOptions = [
@@ -5226,9 +5226,29 @@
           '</div>';
         document.body.appendChild(modal);
 
+        let signupCountdownTimer = null;
+        function resetSignupModalFields() {
+          try { if (signupCountdownTimer) window.clearInterval(signupCountdownTimer); } catch(e) {}
+          signupCountdownTimer = null;
+          const ids = ["signupNickname", "signupEmail", "signupEmailCode", "signupPassword", "signupPasswordConfirm", "signupRecoveryAnswer"];
+          ids.forEach(function(id) { const el = modal.querySelector("#" + id); if (el) el.value = ""; });
+          const oshi = modal.querySelector("#signupOshi"); if (oshi) oshi.value = "Lumibelle";
+          const question = modal.querySelector("#signupRecoveryQuestion"); if (question) question.selectedIndex = 0;
+          const codeBtn = modal.querySelector("#signupCodeSend"); if (codeBtn) { codeBtn.disabled = false; codeBtn.textContent = "이메일 인증코드 받기"; }
+          const submitBtn = modal.querySelector("#signupSubmit"); if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = "루미 ID 만들기"; }
+          const result = modal.querySelector("#signupCodeResult");
+          if (result) { result.classList.remove("success"); result.textContent = "이메일 인증 후 루미 ID를 만들 수 있어요."; }
+          modal.querySelectorAll("[data-password-toggle]").forEach(function(button) {
+            const target = modal.querySelector("#" + button.getAttribute("data-password-toggle"));
+            if (target) target.type = "password";
+            button.classList.remove("is-visible");
+            button.setAttribute("aria-label", "비밀번호 보기");
+          });
+        }
         function closeSignupModal() {
           modal.classList.remove("show");
           modal.setAttribute("aria-hidden", "true");
+          resetSignupModalFields();
         }
         function signupBtnLoading(btn, text) {
           if (!btn) return function(){};
@@ -5246,21 +5266,53 @@
         }
         function signupCountdown(btn, resultEl, seconds) {
           let remain = Math.max(1, Number(seconds || 60));
+          if (signupCountdownTimer) window.clearInterval(signupCountdownTimer);
           btn.disabled = true;
           const tick = function() {
             btn.textContent = remain + "초 후 다시 요청";
-            if (resultEl) resultEl.textContent = "인증 메일은 " + remain + "초 후 다시 요청할 수 있어요.";
+            if (resultEl) {
+              resultEl.textContent = "이메일로 인증코드를 보냈어요. " + remain + "초 후 다시 요청할 수 있어요.";
+              resultEl.classList.add("success");
+            }
             remain -= 1;
             if (remain < 0) {
-              window.clearInterval(timer);
+              window.clearInterval(signupCountdownTimer);
+              signupCountdownTimer = null;
               btn.disabled = false;
               btn.textContent = "이메일 인증코드 받기";
-              if (resultEl) resultEl.textContent = "다시 요청할 수 있어요.";
+              if (resultEl) {
+                resultEl.classList.remove("success");
+                resultEl.textContent = "다시 요청할 수 있어요.";
+              }
             }
           };
           tick();
-          const timer = window.setInterval(tick, 1000);
+          signupCountdownTimer = window.setInterval(tick, 1000);
         }
+
+        function playSignupRabbitPasswordHeart(button) {
+          if (!button) return;
+          [-8, 0, 8].forEach(function(x, idx) {
+            const heart = document.createElement("span");
+            heart.className = "lumi-password-heart";
+            heart.textContent = "♡";
+            heart.style.setProperty("--heart-x", String(x) + "px");
+            heart.style.animationDelay = String(idx * 0.055) + "s";
+            button.appendChild(heart);
+            window.setTimeout(function() { try { heart.remove(); } catch(e) {} }, 900);
+          });
+        }
+        modal.querySelectorAll("[data-password-toggle]").forEach(function(button) {
+          button.addEventListener("click", function() {
+            const target = modal.querySelector("#" + button.getAttribute("data-password-toggle"));
+            if (!target) return;
+            const willShow = target.type === "password";
+            target.type = willShow ? "text" : "password";
+            button.classList.toggle("is-visible", willShow);
+            button.setAttribute("aria-label", willShow ? "비밀번호 숨기기" : "비밀번호 보기");
+            playSignupRabbitPasswordHeart(button);
+          });
+        });
 
         modal.querySelectorAll("[data-signup-close]").forEach((btn) => btn.addEventListener("click", closeSignupModal));
         modal.addEventListener("click", (event) => { if (event.target === modal) closeSignupModal(); });
