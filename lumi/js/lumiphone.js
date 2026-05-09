@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'patch51_57_fix4_record_visit_stamp_profile_sync_20260509';
+      const APP_VERSION = 'patch51_57_fix5_record_checkin_timeline_sync_20260509';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -4237,6 +4237,11 @@
           window.__lumiStampCheckinCount = checkinCount;
           window.__lumiStampCycle = cycle;
           window.__lumiStampCycleStamps = cycleStamps;
+          // PATCH 51-57-fix5: 기록 타임라인도 checkins를 읽을 수 있게 공유한다.
+          window.__lumiRecordCheckins = Array.isArray(data.checkins) ? data.checkins : [];
+          if (typeof window.__lumiRefreshRecordTimeline === "function") {
+            window.__lumiRefreshRecordTimeline(window.__lumiRecordCheckins);
+          }
         } catch(e) {}
 
         // ── 기록탭 stat 카드 (record-stat-card) — 기존 DOM 유지, 숫자만 교체
@@ -5383,6 +5388,13 @@
         if (Array.isArray(cached) && cached.length > 0) return cached;
         return [];
       })();
+      // PATCH 51-57-fix5: 기록 타임라인은 visits(방문) + checkins(루미 체크인)를 함께 보여준다.
+      // 단, 집계 기준은 섞지 않는다. 라이브 수는 visits, 체크인/스탬프 수는 renderCheckins가 관리한다.
+      let runtimeCheckins = (function() {
+        var cached = window.__lumiRecordCheckins;
+        if (Array.isArray(cached) && cached.length > 0) return cached;
+        return [];
+      })();
       let visitsLoadState = runtimeVisits.length > 0 ? "loaded" : "idle"; // PATCH 51-41
       let recordUserMovedMonth = false;
       let recordAutoJumpDone   = runtimeVisits.length > 0;
@@ -5455,8 +5467,39 @@
         return "🎤";
       }
 
+      function normalizeCheckinForRecord(item) {
+        item = item || {};
+        var stampCount = parseInt(item.stampCount || 0, 10) || 0;
+        var eventTitle = item.eventTitle || "루미 체크인";
+        var member = item.memberName || item.member || "";
+        var rawDate = item.checkedInAt || item.checkedAt || item.eventDate || "";
+        return {
+          visitType: "checkin",
+          eventDate: rawDate,
+          visitedAt: rawDate,
+          eventTitle: "루미 체크인 스탬프",
+          note: eventTitle + (member ? " · " + member : "") + (stampCount > 0 ? " · 스탬프 +" + stampCount + "개" : ""),
+          _recordSource: "checkin"
+        };
+      }
+
+      function allRecordItems() {
+        var visitItems = Array.isArray(runtimeVisits) ? runtimeVisits.slice() : [];
+        var checkinItems = (Array.isArray(runtimeCheckins) ? runtimeCheckins : [])
+          .filter(function(item) { return String(item.status || "active") === "active"; })
+          .map(normalizeCheckinForRecord);
+        return visitItems.concat(checkinItems).sort(function(a, b) {
+          var da = new Date(a.eventDate || a.visitedAt || "");
+          var db = new Date(b.eventDate || b.visitedAt || "");
+          if (isNaN(da.getTime()) && isNaN(db.getTime())) return 0;
+          if (isNaN(da.getTime())) return 1;
+          if (isNaN(db.getTime())) return -1;
+          return db.getTime() - da.getTime();
+        });
+      }
+
       function filteredVisits() {
-        return runtimeVisits.filter(function(v) {
+        return allRecordItems().filter(function(v) {
           var matchFilter = currentFilter === "전체" || visitTypeToCategory(v.visitType) === currentFilter;
           // PATCH 51-35-fix3: new Date()로 파싱 (시트에서 Date 객체 직렬화 형태로 올 수 있음)
           var raw = v.eventDate || v.visitedAt || "";
@@ -5480,13 +5523,14 @@
         const pageItems = list.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
         if (pageItems.length === 0) {
-          const waiting = runtimeVisits.length === 0 && visitsLoadState !== "loaded";
+          const hasAnyRecord = allRecordItems().length > 0;
+          const waiting = !hasAnyRecord && visitsLoadState !== "loaded";
           recordCardList.innerHTML =
             '<article class="record-memory-card" data-record-category="전체">' +
             '<span class="record-memory-icon">🕰️</span>' +
             '<time>' + (waiting ? "" : currentMonthKey()) + '</time>' +
-            '<b>' + (waiting ? "기록을 불러오는 중…" : (runtimeVisits.length === 0 ? "아직 기록이 없어요" : currentMonthKey() + " 기록 없음")) + '</b>' +
-            '<span>' + (waiting ? "잠시 후 자동으로 갱신돼요." : (runtimeVisits.length === 0 ? "루미벨과 함께한 순간이 생기면 이곳에 차곡차곡 남아요." : "이 달에는 기록이 없어요.")) + '</span>' +
+            '<b>' + (waiting ? "기록을 불러오는 중…" : (!hasAnyRecord ? "아직 기록이 없어요" : currentMonthKey() + " 기록 없음")) + '</b>' +
+            '<span>' + (waiting ? "잠시 후 자동으로 갱신돼요." : (!hasAnyRecord ? "루미벨과 함께한 순간이 생기면 이곳에 차곡차곡 남아요." : "이 달에는 기록이 없어요.")) + '</span>' +
             '<em>안내</em></article>';
         } else {
           recordCardList.innerHTML = pageItems.map(function(v) {
@@ -5532,10 +5576,11 @@
         if (recordPagePrev) recordPagePrev.disabled = currentPage <= 1;
         if (recordPageNext) recordPageNext.disabled = currentPage >= totalPages;
         if (recordMsg) {
-          const waiting = runtimeVisits.length === 0 && visitsLoadState !== "loaded";
+          const hasAnyRecord = allRecordItems().length > 0;
+          const waiting = !hasAnyRecord && visitsLoadState !== "loaded";
           recordMsg.textContent = runtimeVisits.length > 0
             ? "라이브 방문 " + runtimeVisits.filter(function(v){ return v.visitType === "live"; }).length + "회 기록됨"
-            : (waiting ? "기록을 불러오는 중…" : "활동 기록이 연결되면 이곳에 표시돼요.");
+            : (waiting ? "기록을 불러오는 중…" : (hasAnyRecord ? "루미 체크인 기록이 표시돼요." : "활동 기록이 연결되면 이곳에 표시돼요."));
         }
 
         // record-stat-card 라이브 수치 갱신
@@ -5702,6 +5747,11 @@
 
       // PATCH 51-40-fix1: openApp/go 복원 흐름에서도 기록 로더를 호출할 수 있게 전역 브릿지 노출
       window.__lumiLoadVisits = loadVisits;
+      // PATCH 51-57-fix5: checkins 로더가 나중에 도착해도 기록 타임라인을 다시 렌더한다.
+      window.__lumiRefreshRecordTimeline = function(checkins) {
+        if (Array.isArray(checkins)) runtimeCheckins = checkins;
+        renderRecordPage();
+      };
 
       // ── 이벤트 등록 ───────────────────────────────────────────
       recordFilterButtons.forEach(function(btn) {
