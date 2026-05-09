@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'secpatch2_1_fix3_password_rabbit_20260509';
+      const APP_VERSION = 'secpatch2_2b_recovery_ui_lock_dropdown_20260509';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -4806,7 +4806,7 @@
       }
 
       // ──────────────────────────────────────────────────────────
-      // Security Patch 2-1-fix3: 이메일 기반 루미 ID 찾기 / 비밀번호 재설정
+      // Security Patch 2-2B: 이메일 기반 복구 UI 안정화 / 로그인 잠금 문구 / 생일 드롭다운
       // - 루미 ID는 화면에 직접 표시하지 않고 등록 이메일로 발송
       // - 비밀번호 재설정은 등록 이메일 인증코드 + 본인확인 답변 + 새 비밀번호로 처리
       function ensureLumiRecoveryModal() {
@@ -4815,8 +4815,18 @@
 
         const style = document.createElement("style");
         style.id = "lumiRecoveryModalStyle";
-        style.textContent = "#lumiRecoveryModal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(84,48,74,.38);backdrop-filter:blur(8px)}#lumiRecoveryModal.show{display:flex}.lumi-recovery-box{width:min(520px,100%);max-height:88vh;overflow:auto;border:1px solid #f2bdd5;border-radius:28px;background:#fff;box-shadow:0 24px 80px rgba(110,62,91,.22);padding:24px;color:#6b445b}.lumi-recovery-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}.lumi-recovery-head h3{margin:0;font-size:24px;color:#e06fa3}.lumi-recovery-head p{margin:6px 0 0;font-size:13px;font-weight:800;color:#9a7087;line-height:1.5}.lumi-recovery-close{width:36px;height:36px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d77ca7;font-size:22px;font-weight:900;cursor:pointer}.lumi-recovery-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 16px}.lumi-recovery-tab{min-height:42px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#9a5b7b;font-weight:900;cursor:pointer}.lumi-recovery-tab.active{background:#ff5ba5;color:#fff;box-shadow:0 10px 24px rgba(255,91,165,.22)}.lumi-recovery-panel{display:none}.lumi-recovery-panel.active{display:block}.lumi-recovery-field{margin:10px 0}.lumi-recovery-field label{display:block;margin-bottom:6px;font-size:12px;font-weight:900;color:#b36d93}.lumi-recovery-field input{width:100%;box-sizing:border-box;min-height:44px;border-radius:16px;border:1px solid #f0bfd4;background:#fff8fc;color:#6b445b;font-weight:900;padding:0 14px;outline:none}.lumi-recovery-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.lumi-recovery-action{width:100%;min-height:46px;margin-top:12px;border:0;border-radius:999px;background:#ff5ba5;color:#fff;font-weight:900;cursor:pointer}.lumi-recovery-subaction{width:100%;min-height:42px;margin-top:8px;border:1px solid #f0bfd4;border-radius:999px;background:#fff;color:#d77ca7;font-weight:900;cursor:pointer}.lumi-recovery-result{min-height:20px;margin-top:12px;padding:12px;border-radius:16px;background:#fff5fb;border:1px dashed #f0bfd4;font-size:13px;font-weight:900;color:#8a5d75;line-height:1.5}.lumi-recovery-note{margin-top:12px;font-size:12px;font-weight:800;color:#9a7087;line-height:1.55}.lumi-recovery-field input:disabled,.lumi-recovery-action:disabled,.lumi-recovery-subaction:disabled{opacity:.62;cursor:wait}.lumi-password-wrap{position:relative}.lumi-password-wrap input{padding-right:52px}.lumi-password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d77ca7;font-size:17px;font-weight:900;cursor:pointer;line-height:1;display:grid;place-items:center;overflow:visible}.lumi-password-toggle.is-visible{background:#fff1f8;box-shadow:0 8px 20px rgba(255,91,165,.18)}.lumi-password-heart{position:absolute;left:50%;top:50%;pointer-events:none;animation:lumiRabbitHeart .72s ease-out forwards;font-size:12px;color:#ff6aa8;filter:drop-shadow(0 4px 8px rgba(255,91,165,.2))}@keyframes lumiRabbitHeart{0%{opacity:0;transform:translate(-50%,-50%) scale(.65)}20%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--heart-x,0px)),calc(-50% - 34px)) scale(1.25)}}";
+        style.textContent = "#lumiRecoveryModal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(84,48,74,.38);backdrop-filter:blur(8px)}#lumiRecoveryModal.show{display:flex}.lumi-recovery-box{width:min(520px,100%);max-height:88vh;overflow:auto;border:1px solid #f2bdd5;border-radius:28px;background:#fff;box-shadow:0 24px 80px rgba(110,62,91,.22);padding:24px;color:#6b445b}.lumi-recovery-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}.lumi-recovery-head h3{margin:0;font-size:24px;color:#e06fa3}.lumi-recovery-head p{margin:6px 0 0;font-size:13px;font-weight:800;color:#9a7087;line-height:1.5}.lumi-recovery-close{width:36px;height:36px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d77ca7;font-size:22px;font-weight:900;cursor:pointer}.lumi-recovery-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 16px}.lumi-recovery-tab{min-height:42px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#9a5b7b;font-weight:900;cursor:pointer}.lumi-recovery-tab.active{background:#ff5ba5;color:#fff;box-shadow:0 10px 24px rgba(255,91,165,.22)}.lumi-recovery-panel{display:none}.lumi-recovery-panel.active{display:block}.lumi-recovery-field{margin:10px 0}.lumi-recovery-field label{display:block;margin-bottom:6px;font-size:12px;font-weight:900;color:#b36d93}.lumi-recovery-field input,.lumi-recovery-field select{width:100%;box-sizing:border-box;min-height:44px;border-radius:16px;border:1px solid #f0bfd4;background:#fff8fc;color:#6b445b;font-weight:900;padding:0 14px;outline:none}.lumi-recovery-field select{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#d77ca7 50%),linear-gradient(135deg,#d77ca7 50%,transparent 50%);background-position:calc(100% - 18px) 19px,calc(100% - 12px) 19px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:34px;cursor:pointer}.lumi-recovery-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.lumi-recovery-action{width:100%;min-height:46px;margin-top:12px;border:0;border-radius:999px;background:#ff5ba5;color:#fff;font-weight:900;cursor:pointer}.lumi-recovery-subaction{width:100%;min-height:42px;margin-top:8px;border:1px solid #f0bfd4;border-radius:999px;background:#fff;color:#d77ca7;font-weight:900;cursor:pointer}.lumi-recovery-result{min-height:20px;margin-top:12px;padding:12px;border-radius:16px;background:#fff5fb;border:1px dashed #f0bfd4;font-size:13px;font-weight:900;color:#8a5d75;line-height:1.5}.lumi-recovery-note{margin-top:12px;font-size:12px;font-weight:800;color:#9a7087;line-height:1.55}.lumi-recovery-field input:disabled,.lumi-recovery-field select:disabled,.lumi-recovery-action:disabled,.lumi-recovery-subaction:disabled{opacity:.62;cursor:wait}.lumi-password-wrap{position:relative}.lumi-password-wrap input{padding-right:52px}.lumi-password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d77ca7;font-size:17px;font-weight:900;cursor:pointer;line-height:1;display:grid;place-items:center;overflow:visible}.lumi-password-toggle.is-visible{background:#fff1f8;box-shadow:0 8px 20px rgba(255,91,165,.18)}.lumi-password-heart{position:absolute;left:50%;top:50%;pointer-events:none;animation:lumiRabbitHeart .72s ease-out forwards;font-size:12px;color:#ff6aa8;filter:drop-shadow(0 4px 8px rgba(255,91,165,.2))}@keyframes lumiRabbitHeart{0%{opacity:0;transform:translate(-50%,-50%) scale(.65)}20%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--heart-x,0px)),calc(-50% - 34px)) scale(1.25)}}";
         document.head.appendChild(style);
+
+        function buildLumiNumberOptions_(start, end, suffix, placeholder) {
+          var html = '<option value="">' + placeholder + '</option>';
+          for (var i = start; i <= end; i++) {
+            html += '<option value="' + i + '">' + i + suffix + '</option>';
+          }
+          return html;
+        }
+        const recoveryMonthOptions = buildLumiNumberOptions_(1, 12, "월", "월 선택");
+        const recoveryDayOptions = buildLumiNumberOptions_(1, 31, "일", "일 선택");
 
         modal = document.createElement("div");
         modal.id = "lumiRecoveryModal";
@@ -4834,12 +4844,12 @@
             '<section class="lumi-recovery-panel active" data-recovery-panel="find">' +
               '<div class="lumi-recovery-field"><label>닉네임</label><input id="recoveryFindNickname" autocomplete="nickname" placeholder="예: 루루나나"></div>' +
               '<div class="lumi-recovery-row">' +
-                '<div class="lumi-recovery-field"><label>생일 월</label><input id="recoveryFindMonth" inputmode="numeric" placeholder="예: 5"></div>' +
-                '<div class="lumi-recovery-field"><label>생일 일</label><input id="recoveryFindDay" inputmode="numeric" placeholder="예: 9"></div>' +
+                '<div class="lumi-recovery-field"><label>생일 월</label><select id="recoveryFindMonth">' + recoveryMonthOptions + '</select></div>' +
+                '<div class="lumi-recovery-field"><label>생일 일</label><select id="recoveryFindDay">' + recoveryDayOptions + '</select></div>' +
               '</div>' +
               '<div class="lumi-recovery-field"><label>본인확인 답변</label><input id="recoveryFindAnswer" placeholder="예: 루미벨"></div>' +
               '<button type="button" class="lumi-recovery-action" id="recoveryFindSubmit">등록 이메일로 루미 ID 받기</button>' +
-              '<div class="lumi-recovery-result" id="recoveryFindResult">정보가 일치하면 등록된 이메일로 루미 ID를 보내요.</div>' +
+              '<div class="lumi-recovery-result" id="recoveryFindResult">닉네임, 생일, 본인확인 답변이 일치하면 등록 이메일로 루미 ID를 보내요.</div>' +
             '</section>' +
             '<section class="lumi-recovery-panel" data-recovery-panel="reset">' +
               '<div class="lumi-recovery-field"><label>루미 ID</label><input id="recoveryResetLumiId" placeholder="LB-0001"></div>' +
@@ -5051,6 +5061,8 @@
           appendBootDebug("login UI error: " + msg);
           if (msg === "missingApiEndpoint") showMessage("루미폰 API 주소가 아직 설정되지 않았어요. LUMI_API_ENDPOINT를 Apps Script 웹앱 URL로 설정해 주세요.");
           else if (msg === "apiTimeout" || msg === "apiNetworkError") showMessage("루미폰 서버 연결을 확인해 주세요. debug: " + msg);
+          else if (/5회|10분|잠금|locked|여러 번|잠시 후/.test(msg)) showMessage("비밀번호를 5회 이상 잘못 입력했어요. 안전을 위해 잠시 후 다시 시도해 주세요.");
+          else if (msg && msg !== "loginFailed") showMessage(msg);
           else showMessage("루미 ID 또는 비밀번호를 확인해 주세요.");
         } finally {
           // PATCH 51-38-fix1: 성공/실패 모두 버튼 원복 (로그아웃 후 재사용 대비)
