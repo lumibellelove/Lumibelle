@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'patch51_58_id_pin_recovery_20260509';
+      const APP_VERSION = 'patch51_58_fix1_id_find_fallback_20260509';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
