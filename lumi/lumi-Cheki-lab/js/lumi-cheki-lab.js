@@ -239,6 +239,59 @@
     return canvas.toDataURL('image/webp', 0.8).startsWith('data:image/webp') ? 'image/webp' : 'image/jpeg';
   }
 
+
+  function exportFramedPhotoDataUrl(dataUrl, transform = photoTransform, naturalSize = photoNaturalSize, quality = SAVE_IMAGE_QUALITY) {
+    return new Promise((resolve, reject) => {
+      if (!dataUrl) {
+        resolve({ dataUrl: '', naturalSize: { width: 0, height: 0 }, photoTransform: copyTransform(transform) });
+        return;
+      }
+      const img = new Image();
+      img.onload = () => {
+        const sourceWidth = img.naturalWidth || img.width || naturalSize.width || 1;
+        const sourceHeight = img.naturalHeight || img.height || naturalSize.height || 1;
+        const frameRect = els.photoFrame.getBoundingClientRect();
+        const frameWidth = Math.max(1, frameRect.width || 720);
+        const frameHeight = Math.max(1, frameRect.height || 900);
+        const outputWidth = 900;
+        const outputHeight = Math.round(outputWidth * frameHeight / frameWidth);
+        const canvas = document.createElement('canvas');
+        canvas.width = outputWidth;
+        canvas.height = outputHeight;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { reject(new Error('canvas unavailable')); return; }
+
+        const base = getCoverBaseSize(frameWidth, frameHeight, sourceWidth, sourceHeight);
+        const displayWidth = base.width * Number(transform.scale || 1);
+        const displayHeight = base.height * Number(transform.scale || 1);
+        const drawX = (frameWidth - displayWidth) / 2 + Number(transform.x || 0);
+        const drawY = (frameHeight - displayHeight) / 2 + Number(transform.y || 0);
+        const ratioX = outputWidth / frameWidth;
+        const ratioY = outputHeight / frameHeight;
+
+        ctx.fillStyle = '#fff7fb';
+        ctx.fillRect(0, 0, outputWidth, outputHeight);
+        ctx.drawImage(
+          img,
+          drawX * ratioX,
+          drawY * ratioY,
+          displayWidth * ratioX,
+          displayHeight * ratioY
+        );
+
+        const mime = imageMimeForSave();
+        const savedDataUrl = canvas.toDataURL(mime, quality);
+        resolve({
+          dataUrl: savedDataUrl,
+          naturalSize: { width: outputWidth, height: outputHeight },
+          photoTransform: { x: 0, y: 0, scale: 1 }
+        });
+      };
+      img.onerror = () => reject(new Error('image frame export failed'));
+      img.src = dataUrl;
+    });
+  }
+
   function compressImageDataUrl(dataUrl, maxSide = SAVE_IMAGE_MAX_SIDE, quality = SAVE_IMAGE_QUALITY) {
     return new Promise((resolve, reject) => {
       if (!dataUrl) {
@@ -660,9 +713,10 @@
     const next = readCurrentCardData();
     try {
       if (next.photoDataUrl) {
-        const compressed = await compressImageDataUrl(next.photoDataUrl);
-        next.photoDataUrl = compressed.dataUrl;
-        next.photoNaturalSize = compressed.naturalSize;
+        const framed = await exportFramedPhotoDataUrl(next.photoDataUrl, next.photoTransform, next.photoNaturalSize);
+        next.photoDataUrl = framed.dataUrl;
+        next.photoNaturalSize = framed.naturalSize;
+        next.photoTransform = framed.photoTransform;
       }
 
       const cards = getSavedCards();
@@ -678,7 +732,7 @@
       setSavedCards(cards);
       if (els.saveBtn) els.saveBtn.textContent = '수정 저장';
       renderGallery();
-      alert(index >= 0 ? '수정한 카드가 저장됐어요. 서버에는 저장되지 않아요.' : '이 브라우저에 새 카드가 저장됐어요. 저장용 사진은 자동으로 가볍게 줄였고, 서버에는 저장되지 않아요.');
+      alert(index >= 0 ? '수정한 카드가 저장됐어요. 서버에는 저장되지 않아요.' : '이 브라우저에 새 카드가 저장됐어요. 카드에 보이는 프레임 그대로 가볍게 저장했고, 서버에는 저장되지 않아요.');
     } catch (error) {
       alert('저장 공간이 아직 부족할 수 있어요. 갤러리에서 저장된 카드를 조금 삭제한 뒤 다시 시도해 주세요.');
     }
