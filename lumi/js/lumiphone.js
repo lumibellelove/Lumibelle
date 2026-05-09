@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'patch51_57_record_join_date_20260509';
+      const APP_VERSION = 'patch51_57_fix2_record_day_visit_semantics_20260509';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -1445,7 +1445,8 @@
       }
 
 
-      // PATCH 51-57: 기록 탭의 루미 ID 생성일/DAY를 lumi_users.createdAt 기준으로 동기화
+      // PATCH 51-57-fix2: 기록 탭 상단 의미 복구
+      // 왼쪽: 루미 ID 생성일(createdAt) 기준 DAY / 오른쪽: 첫 루미 방문일 영역 보존
       function syncRecordJoinDateFromUser(user) {
         const rawJoin = (user && (user.createdAt || user.joinedAt)) || (profileState && profileState.info && profileState.info.joinedAt) || "";
         const joined = formatProfileJoinDate(rawJoin);
@@ -1468,14 +1469,21 @@
           const value = card.querySelector("b");
           const desc = card.querySelector("span");
           const labelText = label ? String(label.textContent || "").trim() : "";
-          if (!value) return;
+          if (!label || !value) return;
+
+          // 첫 번째 카드: 루미 ID 개통일 기준 DAY. 라벨/문구는 최종 안정본 형태 유지.
           if (labelText.indexOf("이어진 지") !== -1 || labelText.indexOf("만난 지") !== -1) {
+            label.textContent = "루미벨과 만난 지";
             value.textContent = dayLabel;
-            if (desc) desc.textContent = "루미 ID 생성일부터 루미벨과 이어진 시간";
+            if (desc) desc.textContent = joined + "부터 루미벨과 이어진 시간";
+            return;
           }
-          if (labelText.indexOf("루미 ID 생성일") !== -1) {
-            value.textContent = joined;
-            if (desc) desc.textContent = "루미폰을 시작한 날부터 기록해요";
+
+          // 두 번째 카드: 첫 루미 방문일 영역. 51-57에서 잘못 바꾼 '루미 ID 생성일' 표기를 복구하고 값은 건드리지 않음.
+          // 방문일 값은 visits/첫 방문 기록 기준으로 별도 관리한다.
+          if (labelText.indexOf("루미 ID 생성일") !== -1 || labelText.indexOf("첫 루미 방문일") !== -1) {
+            label.textContent = "첫 루미 방문일";
+            if (desc) desc.textContent = "오프라인 기록과 온라인 연결감을 함께 저장해요";
           }
         });
       }
