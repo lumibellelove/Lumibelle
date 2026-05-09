@@ -117,6 +117,8 @@
   let historyStack = [];
   let historyIndex = -1;
   let dragState = { active: false, pointerId: null, startX: 0, startY: 0, startOffsetX: 0, startOffsetY: 0 };
+  const activePointers = new Map();
+  let pinchState = null;
 
   function todayString() {
     const now = new Date();
@@ -421,8 +423,73 @@
     updateHistoryButtons();
   }
 
+  function getPointerDistance(a, b) {
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+
+  function getPointerCenter(a, b) {
+    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  }
+
+  function cancelSingleDrag() {
+    dragState.active = false;
+    dragState.pointerId = null;
+    els.photoFrame.classList.remove('is-dragging');
+  }
+
+  function startPinchIfNeeded() {
+    if (!photoDataUrl || activePointers.size < 2) return false;
+    const points = Array.from(activePointers.values()).slice(0, 2);
+    const distance = getPointerDistance(points[0], points[1]);
+    if (!distance) return false;
+    pinchState = {
+      active: true,
+      startDistance: distance,
+      startScale: photoTransform.scale,
+      startX: photoTransform.x,
+      startY: photoTransform.y,
+      startCenter: getPointerCenter(points[0], points[1]),
+    };
+    cancelSingleDrag();
+    if (els.photoAdjustStatus) els.photoAdjustStatus.textContent = '핀치 줌 중';
+    return true;
+  }
+
+  function updatePinch() {
+    if (!pinchState?.active || activePointers.size < 2) return;
+    const points = Array.from(activePointers.values()).slice(0, 2);
+    const distance = getPointerDistance(points[0], points[1]);
+    if (!distance) return;
+    const center = getPointerCenter(points[0], points[1]);
+    const nextScale = clamp(
+      pinchState.startScale * (distance / pinchState.startDistance),
+      PHOTO_MIN_SCALE,
+      PHOTO_MAX_SCALE
+    );
+    photoTransform.scale = nextScale;
+    photoTransform.x = pinchState.startX + (center.x - pinchState.startCenter.x);
+    photoTransform.y = pinchState.startY + (center.y - pinchState.startCenter.y);
+    applyPhotoTransform({ skipHistory: true });
+  }
+
+  function finishPinch() {
+    if (!pinchState?.active) return;
+    pinchState = null;
+    if (els.photoAdjustStatus && photoDataUrl) els.photoAdjustStatus.textContent = '드래그 가능';
+    pushHistory();
+  }
+
   function startDrag(event) {
     if (!photoDataUrl) return;
+    activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    els.photoFrame.setPointerCapture?.(event.pointerId);
+
+    if (activePointers.size >= 2) {
+      startPinchIfNeeded();
+      event.preventDefault();
+      return;
+    }
+
     dragState = {
       active: true,
       pointerId: event.pointerId,
@@ -431,13 +498,22 @@
       startOffsetX: photoTransform.x,
       startOffsetY: photoTransform.y,
     };
-    els.photoFrame.setPointerCapture?.(event.pointerId);
     els.photoFrame.classList.add('is-dragging');
     if (els.photoAdjustStatus) els.photoAdjustStatus.textContent = '조정 중';
     event.preventDefault();
   }
 
   function moveDrag(event) {
+    if (!photoDataUrl || !activePointers.has(event.pointerId)) return;
+    activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+    if (pinchState?.active || activePointers.size >= 2) {
+      if (!pinchState?.active) startPinchIfNeeded();
+      updatePinch();
+      event.preventDefault();
+      return;
+    }
+
     if (!dragState.active || dragState.pointerId !== event.pointerId) return;
     photoTransform.x = dragState.startOffsetX + (event.clientX - dragState.startX);
     photoTransform.y = dragState.startOffsetY + (event.clientY - dragState.startY);
@@ -446,10 +522,17 @@
   }
 
   function endDrag(event) {
-    if (!dragState.active || dragState.pointerId !== event.pointerId) return;
-    dragState.active = false;
+    const wasPinching = pinchState?.active;
+    activePointers.delete(event.pointerId);
     els.photoFrame.releasePointerCapture?.(event.pointerId);
-    els.photoFrame.classList.remove('is-dragging');
+
+    if (wasPinching) {
+      if (activePointers.size < 2) finishPinch();
+      return;
+    }
+
+    if (!dragState.active || dragState.pointerId !== event.pointerId) return;
+    cancelSingleDrag();
     if (els.photoAdjustStatus) els.photoAdjustStatus.textContent = '드래그 가능';
     pushHistory();
   }
@@ -852,8 +935,9 @@
   els.photoFrame.addEventListener('pointerup', endDrag);
   els.photoFrame.addEventListener('pointercancel', endDrag);
   els.photoFrame.addEventListener('lostpointercapture', () => {
-    dragState.active = false;
-    els.photoFrame.classList.remove('is-dragging');
+    activePointers.clear();
+    pinchState = null;
+    cancelSingleDrag();
     if (els.photoAdjustStatus && photoDataUrl) els.photoAdjustStatus.textContent = '드래그 가능';
   });
 
