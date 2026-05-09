@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = "patch51_55_fix1_shop_ui_mapping_20260509";
+      const APP_VERSION = 'patch51_56_achievement_xp_box_20260509';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -4291,10 +4291,49 @@
         return raw.slice(0, 10).replace(/-/g, ".");
       }
 
+      function updateAchievementXpBox_(xpValue) {
+        // PATCH 51-56: 업적 PC 사이드의 "현재 반짝 XP" 박스에 포인트 XP 합계를 표시한다.
+        // 기존 업적/포인트/스탬프 로직은 건드리지 않고 텍스트와 진행바만 갱신한다.
+        try {
+          var xp = parseInt(xpValue || 0, 10) || 0;
+          window.__lumiPointTotals = window.__lumiPointTotals || {};
+          window.__lumiPointTotals.xp = xp;
+
+          var scoreBoxes = Array.from(document.querySelectorAll(".ach-pc-score"));
+          scoreBoxes.forEach(function(box) {
+            var label = Array.from(box.querySelectorAll("small")).find(function(el) {
+              return (el.textContent || "").trim().indexOf("현재 반짝 XP") >= 0;
+            });
+            if (!label) return;
+            var valueEl = box.querySelector("b");
+            if (valueEl) valueEl.textContent = String(xp);
+
+            var smalls = Array.from(box.querySelectorAll("small"));
+            var goalEl = smalls.find(function(el) {
+              return (el.textContent || "").trim().indexOf("다음 목표") >= 0;
+            });
+            if (goalEl) {
+              var nextGoal = 100;
+              goalEl.textContent = xp > 0 ? "다음 목표까지 " + Math.max(0, nextGoal - (xp % nextGoal || nextGoal)) + " XP" : "다음 목표 준비 중";
+              if (xp >= nextGoal && xp % nextGoal === 0) goalEl.textContent = "다음 목표 달성 준비 중";
+            }
+
+            var fill = box.querySelector(".ach-pc-bar span");
+            if (fill) {
+              var pct = Math.max(0, Math.min(100, xp % 100));
+              if (xp > 0 && pct === 0) pct = 100;
+              fill.style.width = pct + "%";
+            }
+          });
+        } catch(e) {}
+      }
+
       function renderPoints(data) {
         var payload = normalizePointPayload(data);
         var totals = payload.totals;
         var points = payload.points;
+        window.__lumiPointTotals = Object.assign({}, window.__lumiPointTotals || {}, totals);
+        updateAchievementXpBox_(totals.xp);
 
         // 포인트 탭 요약 카드: 기존 카드/DOM 유지, 숫자만 교체
         try {
