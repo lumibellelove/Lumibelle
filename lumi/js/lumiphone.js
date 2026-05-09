@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'lumi_signup_patch1_fix1_modal_cleanup_20260510';
+      const APP_VERSION = 'lumi_signup_patch1_fix2A_account_isolation_20260510';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -262,7 +262,12 @@
       let achievementCurrentFilter = "전체";
       let achievementCurrentPage = 1;
       const achievementPageSize = 6;
-      const representativeAchievementKey = 'lumiphone.representativeAchievement.v1';
+      // Lumi Signup Patch 1-fix2A: 업적 대표 칭호 키도 계정별 격리
+      function representativeAchievementKeyFor(lumiId) {
+        const id = lumiId || getCurrentLumiId() || "";
+        return id ? "lumiphone.representativeAchievement.v2." + id.toLowerCase() : "lumiphone.representativeAchievement.v1";
+      }
+      const representativeAchievementKey = representativeAchievementKeyFor("");
       let runtimeEquippedTitleFromApi = ''; // PATCH 51-52: API 조회용 장착 칭호 표시
 
       function normId(value) {
@@ -411,7 +416,20 @@
           localStorage.setItem(resetKey, "done");
         } catch (error) {}
       }
+
+      // Lumi Signup Patch 1-fix2A: 이전 글로벌 프로필 키 잔재 정리 (1회 실행)
+      function runAccountIsolationReset() {
+        const resetKey2 = "lumiphone.releaseReset.fix2A.v1";
+        try {
+          if (localStorage.getItem(resetKey2) === "done") return;
+          // 이전 글로벌 profile/oshi 키는 삭제하지 않고 그대로 둔다.
+          // (삭제하면 기존 유저의 커버/아바타가 날아가므로 마이그레이션하지 않음)
+          // 단, lumiphone.profile.v1은 로그인 후 계정별 키가 비어 있을 때 1회 복사한다.
+          localStorage.setItem(resetKey2, "done");
+        } catch (error) {}
+      }
       runReleaseDataResetPatch14();
+      runAccountIsolationReset();
 
       function setLumiLang(lang, announce) {
         const selected = ["kr", "en", "jp", "cn"].includes(lang) ? lang : "kr";
@@ -479,6 +497,10 @@
         if (!(currentUser && getCurrentLumiId())) return;
 
         const lid = getCurrentLumiId();
+
+        // Lumi Signup Patch 1-fix2A: 계정별 격리 - 로그인 시 해당 계정 프로필 로드
+        loadProfileState(lid);
+        renderProfileView();
 
         // PATCH 51-54: 로그인 응답/lumi_users 기반 프로필 표시값 즉시 반영
         syncProfileInfoFromUser(currentUser);
@@ -692,7 +714,7 @@
         button.setAttribute("data-message-save", target);
         let saved = false;
         try {
-          saved = window.localStorage && window.localStorage.getItem("lumiMessageSaved:" + target) === "1";
+          saved = window.localStorage && window.localStorage.getItem("lumiMessageSaved:" + (getCurrentLumiId() || "guest") + ":" + target) === "1";
         } catch (error) {}
         button.classList.toggle("saved", saved);
         button.textContent = saved ? "소장 해제" : "소장하기";
@@ -753,8 +775,8 @@
           const target = saveButton.getAttribute("data-message-save") || "coming-soon";
           let saved = false;
           try {
-            saved = window.localStorage && window.localStorage.getItem("lumiMessageSaved:" + target) === "1";
-            if (window.localStorage) window.localStorage.setItem("lumiMessageSaved:" + target, saved ? "0" : "1");
+            saved = window.localStorage && window.localStorage.getItem("lumiMessageSaved:" + (getCurrentLumiId() || "guest") + ":" + target) === "1";
+            if (window.localStorage) window.localStorage.setItem("lumiMessageSaved:" + (getCurrentLumiId() || "guest") + ":" + target, saved ? "0" : "1");
           } catch (error) {}
           updateMessageSaveButton(target);
           return;
@@ -1013,12 +1035,18 @@
         currentId: null
       };
       const MAIL_PAGE_SIZE = 3;
+      // Lumi Signup Patch 1-fix2A: 우편 읽음/저장 키 계정별 격리
+      function mailKeyFor(base, lumiId) {
+        const id = lumiId || getCurrentLumiId() || "";
+        return id ? base + "." + id.toLowerCase() : base;
+      }
       const MAIL_SAVE_KEY = "lumiSavedMailIds";
       const MAIL_READ_KEY = "lumiReadMailIds";
 
       function readMailIds(key) {
         try {
-          const parsed = JSON.parse(localStorage.getItem(key) || "[]");
+          const k = mailKeyFor(key);
+          const parsed = JSON.parse(localStorage.getItem(k) || "[]");
           return Array.isArray(parsed) ? parsed.map(String) : [];
         } catch (error) {
           return [];
@@ -1027,7 +1055,8 @@
 
       function writeMailIds(key, ids) {
         try {
-          localStorage.setItem(key, JSON.stringify(Array.from(new Set(ids.map(String)))));
+          const k = mailKeyFor(key);
+          localStorage.setItem(k, JSON.stringify(Array.from(new Set(ids.map(String)))));
         } catch (error) {}
       }
 
@@ -1216,12 +1245,14 @@
         currentId: null
       };
       const LUMILOG_PAGE_SIZE = 3;
+      // Lumi Signup Patch 1-fix2A: 루미로그 읽음/저장 키 계정별 격리
       const LUMILOG_SAVE_KEY = "lumiSavedLogIds";
       const LUMILOG_READ_KEY = "lumiReadLogIds";
 
       function readLumiLogIds(key) {
         try {
-          const parsed = JSON.parse(localStorage.getItem(key) || "[]");
+          const k = mailKeyFor(key); // lumiId suffix 공용 유틸
+          const parsed = JSON.parse(localStorage.getItem(k) || "[]");
           return Array.isArray(parsed) ? parsed.map(String) : [];
         } catch (error) {
           return [];
@@ -1230,7 +1261,8 @@
 
       function writeLumiLogIds(key, ids) {
         try {
-          localStorage.setItem(key, JSON.stringify(Array.from(new Set(ids.map(String)))));
+          const k = mailKeyFor(key);
+          localStorage.setItem(k, JSON.stringify(Array.from(new Set(ids.map(String)))));
         } catch (error) {}
       }
 
@@ -1411,8 +1443,18 @@
         document.querySelectorAll(".ticket-pager-scope").forEach((scope) => renderTicketPager(scope));
       }
 
-      const profileStorageKey = "lumiphone.profile.v1";
-      const profileOshiChangedKey = "lumiphone.profile.oshiChangedAt.v1";
+      // Lumi Signup Patch 1-fix2A: 계정별 격리 - profileStorageKey/profileOshiChangedKey를 함수로
+      function profileStorageKeyFor(lumiId) {
+        const id = lumiId || getCurrentLumiId() || "";
+        return id ? "lumiphone.profile.v2." + id.toLowerCase() : "lumiphone.profile.v1";
+      }
+      // boot 시점 key는 직후 loadProfileState(lid) 호출 시 override됨
+      const profileStorageKey = "lumiphone.profile.v1"; // fallback (boot 전용, openApp에서 재로딩)
+      function profileOshiChangedKeyFor(lumiId) {
+        const id = lumiId || getCurrentLumiId() || "";
+        return id ? "lumiphone.profile.oshiChangedAt.v2." + id.toLowerCase() : "lumiphone.profile.oshiChangedAt.v1";
+      }
+      const profileOshiChangedKey = "lumiphone.profile.oshiChangedAt.v1"; // fallback
       const profileDefaultPart = () => ({ src: "", x: 50, y: 50, scale: 1 });
       const profileDefaultInfo = () => ({
         displayName: "루미나",
@@ -1624,9 +1666,11 @@
         return window.matchMedia && window.matchMedia("(min-width: 760px)").matches;
       }
 
-      function loadProfileState() {
+      function loadProfileState(lumiId) {
+        // Lumi Signup Patch 1-fix2A: 계정별 격리 - lumiId가 있으면 계정별 키 사용
+        const key = lumiId ? profileStorageKeyFor(lumiId) : profileStorageKey;
         try {
-          const raw = localStorage.getItem(profileStorageKey);
+          const raw = localStorage.getItem(key);
           profileState = normalizeProfileState(raw ? JSON.parse(raw) : profileDefaultState());
         } catch (error) {
           profileState = profileDefaultState();
@@ -1636,13 +1680,15 @@
 
 
       function getLastOshiChangedAt() {
-        const raw = localStorage.getItem(profileOshiChangedKey);
+        const key = profileOshiChangedKeyFor(getCurrentLumiId());
+        const raw = localStorage.getItem(key);
         const time = raw ? Number(raw) : 0;
         return Number.isFinite(time) ? time : 0;
       }
 
       function setLastOshiChangedAt(time) {
-        localStorage.setItem(profileOshiChangedKey, String(time || Date.now()));
+        const key = profileOshiChangedKeyFor(getCurrentLumiId());
+        localStorage.setItem(key, String(time || Date.now()));
       }
 
       function getNextOshiChangeDateText(lastChangedAt) {
@@ -1716,7 +1762,9 @@
 
       function saveProfileState() {
         try {
-          localStorage.setItem(profileStorageKey, JSON.stringify(profileState));
+          // Lumi Signup Patch 1-fix2A: 계정별 키로 저장
+          const key = profileStorageKeyFor(getCurrentLumiId());
+          localStorage.setItem(key, JSON.stringify(profileState));
           return true;
         } catch (error) {
           /* localStorage quota can fail with large images. Keep the current screen stable and report the failure. */
@@ -1935,7 +1983,7 @@
         const ownedCards = cards.filter(achievementIsOwned);
         const progressCards = cards.filter((card) => (card.dataset.achievementStatus || "") === "대기 중");
         const ownedTitles = Array.from(new Set(ownedCards.map((card) => card.dataset.achievementReward).filter(Boolean)));
-        const representativeTitle = localStorage.getItem(representativeAchievementKey) || (ownedCards[0] && ownedCards[0].dataset.achievementTitle) || "-";
+        const representativeTitle = localStorage.getItem(representativeAchievementKeyFor(getCurrentLumiId())) || (ownedCards[0] && ownedCards[0].dataset.achievementTitle) || "-";
         const sampleCards = ownedCards.slice(0, 4).map((card) => (card.dataset.achievementIcon || "🏅") + " " + (card.dataset.achievementTitle || "업적")).join("\n");
         return "루미폰 업적 현황\n\n" +
           "달성 업적 " + ownedCards.length + " / " + cards.length + "\n" +
@@ -1966,7 +2014,7 @@
         const ownedCards = cards.filter(achievementIsOwned);
         const progressCards = cards.filter((card) => (card.dataset.achievementStatus || "") === "대기 중");
         const ownedTitles = Array.from(new Set(ownedCards.map((card) => card.dataset.achievementReward).filter(Boolean)));
-        const representativeTitle = localStorage.getItem(representativeAchievementKey) || (ownedCards[0] && ownedCards[0].dataset.achievementTitle) || "-";
+        const representativeTitle = localStorage.getItem(representativeAchievementKeyFor(getCurrentLumiId())) || (ownedCards[0] && ownedCards[0].dataset.achievementTitle) || "-";
         return {
           mode: "summary",
           kicker: "ACHIEVEMENT",
@@ -2065,7 +2113,7 @@
         ctx.textAlign = "left";
 
         const profileInfoForFooter = normalizeProfileInfo(profileState.info);
-        const footerJoinDate = profileInfoForFooter.joinedAt || "2026.05.06";
+        const footerJoinDate = profileInfoForFooter.joinedAt || getCurrentLumiId() || "";
         const footerCardX = 134;
         const footerCardY = 122;
         const footerCardW = 812;
@@ -2316,7 +2364,7 @@
         const name = info.displayName || "루미나";
         const title = info.title || "나만의 루미나";
         const oshi = info.oshi || "루루 🍼🐰";
-        const joinedAt = info.joinedAt || "2026.05.06";
+        const joinedAt = info.joinedAt || "";
         const text = [
           "루미폰 프로필 카드",
           "",
@@ -2905,7 +2953,7 @@
 
       function setRepresentativeAchievement(card) {
         if (!card || !achievementIsOwned(card)) return;
-        localStorage.setItem(representativeAchievementKey, card.dataset.achievementTitle || "");
+        localStorage.setItem(representativeAchievementKeyFor(getCurrentLumiId()), card.dataset.achievementTitle || "");
         updateAchievementSummary();
         openProfileSimpleModal("대표 업적 설정 완료", ["대표 업적이 ‘" + (card.dataset.achievementTitle || "업적") + "’로 설정되었어요."]);
       }
@@ -2927,11 +2975,11 @@
           achievementSummaryProgressCard.dataset.summaryAchievementTitle = progressCard ? (progressCard.dataset.achievementTitle || "") : "";
         }
 
-        let representativeTitle = localStorage.getItem(representativeAchievementKey) || (ownedCards[0] && ownedCards[0].dataset.achievementTitle) || "";
+        let representativeTitle = localStorage.getItem(representativeAchievementKeyFor(getCurrentLumiId())) || (ownedCards[0] && ownedCards[0].dataset.achievementTitle) || "";
         let representativeCard = findAchievementCardByTitle(representativeTitle) || ownedCards[0] || cards[0];
         if (representativeCard && !achievementIsOwned(representativeCard)) representativeCard = ownedCards[0] || cards[0];
         if (representativeCard) {
-          localStorage.setItem(representativeAchievementKey, representativeCard.dataset.achievementTitle || "");
+          localStorage.setItem(representativeAchievementKeyFor(getCurrentLumiId()), representativeCard.dataset.achievementTitle || "");
           if (achievementSummaryRepresentative) achievementSummaryRepresentative.textContent = representativeCard.dataset.achievementTitle || "-";
           if (achievementSummaryRepresentativeIcon) achievementSummaryRepresentativeIcon.textContent = representativeCard.dataset.achievementIcon || "🏅";
           if (achievementSummaryRepresentativeCard) {
@@ -5455,7 +5503,7 @@
           appendBootDebug("LOGIN catch: " + msg);
           appendBootDebug("login UI error: " + msg);
           if (msg === "missingApiEndpoint") showMessage("루미폰 API 주소가 아직 설정되지 않았어요. LUMI_API_ENDPOINT를 Apps Script 웹앱 URL로 설정해 주세요.");
-          else if (msg === "apiTimeout" || msg === "apiNetworkError") showMessage("루미폰 서버 연결을 확인해 주세요. debug: " + msg);
+          else if (msg === "apiTimeout" || msg === "apiNetworkError") { console.warn("[루미폰] 서버 연결 오류:", msg); showMessage("루미폰 서버에 연결할 수 없어요. 잠시 후 다시 시도해 주세요."); }
           else if (/5회|10분|잠금|locked|여러 번|잠시 후/.test(msg)) showMessage("비밀번호를 5회 이상 잘못 입력했어요. 안전을 위해 잠시 후 다시 시도해 주세요.");
           else if (msg && msg !== "loginFailed") showMessage(msg);
           else showMessage("루미 ID 또는 비밀번호를 확인해 주세요.");
@@ -6123,19 +6171,9 @@
         if (recordMonthPrev) recordMonthPrev.disabled = currentYear <= minYear && currentMonth <= 1;
       }
 
-      // PATCH 51-57-fix4: 오른쪽 히어로 카드는 루미 ID 생성일이 아니라 첫 루미 방문일(visits 기준)이다.
+      // PATCH 51-57-fix4 + Lumi Signup Patch 1-fix2A: 오른쪽 히어로 카드 첫 루미 방문일
       function syncFirstVisitHeroFromVisits() {
         try {
-          if (!runtimeVisits || !runtimeVisits.length) return;
-          var first = null;
-          runtimeVisits.forEach(function(v) {
-            var raw = v.eventDate || v.visitedAt || "";
-            var d = new Date(raw);
-            if (isNaN(d.getTime())) return;
-            if (!first || d.getTime() < first.getTime()) first = d;
-          });
-          if (!first) return;
-          var date = first.getFullYear() + "." + pad2(first.getMonth() + 1) + "." + pad2(first.getDate());
           var cards = Array.from(document.querySelectorAll(".record-hero-card"));
           var target = cards.find(function(card) {
             var label = card.querySelector("small");
@@ -6147,6 +6185,21 @@
           var b = target.querySelector("b");
           var span = target.querySelector("span");
           if (label) label.textContent = "첫 루미 방문일";
+          if (!runtimeVisits || !runtimeVisits.length) {
+            // visits가 없으면 샘플/이전 계정 잔상 방지 - 빈 상태로 표시
+            if (b) b.textContent = "-";
+            if (span) span.textContent = "아직 루미벨 방문 기록이 없어요";
+            return;
+          }
+          var first = null;
+          runtimeVisits.forEach(function(v) {
+            var raw = v.eventDate || v.visitedAt || "";
+            var d = new Date(raw);
+            if (isNaN(d.getTime())) return;
+            if (!first || d.getTime() < first.getTime()) first = d;
+          });
+          if (!first) return;
+          var date = first.getFullYear() + "." + pad2(first.getMonth() + 1) + "." + pad2(first.getDate());
           if (b) b.textContent = date;
           if (span) span.textContent = "오프라인 기록과 온라인 연결감을 함께 저장해요";
         } catch(e) {}
@@ -7040,12 +7093,16 @@
     }
   ];
   const KEY = { read:"lumi_v108_msg_read", saved:"lumi_v108_msg_saved", replies:"lumi_v108_msg_replies" };
+  // Lumi Signup Patch 1-fix2A: 문자함 키 계정별 격리
+  function msgKeyFor(base) {
+    try { var id = window.__lumiGetCurrentId ? window.__lumiGetCurrentId() : ""; return id ? base + "." + id.toLowerCase() : base; } catch(e) { return base; }
+  }
   function $(s,r){ return (r||document).querySelector(s); }
   function $$(s,r){ return Array.from((r||document).querySelectorAll(s)); }
-  function getArr(k){ try { return JSON.parse(localStorage.getItem(k)||"[]"); } catch(e) { return []; } }
-  function setArr(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
-  function getObj(k){ try { return JSON.parse(localStorage.getItem(k)||"{}"); } catch(e) { return {}; } }
-  function setObj(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
+  function getArr(k){ try { return JSON.parse(localStorage.getItem(msgKeyFor(k))||"[]"); } catch(e) { return []; } }
+  function setArr(k,v){ try { localStorage.setItem(msgKeyFor(k), JSON.stringify(v)); } catch(e) {} }
+  function getObj(k){ try { return JSON.parse(localStorage.getItem(msgKeyFor(k))||"{}"); } catch(e) { return {}; } }
+  function setObj(k,v){ try { localStorage.setItem(msgKeyFor(k), JSON.stringify(v)); } catch(e) {} }
   function fanText(value){ return String(value == null ? "" : value); }
   function getAllLumiMessageItems(){
     const runtimeItems = window.__lumiRuntimeMessageItems;
@@ -7084,7 +7141,7 @@
     // KEY.read는 문자함 IIFE 스코프라 직접 접근 불가 → localStorage에서 직접 읽음
     var isReadLocal = false;
     try {
-      var readRaw = localStorage.getItem("lumi_v108_msg_read");
+      var readRaw = localStorage.getItem(msgKeyFor("lumi_v108_msg_read"));
       var readIds = readRaw ? JSON.parse(readRaw) : [];
       var msgId = String(source.messageId || source.id || "").trim();
       if (msgId) isReadLocal = Array.isArray(readIds) && readIds.includes(msgId);
@@ -7770,7 +7827,7 @@
             equipAchievementTitle(a.title, false);
           } else {
             /* fallback: localStorage 직접 저장 후 안내 */
-            try { localStorage.setItem('lumi_v9_title', a.title); } catch(e) {}
+            try { var _tid = window.__lumiGetCurrentId ? window.__lumiGetCurrentId() : ""; localStorage.setItem('lumi_v9_title' + (_tid ? "." + _tid.toLowerCase() : ""), a.title); } catch(e) {}
             /* profileTitleText, titlePill 등 UI 동기화 */
             ['titlePill','profileTitleText','v25CurrentTitleText'].forEach(function(id) {
               var el = document.getElementById(id);
@@ -7869,7 +7926,11 @@
     if (Number.isFinite(n) && n >= 0) return n;
     return STAMP_COUNT || 0;
   }
-  var STAMP_REWARD_KEY = 'lumi_v256_stamp_title_rewards';
+  // Lumi Signup Patch 1-fix2A: 스탬프 보상 키 계정별 격리
+  function stampRewardKey() {
+    try { var id = window.__lumiGetCurrentId ? window.__lumiGetCurrentId() : ""; return id ? 'lumi_v256_stamp_title_rewards.' + id.toLowerCase() : 'lumi_v256_stamp_title_rewards'; } catch(e) { return 'lumi_v256_stamp_title_rewards'; }
+  }
+  var STAMP_REWARD_KEY = 'lumi_v256_stamp_title_rewards'; // 하위호환용 상수 (readRewards/writeRewards에서 stampRewardKey() 사용)
   var rewards = [
     {key:'stamp5', need:5, label:'5개', title:'특별 우편 도착', desc:'다음 보상까지 5개 남았어요.'},
     {key:'stamp10', need:10, label:'10개', title:'디지털 메시지 / 칭호 후보', desc:'다음 보상까지 10개 남았어요.'},
@@ -7880,12 +7941,12 @@
   function $(id){ return document.getElementById(id); }
   function readRewards(){
     try{
-      var arr = JSON.parse(localStorage.getItem(STAMP_REWARD_KEY) || '[]');
+      var arr = JSON.parse(localStorage.getItem(stampRewardKey()) || '[]');
       return Array.isArray(arr) ? arr.filter(Boolean) : [];
     }catch(e){ return []; }
   }
   function writeRewards(arr){
-    try{ localStorage.setItem(STAMP_REWARD_KEY, JSON.stringify(Array.from(new Set((arr || []).filter(Boolean))))); }catch(e){}
+    try{ localStorage.setItem(stampRewardKey(), JSON.stringify(Array.from(new Set((arr || []).filter(Boolean))))); }catch(e){}
   }
   function isPc(){ return window.innerWidth >= 760; }
 
@@ -8184,11 +8245,11 @@
 
   const PROFILE_KEY = "lumiphone.profile.v1";
   const LOGIN_KEY = "lumiphone.loginState.v1";
-  const SAMPLE_ID = "LB-0001";
+  const SAMPLE_ID = ""; // Lumi Signup Patch 1-fix2A: SAMPLE_ID를 빈 문자열로 - LB-0001 자동 낙수 제거
 
   function normId(value) {
     const digits = String(value || "").replace(/\D/g, "").slice(-4);
-    return digits ? "LB-" + digits.padStart(4, "0") : SAMPLE_ID;
+    return digits ? "LB-" + digits.padStart(4, "0") : "";
   }
 
   function readLoginId() {
@@ -8208,11 +8269,39 @@
   function readProfileBirthday() {
     let info = null;
     try {
-      const raw = localStorage.getItem(PROFILE_KEY);
-      const parsed = raw ? JSON.parse(raw) : null;
-      info = parsed && parsed.info ? parsed.info : null;
+      // Lumi Signup Patch 1-fix2A: 계정별 격리 원칙
+      // - lumiId가 있으면 반드시 lumiphone.profile.v2.{lid} 만 읽는다.
+      // - per-user profile이 없으면 null 처리 (글로벌 PROFILE_KEY fallback 금지).
+      // - lumiId가 없는 비로그인 상태에서만 PROFILE_KEY를 허용하지 않고, 그냥 null 처리.
+      const lid = readLoginId();
+      if (lid) {
+        const perUserKey = "lumiphone.profile.v2." + lid.toLowerCase();
+        const raw = localStorage.getItem(perUserKey);
+        const parsed = raw ? JSON.parse(raw) : null;
+        info = parsed && parsed.info ? parsed.info : null;
+      }
+      // lumiId가 없으면 info = null 그대로 유지 (Birthday Ticket 표시 안 함)
     } catch (error) {
       info = null;
+    }
+
+    // 생일 보강: loginState의 birthMonth/birthDay만 허용
+    // (글로벌 profileState 읽기 금지 — 다른 계정 오염 방지)
+    if (!info || (!info.birthdayMonth && !info.birthMonth)) {
+      try {
+        const loginRaw = localStorage.getItem(LOGIN_KEY);
+        const loginParsed = loginRaw ? JSON.parse(loginRaw) : null;
+        // loginState의 id가 현재 readLoginId()와 일치할 때만 사용
+        const loginId = loginParsed && loginParsed.id ? String(loginParsed.id).trim().toUpperCase() : "";
+        const currentLid = readLoginId().toUpperCase();
+        if (loginId && loginId === currentLid && (loginParsed.birthMonth || loginParsed.birthdayMonth)) {
+          info = Object.assign({}, info || {}, {
+            birthdayMonth: loginParsed.birthMonth || loginParsed.birthdayMonth || "",
+            birthdayDay: loginParsed.birthDay || loginParsed.birthdayDay || "",
+            birthdayRegistered: !!(loginParsed.birthMonth || loginParsed.birthdayMonth)
+          });
+        }
+      } catch(e) {}
     }
 
     const source = info || {};
