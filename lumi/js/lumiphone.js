@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'patch51_56_achievement_xp_box_20260509';
+      const APP_VERSION = 'patch51_57_record_join_date_20260509';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -427,6 +427,8 @@
 
         // PATCH 51-54: 로그인 응답/lumi_users 기반 프로필 표시값 즉시 반영
         syncProfileInfoFromUser(currentUser);
+        // PATCH 51-57: 기록 탭 루미 ID 생성일/DAY 즉시 반영
+        syncRecordJoinDateFromUser(currentUser);
 
         // PATCH 51-37: 캐시 즉시 복원 (동기, 0ms)
         const cachedRes    = cacheRead_(lid, "reservations", 24 * 60 * 60 * 1000);
@@ -1442,6 +1444,42 @@
         return raw.slice(0, 10).replace(/-/g, ".");
       }
 
+
+      // PATCH 51-57: 기록 탭의 루미 ID 생성일/DAY를 lumi_users.createdAt 기준으로 동기화
+      function syncRecordJoinDateFromUser(user) {
+        const rawJoin = (user && (user.createdAt || user.joinedAt)) || (profileState && profileState.info && profileState.info.joinedAt) || "";
+        const joined = formatProfileJoinDate(rawJoin);
+        if (!joined) return;
+
+        const m = joined.match(/^(\d{4})\.(\d{2})\.(\d{2})/);
+        let dayLabel = "DAY 1";
+        if (m) {
+          const start = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+          const now = new Date();
+          const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          if (!isNaN(start.getTime())) {
+            const diff = Math.floor((today.getTime() - start.getTime()) / 86400000) + 1;
+            dayLabel = "DAY " + Math.max(1, diff);
+          }
+        }
+
+        Array.from(document.querySelectorAll(".record-hero-card")).forEach(function(card) {
+          const label = card.querySelector("small");
+          const value = card.querySelector("b");
+          const desc = card.querySelector("span");
+          const labelText = label ? String(label.textContent || "").trim() : "";
+          if (!value) return;
+          if (labelText.indexOf("이어진 지") !== -1 || labelText.indexOf("만난 지") !== -1) {
+            value.textContent = dayLabel;
+            if (desc) desc.textContent = "루미 ID 생성일부터 루미벨과 이어진 시간";
+          }
+          if (labelText.indexOf("루미 ID 생성일") !== -1) {
+            value.textContent = joined;
+            if (desc) desc.textContent = "루미폰을 시작한 날부터 기록해요";
+          }
+        });
+      }
+
       function normalizeOshiForProfile(value) {
         const raw = String(value || "").trim();
         if (!raw) return "";
@@ -1473,6 +1511,7 @@
         saveProfileState();
         if (typeof renderProfileView === "function") renderProfileView();
         if (typeof renderProfileEditor === "function") renderProfileEditor();
+        syncRecordJoinDateFromUser(currentUser || user);
       }
 
       function normalizeProfileState(state) {
