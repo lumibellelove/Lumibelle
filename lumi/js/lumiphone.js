@@ -3321,7 +3321,9 @@
           birthMonth: source.birthMonth || source.birthdayMonth || "",
           birthDay: source.birthDay || source.birthdayDay || "",
           profileMessage: source.profileMessage || "",
-          equippedTitle: source.equippedTitle || ""
+          equippedTitle: source.equippedTitle || "",
+          // SecPatch1-fix1: openApp/normalize 과정에서 로그인 토큰이 지워지지 않도록 보존
+          sessionToken: source.sessionToken || ""
         };
       }
 
