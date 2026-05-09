@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'secpatch2_2e_login_password_20chars_20260509';
+      const APP_VERSION = 'secpatch2_2f_recovery_question_select_20260509';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -4883,6 +4883,19 @@
         }
         const recoveryMonthOptions = buildLumiNumberOptions_(1, 12, "월", "월 선택");
         const recoveryDayOptions = buildLumiNumberOptions_(1, 31, "일", "일 선택");
+        // Security Patch 2-2F: 본인확인 질문 선택식
+        const LUMI_RECOVERY_QUESTION_OPTIONS = [
+          "나만의 비밀 단어는?",
+          "키우는 반려동물의 이름은?",
+          "좋아하는 음식은?",
+          "좋아하는 색은?",
+          "좌우명은?",
+          "처음 루미벨을 알게 된 계기는?",
+          "좋아하는 아이돌은?"
+        ];
+        const recoveryQuestionOptions = '<option value="">질문 선택</option>' + LUMI_RECOVERY_QUESTION_OPTIONS.map(function(q) {
+          return '<option value="' + q.replace(/"/g, '&quot;') + '">' + q + '</option>';
+        }).join("");
 
         modal = document.createElement("div");
         modal.id = "lumiRecoveryModal";
@@ -4903,6 +4916,7 @@
                 '<div class="lumi-recovery-field"><label>생일 월</label><select id="recoveryFindMonth">' + recoveryMonthOptions + '</select></div>' +
                 '<div class="lumi-recovery-field"><label>생일 일</label><select id="recoveryFindDay">' + recoveryDayOptions + '</select></div>' +
               '</div>' +
+              '<div class="lumi-recovery-field"><label>본인확인 질문</label><select id="recoveryFindQuestion">' + recoveryQuestionOptions + '</select></div>' +
               '<div class="lumi-recovery-field"><label>본인확인 답변</label><input id="recoveryFindAnswer" placeholder="예: 루미벨"></div>' +
               '<button type="button" class="lumi-recovery-action" id="recoveryFindSubmit">등록 이메일로 루미 ID 받기</button>' +
               '<div class="lumi-recovery-result" id="recoveryFindResult">닉네임, 생일, 본인확인 답변이 일치하면 등록 이메일로 루미 ID를 보내요.</div>' +
@@ -4971,16 +4985,17 @@
           const nickname = modal.querySelector("#recoveryFindNickname").value.trim();
           const birthMonth = modal.querySelector("#recoveryFindMonth").value.trim();
           const birthDay = modal.querySelector("#recoveryFindDay").value.trim();
+          const recoveryQuestion = modal.querySelector("#recoveryFindQuestion").value.trim();
           const recoveryAnswer = modal.querySelector("#recoveryFindAnswer").value.trim();
-          if (!nickname || !birthMonth || !birthDay || !recoveryAnswer) {
-            findResult.textContent = "닉네임, 생일, 본인확인 답변을 모두 입력해 주세요.";
+          if (!nickname || !birthMonth || !birthDay || !recoveryQuestion || !recoveryAnswer) {
+            findResult.textContent = "닉네임, 생일, 본인확인 질문과 답변을 모두 입력해 주세요.";
             return;
           }
           const findButton = modal.querySelector("#recoveryFindSubmit");
           const restoreFindButton = setRecoveryButtonLoading(findButton, true, "메일 보내는 중…");
           findResult.textContent = "등록 이메일을 확인하는 중…";
           try {
-            const response = await postLumiApi({ action: "lumiFindIdEmail", nickname, birthMonth, birthDay, recoveryAnswer });
+            const response = await postLumiApi({ action: "lumiFindIdEmail", nickname, birthMonth, birthDay, recoveryQuestion, recoveryAnswer });
             if (response && response.ok === true && response.emailSent === true && response.emailMasked) {
               findResult.textContent = response.emailMasked + "로 루미 ID를 보냈어요. 메일함을 확인해 주세요.";
             } else if (response && response.ok === true) {
@@ -5009,7 +5024,7 @@
           try {
             const response = await postLumiApi({ action: "lumiRequestPinResetCode", lumiId });
             if (response && response.ok === true && response.emailSent === true && response.emailMasked) {
-              questionResult.textContent = response.emailMasked + "로 인증코드를 보냈어요. " + (response.recoveryQuestion ? "본인확인 질문: " + response.recoveryQuestion : "본인확인 답변도 함께 입력해 주세요.");
+              questionResult.textContent = response.emailMasked + "로 인증코드를 보냈어요. " + (response.recoveryQuestion ? "본인확인 질문: " + response.recoveryQuestion : "등록된 본인확인 답변도 함께 입력해 주세요.");
             } else if (response && response.ok === true) {
               // Security Patch 2-1-fix1: 예전/잘못된 서버 응답(ok:true만 있고 이메일 발송 증거 없음)을 성공으로 보지 않는다.
               questionResult.textContent = "이메일 발송 확인값이 없어요. Apps Script 배포 버전을 확인해 주세요.";
