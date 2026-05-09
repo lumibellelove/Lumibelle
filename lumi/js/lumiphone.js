@@ -4954,13 +4954,53 @@
         const resetPasswordInput = modal.querySelector("#recoveryResetPin");
         function setRecoveryButtonLoading(button, isLoading, loadingText) {
           if (!button) return function() {};
-          const originalText = button.textContent;
+          const originalText = button.getAttribute("data-lumi-original-text") || button.textContent;
+          button.setAttribute("data-lumi-original-text", originalText);
+          if (button._lumiRecoveryCountdownTimer) {
+            window.clearInterval(button._lumiRecoveryCountdownTimer);
+            button._lumiRecoveryCountdownTimer = null;
+          }
           button.disabled = Boolean(isLoading);
           if (isLoading && loadingText) button.textContent = loadingText;
           return function restoreRecoveryButton() {
             button.disabled = false;
             button.textContent = originalText;
           };
+        }
+        function getRecoveryRetrySeconds(response) {
+          if (!response) return 0;
+          const direct = Number(response.retryAfterSeconds || response.retryAfter || 0);
+          if (direct > 0) return Math.ceil(direct);
+          const text = String(response.message || response.error || "");
+          const match = text.match(/(\d+)\s*초\s*후/);
+          return match ? Math.ceil(Number(match[1] || 0)) : 0;
+        }
+        function startRecoveryCountdown(button, resultEl, seconds, options) {
+          if (!button) return;
+          options = options || {};
+          let remain = Math.max(0, Math.ceil(Number(seconds || 0)));
+          if (!remain) return;
+          const originalText = button.getAttribute("data-lumi-original-text") || button.textContent;
+          button.setAttribute("data-lumi-original-text", originalText);
+          if (button._lumiRecoveryCountdownTimer) window.clearInterval(button._lumiRecoveryCountdownTimer);
+          function renderCountdown() {
+            if (remain > 0) {
+              button.disabled = true;
+              button.textContent = remain + "초 후 다시 요청";
+              if (resultEl && options.updateResult !== false) {
+                resultEl.textContent = (options.prefix || "인증 메일은 ") + remain + "초 후 다시 요청할 수 있어요.";
+              }
+              remain -= 1;
+              return;
+            }
+            window.clearInterval(button._lumiRecoveryCountdownTimer);
+            button._lumiRecoveryCountdownTimer = null;
+            button.disabled = false;
+            button.textContent = originalText;
+            if (resultEl && options.doneText) resultEl.textContent = options.doneText;
+          }
+          renderCountdown();
+          button._lumiRecoveryCountdownTimer = window.setInterval(renderCountdown, 1000);
         }
         function playRabbitPasswordHeart(button) {
           if (!button) return;
@@ -5000,20 +5040,29 @@
           const findButton = modal.querySelector("#recoveryFindSubmit");
           const restoreFindButton = setRecoveryButtonLoading(findButton, true, "메일 보내는 중…");
           findResult.textContent = "등록 이메일을 확인하는 중…";
+          let countdownStarted = false;
           try {
             const response = await postLumiApi({ action: "lumiFindIdEmail", nickname, birthMonth, birthDay, recoveryQuestion, recoveryAnswer });
             if (response && response.ok === true && response.emailSent === true && response.emailMasked) {
               findResult.textContent = response.emailMasked + "로 루미 ID를 보냈어요. 메일함을 확인해 주세요.";
+              countdownStarted = true;
+              startRecoveryCountdown(findButton, findResult, 60, { updateResult: false, doneText: "다시 요청할 수 있어요." });
             } else if (response && response.ok === true) {
               // Security Patch 2-1-fix1: 예전/잘못된 서버 응답(ok:true만 있고 이메일 발송 증거 없음)을 성공으로 보지 않는다.
               findResult.textContent = "이메일 발송 확인값이 없어요. Apps Script 배포 버전을 확인해 주세요.";
             } else {
-              findResult.textContent = String((response && (response.message || response.error)) || "일치하는 정보를 찾을 수 없습니다.");
+              const retrySeconds = getRecoveryRetrySeconds(response);
+              if (retrySeconds > 0) {
+                countdownStarted = true;
+                startRecoveryCountdown(findButton, findResult, retrySeconds, { prefix: "인증 메일은 ", doneText: "다시 요청할 수 있어요." });
+              } else {
+                findResult.textContent = String((response && (response.message || response.error)) || "일치하는 정보를 찾을 수 없습니다.");
+              }
             }
           } catch (error) {
             findResult.textContent = "루미폰 서버 연결을 확인해 주세요.";
           } finally {
-            restoreFindButton();
+            if (!countdownStarted) restoreFindButton();
           }
         });
 
@@ -5027,20 +5076,29 @@
           const codeButton = modal.querySelector("#recoveryCodeSubmit");
           const restoreCodeButton = setRecoveryButtonLoading(codeButton, true, "인증코드 보내는 중…");
           questionResult.textContent = "인증코드를 발송하는 중…";
+          let countdownStarted = false;
           try {
             const response = await postLumiApi({ action: "lumiRequestPinResetCode", lumiId });
             if (response && response.ok === true && response.emailSent === true && response.emailMasked) {
               questionResult.textContent = response.emailMasked + "로 인증코드를 보냈어요. " + (response.recoveryQuestion ? "본인확인 질문: " + response.recoveryQuestion : "등록된 본인확인 답변도 함께 입력해 주세요.");
+              countdownStarted = true;
+              startRecoveryCountdown(codeButton, questionResult, 60, { updateResult: false, doneText: "다시 요청할 수 있어요." });
             } else if (response && response.ok === true) {
               // Security Patch 2-1-fix1: 예전/잘못된 서버 응답(ok:true만 있고 이메일 발송 증거 없음)을 성공으로 보지 않는다.
               questionResult.textContent = "이메일 발송 확인값이 없어요. Apps Script 배포 버전을 확인해 주세요.";
             } else {
-              questionResult.textContent = String((response && (response.message || response.error)) || "인증코드를 발송하지 못했어요.");
+              const retrySeconds = getRecoveryRetrySeconds(response);
+              if (retrySeconds > 0) {
+                countdownStarted = true;
+                startRecoveryCountdown(codeButton, questionResult, retrySeconds, { prefix: "인증 메일은 ", doneText: "다시 요청할 수 있어요." });
+              } else {
+                questionResult.textContent = String((response && (response.message || response.error)) || "인증코드를 발송하지 못했어요.");
+              }
             }
           } catch (error) {
             questionResult.textContent = "루미폰 서버 연결을 확인해 주세요.";
           } finally {
-            restoreCodeButton();
+            if (!countdownStarted) restoreCodeButton();
           }
         });
 
