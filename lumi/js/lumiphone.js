@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'secpatch2_2f_recovery_question_select_20260509';
+      const APP_VERSION = 'secpatch2_2h_fix1_question_display_split_20260510';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -4877,7 +4877,7 @@
 
         const style = document.createElement("style");
         style.id = "lumiRecoveryModalStyle";
-        style.textContent = "#lumiRecoveryModal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(84,48,74,.38);backdrop-filter:blur(8px)}#lumiRecoveryModal.show{display:flex}.lumi-recovery-box{width:min(520px,100%);max-height:88vh;overflow:auto;border:1px solid #f2bdd5;border-radius:28px;background:#fff;box-shadow:0 24px 80px rgba(110,62,91,.22);padding:24px;color:#6b445b}.lumi-recovery-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}.lumi-recovery-head h3{margin:0;font-size:24px;color:#e06fa3}.lumi-recovery-head p{margin:6px 0 0;font-size:13px;font-weight:800;color:#9a7087;line-height:1.5}.lumi-recovery-close{width:36px;height:36px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d77ca7;font-size:22px;font-weight:900;cursor:pointer}.lumi-recovery-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 16px}.lumi-recovery-tab{min-height:42px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#9a5b7b;font-weight:900;cursor:pointer}.lumi-recovery-tab.active{background:#ff5ba5;color:#fff;box-shadow:0 10px 24px rgba(255,91,165,.22)}.lumi-recovery-panel{display:none}.lumi-recovery-panel.active{display:block}.lumi-recovery-field{margin:10px 0}.lumi-recovery-field label{display:block;margin-bottom:6px;font-size:12px;font-weight:900;color:#b36d93}.lumi-recovery-field input,.lumi-recovery-field select{width:100%;box-sizing:border-box;min-height:44px;border-radius:16px;border:1px solid #f0bfd4;background:#fff8fc;color:#6b445b;font-weight:900;padding:0 14px;outline:none}.lumi-recovery-field select{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#d77ca7 50%),linear-gradient(135deg,#d77ca7 50%,transparent 50%);background-position:calc(100% - 18px) 19px,calc(100% - 12px) 19px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:34px;cursor:pointer}.lumi-recovery-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.lumi-recovery-action{width:100%;min-height:46px;margin-top:12px;border:0;border-radius:999px;background:#ff5ba5;color:#fff;font-weight:900;cursor:pointer}.lumi-recovery-subaction{width:100%;min-height:42px;margin-top:8px;border:1px solid #f0bfd4;border-radius:999px;background:#fff;color:#d77ca7;font-weight:900;cursor:pointer}.lumi-recovery-result{min-height:20px;margin-top:12px;padding:12px;border-radius:16px;background:#fff5fb;border:1px dashed #f0bfd4;font-size:13px;font-weight:900;color:#8a5d75;line-height:1.5}.lumi-recovery-note{margin-top:12px;font-size:12px;font-weight:800;color:#9a7087;line-height:1.55}.lumi-recovery-field input:disabled,.lumi-recovery-field select:disabled,.lumi-recovery-action:disabled,.lumi-recovery-subaction:disabled{opacity:.62;cursor:wait}.lumi-password-wrap{position:relative}.lumi-password-wrap input{padding-right:52px}.lumi-password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d77ca7;font-size:17px;font-weight:900;cursor:pointer;line-height:1;display:grid;place-items:center;overflow:visible}.lumi-password-toggle.is-visible{background:#fff1f8;box-shadow:0 8px 20px rgba(255,91,165,.18)}.lumi-password-heart{position:absolute;left:50%;top:50%;pointer-events:none;animation:lumiRabbitHeart .72s ease-out forwards;font-size:12px;color:#ff6aa8;filter:drop-shadow(0 4px 8px rgba(255,91,165,.2))}@keyframes lumiRabbitHeart{0%{opacity:0;transform:translate(-50%,-50%) scale(.65)}20%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--heart-x,0px)),calc(-50% - 34px)) scale(1.25)}}";
+        style.textContent = "#lumiRecoveryModal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(84,48,74,.38);backdrop-filter:blur(8px)}#lumiRecoveryModal.show{display:flex}.lumi-recovery-box{width:min(520px,100%);max-height:88vh;overflow:auto;border:1px solid #f2bdd5;border-radius:28px;background:#fff;box-shadow:0 24px 80px rgba(110,62,91,.22);padding:24px;color:#6b445b}.lumi-recovery-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}.lumi-recovery-head h3{margin:0;font-size:24px;color:#e06fa3}.lumi-recovery-head p{margin:6px 0 0;font-size:13px;font-weight:800;color:#9a7087;line-height:1.5}.lumi-recovery-close{width:36px;height:36px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d77ca7;font-size:22px;font-weight:900;cursor:pointer}.lumi-recovery-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 16px}.lumi-recovery-tab{min-height:42px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#9a5b7b;font-weight:900;cursor:pointer}.lumi-recovery-tab.active{background:#ff5ba5;color:#fff;box-shadow:0 10px 24px rgba(255,91,165,.22)}.lumi-recovery-panel{display:none}.lumi-recovery-panel.active{display:block}.lumi-recovery-field{margin:10px 0}.lumi-recovery-field label{display:block;margin-bottom:6px;font-size:12px;font-weight:900;color:#b36d93}.lumi-recovery-field input,.lumi-recovery-field select{width:100%;box-sizing:border-box;min-height:44px;border-radius:16px;border:1px solid #f0bfd4;background:#fff8fc;color:#6b445b;font-weight:900;padding:0 14px;outline:none}.lumi-recovery-field select{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#d77ca7 50%),linear-gradient(135deg,#d77ca7 50%,transparent 50%);background-position:calc(100% - 18px) 19px,calc(100% - 12px) 19px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:34px;cursor:pointer}.lumi-recovery-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.lumi-recovery-action{width:100%;min-height:46px;margin-top:12px;border:0;border-radius:999px;background:#ff5ba5;color:#fff;font-weight:900;cursor:pointer}.lumi-recovery-subaction{width:100%;min-height:42px;margin-top:8px;border:1px solid #f0bfd4;border-radius:999px;background:#fff;color:#d77ca7;font-weight:900;cursor:pointer}.lumi-recovery-result{min-height:20px;margin-top:12px;padding:12px;border-radius:16px;background:#fff5fb;border:1px dashed #f0bfd4;font-size:13px;font-weight:900;color:#8a5d75;line-height:1.5}.lumi-recovery-note{margin-top:12px;font-size:12px;font-weight:800;color:#9a7087;line-height:1.55}.lumi-recovery-question-card{display:none;margin:10px 0;padding:12px 14px;border-radius:16px;border:1px dashed #f0bfd4;background:#fff8fc;color:#6b445b;line-height:1.5}.lumi-recovery-question-card.show{display:block}.lumi-recovery-question-card .lumi-recovery-question-label{display:block;margin-bottom:4px;font-size:12px;font-weight:900;color:#b36d93}.lumi-recovery-question-card .lumi-recovery-question-text{display:block;font-size:14px;font-weight:900;color:#6b445b}.lumi-recovery-field input:disabled,.lumi-recovery-field select:disabled,.lumi-recovery-action:disabled,.lumi-recovery-subaction:disabled{opacity:.62;cursor:wait}.lumi-password-wrap{position:relative}.lumi-password-wrap input{padding-right:52px}.lumi-password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d77ca7;font-size:17px;font-weight:900;cursor:pointer;line-height:1;display:grid;place-items:center;overflow:visible}.lumi-password-toggle.is-visible{background:#fff1f8;box-shadow:0 8px 20px rgba(255,91,165,.18)}.lumi-password-heart{position:absolute;left:50%;top:50%;pointer-events:none;animation:lumiRabbitHeart .72s ease-out forwards;font-size:12px;color:#ff6aa8;filter:drop-shadow(0 4px 8px rgba(255,91,165,.2))}@keyframes lumiRabbitHeart{0%{opacity:0;transform:translate(-50%,-50%) scale(.65)}20%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--heart-x,0px)),calc(-50% - 34px)) scale(1.25)}}";
         document.head.appendChild(style);
 
         function buildLumiNumberOptions_(start, end, suffix, placeholder) {
@@ -4931,6 +4931,7 @@
               '<div class="lumi-recovery-field"><label>루미 ID</label><input id="recoveryResetLumiId" placeholder="LB-0001"></div>' +
               '<button type="button" class="lumi-recovery-subaction" id="recoveryCodeSubmit">등록 이메일로 인증코드 받기</button>' +
               '<div class="lumi-recovery-result" id="recoveryQuestionResult">루미 ID를 입력한 뒤 인증코드를 받아 주세요.</div>' +
+              '<div class="lumi-recovery-question-card" id="recoveryResetQuestionBox" aria-live="polite"><span class="lumi-recovery-question-label">본인확인 질문</span><span class="lumi-recovery-question-text" id="recoveryResetQuestionText"></span></div>' +
               '<div class="lumi-recovery-field"><label>이메일 인증코드</label><input id="recoveryResetCode" inputmode="numeric" maxlength="6" placeholder="메일로 받은 6자리 코드"></div>' +
               '<div class="lumi-recovery-field"><label>본인확인 답변</label><input id="recoveryResetAnswer" placeholder="답변 입력"></div>' +
               '<div class="lumi-recovery-field"><label>새 비밀번호</label><div class="lumi-password-wrap"><input id="recoveryResetPin" type="password" autocomplete="new-password" maxlength="20" placeholder="영문/숫자/특수문자 4~20자"><button type="button" class="lumi-password-toggle" data-password-toggle="recoveryResetPin" aria-label="비밀번호 보기">🐰</button></div></div>' +
@@ -4950,6 +4951,19 @@
 
         const findResult = modal.querySelector("#recoveryFindResult");
         const questionResult = modal.querySelector("#recoveryQuestionResult");
+        const resetQuestionBox = modal.querySelector("#recoveryResetQuestionBox");
+        const resetQuestionText = modal.querySelector("#recoveryResetQuestionText");
+        function setResetRecoveryQuestion_(question) {
+          const text = String(question || "").trim();
+          if (!resetQuestionBox || !resetQuestionText) return;
+          if (!text) {
+            resetQuestionText.textContent = "";
+            resetQuestionBox.classList.remove("show");
+            return;
+          }
+          resetQuestionText.textContent = text;
+          resetQuestionBox.classList.add("show");
+        }
         const resetIdInput = modal.querySelector("#recoveryResetLumiId");
         const resetPasswordInput = modal.querySelector("#recoveryResetPin");
         function setRecoveryButtonLoading(button, isLoading, loadingText) {
@@ -5071,16 +5085,24 @@
           resetIdInput.value = lumiId;
           if (!lumiId) {
             questionResult.textContent = "루미 ID를 입력해 주세요.";
+            setResetRecoveryQuestion_("");
             return;
           }
           const codeButton = modal.querySelector("#recoveryCodeSubmit");
           const restoreCodeButton = setRecoveryButtonLoading(codeButton, true, "인증코드 보내는 중…");
           questionResult.textContent = "인증코드를 발송하는 중…";
+          setResetRecoveryQuestion_("");
           let countdownStarted = false;
           try {
             const response = await postLumiApi({ action: "lumiRequestPinResetCode", lumiId });
             if (response && response.ok === true && response.emailSent === true && response.emailMasked) {
-              questionResult.textContent = response.emailMasked + "로 인증코드를 보냈어요. " + (response.recoveryQuestion ? "본인확인 질문: " + response.recoveryQuestion : "등록된 본인확인 답변도 함께 입력해 주세요.");
+              questionResult.textContent = response.emailMasked + "로 인증코드를 보냈어요.";
+              if (response.recoveryQuestion) {
+                setResetRecoveryQuestion_(response.recoveryQuestion);
+              } else {
+                setResetRecoveryQuestion_("");
+                questionResult.textContent = response.emailMasked + "로 인증코드를 보냈어요. 등록된 본인확인 답변도 함께 입력해 주세요.";
+              }
               countdownStarted = true;
               startRecoveryCountdown(codeButton, questionResult, 60, { updateResult: false, doneText: "다시 요청할 수 있어요." });
             } else if (response && response.ok === true) {
