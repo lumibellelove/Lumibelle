@@ -137,16 +137,18 @@ async function searchUsers(){
   }catch(e){setStatus(searchStatus,'API 오류: '+e.message,'bad')}
   finally{searchBtn.disabled=false}
 }
-async function loadDetail(lumiId){
+async function loadDetail(lumiId, options){
+  const opts = options || {};
   setStatus(detailStatusBox,'상세 정보를 불러오는 중이에요…','warn');
   try{
     const res=await apiCall({action:'adminGetLumiUserDetail',lumiId});
     if(!res.ok){setStatus(detailStatusBox,'상세 조회 실패: '+(res.error||res.message||'unknown'),'bad');return;}
     selectedUser=(res.data&&res.data.user)||res.user;
-    renderDetail(selectedUser);
+    renderDetail(selectedUser, opts);
   }catch(e){setStatus(detailStatusBox,'API 오류: '+e.message,'bad')}
 }
-function renderDetail(u){
+function renderDetail(u, options){
+  const opts = options || {};
   if(!u)return;
   emptyDetail.hidden=true; detailBody.hidden=false;
   detailTitle.textContent=(u.lumiId||'')+' · '+(u.nickname||'');
@@ -158,8 +160,8 @@ function renderDetail(u){
   recoveryAnswer.value=u.recoveryAnswer||'';
   email.value=u.email||'';
   emailVerified.value=String(u.emailVerified||'FALSE').toUpperCase()==='TRUE'?'TRUE':'FALSE';
-  tempResult.style.display='none';
-  setStatus(detailStatusBox,'상세 정보를 불러왔어요.','ok');
+  if(!opts.keepTempResult){ tempResult.style.display='none'; }
+  setStatus(detailStatusBox, opts.keepTempResult ? '상세 정보가 갱신됐어요. 임시 비밀번호는 아래에 유지했어요.' : '상세 정보를 불러왔어요.','ok');
 }
 async function saveRecovery(){
   if(!selectedUser){setStatus(detailStatusBox,'먼저 팬을 선택해 주세요.','warn');return;}
@@ -175,14 +177,32 @@ async function saveRecovery(){
 async function issueTempPassword(){
   if(!selectedUser){setStatus(detailStatusBox,'먼저 팬을 선택해 주세요.','warn');return;}
   if(!confirm(selectedUser.lumiId+' 계정에 임시 비밀번호를 발급할까요? 기존 비밀번호는 더 이상 사용할 수 없어요.')) return;
-  $('#issueTempBtn').disabled=true; tempResult.style.display='block'; setStatus(tempResult,'임시 비밀번호를 발급하는 중이에요…','warn');
+  $('#issueTempBtn').disabled=true;
+  tempResult.style.display='block';
+  setStatus(tempResult,'임시 비밀번호를 발급하는 중이에요…','warn');
+  setStatus(detailStatusBox,'임시 비밀번호를 발급하는 중이에요…','warn');
   try{
     const res=await apiCall({action:'adminIssueTempPassword',lumiId:selectedUser.lumiId,processedBy:processedBy.value||'admin',memo:memo.value||''});
-    if(!res.ok){setStatus(tempResult,'발급 실패: '+(res.error||res.message||'unknown'),'bad');return;}
+    if(!res.ok){setStatus(tempResult,'발급 실패: '+(res.error||res.message||'unknown'),'bad');setStatus(detailStatusBox,'임시 비밀번호 발급에 실패했어요.','bad');return;}
     const temp=(res.data&&res.data.tempPassword)||res.tempPassword||'';
-    setStatus(tempResult,'임시 비밀번호: '+temp+'\n팬에게 이 값을 전달하고, 로그인 후 직접 변경하도록 안내해 주세요. 예: lumi1234','ok');
-    await loadDetail(selectedUser.lumiId);
-  }catch(e){setStatus(tempResult,'API 오류: '+e.message,'bad')}
+
+    // Admin Users Patch 1-fix3:
+    // 발급 직후 상세정보를 다시 불러오면 tempResult가 render 과정에서 사라지거나
+    // “상세 정보를 불러오는 중이에요…” 상태가 남는 문제가 있어 재조회하지 않는다.
+    // 응답 성공 즉시 현재 화면의 상태만 local로 갱신하고, 임시 비밀번호는 계속 고정 표시한다.
+    selectedUser = Object.assign({}, selectedUser, {
+      passwordType: 'temporary',
+      mustChangePassword: 'TRUE',
+      passwordRule: 'flexible',
+      passwordUpdatedAt: (res.data && res.data.passwordUpdatedAt) || res.passwordUpdatedAt || selectedUser.passwordUpdatedAt || ''
+    });
+    renderDetail(selectedUser,{keepTempResult:true});
+
+    tempResult.style.display='block';
+    setStatus(tempResult,'임시 비밀번호: '+temp+'\n팬에게 이 값을 전달하고, 로그인 후 직접 변경하도록 안내해 주세요. 이 문구는 검색/새로고침 전까지 유지돼요.','ok');
+    setStatus(detailStatusBox,'임시 비밀번호를 발급했어요. 표시된 값을 팬에게 전달해 주세요.','ok');
+    try { tempResult.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e) {}
+  }catch(e){setStatus(tempResult,'API 오류: '+e.message,'bad');setStatus(detailStatusBox,'API 오류: '+e.message,'bad')}
   finally{$('#issueTempBtn').disabled=false}
 }
 searchBtn.addEventListener('click',searchUsers); query.addEventListener('keydown',e=>{if(e.key==='Enter')searchUsers()});
