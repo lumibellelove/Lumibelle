@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'patch51_57_fix3_record_join_profile_refresh_20260509';
+      const APP_VERSION = 'patch51_57_fix4_record_visit_stamp_profile_sync_20260509';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -4251,6 +4251,65 @@
           });
         } catch(e) {}
 
+        // PATCH 51-57-fix4: 프로필 요약의 스탬프/나의 루미 기록도 checkins 기준으로 동기화한다.
+        try {
+          var profileStats = Array.from(document.querySelectorAll(".profile-stat"));
+          profileStats.forEach(function(card) {
+            var small = card.querySelector("small");
+            var b = card.querySelector("b");
+            if (!small || !b) return;
+            if ((small.textContent || "").trim() === "스탬프") {
+              b.textContent = cycleStamps + "/" + maxPerCycle;
+            }
+          });
+          var liveText = "0회";
+          var recordStats = Array.from(document.querySelectorAll(".record-stat-card"));
+          recordStats.forEach(function(card) {
+            var small = card.querySelector("small");
+            var b = card.querySelector("b");
+            if (small && b && (small.textContent || "").trim() === "라이브") liveText = (b.textContent || "0회").trim();
+          });
+          Array.from(document.querySelectorAll(".profile-info-item")).forEach(function(item) {
+            var title = item.querySelector("b");
+            var span = item.querySelector("span:last-child");
+            if (title && span && (title.textContent || "").trim() === "나의 루미 기록") {
+              span.textContent = "라이브 " + liveText + " · 체크인 " + checkinCount + "회 · 스탬프 " + totalStamps + "개 · 온라인 연결 기록은 추억의 시간에서 확인할 수 있어요.";
+            }
+          });
+        } catch(e) {}
+
+        // PATCH 51-57-fix4: 포인트 탭의 스탬프 필터에도 루미 체크인/스탬프 기록을 안내용으로 표시한다.
+        try {
+          var timeline = document.getElementById("pointLedgerTimeline");
+          if (timeline) {
+            Array.from(timeline.querySelectorAll('[data-lumi-api-stamp="1"]')).forEach(function(node) { node.remove(); });
+            var checkins = Array.isArray(data.checkins) ? data.checkins : [];
+            checkins.filter(function(item) { return String(item.status || "active") === "active"; }).slice(0, 4).reverse().forEach(function(item) {
+              var stampCount = parseInt(item.stampCount || 0, 10) || 0;
+              if (stampCount <= 0) return;
+              var rawDate = item.checkedInAt || item.checkedAt || "";
+              var date = String(rawDate || "").slice(0, 10).replace(/-/g, ".");
+              var title = item.eventTitle || "루미 체크인";
+              var member = item.memberName || item.member || "";
+              var article = document.createElement("article");
+              article.className = "point-ledger-item";
+              article.setAttribute("data-lumi-api-stamp", "1");
+              article.setAttribute("data-point-category", "스탬프");
+              article.setAttribute("data-point-title", "루미 체크인 스탬프");
+              article.setAttribute("data-point-date", date || "");
+              article.setAttribute("data-point-desc", title + (member ? " · " + member : "") + " · 스탬프 +" + stampCount + "개");
+              article.innerHTML =
+                '<span class="point-ledger-icon">🌸</span>' +
+                '<time>' + escapeHtml(date || "기록") + '</time>' +
+                '<b>루미 체크인 스탬프</b>' +
+                '<span>' + escapeHtml(title + (member ? " · " + member : "")) + '</span>' +
+                '<em>스탬프 +' + stampCount + '개</em>';
+              timeline.insertBefore(article, timeline.firstChild);
+            });
+            if (typeof window.__lumiRefreshPointLedger === "function") window.__lumiRefreshPointLedger();
+          }
+        } catch(e) {}
+
         // ── 포인트 탭 요약 카드 (point-ledger-summary-card) 스탬프 수치
         try {
           var pointCards = Array.from(document.querySelectorAll(".point-ledger-summary-card"));
@@ -4332,7 +4391,7 @@
             appendBootDebug("checkins load failed: " + String((response && (response.error || response.message)) || "failed"));
             return;
           }
-          const data = response.summary || {};
+          const data = Object.assign({}, response.summary || {}, { checkins: Array.isArray(response.checkins) ? response.checkins : [] });
           cacheWrite_(lumiId, "checkins", data);
           renderCheckins(data);
           appendBootDebug("checkins loaded: stamps=" + (data.totalStamps || 0) + " checkins=" + (data.checkinCount || 0));
@@ -5351,6 +5410,35 @@
         if (recordMonthPrev) recordMonthPrev.disabled = currentYear <= minYear && currentMonth <= 1;
       }
 
+      // PATCH 51-57-fix4: 오른쪽 히어로 카드는 루미 ID 생성일이 아니라 첫 루미 방문일(visits 기준)이다.
+      function syncFirstVisitHeroFromVisits() {
+        try {
+          if (!runtimeVisits || !runtimeVisits.length) return;
+          var first = null;
+          runtimeVisits.forEach(function(v) {
+            var raw = v.eventDate || v.visitedAt || "";
+            var d = new Date(raw);
+            if (isNaN(d.getTime())) return;
+            if (!first || d.getTime() < first.getTime()) first = d;
+          });
+          if (!first) return;
+          var date = first.getFullYear() + "." + pad2(first.getMonth() + 1) + "." + pad2(first.getDate());
+          var cards = Array.from(document.querySelectorAll(".record-hero-card"));
+          var target = cards.find(function(card) {
+            var label = card.querySelector("small");
+            var text = label ? String(label.textContent || "").trim() : "";
+            return text.indexOf("첫 루미 방문일") !== -1 || text.indexOf("루미 ID 생성일") !== -1;
+          }) || cards[1];
+          if (!target) return;
+          var label = target.querySelector("small");
+          var b = target.querySelector("b");
+          var span = target.querySelector("span");
+          if (label) label.textContent = "첫 루미 방문일";
+          if (b) b.textContent = date;
+          if (span) span.textContent = "오프라인 기록과 온라인 연결감을 함께 저장해요";
+        } catch(e) {}
+      }
+
       // visitType → 필터 카테고리 매핑
       function visitTypeToCategory(visitType) {
         if (visitType === "live") return "라이브";
@@ -5382,6 +5470,7 @@
 
       function renderRecordPage() {
         updateMonthLabel();
+        syncFirstVisitHeroFromVisits();
         if (!recordCardList) return;
 
         const list = filteredVisits();
