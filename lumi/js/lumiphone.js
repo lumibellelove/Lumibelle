@@ -3117,6 +3117,12 @@
           saveLoginState(currentUser);
           syncProfileInfoFromUser(currentUser);
           syncRecordJoinDateFromUser(currentUser);
+          // Admin Users Patch 1-fix1:
+          // 로그인 직후 응답/캐시가 normal로 남아 있어도, 프로필 재조회에서 temporary 상태를 받으면
+          // 임시 비밀번호 변경 안내 모달을 다시 띄운다.
+          if (typeof showTemporaryPasswordNotice_ === "function") {
+            window.setTimeout(showTemporaryPasswordNotice_, 80);
+          }
         }
         return payload;
       }
