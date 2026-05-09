@@ -3344,7 +3344,7 @@
         query.set("_v", APP_VERSION);
 
         // SecPatch1: lumiLogin/lumiFindId/lumiGetRecoveryQuestion/lumiResetPin 제외하고 sessionToken 자동 첨부
-        const _noTokenActions = new Set(["lumiLogin", "lumiFindId", "lumiGetRecoveryQuestion", "lumiResetPin"]);
+        const _noTokenActions = new Set(["lumiLogin", "lumiFindId", "lumiFindIdEmail", "lumiRequestPinResetCode", "lumiResetPinWithCode", "lumiGetRecoveryQuestion", "lumiResetPin"]);
         if (!_noTokenActions.has(payload.action)) {
           const _storedToken = (function() {
             try {
@@ -3407,6 +3407,7 @@
         try {
           const response = await fetch(LUMI_API_ENDPOINT(), {
             method: "POST",
+            headers: { "Content-Type": "application/json;charset=UTF-8" },
             body: JSON.stringify(payload),
             signal: controller.signal
           });
@@ -4877,8 +4878,11 @@
           findResult.textContent = "등록 이메일을 확인하는 중…";
           try {
             const response = await postLumiApi({ action: "lumiFindIdEmail", nickname, birthMonth, birthDay, recoveryAnswer });
-            if (response && response.ok === true) {
-              findResult.textContent = (response.emailMasked ? response.emailMasked + "로 " : "등록된 이메일로 ") + "루미 ID를 보냈어요. 메일함을 확인해 주세요.";
+            if (response && response.ok === true && response.emailSent === true && response.emailMasked) {
+              findResult.textContent = response.emailMasked + "로 루미 ID를 보냈어요. 메일함을 확인해 주세요.";
+            } else if (response && response.ok === true) {
+              // Security Patch 2-1-fix1: 예전/잘못된 서버 응답(ok:true만 있고 이메일 발송 증거 없음)을 성공으로 보지 않는다.
+              findResult.textContent = "이메일 발송 확인값이 없어요. Apps Script 배포 버전을 확인해 주세요.";
             } else {
               findResult.textContent = String((response && (response.message || response.error)) || "일치하는 정보를 찾을 수 없습니다.");
             }
@@ -4897,8 +4901,11 @@
           questionResult.textContent = "인증코드를 발송하는 중…";
           try {
             const response = await postLumiApi({ action: "lumiRequestPinResetCode", lumiId });
-            if (response && response.ok === true) {
-              questionResult.textContent = (response.emailMasked ? response.emailMasked + "로 " : "등록 이메일로 ") + "인증코드를 보냈어요. " + (response.recoveryQuestion ? "본인확인 질문: " + response.recoveryQuestion : "본인확인 답변도 함께 입력해 주세요.");
+            if (response && response.ok === true && response.emailSent === true && response.emailMasked) {
+              questionResult.textContent = response.emailMasked + "로 인증코드를 보냈어요. " + (response.recoveryQuestion ? "본인확인 질문: " + response.recoveryQuestion : "본인확인 답변도 함께 입력해 주세요.");
+            } else if (response && response.ok === true) {
+              // Security Patch 2-1-fix1: 예전/잘못된 서버 응답(ok:true만 있고 이메일 발송 증거 없음)을 성공으로 보지 않는다.
+              questionResult.textContent = "이메일 발송 확인값이 없어요. Apps Script 배포 버전을 확인해 주세요.";
             } else {
               questionResult.textContent = String((response && (response.message || response.error)) || "인증코드를 발송하지 못했어요.");
             }
