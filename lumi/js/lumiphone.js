@@ -3,6 +3,7 @@
       "use strict";
 
       const APP_VERSION = 'lumi_signup_patch1_fix2G_birthday_visible_badge_zero_20260510';
+      // fix2H-1c: 신규 가입 계정 첫 로그인 empty-state 안정화 패치. APP_VERSION은 fix2G 캐시 정책 보호를 위해 변경하지 않는다.
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -1158,10 +1159,11 @@
         const empty = document.getElementById(box === "saved" ? "mailSavedEmpty" : "mailInboxEmpty");
         if (!list || !pager || !text || !prev || !next || !empty) return;
 
-        // PATCH 51-33: 로그인 상태에서 API 로드 미완료면 로딩 문구 표시
+        // fix2H-1c: 로그인 상태에서 API 확인 중이어도 큰 로딩 문구를 노출하지 않는다.
+        // 우편함을 열었을 때도 신규 계정은 안정적인 empty 안내를 먼저 본다.
         if (!LUMI_MESSAGES_LOAD_DONE && LUMI_API_ENDPOINT() && getCurrentLumiId()) {
-          list.innerHTML = '<p style="text-align:center;color:var(--sub,#c9a0bc);padding:24px 0;font-size:14px;">우편을 불러오는 중…</p>';
-          empty.classList.add("hidden");
+          list.innerHTML = "";
+          empty.classList.remove("hidden");
           pager.classList.add("hidden");
           return;
         }
@@ -3949,7 +3951,8 @@
           '</article>';
       }
 
-      // PATCH 51-41: 홈 예약 카드가 API 로드 전/timeout 때 "없음"으로 깜빡이지 않게 안정화
+      // fix2H-1c: 신규 가입/저장 로그인 첫 화면에서는 큰 로딩 문구를 홈 카드에 노출하지 않는다.
+      // 서버 확인은 백그라운드에서 진행하고, 실제 예약 데이터가 도착했을 때만 renderMyReservations()에서 갱신한다.
       function updateHomeReservationLoading() {
         const ticketCard = document.querySelector(".home-grid .home-card.no-icon.pass");
         const summaryCard = Array.from(document.querySelectorAll(".home-grid .home-card.no-icon")).find((card) => {
@@ -3960,18 +3963,18 @@
           const small = ticketCard.querySelector("small");
           const title = ticketCard.querySelector("b");
           const desc = ticketCard.querySelector("span");
-          if (small) small.textContent = "티켓 확인 중";
-          if (title) title.textContent = "예약 정보를 불러오는 중…";
-          if (desc) desc.textContent = "확인되는 즉시 티켓함에 표시돼요.";
+          if (small) small.textContent = "예약된 공연 없음";
+          if (title) title.textContent = "티켓 준비 중";
+          if (desc) desc.textContent = "예매가 확인되면 입장 확인용 번호가 이곳에 표시돼요.";
         }
 
         if (summaryCard) {
           const small = summaryCard.querySelector("small");
           const title = summaryCard.querySelector("b");
           const desc = summaryCard.querySelector("span");
-          if (small) small.textContent = "현재 예약 확인 중";
-          if (title) title.textContent = "예약 정보를 확인하고 있어요.";
-          if (desc) desc.textContent = "잠시 후 자동으로 갱신돼요.";
+          if (small) small.textContent = "현재 예약";
+          if (title) title.textContent = "예약된 공연이 없어요.";
+          if (desc) desc.textContent = "예매가 확인되면 티켓함에 표시돼요.";
         }
       }
 
@@ -3994,9 +3997,9 @@
             if (title) title.textContent = item.reservationNumber || "예약번호 확인 중";
             if (desc) desc.textContent = (item.eventTitle || "공연명 확인 중") + " · " + (item.eventDate || "날짜 확인 중");
           } else if (reservationsLoadState !== "loaded") {
-            if (small) small.textContent = "티켓 확인 중";
-            if (title) title.textContent = "예약 정보를 불러오는 중…";
-            if (desc) desc.textContent = "확인되는 즉시 티켓함에 표시돼요.";
+            if (small) small.textContent = "예약된 공연 없음";
+            if (title) title.textContent = "티켓 준비 중";
+            if (desc) desc.textContent = "예매가 확인되면 입장 확인용 번호가 이곳에 표시돼요.";
           } else {
             if (small) small.textContent = "예약된 공연 없음";
             if (title) title.textContent = "티켓 준비 중";
@@ -4013,9 +4016,9 @@
             if (title) title.textContent = item.eventTitle || "공연명 확인 중";
             if (desc) desc.textContent = (item.venueName || "공연장 확인 중") + " · " + paymentLabel(item.paymentStatus);
           } else if (reservationsLoadState !== "loaded") {
-            if (small) small.textContent = "현재 예약 확인 중";
-            if (title) title.textContent = "예약 정보를 확인하고 있어요.";
-            if (desc) desc.textContent = "잠시 후 자동으로 갱신돼요.";
+            if (small) small.textContent = "현재 예약";
+            if (title) title.textContent = "예약된 공연이 없어요.";
+            if (desc) desc.textContent = "예매가 확인되면 티켓함에 표시돼요.";
           } else {
             if (small) small.textContent = "현재 예약";
             if (title) title.textContent = "예약된 공연이 없어요.";
@@ -4068,11 +4071,11 @@
       function renderReservationsLoading() {
         reservationsLoadState = "loading";
         updateHomeReservationLoading();
-        const loadingHtml = '<div class="ticket-page-item"><article class="info-card"><small>잠시만요</small><b>티켓 불러오는 중...</b><span>예매 정보를 확인하고 있어요.</span></article></div>';
+        const stableEmptyHtml = '<div class="ticket-page-item"><article class="info-card"><small>예약 없음</small><b>아직 연결된 예매 내역이 없습니다.</b><span>루미 ID로 예매가 연결되면 이곳에 현재 티켓이 표시돼요.</span></article></div>';
         const el1 = document.querySelector("#ticket-current .ticket-paged-list");
         const el2 = document.querySelector(".ticket-pc-current-section");
-        if (el1) el1.innerHTML = loadingHtml;
-        if (el2) el2.innerHTML = '<h3>현재 예약 티켓</h3>' + loadingHtml;
+        if (el1 && !el1.querySelector(".reservation-card")) el1.innerHTML = stableEmptyHtml;
+        if (el2 && !el2.querySelector(".ticket-pc-live-card")) el2.innerHTML = '<h3>현재 예약 티켓</h3>' + stableEmptyHtml;
       }
 
       async function loadMyMessages(lumiId) {
@@ -6473,17 +6476,15 @@
 
         if (pageItems.length === 0) {
           const hasAnyRecord = allRecordItems().length > 0;
-          // fix2H: API 응답 대기 중이면 로딩 카드를 empty state로 덮어쓰지 않는다.
-          // __lumiVisitsApiPending은 doApiCall 완료 시 false로 해제된다.
-          if (!hasAnyRecord && window.__lumiVisitsApiPending === true) return;
           const waiting = !hasAnyRecord && visitsLoadState !== "loaded";
+          // fix2H-1c: 신규 계정/새로고침에서는 로딩 타임라인 카드가 아니라 안정적인 empty 상태를 유지한다.
+          // 서버 응답 후 실제 기록이 있으면 아래 else 분기로 자연스럽게 갱신된다.
           recordCardList.innerHTML =
-            '<article class="record-memory-card" data-record-category="전체">' +
-            '<span class="record-memory-icon">🕰️</span>' +
-            '<time>' + (waiting ? "" : currentMonthKey()) + '</time>' +
-            '<b>' + (waiting ? "기록을 불러오는 중…" : (!hasAnyRecord ? "아직 기록이 없어요" : currentMonthKey() + " 기록 없음")) + '</b>' +
-            '<span>' + (waiting ? "잠시 후 자동으로 갱신돼요." : (!hasAnyRecord ? "루미벨과 함께한 순간이 생기면 이곳에 차곡차곡 남아요." : "이 달에는 기록이 없어요.")) + '</span>' +
-            '<em>안내</em></article>';
+            '<article class="info-card record-empty-state" data-record-category="전체">' +
+            '<small>' + (waiting ? "기록 확인 중" : currentMonthKey()) + '</small>' +
+            '<b>' + (!hasAnyRecord ? "아직 기록이 없어요" : currentMonthKey() + " 기록 없음") + '</b>' +
+            '<span>' + (!hasAnyRecord ? "루미벨과 함께한 순간이 생기면 이곳에 차곡차곡 남아요." : "이 달에는 기록이 없어요.") + '</span>' +
+            '</article>';
         } else {
           recordCardList.innerHTML = pageItems.map(function(v) {
             var cat  = visitTypeToCategory(v.visitType);
@@ -6532,7 +6533,7 @@
           const waiting = !hasAnyRecord && visitsLoadState !== "loaded";
           recordMsg.textContent = runtimeVisits.length > 0
             ? "라이브 방문 " + runtimeVisits.filter(function(v){ return v.visitType === "live"; }).length + "회 기록됨"
-            : (waiting ? "기록을 불러오는 중…" : (hasAnyRecord ? "루미 체크인 기록이 표시돼요." : "활동 기록이 연결되면 이곳에 표시돼요."));
+            : (hasAnyRecord ? "루미 체크인 기록이 표시돼요." : "활동 기록이 연결되면 이곳에 표시돼요.");
         }
 
         // record-stat-card 라이브 수치 갱신
@@ -6625,18 +6626,10 @@
           renderRecordPage();
         } else {
           visitsLoadState = "loading";
-          // fix2H: 캐시 없을 때 로딩 문구를 고정 표시하고
-          // API 응답 전까지 renderRecordPage가 empty state로 덮어쓰지 않도록
-          // __lumiVisitsApiPending 플래그로 보호한다.
+          // fix2H-1c: 캐시가 없어도 팬 화면에는 큰 로딩 타임라인 카드를 노출하지 않는다.
+          // 안정적인 empty 상태를 먼저 보여주고, API 응답 후 실제 기록이 있을 때만 갱신한다.
           window.__lumiVisitsApiPending = true;
-          if (recordCardList) {
-            recordCardList.innerHTML =
-              '<article class="record-memory-card" data-record-category="전체">' +
-              '<span class="record-memory-icon">🕰️</span><time></time>' +
-              '<b>기록을 불러오는 중…</b><span>잠시만 기다려 주세요.</span><em></em>' +
-              '</article>';
-          }
-          if (recordMsg) recordMsg.textContent = "기록을 불러오는 중…";
+          renderRecordPage();
         }
 
         // 백그라운드로 API 최신값 호출 (캐시 유무와 무관)
@@ -7453,11 +7446,12 @@
     const homeKicker = document.getElementById("homeMessageKicker");
     if (homeCard) {
       homeCard.classList.remove("hidden");
-      // API 모드 로딩 중에는 홈 카드에 로딩 문구 표시
+      // fix2H-1c: API 확인 중에도 홈 카드에는 큰 로딩 문구를 노출하지 않는다.
+      // 신규 가입 계정 첫 화면이 서버 불안처럼 보이지 않도록 안정적인 empty 안내를 유지한다.
       if (apiMode && !loadDone) {
         if (homeKicker) homeKicker.textContent = "MESSAGE";
         if (homeTitle) homeTitle.textContent = "문자함";
-        if (homePreview) homePreview.textContent = "문자를 불러오는 중…";
+        if (homePreview) homePreview.textContent = "새 문자는 없지만, 도착했던 메시지를 다시 볼 수 있어요.";
         return;
       }
       const publicUnreadItems = unreadItems.filter(m => isVisibleInboxMessage(m));
@@ -7482,11 +7476,12 @@
     list.style.gap = "10px";
     list.style.minHeight = "1px";
 
-    // PATCH 51-33: 로딩 중 상태 표시
+    // fix2H-1c: 로딩 중에도 큰 로딩 문구 대신 기존 empty 안내를 유지한다.
     if (!window.__lumiMessagesLoadDone && window.LUMI_API_ENDPOINT) {
-      list.innerHTML = '<p style="text-align:center;color:var(--sub,#c9a0bc);padding:24px 0;font-size:14px;">문자를 불러오는 중…</p>';
-      if (empty) empty.classList.add("hidden");
+      list.innerHTML = "";
+      if (empty) empty.classList.remove("hidden");
       if (pager) pager.classList.add("hidden");
+      updateBadges();
       return;
     }
     const items = filtered();
