@@ -923,7 +923,7 @@ textarea{padding:14px;min-height:120px}
       `).join('') : `<div class="note">아직 숙제체키 기록이 없어요.</div>`;
     }
   }
-  function saveHomework(){
+  async function saveHomework(){
     if(!state.currentFan){
       alert('먼저 팬을 조회하거나 선택해 주세요.');
       return;
@@ -945,6 +945,18 @@ textarea{padding:14px;min-height:120px}
       pickup:($('#homeworkPickupEvent')?.value || '').trim() || '다음 참여 행사 / 현장 수령',
       status:state.homeworkStatus || '접수됨'
     };
+
+    const btn = $('#btnSaveHomework');
+    if(btn) btn.disabled = true;
+    try{
+      await createHomeworkOnServer(record);
+    }catch(err){
+      alert('숙제체키 시트 저장 실패: ' + (err && err.message ? err.message : err));
+      if(btn) btn.disabled = false;
+      return;
+    }
+    if(btn) btn.disabled = false;
+
     state.homeworkHistory.unshift(record);
     state.history.unshift({
       time:`${d.getHours()}:${pad(d.getMinutes(),2)}:${pad(d.getSeconds(),2)}`,
@@ -962,15 +974,22 @@ textarea{padding:14px;min-height:120px}
     if($('#homeworkPickupEvent')) $('#homeworkPickupEvent').value = '';
 
     renderAll();
-    alert(`숙제체키 접수 완료\\n${record.hwId}\\n체키 뒷면에 ${record.hwId} / ${record.lumiId} / ${record.memberName} 를 적어주세요.`);
+    alert(`숙제체키 접수 완료\n${record.hwId}\n체키 뒷면에 ${record.hwId} / ${record.lumiId} / ${record.memberName} 를 적어주세요.`);
   }
-  function updateHomeworkStatus(hwId, status){
+  async function updateHomeworkStatus(hwId, status){
     const rec = state.homeworkHistory.find(h=>h.hwId===hwId);
     if(!rec) return;
+    try{
+      await updateHomeworkStatusOnServer(hwId, status);
+    }catch(err){
+      alert('숙제체키 상태 저장 실패: ' + (err && err.message ? err.message : err));
+      return;
+    }
     rec.status = status;
     saveLocal();
     renderAll();
   }
+
   function copyHomeworkBack(hwId){
     const rec = state.homeworkHistory.find(h=>h.hwId===hwId);
     if(!rec) return;
@@ -1087,6 +1106,74 @@ textarea{padding:14px;min-height:120px}
     if(state.selectedPass==='joinLuna' && memberKey !== 'lunar') return 'Join 루나권은 루나에게만 사용할 수 있어요.';
     return '';
   }
+
+  function currentEventIdForCheki(){
+    return 'shine-me-up-20260712';
+  }
+  function currentEventTitleForCheki(){
+    return (state.eventName || 'Shine Me UP : 데뷔 라이브').trim();
+  }
+  function apiPayloadBase(){
+    return {
+      processedBy: 'cheki-staff',
+      eventId: currentEventIdForCheki(),
+      eventTitle: currentEventTitleForCheki()
+    };
+  }
+  async function createCheckinOnServer(memberKey, detailText){
+    if(!state.currentFan) throw new Error('currentFan 없음');
+    const mem = members[memberKey] || members.mariring;
+    const payload = Object.assign(apiPayloadBase(), {
+      action: 'adminCreateChekiCheckin',
+      lumiId: state.currentFan.id,
+      nickname: state.currentFan.nick,
+      todayNo: state.currentFan.todayNo,
+      member: memberKey,
+      memberName: mem.name,
+      ticketId: state.selectedPass || 'normal',
+      checkinType: 'cheki',
+      stampCount: '1',
+      xp: '10',
+      note: detailText || 'staff/cheki.html 특전회 촬영 저장'
+    });
+    const res = await chekiApiCall(payload);
+    if(!res || !res.ok){
+      throw new Error((res && (res.error || res.message)) || 'checkinCreateFailed');
+    }
+    return res;
+  }
+  async function createHomeworkOnServer(record){
+    const res = await chekiApiCall({
+      action: 'adminCreateHomeworkCheki',
+      homeworkChekiId: record.hwId,
+      lumiId: record.lumiId,
+      eventId: currentEventIdForCheki(),
+      member: record.member,
+      requestedAt: record.time,
+      status: record.status,
+      receivePlan: record.pickup,
+      receiveMethod: '현장 수령',
+      controlNo: record.hwId,
+      note: [record.request, record.photoMemo].filter(Boolean).join(' / ') || 'staff/cheki.html 숙제체키 접수',
+      processedBy: 'cheki-staff'
+    });
+    if(!res || !res.ok){
+      throw new Error((res && (res.error || res.message)) || 'homeworkCreateFailed');
+    }
+    return res;
+  }
+  async function updateHomeworkStatusOnServer(hwId, status){
+    const res = await chekiApiCall({
+      action: 'adminUpdateHomeworkChekiStatus',
+      homeworkChekiId: hwId,
+      status: status,
+      processedBy: 'cheki-staff'
+    });
+    if(!res || !res.ok){
+      throw new Error((res && (res.error || res.message)) || 'homeworkStatusUpdateFailed');
+    }
+    return res;
+  }
   function commonFlags(hasCheki){
     const arr=[];
     if(state.checks.visit) arr.push('루미 방문');
@@ -1110,18 +1197,30 @@ textarea{padding:14px;min-height:120px}
     renderAll();
     return true;
   }
-  function saveQuick(){
+  async function saveQuick(){
     if(!state.currentFan){ alert('먼저 팬을 선택해 주세요.'); return; }
     const err = validatePass(state.selectedMember);
     if(err){ alert(err); return; }
     const pass = passTypes[state.selectedPass].label;
     const mem = members[state.selectedMember];
-    addHistory('빠른 촬영 저장', `${pass} / ${mem.name} ${mem.mark} 1장 사용 완료`, true);
+    const memberKey = state.selectedMember;
+    const detailText = `${pass} / ${mem.name} ${mem.mark} 1장 사용 완료`;
+    const btn = $('#btnQuickSave');
+    if(btn) btn.disabled = true;
+    try{
+      await createCheckinOnServer(memberKey, detailText);
+    }catch(apiErr){
+      alert('루미 체크인 저장 실패: ' + (apiErr && apiErr.message ? apiErr.message : apiErr));
+      if(btn) btn.disabled = false;
+      return;
+    }
+    if(btn) btn.disabled = false;
+    addHistory('빠른 촬영 저장', detailText, true);
     state.selectedPass='normal';
-    $('#quickSummary').innerHTML = `<b>저장 완료</b><br>${state.currentFan.todayNo} / ${esc(state.currentFan.nick)} · ${esc(mem.name)} 1장 저장 완료<br><button class="btn" style="width:100%;margin-top:10px" data-member-start="${state.selectedMember}">${esc(mem.name)} 타이머 시작</button><br>같은 팬이면 계속 저장, 바뀌면 “다음 팬”을 눌러주세요.`;
+    $('#quickSummary').innerHTML = `<b>저장 완료</b><br>${state.currentFan.todayNo} / ${esc(state.currentFan.nick)} · ${esc(mem.name)} 1장 저장 완료<br><button class="btn" style="width:100%;margin-top:10px" data-member-start="${memberKey}">${esc(mem.name)} 타이머 시작</button><br>같은 팬이면 계속 저장, 바뀌면 “다음 팬”을 눌러주세요.`;
     renderChoices();
   }
-  function saveDetail(){
+  async function saveDetail(){
     const entries = Object.entries(state.counts).filter(([,v])=>v>0);
     if(!entries.length){ alert('수량이 없어요.'); return; }
     for(const [k] of entries){
@@ -1130,10 +1229,23 @@ textarea{padding:14px;min-height:120px}
     }
     const pass = passTypes[state.selectedPass].label;
     const detail = entries.map(([k,v])=>`${members[k].name} ${v}장`).join(' / ');
+    const btn = $('#btnSaveDetail');
+    if(btn) btn.disabled = true;
+    try{
+      for(const [k,v] of entries){
+        await createCheckinOnServer(k, `${pass} / ${members[k].name} ${v}장 사용 완료`);
+      }
+    }catch(apiErr){
+      alert('루미 체크인 저장 실패: ' + (apiErr && apiErr.message ? apiErr.message : apiErr));
+      if(btn) btn.disabled = false;
+      return;
+    }
+    if(btn) btn.disabled = false;
     if(addHistory('상세 입력 저장', `${pass} / ${detail} 사용 완료`, true)){
       state.counts={mariring:0,lulu:0,iro:0,lunar:0}; state.selectedPass='normal'; renderAll();
     }
   }
+
 
   function soundEnd(){
     try{
