@@ -6195,9 +6195,9 @@
         if (exchangePagePrev) exchangePagePrev.disabled = currentPage <= 1;
         if (exchangePageNext) exchangePageNext.disabled = currentPage >= totalPages;
         if (exchangeMsg) {
-          exchangeMsg.textContent = currentFilter === "전체"
-            ? "지금은 보상 후보와 포인트 기준을 먼저 잡아둔 상태예요. 실제 신청, 차감, 멤버별 가능 범위는 추후 공개됩니다."
-            : currentFilter + " 보상 후보만 보고 있어요. 실제 신청, 차감, 멤버별 가능 범위는 추후 공개됩니다.";
+          exchangeMsg.textContent = "";
+          exchangeMsg.hidden = true;
+          exchangeMsg.style.display = "none";
         }
       }
 
@@ -6278,9 +6278,9 @@
         if (guidePrev) guidePrev.disabled = guidePage <= 1;
         if (guideNext) guideNext.disabled = guidePage >= totalPages;
         if (guideNote) {
-          guideNote.textContent = guideFilter === "전체"
-            ? "가이드는 운영 기준에 맞춰 순차적으로 업데이트됩니다. 문의/이동 링크도 필요한 항목부터 연결할 예정이에요."
-            : guideFilter + " 가이드만 보고 있어요. 필요한 항목을 누르면 설명이 열립니다.";
+          guideNote.textContent = "";
+          guideNote.hidden = true;
+          guideNote.style.display = "none";
         }
       }
 
@@ -6549,11 +6549,9 @@
         if (recordPagePrev) recordPagePrev.disabled = currentPage <= 1;
         if (recordPageNext) recordPageNext.disabled = currentPage >= totalPages;
         if (recordMsg) {
-          const hasAnyRecord = allRecordItems().length > 0;
-          const waiting = !hasAnyRecord && visitsLoadState !== "loaded";
-          recordMsg.textContent = runtimeVisits.length > 0
-            ? "라이브 방문 " + runtimeVisits.filter(function(v){ return v.visitType === "live"; }).length + "회 기록됨"
-            : (hasAnyRecord ? "루미 체크인 기록이 표시돼요." : "활동 기록이 연결되면 이곳에 표시돼요.");
+          recordMsg.textContent = "";
+          recordMsg.hidden = true;
+          recordMsg.style.display = "none";
         }
 
         // record-stat-card 라이브 수치 갱신
@@ -6785,9 +6783,9 @@
         if (pointPrev) pointPrev.disabled = pointPage <= 1;
         if (pointNext) pointNext.disabled = pointPage >= totalPages;
         if (pointMsg) {
-          pointMsg.textContent = pointFilter === "전체"
-            ? "아직 적립 내역이 없어요. 활동 기록이 연결되면 이곳에 표시돼요."
-            : pointFilter + " 내역은 아직 없어요. 활동 기록이 연결되면 이곳에 표시돼요.";
+          pointMsg.textContent = "";
+          pointMsg.hidden = true;
+          pointMsg.style.display = "none";
         }
       }
 
@@ -8427,8 +8425,10 @@
     var msg=qs('#exchangeMsgV2827',shell.page) || qs('#exchangeMsg',shell.page);
     if(msg){
       msg.innerHTML=cat==='all'
-        ? (apiShopRewards().length ? '교환소 아이템을 불러왔어요. 홈페이지 포인트 보상은 후보로, 물판 포인트는 현장 안내 카드로 표시해요. 실제 신청과 차감은 아직 연결하지 않았어요.' : '지금은 보상 후보와 포인트 기준을 먼저 잡아둔 상태예요. 실제 신청, 차감, 멤버별 가능 범위는 추후 공개됩니다.')
-        : '<strong>'+labels[cat]+'</strong> 후보만 보고 있어요. 실제 신청, 차감, 멤버별 가능 범위는 추후 공개됩니다.';
+        ? ''
+        : '';
+      msg.hidden = true;
+      msg.style.display = 'none';
     }
   }
   window.__lumiRenderExchangeV2828=renderExchange;
@@ -8450,10 +8450,46 @@
     var codeInput=qs('#lumiCode') || qs('#onairCode'); if(codeInput) codeInput.removeAttribute('title');
     var msg=qs('#onairMsg'); if(msg) msg.textContent=cleanTextValue(msg.textContent);
   }
+  function patchReleaseNoteBoxes(){
+    // fix2I 후보: 팬 화면에서 개발/운영 메모처럼 보이는 하단 안내 박스는 숨긴다.
+    var targets = [
+      '활동 기록이 연결되면 이곳에 표시돼요.',
+      '아직 적립 내역이 없어요. 활동 기록이 연결되면 이곳에 표시돼요.',
+      '가이드는 운영 기준에 맞춰 순차적으로 업데이트됩니다.',
+      '루미 AI 채팅 운영 기준',
+      '캐릭터 AI 채팅은 팬서비스형 대화 공간으로만 운영해요.',
+      '반짝 포인트 사용처를 미리 보여주는 공간이에요.',
+      '교환소 아이템을 불러왔어요.',
+      '반짝 포인트를 모아 나중에 디지털 보상으로 교환하는 공간이에요.',
+      '반짝 포인트 차감, 신청권 사용, 방송 보상 지급은 다음 단계에서 연결합니다.',
+      '실제 노래 목록은 멤버 확인 후 채워 넣고',
+      '멤버별 방향'
+    ];
+    qsa('#page-record,#page-point,#page-guide,#page-exchange,#page-future').forEach(function(root){
+      qsa('p,div,section,article,aside,small,span', root).forEach(function(el){
+        var txt = String(el.textContent || '').replace(/\s+/g,' ').trim();
+        if(!txt) return;
+        var hit = targets.some(function(t){ return txt.indexOf(t) >= 0; });
+        if(!hit) return;
+        var childHit = qsa('p,div,section,article,aside,small,span', el).some(function(child){
+          return child !== el && targets.some(function(t){ return String(child.textContent || '').indexOf(t) >= 0; });
+        });
+        if(childHit) return;
+        el.textContent = '';
+        el.hidden = true;
+        el.style.display = 'none';
+      });
+    });
+    ['recordMsg','pointLedgerMsg','guideNote','exchangeMsg','exchangeMsgV2827'].forEach(function(id){
+      var el = qs('#'+id);
+      if(el){ el.textContent=''; el.hidden=true; el.style.display='none'; }
+    });
+  }
   function run(){
     renderExchange(window.__lumiExchangeSelectedCatV2828 || window.__lumiExchangeSelectedCat || 'all');
     patchMemoryCopy();
     patchFanDevCopy();
+    patchReleaseNoteBoxes();
   }
   document.addEventListener('click',function(e){
     var btn=e.target.closest && e.target.closest('#exchangeTabsV2828 [data-lumi-exchange-filter]');
