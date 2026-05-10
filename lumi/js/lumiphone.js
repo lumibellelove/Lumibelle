@@ -3245,19 +3245,19 @@
         if (profileAvatar) profileAvatar.classList.toggle("has-image", Boolean(profileState.avatar.src));
         const info = normalizeProfileInfo(profileState.info);
         const displayTitle = runtimeEquippedTitleFromApi || info.title;
-        // fix2H: 서버 프로필값 도착 전 닉네임 깜빡임 완화
-        // 서버에서 아직 못 받은 경우(기본값 "루미나" 그대로이고 서버 로드 전)에는
-        // 닉네임 영역을 빈칸으로 두어 기본값이 번쩍이는 걸 방지한다.
+        // fix2K-fix4: 프로필 닉네임 새로고침 유지 보정
+        // 이전 fix2H에서는 서버 프로필 도착 전 기본값 "루미나"가 번쩍이는 것을 막으려고
+        // 닉네임 영역을 빈칸으로 비웠다. 하지만 새 계정/저장 로그인 상태에서
+        // 서버 응답이 늦거나 실패하면 프로필 이름이 영구히 빈칸으로 남을 수 있다.
+        // 이제는 빈칸으로 지우지 않고, 현재 profileState → currentUser → 기본값 순서로
+        // 안정적인 표시명을 유지한다.
         if (profileDisplayName) {
-          const isDefaultName = info.displayName === "루미나";
-          const serverLoaded = window.__lumiServerProfileLoaded === true;
-          if (isDefaultName && !serverLoaded) {
-            profileDisplayName.textContent = "";
-            profileDisplayName.setAttribute("data-loading", "true");
-          } else {
-            profileDisplayName.textContent = info.displayName;
-            profileDisplayName.removeAttribute("data-loading");
-          }
+          const stableDisplayName =
+            (info && info.displayName) ||
+            (currentUser && (currentUser.displayName || currentUser.nickname)) ||
+            "루미나";
+          profileDisplayName.textContent = stableDisplayName;
+          profileDisplayName.removeAttribute("data-loading");
         }
         // fix2D: LUMI ID는 항상 currentUser 기준 (mock/하드코딩 금지)
         if (profileLumiId) profileLumiId.textContent = "LUMI ID · " + (getCurrentLumiId() || "-");
