@@ -5973,6 +5973,22 @@
                   })
                 };
                 cacheWrite_(lid, "profile", profileCachePayload);
+
+                // fix2L-2a-fix1: 생일 저장 후 서버에서 birthdayNotice가 생성될 수 있으므로
+                // 현재 화면의 문자/루미레터 목록과 홈 NEW MESSAGE 카드를 즉시 새로고침한다.
+                // Apps Script/Sheets 반영 지연을 고려해 즉시 1회 + 짧은 지연 1회를 실행한다.
+                try {
+                  loadMyMessages(lid).catch(function(e) {
+                    appendBootDebug("profile save message refresh error: " + String(e && e.message || e));
+                  });
+                  window.setTimeout(function() {
+                    loadMyMessages(lid).catch(function(e) {
+                      appendBootDebug("profile save delayed message refresh error: " + String(e && e.message || e));
+                    });
+                  }, 700);
+                } catch (messageRefreshErr) {
+                  appendBootDebug("profile save message refresh skipped: " + String(messageRefreshErr && messageRefreshErr.message || messageRefreshErr));
+                }
               }
             } else {
               appendBootDebug("profile server save failed: " + String((res && res.message) || "unknown"));
