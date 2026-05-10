@@ -4252,18 +4252,24 @@
 
       // ── PATCH 51-47: 숙제체키 ────────────────────────────────
 
-      // fix2L-3-3B: 숙제체키 팬 화면 정리
+      // fix2L-3-3B-2: 숙제체키 카드형 목록 + 상세 팝업 + 페이지네이션 + 모바일 스와이프
+      // - 상태 탭 유지
       // - 홈 카운트: 수령 가능 / 진행 중 분리
-      // - 숙제체키 탭: 상태 필터 추가
       // - 수령 완료는 기본 전체 목록에서 제외하고 수령 완료 탭에서만 표시
       // - 팬 화면에 내부 note/staff/action/test 문구 비노출
+      // - 카드형 목록, 상세 팝업, PC 4개 / 모바일 1개 페이지네이션
       let homeworkChekiFilter = "all";
+      let homeworkChekiPage = 0;
+      let homeworkChekiSwipeStartX = 0;
+      let homeworkChekiSwipeStartY = 0;
 
       // 멤버 라벨/아이콘 매핑
       function chekiMemberLabel(member) {
         var m = String(member || "").trim().toLowerCase();
         if (m === "mariring" || m === "마리링") return "마리링 🎀⭐";
         if (m === "lulu" || m === "루루")       return "루루 🍼🐰";
+        // 공개 전 멤버는 상세 이름/오시마크를 직접 노출하지 않는다.
+        if (m === "iro" || m === "이로" || m === "lunar" || m === "luna" || m === "루나") return "새로운 빛";
         return member || "루미벨";
       }
 
@@ -4294,6 +4300,15 @@
         return { label: s || "대기 중", cls: "status-pending" };
       }
 
+      function chekiStatusCopy(status) {
+        var s = normalizeChekiStatus(status);
+        if (s === "수령 가능") return "루미벨 특전회/물판에서 수령할 수 있어요.";
+        if (s === "수령 완료") return "수령이 완료된 숙제체키예요.";
+        if (s === "준비 중") return "멤버가 데코/작성 중이에요.";
+        if (s === "접수됨") return "숙제체키 접수가 완료됐어요.";
+        return "상태는 숙제체키 탭에서 확인해 주세요.";
+      }
+
       function shouldShowChekiNote(note) {
         var text = String(note || "").trim();
         if (!text) return false;
@@ -4313,6 +4328,14 @@
         return items.filter(function(item) { return !isChekiDone(item); });
       }
 
+      function getHomeworkChekiPageSize() {
+        try {
+          return window.matchMedia && window.matchMedia("(min-width: 760px)").matches ? 4 : 1;
+        } catch(e) {
+          return 4;
+        }
+      }
+
       function homeworkChekiEmptyTitle() {
         if (homeworkChekiFilter === "progress") return "진행 중 숙제체키 없음";
         if (homeworkChekiFilter === "ready") return "수령 가능 숙제체키 없음";
@@ -4325,6 +4348,47 @@
         return "대기 중";
       }
 
+      function ensureHomeworkChekiStyle() {
+        if (document.getElementById("lumiHomeworkChekiCardStyle")) return;
+        var style = document.createElement("style");
+        style.id = "lumiHomeworkChekiCardStyle";
+        style.textContent = [
+          "#homeworkChekiFilterBar{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px}",
+          ".lumi-homework-guide{margin:0 0 14px;padding:14px 16px;border:1px dashed #f0bfd4;border-radius:22px;background:rgba(255,248,252,.72);color:#8a5d75;font-weight:900;font-size:13px;line-height:1.65}",
+          ".lumi-homework-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch}",
+          ".lumi-homework-card{position:relative;min-height:230px;border:1px solid #f0bfd4;border-radius:24px;background:linear-gradient(180deg,#fff,#fff8fc);box-shadow:0 16px 40px rgba(255,91,165,.08);padding:18px;display:flex;flex-direction:column;gap:12px;text-align:left;color:#6b445b;cursor:pointer;overflow:hidden}",
+          ".lumi-homework-card:before{content:\"\";position:absolute;inset:0 0 auto 0;height:7px;background:linear-gradient(90deg,#ff7bb6,#ffd7ec);opacity:.72}",
+          ".lumi-homework-card:hover{transform:translateY(-1px);box-shadow:0 20px 46px rgba(255,91,165,.12)}",
+          ".lumi-homework-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-top:4px}",
+          ".lumi-homework-member{font-size:22px;font-weight:1000;letter-spacing:-.03em;color:#6b445b;line-height:1.2}",
+          ".lumi-homework-code{flex:0 0 auto;border:1px solid #f0bfd4;border-radius:999px;padding:7px 12px;color:#d46f9c;background:#fff;font-size:12px;font-weight:1000}",
+          ".lumi-homework-status{display:inline-flex;align-items:center;justify-content:center;width:max-content;border-radius:999px;padding:8px 12px;background:#ff5ba5;color:#fff;font-size:12px;font-weight:1000;box-shadow:0 10px 24px rgba(255,91,165,.16)}",
+          ".lumi-homework-copy{min-height:42px;color:#8a5d75;font-size:13px;font-weight:900;line-height:1.55}",
+          ".lumi-homework-mini{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}",
+          ".lumi-homework-mini div{border:1px solid #f0d6e8;border-radius:16px;background:#fff8fc;padding:10px 12px;min-height:58px}",
+          ".lumi-homework-mini dt{font-size:10px;color:#c47b9d;font-weight:1000;text-transform:uppercase;margin:0 0 4px}",
+          ".lumi-homework-mini dd{margin:0;color:#6b445b;font-size:13px;font-weight:1000;line-height:1.35}",
+          ".lumi-homework-detail-btn{min-height:36px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d46f9c;font-weight:1000;cursor:pointer;margin-top:2px}",
+          ".lumi-homework-pager{display:flex;align-items:center;justify-content:center;gap:10px;margin:16px 0 0}",
+          ".lumi-homework-pager button{width:42px;height:42px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d46f9c;font-size:18px;font-weight:1000;cursor:pointer}",
+          ".lumi-homework-pager button:disabled{opacity:.35;cursor:not-allowed}",
+          ".lumi-homework-page-text{min-width:120px;min-height:42px;border:1px solid #f0bfd4;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#9a5b7b;background:#fff;font-weight:1000}",
+          "#lumiHomeworkChekiModal{position:fixed;inset:0;z-index:9997;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(84,48,74,.30);backdrop-filter:blur(6px)}",
+          "#lumiHomeworkChekiModal.hidden{display:none}",
+          ".lumi-homework-modal-card{width:min(560px,100%);border:1px solid #f0bfd4;border-radius:28px;background:#fff8fc;box-shadow:0 24px 70px rgba(110,62,91,.2);padding:22px;color:#6b445b}",
+          ".lumi-homework-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}",
+          ".lumi-homework-modal-head h3{margin:0;color:#6b445b;font-size:22px;font-weight:1000;line-height:1.25}",
+          ".lumi-homework-modal-close{width:38px;height:38px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d46f9c;font-weight:1000;cursor:pointer}",
+          ".lumi-homework-modal-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 14px}",
+          ".lumi-homework-modal-list div{border:1px solid #f0d6e8;border-radius:16px;background:#fff;padding:11px 12px}",
+          ".lumi-homework-modal-list dt{font-size:10px;color:#c47b9d;font-weight:1000;margin:0 0 4px}",
+          ".lumi-homework-modal-list dd{margin:0;font-size:13px;color:#6b445b;font-weight:1000;line-height:1.35}",
+          ".lumi-homework-modal-guide{border:1px dashed #f0bfd4;border-radius:18px;background:#fff;padding:14px;color:#8a5d75;font-size:13px;font-weight:900;line-height:1.65}",
+          "@media (max-width:759px){.lumi-homework-grid{grid-template-columns:1fr}.lumi-homework-card{min-height:244px}.lumi-homework-modal-list{grid-template-columns:1fr}.lumi-homework-pager{gap:8px}.lumi-homework-pager button{width:38px;height:38px}.lumi-homework-page-text{min-width:96px}}"
+        ].join("\n");
+        document.head.appendChild(style);
+      }
+
       function ensureHomeworkChekiFilterBar(mainCard, pickupCard, list) {
         if (!mainCard || !mainCard.parentNode) return;
         var anchor = (pickupCard && mainCard.parentNode === pickupCard.parentNode) ? mainCard.parentNode : mainCard;
@@ -4334,10 +4398,6 @@
           bar = document.createElement("div");
           bar.id = "homeworkChekiFilterBar";
           bar.setAttribute("aria-label", "숙제체키 상태 필터");
-          bar.style.display = "flex";
-          bar.style.flexWrap = "wrap";
-          bar.style.gap = "8px";
-          bar.style.margin = "12px 0 16px";
           if (parent && anchor) parent.insertBefore(bar, anchor);
         }
 
@@ -4355,12 +4415,125 @@
         bar.querySelectorAll("[data-homework-cheki-filter]").forEach(function(button) {
           button.addEventListener("click", function() {
             homeworkChekiFilter = button.getAttribute("data-homework-cheki-filter") || "all";
+            homeworkChekiPage = 0;
             renderHomeworkCheki(list || []);
           });
         });
       }
 
+      function ensureHomeworkChekiModal() {
+        var modal = document.getElementById("lumiHomeworkChekiModal");
+        if (modal) return modal;
+        modal = document.createElement("div");
+        modal.id = "lumiHomeworkChekiModal";
+        modal.className = "hidden";
+        modal.setAttribute("aria-hidden", "true");
+        modal.innerHTML = '<div class="lumi-homework-modal-card" role="dialog" aria-modal="true" aria-label="숙제체키 상세"><div class="lumi-homework-modal-head"><h3 id="lumiHomeworkChekiModalTitle">숙제체키 상세</h3><button type="button" class="lumi-homework-modal-close" aria-label="닫기">×</button></div><div id="lumiHomeworkChekiModalBody"></div></div>';
+        document.body.appendChild(modal);
+        modal.addEventListener("click", function(event) {
+          if (event.target === modal || event.target.closest(".lumi-homework-modal-close")) closeHomeworkChekiModal();
+        });
+        return modal;
+      }
+
+      function closeHomeworkChekiModal() {
+        var modal = document.getElementById("lumiHomeworkChekiModal");
+        if (!modal) return;
+        modal.classList.add("hidden");
+        modal.setAttribute("aria-hidden", "true");
+      }
+
+      function openHomeworkChekiModal(item) {
+        ensureHomeworkChekiStyle();
+        var modal = ensureHomeworkChekiModal();
+        var title = document.getElementById("lumiHomeworkChekiModalTitle");
+        var body = document.getElementById("lumiHomeworkChekiModalBody");
+        if (!modal || !body) return;
+        var st = chekiStatusLabel(item && item.status);
+        var member = chekiMemberLabel(item && item.member);
+        if (title) title.textContent = member + " · " + (item && item.homeworkChekiId ? item.homeworkChekiId : "숙제체키");
+        var rows = [];
+        rows.push('<div><dt>멤버</dt><dd>' + escapeHtml(member) + '</dd></div>');
+        rows.push('<div><dt>관리번호</dt><dd>' + escapeHtml((item && (item.homeworkChekiId || item.controlNo)) || "-") + '</dd></div>');
+        rows.push('<div><dt>상태</dt><dd>' + escapeHtml(st.label || "대기 중") + '</dd></div>');
+        rows.push('<div><dt>접수일</dt><dd>' + escapeHtml(item && item.requestedAt ? String(item.requestedAt).slice(0,10).replace(/-/g,".") : "-") + '</dd></div>');
+        rows.push('<div><dt>수령 예정</dt><dd>' + escapeHtml((item && item.receivePlan) || "신청 내역 확인 후") + '</dd></div>');
+        rows.push('<div><dt>수령 방식</dt><dd>' + escapeHtml((item && item.receiveMethod) || "현장 수령") + '</dd></div>');
+        var noteBlock = shouldShowChekiNote(item && item.note) ? '<div><dt>메모</dt><dd>' + escapeHtml(item.note) + '</dd></div>' : '';
+        body.innerHTML = '<span class="lumi-homework-status">' + escapeHtml(st.label || "대기 중") + '</span>' +
+          '<dl class="lumi-homework-modal-list">' + rows.join("") + noteBlock + '</dl>' +
+          '<div class="lumi-homework-modal-guide">상태가 수령 가능으로 바뀌면 루미벨 특전회/물판에서 받을 수 있어요.<br>현장에서는 루미 ID 또는 닉네임을 보여주세요.</div>';
+        modal.classList.remove("hidden");
+        modal.setAttribute("aria-hidden", "false");
+      }
+
+      function changeHomeworkChekiPage(delta, list) {
+        var visibleList = getVisibleHomeworkChekiItems(list || []);
+        var pageSize = getHomeworkChekiPageSize();
+        var totalPages = Math.max(1, Math.ceil(visibleList.length / pageSize));
+        homeworkChekiPage = Math.min(Math.max(0, homeworkChekiPage + delta), totalPages - 1);
+        renderHomeworkCheki(list || []);
+      }
+
+      function setHomeworkChekiPage(page, list) {
+        var visibleList = getVisibleHomeworkChekiItems(list || []);
+        var pageSize = getHomeworkChekiPageSize();
+        var totalPages = Math.max(1, Math.ceil(visibleList.length / pageSize));
+        homeworkChekiPage = Math.min(Math.max(0, page), totalPages - 1);
+        renderHomeworkCheki(list || []);
+      }
+
+      function bindHomeworkChekiCardEvents(mainCard, list) {
+        if (!mainCard) return;
+        mainCard.querySelectorAll("[data-homework-detail-index]").forEach(function(button) {
+          button.addEventListener("click", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var index = parseInt(button.getAttribute("data-homework-detail-index") || "0", 10);
+            var visibleList = getVisibleHomeworkChekiItems(list || []);
+            if (visibleList[index]) openHomeworkChekiModal(visibleList[index]);
+          });
+        });
+        mainCard.querySelectorAll(".lumi-homework-card[data-homework-card-index]").forEach(function(card) {
+          card.addEventListener("click", function(event) {
+            if (event.target && event.target.closest("button")) return;
+            var index = parseInt(card.getAttribute("data-homework-card-index") || "0", 10);
+            var visibleList = getVisibleHomeworkChekiItems(list || []);
+            if (visibleList[index]) openHomeworkChekiModal(visibleList[index]);
+          });
+        });
+        mainCard.querySelectorAll("[data-homework-page]").forEach(function(button) {
+          button.addEventListener("click", function() {
+            var action = button.getAttribute("data-homework-page");
+            var visibleList = getVisibleHomeworkChekiItems(list || []);
+            var pageSize = getHomeworkChekiPageSize();
+            var totalPages = Math.max(1, Math.ceil(visibleList.length / pageSize));
+            if (action === "first") setHomeworkChekiPage(0, list);
+            if (action === "prev") changeHomeworkChekiPage(-1, list);
+            if (action === "next") changeHomeworkChekiPage(1, list);
+            if (action === "last") setHomeworkChekiPage(totalPages - 1, list);
+          });
+        });
+        var grid = mainCard.querySelector(".lumi-homework-grid");
+        if (grid) {
+          grid.addEventListener("touchstart", function(event) {
+            if (!event.touches || !event.touches[0]) return;
+            homeworkChekiSwipeStartX = event.touches[0].clientX;
+            homeworkChekiSwipeStartY = event.touches[0].clientY;
+          }, { passive: true });
+          grid.addEventListener("touchend", function(event) {
+            if (!event.changedTouches || !event.changedTouches[0]) return;
+            var dx = event.changedTouches[0].clientX - homeworkChekiSwipeStartX;
+            var dy = event.changedTouches[0].clientY - homeworkChekiSwipeStartY;
+            if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+            if (dx < 0) changeHomeworkChekiPage(1, list);
+            else changeHomeworkChekiPage(-1, list);
+          }, { passive: true });
+        }
+      }
+
       function renderHomeworkCheki(items) {
+        ensureHomeworkChekiStyle();
         const list = Array.isArray(items) ? items : [];
 
         // ── 홈 요약 카드 업데이트 (기존 home-card 구조 유지, 숫자/텍스트만 교체)
@@ -4390,61 +4563,65 @@
           });
         } catch(e) {}
 
-        // ── 숙제체키 탭 렌더 (최종 안정본 구조: homework-main-card / dl.homework-info-list)
+        // ── 숙제체키 탭 렌더
         const mainCard   = document.querySelector(".homework-main-card");
         const pickupCard = document.querySelector(".homework-pickup-card");
         if (!mainCard) return;
 
         ensureHomeworkChekiFilterBar(mainCard, pickupCard, list);
+        if (pickupCard) pickupCard.style.display = "none";
+        try { mainCard.style.gridColumn = "1 / -1"; } catch(e) {}
+
         const visibleList = getVisibleHomeworkChekiItems(list);
+        const pageSize = getHomeworkChekiPageSize();
+        const totalPages = Math.max(1, Math.ceil(visibleList.length / pageSize));
+        homeworkChekiPage = Math.min(Math.max(0, homeworkChekiPage), totalPages - 1);
+        const pageStart = homeworkChekiPage * pageSize;
+        const pageItems = visibleList.slice(pageStart, pageStart + pageSize);
+
+        const guideHtml = '<div class="lumi-homework-guide">상태가 수령 가능으로 바뀌면 루미벨 특전회/물판에서 받을 수 있어요. 현장에서는 루미 ID 또는 닉네임을 보여주세요.</div>';
 
         if (visibleList.length === 0) {
-          // 비어 있을 때도 최종 안정본의 2영역 레이아웃을 유지한다.
-          mainCard.innerHTML =
-            '<div class="homework-main-head">' +
-              '<strong>' + homeworkChekiEmptyTitle() + '</strong>' +
-              '<span class="homework-code">' + homeworkChekiEmptyStatus() + '</span>' +
-            '</div>' +
-            '<dl class="homework-info-list">' +
-              '<div><dt>접수일</dt><dd>-</dd></div>' +
-              '<div><dt>상태</dt><dd>' + homeworkChekiEmptyStatus() + '</dd></div>' +
-              '<div><dt>수령 예정</dt><dd>신청 내역 확인 후</dd></div>' +
-              '<div><dt>수령 방식</dt><dd>현장 수령</dd></div>' +
-            '</dl>';
-          if (pickupCard) {
-            pickupCard.style.display = "";
-            pickupCard.innerHTML =
-              '<strong>수령 안내</strong>' +
-              '<p>상태가 수령 가능으로 바뀌면 루미벨 특전회/물판에서 루미 ID 또는 닉네임을 보여주고 받을 수 있어요.</p>';
-          }
+          mainCard.innerHTML = guideHtml +
+            '<div class="lumi-homework-grid"><div class="lumi-homework-card" style="cursor:default;min-height:180px">' +
+              '<div class="lumi-homework-card-head"><strong class="lumi-homework-member">' + homeworkChekiEmptyTitle() + '</strong><span class="lumi-homework-code">' + homeworkChekiEmptyStatus() + '</span></div>' +
+              '<p class="lumi-homework-copy">신청 내역이 확인되면 이곳에 표시돼요.</p>' +
+              '<dl class="lumi-homework-mini"><div><dt>접수일</dt><dd>-</dd></div><div><dt>상태</dt><dd>' + homeworkChekiEmptyStatus() + '</dd></div><div><dt>수령 예정</dt><dd>신청 내역 확인 후</dd></div><div><dt>수령 방식</dt><dd>현장 수령</dd></div></dl>' +
+            '</div></div>';
           return;
         }
 
-        // 항목이 있을 때 — 기존 카드 형태 유지, 내부 메모는 팬 화면에서 숨김
-        mainCard.innerHTML = visibleList.map(function(item, idx) {
-          var st     = chekiStatusLabel(item.status);
+        const cardsHtml = pageItems.map(function(item, idx) {
+          var absoluteIndex = pageStart + idx;
+          var st = chekiStatusLabel(item.status);
           var member = chekiMemberLabel(item.member);
-          var rows   = [];
-          if (item.requestedAt) rows.push('<div><dt>접수일</dt><dd>' + escapeHtml(String(item.requestedAt).slice(0,10).replace(/-/g,".")) + '</dd></div>');
-          rows.push('<div><dt>상태</dt><dd>' + escapeHtml(st.label || "대기 중") + '</dd></div>');
-          if (item.receivePlan)   rows.push('<div><dt>수령 예정</dt><dd>' + escapeHtml(item.receivePlan)   + '</dd></div>');
-          if (item.receiveMethod) rows.push('<div><dt>수령 방식</dt><dd>' + escapeHtml(item.receiveMethod) + '</dd></div>');
-          if (item.controlNo)     rows.push('<div><dt>관리번호</dt><dd>'  + escapeHtml(item.controlNo)     + '</dd></div>');
-          if (shouldShowChekiNote(item.note)) rows.push('<div><dt>메모</dt><dd>' + escapeHtml(item.note) + '</dd></div>');
-          return (idx > 0 ? '<hr style="margin:10px 0;border:none;border-top:1px solid #f0d6e8">' : '') +
-            '<div class="homework-main-head">' +
-              '<strong>' + escapeHtml(member) + '</strong>' +
-              '<span class="homework-code">' + escapeHtml(item.homeworkChekiId || "") + '</span>' +
-            '</div>' +
-            '<dl class="homework-info-list">' + rows.join("") + '</dl>';
+          var requestedAt = item.requestedAt ? String(item.requestedAt).slice(0,10).replace(/-/g,".") : "-";
+          var receivePlan = item.receivePlan || "신청 내역 확인 후";
+          var receiveMethod = item.receiveMethod || "현장 수령";
+          return '<article class="lumi-homework-card" data-homework-card-index="' + absoluteIndex + '">' +
+            '<div class="lumi-homework-card-head"><strong class="lumi-homework-member">' + escapeHtml(member) + '</strong><span class="lumi-homework-code">' + escapeHtml(item.homeworkChekiId || item.controlNo || "") + '</span></div>' +
+            '<span class="lumi-homework-status">' + escapeHtml(st.label || "대기 중") + '</span>' +
+            '<p class="lumi-homework-copy">' + escapeHtml(chekiStatusCopy(item.status)) + '</p>' +
+            '<dl class="lumi-homework-mini">' +
+              '<div><dt>접수일</dt><dd>' + escapeHtml(requestedAt) + '</dd></div>' +
+              '<div><dt>수령 예정</dt><dd>' + escapeHtml(receivePlan) + '</dd></div>' +
+              '<div><dt>수령 방식</dt><dd>' + escapeHtml(receiveMethod) + '</dd></div>' +
+              '<div><dt>상태</dt><dd>' + escapeHtml(st.label || "대기 중") + '</dd></div>' +
+            '</dl>' +
+            '<button type="button" class="lumi-homework-detail-btn" data-homework-detail-index="' + absoluteIndex + '">상세 보기</button>' +
+          '</article>';
         }).join("");
 
-        if (pickupCard) {
-          pickupCard.style.display = "";
-          pickupCard.innerHTML =
-            '<strong>수령 안내</strong>' +
-            '<p>상태가 수령 가능으로 바뀌면 루미벨 특전회/물판에서 루미 ID 또는 닉네임을 보여주고 받을 수 있어요.</p>';
-        }
+        const pagerHtml = '<div class="lumi-homework-pager" aria-label="숙제체키 페이지 이동">' +
+          '<button type="button" data-homework-page="first" ' + (homeworkChekiPage <= 0 ? 'disabled' : '') + '>«</button>' +
+          '<button type="button" data-homework-page="prev" ' + (homeworkChekiPage <= 0 ? 'disabled' : '') + '>‹</button>' +
+          '<span class="lumi-homework-page-text">' + (homeworkChekiPage + 1) + ' / ' + totalPages + '</span>' +
+          '<button type="button" data-homework-page="next" ' + (homeworkChekiPage >= totalPages - 1 ? 'disabled' : '') + '>›</button>' +
+          '<button type="button" data-homework-page="last" ' + (homeworkChekiPage >= totalPages - 1 ? 'disabled' : '') + '>»</button>' +
+        '</div>';
+
+        mainCard.innerHTML = guideHtml + '<div class="lumi-homework-grid">' + cardsHtml + '</div>' + (totalPages > 1 ? pagerHtml : '');
+        bindHomeworkChekiCardEvents(mainCard, list);
       }
 
       async function loadMyCheki(lumiId) {
