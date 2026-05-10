@@ -2031,7 +2031,7 @@
       function openProfileTitleModal() {
         if (!profileTitleModal) return;
         profileDraft = cloneProfileState(profileState);
-        updateProfileTitleOptions(normalizeProfileInfo(profileDraft.info).title);
+        updateProfileTitleOptions(runtimeEquippedTitleFromApi || normalizeProfileInfo(profileDraft.info).title);
         document.documentElement.classList.add("profile-title-modal-open");
         document.body.classList.add("profile-title-modal-open");
         profileTitleModal.classList.remove("hidden");
@@ -3147,7 +3147,8 @@
 
       function rewardTitleFromAchievement(item) {
         const raw = String((item && (item.rewardText || item.reward || item.titleReward)) || "").trim();
-        return raw.replace(/^칭호\s*[:：]\s*/, "").trim() || (item && item.title) || "-";
+        const quoted = raw.match(/칭호\s*[「"']?([^」"']+)[」"']?/);
+        return (quoted ? quoted[1] : raw.replace(/^칭호\s*[:：]\s*/, "")).replace(/[「」]/g, "").trim() || (item && item.title) || "-";
       }
 
       function achievementProgressText(item, statusLabel) {
@@ -3162,18 +3163,57 @@
         const title = String(item && item.title || "").trim();
         const key = String(item && item.achievementKey || "").trim();
         const aliasByKey = {
+          lumi_phone_open: "루미폰 개통",
           first_visit: "첫 번째 점",
           stamp_1: "첫 루미 체크인",
           stamp_20: "꽃도장 한 판 완성"
         };
         const candidates = Array.from(new Set([title, aliasByKey[key]].filter(Boolean)));
         const cards = getAchievementCards();
-        const matched = cards.filter((card) => candidates.includes(String(card.dataset.achievementTitle || "").trim()));
+        const matched = cards.filter((card) => candidates.includes(String(card.dataset.achievementTitle || "").trim()) || candidates.includes(String(card.dataset.achievementKey || "").trim()));
         return matched;
       }
 
       function findAchievementCardForApi(item) {
         return findAchievementCardsForApi(item)[0] || null;
+      }
+
+      function ensureAchievementCardForApi(item) {
+        const existing = findAchievementCardForApi(item);
+        if (existing) return existing;
+        const cards = getAchievementCards();
+        const host = cards[0] && cards[0].parentElement;
+        if (!host) return null;
+        const statusLabel = normalizeApiAchievementStatus(item && item.status);
+        const owned = statusLabel === "달성 완료";
+        const card = document.createElement("article");
+        card.className = "achievement-card" + (owned ? "" : " locked");
+        card.dataset.achievementTitle = String(item && item.title || "루미폰 개통").trim();
+        card.dataset.achievementKey = String(item && item.achievementKey || "").trim();
+        card.dataset.achievementIcon = String(item && item.icon || "📱").trim();
+        card.dataset.achievementCategory = String(item && item.category || "기본").trim();
+        card.dataset.achievementStatus = statusLabel;
+        card.dataset.achievementOwned = owned ? "true" : "false";
+        card.dataset.achievementDesc = String(item && (item.note || item.conditionText) || "루미폰을 개통한 기록이에요.").trim();
+        card.dataset.achievementCondition = String(item && item.conditionText || "루미 ID 생성").trim();
+        card.dataset.achievementProgress = achievementProgressText(item || {}, statusLabel);
+        card.dataset.achievementReward = rewardTitleFromAchievement(item || {});
+        card.dataset.achievementDate = String(item && item.achievedAt || (owned ? "달성 완료" : statusLabel)).trim();
+        card.innerHTML = ''
+          + '<div class="achievement-icon">' + card.dataset.achievementIcon + '</div>'
+          + '<div class="achievement-content">'
+          + '<span class="achievement-state' + (owned ? '' : ' locked') + '">' + statusLabel + '</span>'
+          + '<h3>' + card.dataset.achievementTitle + '</h3>'
+          + '<p class="achievement-desc">' + card.dataset.achievementDesc + '</p>'
+          + '<p class="achievement-title-line">' + (owned ? ("보상 칭호: " + card.dataset.achievementReward) : "조건 달성 후 해금") + '</p>'
+          + '</div>'
+          + '<button class="achievement-detail-button" type="button">상세</button>';
+        card.addEventListener("click", function(event) {
+          event.preventDefault();
+          openAchievementModal(card);
+        });
+        host.insertBefore(card, host.firstChild);
+        return card;
       }
 
       function applyAchievementItemToCard(card, item) {
@@ -3216,28 +3256,67 @@
       }
 
       function updateTitleOptionsFromApi(titles, equippedTitle) {
-        const activeTitles = Array.isArray(titles) ? titles.filter((item) => String(item.status || "active") === "active") : [];
-        runtimeEquippedTitleFromApi = equippedTitle || (activeTitles.find((item) => item.equipped) || {}).titleName || "";
+        function isActiveTitle_(item) {
+          return String((item && item.status) || "active").trim().toLowerCase() === "active";
+        }
+        function isEquippedTitle_(item) {
+          const raw = String((item && item.equipped) == null ? "" : item.equipped).trim().toLowerCase();
+          return item && (item.equipped === true || raw === "true" || raw === "1" || raw === "yes" || raw === "y" || raw === "장착" || raw === "equipped");
+        }
+        function titleNameOf_(item) {
+          return String(item && (item.titleName || item.title || item.name || item.value) || "").trim();
+        }
+        const activeTitles = Array.isArray(titles) ? titles.filter(isActiveTitle_) : [];
+        const ownedTitleNames = Array.from(new Set(activeTitles.map(titleNameOf_).filter(Boolean)));
+        runtimeEquippedTitleFromApi = String(equippedTitle || "").trim() || titleNameOf_(activeTitles.find(isEquippedTitle_) || null) || "";
         if (runtimeEquippedTitleFromApi) {
           if (profileTitlePill) profileTitlePill.textContent = runtimeEquippedTitleFromApi;
           if (profileSelectedTitle) profileSelectedTitle.textContent = runtimeEquippedTitleFromApi;
           if (profileInputTitle) profileInputTitle.value = runtimeEquippedTitleFromApi;
+          profileState = normalizeProfileState(Object.assign({}, profileState, {
+            info: normalizeProfileInfo(Object.assign({}, profileState.info || {}, { title: runtimeEquippedTitleFromApi }))
+          }));
+          profileDraft = cloneProfileState(profileState);
         }
+        const ownedPanel = document.getElementById("profileTitleOwned") || (profileTitleModal && profileTitleModal.querySelector(".profile-title-options, .profile-setting-list, .profile-title-list"));
+        const lockedPanel = document.getElementById("profileTitleLocked");
         const existingValues = new Set($$(".profile-title-option[data-title-value]").map((button) => button.dataset.titleValue));
-        const optionHost = profileTitleModal && profileTitleModal.querySelector(".profile-title-options, .profile-setting-list, .profile-title-list");
-        activeTitles.forEach((item) => {
-          const titleName = String(item.titleName || "").trim();
-          if (!titleName || existingValues.has(titleName) || !optionHost) return;
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "profile-title-option";
-          btn.dataset.titleValue = titleName;
-          btn.textContent = titleName;
-          btn.addEventListener("click", () => selectProfileTitle(titleName));
-          optionHost.appendChild(btn);
-          existingValues.add(titleName);
+        ownedTitleNames.forEach((titleName) => {
+          if (!titleName || !ownedPanel) return;
+          let btn = Array.from(ownedPanel.querySelectorAll(".profile-title-option[data-title-value]")).find((button) => button.dataset.titleValue === titleName);
+          if (!btn && existingValues.has(titleName)) {
+            const found = Array.from(document.querySelectorAll(".profile-title-option[data-title-value]")).find((button) => button.dataset.titleValue === titleName);
+            if (found && found.closest("#profileTitleLocked")) found.remove();
+          }
+          if (!btn) {
+            btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "profile-title-option";
+            btn.dataset.titleValue = titleName;
+            btn.innerHTML = "<b></b><span></span>";
+            const b = btn.querySelector("b");
+            const span = btn.querySelector("span");
+            if (b) b.textContent = titleName;
+            if (span) span.textContent = titleName === "첫 번째 점" ? "루미폰 개통으로 해금된 기본 칭호" : "루미벨과 함께한 기록으로 해금된 칭호";
+            btn.addEventListener("click", () => selectProfileTitle(titleName));
+            ownedPanel.appendChild(btn);
+            existingValues.add(titleName);
+          } else {
+            btn.disabled = false;
+            btn.classList.remove("locked");
+            btn.dataset.titleValue = titleName;
+            if (!btn.querySelector("b")) btn.textContent = titleName;
+          }
         });
+        if (lockedPanel && ownedTitleNames.length) {
+          Array.from(lockedPanel.querySelectorAll(".profile-title-option")).forEach((button) => {
+            const value = String(button.dataset.titleValue || button.textContent || "").trim();
+            const matched = ownedTitleNames.some((titleName) => value === titleName || value.indexOf(titleName) !== -1);
+            if (matched) button.remove();
+          });
+        }
         if (runtimeEquippedTitleFromApi) updateProfileTitleOptions(runtimeEquippedTitleFromApi);
+        else updateProfileTitleOptions(normalizeProfileInfo(profileState.info).title);
       }
 
       function renderAchievementsFromApi(payload) {
@@ -3249,7 +3328,11 @@
         const achievements = Array.isArray(data.achievements) ? data.achievements : [];
         const titles = Array.isArray(data.titles) ? data.titles : [];
         achievements.forEach((item) => {
-          const cards = findAchievementCardsForApi(item);
+          let cards = findAchievementCardsForApi(item);
+          if (!cards.length) {
+            const createdCard = ensureAchievementCardForApi(item);
+            cards = createdCard ? [createdCard] : [];
+          }
           cards.forEach((card) => applyAchievementItemToCard(card, item));
         });
         updateTitleOptionsFromApi(titles, data.equippedTitle || "");
@@ -8286,6 +8369,7 @@
   'use strict';
 
   var ACH = [
+    {id:'lumi-phone-open',cat:'online',state:'locked',icon:'📱',name:'루미폰 개통',desc:'루미 ID를 만들고 루미폰을 처음 열어본 기록이에요.',progress:'미달성',reward:'칭호 「첫 번째 점」',title:'첫 번째 점',date:'미달성',rule:'루미 ID 생성 시 자동으로 달성되는 기본 업적이에요.'},
     {id:'first-dot',cat:'live',state:'locked',icon:'✨',name:'첫 번째 점',desc:'Lumibelle Debut Live에서 루미벨의 첫 번째 점을 함께 기록하는 업적이에요.',progress:'미달성',reward:'조건 달성 후 해금',title:'',date:'미달성',rule:'데뷔 라이브 참여 기록 또는 첫 공연 기록과 연결되는 업적이에요.'},
     {id:'first-visit',cat:'live',state:'locked',icon:'🎀',name:'첫 루미 방문',desc:'공연/물판/온라인으로 루미벨에게 처음 와준 기록이에요. 스탬프 기준은 아니고, 와줘서 고마워요 기록으로 남아요.',progress:'미달성',reward:'조건 달성 후 해금',title:'',date:'미달성',rule:'첫 루미 방문 기록이 생기면 달성되는 기본 성장 업적이에요.'},
     {id:'first-ticket',cat:'event',state:'locked',icon:'🎫',name:'첫 티켓 보유',desc:'루미폰 티켓함에 첫 공연 티켓이 들어온 기록이에요.',progress:'미달성',reward:'조건 달성 후 해금',title:'',date:'미달성',rule:'현재 티켓 또는 지난 티켓 기록과 연결되는 업적이에요.'},
@@ -8329,20 +8413,22 @@
 
   function pcTitleReward(item) {
     var raw = pcRewardText(item);
-    var m = raw.match(/^칭호\s*[:：]\s*(.+)$/);
-    return m ? String(m[1] || '').trim() : '';
+    var m = raw.match(/^칭호\s*[:：]\s*(.+)$/) || raw.match(/칭호\s*[「"']?([^」"']+)[」"']?/);
+    return m ? String(m[1] || '').replace(/[「」]/g, '').trim() : '';
   }
 
   function pcAchievementIdForApi(item) {
     var key = String(item && item.achievementKey || '').trim();
     var title = String(item && item.title || '').trim();
     var byKey = {
+      lumi_phone_open: 'lumi-phone-open',
       first_visit: 'first-dot',
       stamp_1: 'stamp-one',
       stamp_20: 'stamp-twenty'
     };
     if (byKey[key]) return byKey[key];
     var byTitle = {
+      '루미폰 개통': 'lumi-phone-open',
       '첫 번째 점': 'first-dot',
       '첫 번째 꽃도장': 'stamp-one',
       '꽃도장 한 판 완성': 'stamp-twenty',
