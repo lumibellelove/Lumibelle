@@ -5981,11 +5981,19 @@
                   loadMyMessages(lid).catch(function(e) {
                     appendBootDebug("profile save message refresh error: " + String(e && e.message || e));
                   });
+                  // fix2L-2a-fix2: Sheets 반영 지연 대비.
+                  // 생일 저장 직후 birthdayNotice row가 생성되어도 읽기 반영이 늦을 수 있어
+                  // 1.5초 후 + 4초 후 재조회로 홈/문자함 갱신 안정화.
                   window.setTimeout(function() {
                     loadMyMessages(lid).catch(function(e) {
                       appendBootDebug("profile save delayed message refresh error: " + String(e && e.message || e));
                     });
-                  }, 700);
+                  }, 1500);
+                  window.setTimeout(function() {
+                    loadMyMessages(lid).catch(function(e) {
+                      appendBootDebug("profile save delayed message refresh 2nd: " + String(e && e.message || e));
+                    });
+                  }, 4000);
                 } catch (messageRefreshErr) {
                   appendBootDebug("profile save message refresh skipped: " + String(messageRefreshErr && messageRefreshErr.message || messageRefreshErr));
                 }
