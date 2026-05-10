@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'lumi_signup_patch1_fix2G_birthday_visible_badge_zero_20260510';
+      const APP_VERSION = 'lumi_signup_patch1_fix2H1_boot_hydration_20260510';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -37,6 +37,9 @@
       window.__LUMI_DEBUG_MODE = DEBUG_MODE;
       const LUMI_API_TIMEOUT_MS = 12000;
       let currentUser = null;
+      // fix2H-1: 저장 로그인으로 즉시 진입한 경우, 서버 프로필 확인 전까지
+      // 닉네임 fallback이 displayName을 잠깐 덮어쓰는 깜빡임을 막는다.
+      let profileServerHydrationPending = false;
       let myReservations = [];
       let reservationsLoadState = "idle"; // PATCH 51-41: idle/loading/loaded/error
       let bootDebugText = "";
@@ -508,6 +511,11 @@
         if (!(currentUser && getCurrentLumiId())) return;
 
         const lid = getCurrentLumiId();
+
+        // fix2H-1: localStorage 저장 로그인으로 즉시 진입한 경우에만
+        // 서버 최신 프로필 확인 전 displayName fallback을 잠시 보류한다.
+        profileServerHydrationPending = Boolean(LUMI_API_ENDPOINT() && settings.source === "savedLogin");
+        window.__lumiProfileServerHydrationPending = profileServerHydrationPending;
 
         // Lumi Signup Patch 1-fix2A: 계정별 격리 - 로그인 시 해당 계정 프로필 로드
         loadProfileState(lid);
@@ -1662,9 +1670,11 @@
         if (!user || typeof user !== "object") return;
         const current = normalizeProfileInfo(profileState && profileState.info);
         const nextInfo = Object.assign({}, current);
-        // displayName: 서버 저장값 우선, 없으면 가입 닉네임(nickname) 사용
+        // displayName: 서버 저장값 우선.
+        // fix2H-1: 저장 로그인 자동 진입 직후에는 서버 프로필이 도착하기 전까지
+        // user.nickname으로 displayName을 잠깐 덮어쓰지 않는다.
         if (user.displayName) nextInfo.displayName = user.displayName;
-        else if (user.nickname) nextInfo.displayName = user.nickname;
+        else if (user.nickname && !profileServerHydrationPending) nextInfo.displayName = user.nickname;
         const normalizedOshi = normalizeOshiForProfile(user.oshi);
         if (normalizedOshi) nextInfo.oshi = normalizedOshi;
         const title = user.equippedTitle || runtimeEquippedTitleFromApi;
@@ -3200,6 +3210,8 @@
           cacheWrite_(id, "profile", payload);
           currentUser = normalizeLumiUser(Object.assign({}, currentUser || {}, payload.user));
           saveLoginState(currentUser);
+          profileServerHydrationPending = false;
+          window.__lumiProfileServerHydrationPending = false;
           syncProfileInfoFromUser(currentUser);
           syncRecordJoinDateFromUser(currentUser);
           // fix2E: 서버 생일값 반영 후 Birthday Ticket 즉시 재계산
@@ -3213,6 +3225,10 @@
           if (typeof showTemporaryPasswordNotice_ === "function") {
             window.setTimeout(showTemporaryPasswordNotice_, 80);
           }
+        }
+        if (!(payload && payload.ok && payload.user)) {
+          profileServerHydrationPending = false;
+          window.__lumiProfileServerHydrationPending = false;
         }
         return payload;
       }
@@ -6112,13 +6128,13 @@
 
         if (sessionActive) {
           appendBootDebug("session active: instant openApp");
-          openApp({ persist: true, user: currentUser });
+          openApp({ persist: true, user: currentUser, source: "savedLogin" });
         } else {
           // 새 탭/첫 로드: savedLoginState만으로도 바로 진입 (서버 재인증 없이)
           // 로그인 상태가 localStorage에 있으면 신뢰 → 즉시 진입 + sessionStorage 플래그 갱신
           appendBootDebug("saved login: auto openApp (no re-auth)");
           try { sessionStorage.setItem("lumiphone.session.active", savedLoginState.lumiId || savedLoginState.id); } catch(e) {}
-          openApp({ persist: true, user: currentUser });
+          openApp({ persist: true, user: currentUser, source: "savedLogin" });
         }
       })();
 
