@@ -8683,6 +8683,19 @@
     var codeInput=qs('#lumiCode') || qs('#onairCode'); if(codeInput) codeInput.removeAttribute('title');
     var msg=qs('#onairMsg'); if(msg) msg.textContent=cleanTextValue(msg.textContent);
   }
+
+  function patchSongbookIconAlignment(){
+    if(document.getElementById('lumiSongbookIconAlignFix2KFix3')) return;
+    var style=document.createElement('style');
+    style.id='lumiSongbookIconAlignFix2KFix3';
+    style.textContent=[
+      '#page-songbook .songbook-row{align-items:start !important;}',
+      '#page-songbook .songbook-row > i{align-self:start !important;margin-top:2px;}',
+      '@media (min-width:760px){#page-songbook .songbook-row > i{margin-top:3px;}}'
+    ].join('\n');
+    document.head.appendChild(style);
+  }
+
   function patchReleaseNoteBoxes(){
     // fix2I 후보: 팬 화면에서 개발/운영 메모처럼 보이는 하단 안내 박스는 숨긴다.
     var targets = [
@@ -8730,6 +8743,7 @@
     patchMemoryCopy();
     patchFanDevCopy();
     patchReleaseNoteBoxes();
+    patchSongbookIconAlignment();
   }
   document.addEventListener('click',function(e){
     var btn=e.target.closest && e.target.closest('#exchangeTabsV2828 [data-lumi-exchange-filter]');
