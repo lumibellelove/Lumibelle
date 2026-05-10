@@ -3202,6 +3202,8 @@
           saveLoginState(currentUser);
           syncProfileInfoFromUser(currentUser);
           syncRecordJoinDateFromUser(currentUser);
+          // fix2H: 서버 프로필 로드 완료 플래그 (닉네임 깜빡임 완화용)
+          window.__lumiServerProfileLoaded = true;
           // fix2E: 서버 생일값 반영 후 Birthday Ticket 즉시 재계산
           if (typeof window.__lumiApplyBirthdayTicketState === "function") {
             window.__lumiApplyBirthdayTicketState();
@@ -3235,7 +3237,20 @@
         if (profileAvatar) profileAvatar.classList.toggle("has-image", Boolean(profileState.avatar.src));
         const info = normalizeProfileInfo(profileState.info);
         const displayTitle = runtimeEquippedTitleFromApi || info.title;
-        if (profileDisplayName) profileDisplayName.textContent = info.displayName;
+        // fix2H: 서버 프로필값 도착 전 닉네임 깜빡임 완화
+        // 서버에서 아직 못 받은 경우(기본값 "루미나" 그대로이고 서버 로드 전)에는
+        // 닉네임 영역을 빈칸으로 두어 기본값이 번쩍이는 걸 방지한다.
+        if (profileDisplayName) {
+          const isDefaultName = info.displayName === "루미나";
+          const serverLoaded = window.__lumiServerProfileLoaded === true;
+          if (isDefaultName && !serverLoaded) {
+            profileDisplayName.textContent = "";
+            profileDisplayName.setAttribute("data-loading", "true");
+          } else {
+            profileDisplayName.textContent = info.displayName;
+            profileDisplayName.removeAttribute("data-loading");
+          }
+        }
         // fix2D: LUMI ID는 항상 currentUser 기준 (mock/하드코딩 금지)
         if (profileLumiId) profileLumiId.textContent = "LUMI ID · " + (getCurrentLumiId() || "-");
         if (profileMeta) profileMeta.textContent = info.oshi ? "오시: " + info.oshi : "";
@@ -6456,6 +6471,9 @@
 
         if (pageItems.length === 0) {
           const hasAnyRecord = allRecordItems().length > 0;
+          // fix2H: API 응답 대기 중이면 로딩 카드를 empty state로 덮어쓰지 않는다.
+          // __lumiVisitsApiPending은 doApiCall 완료 시 false로 해제된다.
+          if (!hasAnyRecord && window.__lumiVisitsApiPending === true) return;
           const waiting = !hasAnyRecord && visitsLoadState !== "loaded";
           recordCardList.innerHTML =
             '<article class="record-memory-card" data-record-category="전체">' +
@@ -6605,7 +6623,10 @@
           renderRecordPage();
         } else {
           visitsLoadState = "loading";
-          // 캐시 없을 때만 로딩 중 표시
+          // fix2H: 캐시 없을 때 로딩 문구를 고정 표시하고
+          // API 응답 전까지 renderRecordPage가 empty state로 덮어쓰지 않도록
+          // __lumiVisitsApiPending 플래그로 보호한다.
+          window.__lumiVisitsApiPending = true;
           if (recordCardList) {
             recordCardList.innerHTML =
               '<article class="record-memory-card" data-record-category="전체">' +
@@ -6653,11 +6674,15 @@
                 if (window.__LUMI_DEBUG_MODE) console.warn("[lumi] loadVisits: unexpected response:", data);
                 visitsLoadState = runtimeVisits.length === 0 ? "error" : "loaded";
               }
+              // fix2H: API 완료 — 로딩 보호 플래그 해제 후 최종 렌더
+              window.__lumiVisitsApiPending = false;
               renderRecordPage();
             })
             .catch(function(err) {
               if (window.__LUMI_DEBUG_MODE) console.error("[lumi] loadVisits error:", err);
               if (runtimeVisits.length === 0) visitsLoadState = "error";
+              // fix2H: 오류 시에도 플래그 해제
+              window.__lumiVisitsApiPending = false;
               renderRecordPage();
             });
         }
