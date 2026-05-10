@@ -464,8 +464,28 @@
         return must || type === "temporary" || type === "temp";
       }
 
+      function getTempPasswordNoticeDismissKey_() {
+        const id = normId((currentUser && (currentUser.lumiId || currentUser.lumiID || currentUser.id)) || getCurrentLumiId() || "guest");
+        return "lumiphone.tempPasswordNotice.dismissed." + (id || "guest");
+      }
+
+      function isTempPasswordNoticeDismissed_() {
+        try {
+          return sessionStorage.getItem(getTempPasswordNoticeDismissKey_()) === "1";
+        } catch (error) {
+          return false;
+        }
+      }
+
+      function dismissTempPasswordNoticeForSession_() {
+        try {
+          sessionStorage.setItem(getTempPasswordNoticeDismissKey_(), "1");
+        } catch (error) {}
+      }
+
       function showTemporaryPasswordNotice_() {
         if (!isMustChangePasswordUser_(currentUser)) return;
+        if (isTempPasswordNoticeDismissed_()) return;
         if (document.getElementById("lumiTempPasswordNotice")) return;
         const styleId = "lumiTempPasswordNoticeStyle";
         if (!document.getElementById(styleId)) {
@@ -479,7 +499,10 @@
         notice.innerHTML = '<div class="lumi-temp-password-card" role="dialog" aria-modal="true" aria-label="임시 비밀번호 변경 안내"><h3>임시 비밀번호로 로그인했어요</h3><p>현장에서 발급받은 임시 비밀번호는 안전을 위해 직접 새 비밀번호로 변경해 주세요. 새 비밀번호는 영문, 숫자, 특수문자를 사용할 수 있어요.</p><div class="lumi-temp-password-actions"><button type="button" class="lumi-temp-password-primary" id="lumiTempPasswordChange">비밀번호 변경하기</button><button type="button" class="lumi-temp-password-later" id="lumiTempPasswordLater">나중에 하기</button></div></div>';
         document.body.appendChild(notice);
         const close = function() { try { notice.remove(); } catch(e) {} };
-        notice.querySelector("#lumiTempPasswordLater").addEventListener("click", close);
+        notice.querySelector("#lumiTempPasswordLater").addEventListener("click", function() {
+          dismissTempPasswordNoticeForSession_();
+          close();
+        });
         notice.querySelector("#lumiTempPasswordChange").addEventListener("click", function() {
           close();
           try { openLumiRecoveryModal("reset"); } catch(e) { if (forgotPinBtn) forgotPinBtn.click(); }
