@@ -1639,10 +1639,12 @@
             return;
           }
 
-          // 두 번째 카드: 첫 루미 방문일 영역. 값은 visits/첫 방문 기록 렌더러가 관리한다.
+          // 두 번째 카드: 첫 루미 방문일 영역.
+          // fix2H-1b: 이 영역의 값/설명은 syncFirstVisitHeroFromVisits()만 관리한다.
+          // syncRecordJoinDateFromUser()가 desc를 먼저 "오프라인 기록..."으로 바꾸면
+          // visits API 완료 전후로 "아직 루미벨 방문 기록이 없어요" ↔ "오프라인..." 깜빡임이 생긴다.
           if (labelText.indexOf("루미 ID 생성일") !== -1 || labelText.indexOf("첫 루미 방문일") !== -1) {
             label.textContent = "첫 루미 방문일";
-            if (desc) desc.textContent = "오프라인 기록과 온라인 연결감을 함께 저장해요";
           }
         });
       }
