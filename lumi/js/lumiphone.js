@@ -1488,6 +1488,42 @@
         return id ? "lumiphone.profile.oshiChangedAt.v2." + id.toLowerCase() : "lumiphone.profile.oshiChangedAt.v1";
       }
       const profileOshiChangedKey = "lumiphone.profile.oshiChangedAt.v1"; // fallback
+      // fix2K-fix5: 프로필 표시 닉네임 로컬 저장 우선 메타
+      // 새로고침 직후 캐시/API가 이전 displayName을 잠깐 가져와도,
+      // 방금 이 브라우저에서 저장한 프로필 이름을 덮어쓰지 않게 한다.
+      function profileLocalSaveMetaKeyFor(lumiId) {
+        const id = lumiId || getCurrentLumiId() || "";
+        return id ? "lumiphone.profile.localSaveMeta.v1." + id.toLowerCase() : "lumiphone.profile.localSaveMeta.v1";
+      }
+      function writeProfileLocalSaveMeta(info) {
+        try {
+          const id = getCurrentLumiId();
+          if (!id) return;
+          const normalized = normalizeProfileInfo(info || {});
+          localStorage.setItem(profileLocalSaveMetaKeyFor(id), JSON.stringify({
+            ts: Date.now(),
+            displayName: normalized.displayName || "루미나"
+          }));
+        } catch(e) {}
+      }
+      function readProfileLocalSaveMeta(lumiId, maxAgeMs) {
+        try {
+          const raw = localStorage.getItem(profileLocalSaveMetaKeyFor(lumiId));
+          if (!raw) return null;
+          const obj = JSON.parse(raw);
+          if (!obj || !obj.ts) return null;
+          if (maxAgeMs && Date.now() - Number(obj.ts) > maxAgeMs) return null;
+          return obj;
+        } catch(e) { return null; }
+      }
+      function shouldKeepLocalDisplayName(incomingName) {
+        const localInfo = normalizeProfileInfo(profileState && profileState.info);
+        const localName = localInfo.displayName || "루미나";
+        const incoming = String(incomingName || "").trim();
+        if (!incoming || !localName || incoming === localName) return false;
+        const meta = readProfileLocalSaveMeta(getCurrentLumiId(), 24 * 60 * 60 * 1000);
+        return Boolean(meta && meta.displayName === localName);
+      }
       const profileDefaultPart = () => ({ src: "", x: 50, y: 50, scale: 1 });
       const profileDefaultInfo = () => ({
         displayName: "루미나",
@@ -1670,9 +1706,13 @@
         if (!user || typeof user !== "object") return;
         const current = normalizeProfileInfo(profileState && profileState.info);
         const nextInfo = Object.assign({}, current);
-        // displayName: 서버 저장값 우선, 없으면 가입 닉네임(nickname) 사용
-        if (user.displayName) nextInfo.displayName = user.displayName;
-        else if (user.nickname) nextInfo.displayName = user.nickname;
+        // fix2K-fix5: 표시 닉네임은 최근 로컬 저장값을 우선한다.
+        // 빈칸 저장은 normalizeProfileInfo에서 "루미나"로 확정되므로,
+        // 새로고침 직후 오래된 profile cache/API가 예전 이름을 0.1초 덮어쓰는 것을 막는다.
+        const incomingDisplayName = user.displayName || user.nickname || "";
+        if (incomingDisplayName && !shouldKeepLocalDisplayName(incomingDisplayName)) {
+          nextInfo.displayName = incomingDisplayName;
+        }
         const normalizedOshi = normalizeOshiForProfile(user.oshi);
         if (normalizedOshi) nextInfo.oshi = normalizedOshi;
         const title = user.equippedTitle || runtimeEquippedTitleFromApi;
@@ -5836,6 +5876,9 @@
           showProfileError("이미지 용량이 커서 저장이 어려워요. 조금 작은 이미지로 다시 선택해 주세요.");
           return;
         }
+        // fix2K-fix5: 방금 저장한 표시 닉네임을 로컬 우선값으로 기록한다.
+        // 백그라운드 profile API/cache가 잠깐 예전 이름을 반환해도 프로필 이름이 흔들리지 않게 한다.
+        writeProfileLocalSaveMeta(profileState.info);
         renderProfileView();
         closeProfileEditor(false);
 
