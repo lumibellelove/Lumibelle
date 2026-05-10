@@ -5436,9 +5436,14 @@
         document.body.appendChild(modal);
 
         let signupCountdownTimer = null;
+        // fix2L-1a: 회원가입 제출 중복 클릭/늦은 응답 덮어쓰기 방지
+        let signupSubmitInFlight = false;
+        let signupSuccessLocked = false;
         function resetSignupModalFields() {
           try { if (signupCountdownTimer) window.clearInterval(signupCountdownTimer); } catch(e) {}
           signupCountdownTimer = null;
+          signupSubmitInFlight = false;
+          signupSuccessLocked = false;
           const ids = ["signupNickname", "signupEmail", "signupEmailCode", "signupPassword", "signupPasswordConfirm", "signupRecoveryAnswer"];
           ids.forEach(function(id) { const el = modal.querySelector("#" + id); if (el) el.value = ""; });
           const oshi = modal.querySelector("#signupOshi"); if (oshi) oshi.value = "Lumibelle";
@@ -5586,7 +5591,8 @@
           if (password !== passwordConfirm) { result.textContent = "비밀번호 확인이 일치하지 않아요."; return; }
           if (password.length < 4 || password.length > 20 || /\s/.test(password)) { result.textContent = "비밀번호는 4~20자, 공백 없이 입력해 주세요."; return; }
           const btn = modal.querySelector("#signupSubmit");
-          if (btn && btn.disabled) return; // 중복 제출 방지
+          if (signupSubmitInFlight || signupSuccessLocked || (btn && btn.disabled)) return; // fix2L-1a: 중복 제출 방지
+          signupSubmitInFlight = true;
           // 제출 중에는 인증코드 요청 버튼도 비활성화 (중복 발송 방지)
           const codeBtn = modal.querySelector("#signupCodeSend");
           if (codeBtn) codeBtn.disabled = true;
@@ -5595,6 +5601,7 @@
           try {
             const response = await postLumiApi({ action: "lumiSignupWithCode", nickname, email, code, password, passwordConfirm, oshi, recoveryQuestion, recoveryAnswer });
             if (response && response.ok === true && response.lumiId) {
+              signupSuccessLocked = true;
               const issuedId = String(response.lumiId || "");
               // 자동 닫힘 없음 — 사용자가 직접 확인 후 루미폰 열기
               loginId.value = issuedId.replace(/\D/g, "").slice(-4);
@@ -5659,14 +5666,23 @@
                 }
               }
             } else {
-              result.textContent = String((response && (response.message || response.error)) || "루미 ID를 만들지 못했어요.");
-              if (codeBtn) codeBtn.disabled = false; // 실패 시 인증코드 버튼 복원
+              if (!signupSuccessLocked) {
+                result.textContent = String((response && (response.message || response.error)) || "루미 ID를 만들지 못했어요.");
+                if (codeBtn) codeBtn.disabled = false; // 실패 시 인증코드 버튼 복원
+              }
             }
           } catch (e) {
-            result.textContent = "루미폰 서버 연결을 확인해 주세요.";
-            if (codeBtn) codeBtn.disabled = false;
+            if (!signupSuccessLocked) {
+              result.textContent = "루미폰 서버 연결을 확인해 주세요.";
+              if (codeBtn) codeBtn.disabled = false;
+            }
           } finally {
-            restore();
+            if (signupSuccessLocked) {
+              signupSubmitInFlight = true;
+            } else {
+              signupSubmitInFlight = false;
+              restore();
+            }
           }
         });
         return modal;
@@ -7552,9 +7568,22 @@
       const publicUnreadItems = unreadItems.filter(m => isVisibleInboxMessage(m));
       const first = publicUnreadItems[0];
       if (first) {
-        if (homeKicker) homeKicker.textContent = publicUnreadItems.length > 1 ? "NEW MESSAGES" : "NEW MESSAGE";
-        if (homeTitle) homeTitle.textContent = first.from ? first.from + "에게서 새 문자 " + publicUnreadItems.length + "통" : "새 문자 확인";
-        if (homePreview) homePreview.textContent = first.preview || first.title || "도착한 문자를 확인해 주세요.";
+        const firstType = String(first.messageType || first.type || "").trim().toLowerCase().replace(/[\s_\-]/g, "");
+        const firstSenderType = String(first.senderType || "").trim().toLowerCase();
+        const firstFrom = first.from || (firstSenderType === "member" ? "멤버" : "LUMIBELLE 운영");
+        if (firstType === "welcomemail") {
+          if (homeKicker) homeKicker.textContent = publicUnreadItems.length > 1 ? "NEW MAILS" : "NEW MAIL";
+          if (homeTitle) homeTitle.textContent = firstFrom + "에게서 새 우편 " + publicUnreadItems.length + "통";
+          if (homePreview) homePreview.textContent = "루미폰 개통 첫 우편이 도착했어요.";
+        } else if (firstSenderType === "member" || firstType === "memberletter" || firstType === "lumiletter" || firstType === "afterliveletter") {
+          if (homeKicker) homeKicker.textContent = publicUnreadItems.length > 1 ? "NEW LETTERS" : "NEW LETTER";
+          if (homeTitle) homeTitle.textContent = firstFrom + "에게서 새 루미레터 " + publicUnreadItems.length + "통";
+          if (homePreview) homePreview.textContent = "따뜻한 마음이 담긴 메시지를 확인해 보세요.";
+        } else {
+          if (homeKicker) homeKicker.textContent = publicUnreadItems.length > 1 ? "NEW MESSAGES" : "NEW MESSAGE";
+          if (homeTitle) homeTitle.textContent = firstFrom ? firstFrom + "에게서 새 문자 " + publicUnreadItems.length + "통" : "새 문자 확인";
+          if (homePreview) homePreview.textContent = "도착한 안내 메시지를 확인해 주세요.";
+        }
       } else {
         if (homeKicker) homeKicker.textContent = "MESSAGE";
         if (homeTitle) homeTitle.textContent = "문자함";
