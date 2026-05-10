@@ -8258,6 +8258,199 @@
 /* ===== Exchange PC original restore v2828 renderer ===== */
 (function(){
   'use strict';
+  function installExchangeV2828Style(){
+    if(document.getElementById('lumiExchangeV2828MobileStyle')) return;
+    var style=document.createElement('style');
+    style.id='lumiExchangeV2828MobileStyle';
+    style.textContent = `
+      #page-exchange [data-legacy-exchange-tabs],
+      #page-exchange [data-legacy-exchange-grid],
+      #page-exchange .exchange-tabs:not(#exchangeTabsV2828):not(#exchangeTabsV2827),
+      #page-exchange #exchangeRewardGrid:not(#exchangeRewardGridV2828):not(#exchangeRewardGridV2827),
+      #page-exchange .exchange-reward-grid:not(#exchangeRewardGridV2828):not(#exchangeRewardGridV2827){
+        display:none!important;height:0!important;overflow:hidden!important;pointer-events:none!important;
+      }
+      #page-exchange .exchange-main-card{padding:16px;border-radius:28px;}
+      #page-exchange .exchange-hero{
+        border:1px solid var(--line,#f2d8e7);
+        border-radius:26px;
+        background:radial-gradient(circle at 92% 12%,rgba(202,167,255,.28),transparent 30%),linear-gradient(135deg,#fff,#fff5fb 58%,#f5edff);
+        padding:20px 18px 22px;
+        margin-bottom:14px;
+      }
+      #page-exchange .exchange-hero .eyebrow{margin-bottom:10px;}
+      #page-exchange .exchange-hero h3{
+        margin:0 0 8px;
+        color:#ff5fa8;
+        font-size:30px;
+        line-height:1.08;
+        letter-spacing:-.05em;
+        font-weight:1000;
+        word-break:keep-all;
+      }
+      #page-exchange .exchange-hero .message-v10-intro{
+        color:#7c5b6d;
+        font-size:13px;
+        line-height:1.62;
+        font-weight:900;
+        word-break:keep-all;
+      }
+      #page-exchange .exchange-hero-note{display:none!important;}
+      #exchangeTabsV2828{
+        display:flex!important;
+        flex-wrap:nowrap;
+        gap:8px;
+        margin:10px 0 12px;
+        overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
+        scrollbar-width:none;
+        padding:0 1px 4px;
+      }
+      #exchangeTabsV2828::-webkit-scrollbar{display:none;}
+      #exchangeTabsV2828 button{
+        flex:0 0 auto;
+        min-height:38px;
+        min-width:92px;
+        border:1px solid var(--line2,#efbcd5);
+        border-radius:999px;
+        background:#fff;
+        color:#b07693;
+        font-size:12px;
+        font-weight:1000;
+        padding:0 13px;
+        white-space:nowrap;
+      }
+      #exchangeTabsV2828 button.active{
+        color:#fff;
+        border-color:transparent;
+        background:linear-gradient(180deg,#ff82ba,#ff5fa8);
+        box-shadow:0 8px 18px rgba(255,95,168,.14);
+      }
+      #exchangeRewardGridV2828{
+        display:grid!important;
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:8px;
+      }
+      #exchangeRewardGridV2828 .exchange-reward-card-v2828{
+        position:relative;
+        min-height:150px;
+        border:1px solid var(--line,#f2d8e7);
+        border-radius:20px;
+        background:#fff;
+        padding:12px 11px;
+        box-shadow:0 8px 16px rgba(232,191,211,.07);
+        overflow:hidden;
+      }
+      #exchangeRewardGridV2828 .exchange-reward-card-v2828 em{
+        position:absolute;
+        right:9px;
+        top:9px;
+        max-width:calc(100% - 18px);
+        min-height:24px;
+        display:inline-flex;
+        align-items:center;
+        padding:0 8px;
+        border-radius:999px;
+        background:#fff0f7;
+        border:1px solid var(--line2,#efbcd5);
+        color:#d77ca7;
+        font-style:normal;
+        font-size:10px;
+        line-height:1;
+        font-weight:1000;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      }
+      #exchangeRewardGridV2828 .exchange-reward-card-v2828 i{
+        width:42px;
+        height:42px;
+        border-radius:15px;
+        display:grid;
+        place-items:center;
+        background:linear-gradient(135deg,#ffedf6,#f8f0ff);
+        border:1px solid rgba(242,216,231,.72);
+        font-style:normal;
+        font-size:21px;
+        margin-bottom:9px;
+      }
+      #exchangeRewardGridV2828 .exchange-reward-card-v2828 b{
+        display:-webkit-box;
+        -webkit-line-clamp:2;
+        -webkit-box-orient:vertical;
+        overflow:hidden;
+        color:#76586a;
+        font-size:14px;
+        line-height:1.28;
+        font-weight:1000;
+        padding-right:0;
+        word-break:keep-all;
+      }
+      #exchangeRewardGridV2828 .exchange-reward-card-v2828 span{
+        display:-webkit-box;
+        -webkit-line-clamp:2;
+        -webkit-box-orient:vertical;
+        overflow:hidden;
+        margin-top:5px;
+        color:#9a7187;
+        font-size:11px;
+        line-height:1.45;
+        font-weight:850;
+        word-break:keep-all;
+      }
+      #exchangeRewardGridV2828 .exchange-reward-card-v2828 button{
+        margin-top:9px;
+        min-height:30px;
+        border:1px solid var(--line2,#efbcd5);
+        border-radius:999px;
+        background:#fffafd;
+        color:#b28ea2;
+        font-size:11px;
+        font-weight:1000;
+        padding:0 10px;
+      }
+      #exchangePagerV2828{
+        display:grid;
+        grid-template-columns:42px 1fr 42px;
+        align-items:center;
+        gap:8px;
+        margin:12px 0 0;
+      }
+      #exchangePagerV2828 button{
+        width:42px;height:42px;border:1px solid var(--line2,#efbcd5);border-radius:50%;background:#fff;color:#d77ca7;font-size:18px;font-weight:1000;
+      }
+      #exchangePagerV2828 button:disabled{opacity:.38;}
+      #exchangePagerV2828 span{
+        min-height:36px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border:1px solid var(--line,#f2d8e7);
+        border-radius:999px;
+        color:#9a7187;
+        font-size:12px;
+        font-weight:1000;
+        background:#fff;
+      }
+      @media (min-width:760px){
+        #page-exchange .exchange-main-card{padding:28px 36px 38px;border-radius:30px;}
+        #page-exchange .exchange-hero{padding:30px 34px 32px;margin-bottom:22px;border-radius:30px;}
+        #page-exchange .exchange-hero h3{font-size:44px;margin-bottom:12px;}
+        #page-exchange .exchange-hero .message-v10-intro{font-size:17px;line-height:1.7;}
+        #exchangeTabsV2828{justify-content:center;flex-wrap:wrap;overflow:visible;gap:10px;margin:0 auto 22px;}
+        #exchangeTabsV2828 button{min-height:46px;min-width:118px;font-size:15px;padding:0 18px;}
+        #exchangeRewardGridV2828{gap:12px 14px;}
+        #exchangeRewardGridV2828 .exchange-reward-card-v2828{min-height:144px;padding:16px 18px;border-radius:22px;}
+        #exchangeRewardGridV2828 .exchange-reward-card-v2828 em{right:14px;top:14px;min-height:28px;font-size:12px;padding:0 10px;}
+        #exchangeRewardGridV2828 .exchange-reward-card-v2828 i{width:48px;height:48px;border-radius:16px;font-size:24px;margin-bottom:10px;}
+        #exchangeRewardGridV2828 .exchange-reward-card-v2828 b{font-size:18px;padding-right:70px;}
+        #exchangeRewardGridV2828 .exchange-reward-card-v2828 span{font-size:14px;line-height:1.55;}
+        #exchangeRewardGridV2828 .exchange-reward-card-v2828 button{min-height:36px;font-size:12px;}
+        #exchangePagerV2828{grid-template-columns:44px minmax(180px,1fr) 44px;max-width:760px;margin:16px auto 0;}
+      }
+    `;
+    document.head.appendChild(style);
+  }
   var rewards=[
     {cat:'reaction', icon:'💧', title:'물 한 모금', point:'30p', desc:'방송 중 멤버가 물 한 모금 마시는 가벼운 리액션 후보.'},
     {cat:'reaction', icon:'🧘', title:'스트레칭 타임', point:'30p', desc:'오래 앉아있는 방송 중 짧게 몸을 풀어주는 리액션 후보.'},
@@ -8274,6 +8467,8 @@
   ];
   var labels={all:'전체',reaction:'방송 리액션',digital:'디지털 보상',song:'노래 보상',season:'시즌 보상'};
   var order=['all','reaction','digital','song','season'];
+  var exchangeCurrentPageV2828 = 1;
+  var exchangePageSizeV2828 = 6;
   function qs(s,r){return (r||document).querySelector(s)}
   function qsa(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
   function cleanTextValue(v){
@@ -8305,6 +8500,7 @@
     Array.prototype.slice.call(el.childNodes||[]).forEach(cleanNode);
   }
   function ensureExchangeShell(){
+    installExchangeV2828Style();
     var page=qs('#page-exchange'); if(!page) return null;
     qsa('[data-exchange-filter]',page).forEach(function(btn){
       btn.setAttribute('data-legacy-ok','1');
@@ -8331,7 +8527,7 @@
     qsa('[data-lumi-exchange-filter]',tabs).forEach(function(btn){
       btn.onclick=function(ev){
         if(ev){ev.preventDefault(); ev.stopPropagation();}
-        renderExchange(btn.getAttribute('data-lumi-exchange-filter')||'all');
+        renderExchange(btn.getAttribute('data-lumi-exchange-filter')||'all', 1);
         return false;
       };
     });
@@ -8341,9 +8537,20 @@
       if(oldGrid) oldGrid.insertAdjacentElement('afterend',grid);
       else tabs.insertAdjacentElement('afterend',grid);
     }
+    var pager=qs('#exchangePagerV2828',page);
+    if(!pager){
+      pager=document.createElement('div');
+      pager.id='exchangePagerV2828';
+      pager.innerHTML='<button type="button" data-lumi-exchange-prev aria-label="이전 교환소 페이지">‹</button><span id="exchangePageTextV2828">1 / 1</span><button type="button" data-lumi-exchange-next aria-label="다음 교환소 페이지">›</button>';
+      grid.insertAdjacentElement('afterend',pager);
+    }
+    var prev=qs('[data-lumi-exchange-prev]',pager);
+    var next=qs('[data-lumi-exchange-next]',pager);
+    if(prev) prev.onclick=function(ev){ if(ev){ev.preventDefault();ev.stopPropagation();} renderExchange(window.__lumiExchangeSelectedCatV2828||'all', exchangeCurrentPageV2828-1); return false; };
+    if(next) next.onclick=function(ev){ if(ev){ev.preventDefault();ev.stopPropagation();} renderExchange(window.__lumiExchangeSelectedCatV2828||'all', exchangeCurrentPageV2828+1); return false; };
     if(oldTabs){oldTabs.setAttribute('aria-hidden','true'); oldTabs.style.display='none'; oldTabs.style.pointerEvents='none';}
     if(oldGrid){oldGrid.setAttribute('aria-hidden','true'); oldGrid.style.display='none'; oldGrid.style.pointerEvents='none';}
-    return {page:page,tabs:tabs,grid:grid};
+    return {page:page,tabs:tabs,grid:grid,pager:pager};
   }
   function escExchangeText(v){
     return String(v == null ? '' : v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});
@@ -8421,18 +8628,32 @@
     var cls='exchange-reward-card-v2828 status-'+String(item.status||'preparing');
     return '<div class="'+cls+'" data-lumi-exchange-cat="'+escExchangeText(item.cat)+'" data-lumi-shop-item="'+escExchangeText(item.itemId||'')+'"><em>'+escExchangeText(item.point)+'</em><i>'+escExchangeText(item.icon)+'</i><b>'+escExchangeText(item.title)+'</b><span>'+escExchangeText(item.desc)+'</span><button type="button" disabled>'+escExchangeText(label)+'</button></div>';
   }
-  function renderExchange(cat){
+  function renderExchange(cat,page){
     var shell=ensureExchangeShell(); if(!shell) return;
-    cat=labels[cat]?cat:'all'; window.__lumiExchangeSelectedCatV2828=cat;
+    cat=labels[cat]?cat:'all';
+    if(cat !== window.__lumiExchangeSelectedCatV2828) page = 1;
+    window.__lumiExchangeSelectedCatV2828=cat;
     qsa('[data-lumi-exchange-filter]',shell.tabs).forEach(function(btn){btn.classList.toggle('active',btn.getAttribute('data-lumi-exchange-filter')===cat);});
     var allRewards=currentExchangeRewards();
     var data=allRewards.filter(function(item){return cat==='all'||item.cat===cat});
-    shell.grid.innerHTML=data.map(cardHtml).join('');
+    var totalPages=Math.max(1,Math.ceil(data.length/exchangePageSizeV2828));
+    exchangeCurrentPageV2828=Math.min(Math.max(1,Number(page||exchangeCurrentPageV2828)||1),totalPages);
+    var start=(exchangeCurrentPageV2828-1)*exchangePageSizeV2828;
+    var pageItems=data.slice(start,start+exchangePageSizeV2828);
+    shell.grid.innerHTML=pageItems.map(cardHtml).join('');
+    if(shell.pager){
+      var prev=qs('[data-lumi-exchange-prev]',shell.pager);
+      var next=qs('[data-lumi-exchange-next]',shell.pager);
+      var text=qs('#exchangePageTextV2828',shell.pager);
+      if(text) text.textContent=exchangeCurrentPageV2828+' / '+totalPages;
+      if(prev) prev.disabled=exchangeCurrentPageV2828<=1;
+      if(next) next.disabled=exchangeCurrentPageV2828>=totalPages;
+      shell.pager.hidden=data.length<=exchangePageSizeV2828;
+      shell.pager.style.display=data.length<=exchangePageSizeV2828?'none':'grid';
+    }
     var msg=qs('#exchangeMsgV2827',shell.page) || qs('#exchangeMsg',shell.page);
     if(msg){
-      msg.innerHTML=cat==='all'
-        ? ''
-        : '';
+      msg.innerHTML='';
       msg.hidden = true;
       msg.style.display = 'none';
     }
@@ -8510,7 +8731,7 @@
     e.preventDefault();
     e.stopPropagation();
     if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-    renderExchange(btn.getAttribute('data-lumi-exchange-filter')||'all');
+    renderExchange(btn.getAttribute('data-lumi-exchange-filter')||'all', 1);
   },true);
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
   [60,180,420,900,1600,2600,4200,7000,10000].forEach(function(t){setTimeout(run,t)});
