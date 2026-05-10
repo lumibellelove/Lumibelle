@@ -41,6 +41,8 @@ button,input,select,textarea{font-family:inherit}
 .homework-history .history-item:nth-child(n+4){display:none}.homework-history.show-all .history-item:nth-child(n+4){display:block}
 .homework-status-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .homework-status-row button{min-height:40px;border-radius:16px;border:1px solid var(--line);background:#fff;color:var(--pink2);font-weight:900}
+button:disabled,.btn:disabled,.choice:disabled,.ghost:disabled,.toggle:disabled{opacity:.55;cursor:wait;filter:saturate(.75)}
+button[data-busy="1"]{position:relative}
 .homework-status-row button.done{background:#fff0f7;color:#ff5ca6}
 .homework-mini{font-size:12.5px;color:#b28ea2;font-weight:900;line-height:1.6;margin-top:8px}
 
@@ -538,6 +540,31 @@ textarea{padding:14px;min-height:120px}
     });
   }
 
+  const LUMI_CHEKI_PENDING = Object.create(null);
+  function runLocked(key, button, busyText, task){
+    if(LUMI_CHEKI_PENDING[key]){
+      alert('이미 처리 중이에요. 잠시만 기다려 주세요.');
+      return Promise.resolve(null);
+    }
+    LUMI_CHEKI_PENDING[key] = true;
+    const oldText = button ? button.textContent : '';
+    if(button){
+      button.disabled = true;
+      button.dataset.busy = '1';
+      if(busyText) button.textContent = busyText;
+    }
+    return Promise.resolve()
+      .then(task)
+      .finally(()=>{
+        delete LUMI_CHEKI_PENDING[key];
+        if(button){
+          button.disabled = false;
+          delete button.dataset.busy;
+          button.textContent = oldText;
+        }
+      });
+  }
+
   function normalizeChekiFan(item){
     const id = String((item && (item.lumiId || item.id)) || '').trim().toUpperCase();
     return {
@@ -928,67 +955,70 @@ textarea{padding:14px;min-height:120px}
       alert('먼저 팬을 조회하거나 선택해 주세요.');
       return;
     }
-    const memberKey = $('#homeworkMember')?.value || state.selectedMember || 'mariring';
-    const mem = members[memberKey] || members.mariring;
-    const d = new Date();
-    const hwId = nextHomeworkId();
-    const record = {
-      hwId,
-      time:`${d.getFullYear()}-${pad(d.getMonth()+1,2)}-${pad(d.getDate(),2)} ${d.getHours()}:${pad(d.getMinutes(),2)}`,
-      todayNo:state.currentFan.todayNo,
-      nick:state.currentFan.nick,
-      lumiId:state.currentFan.id,
-      member:memberKey,
-      memberName:mem.name,
-      request:($('#homeworkRequest')?.value || '').trim(),
-      photoMemo:($('#homeworkPhotoMemo')?.value || '').trim(),
-      pickup:($('#homeworkPickupEvent')?.value || '').trim() || '다음 참여 행사 / 현장 수령',
-      status:state.homeworkStatus || '접수됨'
-    };
-
     const btn = $('#btnSaveHomework');
-    if(btn) btn.disabled = true;
-    try{
-      await createHomeworkOnServer(record);
-    }catch(err){
-      alert('숙제체키 시트 저장 실패: ' + (err && err.message ? err.message : err));
-      if(btn) btn.disabled = false;
-      return;
-    }
-    if(btn) btn.disabled = false;
+    const fanId = state.currentFan.id || 'unknown';
+    return runLocked(`homeworkCreate:${fanId}`, btn, '접수 저장 중…', async()=>{
+      const memberKey = $('#homeworkMember')?.value || state.selectedMember || 'mariring';
+      const mem = members[memberKey] || members.mariring;
+      const d = new Date();
+      const hwId = nextHomeworkId();
+      const record = {
+        hwId,
+        time:`${d.getFullYear()}-${pad(d.getMonth()+1,2)}-${pad(d.getDate(),2)} ${d.getHours()}:${pad(d.getMinutes(),2)}`,
+        todayNo:state.currentFan.todayNo,
+        nick:state.currentFan.nick,
+        lumiId:state.currentFan.id,
+        member:memberKey,
+        memberName:mem.name,
+        request:($('#homeworkRequest')?.value || '').trim(),
+        photoMemo:($('#homeworkPhotoMemo')?.value || '').trim(),
+        pickup:($('#homeworkPickupEvent')?.value || '').trim() || '다음 참여 행사 / 현장 수령',
+        status:state.homeworkStatus || '접수됨'
+      };
 
-    state.homeworkHistory.unshift(record);
-    state.history.unshift({
-      time:`${d.getHours()}:${pad(d.getMinutes(),2)}:${pad(d.getSeconds(),2)}`,
-      todayNo:record.todayNo,
-      nick:record.nick,
-      id:record.lumiId,
-      type:'숙제체키 접수',
-      detail:`${record.hwId} / ${record.memberName} / ${record.status}`,
-      flags:`수령 예정: ${record.pickup}`
+      try{
+        await createHomeworkOnServer(record);
+      }catch(err){
+        alert('숙제체키 시트 저장 실패: ' + (err && err.message ? err.message : err));
+        return;
+      }
+
+      state.homeworkHistory.unshift(record);
+      state.history.unshift({
+        time:`${d.getHours()}:${pad(d.getMinutes(),2)}:${pad(d.getSeconds(),2)}`,
+        todayNo:record.todayNo,
+        nick:record.nick,
+        id:record.lumiId,
+        type:'숙제체키 접수',
+        detail:`${record.hwId} / ${record.memberName} / ${record.status}`,
+        flags:`수령 예정: ${record.pickup}`
+      });
+      saveLocal();
+
+      if($('#homeworkRequest')) $('#homeworkRequest').value = '';
+      if($('#homeworkPhotoMemo')) $('#homeworkPhotoMemo').value = '';
+      if($('#homeworkPickupEvent')) $('#homeworkPickupEvent').value = '';
+
+      renderAll();
+      alert(`숙제체키 접수 완료\n${record.hwId}\n체키 뒷면에 ${record.hwId} / ${record.lumiId} / ${record.memberName} 를 적어주세요.`);
     });
-    saveLocal();
-
-    if($('#homeworkRequest')) $('#homeworkRequest').value = '';
-    if($('#homeworkPhotoMemo')) $('#homeworkPhotoMemo').value = '';
-    if($('#homeworkPickupEvent')) $('#homeworkPickupEvent').value = '';
-
-    renderAll();
-    alert(`숙제체키 접수 완료\n${record.hwId}\n체키 뒷면에 ${record.hwId} / ${record.lumiId} / ${record.memberName} 를 적어주세요.`);
   }
-  async function updateHomeworkStatus(hwId, status){
+  async function updateHomeworkStatus(hwId, status, button){
     const rec = state.homeworkHistory.find(h=>h.hwId===hwId);
     if(!rec) return;
-    try{
-      await updateHomeworkStatusOnServer(hwId, status);
-    }catch(err){
-      alert('숙제체키 상태 저장 실패: ' + (err && err.message ? err.message : err));
-      return;
-    }
-    rec.status = status;
-    saveLocal();
-    renderAll();
+    return runLocked(`homeworkStatus:${hwId}:${status}`, button, '상태 저장 중…', async()=>{
+      try{
+        await updateHomeworkStatusOnServer(hwId, status);
+      }catch(err){
+        alert('숙제체키 상태 저장 실패: ' + (err && err.message ? err.message : err));
+        return;
+      }
+      rec.status = status;
+      saveLocal();
+      renderAll();
+    });
   }
+
 
   function copyHomeworkBack(hwId){
     const rec = state.homeworkHistory.find(h=>h.hwId===hwId);
@@ -1201,24 +1231,24 @@ textarea{padding:14px;min-height:120px}
     if(!state.currentFan){ alert('먼저 팬을 선택해 주세요.'); return; }
     const err = validatePass(state.selectedMember);
     if(err){ alert(err); return; }
-    const pass = passTypes[state.selectedPass].label;
-    const mem = members[state.selectedMember];
-    const memberKey = state.selectedMember;
-    const detailText = `${pass} / ${mem.name} ${mem.mark} 1장 사용 완료`;
     const btn = $('#btnQuickSave');
-    if(btn) btn.disabled = true;
-    try{
-      await createCheckinOnServer(memberKey, detailText);
-    }catch(apiErr){
-      alert('루미 체크인 저장 실패: ' + (apiErr && apiErr.message ? apiErr.message : apiErr));
-      if(btn) btn.disabled = false;
-      return;
-    }
-    if(btn) btn.disabled = false;
-    addHistory('빠른 촬영 저장', detailText, true);
-    state.selectedPass='normal';
-    $('#quickSummary').innerHTML = `<b>저장 완료</b><br>${state.currentFan.todayNo} / ${esc(state.currentFan.nick)} · ${esc(mem.name)} 1장 저장 완료<br><button class="btn" style="width:100%;margin-top:10px" data-member-start="${memberKey}">${esc(mem.name)} 타이머 시작</button><br>같은 팬이면 계속 저장, 바뀌면 “다음 팬”을 눌러주세요.`;
-    renderChoices();
+    const fanId = state.currentFan.id || 'unknown';
+    return runLocked(`quickCheckin:${fanId}:${state.selectedMember}:${state.selectedPass}`, btn, '저장 중…', async()=>{
+      const pass = passTypes[state.selectedPass].label;
+      const mem = members[state.selectedMember];
+      const memberKey = state.selectedMember;
+      const detailText = `${pass} / ${mem.name} ${mem.mark} 1장 사용 완료`;
+      try{
+        await createCheckinOnServer(memberKey, detailText);
+      }catch(apiErr){
+        alert('루미 체크인 저장 실패: ' + (apiErr && apiErr.message ? apiErr.message : apiErr));
+        return;
+      }
+      addHistory('빠른 촬영 저장', detailText, true);
+      state.selectedPass='normal';
+      $('#quickSummary').innerHTML = `<b>저장 완료</b><br>${state.currentFan.todayNo} / ${esc(state.currentFan.nick)} · ${esc(mem.name)} 1장 저장 완료<br><button class="btn" style="width:100%;margin-top:10px" data-member-start="${memberKey}">${esc(mem.name)} 타이머 시작</button><br>같은 팬이면 계속 저장, 바뀌면 “다음 팬”을 눌러주세요.`;
+      renderChoices();
+    });
   }
   async function saveDetail(){
     const entries = Object.entries(state.counts).filter(([,v])=>v>0);
@@ -1483,7 +1513,7 @@ textarea{padding:14px;min-height:120px}
     const hwStatus=e.target.closest('[data-hw-status]');
     if(hwStatus){ state.homeworkStatus = hwStatus.dataset.hwStatus; renderAll(); return; }
     const hwUpdate=e.target.closest('[data-hw-update]');
-    if(hwUpdate){ updateHomeworkStatus(hwUpdate.dataset.hwUpdate, hwUpdate.dataset.status); return; }
+    if(hwUpdate){ updateHomeworkStatus(hwUpdate.dataset.hwUpdate, hwUpdate.dataset.status, hwUpdate); return; }
     const hwCopy=e.target.closest('[data-hw-copy]');
     if(hwCopy){ copyHomeworkBack(hwCopy.dataset.hwCopy); return; }
     const count=e.target.closest('[data-count]');
