@@ -4252,6 +4252,13 @@
 
       // ── PATCH 51-47: 숙제체키 ────────────────────────────────
 
+      // fix2L-3-3B: 숙제체키 팬 화면 정리
+      // - 홈 카운트: 수령 가능 / 진행 중 분리
+      // - 숙제체키 탭: 상태 필터 추가
+      // - 수령 완료는 기본 전체 목록에서 제외하고 수령 완료 탭에서만 표시
+      // - 팬 화면에 내부 note/staff/action/test 문구 비노출
+      let homeworkChekiFilter = "all";
+
       // 멤버 라벨/아이콘 매핑
       function chekiMemberLabel(member) {
         var m = String(member || "").trim().toLowerCase();
@@ -4260,9 +4267,26 @@
         return member || "루미벨";
       }
 
+      function normalizeChekiStatus(status) {
+        return String(status || "").trim().replace(/\s+/g, " ");
+      }
+
+      function isChekiReady(item) {
+        return normalizeChekiStatus(item && item.status) === "수령 가능";
+      }
+
+      function isChekiDone(item) {
+        return normalizeChekiStatus(item && item.status) === "수령 완료";
+      }
+
+      function isChekiProgress(item) {
+        var s = normalizeChekiStatus(item && item.status);
+        return s === "접수됨" || s === "준비 중" || s === "대기 중" || s === "";
+      }
+
       // 상태 배지 레이블
       function chekiStatusLabel(status) {
-        var s = String(status || "").trim();
+        var s = normalizeChekiStatus(status);
         if (s === "접수됨")   return { label: "접수됨",   cls: "status-pending" };
         if (s === "준비 중")  return { label: "준비 중",  cls: "status-progress" };
         if (s === "수령 가능") return { label: "수령 가능", cls: "status-ready" };
@@ -4270,13 +4294,79 @@
         return { label: s || "대기 중", cls: "status-pending" };
       }
 
+      function shouldShowChekiNote(note) {
+        var text = String(note || "").trim();
+        if (!text) return false;
+        // 팬 화면에는 내부 파일명/운영 action/테스트 메모를 노출하지 않는다.
+        if (/staff\s*\/\s*cheki\.html/i.test(text)) return false;
+        if (/\b(admin|action|debug|api|test)\b/i.test(text)) return false;
+        if (/테스트|숙제체키\s*접수/.test(text)) return false;
+        return true;
+      }
+
+      function getVisibleHomeworkChekiItems(list) {
+        var items = Array.isArray(list) ? list : [];
+        if (homeworkChekiFilter === "progress") return items.filter(isChekiProgress);
+        if (homeworkChekiFilter === "ready") return items.filter(isChekiReady);
+        if (homeworkChekiFilter === "done") return items.filter(isChekiDone);
+        // 전체 기본 목록에서는 수령 완료를 숨긴다.
+        return items.filter(function(item) { return !isChekiDone(item); });
+      }
+
+      function homeworkChekiEmptyTitle() {
+        if (homeworkChekiFilter === "progress") return "진행 중 숙제체키 없음";
+        if (homeworkChekiFilter === "ready") return "수령 가능 숙제체키 없음";
+        if (homeworkChekiFilter === "done") return "수령 완료 기록 없음";
+        return "숙제체키 없음";
+      }
+
+      function homeworkChekiEmptyStatus() {
+        if (homeworkChekiFilter === "done") return "기록 없음";
+        return "대기 중";
+      }
+
+      function ensureHomeworkChekiFilterBar(mainCard, pickupCard, list) {
+        if (!mainCard || !mainCard.parentNode) return;
+        var anchor = (pickupCard && mainCard.parentNode === pickupCard.parentNode) ? mainCard.parentNode : mainCard;
+        var parent = anchor.parentNode || mainCard.parentNode;
+        var bar = document.getElementById("homeworkChekiFilterBar");
+        if (!bar) {
+          bar = document.createElement("div");
+          bar.id = "homeworkChekiFilterBar";
+          bar.setAttribute("aria-label", "숙제체키 상태 필터");
+          bar.style.display = "flex";
+          bar.style.flexWrap = "wrap";
+          bar.style.gap = "8px";
+          bar.style.margin = "12px 0 16px";
+          if (parent && anchor) parent.insertBefore(bar, anchor);
+        }
+
+        var filters = [
+          { key: "all", label: "전체" },
+          { key: "progress", label: "진행 중" },
+          { key: "ready", label: "수령 가능" },
+          { key: "done", label: "수령 완료" }
+        ];
+        bar.innerHTML = filters.map(function(filter) {
+          var active = homeworkChekiFilter === filter.key;
+          return '<button type="button" data-homework-cheki-filter="' + filter.key + '" style="min-height:36px;border-radius:999px;border:1px solid #f0bfd4;padding:0 16px;font-weight:900;cursor:pointer;' + (active ? 'background:#ff5ba5;color:#fff;box-shadow:0 10px 24px rgba(255,91,165,.16);' : 'background:#fff;color:#b47491;') + '">' + filter.label + '</button>';
+        }).join("");
+
+        bar.querySelectorAll("[data-homework-cheki-filter]").forEach(function(button) {
+          button.addEventListener("click", function() {
+            homeworkChekiFilter = button.getAttribute("data-homework-cheki-filter") || "all";
+            renderHomeworkCheki(list || []);
+          });
+        });
+      }
+
       function renderHomeworkCheki(items) {
-        const list = items || [];
+        const list = Array.isArray(items) ? items : [];
 
         // ── 홈 요약 카드 업데이트 (기존 home-card 구조 유지, 숫자/텍스트만 교체)
-        const readyCount = list.filter(function(c) {
-          return String(c.status || "").trim() === "수령 가능";
-        }).length;
+        const readyCount = list.filter(isChekiReady).length;
+        const progressCount = list.filter(isChekiProgress).length;
+        const doneCount = list.filter(isChekiDone).length;
         try {
           const homeCards = document.querySelectorAll(".home-card.no-icon");
           homeCards.forEach(function(card) {
@@ -4286,12 +4376,15 @@
               const span = card.querySelector("span");
               if (b) b.textContent = readyCount + "장";
               if (span) {
-                const pendingCount = list.filter(function(c) {
-                  return String(c.status || "").trim() !== "수령 완료";
-                }).length;
-                span.textContent = pendingCount > 0
-                  ? "준비 중 " + pendingCount + "장 · 상태는 숙제체키 탭에서 확인"
-                  : "신청 내역이 확인되면 이곳에 표시돼요.";
+                if (progressCount > 0) {
+                  span.textContent = "진행 중 " + progressCount + "장 · 상태는 숙제체키 탭에서 확인";
+                } else if (readyCount > 0) {
+                  span.textContent = "수령 가능한 숙제체키가 있어요.";
+                } else if (doneCount > 0) {
+                  span.textContent = "수령 완료 기록은 숙제체키 탭에서 확인";
+                } else {
+                  span.textContent = "신청 내역이 확인되면 이곳에 표시돼요.";
+                }
               }
             }
           });
@@ -4302,18 +4395,19 @@
         const pickupCard = document.querySelector(".homework-pickup-card");
         if (!mainCard) return;
 
-        if (list.length === 0) {
-          // fix2J: 비어 있을 때도 최종 안정본의 2영역 레이아웃을 유지한다.
-          // 실제 숙제체키가 없는 팬에게 가짜 멤버/관리번호를 보여주지 않되,
-          // 카드 밀도와 수령 안내 영역은 안정본처럼 유지한다.
+        ensureHomeworkChekiFilterBar(mainCard, pickupCard, list);
+        const visibleList = getVisibleHomeworkChekiItems(list);
+
+        if (visibleList.length === 0) {
+          // 비어 있을 때도 최종 안정본의 2영역 레이아웃을 유지한다.
           mainCard.innerHTML =
             '<div class="homework-main-head">' +
-              '<strong>숙제체키 없음</strong>' +
-              '<span class="homework-code">대기 중</span>' +
+              '<strong>' + homeworkChekiEmptyTitle() + '</strong>' +
+              '<span class="homework-code">' + homeworkChekiEmptyStatus() + '</span>' +
             '</div>' +
             '<dl class="homework-info-list">' +
               '<div><dt>접수일</dt><dd>-</dd></div>' +
-              '<div><dt>상태</dt><dd>대기 중</dd></div>' +
+              '<div><dt>상태</dt><dd>' + homeworkChekiEmptyStatus() + '</dd></div>' +
               '<div><dt>수령 예정</dt><dd>신청 내역 확인 후</dd></div>' +
               '<div><dt>수령 방식</dt><dd>현장 수령</dd></div>' +
             '</dl>';
@@ -4321,22 +4415,22 @@
             pickupCard.style.display = "";
             pickupCard.innerHTML =
               '<strong>수령 안내</strong>' +
-              '<p>상태가 수령 가능으로 바뀌면 다음 루미벨 특전회/물판에서 확인 후 받을 수 있어요. 현장에서는 루미 ID 또는 닉네임을 보여주세요.</p>';
+              '<p>상태가 수령 가능으로 바뀌면 루미벨 특전회/물판에서 루미 ID 또는 닉네임을 보여주고 받을 수 있어요.</p>';
           }
           return;
         }
 
-        // 항목이 있을 때 — 첫 번째 항목을 main-card에, 나머지는 뒤에 추가
-        mainCard.innerHTML = list.map(function(item, idx) {
+        // 항목이 있을 때 — 기존 카드 형태 유지, 내부 메모는 팬 화면에서 숨김
+        mainCard.innerHTML = visibleList.map(function(item, idx) {
           var st     = chekiStatusLabel(item.status);
           var member = chekiMemberLabel(item.member);
           var rows   = [];
-          if (item.requestedAt) rows.push('<div><dt>접수일</dt><dd>' + escapeHtml(item.requestedAt.slice(0,10).replace(/-/g,".")) + '</dd></div>');
-          rows.push('<div><dt>상태</dt><dd>' + escapeHtml(item.status || "대기 중") + '</dd></div>');
+          if (item.requestedAt) rows.push('<div><dt>접수일</dt><dd>' + escapeHtml(String(item.requestedAt).slice(0,10).replace(/-/g,".")) + '</dd></div>');
+          rows.push('<div><dt>상태</dt><dd>' + escapeHtml(st.label || "대기 중") + '</dd></div>');
           if (item.receivePlan)   rows.push('<div><dt>수령 예정</dt><dd>' + escapeHtml(item.receivePlan)   + '</dd></div>');
           if (item.receiveMethod) rows.push('<div><dt>수령 방식</dt><dd>' + escapeHtml(item.receiveMethod) + '</dd></div>');
           if (item.controlNo)     rows.push('<div><dt>관리번호</dt><dd>'  + escapeHtml(item.controlNo)     + '</dd></div>');
-          if (item.note)          rows.push('<div><dt>메모</dt><dd>'       + escapeHtml(item.note)          + '</dd></div>');
+          if (shouldShowChekiNote(item.note)) rows.push('<div><dt>메모</dt><dd>' + escapeHtml(item.note) + '</dd></div>');
           return (idx > 0 ? '<hr style="margin:10px 0;border:none;border-top:1px solid #f0d6e8">' : '') +
             '<div class="homework-main-head">' +
               '<strong>' + escapeHtml(member) + '</strong>' +
@@ -4345,12 +4439,11 @@
             '<dl class="homework-info-list">' + rows.join("") + '</dl>';
         }).join("");
 
-        // fix2J: 최종 안정본처럼 숙제체키가 있으면 상태와 무관하게 수령 안내 카드를 유지한다.
         if (pickupCard) {
           pickupCard.style.display = "";
           pickupCard.innerHTML =
             '<strong>수령 안내</strong>' +
-            '<p>상태가 수령 가능으로 바뀌면 다음 루미벨 특전회/물판에서 확인 후 받을 수 있어요. 현장에서는 루미 ID 또는 닉네임을 보여주세요.</p>';
+            '<p>상태가 수령 가능으로 바뀌면 루미벨 특전회/물판에서 루미 ID 또는 닉네임을 보여주고 받을 수 있어요.</p>';
         }
       }
 
