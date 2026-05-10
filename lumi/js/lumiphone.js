@@ -7572,8 +7572,8 @@
         const firstSenderType = String(first.senderType || "").trim().toLowerCase();
         const firstFrom = first.from || (firstSenderType === "member" ? "멤버" : "LUMIBELLE 운영");
         if (firstType === "welcomemail") {
-          if (homeKicker) homeKicker.textContent = publicUnreadItems.length > 1 ? "NEW MAILS" : "NEW MAIL";
-          if (homeTitle) homeTitle.textContent = firstFrom + "에게서 새 우편 " + publicUnreadItems.length + "통";
+          if (homeKicker) homeKicker.textContent = publicUnreadItems.length > 1 ? "NEW MESSAGES" : "NEW MESSAGE";
+          if (homeTitle) homeTitle.textContent = firstFrom + "에게서 새 문자 " + publicUnreadItems.length + "통";
           if (homePreview) homePreview.textContent = "루미폰 개통 첫 우편이 도착했어요.";
         } else if (firstSenderType === "member" || firstType === "memberletter" || firstType === "lumiletter" || firstType === "afterliveletter") {
           if (homeKicker) homeKicker.textContent = publicUnreadItems.length > 1 ? "NEW LETTERS" : "NEW LETTER";
