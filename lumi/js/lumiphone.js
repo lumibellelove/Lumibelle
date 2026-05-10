@@ -8465,7 +8465,7 @@
       '실제 노래 목록은 멤버 확인 후 채워 넣고',
       '멤버별 방향'
     ];
-    qsa('#page-record,#page-point,#page-guide,#page-exchange,#page-future').forEach(function(root){
+    qsa('#page-record,#page-point,#page-guide,#page-exchange,#page-future,#page-songbook').forEach(function(root){
       qsa('p,div,section,article,aside,small,span', root).forEach(function(el){
         var txt = String(el.textContent || '').replace(/\s+/g,' ').trim();
         if(!txt) return;
@@ -8480,6 +8480,13 @@
         el.style.display = 'none';
       });
     });
+    // fix2I-fix1: 노래책의 내부 운영/방향 설명 박스는 팬 화면에서 숨긴다.
+    qsa('#page-songbook .songbook-note').forEach(function(el){
+      el.textContent='';
+      el.hidden=true;
+      el.style.display='none';
+    });
+
     ['recordMsg','pointLedgerMsg','guideNote','exchangeMsg','exchangeMsgV2827'].forEach(function(id){
       var el = qs('#'+id);
       if(el){ el.textContent=''; el.hidden=true; el.style.display='none'; }
