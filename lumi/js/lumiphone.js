@@ -457,6 +457,8 @@
       }
 
 
+      let tempPasswordNoticeShownThisSession_ = false;
+
       function isMustChangePasswordUser_(user) {
         if (!user) return false;
         const type = String(user.passwordType || user.pinType || "").trim().toLowerCase();
@@ -485,8 +487,11 @@
 
       function showTemporaryPasswordNotice_() {
         if (!isMustChangePasswordUser_(currentUser)) return;
+        if (tempPasswordNoticeShownThisSession_) return;
         if (isTempPasswordNoticeDismissed_()) return;
         if (document.getElementById("lumiTempPasswordNotice")) return;
+        // fix2K-fix7: openApp와 loadMyProfile에서 안내 호출이 겹쳐도 같은 세션에서는 한 번만 표시한다.
+        tempPasswordNoticeShownThisSession_ = true;
         const styleId = "lumiTempPasswordNoticeStyle";
         if (!document.getElementById(styleId)) {
           const style = document.createElement("style");
