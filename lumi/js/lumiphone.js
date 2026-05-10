@@ -8557,7 +8557,9 @@
   }
   function pointLabel(type){
     var key=String(type||'').trim();
-    if(key==='site') return '홈페이지 포인트';
+    // fix2K-fix1-safe: 교환소 모바일 카드에서 홈페이지 포인트만 짧게 표시한다.
+    // 물판 포인트는 현장 확인/차감 기준이므로 기존 표기를 절대 줄이지 않는다.
+    if(key==='site') return '';
     if(key==='merch') return '물판 포인트';
     if(key==='xp') return '반짝 XP';
     if(key==='none') return '안내';
@@ -8609,7 +8611,11 @@
       var ptype=String(item.pointType||'site');
       var status=String(item.status||'preparing');
       var cat=exchangeCatForShopItem(item);
-      var costText=(ptype==='none'||status==='info')?'안내':pointLabel(ptype)+' '+cost+'p';
+      var labelText=pointLabel(ptype);
+      var costText;
+      if(ptype==='none'||status==='info'||ptype==='merch') costText='안내';
+      else if(ptype==='site') costText=cost+'P';
+      else costText=labelText+' '+cost+'p';
       var lim=limitText(item);
       var desc=String(item.description||item.note||'교환소 보상이에요.');
       if(cat==='allOnly') desc += ' · 현장 스탭 확인 후 사용';
