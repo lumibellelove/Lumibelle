@@ -4235,16 +4235,26 @@
         if (!mainCard) return;
 
         if (list.length === 0) {
-          // 비어 있을 때 — 안정본 기본 구조 유지
+          // fix2J: 비어 있을 때도 최종 안정본의 2영역 레이아웃을 유지한다.
+          // 실제 숙제체키가 없는 팬에게 가짜 멤버/관리번호를 보여주지 않되,
+          // 카드 밀도와 수령 안내 영역은 안정본처럼 유지한다.
           mainCard.innerHTML =
             '<div class="homework-main-head">' +
               '<strong>숙제체키 없음</strong>' +
               '<span class="homework-code">대기 중</span>' +
             '</div>' +
             '<dl class="homework-info-list">' +
-              '<div><dt>안내</dt><dd>신청한 숙제체키가 있으면 이곳에 표시돼요.</dd></div>' +
+              '<div><dt>접수일</dt><dd>-</dd></div>' +
+              '<div><dt>상태</dt><dd>대기 중</dd></div>' +
+              '<div><dt>수령 예정</dt><dd>신청 내역 확인 후</dd></div>' +
+              '<div><dt>수령 방식</dt><dd>현장 수령</dd></div>' +
             '</dl>';
-          if (pickupCard) pickupCard.style.display = "none";
+          if (pickupCard) {
+            pickupCard.style.display = "";
+            pickupCard.innerHTML =
+              '<strong>수령 안내</strong>' +
+              '<p>상태가 수령 가능으로 바뀌면 다음 루미벨 특전회/물판에서 확인 후 받을 수 있어요. 현장에서는 루미 ID 또는 닉네임을 보여주세요.</p>';
+          }
           return;
         }
 
@@ -4267,16 +4277,12 @@
             '<dl class="homework-info-list">' + rows.join("") + '</dl>';
         }).join("");
 
-        // 수령 가능이면 pickup 안내 표시, 아니면 숨김
+        // fix2J: 최종 안정본처럼 숙제체키가 있으면 상태와 무관하게 수령 안내 카드를 유지한다.
         if (pickupCard) {
-          if (readyCount > 0) {
-            pickupCard.style.display = "";
-            pickupCard.innerHTML =
-              '<strong>수령 안내</strong>' +
-              '<p>상태가 수령 가능으로 바뀌면 다음 루미벨 특전회/물판에서 확인 후 받을 수 있어요. 현장에서는 루미 ID 또는 닉네임을 보여주세요.</p>';
-          } else {
-            pickupCard.style.display = "none";
-          }
+          pickupCard.style.display = "";
+          pickupCard.innerHTML =
+            '<strong>수령 안내</strong>' +
+            '<p>상태가 수령 가능으로 바뀌면 다음 루미벨 특전회/물판에서 확인 후 받을 수 있어요. 현장에서는 루미 ID 또는 닉네임을 보여주세요.</p>';
         }
       }
 
