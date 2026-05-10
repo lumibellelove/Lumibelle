@@ -7508,7 +7508,11 @@
     const boxName = String((m && m.box) || "inbox");
     const statusName = String((m && m.status) || "");
     const typeName = String((m && m.type) || "");
-    const hiddenTypes = ["afterLive", "comeback", "birthday", "onairAfter", "preLive", "liveDay"];
+    // fix2L-2a-fix3: birthdayNotice는 실제 API 문자이므로 숨김 예약 타입에서 제외한다.
+    // 기존 "birthday" 숨김은 예전 mock/예약 메시지 보호용이었지만,
+    // normalizeRuntimeChatMessage가 birthdayNotice를 type="birthday"로 분류해서
+    // 실제 생일 등록 안내 문자까지 목록에서 사라지는 문제가 있었다.
+    const hiddenTypes = ["afterLive", "comeback", "onairAfter", "preLive", "liveDay"];
     return boxName === "pending" || statusName === "scheduled" || statusName === "pending" || !!(m && m.unlock) || hiddenTypes.includes(typeName);
   }
   function isVisibleInboxMessage(m){
