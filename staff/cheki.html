@@ -514,6 +514,43 @@ textarea{padding:14px;min-height:120px}
   const $$ = (s, root=document) => Array.from(root.querySelectorAll(s));
   const esc = v => String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
+  // fix2L-3-1: staff/cheki 팬조회 API 연결
+  // reservations/users와 같은 Apps Script Web App URL을 사용한다.
+  const CHEKI_API_URL = "https://script.google.com/macros/s/AKfycbwJRbaZDXnquhBTYaa4R1Onaq0pkDLUWPip0pjzoAcdkcUVNYCCZ2wHWtzCyQLZ0sboJQ/exec";
+  const CHEKI_ADMIN_KEY = "";
+
+  function chekiApiCall(params){
+    return new Promise((resolve,reject)=>{
+      if(!CHEKI_API_URL){ reject(new Error('CHEKI_API_URL이 비어 있습니다.')); return; }
+      const cb='lumiChekiCb_'+Date.now()+'_'+Math.floor(Math.random()*99999);
+      const url=new URL(CHEKI_API_URL);
+      Object.keys(params||{}).forEach(k=>url.searchParams.set(k, params[k]));
+      if(CHEKI_ADMIN_KEY) url.searchParams.set('adminKey', CHEKI_ADMIN_KEY);
+      url.searchParams.set('callback', cb);
+      url.searchParams.set('_', Date.now());
+      const script=document.createElement('script');
+      const timer=setTimeout(()=>{ cleanup(); reject(new Error('팬조회 API 응답 시간이 초과됐어요.')); }, 15000);
+      function cleanup(){ clearTimeout(timer); delete window[cb]; script.remove(); }
+      window[cb]=(data)=>{ cleanup(); resolve(data); };
+      script.onerror=()=>{ cleanup(); reject(new Error('팬조회 API 호출 실패')); };
+      script.src=url.toString();
+      document.body.appendChild(script);
+    });
+  }
+
+  function normalizeChekiFan(item){
+    const id = String((item && (item.lumiId || item.id)) || '').trim().toUpperCase();
+    return {
+      todayNo: String((item && item.todayNo) || '').trim(),
+      nick: String((item && (item.nickname || item.displayName || item.name)) || '루미나').trim(),
+      id: id,
+      oshi: String((item && item.oshi) || '').trim(),
+      email: String((item && item.email) || '').trim(),
+      status: String((item && item.status) || '').trim(),
+      source: 'api'
+    };
+  }
+
   const members = {
     mariring:{name:'마리링', mark:'🎀⭐'},
     lulu:{name:'루루', mark:'🍼🐰'},
@@ -975,20 +1012,53 @@ textarea{padding:14px;min-height:120px}
       </button></div>
     `).join('');
   }
-  function searchFan(){
+  async function searchFan(){
     const q = $('#fanSearch').value.trim();
+    const area = $('#candidateArea');
+    const btn = $('#btnSearch');
     if(!q || q === '없음'){
-      $('#candidateArea').innerHTML = `<div class="note">조회 결과가 없어요. 신규 팬이면 아래 발급 박스를 열어 주세요.</div>`;
+      area.innerHTML = `<div class="note">조회어를 입력해 주세요. 신규 팬이면 아래 발급 박스를 열어 주세요.</div>`;
       $('#newFanBox').style.display='block';
       return;
     }
+
+    // 기존 로컬 테스트용 특수어는 보존한다.
     if(q === '선택' || q === '동명이인'){
       showCandidates(samples);
       return;
     }
-    const found = state.recent.find(f => [f.todayNo,f.nick,f.id].some(v => String(v).includes(q))) || samples.find(f => [f.todayNo,f.nick,f.id].some(v => String(v).includes(q)));
-    if(found) showCandidates([found]);
-    else { $('#candidateArea').innerHTML = `<div class="note">조회 결과가 없어요. 신규 발급을 확인해 주세요.</div>`; $('#newFanBox').style.display='block'; }
+
+    // 먼저 오늘 현장에서 이미 선택한 최근 팬을 확인한다.
+    const localFound = state.recent.find(f => [f.todayNo,f.nick,f.id].some(v => String(v).includes(q)));
+    if(localFound){
+      showCandidates([localFound]);
+      return;
+    }
+
+    area.innerHTML = `<div class="note">팬 정보를 조회하는 중이에요…</div>`;
+    if(btn) btn.disabled = true;
+    try{
+      const res = await chekiApiCall({ action:'adminSearchLumiUser', q:q });
+      if(!res || !res.ok){
+        area.innerHTML = `<div class="note">팬조회 실패: ${esc((res && (res.error || res.message)) || 'unknown')}</div>`;
+        $('#newFanBox').style.display='block';
+        return;
+      }
+      const rawItems = (res.data && res.data.items) || res.items || [];
+      const items = rawItems.map(normalizeChekiFan).filter(f => f.id);
+      if(items.length){
+        showCandidates(items);
+        $('#newFanBox').style.display='none';
+        return;
+      }
+      area.innerHTML = `<div class="note">조회 결과가 없어요. 루미 ID/닉네임을 다시 확인해 주세요.</div>`;
+      $('#newFanBox').style.display='block';
+    }catch(err){
+      area.innerHTML = `<div class="note">팬조회 API 오류: ${esc(err && err.message ? err.message : err)}</div>`;
+      $('#newFanBox').style.display='block';
+    }finally{
+      if(btn) btn.disabled = false;
+    }
   }
   function quickFind(){
     const q = $('#quickFanSearch').value.trim();
@@ -1353,6 +1423,7 @@ textarea{padding:14px;min-height:120px}
   $('#btnNextFanUse').addEventListener('click', clearForNextFan);
   $('#btnKeepFanUse').addEventListener('click', ()=>renderAll());
   $('#btnSearch').addEventListener('click', searchFan);
+  $('#fanSearch').addEventListener('keydown', e=>{ if(e.key === 'Enter') searchFan(); });
   $('#btnIssue').addEventListener('click', issueNewFan);
   $('#btnQuickFind').addEventListener('click', quickFind);
   $('#btnQuickSave').addEventListener('click', saveQuick);
