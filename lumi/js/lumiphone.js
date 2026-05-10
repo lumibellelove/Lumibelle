@@ -2,7 +2,7 @@
     (() => {
       "use strict";
 
-      const APP_VERSION = 'lumi_signup_patch1_fix2H1_boot_hydration_20260510';
+      const APP_VERSION = 'lumi_signup_patch1_fix2G_birthday_visible_badge_zero_20260510';
       const LUMI_API_ENDPOINT_RAW = String(window.LUMI_API_ENDPOINT || "").trim();
 
       // ── PATCH 51-36: 캐시 유틸 ───────────────────────────────
@@ -37,9 +37,6 @@
       window.__LUMI_DEBUG_MODE = DEBUG_MODE;
       const LUMI_API_TIMEOUT_MS = 12000;
       let currentUser = null;
-      // fix2H-1: 저장 로그인으로 즉시 진입한 경우, 서버 프로필 확인 전까지
-      // 닉네임 fallback이 displayName을 잠깐 덮어쓰는 깜빡임을 막는다.
-      let profileServerHydrationPending = false;
       let myReservations = [];
       let reservationsLoadState = "idle"; // PATCH 51-41: idle/loading/loaded/error
       let bootDebugText = "";
@@ -511,11 +508,6 @@
         if (!(currentUser && getCurrentLumiId())) return;
 
         const lid = getCurrentLumiId();
-
-        // fix2H-1: localStorage 저장 로그인으로 즉시 진입한 경우에만
-        // 서버 최신 프로필 확인 전 displayName fallback을 잠시 보류한다.
-        profileServerHydrationPending = Boolean(LUMI_API_ENDPOINT() && settings.source === "savedLogin");
-        window.__lumiProfileServerHydrationPending = profileServerHydrationPending;
 
         // Lumi Signup Patch 1-fix2A: 계정별 격리 - 로그인 시 해당 계정 프로필 로드
         loadProfileState(lid);
@@ -1670,11 +1662,9 @@
         if (!user || typeof user !== "object") return;
         const current = normalizeProfileInfo(profileState && profileState.info);
         const nextInfo = Object.assign({}, current);
-        // displayName: 서버 저장값 우선.
-        // fix2H-1: 저장 로그인 자동 진입 직후에는 서버 프로필이 도착하기 전까지
-        // user.nickname으로 displayName을 잠깐 덮어쓰지 않는다.
+        // displayName: 서버 저장값 우선, 없으면 가입 닉네임(nickname) 사용
         if (user.displayName) nextInfo.displayName = user.displayName;
-        else if (user.nickname && !profileServerHydrationPending) nextInfo.displayName = user.nickname;
+        else if (user.nickname) nextInfo.displayName = user.nickname;
         const normalizedOshi = normalizeOshiForProfile(user.oshi);
         if (normalizedOshi) nextInfo.oshi = normalizedOshi;
         const title = user.equippedTitle || runtimeEquippedTitleFromApi;
@@ -3210,10 +3200,10 @@
           cacheWrite_(id, "profile", payload);
           currentUser = normalizeLumiUser(Object.assign({}, currentUser || {}, payload.user));
           saveLoginState(currentUser);
-          profileServerHydrationPending = false;
-          window.__lumiProfileServerHydrationPending = false;
           syncProfileInfoFromUser(currentUser);
           syncRecordJoinDateFromUser(currentUser);
+          // fix2H: 서버 프로필 로드 완료 플래그 (닉네임 깜빡임 완화용)
+          window.__lumiServerProfileLoaded = true;
           // fix2E: 서버 생일값 반영 후 Birthday Ticket 즉시 재계산
           if (typeof window.__lumiApplyBirthdayTicketState === "function") {
             window.__lumiApplyBirthdayTicketState();
@@ -3225,10 +3215,6 @@
           if (typeof showTemporaryPasswordNotice_ === "function") {
             window.setTimeout(showTemporaryPasswordNotice_, 80);
           }
-        }
-        if (!(payload && payload.ok && payload.user)) {
-          profileServerHydrationPending = false;
-          window.__lumiProfileServerHydrationPending = false;
         }
         return payload;
       }
@@ -3251,7 +3237,20 @@
         if (profileAvatar) profileAvatar.classList.toggle("has-image", Boolean(profileState.avatar.src));
         const info = normalizeProfileInfo(profileState.info);
         const displayTitle = runtimeEquippedTitleFromApi || info.title;
-        if (profileDisplayName) profileDisplayName.textContent = info.displayName;
+        // fix2H: 서버 프로필값 도착 전 닉네임 깜빡임 완화
+        // 서버에서 아직 못 받은 경우(기본값 "루미나" 그대로이고 서버 로드 전)에는
+        // 닉네임 영역을 빈칸으로 두어 기본값이 번쩍이는 걸 방지한다.
+        if (profileDisplayName) {
+          const isDefaultName = info.displayName === "루미나";
+          const serverLoaded = window.__lumiServerProfileLoaded === true;
+          if (isDefaultName && !serverLoaded) {
+            profileDisplayName.textContent = "";
+            profileDisplayName.setAttribute("data-loading", "true");
+          } else {
+            profileDisplayName.textContent = info.displayName;
+            profileDisplayName.removeAttribute("data-loading");
+          }
+        }
         // fix2D: LUMI ID는 항상 currentUser 기준 (mock/하드코딩 금지)
         if (profileLumiId) profileLumiId.textContent = "LUMI ID · " + (getCurrentLumiId() || "-");
         if (profileMeta) profileMeta.textContent = info.oshi ? "오시: " + info.oshi : "";
@@ -6128,13 +6127,13 @@
 
         if (sessionActive) {
           appendBootDebug("session active: instant openApp");
-          openApp({ persist: true, user: currentUser, source: "savedLogin" });
+          openApp({ persist: true, user: currentUser });
         } else {
           // 새 탭/첫 로드: savedLoginState만으로도 바로 진입 (서버 재인증 없이)
           // 로그인 상태가 localStorage에 있으면 신뢰 → 즉시 진입 + sessionStorage 플래그 갱신
           appendBootDebug("saved login: auto openApp (no re-auth)");
           try { sessionStorage.setItem("lumiphone.session.active", savedLoginState.lumiId || savedLoginState.id); } catch(e) {}
-          openApp({ persist: true, user: currentUser, source: "savedLogin" });
+          openApp({ persist: true, user: currentUser });
         }
       })();
 
@@ -6472,6 +6471,9 @@
 
         if (pageItems.length === 0) {
           const hasAnyRecord = allRecordItems().length > 0;
+          // fix2H: API 응답 대기 중이면 로딩 카드를 empty state로 덮어쓰지 않는다.
+          // __lumiVisitsApiPending은 doApiCall 완료 시 false로 해제된다.
+          if (!hasAnyRecord && window.__lumiVisitsApiPending === true) return;
           const waiting = !hasAnyRecord && visitsLoadState !== "loaded";
           recordCardList.innerHTML =
             '<article class="record-memory-card" data-record-category="전체">' +
@@ -6621,7 +6623,10 @@
           renderRecordPage();
         } else {
           visitsLoadState = "loading";
-          // 캐시 없을 때만 로딩 중 표시
+          // fix2H: 캐시 없을 때 로딩 문구를 고정 표시하고
+          // API 응답 전까지 renderRecordPage가 empty state로 덮어쓰지 않도록
+          // __lumiVisitsApiPending 플래그로 보호한다.
+          window.__lumiVisitsApiPending = true;
           if (recordCardList) {
             recordCardList.innerHTML =
               '<article class="record-memory-card" data-record-category="전체">' +
@@ -6669,11 +6674,15 @@
                 if (window.__LUMI_DEBUG_MODE) console.warn("[lumi] loadVisits: unexpected response:", data);
                 visitsLoadState = runtimeVisits.length === 0 ? "error" : "loaded";
               }
+              // fix2H: API 완료 — 로딩 보호 플래그 해제 후 최종 렌더
+              window.__lumiVisitsApiPending = false;
               renderRecordPage();
             })
             .catch(function(err) {
               if (window.__LUMI_DEBUG_MODE) console.error("[lumi] loadVisits error:", err);
               if (runtimeVisits.length === 0) visitsLoadState = "error";
+              // fix2H: 오류 시에도 플래그 해제
+              window.__lumiVisitsApiPending = false;
               renderRecordPage();
             });
         }
