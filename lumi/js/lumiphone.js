@@ -538,6 +538,10 @@
         if (cachedRes) {
           myReservations = cachedRes;
           renderMyReservations(cachedRes);
+        } else {
+          // fix2H-1d: 예약 캐시가 없는 신규 계정/새 브라우저에서도
+          // 티켓 탭이 제목만 보이지 않도록 안정적인 empty 상태를 먼저 표시한다.
+          renderReservationsStableEmpty();
         }
 
         // fix2G: API 로그인 모드에서는 mail/sms 캐시를 즉시 복원하지 않는다.
@@ -3978,6 +3982,25 @@
         }
       }
 
+      // fix2H-1d: 저장 로그인/새 계정 첫 진입 시 티켓 탭 PC 영역이
+      // 서버 응답 전 제목만 보이는 것을 막고, 안정적인 empty 상태를 먼저 보여준다.
+      function renderReservationsStableEmpty() {
+        updateHomeReservationLoading();
+
+        const stableMobileHtml = '<div class="ticket-page-item"><article class="info-card"><small>예약 없음</small><b>아직 연결된 예매 내역이 없습니다.</b><span>루미 ID로 예매가 연결되면 이곳에 현재 티켓이 표시돼요.</span></article></div>';
+        const stablePcHtml = '<h3>현재 예약 티켓</h3><article class="info-card"><small>예약 없음</small><b>아직 연결된 예매 내역이 없습니다.</b><span>루미 ID로 예매가 연결되면 이곳에 입장 확인용 티켓이 표시돼요.</span></article>';
+
+        const currentList = document.querySelector("#ticket-current .ticket-paged-list");
+        if (currentList && !currentList.querySelector(".ticket-card") && !currentList.querySelector(".lumi-pass")) {
+          currentList.innerHTML = stableMobileHtml;
+        }
+
+        const pcCurrent = document.querySelector(".ticket-pc-current-section");
+        if (pcCurrent && !pcCurrent.querySelector(".ticket-pc-pass") && !pcCurrent.querySelector(".lumi-pass")) {
+          pcCurrent.innerHTML = stablePcHtml;
+        }
+      }
+
       function updateHomeReservationSummary(reservations) {
         const normalized = (reservations || []).map(normalizeReservationItem);
         const current = normalized.filter((item) => !isPastReservation(item));
@@ -4070,12 +4093,7 @@
 
       function renderReservationsLoading() {
         reservationsLoadState = "loading";
-        updateHomeReservationLoading();
-        const stableEmptyHtml = '<div class="ticket-page-item"><article class="info-card"><small>예약 없음</small><b>아직 연결된 예매 내역이 없습니다.</b><span>루미 ID로 예매가 연결되면 이곳에 현재 티켓이 표시돼요.</span></article></div>';
-        const el1 = document.querySelector("#ticket-current .ticket-paged-list");
-        const el2 = document.querySelector(".ticket-pc-current-section");
-        if (el1 && !el1.querySelector(".reservation-card")) el1.innerHTML = stableEmptyHtml;
-        if (el2 && !el2.querySelector(".ticket-pc-live-card")) el2.innerHTML = '<h3>현재 예약 티켓</h3>' + stableEmptyHtml;
+        renderReservationsStableEmpty();
       }
 
       async function loadMyMessages(lumiId) {
@@ -6480,10 +6498,12 @@
           // fix2H-1c: 신규 계정/새로고침에서는 로딩 타임라인 카드가 아니라 안정적인 empty 상태를 유지한다.
           // 서버 응답 후 실제 기록이 있으면 아래 else 분기로 자연스럽게 갱신된다.
           recordCardList.innerHTML =
-            '<article class="info-card record-empty-state" data-record-category="전체">' +
-            '<small>' + (waiting ? "기록 확인 중" : currentMonthKey()) + '</small>' +
+            '<article class="record-memory-card record-empty-state" data-record-category="전체">' +
+            '<span class="record-memory-icon">🕰️</span>' +
+            '<time>' + currentMonthKey() + '</time>' +
             '<b>' + (!hasAnyRecord ? "아직 기록이 없어요" : currentMonthKey() + " 기록 없음") + '</b>' +
             '<span>' + (!hasAnyRecord ? "루미벨과 함께한 순간이 생기면 이곳에 차곡차곡 남아요." : "이 달에는 기록이 없어요.") + '</span>' +
+            '<em>안내</em>' +
             '</article>';
         } else {
           recordCardList.innerHTML = pageItems.map(function(v) {
