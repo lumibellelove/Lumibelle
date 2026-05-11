@@ -7097,12 +7097,25 @@
           recordMsg.style.display = "none";
         }
 
-        // record-stat-card 라이브 수치 갱신
-        const statCards = document.querySelectorAll(".record-stat-card");
-        if (statCards.length >= 1) {
-          const liveCount = runtimeVisits.filter(function(v){ return v.visitType === "live"; }).length;
-          statCards[0].querySelector("b").textContent = liveCount + "회";
-        }
+        // fix2L-3-6D-15B:
+        // record-stat-card 라이브 수치 갱신.
+        // 기존에는 첫 번째 .record-stat-card만 갱신해서 PC/모바일 DOM이 함께 있을 때
+        // 한쪽은 1회, 다른 쪽은 0회로 남을 수 있었다.
+        // visits 기준 liveCount를 계산한 뒤, 라벨이 "라이브"인 모든 요약 카드에 같은 값을 반영한다.
+        const liveCount = (Array.isArray(runtimeVisits) ? runtimeVisits : []).filter(function(v){
+          return String(v && v.visitType || "").trim() === "live";
+        }).length;
+        try { window.__lumiVisitLiveCount = liveCount; } catch(e) {}
+
+        const statCards = Array.from(document.querySelectorAll(".record-stat-card"));
+        statCards.forEach(function(card) {
+          const small = card.querySelector("small");
+          const b = card.querySelector("b");
+          if (!small || !b) return;
+          if (String(small.textContent || "").trim() === "라이브") {
+            b.textContent = liveCount + "회";
+          }
+        });
       }
 
       // PATCH 51-42: 월 이동 시 이전 카드가 한 프레임 겹쳐 보이는 잔상 완화
