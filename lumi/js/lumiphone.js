@@ -3212,12 +3212,14 @@
         card.dataset.achievementProgress = achievementProgressText(item || {}, statusLabel);
         card.dataset.achievementReward = rewardTitleFromAchievement(item || {});
         card.dataset.achievementDate = String(item && item.achievedAt || (owned ? "달성 완료" : statusLabel)).trim();
+        // fix2L-3-6D-13:
+        // 최종안정본 도감형 카드 UI에 맞춰 카드 안에는 짧은 정보만 표시한다.
+        // 긴 설명/조건은 dataset에 보관하고 상세 모달에서만 보여준다.
         card.innerHTML = ''
           + '<div class="achievement-icon">' + card.dataset.achievementIcon + '</div>'
           + '<div class="achievement-content">'
           + '<span class="achievement-state' + (owned ? '' : ' locked') + '">' + statusLabel + '</span>'
           + '<h3>' + card.dataset.achievementTitle + '</h3>'
-          + '<p class="achievement-desc">' + card.dataset.achievementDesc + '</p>'
           + '<p class="achievement-title-line">' + (owned ? ("보상 칭호: " + card.dataset.achievementReward) : "조건 달성 후 해금") + '</p>'
           + '</div>';
         card.addEventListener("click", function(event) {
@@ -3267,6 +3269,12 @@
         }
         if (titleEl) titleEl.textContent = title;
         if (rewardEl) rewardEl.textContent = owned || statusLabel === "진행 중" ? ("보상 칭호: " + rewardTitle) : "조건 달성 후 해금";
+
+        // fix2L-3-6D-13:
+        // 과거 동적 생성 카드에 남아 있던 긴 설명 줄이 있으면 팬 화면 카드에서는 제거한다.
+        // 설명은 dataset에 남아 있으므로 상세 모달/공유에는 계속 사용할 수 있다.
+        const descEl = card.querySelector(".achievement-desc");
+        if (descEl) descEl.remove();
       }
 
       function updateTitleOptionsFromApi(titles, equippedTitle) {
