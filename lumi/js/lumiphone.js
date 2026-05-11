@@ -3205,7 +3205,9 @@
         card.dataset.achievementCategory = String(item && item.category || "기본").trim();
         card.dataset.achievementStatus = statusLabel;
         card.dataset.achievementOwned = owned ? "true" : "false";
-        card.dataset.achievementDesc = String(item && (item.note || item.conditionText) || "루미폰을 개통한 기록이에요.").trim();
+        // fix2L-3-6D-12:
+        // note는 내부 운영/패치 메모라 팬 화면 카드 설명에 노출하지 않는다.
+        card.dataset.achievementDesc = String(item && (item.desc || item.description || item.conditionText) || "루미벨과 함께한 기록이에요.").trim();
         card.dataset.achievementCondition = String(item && item.conditionText || "루미 ID 생성").trim();
         card.dataset.achievementProgress = achievementProgressText(item || {}, statusLabel);
         card.dataset.achievementReward = rewardTitleFromAchievement(item || {});
@@ -3217,8 +3219,7 @@
           + '<h3>' + card.dataset.achievementTitle + '</h3>'
           + '<p class="achievement-desc">' + card.dataset.achievementDesc + '</p>'
           + '<p class="achievement-title-line">' + (owned ? ("보상 칭호: " + card.dataset.achievementReward) : "조건 달성 후 해금") + '</p>'
-          + '</div>'
-          + '<button class="achievement-detail-button" type="button">상세</button>';
+          + '</div>';
         card.addEventListener("click", function(event) {
           event.preventDefault();
           openAchievementModal(card);
@@ -3242,7 +3243,9 @@
         card.dataset.achievementIcon = icon;
         card.dataset.achievementStatus = statusLabel;
         card.dataset.achievementCategory = category;
-        card.dataset.achievementDesc = String(item.note || card.dataset.achievementDesc || "루미벨과 함께한 기록이에요.");
+        // fix2L-3-6D-12:
+        // item.note는 "fix2L-..." 같은 내부 메모일 수 있으므로 카드 설명에 쓰지 않는다.
+        card.dataset.achievementDesc = String(item.desc || item.description || item.conditionText || card.dataset.achievementDesc || "루미벨과 함께한 기록이에요.");
         card.dataset.achievementCondition = String(item.conditionText || card.dataset.achievementCondition || "-");
         card.dataset.achievementProgress = progressText;
         card.dataset.achievementReward = rewardTitle;
