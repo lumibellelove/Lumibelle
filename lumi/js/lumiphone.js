@@ -3164,9 +3164,19 @@
         const key = String(item && item.achievementKey || "").trim();
         const aliasByKey = {
           lumi_phone_open: "루미폰 개통",
-          first_visit: "첫 번째 점",
-          stamp_1: "첫 루미 체크인",
-          stamp_20: "꽃도장 한 판 완성"
+          first_visit: "첫 루미 방문",
+          first_checkin: "첫 루미 체크인",
+          stamp_1: "첫 번째 꽃도장",
+          stamp_5: "스탬프 5개",
+          stamp_10: "스탬프 10개",
+          stamp_20: "꽃도장 한 판 완성",
+          first_ticket: "첫 티켓 보유",
+          first_meate: "첫 메아테 지정",
+          first_letter: "첫 루미레터 수신",
+          welcome_ticket: "Welcome Ticket 보유",
+          first_onair: "첫 ON AIR 방문",
+          first_lumicode: "첫 루미코드 인증",
+          birthday_ticket: "Birthday Ticket 보유"
         };
         const candidates = Array.from(new Set([title, aliasByKey[key]].filter(Boolean)));
         const cards = getAchievementCards();
