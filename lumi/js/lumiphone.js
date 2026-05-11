@@ -3164,19 +3164,9 @@
         const key = String(item && item.achievementKey || "").trim();
         const aliasByKey = {
           lumi_phone_open: "루미폰 개통",
-          first_visit: "첫 루미 방문",
-          first_checkin: "첫 루미 체크인",
-          stamp_1: "첫 번째 꽃도장",
-          stamp_5: "스탬프 5개",
-          stamp_10: "스탬프 10개",
-          stamp_20: "꽃도장 한 판 완성",
-          first_ticket: "첫 티켓 보유",
-          first_meate: "첫 메아테 지정",
-          first_letter: "첫 루미레터 수신",
-          welcome_ticket: "Welcome Ticket 보유",
-          first_onair: "첫 ON AIR 방문",
-          first_lumicode: "첫 루미코드 인증",
-          birthday_ticket: "Birthday Ticket 보유"
+          first_visit: "첫 번째 점",
+          stamp_1: "첫 루미 체크인",
+          stamp_20: "꽃도장 한 판 완성"
         };
         const candidates = Array.from(new Set([title, aliasByKey[key]].filter(Boolean)));
         const cards = getAchievementCards();
@@ -8487,19 +8477,47 @@
   function pcAchievementIdForApi(item) {
     var key = String(item && item.achievementKey || '').trim();
     var title = String(item && item.title || '').trim();
+
+    // fix2L-3-6D-9:
+    // PC 전용 업적 렌더러도 서버 achievementKey 기준으로 정확히 매칭한다.
+    // D-8은 기본/모바일 카드 매칭표 보정이고, 이 함수는 PC 전용 리스트용이다.
     var byKey = {
       lumi_phone_open: 'lumi-phone-open',
-      first_visit: 'first-dot',
+      first_dot: 'first-dot',
+      first_visit: 'first-visit',
+      first_ticket: 'first-ticket',
+      welcome_ticket: 'welcome-ticket',
+      first_letter: 'first-letter',
+      first_checkin: 'first-checkin',
       stamp_1: 'stamp-one',
-      stamp_20: 'stamp-twenty'
+      stamp_5: 'stamp-five',
+      stamp_10: 'stamp-ten',
+      stamp_20: 'stamp-twenty',
+      first_onair: 'first-onair',
+      first_lumicode: 'first-lumicode',
+      first_meate: 'first-meate',
+      birthday_ticket: 'birthday-ticket'
     };
     if (byKey[key]) return byKey[key];
+
     var byTitle = {
       '루미폰 개통': 'lumi-phone-open',
       '첫 번째 점': 'first-dot',
+      '첫 루미 방문': 'first-visit',
+      '첫 티켓 보유': 'first-ticket',
+      'Welcome Ticket 보유': 'welcome-ticket',
+      '첫 루미레터 수신': 'first-letter',
+      '첫 루미 체크인': 'first-checkin',
       '첫 번째 꽃도장': 'stamp-one',
+      '스탬프 첫 장': 'stamp-one',
+      '스탬프 5개': 'stamp-five',
+      '스탬프 10개': 'stamp-ten',
       '꽃도장 한 판 완성': 'stamp-twenty',
-      '첫 루미 체크인': 'first-checkin'
+      '스탬프 20개 완주': 'stamp-twenty',
+      '첫 ON AIR 방문': 'first-onair',
+      '첫 루미코드 인증': 'first-lumicode',
+      '첫 메아테 지정': 'first-meate',
+      'Birthday Ticket 보유': 'birthday-ticket'
     };
     return byTitle[title] || '';
   }
