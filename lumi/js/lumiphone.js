@@ -4757,37 +4757,40 @@
         return LUMI_TICKET_MEMBER_LABELS[m] || member || "루미벨";
       }
 
-      // fix2L-3-6C-1: Welcome Ticket은 새 구조를 만들지 않고 기존 카드 문구만 짧게 정리한다.
-      function isWelcomeTicket_(ticket) {
-        return String(ticket && ticket.ticketType || "").trim().toLowerCase() === "welcome";
+      function lumiTicketMemberDisplay_(ticket, mode) {
+        var t = ticket || {};
+        if (mode === "used") {
+          return String(t.usedMemberName || "").trim()
+            || lumiTicketMemberName(t.usedMember)
+            || "사용 멤버 기록 없음";
+        }
+        var rawScope = String(t.useScope || "").trim();
+        if (rawScope) {
+          if (rawScope.toLowerCase() === "mariring,lulu" || rawScope === "마리링,루루") return "마리링, 루루";
+          return rawScope.replace(/,/g, ", ");
+        }
+        var rawMember = String(t.memberName || "").trim();
+        if (rawMember && rawMember !== "루미벨" && rawMember !== "Lumibelle" && rawMember !== "루미벨 전체") return rawMember;
+        return "마리링, 루루";
       }
 
-      function lumiTicketStatusLabel_(ticket) {
-        var status = String(ticket && ticket.status || "").trim().toLowerCase();
-        if (isWelcomeTicket_(ticket) && status === "available") return "발급완료";
-        return LUMI_TICKET_STATUS_LABELS[status] || status || "";
-      }
-
-      function welcomeTicketUsedMemberName_(ticket) {
-        var raw = String(
-          (ticket && (ticket.usedMemberName || ticket.usedMember || ticket.member)) || ""
-        ).trim();
-        if (!raw) return "운영 기준에 따라 표시";
-        return lumiTicketMemberName(raw);
-      }
-
-      function welcomeTicketDisplayInfo_(ticket) {
-        var status = String(ticket && ticket.status || "").trim().toLowerCase();
-        var isUsed = status === "used";
-        var memberValue = isUsed ? welcomeTicketUsedMemberName_(ticket) : "운영 기준에 따라 표시";
-        var memberLabel = isUsed ? "사용 멤버" : "사용 가능 멤버";
+      function lumiWelcomeTicketLines_(ticket) {
+        var t = ticket || {};
+        var status = String(t.status || "").trim().toLowerCase();
+        var used = status === "used";
+        var memberLabel = used ? "사용 멤버" : "사용 가능 멤버";
+        var memberValue = lumiTicketMemberDisplay_(t, used ? "used" : "available");
         return {
-          issueText: "신규 이벤트 조건 확인 후 발급",
-          statusText: lumiTicketStatusLabel_(ticket),
+          statusLabel: used ? "사용완료" : (status === "available" ? "발급완료" : (t.statusLabel || LUMI_TICKET_STATUS_LABELS[t.status] || t.status || "")),
           memberLabel: memberLabel,
           memberValue: memberValue,
-          pcDesc: "신규 이벤트 조건 확인 후 발급 / " + memberLabel + ": " + memberValue
+          text: "· 신규 이벤트 조건 확인 후 발급\n· " + memberLabel + " : " + memberValue
         };
+      }
+
+      function setWelcomeTicketDesc_(el, lines) {
+        if (!el || !lines) return;
+        el.innerHTML = escapeHtml(lines.text).replace(/\n/g, "<br>");
       }
 
       function renderLumiTickets(items) {
@@ -4827,30 +4830,31 @@
               var statusEl = cardEl.querySelector(".ticket-pc-card-actions span");
               var smallEl  = cardEl.querySelector("small");
               var spanEl   = cardEl.querySelector("b + span, small + b + span, span:not(.ticket-pc-card-actions span)");
+              var isWelcomeTicket = String(t.ticketType || "").trim().toLowerCase() === "welcome";
+              var welcomeLines = isWelcomeTicket ? lumiWelcomeTicketLines_(t) : null;
+
               // is-locked 해제 (available)
-              var statusLabelForCard = lumiTicketStatusLabel_(t);
               if (t.status === "available") {
                 cardEl.classList.remove("is-locked");
-                if (statusEl) { statusEl.textContent = statusLabelForCard || "사용 가능"; statusEl.className = "active"; }
+                if (statusEl) { statusEl.textContent = welcomeLines ? welcomeLines.statusLabel : "사용 가능"; statusEl.className = "active"; }
               } else if (t.status === "used") {
                 cardEl.classList.remove("is-locked");
-                if (statusEl) { statusEl.textContent = statusLabelForCard || "사용 완료"; statusEl.className = ""; }
+                if (statusEl) { statusEl.textContent = welcomeLines ? welcomeLines.statusLabel : "사용 완료"; statusEl.className = ""; }
               } else if (t.status === "pending") {
                 cardEl.classList.remove("is-locked");
-                if (statusEl) { statusEl.textContent = statusLabelForCard || "확인 중"; statusEl.className = ""; }
+                if (statusEl) { statusEl.textContent = "확인 중"; statusEl.className = ""; }
               }
               // small 레이블 갱신
               if (smallEl && t.source) {
                 var typeLabel = LUMI_TICKET_TYPE_LABELS[t.ticketType] || "";
                 if (typeLabel) smallEl.textContent = typeLabel;
               }
-              // span 설명 갱신: Welcome은 발급 정보/사용 멤버만 짧게 표시한다.
-              if (isWelcomeTicket_(t)) {
-                var welcomeDescEl = cardEl.querySelector("span:not(.ticket-pc-card-actions span):not([class])");
-                if (welcomeDescEl) welcomeDescEl.textContent = welcomeTicketDisplayInfo_(t).pcDesc;
-              } else if (t.note) {
-                var descEl = cardEl.querySelector("span:not(.ticket-pc-card-actions span):not([class])");
-                if (descEl) descEl.textContent = lumiTicketMemberName(t.member) + " · " + t.note;
+              // span 설명 갱신
+              var descEl = cardEl.querySelector("span:not(.ticket-pc-card-actions span):not([class])");
+              if (isWelcomeTicket && descEl) {
+                setWelcomeTicketDesc_(descEl, welcomeLines);
+              } else if (t.note && descEl) {
+                descEl.textContent = lumiTicketMemberName(t.member) + " · " + t.note;
               }
             });
           }
@@ -4894,11 +4898,10 @@
 
             if (!targetItem) {
               // 카드가 없으면 — API 전용 신규 카드 추가 (기존 카드 구조로)
-              var welcomeInfo = isWelcomeTicket_(t) ? welcomeTicketDisplayInfo_(t) : null;
-              var memberName  = welcomeInfo ? welcomeInfo.memberValue : lumiTicketMemberName(t.member);
-              var memberLabel = welcomeInfo ? welcomeInfo.memberLabel : "사용 가능 멤버";
-              var statusLabel = lumiTicketStatusLabel_(t);
-              var subText     = welcomeInfo ? welcomeInfo.issueText : (t.note || "");
+              var isWelcomeTicket = String(t.ticketType || "").trim().toLowerCase() === "welcome";
+              var welcomeLines = isWelcomeTicket ? lumiWelcomeTicketLines_(t) : null;
+              var memberName  = welcomeLines ? welcomeLines.memberValue : lumiTicketMemberName(t.member);
+              var statusLabel = welcomeLines ? welcomeLines.statusLabel : (LUMI_TICKET_STATUS_LABELS[t.status] || t.status || "");
               var expireText  = t.expireAt ? String(t.expireAt).slice(0,10).replace(/-/g,".") + "까지" : "제한 없음";
               var issuedText  = t.issuedAt ? String(t.issuedAt).slice(0,10).replace(/-/g,".") + " 지급" : "";
               var cat = categoryMap[t.ticketType] || "이벤트";
@@ -4909,9 +4912,9 @@
                 '<article class="ticket-card soft"><div class="ticket-inner">' +
                   '<div class="ticket-kicker">SPECIAL TICKET</div>' +
                   '<div class="ticket-title">' + escapeHtml(t.ticketName || expectedTitle) + '</div>' +
-                  '<div class="ticket-sub">' + escapeHtml(subText) + '</div>' +
+                  '<div class="ticket-sub">' + (welcomeLines ? escapeHtml(welcomeLines.text).replace(/\n/g,"<br>") : escapeHtml(t.note || "")) + '</div>' +
                   '<div class="ticket-meta">' +
-                    '<div class="ticket-cell"><small>' + escapeHtml(memberLabel) + '</small><b>' + escapeHtml(memberName) + '</b></div>' +
+                    '<div class="ticket-cell"><small>' + escapeHtml(welcomeLines ? welcomeLines.memberLabel : "사용 가능 멤버") + '</small><b>' + escapeHtml(memberName) + '</b></div>' +
                     '<div class="ticket-cell"><small>상태</small><b>' + escapeHtml(statusLabel) + '</b></div>' +
                     '<div class="ticket-cell"><small>유효기간</small><b>' + escapeHtml(expireText) + '</b></div>' +
                     (issuedText ? '<div class="ticket-cell"><small>지급일</small><b>' + escapeHtml(issuedText) + '</b></div>' : '') +
@@ -4921,34 +4924,33 @@
               return;
             }
 
-            // 기존 카드 찾음 → 상태 셀만 업데이트
-            var existingWelcomeInfo = isWelcomeTicket_(t) ? welcomeTicketDisplayInfo_(t) : null;
-            if (existingWelcomeInfo) {
+            // 기존 카드 찾음 → 상태/멤버/설명만 업데이트
+            var isWelcomeTicket = String(t.ticketType || "").trim().toLowerCase() === "welcome";
+            var welcomeLines = isWelcomeTicket ? lumiWelcomeTicketLines_(t) : null;
+            if (welcomeLines) {
               var subEl = targetItem.querySelector(".ticket-sub");
-              if (subEl) subEl.textContent = existingWelcomeInfo.issueText;
+              setWelcomeTicketDesc_(subEl, welcomeLines);
             }
+
             var statusCells = Array.from(targetItem.querySelectorAll(".ticket-cell"));
             statusCells.forEach(function(cell) {
               var smallEl = cell.querySelector("small");
               if (!smallEl) return;
-              if (smallEl.textContent === "발급 기준" && existingWelcomeInfo) {
+              var smallText = smallEl.textContent.trim();
+              if (smallText === "상태") {
                 var bEl = cell.querySelector("b");
-                if (bEl) bEl.textContent = existingWelcomeInfo.issueText;
+                if (bEl) bEl.textContent = welcomeLines ? welcomeLines.statusLabel : (LUMI_TICKET_STATUS_LABELS[t.status] || t.status || "");
               }
-              if (smallEl.textContent === "상태") {
+              if (smallText === "사용 가능 멤버" || smallText === "사용 멤버") {
                 var bEl = cell.querySelector("b");
-                if (bEl) bEl.textContent = lumiTicketStatusLabel_(t);
-              }
-              if (smallEl.textContent === "사용 가능 멤버" || smallEl.textContent === "사용 멤버" || smallEl.textContent === "사용 기준") {
-                var bEl = cell.querySelector("b");
-                if (existingWelcomeInfo) {
-                  smallEl.textContent = existingWelcomeInfo.memberLabel;
-                  if (bEl) bEl.textContent = existingWelcomeInfo.memberValue;
-                } else if (smallEl.textContent === "사용 가능 멤버") {
-                  if (bEl) bEl.textContent = lumiTicketMemberName(t.member);
+                if (welcomeLines) {
+                  smallEl.textContent = welcomeLines.memberLabel;
+                  if (bEl) bEl.textContent = welcomeLines.memberValue;
+                } else if (bEl) {
+                  bEl.textContent = lumiTicketMemberName(t.member);
                 }
               }
-              if (smallEl.textContent === "유효기간" && t.expireAt) {
+              if (smallText === "유효기간" && t.expireAt) {
                 var bEl = cell.querySelector("b");
                 if (bEl) bEl.textContent = String(t.expireAt).slice(0,10).replace(/-/g,".") + "까지";
               }
