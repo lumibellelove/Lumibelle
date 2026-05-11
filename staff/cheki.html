@@ -210,6 +210,15 @@ textarea{padding:14px;min-height:120px}
   color:#6f5d68;
 }
 
+.welcome-status-card{border:1px solid var(--line);background:#fff7fb;border-radius:20px;padding:14px 16px;margin:12px 0;font-weight:900;line-height:1.65}
+.welcome-status-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.welcome-state{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:#fff;color:var(--pink);font-weight:1000;font-size:12px;white-space:nowrap}
+.welcome-state.available{background:#fff0f7;color:#ff5ca6;border-color:#f0bfd4}
+.welcome-state.used{background:#f7efff;color:#8066d0;border-color:#d9ccff}
+.welcome-state.notIssued{background:#fff;color:#b28ea2}
+.welcome-ticket-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.welcome-ticket-actions button{min-height:44px;border-radius:16px;border:1px solid var(--line);font-weight:900}
+
 </style>
 </head>
 <body>
@@ -284,6 +293,22 @@ textarea{padding:14px;min-height:120px}
         </div>
         <button class="btn" id="btnIssue" style="width:100%;margin-top:12px">신규 루미 ID 발급</button>
         <div id="issueResult" class="summary" style="display:none"></div>
+      </article>
+
+
+
+      <article class="card" id="welcomeTicketBox">
+        <span class="label">NEW EVENT TICKET</span>
+        <h2>신규 이벤트권</h2>
+        <p>Welcome Ticket은 신규 이벤트 조건 확인 후 스탭이 발급완료 처리하고, 실제 사용은 특전 사용 / 촬영 탭에서 [신규] 권종으로 저장합니다.</p>
+        <div class="welcome-status-card" id="welcomeTicketSummary">
+          먼저 팬 조회/선택 후 Welcome Ticket 상태를 확인해 주세요.
+        </div>
+        <div class="welcome-ticket-actions">
+          <button class="ghost" id="btnRefreshWelcomeTicket" type="button">상태 새로고침</button>
+          <button class="btn" id="btnIssueWelcomeTicket" type="button">신규 이벤트 확인 후 발급</button>
+        </div>
+        <div class="note">발급완료 후 팬이 사용하러 오면 <b>특전 사용 / 촬영</b> 탭에서 [신규]를 선택하고 1장 사용 저장을 눌러 주세요.</div>
       </article>
 
       <article class="card">
@@ -586,7 +611,7 @@ textarea{padding:14px;min-height:120px}
   };
   const passTypes = {
     normal:{label:'일반 특전권', desc:'실물권'},
-    welcome:{label:'Welcome', desc:'신규권'},
+    welcome:{label:'신규 / Welcome', desc:'신규 이벤트권'},
     joinIro:{label:'Join 이로권', desc:'이로 전용'},
     joinLuna:{label:'Join 루나권', desc:'루나 전용'}
   };
@@ -608,6 +633,7 @@ textarea{padding:14px;min-height:120px}
     checks:{visit:false,meate:false,fullLoop:false,eventDay:false},
     cautions:{},
     newFan:{follow:false,welcome:false},
+    welcomeTicket:{status:'unknown', ticket:null, loading:false, message:''},
     counts:{mariring:0,lulu:0,iro:0,lunar:0},
     nextTodayNo:1,
     nextHomeworkNo:1,
@@ -655,8 +681,10 @@ textarea{padding:14px;min-height:120px}
   }
   function setCurrentFan(fan){
     state.currentFan = ensureTodayNo({...fan});
+    state.welcomeTicket = {status:'loading', ticket:null, loading:true, message:''};
     addRecent(state.currentFan);
     renderAll();
+    loadWelcomeTicketStatus();
   }
   function addRecent(fan){
     state.recent = [fan, ...state.recent.filter(f => f.id !== fan.id)].slice(0,20);
@@ -1028,8 +1056,113 @@ textarea{padding:14px;min-height:120px}
     alert(text);
   }
 
+
+  function welcomeStatusLabel(status){
+    if(status === 'available') return '발급완료';
+    if(status === 'used') return '사용완료';
+    if(status === 'notIssued') return '발급 전';
+    if(status === 'loading') return '확인 중';
+    if(status === 'error') return '확인 필요';
+    return '상태 확인 전';
+  }
+  function renderWelcomeTicket(){
+    const box = $('#welcomeTicketSummary');
+    const issueBtn = $('#btnIssueWelcomeTicket');
+    const refreshBtn = $('#btnRefreshWelcomeTicket');
+    if(!box) return;
+    if(!state.currentFan){
+      box.innerHTML = '먼저 팬 조회/선택 후 Welcome Ticket 상태를 확인해 주세요.';
+      if(issueBtn) issueBtn.disabled = true;
+      if(refreshBtn) refreshBtn.disabled = true;
+      return;
+    }
+    if(refreshBtn) refreshBtn.disabled = !!state.welcomeTicket.loading;
+    const st = state.welcomeTicket.status || 'unknown';
+    const ticket = state.welcomeTicket.ticket || {};
+    const label = welcomeStatusLabel(st);
+    const cls = st === 'available' ? 'available' : st === 'used' ? 'used' : st === 'notIssued' ? 'notIssued' : '';
+    if(issueBtn){
+      issueBtn.disabled = state.welcomeTicket.loading || st === 'available' || st === 'used';
+      issueBtn.textContent = st === 'available' ? '이미 발급완료' : st === 'used' ? '이미 사용완료' : '신규 이벤트 확인 후 발급';
+    }
+    let body = '';
+    if(st === 'loading'){
+      body = 'Welcome Ticket 상태를 확인하는 중이에요…';
+    }else if(st === 'notIssued'){
+      body = '신규 이벤트 조건과 공식 계정 팔로우를 확인한 뒤 발급해 주세요.';
+    }else if(st === 'available'){
+      body = `발급완료 상태예요. 팬이 사용할 때 [신규] 권종으로 1장 사용 저장하면 사용완료로 바뀝니다.<br><small>티켓ID: ${esc(ticket.ticketId || '-')}</small>`;
+    }else if(st === 'used'){
+      body = `이미 사용완료된 신규 이벤트권이에요.<br><small>티켓ID: ${esc(ticket.ticketId || '-')} / 사용 멤버: ${esc(ticket.usedMember || ticket.member || '-')}</small>`;
+    }else if(st === 'error'){
+      body = esc(state.welcomeTicket.message || '상태 확인 중 오류가 있었어요. 새로고침해 주세요.');
+    }else{
+      body = '상태 새로고침을 눌러 확인해 주세요.';
+    }
+    box.innerHTML = `
+      <div class="welcome-status-head">
+        <b>${esc(state.currentFan.todayNo)} / ${esc(state.currentFan.nick)} / ${esc(state.currentFan.id)}</b>
+        <span class="welcome-state ${cls}">${esc(label)}</span>
+      </div>
+      ${body}
+    `;
+  }
+  async function loadWelcomeTicketStatus(){
+    if(!state.currentFan || !state.currentFan.id){
+      state.welcomeTicket = {status:'unknown', ticket:null, loading:false, message:''};
+      renderWelcomeTicket();
+      return;
+    }
+    state.welcomeTicket = {status:'loading', ticket:null, loading:true, message:''};
+    renderWelcomeTicket();
+    try{
+      const res = await chekiApiCall({
+        action:'adminGetWelcomeTicketStatus',
+        lumiId:state.currentFan.id,
+        processedBy:'cheki-staff'
+      });
+      if(!res || !res.ok){
+        state.welcomeTicket = {status:'error', ticket:null, loading:false, message:(res && (res.error || res.message)) || 'welcomeStatusFailed'};
+      }else{
+        const data = res.data || {};
+        state.welcomeTicket = {status:data.status || 'notIssued', ticket:data.ticket || null, loading:false, message:''};
+      }
+    }catch(err){
+      state.welcomeTicket = {status:'error', ticket:null, loading:false, message:String(err && err.message ? err.message : err)};
+    }
+    renderWelcomeTicket();
+  }
+  async function issueWelcomeTicket(){
+    if(!state.currentFan){ alert('먼저 팬을 조회하거나 선택해 주세요.'); return; }
+    const ok = confirm('신규 이벤트 조건과 팔로우 확인이 끝났나요?\n확인 후 Welcome Ticket을 발급완료 처리합니다.');
+    if(!ok) return;
+    const btn = $('#btnIssueWelcomeTicket');
+    return runLocked(`welcomeIssue:${state.currentFan.id}`, btn, '발급 중…', async()=>{
+      try{
+        const res = await chekiApiCall({
+          action:'adminIssueWelcomeTicket',
+          lumiId:state.currentFan.id,
+          member:state.selectedMember || 'mariring',
+          eventId:currentEventIdForCheki(),
+          processedBy:'cheki-staff',
+          note:'staff/cheki.html 신규 이벤트 조건 확인 후 발급'
+        });
+        if(!res || !res.ok){
+          alert('Welcome Ticket 발급 실패: ' + ((res && (res.error || res.message)) || 'unknown'));
+          await loadWelcomeTicketStatus();
+          return;
+        }
+        await loadWelcomeTicketStatus();
+        alert('Welcome Ticket 발급완료 처리했어요.');
+      }catch(err){
+        alert('Welcome Ticket 발급 오류: ' + (err && err.message ? err.message : err));
+        await loadWelcomeTicketStatus();
+      }
+    });
+  }
+
   function renderAll(){
-    renderEventInfo(); renderCurrentFan(); renderChoices(); renderCounts(); renderRecent(); renderHistory(); renderBooth(); renderHomework(); renderCaution(); updateSummary(); renderCheckButtons(); updateTimerUI();
+    renderEventInfo(); renderCurrentFan(); renderChoices(); renderCounts(); renderRecent(); renderHistory(); renderBooth(); renderHomework(); renderCaution(); renderWelcomeTicket(); updateSummary(); renderCheckButtons(); updateTimerUI();
   }
 
 
@@ -1047,6 +1180,7 @@ textarea{padding:14px;min-height:120px}
     state.counts = {mariring:0,lulu:0,iro:0,lunar:0};
     state.selectedPass = 'normal';
     state.selectedMember = 'mariring';
+    state.welcomeTicket = {status:'unknown', ticket:null, loading:false, message:''};
     // 방문/메아테/주의 체크는 다음 팬으로 넘어갈 때 기본 초기화
     state.checks = {visit:false,meate:false,fullLoop:false,eventDay:false};
     renderAll();
@@ -1240,6 +1374,7 @@ textarea{padding:14px;min-height:120px}
       const detailText = `${pass} / ${mem.name} ${mem.mark} 1장 사용 완료`;
       try{
         await createCheckinOnServer(memberKey, detailText);
+        if(state.selectedPass === 'welcome') await loadWelcomeTicketStatus();
       }catch(apiErr){
         alert('루미 체크인 저장 실패: ' + (apiErr && apiErr.message ? apiErr.message : apiErr));
         return;
@@ -1270,6 +1405,7 @@ textarea{padding:14px;min-height:120px}
       if(btn) btn.disabled = false;
       return;
     }
+    if(state.selectedPass === 'welcome') await loadWelcomeTicketStatus();
     if(btn) btn.disabled = false;
     if(addHistory('상세 입력 저장', `${pass} / ${detail} 사용 완료`, true)){
       state.counts={mariring:0,lulu:0,iro:0,lunar:0}; state.selectedPass='normal'; renderAll();
@@ -1567,6 +1703,8 @@ textarea{padding:14px;min-height:120px}
   $('#btnSearch').addEventListener('click', searchFan);
   $('#fanSearch').addEventListener('keydown', e=>{ if(e.key === 'Enter') searchFan(); });
   $('#btnIssue').addEventListener('click', issueNewFan);
+  $('#btnRefreshWelcomeTicket').addEventListener('click', loadWelcomeTicketStatus);
+  $('#btnIssueWelcomeTicket').addEventListener('click', issueWelcomeTicket);
   $('#btnQuickFind').addEventListener('click', quickFind);
   $('#btnQuickSave').addEventListener('click', saveQuick);
   $('#btnResetCounts').addEventListener('click', ()=>{state.counts={mariring:0,lulu:0,iro:0,lunar:0};renderCounts();});
