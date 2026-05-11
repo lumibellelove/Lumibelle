@@ -2031,7 +2031,7 @@
       function openProfileTitleModal() {
         if (!profileTitleModal) return;
         profileDraft = cloneProfileState(profileState);
-        updateProfileTitleOptions(normalizeProfileInfo(profileDraft.info).title);
+        updateProfileTitleOptions(runtimeEquippedTitleFromApi || normalizeProfileInfo(profileDraft.info).title);
         document.documentElement.classList.add("profile-title-modal-open");
         document.body.classList.add("profile-title-modal-open");
         profileTitleModal.classList.remove("hidden");
@@ -3147,7 +3147,8 @@
 
       function rewardTitleFromAchievement(item) {
         const raw = String((item && (item.rewardText || item.reward || item.titleReward)) || "").trim();
-        return raw.replace(/^칭호\s*[:：]\s*/, "").trim() || (item && item.title) || "-";
+        const quoted = raw.match(/칭호\s*[「"']?([^」"']+)[」"']?/);
+        return (quoted ? quoted[1] : raw.replace(/^칭호\s*[:：]\s*/, "")).replace(/[「」]/g, "").trim() || (item && item.title) || "-";
       }
 
       function achievementProgressText(item, statusLabel) {
@@ -3161,47 +3162,72 @@
       function findAchievementCardsForApi(item) {
         const title = String(item && item.title || "").trim();
         const key = String(item && item.achievementKey || "").trim();
-
-        // fix2L-3-6D-14:
-        // 최종안정본 UI를 유지하기 위해 새 업적 카드를 만들지 않고,
-        // 기존 HTML 도감 카드에만 서버 업적을 매칭한다.
         const aliasByKey = {
           lumi_phone_open: "루미폰 개통",
           first_dot: "첫 번째 점",
           first_visit: "첫 루미 방문",
-          first_ticket: "첫 예매 완료",
-          first_meate: "첫 메아테 지정",
-          first_letter: "첫 루미레터 수신",
-          welcome_ticket: "Welcome Ticket 보유",
           first_checkin: "첫 루미 체크인",
           stamp_1: "첫 번째 꽃도장",
           stamp_5: "스탬프 5개",
           stamp_10: "스탬프 10개",
           stamp_20: "꽃도장 한 판 완성",
+          first_ticket: "첫 티켓 보유",
+          first_meate: "첫 메아테 지정",
+          first_letter: "첫 루미레터 수신",
+          welcome_ticket: "Welcome Ticket 보유",
           first_onair: "첫 ON AIR 방문",
           first_lumicode: "첫 루미코드 인증",
           birthday_ticket: "Birthday Ticket 보유"
         };
-
-        const aliasByTitle = {
-          "첫 티켓 보유": "첫 예매 완료",
-          "첫 번째 꽃도장": "첫 루미 체크인",
-          "스탬프 첫 장": "첫 루미 체크인"
-        };
-
-        const candidates = Array.from(new Set([
-          title,
-          aliasByTitle[title],
-          aliasByKey[key]
-        ].filter(Boolean)));
-
+        const candidates = Array.from(new Set([title, aliasByKey[key]].filter(Boolean)));
         const cards = getAchievementCards();
-        const matched = cards.filter((card) => candidates.includes(String(card.dataset.achievementTitle || "").trim()));
+        const matched = cards.filter((card) => candidates.includes(String(card.dataset.achievementTitle || "").trim()) || candidates.includes(String(card.dataset.achievementKey || "").trim()));
         return matched;
       }
 
       function findAchievementCardForApi(item) {
         return findAchievementCardsForApi(item)[0] || null;
+      }
+
+      function ensureAchievementCardForApi(item) {
+        const existing = findAchievementCardForApi(item);
+        if (existing) return existing;
+        const cards = getAchievementCards();
+        const host = cards[0] && cards[0].parentElement;
+        if (!host) return null;
+        const statusLabel = normalizeApiAchievementStatus(item && item.status);
+        const owned = statusLabel === "달성 완료";
+        const card = document.createElement("article");
+        card.className = "achievement-card" + (owned ? "" : " locked");
+        card.dataset.achievementTitle = String(item && item.title || "루미폰 개통").trim();
+        card.dataset.achievementKey = String(item && item.achievementKey || "").trim();
+        card.dataset.achievementIcon = String(item && item.icon || "📱").trim();
+        card.dataset.achievementCategory = String(item && item.category || "기본").trim();
+        card.dataset.achievementStatus = statusLabel;
+        card.dataset.achievementOwned = owned ? "true" : "false";
+        // fix2L-3-6D-12:
+        // note는 내부 운영/패치 메모라 팬 화면 카드 설명에 노출하지 않는다.
+        card.dataset.achievementDesc = String(item && (item.desc || item.description || item.conditionText) || "루미벨과 함께한 기록이에요.").trim();
+        card.dataset.achievementCondition = String(item && item.conditionText || "루미 ID 생성").trim();
+        card.dataset.achievementProgress = achievementProgressText(item || {}, statusLabel);
+        card.dataset.achievementReward = rewardTitleFromAchievement(item || {});
+        card.dataset.achievementDate = String(item && item.achievedAt || (owned ? "달성 완료" : statusLabel)).trim();
+        // fix2L-3-6D-13:
+        // 최종안정본 도감형 카드 UI에 맞춰 카드 안에는 짧은 정보만 표시한다.
+        // 긴 설명/조건은 dataset에 보관하고 상세 모달에서만 보여준다.
+        card.innerHTML = ''
+          + '<div class="achievement-icon">' + card.dataset.achievementIcon + '</div>'
+          + '<div class="achievement-content">'
+          + '<span class="achievement-state' + (owned ? '' : ' locked') + '">' + statusLabel + '</span>'
+          + '<h3>' + card.dataset.achievementTitle + '</h3>'
+          + '<p class="achievement-title-line">' + (owned ? ("보상 칭호: " + card.dataset.achievementReward) : "조건 달성 후 해금") + '</p>'
+          + '</div>';
+        card.addEventListener("click", function(event) {
+          event.preventDefault();
+          openAchievementModal(card);
+        });
+        host.insertBefore(card, host.firstChild);
+        return card;
       }
 
       function applyAchievementItemToCard(card, item) {
@@ -3210,21 +3236,18 @@
         const owned = statusLabel === "달성 완료";
         const progressText = achievementProgressText(item, statusLabel);
         const rewardTitle = rewardTitleFromAchievement(item);
-        // fix2L-3-6D-14:
-        // 최종안정본 도감 UI 보존: 기존 카드 제목/짧은 설명은 유지하고,
-        // API 데이터는 상태/보상/모달용 dataset에만 반영한다.
-        // item.note는 내부 패치 메모일 수 있으므로 팬 화면에 쓰지 않는다.
-        const title = String(card.dataset.achievementTitle || item.title || "업적").trim();
+        const title = String(item.title || card.dataset.achievementTitle || "업적").trim();
         const icon = String(item.icon || card.dataset.achievementIcon || (owned ? "✦" : "🔒")).trim();
         const category = String(item.category || card.dataset.achievementCategory || "기본").trim();
         const date = String(item.achievedAt || (owned ? card.dataset.achievementDate || "" : statusLabel)).trim();
-        const modalDesc = String(card.dataset.achievementDesc || item.desc || item.description || "루미벨과 함께한 기록이에요.").trim();
 
         card.dataset.achievementTitle = title;
         card.dataset.achievementIcon = icon;
         card.dataset.achievementStatus = statusLabel;
         card.dataset.achievementCategory = category;
-        card.dataset.achievementDesc = modalDesc;
+        // fix2L-3-6D-12:
+        // item.note는 "fix2L-..." 같은 내부 메모일 수 있으므로 카드 설명에 쓰지 않는다.
+        card.dataset.achievementDesc = String(item.desc || item.description || item.conditionText || card.dataset.achievementDesc || "루미벨과 함께한 기록이에요.");
         card.dataset.achievementCondition = String(item.conditionText || card.dataset.achievementCondition || "-");
         card.dataset.achievementProgress = progressText;
         card.dataset.achievementReward = rewardTitle;
@@ -3246,31 +3269,76 @@
         }
         if (titleEl) titleEl.textContent = title;
         if (rewardEl) rewardEl.textContent = owned || statusLabel === "진행 중" ? ("보상 칭호: " + rewardTitle) : "조건 달성 후 해금";
+
+        // fix2L-3-6D-13:
+        // 과거 동적 생성 카드에 남아 있던 긴 설명 줄이 있으면 팬 화면 카드에서는 제거한다.
+        // 설명은 dataset에 남아 있으므로 상세 모달/공유에는 계속 사용할 수 있다.
+        const descEl = card.querySelector(".achievement-desc");
+        if (descEl) descEl.remove();
       }
 
       function updateTitleOptionsFromApi(titles, equippedTitle) {
-        const activeTitles = Array.isArray(titles) ? titles.filter((item) => String(item.status || "active") === "active") : [];
-        runtimeEquippedTitleFromApi = equippedTitle || (activeTitles.find((item) => item.equipped) || {}).titleName || "";
+        function isActiveTitle_(item) {
+          return String((item && item.status) || "active").trim().toLowerCase() === "active";
+        }
+        function isEquippedTitle_(item) {
+          const raw = String((item && item.equipped) == null ? "" : item.equipped).trim().toLowerCase();
+          return item && (item.equipped === true || raw === "true" || raw === "1" || raw === "yes" || raw === "y" || raw === "장착" || raw === "equipped");
+        }
+        function titleNameOf_(item) {
+          return String(item && (item.titleName || item.title || item.name || item.value) || "").trim();
+        }
+        const activeTitles = Array.isArray(titles) ? titles.filter(isActiveTitle_) : [];
+        const ownedTitleNames = Array.from(new Set(activeTitles.map(titleNameOf_).filter(Boolean)));
+        runtimeEquippedTitleFromApi = String(equippedTitle || "").trim() || titleNameOf_(activeTitles.find(isEquippedTitle_) || null) || "";
         if (runtimeEquippedTitleFromApi) {
           if (profileTitlePill) profileTitlePill.textContent = runtimeEquippedTitleFromApi;
           if (profileSelectedTitle) profileSelectedTitle.textContent = runtimeEquippedTitleFromApi;
           if (profileInputTitle) profileInputTitle.value = runtimeEquippedTitleFromApi;
+          profileState = normalizeProfileState(Object.assign({}, profileState, {
+            info: normalizeProfileInfo(Object.assign({}, profileState.info || {}, { title: runtimeEquippedTitleFromApi }))
+          }));
+          profileDraft = cloneProfileState(profileState);
         }
+        const ownedPanel = document.getElementById("profileTitleOwned") || (profileTitleModal && profileTitleModal.querySelector(".profile-title-options, .profile-setting-list, .profile-title-list"));
+        const lockedPanel = document.getElementById("profileTitleLocked");
         const existingValues = new Set($$(".profile-title-option[data-title-value]").map((button) => button.dataset.titleValue));
-        const optionHost = profileTitleModal && profileTitleModal.querySelector(".profile-title-options, .profile-setting-list, .profile-title-list");
-        activeTitles.forEach((item) => {
-          const titleName = String(item.titleName || "").trim();
-          if (!titleName || existingValues.has(titleName) || !optionHost) return;
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "profile-title-option";
-          btn.dataset.titleValue = titleName;
-          btn.textContent = titleName;
-          btn.addEventListener("click", () => selectProfileTitle(titleName));
-          optionHost.appendChild(btn);
-          existingValues.add(titleName);
+        ownedTitleNames.forEach((titleName) => {
+          if (!titleName || !ownedPanel) return;
+          let btn = Array.from(ownedPanel.querySelectorAll(".profile-title-option[data-title-value]")).find((button) => button.dataset.titleValue === titleName);
+          if (!btn && existingValues.has(titleName)) {
+            const found = Array.from(document.querySelectorAll(".profile-title-option[data-title-value]")).find((button) => button.dataset.titleValue === titleName);
+            if (found && found.closest("#profileTitleLocked")) found.remove();
+          }
+          if (!btn) {
+            btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "profile-title-option";
+            btn.dataset.titleValue = titleName;
+            btn.innerHTML = "<b></b><span></span>";
+            const b = btn.querySelector("b");
+            const span = btn.querySelector("span");
+            if (b) b.textContent = titleName;
+            if (span) span.textContent = titleName === "첫 번째 점" ? "루미폰 개통으로 해금된 기본 칭호" : "루미벨과 함께한 기록으로 해금된 칭호";
+            btn.addEventListener("click", () => selectProfileTitle(titleName));
+            ownedPanel.appendChild(btn);
+            existingValues.add(titleName);
+          } else {
+            btn.disabled = false;
+            btn.classList.remove("locked");
+            btn.dataset.titleValue = titleName;
+            if (!btn.querySelector("b")) btn.textContent = titleName;
+          }
         });
+        if (lockedPanel && ownedTitleNames.length) {
+          Array.from(lockedPanel.querySelectorAll(".profile-title-option")).forEach((button) => {
+            const value = String(button.dataset.titleValue || button.textContent || "").trim();
+            const matched = ownedTitleNames.some((titleName) => value === titleName || value.indexOf(titleName) !== -1);
+            if (matched) button.remove();
+          });
+        }
         if (runtimeEquippedTitleFromApi) updateProfileTitleOptions(runtimeEquippedTitleFromApi);
+        else updateProfileTitleOptions(normalizeProfileInfo(profileState.info).title);
       }
 
       function renderAchievementsFromApi(payload) {
@@ -3282,7 +3350,11 @@
         const achievements = Array.isArray(data.achievements) ? data.achievements : [];
         const titles = Array.isArray(data.titles) ? data.titles : [];
         achievements.forEach((item) => {
-          const cards = findAchievementCardsForApi(item);
+          let cards = findAchievementCardsForApi(item);
+          if (!cards.length) {
+            const createdCard = ensureAchievementCardForApi(item);
+            cards = createdCard ? [createdCard] : [];
+          }
           cards.forEach((card) => applyAchievementItemToCard(card, item));
         });
         updateTitleOptionsFromApi(titles, data.equippedTitle || "");
@@ -4707,6 +4779,42 @@
         return LUMI_TICKET_MEMBER_LABELS[m] || member || "루미벨";
       }
 
+      function lumiTicketMemberDisplay_(ticket, mode) {
+        var t = ticket || {};
+        if (mode === "used") {
+          return String(t.usedMemberName || "").trim()
+            || lumiTicketMemberName(t.usedMember)
+            || "사용 멤버 기록 없음";
+        }
+        var rawScope = String(t.useScope || "").trim();
+        if (rawScope) {
+          if (rawScope.toLowerCase() === "mariring,lulu" || rawScope === "마리링,루루") return "마리링, 루루";
+          return rawScope.replace(/,/g, ", ");
+        }
+        var rawMember = String(t.memberName || "").trim();
+        if (rawMember && rawMember !== "루미벨" && rawMember !== "Lumibelle" && rawMember !== "루미벨 전체") return rawMember;
+        return "마리링, 루루";
+      }
+
+      function lumiWelcomeTicketLines_(ticket) {
+        var t = ticket || {};
+        var status = String(t.status || "").trim().toLowerCase();
+        var used = status === "used";
+        var memberLabel = used ? "사용 멤버" : "사용 가능 멤버";
+        var memberValue = lumiTicketMemberDisplay_(t, used ? "used" : "available");
+        return {
+          statusLabel: used ? "사용완료" : (status === "available" ? "발급완료" : (t.statusLabel || LUMI_TICKET_STATUS_LABELS[t.status] || t.status || "")),
+          memberLabel: memberLabel,
+          memberValue: memberValue,
+          text: "· 신규 이벤트 조건 확인 후 발급\n· " + memberLabel + " : " + memberValue
+        };
+      }
+
+      function setWelcomeTicketDesc_(el, lines) {
+        if (!el || !lines) return;
+        el.innerHTML = escapeHtml(lines.text).replace(/\n/g, "<br>");
+      }
+
       function renderLumiTickets(items) {
         const list = items || [];
         const available = list.filter(function(t) { return t.status === "available"; }).length;
@@ -4744,13 +4852,16 @@
               var statusEl = cardEl.querySelector(".ticket-pc-card-actions span");
               var smallEl  = cardEl.querySelector("small");
               var spanEl   = cardEl.querySelector("b + span, small + b + span, span:not(.ticket-pc-card-actions span)");
+              var isWelcomeTicket = String(t.ticketType || "").trim().toLowerCase() === "welcome";
+              var welcomeLines = isWelcomeTicket ? lumiWelcomeTicketLines_(t) : null;
+
               // is-locked 해제 (available)
               if (t.status === "available") {
                 cardEl.classList.remove("is-locked");
-                if (statusEl) { statusEl.textContent = "사용 가능"; statusEl.className = "active"; }
+                if (statusEl) { statusEl.textContent = welcomeLines ? welcomeLines.statusLabel : "사용 가능"; statusEl.className = "active"; }
               } else if (t.status === "used") {
                 cardEl.classList.remove("is-locked");
-                if (statusEl) { statusEl.textContent = "사용 완료"; statusEl.className = ""; }
+                if (statusEl) { statusEl.textContent = welcomeLines ? welcomeLines.statusLabel : "사용 완료"; statusEl.className = ""; }
               } else if (t.status === "pending") {
                 cardEl.classList.remove("is-locked");
                 if (statusEl) { statusEl.textContent = "확인 중"; statusEl.className = ""; }
@@ -4760,10 +4871,12 @@
                 var typeLabel = LUMI_TICKET_TYPE_LABELS[t.ticketType] || "";
                 if (typeLabel) smallEl.textContent = typeLabel;
               }
-              // span 설명 갱신 (note 있으면)
-              if (t.note) {
-                var descEl = cardEl.querySelector("span:not(.ticket-pc-card-actions span):not([class])");
-                if (descEl) descEl.textContent = lumiTicketMemberName(t.member) + " · " + t.note;
+              // span 설명 갱신
+              var descEl = cardEl.querySelector("span:not(.ticket-pc-card-actions span):not([class])");
+              if (isWelcomeTicket && descEl) {
+                setWelcomeTicketDesc_(descEl, welcomeLines);
+              } else if (t.note && descEl) {
+                descEl.textContent = lumiTicketMemberName(t.member) + " · " + t.note;
               }
             });
           }
@@ -4807,8 +4920,10 @@
 
             if (!targetItem) {
               // 카드가 없으면 — API 전용 신규 카드 추가 (기존 카드 구조로)
-              var memberName  = lumiTicketMemberName(t.member);
-              var statusLabel = LUMI_TICKET_STATUS_LABELS[t.status] || t.status || "";
+              var isWelcomeTicket = String(t.ticketType || "").trim().toLowerCase() === "welcome";
+              var welcomeLines = isWelcomeTicket ? lumiWelcomeTicketLines_(t) : null;
+              var memberName  = welcomeLines ? welcomeLines.memberValue : lumiTicketMemberName(t.member);
+              var statusLabel = welcomeLines ? welcomeLines.statusLabel : (LUMI_TICKET_STATUS_LABELS[t.status] || t.status || "");
               var expireText  = t.expireAt ? String(t.expireAt).slice(0,10).replace(/-/g,".") + "까지" : "제한 없음";
               var issuedText  = t.issuedAt ? String(t.issuedAt).slice(0,10).replace(/-/g,".") + " 지급" : "";
               var cat = categoryMap[t.ticketType] || "이벤트";
@@ -4819,9 +4934,9 @@
                 '<article class="ticket-card soft"><div class="ticket-inner">' +
                   '<div class="ticket-kicker">SPECIAL TICKET</div>' +
                   '<div class="ticket-title">' + escapeHtml(t.ticketName || expectedTitle) + '</div>' +
-                  '<div class="ticket-sub">' + escapeHtml(t.note || "") + '</div>' +
+                  '<div class="ticket-sub">' + (welcomeLines ? escapeHtml(welcomeLines.text).replace(/\n/g,"<br>") : escapeHtml(t.note || "")) + '</div>' +
                   '<div class="ticket-meta">' +
-                    '<div class="ticket-cell"><small>사용 가능 멤버</small><b>' + escapeHtml(memberName) + '</b></div>' +
+                    '<div class="ticket-cell"><small>' + escapeHtml(welcomeLines ? welcomeLines.memberLabel : "사용 가능 멤버") + '</small><b>' + escapeHtml(memberName) + '</b></div>' +
                     '<div class="ticket-cell"><small>상태</small><b>' + escapeHtml(statusLabel) + '</b></div>' +
                     '<div class="ticket-cell"><small>유효기간</small><b>' + escapeHtml(expireText) + '</b></div>' +
                     (issuedText ? '<div class="ticket-cell"><small>지급일</small><b>' + escapeHtml(issuedText) + '</b></div>' : '') +
@@ -4831,20 +4946,33 @@
               return;
             }
 
-            // 기존 카드 찾음 → 상태 셀만 업데이트
+            // 기존 카드 찾음 → 상태/멤버/설명만 업데이트
+            var isWelcomeTicket = String(t.ticketType || "").trim().toLowerCase() === "welcome";
+            var welcomeLines = isWelcomeTicket ? lumiWelcomeTicketLines_(t) : null;
+            if (welcomeLines) {
+              var subEl = targetItem.querySelector(".ticket-sub");
+              setWelcomeTicketDesc_(subEl, welcomeLines);
+            }
+
             var statusCells = Array.from(targetItem.querySelectorAll(".ticket-cell"));
             statusCells.forEach(function(cell) {
               var smallEl = cell.querySelector("small");
               if (!smallEl) return;
-              if (smallEl.textContent === "상태") {
+              var smallText = smallEl.textContent.trim();
+              if (smallText === "상태") {
                 var bEl = cell.querySelector("b");
-                if (bEl) bEl.textContent = LUMI_TICKET_STATUS_LABELS[t.status] || t.status || "";
+                if (bEl) bEl.textContent = welcomeLines ? welcomeLines.statusLabel : (LUMI_TICKET_STATUS_LABELS[t.status] || t.status || "");
               }
-              if (smallEl.textContent === "사용 가능 멤버") {
+              if (smallText === "사용 가능 멤버" || smallText === "사용 멤버") {
                 var bEl = cell.querySelector("b");
-                if (bEl) bEl.textContent = lumiTicketMemberName(t.member);
+                if (welcomeLines) {
+                  smallEl.textContent = welcomeLines.memberLabel;
+                  if (bEl) bEl.textContent = welcomeLines.memberValue;
+                } else if (bEl) {
+                  bEl.textContent = lumiTicketMemberName(t.member);
+                }
               }
-              if (smallEl.textContent === "유효기간" && t.expireAt) {
+              if (smallText === "유효기간" && t.expireAt) {
                 var bEl = cell.querySelector("b");
                 if (bEl) bEl.textContent = String(t.expireAt).slice(0,10).replace(/-/g,".") + "까지";
               }
@@ -6863,12 +6991,13 @@
         var eventTitle = item.eventTitle || "루미 체크인";
         var member = item.memberName || item.member || "";
         var rawDate = item.checkedInAt || item.checkedAt || item.eventDate || "";
+        var stampText = stampCount > 0 ? "스탬프 +1" : "오늘 스탬프 지급 완료";
         return {
           visitType: "checkin",
           eventDate: rawDate,
           visitedAt: rawDate,
-          eventTitle: "루미 체크인 스탬프",
-          note: eventTitle + (member ? " · " + member : "") + (stampCount > 0 ? " · 스탬프 +" + stampCount + "개" : ""),
+          eventTitle: "루미 체크인 완료",
+          note: eventTitle + (member ? " · " + member : "") + " · " + stampText,
           _recordSource: "checkin"
         };
       }
@@ -8319,6 +8448,7 @@
   'use strict';
 
   var ACH = [
+    {id:'lumi-phone-open',cat:'online',state:'locked',icon:'📱',name:'루미폰 개통',desc:'루미 ID를 만들고 루미폰을 처음 열어본 기록이에요.',progress:'미달성',reward:'칭호 「첫 번째 점」',title:'첫 번째 점',date:'미달성',rule:'루미 ID 생성 시 자동으로 달성되는 기본 업적이에요.'},
     {id:'first-dot',cat:'live',state:'locked',icon:'✨',name:'첫 번째 점',desc:'Lumibelle Debut Live에서 루미벨의 첫 번째 점을 함께 기록하는 업적이에요.',progress:'미달성',reward:'조건 달성 후 해금',title:'',date:'미달성',rule:'데뷔 라이브 참여 기록 또는 첫 공연 기록과 연결되는 업적이에요.'},
     {id:'first-visit',cat:'live',state:'locked',icon:'🎀',name:'첫 루미 방문',desc:'공연/물판/온라인으로 루미벨에게 처음 와준 기록이에요. 스탬프 기준은 아니고, 와줘서 고마워요 기록으로 남아요.',progress:'미달성',reward:'조건 달성 후 해금',title:'',date:'미달성',rule:'첫 루미 방문 기록이 생기면 달성되는 기본 성장 업적이에요.'},
     {id:'first-ticket',cat:'event',state:'locked',icon:'🎫',name:'첫 티켓 보유',desc:'루미폰 티켓함에 첫 공연 티켓이 들어온 기록이에요.',progress:'미달성',reward:'조건 달성 후 해금',title:'',date:'미달성',rule:'현재 티켓 또는 지난 티켓 기록과 연결되는 업적이에요.'},
@@ -8362,16 +8492,16 @@
 
   function pcTitleReward(item) {
     var raw = pcRewardText(item);
-    var m = raw.match(/^칭호\s*[:：]\s*(.+)$/);
-    return m ? String(m[1] || '').trim() : '';
+    var m = raw.match(/^칭호\s*[:：]\s*(.+)$/) || raw.match(/칭호\s*[「"']?([^」"']+)[」"']?/);
+    return m ? String(m[1] || '').replace(/[「」]/g, '').trim() : '';
   }
 
   function pcAchievementIdForApi(item) {
     var key = String(item && item.achievementKey || '').trim();
     var title = String(item && item.title || '').trim();
 
-    // fix2L-3-6D-14:
-    // PC 전용 업적도 최종안정본 ACH 슬롯에만 매칭한다.
+    // fix2L-3-6D-10:
+    // 기본/모바일(D-8) + PC 전용(D-9) 업적 key 매칭표를 한 파일에 합친 버전.
     var byKey = {
       lumi_phone_open: 'lumi-phone-open',
       first_dot: 'first-dot',
@@ -8395,7 +8525,6 @@
       '루미폰 개통': 'lumi-phone-open',
       '첫 번째 점': 'first-dot',
       '첫 루미 방문': 'first-visit',
-      '첫 예매 완료': 'first-ticket',
       '첫 티켓 보유': 'first-ticket',
       'Welcome Ticket 보유': 'welcome-ticket',
       '첫 루미레터 수신': 'first-letter',
@@ -8405,6 +8534,7 @@
       '스탬프 5개': 'stamp-five',
       '스탬프 10개': 'stamp-ten',
       '꽃도장 한 판 완성': 'stamp-twenty',
+      '스탬프 20개 완주': 'stamp-twenty',
       '첫 ON AIR 방문': 'first-onair',
       '첫 루미코드 인증': 'first-lumicode',
       '첫 메아테 지정': 'first-meate',
@@ -8423,10 +8553,8 @@
     var titleReward = pcTitleReward(item);
     target.state = state;
     target.icon = String(item.icon || target.icon || '✦');
-    // fix2L-3-6D-14:
-    // 최종안정본 PC 카드명/짧은 설명은 유지한다. 긴 조건은 rule에만 저장한다.
-    target.name = String(target.name || item.title || '업적');
-    target.desc = String(target.desc || item.desc || item.description || '루미벨과 함께한 기록이에요.');
+    target.name = String(item.title || target.name || '업적');
+    target.desc = String(item.conditionText || target.desc || '루미벨과 함께한 기록이에요.');
     target.progress = pcProgressText(item, state);
     target.reward = reward;
     target.title = titleReward;
