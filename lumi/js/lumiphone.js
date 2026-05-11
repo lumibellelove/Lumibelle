@@ -3165,7 +3165,10 @@
         const aliasByKey = {
           lumi_phone_open: "루미폰 개통",
           first_visit: "첫 번째 점",
-          stamp_1: "첫 루미 체크인",
+          first_checkin: "첫 루미 체크인",
+          welcome_ticket: "Welcome Ticket 보유",
+          "welcome-ticket": "Welcome Ticket 보유",
+          stamp_1: "첫 번째 꽃도장",
           stamp_20: "꽃도장 한 판 완성"
         };
         const candidates = Array.from(new Set([title, aliasByKey[key]].filter(Boolean)));
@@ -8479,6 +8482,9 @@
     var byKey = {
       lumi_phone_open: 'lumi-phone-open',
       first_visit: 'first-dot',
+      first_checkin: 'first-checkin',
+      welcome_ticket: 'welcome-ticket',
+      'welcome-ticket': 'welcome-ticket',
       stamp_1: 'stamp-one',
       stamp_20: 'stamp-twenty'
     };
@@ -8486,7 +8492,9 @@
     var byTitle = {
       '루미폰 개통': 'lumi-phone-open',
       '첫 번째 점': 'first-dot',
+      'Welcome Ticket 보유': 'welcome-ticket',
       '첫 번째 꽃도장': 'stamp-one',
+      '스탬프 첫 장': 'stamp-one',
       '꽃도장 한 판 완성': 'stamp-twenty',
       '첫 루미 체크인': 'first-checkin'
     };
