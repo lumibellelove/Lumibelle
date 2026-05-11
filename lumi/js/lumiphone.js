@@ -272,6 +272,184 @@
       const representativeAchievementKey = representativeAchievementKeyFor("");
       let runtimeEquippedTitleFromApi = ''; // PATCH 51-52: API 조회용 장착 칭호 표시
 
+      // fix2L-3-6G: 업적 해금 토스트 알림 복구
+      // - messages 시트에 업적 알림을 쌓지 않는다.
+      // - 이미 가진 업적/칭호를 장착만 할 때는 띄우지 않는다.
+      // - cache 렌더는 baseline만 저장하고, API refresh에서 신규 해금만 감지한다.
+      const ACHIEVEMENT_TOAST_BASELINE_VERSION = "v1";
+      let achievementToastTimer_ = null;
+
+      function achievementToastStorageKey_(lumiId) {
+        const id = normId(lumiId || getCurrentLumiId() || "");
+        return "lumiphone.achievementToast.baseline." + ACHIEVEMENT_TOAST_BASELINE_VERSION + "." + (id || "guest").toLowerCase();
+      }
+
+      function readAchievementToastBaseline_(lumiId) {
+        try {
+          const raw = localStorage.getItem(achievementToastStorageKey_(lumiId));
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          if (!parsed || !Array.isArray(parsed.achievements) || !Array.isArray(parsed.titles)) return null;
+          return parsed;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function writeAchievementToastBaseline_(lumiId, snapshot) {
+        try {
+          localStorage.setItem(achievementToastStorageKey_(lumiId), JSON.stringify(snapshot || { achievements: [], titles: [] }));
+        } catch (error) {}
+      }
+
+      function achievementToastKeyFromItem_(item, index) {
+        const raw = item && (
+          item.achievementKey ||
+          item.key ||
+          item.id ||
+          item.achievementId ||
+          item.title ||
+          item.name ||
+          ("achievement_" + index)
+        );
+        return String(raw || ("achievement_" + index)).trim();
+      }
+
+      function titleToastKeyFromItem_(item, index) {
+        const raw = item && (
+          item.titleKey ||
+          item.key ||
+          item.title ||
+          item.name ||
+          item.titleName ||
+          ("title_" + index)
+        );
+        return String(raw || ("title_" + index)).trim();
+      }
+
+      function achievementIsUnlockedForToast_(item) {
+        const rawStatus = item && item.status;
+        if (typeof normalizeApiAchievementStatus === "function") {
+          return normalizeApiAchievementStatus(rawStatus) === "달성 완료";
+        }
+        const raw = String(rawStatus || "").trim().toLowerCase();
+        return raw === "achieved" || raw === "complete" || raw === "completed" || raw === "달성" || raw === "달성 완료";
+      }
+
+      function buildAchievementToastSnapshot_(payload) {
+        const data = payload || {};
+        const achievements = Array.isArray(data.achievements) ? data.achievements : [];
+        const titles = Array.isArray(data.titles) ? data.titles : [];
+
+        const unlockedAchievements = achievements
+          .filter(achievementIsUnlockedForToast_)
+          .map(function(item, index) {
+            return {
+              key: achievementToastKeyFromItem_(item, index),
+              title: String((item && (item.title || item.name || item.achievementTitle)) || "새 업적").trim(),
+              reward: String((item && (item.rewardText || item.reward || item.titleReward)) || "").trim()
+            };
+          })
+          .filter(function(item) { return item.key; });
+
+        const unlockedTitles = titles
+          .map(function(item, index) {
+            return {
+              key: titleToastKeyFromItem_(item, index),
+              title: String((item && (item.title || item.name || item.titleName)) || "").trim()
+            };
+          })
+          .filter(function(item) { return item.key && item.title; });
+
+        return {
+          achievements: unlockedAchievements,
+          titles: unlockedTitles,
+          savedAt: Date.now()
+        };
+      }
+
+      function ensureAchievementToastElement_() {
+        const styleId = "lumiAchievementUnlockToastStyle";
+        if (!document.getElementById(styleId)) {
+          const style = document.createElement("style");
+          style.id = styleId;
+          style.textContent = ''
+            + '.achievement-toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);z-index:9999;opacity:0;pointer-events:none;width:min(420px,calc(100% - 28px));border:1px solid #efbcd5;border-radius:24px;background:rgba(255,255,255,.96);box-shadow:0 18px 44px rgba(255,95,168,.24);padding:16px 18px;text-align:center;transition:.25s ease;}'
+            + '.achievement-toast.show{opacity:1;transform:translate(-50%,0);}'
+            + '.achievement-toast small{display:block;color:#d77ca7;font-size:12px;font-weight:1000;}'
+            + '.achievement-toast b{display:block;margin-top:5px;color:#76586a;font-size:20px;font-weight:1000;}'
+            + '.achievement-toast span{display:block;margin-top:6px;color:#8f7183;font-size:13px;line-height:1.5;font-weight:850;}';
+          document.head.appendChild(style);
+        }
+
+        let toast = document.getElementById("lumiAchievementUnlockToast");
+        if (!toast) {
+          toast = document.createElement("div");
+          toast.id = "lumiAchievementUnlockToast";
+          toast.className = "achievement-toast";
+          toast.setAttribute("role", "status");
+          toast.setAttribute("aria-live", "polite");
+          toast.innerHTML = '<small>ACHIEVEMENT UNLOCK</small><b></b><span></span>';
+          document.body.appendChild(toast);
+        }
+        return toast;
+      }
+
+      function showAchievementUnlockToast_(title, desc) {
+        const toast = ensureAchievementToastElement_();
+        const titleEl = toast.querySelector("b");
+        const descEl = toast.querySelector("span");
+        if (titleEl) titleEl.textContent = title || "새 업적이 해금되었어요";
+        if (descEl) descEl.textContent = desc || "업적 탭에서 자세한 기록을 확인해 주세요.";
+        toast.classList.add("show");
+        if (achievementToastTimer_) clearTimeout(achievementToastTimer_);
+        achievementToastTimer_ = setTimeout(function() {
+          toast.classList.remove("show");
+        }, 3200);
+      }
+
+      function handleAchievementUnlockToastFromPayload_(payload, options) {
+        const opts = options || {};
+        const lumiId = getCurrentLumiId();
+        if (!lumiId) return;
+
+        const snapshot = buildAchievementToastSnapshot_(payload);
+        const previous = readAchievementToastBaseline_(lumiId);
+
+        // 캐시 렌더나 최초 기준값 없는 상태에서는 기준선만 저장한다.
+        // 기존 계정이 로그인하자마자 모든 업적 토스트가 터지는 것을 막기 위함.
+        if (opts.silent || !previous) {
+          writeAchievementToastBaseline_(lumiId, snapshot);
+          return;
+        }
+
+        const prevAchKeys = new Set(previous.achievements.map(function(item) { return item.key; }));
+        const prevTitleKeys = new Set(previous.titles.map(function(item) { return item.key; }));
+
+        const newlyUnlockedAchievements = snapshot.achievements.filter(function(item) {
+          return item.key && !prevAchKeys.has(item.key);
+        });
+        const newlyUnlockedTitles = snapshot.titles.filter(function(item) {
+          return item.key && !prevTitleKeys.has(item.key);
+        });
+
+        writeAchievementToastBaseline_(lumiId, snapshot);
+
+        if (newlyUnlockedAchievements.length) {
+          const first = newlyUnlockedAchievements[0];
+          const more = newlyUnlockedAchievements.length > 1 ? " 외 " + (newlyUnlockedAchievements.length - 1) + "개" : "";
+          showAchievementUnlockToast_("새 업적 해금: " + first.title + more, first.reward || "업적 탭에서 자세한 기록을 확인해 주세요.");
+          return;
+        }
+
+        if (newlyUnlockedTitles.length) {
+          const firstTitle = newlyUnlockedTitles[0];
+          const moreTitle = newlyUnlockedTitles.length > 1 ? " 외 " + (newlyUnlockedTitles.length - 1) + "개" : "";
+          showAchievementUnlockToast_("새 칭호 해금: " + firstTitle.title + moreTitle, "프로필에서 장착할 수 있어요.");
+        }
+      }
+
+
       function normId(value) {
         const digits = String(value || "").replace(/\D/g, "").slice(-4);
         return digits ? "LB-" + digits.padStart(4, "0") : "";
@@ -643,7 +821,7 @@
         // PATCH 51-52: 업적/칭호 캐시 즉시 복원
         const cachedAchievements = cacheRead_(lid, "achievements", 24 * 60 * 60 * 1000);
         if (cachedAchievements) {
-          renderAchievementsFromApi(cachedAchievements);
+          renderAchievementsFromApi(cachedAchievements, { silent: true, source: "cache" });
           appendBootDebug("achievements cache: " + (((cachedAchievements.achievements || []).length) || 0) + " items");
         }
 
@@ -3058,8 +3236,10 @@
         saveProfileState();
         updateProfileTitleOptions(nextTitle);
         renderProfileView();
+        // fix2L-3-6G: 칭호 장착은 상태만 바꾸고 팝업/토스트를 띄우지 않는다.
+        // 업적 해금 알림은 신규 업적/칭호가 API에서 감지될 때만 achievement-toast로 표시한다.
         if (showFeedback) {
-          openProfileSimpleModal("칭호 장착 완료", ["대표 칭호가 ‘" + nextTitle + "’로 변경되었어요."]);
+          // no visual popup by design
         }
       }
       window.equipAchievementTitle = equipAchievementTitle;
@@ -3335,7 +3515,7 @@
         else updateProfileTitleOptions(normalizeProfileInfo(profileState.info).title);
       }
 
-      function renderAchievementsFromApi(payload) {
+      function renderAchievementsFromApi(payload, options) {
         const data = payload || {};
         window.__lumiLatestAchievementsPayload = data; // PATCH 51-52-fix2: PC 전용 업적 렌더러 동기화용
         if (typeof window.__lumiUpdatePcAchievements === "function") {
@@ -3365,6 +3545,14 @@
         }
         updateAchievementSummary();
         renderAchievementPage();
+
+        // fix2L-3-6G: 신규 업적/칭호 해금 토스트
+        // cache 렌더는 silent 처리하고, API refresh에서 새로 늘어난 항목만 토스트로 표시한다.
+        try {
+          handleAchievementUnlockToastFromPayload_(data, options || {});
+        } catch (toastErr) {
+          if (DEBUG_MODE) console.warn("[lumi] achievement toast failed:", toastErr);
+        }
       }
 
       async function loadMyProfile(lumiId) {
@@ -3400,7 +3588,7 @@
         const payload = await fetchLumiApi({ action: "lumiGetMyAchievements", lumiId: id });
         if (payload && payload.ok) {
           cacheWrite_(id, "achievements", payload);
-          renderAchievementsFromApi(payload);
+          renderAchievementsFromApi(payload, { silent: false, source: "api" });
         }
         return payload;
       }
