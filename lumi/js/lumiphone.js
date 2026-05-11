@@ -3147,8 +3147,26 @@
 
       function rewardTitleFromAchievement(item) {
         const raw = String((item && (item.rewardText || item.reward || item.titleReward)) || "").trim();
-        const quoted = raw.match(/칭호\s*[「"']?([^」"']+)[」"']?/);
-        return (quoted ? quoted[1] : raw.replace(/^칭호\s*[:：]\s*/, "")).replace(/[「」]/g, "").trim() || (item && item.title) || "-";
+        const fallback = String(item && item.title || "-").trim();
+        return normalizeAchievementRewardTitle_(raw, fallback);
+      }
+
+      // fix2L-3-6D-15A:
+      // 서버/API용 보상 문구를 팬 화면 카드용 짧은 칭호명으로 정리한다.
+      // 예: 칭호 「첫 번째 점」 해금 → 첫 번째 점
+      function normalizeAchievementRewardTitle_(rawValue, fallback) {
+        let raw = String(rawValue || "").trim();
+        if (!raw) return String(fallback || "-").trim() || "-";
+        const quoted = raw.match(/[「『"']([^」』"']+)[」』"']/);
+        if (quoted && quoted[1]) return String(quoted[1]).trim();
+        raw = raw
+          .replace(/^보상\s*칭호\s*[:：]\s*/i, "")
+          .replace(/^칭호\s*[:：]\s*/i, "")
+          .replace(/^칭호\s*/i, "")
+          .replace(/\s*해금\s*$/i, "")
+          .replace(/[「」『』]/g, "")
+          .trim();
+        return raw || String(fallback || "-").trim() || "-";
       }
 
       function achievementProgressText(item, statusLabel) {
@@ -3162,24 +3180,29 @@
       function findAchievementCardsForApi(item) {
         const title = String(item && item.title || "").trim();
         const key = String(item && item.achievementKey || "").trim();
+
+        // fix2L-3-6D-15A:
+        // 최종안정본 UI 보존: API 업적은 기존 도감 카드에만 매칭한다.
+        // 없는 카드를 새로 생성하지 않아서 2열/페이지네이션/폭을 건드리지 않는다.
         const aliasByKey = {
-          lumi_phone_open: "루미폰 개통",
-          first_dot: "첫 번째 점",
-          first_visit: "첫 루미 방문",
-          first_checkin: "첫 루미 체크인",
-          stamp_1: "첫 번째 꽃도장",
-          stamp_5: "스탬프 5개",
-          stamp_10: "스탬프 10개",
-          stamp_20: "꽃도장 한 판 완성",
-          first_ticket: "첫 티켓 보유",
-          first_meate: "첫 메아테 지정",
-          first_letter: "첫 루미레터 수신",
-          welcome_ticket: "Welcome Ticket 보유",
-          first_onair: "첫 ON AIR 방문",
-          first_lumicode: "첫 루미코드 인증",
-          birthday_ticket: "Birthday Ticket 보유"
+          lumi_phone_open: ["루미폰 개통"],
+          first_dot: ["첫 번째 점"],
+          first_visit: ["첫 루미 방문"],
+          first_checkin: ["첫 루미 체크인"],
+          stamp_1: ["첫 루미 체크인", "첫 번째 꽃도장"],
+          stamp_5: ["스탬프 5개"],
+          stamp_10: ["스탬프 10개"],
+          stamp_20: ["꽃도장 한 판 완성", "스탬프 카드 완주자"],
+          first_ticket: ["첫 예매 완료", "첫 티켓 보유"],
+          first_meate: ["첫 메아테 지정"],
+          first_letter: ["첫 루미레터 수신"],
+          welcome_ticket: ["Welcome Ticket 보유"],
+          first_onair: ["첫 ON AIR 방문"],
+          first_lumicode: ["첫 루미코드 인증"],
+          birthday_ticket: ["Birthday Ticket 보유"]
         };
-        const candidates = Array.from(new Set([title, aliasByKey[key]].filter(Boolean)));
+        const aliases = Array.isArray(aliasByKey[key]) ? aliasByKey[key] : [];
+        const candidates = Array.from(new Set([title].concat(aliases).filter(Boolean)));
         const cards = getAchievementCards();
         const matched = cards.filter((card) => candidates.includes(String(card.dataset.achievementTitle || "").trim()) || candidates.includes(String(card.dataset.achievementKey || "").trim()));
         return matched;
@@ -3192,42 +3215,11 @@
       function ensureAchievementCardForApi(item) {
         const existing = findAchievementCardForApi(item);
         if (existing) return existing;
-        const cards = getAchievementCards();
-        const host = cards[0] && cards[0].parentElement;
-        if (!host) return null;
-        const statusLabel = normalizeApiAchievementStatus(item && item.status);
-        const owned = statusLabel === "달성 완료";
-        const card = document.createElement("article");
-        card.className = "achievement-card" + (owned ? "" : " locked");
-        card.dataset.achievementTitle = String(item && item.title || "루미폰 개통").trim();
-        card.dataset.achievementKey = String(item && item.achievementKey || "").trim();
-        card.dataset.achievementIcon = String(item && item.icon || "📱").trim();
-        card.dataset.achievementCategory = String(item && item.category || "기본").trim();
-        card.dataset.achievementStatus = statusLabel;
-        card.dataset.achievementOwned = owned ? "true" : "false";
-        // fix2L-3-6D-12:
-        // note는 내부 운영/패치 메모라 팬 화면 카드 설명에 노출하지 않는다.
-        card.dataset.achievementDesc = String(item && (item.desc || item.description || item.conditionText) || "루미벨과 함께한 기록이에요.").trim();
-        card.dataset.achievementCondition = String(item && item.conditionText || "루미 ID 생성").trim();
-        card.dataset.achievementProgress = achievementProgressText(item || {}, statusLabel);
-        card.dataset.achievementReward = rewardTitleFromAchievement(item || {});
-        card.dataset.achievementDate = String(item && item.achievedAt || (owned ? "달성 완료" : statusLabel)).trim();
-        // fix2L-3-6D-13:
-        // 최종안정본 도감형 카드 UI에 맞춰 카드 안에는 짧은 정보만 표시한다.
-        // 긴 설명/조건은 dataset에 보관하고 상세 모달에서만 보여준다.
-        card.innerHTML = ''
-          + '<div class="achievement-icon">' + card.dataset.achievementIcon + '</div>'
-          + '<div class="achievement-content">'
-          + '<span class="achievement-state' + (owned ? '' : ' locked') + '">' + statusLabel + '</span>'
-          + '<h3>' + card.dataset.achievementTitle + '</h3>'
-          + '<p class="achievement-title-line">' + (owned ? ("보상 칭호: " + card.dataset.achievementReward) : "조건 달성 후 해금") + '</p>'
-          + '</div>';
-        card.addEventListener("click", function(event) {
-          event.preventDefault();
-          openAchievementModal(card);
-        });
-        host.insertBefore(card, host.firstChild);
-        return card;
+        // fix2L-3-6D-15A:
+        // 최종안정본 UI 복구 기준에서는 API 업적이 기존 도감에 없는 경우
+        // JS가 새 카드를 만들지 않는다. 새 카드 생성은 카드 수/페이지 수/폭을 바꿔서
+        // 아이폰·갤럭시 Z Flip 6에서 맞춰둔 UI를 흔들 수 있다.
+        return null;
       }
 
       function applyAchievementItemToCard(card, item) {
@@ -3236,18 +3228,20 @@
         const owned = statusLabel === "달성 완료";
         const progressText = achievementProgressText(item, statusLabel);
         const rewardTitle = rewardTitleFromAchievement(item);
-        const title = String(item.title || card.dataset.achievementTitle || "업적").trim();
-        const icon = String(item.icon || card.dataset.achievementIcon || (owned ? "✦" : "🔒")).trim();
-        const category = String(item.category || card.dataset.achievementCategory || "기본").trim();
+        // fix2L-3-6D-15A:
+        // 카드 제목/아이콘/카테고리/짧은 설명은 최종안정본 HTML 값을 우선한다.
+        // API title/conditionText가 카드 UI를 덮어써서 폭·높이·문구가 달라지는 것을 막는다.
+        const title = String(card.dataset.achievementTitle || item.title || "업적").trim();
+        const icon = String(card.dataset.achievementIcon || item.icon || (owned ? "✦" : "🔒")).trim();
+        const category = String(card.dataset.achievementCategory || item.category || "기본").trim();
         const date = String(item.achievedAt || (owned ? card.dataset.achievementDate || "" : statusLabel)).trim();
 
         card.dataset.achievementTitle = title;
         card.dataset.achievementIcon = icon;
         card.dataset.achievementStatus = statusLabel;
         card.dataset.achievementCategory = category;
-        // fix2L-3-6D-12:
-        // item.note는 "fix2L-..." 같은 내부 메모일 수 있으므로 카드 설명에 쓰지 않는다.
-        card.dataset.achievementDesc = String(item.desc || item.description || item.conditionText || card.dataset.achievementDesc || "루미벨과 함께한 기록이에요.");
+        // item.note/conditionText는 팬 화면 카드 설명에 쓰지 않고, 모달 조건에만 둔다.
+        card.dataset.achievementDesc = String(card.dataset.achievementDesc || item.desc || item.description || "루미벨과 함께한 기록이에요.");
         card.dataset.achievementCondition = String(item.conditionText || card.dataset.achievementCondition || "-");
         card.dataset.achievementProgress = progressText;
         card.dataset.achievementReward = rewardTitle;
@@ -8487,13 +8481,19 @@
   }
 
   function pcRewardText(item) {
-    return String(item && (item.rewardText || item.reward || '') || '').trim() || '조건 달성 후 해금';
+    var raw = String(item && (item.rewardText || item.reward || '') || '').trim();
+    return raw || '조건 달성 후 해금';
   }
 
   function pcTitleReward(item) {
     var raw = pcRewardText(item);
-    var m = raw.match(/^칭호\s*[:：]\s*(.+)$/) || raw.match(/칭호\s*[「"']?([^」"']+)[」"']?/);
-    return m ? String(m[1] || '').replace(/[「」]/g, '').trim() : '';
+    if (typeof normalizeAchievementRewardTitle_ === 'function') {
+      var normalized = normalizeAchievementRewardTitle_(raw, '');
+      return normalized === '-' ? '' : normalized;
+    }
+    var m = raw.match(/[「『"']([^」』"']+)[」』"']/);
+    if (m && m[1]) return String(m[1]).trim();
+    return raw.replace(/^보상\s*칭호\s*[:：]\s*/i, '').replace(/^칭호\s*[:：]?\s*/i, '').replace(/\s*해금\s*$/i, '').replace(/[「」『』]/g, '').trim();
   }
 
   function pcAchievementIdForApi(item) {
@@ -8552,9 +8552,10 @@
     var reward = pcRewardText(item);
     var titleReward = pcTitleReward(item);
     target.state = state;
-    target.icon = String(item.icon || target.icon || '✦');
-    target.name = String(item.title || target.name || '업적');
-    target.desc = String(item.conditionText || target.desc || '루미벨과 함께한 기록이에요.');
+    // fix2L-3-6D-15A: PC 카드도 최종안정본 이름/짧은 설명을 우선 보존한다.
+    target.icon = String(target.icon || item.icon || '✦');
+    target.name = String(target.name || item.title || '업적');
+    target.desc = String(target.desc || item.desc || item.description || '루미벨과 함께한 기록이에요.');
     target.progress = pcProgressText(item, state);
     target.reward = reward;
     target.title = titleReward;
