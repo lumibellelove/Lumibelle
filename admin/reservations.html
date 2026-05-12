@@ -476,7 +476,7 @@ function apiRequest(params){
   if(!isApiMode()) return Promise.resolve(mockRequest(params));
   const url=new URL(ADMIN_API_URL);
   Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v==null?'':v));
-  // fix2L-3-6N: 관리자 처리 직후 이전 JSONP/브라우저 캐시를 보지 않도록 호출마다 cache buster 부여
+  // fix2L-3-6N-fix1: 호출마다 캐시 회피
   url.searchParams.set('_nocache', String(Date.now()));
   if(ADMIN_KEY) url.searchParams.set('adminKey',ADMIN_KEY);
   // Apps Script JSONP 응답을 우선 지원한다. JSON만 반환하는 배포도 callback을 무시하면 동작 가능하도록 에러를 표시한다.
@@ -555,46 +555,67 @@ function replaceReservationInCache(updated){
   else reservationCacheByEvent[key].push(next);
 }
 
-// fix2L-3-6N: 입금확인 성공 후 서버 원본을 강제 재조회해서 화면/캐시를 즉시 동기화
-async function refreshReservationAfterAdminAction(updated){
-  const normalized=normalizeReservation(updated||selected);
-  if(!normalized)return null;
-  let fresh=normalized;
+// fix2L-3-6N-fix1: 입금확인 성공 직후 관리자 화면을 즉시 확정 상태로 보정
+function forcePaymentConfirmedOnAdminScreen(base, extra){
+  const now=nowText();
+  const source=normalizeReservation(base||selected);
+  if(!source)return null;
+  const options=extra||{};
+  const updated=normalizeReservation(Object.assign({},source,options,{
+    paymentStatus:'confirmed',
+    paymentStatusLabel:statusLabel('payment','confirmed'),
+    paymentConfirmedAt:options.paymentConfirmedAt||source.paymentConfirmedAt||now,
+    processedAt:options.processedAt||source.processedAt||now,
+    processedBy:options.processedBy||source.processedBy||q('processedBy').value.trim()
+  }));
 
-  try{
-    const list=await loadSelectedEventReservations(true);
-    const found=(list||[]).map(normalizeReservation).find(r=>
-      (normalized.rowId&&String(r.rowId)===String(normalized.rowId))||
-      (normalized.reservationNumber&&String(r.reservationNumber)===String(normalized.reservationNumber))
-    );
-    if(found)fresh=found;
-  }catch(err){
-    console.warn('[fix2L-3-6N] refresh list failed',err);
-  }
+  replaceReservationInCache(updated);
 
-  // 서버 응답이 아직 지연되어도 사용자가 방금 처리한 예약은 화면에서 확정 상태로 즉시 보이게 보정
-  if(getStatusKey('payment',fresh.paymentStatus)!=='confirmed'){
-    fresh=Object.assign({},fresh,{
-      paymentStatus:'confirmed',
-      paymentStatusLabel:statusLabel('payment','confirmed'),
-      paymentConfirmedAt:fresh.paymentConfirmedAt||nowText(),
-      processedAt:fresh.processedAt||nowText()
+  const key=getEventCacheKey();
+  if(key&&reservationCacheByEvent[key]){
+    reservationCacheByEvent[key]=reservationCacheByEvent[key].map(item=>{
+      const n=normalizeReservation(item);
+      if((updated.rowId&&String(n.rowId)===String(updated.rowId))||(updated.reservationNumber&&String(n.reservationNumber)===String(updated.reservationNumber)))return updated;
+      return n;
     });
   }
 
-  replaceReservationInCache(fresh);
-  currentResults=currentResults.map(r=>{
-    const n=normalizeReservation(r);
-    if((fresh.rowId&&String(n.rowId)===String(fresh.rowId))||(fresh.reservationNumber&&String(n.reservationNumber)===String(fresh.reservationNumber)))return fresh;
+  currentResults=(currentResults&&currentResults.length?currentResults:[source]).map(item=>{
+    const n=normalizeReservation(item);
+    if((updated.rowId&&String(n.rowId)===String(updated.rowId))||(updated.reservationNumber&&String(n.reservationNumber)===String(updated.reservationNumber)))return updated;
     return n;
   });
-  if(!currentResults.length)currentResults=[fresh];
 
-  selected=fresh;
+  selected=updated;
   renderResults(currentResults);
-  selected=fresh;
+  selected=updated;
   renderDetail();
-  return fresh;
+  return updated;
+}
+
+// fix2L-3-6N-fix1: 서버 원본 재조회는 화면 반영 뒤 백그라운드에서만 수행
+async function refreshReservationSilentlyAfterConfirm(updated){
+  try{
+    const list=await loadSelectedEventReservations(true);
+    const fresh=(list||[]).map(normalizeReservation).find(r=>
+      (updated.rowId&&String(r.rowId)===String(updated.rowId))||
+      (updated.reservationNumber&&String(r.reservationNumber)===String(updated.reservationNumber))
+    );
+    if(fresh){
+      replaceReservationInCache(fresh);
+      selected=fresh;
+      currentResults=currentResults.map(item=>{
+        const n=normalizeReservation(item);
+        if((fresh.rowId&&String(n.rowId)===String(fresh.rowId))||(fresh.reservationNumber&&String(n.reservationNumber)===String(fresh.reservationNumber)))return fresh;
+        return n;
+      });
+      renderResults(currentResults);
+      selected=fresh;
+      renderDetail();
+    }
+  }catch(err){
+    console.warn('[fix2L-3-6N-fix1] silent refresh failed',err);
+  }
 }
 
 function getAdminResponseItems(res){
@@ -840,28 +861,38 @@ async function confirmPayment(){
     q('processedBy').focus();
     return;
   }
+
+  const before=normalizeReservation(selected);
+  toast('입금 확인 처리 중입니다...');
   try{
-    const res=await apiRequest({action:ACTIONS.confirmPayment,eventId:selectedEventId,reservationNumber:selected.reservationNumber,rowId:selected.rowId,processedBy,memo:''});
+    const res=await apiRequest({action:ACTIONS.confirmPayment,eventId:selectedEventId,reservationNumber:before.reservationNumber,rowId:before.rowId,processedBy,memo:''});
     if(!res||res.success===false){toast(displayError(res&&res.error));return}
-    const updated=normalizeReservation(getAdminUpdatedReservation(res,selected));
-    selected=updated;
-    replaceReservationInCache(updated);
+
+    const serverUpdated=normalizeReservation(getAdminUpdatedReservation(res,before));
+    const updated=forcePaymentConfirmedOnAdminScreen(serverUpdated||before,{
+      processedBy:processedBy,
+      paymentConfirmedAt:res.paymentConfirmedAt||(res.data&&res.data.paymentConfirmedAt)||'',
+      processedAt:res.paymentConfirmedAt||(res.data&&res.data.paymentConfirmedAt)||''
+    });
+
     if(!isApiMode()){
       const idx=reservations.findIndex(r=>r.reservationNumber===updated.reservationNumber);
       if(idx>-1) reservations[idx]=updated;
       saveMock();
-      renderResults([updated]);
-      selected=updated;renderDetail();
     }else{
-      await refreshReservationAfterAdminAction(updated);
+      refreshReservationSilentlyAfterConfirm(updated);
     }
-    let msg='입금 확인 완료 처리되었습니다. 화면을 최신 상태로 갱신했어요.';
+
+    let msg='입금 확인 완료 처리되었습니다. 화면에 바로 반영했어요.';
     const warnings=getAdminWarnings(res);
     if((res.meateBenefitStatus||updated.benefitStatus)==='eligiblePending') msg+=' Lumibelle 메아테 혜택 대상입니다.';
     toast(msg);
     if(warnings.length)setTimeout(()=>toast(warnings.map(warningText).join(' / ')),900);
-  }catch(err){toast('API 호출 오류: '+err.message)}
+  }catch(err){
+    toast('API 호출 오류: '+err.message);
+  }
 }
+
 function readyOnly(name){toast(name+' 기능은 준비 중입니다. 이번 패치에서는 실제 처리하지 않습니다.')}
 function toggleLogs(){const l=q('logbox');if(l)l.hidden=!l.hidden}
 q('searchReservationBtn').onclick=runSmartSearch;
