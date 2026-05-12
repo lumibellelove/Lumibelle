@@ -8577,11 +8577,12 @@
     list.style.minHeight = "1px";
 
     // fix2L-3-6U-fix8: 로딩 중에도 캐시/직전 정상 메시지가 있으면 빈 화면으로 확정하지 않는다.
+    // fix2L-3-6U-fix11: 로딩 중 early return 시 pager는 항상 hidden, empty는 초기화 상태 유지.
     if (!window.__lumiMessagesLoadDone && window.LUMI_API_ENDPOINT) {
       const cachedDuringLoad = getAllLumiMessageItems();
       if (!Array.isArray(cachedDuringLoad) || !cachedDuringLoad.length) {
         list.innerHTML = "";
-        if (empty) empty.classList.remove("hidden");
+        if (empty) empty.classList.add("hidden");
         if (pager) pager.classList.add("hidden");
         updateBadges();
         return;
@@ -8809,7 +8810,7 @@
     const id = key.includes("lulu") ? "lulu-live-today" : key.includes("mariring") ? "mariring-online-cheer" : "coming-soon-online-cheer";
     window.lumiOpenMessageById(id);
   };
-  function ready(){ bind(); renderList(); }
+  function ready(){ bind(); }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", ready); else ready();
 })();
 
