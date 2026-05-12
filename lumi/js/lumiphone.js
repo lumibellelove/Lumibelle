@@ -8491,13 +8491,21 @@
     const loadDone = window.__lumiMessagesLoadDone === true;
     const unreadItems = (apiMode && !loadDone) ? [] : getAllLumiMessageItems().filter(m => isVisibleInboxMessage(m) && !isRead(m.id));
     const unread = unreadItems.length;
-    const unreadMailItems = (apiMode && !loadDone) ? [] : (typeof getAllMailItems === "function" ? getAllMailItems().filter(mail => {
-      const boxName = String((mail && mail.box) || "inbox");
-      const statusName = String((mail && mail.status) || "NEW").trim().toUpperCase();
-      const id = String((mail && (mail.id || mail.messageId)) || "");
-      const read = typeof isMailRead === "function" ? isMailRead(id) : statusName === "읽음";
-      return boxName === "inbox" && !read && statusName === "NEW";
-    }) : []);
+    // fix2L-3-6U-fix11: getAllMailItems/isMailRead는 로그인 IIFE 스코프라 여기서 직접 접근 불가.
+    // window.__lumiRuntimeMailItems(window 브릿지)와 localStorage 읽음 키로 대체한다.
+    const unreadMailItems = (apiMode && !loadDone) ? [] : (() => {
+      try {
+        const mailArr = Array.isArray(window.__lumiRuntimeMailItems) ? window.__lumiRuntimeMailItems : [];
+        const lumiId = window.__lumiGetCurrentId ? window.__lumiGetCurrentId() : "";
+        const readKey = lumiId ? "lumiReadMailIds." + lumiId.toLowerCase() : "lumiReadMailIds";
+        const readIds = JSON.parse(localStorage.getItem(readKey) || "[]");
+        return mailArr.filter(function(mail) {
+          const boxName = String((mail && mail.box) || "inbox");
+          const id = String((mail && (mail.id || mail.messageId)) || "");
+          return boxName === "inbox" && !readIds.includes(id);
+        });
+      } catch(e) { return []; }
+    })();
     const messageMini = document.querySelector('.app-icon[data-go="message"] .mini, .kawaii-app-icon[data-go="message"] .mini');
     if (messageMini) { messageMini.textContent = unread > 0 ? String(Math.min(unread,9)) : ""; messageMini.style.display = unread > 0 ? "inline-flex" : "none"; }
     const homeCard = document.getElementById("homeMessageCard");
@@ -8522,18 +8530,21 @@
       const publicUnreadItems = unreadItems.filter(m => isVisibleInboxMessage(m));
       const first = publicUnreadItems[0];
       if (first) {
-        setHomeRoute_("message", "문자 보기");
+        // fix2L-3-6U-fix10: 홈 NEW 카드 버튼의 실제 이동 탭을 메시지 종류에 맞춰 동적으로 보정한다.
+        // - memberFirstCheki / 입금확인 / 입장완료 등 문자형: 문자함
+        // - member letter / lumi letter / welcome mail 등 우편형: 우편함
         const firstType = String(first.messageType || first.type || "").trim().toLowerCase().replace(/[\s_\-]/g, "");
         const firstSenderType = String(first.senderType || "").trim().toLowerCase();
         const firstFrom = first.from || (firstSenderType === "member" ? "멤버" : "LUMIBELLE 운영");
-        const isLetterType = firstType === "memberletter" || firstType === "lumiletter" || firstType === "afterliveletter";
+        const isLetterType = firstType === "memberletter" || firstType === "lumiletter" || firstType === "afterliveletter" || firstType === "welcomemail";
+        const shouldOpenMail = isLetterType || (firstSenderType === "member" && firstType !== "memberfirstcheki");
+        setHomeRoute_(shouldOpenMail ? "mail" : "message", shouldOpenMail ? "우편 보기" : "문자 보기");
+
         if (firstType === "welcomemail") {
-          if (homeKicker) homeKicker.textContent = publicUnreadItems.length > 1 ? "NEW MESSAGES" : "NEW MESSAGE";
-          if (homeTitle) homeTitle.textContent = firstFrom + "에게서 새 문자 " + publicUnreadItems.length + "통";
+          if (homeKicker) homeKicker.textContent = publicUnreadItems.length > 1 ? "NEW LETTERS" : "NEW LETTER";
+          if (homeTitle) homeTitle.textContent = firstFrom + "에게서 새 우편 " + publicUnreadItems.length + "통";
           if (homePreview) homePreview.textContent = "루미폰 개통 첫 우편이 도착했어요.";
-        } else if (isLetterType) {
-          // letter 타입이 문자 목록에 섞여 들어온 경우에도 클릭은 문자함이 아니라 우편함으로 보낸다.
-          setHomeRoute_("mail", "우편 보기");
+        } else if (shouldOpenMail) {
           if (homeKicker) homeKicker.textContent = publicUnreadItems.length > 1 ? "NEW LETTERS" : "NEW LETTER";
           if (homeTitle) homeTitle.textContent = firstFrom + "에게서 새 루미레터 " + publicUnreadItems.length + "통";
           if (homePreview) homePreview.textContent = "따뜻한 마음이 담긴 우편을 확인해 보세요.";
