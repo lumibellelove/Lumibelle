@@ -4323,7 +4323,7 @@
           return { state:"pending", meate:meate || "-", label:"입금 확인 후 메아테 혜택 확정", shortLabel:"확인 중", desc:"입금 확인 후, 예매 시 선택한 메아테 팀 기준으로 루미벨 혜택 대상 여부가 표시됩니다.", cardSmall:"입금 확인 후 표시", active:false, locked:false };
         }
         if (hasMeate && isLumibelleMeate_(meate)) {
-          return { state:"eligible", meate:meate, label:"루미벨 메아테 혜택 대상", shortLabel:"혜택 대상", desc:"· 메아테 : Lumibelle\n· 수령 안내 : 특전회 시간에 루미벨 팀으로 와주세요.\n· 스탭 확인 후 특전권&포인트가 안내됩니다.", cardSmall:"메아테 혜택 대상", active:true, locked:false };
+          return { state:"eligible", meate:meate, label:"루미벨 메아테 혜택 대상", shortLabel:"혜택 대상", desc:"· 메아테 : Lumibelle\n· 특전회 시간에 루미벨 팀으로 와주세요.\n스탭 확인 후 특전권&포인트가 안내됩니다.", cardSmall:"메아테 혜택 대상", active:true, locked:false };
         }
         return { state:"notEligible", meate:meate || "다른 팀", label:"루미벨 혜택 대상 아님", shortLabel:"대상 아님", desc:"· 메아테 : " + (meate || "다른 팀") + "\n· 루미벨 메아테 특전권&포인트 대상은 아니지만,\n공연 기록은 루미폰에 그대로 남아요.", cardSmall:"루미벨 혜택 대상 아님", active:false, locked:true };
       }
@@ -5244,7 +5244,7 @@
           var d = new Date();
           monthCode = String(d.getFullYear()) + String(d.getMonth() + 1).padStart(2, "0");
         }
-        return { text: "· lumibelle " + monthCode + " 생일월\n· Birthday Ticket 자동 발급" };
+        return { text: "· Lumibelle " + monthCode + " 생일월 특전권\n· 사용 기간 : 생일 당월 ~ 말일까지." };
       }
 
       function setBirthdayTicketDesc_(el, lines) {
@@ -10068,7 +10068,7 @@
 
     const monthText = pad2(birth.month) + ".01 ~ " + pad2(birth.month) + "." + pad2(last);
     const monthCode = String(year) + pad2(birth.month);
-    const birthdaySubText = "· Lumibelle " + monthCode + " 생일월\n· Birthday Ticket 자동 발급";
+    const birthdaySubText = "· Lumibelle " + monthCode + " 생일월 특전권\n· 사용 기간 : 생일 당월 ~ 말일까지.";
     return {
       year: year,
       month: birth.month,
