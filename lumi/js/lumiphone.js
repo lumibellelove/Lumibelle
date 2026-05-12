@@ -8562,8 +8562,14 @@
         if (homeTitle) homeTitle.textContent = (firstMail.from || "LUMIBELLE") + "에게서 새 우편 " + unreadMailItems.length + "통";
         if (homePreview) homePreview.textContent = firstMail.preview || "루미폰 우편함에 새 기록이 도착했어요.";
       } else {
-        // fix2L-3-6U-fix12: unread가 0이면 NEW 카드를 숨긴다.
-        homeCard.classList.add("hidden");
+        // fix2L-3-6U-fix14: unread가 0이어도 홈 문자 카드 자체는 숨기지 않는다.
+        // 팬 입장에서는 새 문자가 없어도 문자함으로 들어가는 입구가 필요하므로,
+        // NEW 상태만 제거하고 일반 문자함 안내 카드로 전환한다.
+        homeCard.classList.remove("hidden");
+        setHomeRoute_("message", "문자 보기");
+        if (homeKicker) homeKicker.textContent = "MESSAGE";
+        if (homeTitle) homeTitle.textContent = "최근 문자 보기";
+        if (homePreview) homePreview.textContent = "읽은 문자도 문자함에서 다시 볼 수 있어요.";
       }
     }
   }
