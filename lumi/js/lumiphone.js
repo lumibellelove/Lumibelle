@@ -813,11 +813,12 @@
           appendBootDebug("cheki cache: " + cachedCheki.length + " items");
         }
 
-        // PATCH 51-48: 특전권/이벤트권 캐시 즉시 복원
+        // fix2L-3-6W-clean: 특전권/이벤트권 캐시 즉시 화면 렌더 금지
+        // 캐시값이 먼저 보이고 API값이 뒤늦게 덮이면서 Welcome/메아테/Birthday 카드가 흔들리는 문제 방지.
+        // 캐시는 유지하되, 화면 확정은 loadMyLumiTickets() API 응답 후 renderLumiTickets(items) 1회 기준으로 처리한다.
         const cachedLumiTickets = cacheRead_(lid, "lumiTickets", 24 * 60 * 60 * 1000);
         if (cachedLumiTickets && Array.isArray(cachedLumiTickets)) {
-          renderLumiTickets(cachedLumiTickets);
-          appendBootDebug("lumiTickets cache: " + cachedLumiTickets.length + " items");
+          appendBootDebug("lumiTickets cache held: " + cachedLumiTickets.length + " items");
         }
 
         // PATCH 51-49: 루미 체크인/스탬프 캐시 즉시 복원
@@ -4318,7 +4319,7 @@
           return { state:"pending", meate:meate || "-", label:"입금 확인 후 메아테 혜택 확정", shortLabel:"확인 중", desc:"입금 확인 후, 예매 시 선택한 메아테 팀 기준으로 루미벨 혜택 대상 여부가 표시돼요.", cardSmall:"입금 확인 후 표시", active:false, locked:false };
         }
         if (hasMeate && isLumibelleMeate_(meate)) {
-          return { state:"eligible", meate:meate, label:"루미벨 메아테 혜택 대상", shortLabel:"혜택 대상", desc:"Lumibelle 메아테 선택이 확인되어 루미벨 메아테 혜택 대상이에요. 현장 물판/특전회에서 스탭 확인 후 안내돼요.", cardSmall:"메아테 혜택 대상", active:true, locked:false };
+          return { state:"eligible", meate:"Lumibelle", label:"루미벨 메아테 혜택 대상", shortLabel:"혜택 대상", desc:"· 메아테 : Lumibelle\n· 수령 안내 : 특전회 시간에 루미벨 팀으로 와주세요.\n· 스탭 확인 후 특전권&포인트가 안내됩니다.", cardSmall:"루미벨 메아테 혜택 대상", active:true, locked:false };
         }
         return { state:"notEligible", meate:meate || "다른 팀", label:"루미벨 혜택 대상 아님", shortLabel:"대상 아님", desc:"· 메아테 : " + (meate || "다른 팀") + "\n· 루미벨 메아테 특전권&포인트 대상은 아니지만,\n공연 기록은 루미폰에 그대로 남아요.", cardSmall:"루미벨 혜택 대상 아님", active:false, locked:true };
       }
@@ -5239,7 +5240,7 @@
           var d = new Date();
           monthCode = String(d.getFullYear()) + String(d.getMonth() + 1).padStart(2, "0");
         }
-        return { text: "· lumibelle " + monthCode + " 생일월\n· Birthday Ticket 자동 발급" };
+        return { text: "· Lumibelle " + monthCode + " 생일월\n· Birthday Ticket 자동 발급" };
       }
 
       function setBirthdayTicketDesc_(el, lines) {
@@ -5277,6 +5278,9 @@
             var perkMap = { welcome:"welcome", join:"join", meate:"meate", birthday:"birthday", event:"welcome", general:"welcome" };
             list.forEach(function(t) {
               var perk = perkMap[t.ticketType] || t.ticketType;
+              // fix2L-3-6W-clean: 메아테 특전권 문구는 예약/입금 데이터 기준의 updateMeateBenefitUi()가 최종 담당한다.
+              // lumi_tickets의 meate row가 뒤늦게 들어와 예약 기준 문구를 덮지 않도록 renderLumiTickets에서는 건너뛴다.
+              if (String(perk || "").trim().toLowerCase() === "meate") return;
               var card = pcGrid.querySelector('[data-perk="' + perk + '"]');
               if (!card) return;
               var cardEl = card.closest(".ticket-pc-wallet-card");
@@ -5347,6 +5351,8 @@
           list.forEach(function(t) {
             var expectedTitle = titleMap[t.ticketType];
             if (!expectedTitle) return; // 매핑 없는 타입은 skip
+            // fix2L-3-6W-clean: 모바일 메아테 카드도 updateMeateBenefitUi()만 최종 갱신하게 한다.
+            if (String(t.ticketType || "").trim().toLowerCase() === "meate") return;
 
             // 해당 제목의 카드 찾기
             var allItems = Array.from(benefitList.querySelectorAll(".ticket-page-item"));
