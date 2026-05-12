@@ -751,37 +751,52 @@
           renderReservationsStableEmpty();
         }
 
-        // fix2G: API 로그인 모드에서는 mail/sms 캐시를 즉시 복원하지 않는다.
-        // 캐시 우편이 먼저 보였다가 API 빈 결과로 사라지는 “유령 알림 1” 방지.
+        // fix2L-3-6U-fix7: API 로그인 모드에서도 문자/우편 캐시를 먼저 복원한다.
+        // 실제 문자가 있는데 API가 순간적으로 0건/지연 응답을 주면 팬 화면이 텅 비는 문제가 있어,
+        // 계정별 캐시가 있으면 기존 목록을 먼저 보여주고 API 응답으로 나중에 갱신한다.
         const apiMessageMode = !!(LUMI_API_ENDPOINT() && lid);
+        const cachedMailLong = cacheRead_(lid, "mail", 1000 * 60 * 60 * 24 * 14) || cachedMail;
+        const cachedSmsLong  = cacheRead_(lid, "sms",  1000 * 60 * 60 * 24 * 14) || cachedSms;
         if (apiMessageMode) {
-          LUMI_MESSAGES_LOAD_DONE = false;
-          window.__lumiMessagesLoadDone = false;
-          LUMI_RUNTIME_MAIL_ITEMS = [];
-          LUMI_RUNTIME_MESSAGE_ITEMS = [];
-          window.__lumiRuntimeMailItems = [];
-          window.__lumiRuntimeMessageItems = [];
-          renderMailAll();
-          if (typeof window.showLumiMessageInbox === "function") window.showLumiMessageInbox();
-          appendBootDebug("mail/sms cache skipped in API mode");
-        } else {
-          // PATCH 51-45: 오프라인/데모 모드에서만 mail과 sms를 독립적으로 복원
-          if (cachedMail) {
-            LUMI_RUNTIME_MAIL_ITEMS = cachedMail;
+          const hasMessageCache = (Array.isArray(cachedMailLong) && cachedMailLong.length > 0) || (Array.isArray(cachedSmsLong) && cachedSmsLong.length > 0);
+          if (hasMessageCache) {
+            LUMI_RUNTIME_MAIL_ITEMS = Array.isArray(cachedMailLong) ? cachedMailLong : [];
+            LUMI_RUNTIME_MESSAGE_ITEMS = Array.isArray(cachedSmsLong) ? cachedSmsLong : [];
             window.__lumiRuntimeMailItems = LUMI_RUNTIME_MAIL_ITEMS;
-          }
-          if (cachedSms) {
-            LUMI_RUNTIME_MESSAGE_ITEMS = cachedSms;
             window.__lumiRuntimeMessageItems = LUMI_RUNTIME_MESSAGE_ITEMS;
-          }
-          if (cachedMail || cachedSms) {
-            if (cachedMail && cachedSms) {
-              LUMI_MESSAGES_LOAD_DONE   = true;
-              window.__lumiMessagesLoadDone = true;
-            }
+            LUMI_MESSAGES_LOAD_DONE = true;
+            window.__lumiMessagesLoadDone = true;
             renderMailAll();
             if (typeof window.showLumiMessageInbox === "function") window.showLumiMessageInbox();
-            appendBootDebug("cache restored: mail=" + (cachedMail ? cachedMail.length : "miss") + " sms=" + (cachedSms ? cachedSms.length : "miss"));
+            if (typeof window.__lumiRefreshMessageList === "function") window.__lumiRefreshMessageList();
+            appendBootDebug("mail/sms cache restored in API mode: mail=" + LUMI_RUNTIME_MAIL_ITEMS.length + " sms=" + LUMI_RUNTIME_MESSAGE_ITEMS.length);
+          } else {
+            LUMI_MESSAGES_LOAD_DONE = false;
+            window.__lumiMessagesLoadDone = false;
+            LUMI_RUNTIME_MAIL_ITEMS = [];
+            LUMI_RUNTIME_MESSAGE_ITEMS = [];
+            window.__lumiRuntimeMailItems = [];
+            window.__lumiRuntimeMessageItems = [];
+            renderMailAll();
+            if (typeof window.showLumiMessageInbox === "function") window.showLumiMessageInbox();
+            appendBootDebug("mail/sms cache miss in API mode");
+          }
+        } else {
+          // PATCH 51-45: 오프라인/데모 모드에서만 mail과 sms를 독립적으로 복원
+          if (cachedMailLong) {
+            LUMI_RUNTIME_MAIL_ITEMS = cachedMailLong;
+            window.__lumiRuntimeMailItems = LUMI_RUNTIME_MAIL_ITEMS;
+          }
+          if (cachedSmsLong) {
+            LUMI_RUNTIME_MESSAGE_ITEMS = cachedSmsLong;
+            window.__lumiRuntimeMessageItems = LUMI_RUNTIME_MESSAGE_ITEMS;
+          }
+          if (cachedMailLong || cachedSmsLong) {
+            LUMI_MESSAGES_LOAD_DONE   = true;
+            window.__lumiMessagesLoadDone = true;
+            renderMailAll();
+            if (typeof window.showLumiMessageInbox === "function") window.showLumiMessageInbox();
+            appendBootDebug("cache restored: mail=" + (cachedMailLong ? cachedMailLong.length : "miss") + " sms=" + (cachedSmsLong ? cachedSmsLong.length : "miss"));
           }
         }
 
@@ -5215,6 +5230,23 @@
         el.innerHTML = escapeHtml(lines.text).replace(/\n/g, "<br>");
       }
 
+      function lumiBirthdayTicketLines_(ticket) {
+        var t = ticket || {};
+        var joined = [t.note, t.ticketId, t.sourceId, t.period, t.periodKey, t.eventId, t.issuedAt, t.expireAt].map(function(v){ return String(v || ""); }).join(" ");
+        var match = joined.match(/(20\d{2})(0[1-9]|1[0-2])/);
+        var monthCode = match ? (match[1] + match[2]) : "";
+        if (!monthCode) {
+          var d = new Date();
+          monthCode = String(d.getFullYear()) + String(d.getMonth() + 1).padStart(2, "0");
+        }
+        return { text: "· lumibelle " + monthCode + " 생일월\n· Birthday Ticket 자동 발급" };
+      }
+
+      function setBirthdayTicketDesc_(el, lines) {
+        if (!el || !lines) return;
+        el.innerHTML = escapeHtml(lines.text).replace(/\n/g, "<br>");
+      }
+
       function renderLumiTickets(items) {
         const list = items || [];
         const available = list.filter(function(t) { return t.status === "available"; }).length;
@@ -5252,8 +5284,11 @@
               var statusEl = cardEl.querySelector(".ticket-pc-card-actions span");
               var smallEl  = cardEl.querySelector("small");
               var spanEl   = cardEl.querySelector("b + span, small + b + span, span:not(.ticket-pc-card-actions span)");
-              var isWelcomeTicket = String(t.ticketType || "").trim().toLowerCase() === "welcome";
+              var ticketTypeKey = String(t.ticketType || "").trim().toLowerCase();
+              var isWelcomeTicket = ticketTypeKey === "welcome";
+              var isBirthdayTicket = ticketTypeKey === "birthday";
               var welcomeLines = isWelcomeTicket ? lumiWelcomeTicketLines_(t) : null;
+              var birthdayLines = isBirthdayTicket ? lumiBirthdayTicketLines_(t) : null;
 
               // is-locked 해제 (available)
               if (t.status === "available") {
@@ -5275,6 +5310,8 @@
               var descEl = cardEl.querySelector("span:not(.ticket-pc-card-actions span):not([class])");
               if (isWelcomeTicket && descEl) {
                 setWelcomeTicketDesc_(descEl, welcomeLines);
+              } else if (isBirthdayTicket && descEl) {
+                setBirthdayTicketDesc_(descEl, birthdayLines);
               } else if (t.note && descEl) {
                 descEl.textContent = lumiTicketMemberName(t.member) + " · " + t.note;
               }
@@ -5320,8 +5357,11 @@
 
             if (!targetItem) {
               // 카드가 없으면 — API 전용 신규 카드 추가 (기존 카드 구조로)
-              var isWelcomeTicket = String(t.ticketType || "").trim().toLowerCase() === "welcome";
+              var newTicketTypeKey = String(t.ticketType || "").trim().toLowerCase();
+              var isWelcomeTicket = newTicketTypeKey === "welcome";
+              var isBirthdayTicket = newTicketTypeKey === "birthday";
               var welcomeLines = isWelcomeTicket ? lumiWelcomeTicketLines_(t) : null;
+              var birthdayLines = isBirthdayTicket ? lumiBirthdayTicketLines_(t) : null;
               var memberName  = welcomeLines ? welcomeLines.memberValue : lumiTicketMemberName(t.member);
               var statusLabel = welcomeLines ? welcomeLines.statusLabel : (LUMI_TICKET_STATUS_LABELS[t.status] || t.status || "");
               var expireText  = t.expireAt ? String(t.expireAt).slice(0,10).replace(/-/g,".") + "까지" : "제한 없음";
@@ -5347,11 +5387,16 @@
             }
 
             // 기존 카드 찾음 → 상태/멤버/설명만 업데이트
-            var isWelcomeTicket = String(t.ticketType || "").trim().toLowerCase() === "welcome";
+            var mobileTicketTypeKey = String(t.ticketType || "").trim().toLowerCase();
+            var isWelcomeTicket = mobileTicketTypeKey === "welcome";
+            var isBirthdayTicket = mobileTicketTypeKey === "birthday";
             var welcomeLines = isWelcomeTicket ? lumiWelcomeTicketLines_(t) : null;
+            var birthdayLines = isBirthdayTicket ? lumiBirthdayTicketLines_(t) : null;
+            var subEl = targetItem.querySelector(".ticket-sub");
             if (welcomeLines) {
-              var subEl = targetItem.querySelector(".ticket-sub");
               setWelcomeTicketDesc_(subEl, welcomeLines);
+            } else if (birthdayLines) {
+              setBirthdayTicketDesc_(subEl, birthdayLines);
             }
 
             var statusCells = Array.from(targetItem.querySelectorAll(".ticket-cell"));
@@ -8285,16 +8330,35 @@
   function getAllLumiMessageItems(){
     const runtimeItems = window.__lumiRuntimeMessageItems;
     if (window.__LUMI_DEBUG_MODE) console.log("[lumiMsg] getAllLumiMessageItems runtimeItems:", runtimeItems);
-    // 로드 완료 후에는 항상 runtime 배열만 사용 (undefined면 빈 배열, mock 금지)
-    if (window.__lumiMessagesLoadDone === true) {
-      return Array.isArray(runtimeItems) ? runtimeItems : [];
+    function cachedSmsFallback_(){
+      try {
+        const id = window.__lumiGetCurrentId ? window.__lumiGetCurrentId() : "";
+        const reader = window.__lumiCacheRead;
+        if (!id || typeof reader !== "function") return [];
+        const cached = reader(id, "sms", 1000 * 60 * 60 * 24 * 14) || [];
+        if (Array.isArray(cached) && cached.length) {
+          window.__lumiRuntimeMessageItems = cached;
+          return cached;
+        }
+      } catch(e) {}
+      return [];
     }
-    // 로드 중이고 runtime이 배열이면 그것 사용
-    if (Array.isArray(runtimeItems)) return runtimeItems;
-    // API 모드 판단: endpoint 또는 로그인된 userId가 있으면 API 모드 → mock 금지
+    // 로드 완료 후에는 runtime 배열 우선. 단, 실제 문자가 있는데 순간 빈 배열로 고정되는 경우 캐시를 마지막 방어선으로 사용한다.
+    if (window.__lumiMessagesLoadDone === true) {
+      if (Array.isArray(runtimeItems) && runtimeItems.length) return runtimeItems;
+      return cachedSmsFallback_();
+    }
+    // 로드 중이고 runtime이 배열이면 그것 사용. 빈 배열이면 캐시를 확인한다.
+    if (Array.isArray(runtimeItems)) {
+      if (runtimeItems.length) return runtimeItems;
+      const cached = cachedSmsFallback_();
+      if (cached.length) return cached;
+      return runtimeItems;
+    }
+    // API 모드 판단: endpoint 또는 로그인된 userId가 있으면 API 모드 → mock 금지, 캐시만 허용
     const isApiMode = !!(window.LUMI_API_ENDPOINT && String(window.LUMI_API_ENDPOINT).trim()) ||
                       !!(window.__lumiGetCurrentId && window.__lumiGetCurrentId());
-    if (isApiMode) return []; // API 모드에서는 mock MESSAGES 사용 금지
+    if (isApiMode) return cachedSmsFallback_();
     // 비로그인/오프라인이면 mock 표시
     return MESSAGES;
   }
