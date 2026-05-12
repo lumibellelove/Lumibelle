@@ -4621,12 +4621,27 @@
         renderReservationsStableEmpty();
       }
 
-      async function loadMyMessages(lumiId) {
+      async function loadMyMessages(lumiId, retryState) {
+        const retry = retryState || { emptyRetry: 0 };
         try {
           const messages = await getMyMessages(lumiId);
           // getMyMessages는 항상 배열을 반환하거나 throw — 비배열 분기는 방어용
           const safeMessages = Array.isArray(messages) ? messages : [];
           if (DEBUG_MODE) console.log("[lumi] loadMyMessages: messages arrived, count=", safeMessages.length);
+
+          // fix2L-3-6U-fix5: 문자함만 간헐적으로 0건으로 내려오는 경우가 있어,
+          // 바로 캐시/화면을 비우지 않고 짧게 재시도한다.
+          // 진짜 신규 계정/진짜 0건은 재시도 후에만 empty로 확정한다.
+          if (safeMessages.length === 0 && retry.emptyRetry < 2) {
+            appendBootDebug("messages empty from API → retry " + (retry.emptyRetry + 1) + "/2 before clearing UI");
+            window.__lumiMessagesLoadDone = false;
+            LUMI_MESSAGES_LOAD_DONE = false;
+            setTimeout(function() {
+              loadMyMessages(lumiId, { emptyRetry: retry.emptyRetry + 1 });
+            }, retry.emptyRetry === 0 ? 450 : 900);
+            return;
+          }
+
           const publicMessages = safeMessages.filter((item) => {
             const member = String(item && item.senderMember || "").toLowerCase();
             if (member === "iro" || member === "lunar" || member === "luna") return isIroLunarReleased_();
@@ -4638,7 +4653,7 @@
             .filter((item) => getLumiMessageChannel(item) === "message")
             .map(normalizeSmsItem);
           if (DEBUG_MODE) console.log("[lumi] loadMyMessages split: mail=", mailItems.length, "| sms=", smsItems.length);
-          // API 성공 — 빈 배열이어도 캐시 버리고 실제 결과로 확정 (유령 알림 방지)
+
           LUMI_MESSAGES_LOAD_DONE = true;
           LUMI_RUNTIME_MAIL_ITEMS = mailItems;
           LUMI_RUNTIME_MESSAGE_ITEMS = smsItems;
@@ -4653,7 +4668,7 @@
           if (typeof window.showLumiMessageInbox === "function") window.showLumiMessageInbox();
           if (typeof window.__lumiRefreshMessageList === "function") window.__lumiRefreshMessageList();
           appendBootDebug(safeMessages.length === 0
-            ? "messages empty from API: cache cleared"
+            ? "messages empty confirmed after retry"
             : "messages UI split applied: mail=" + mailItems.length + " sms=" + smsItems.length);
         } catch (error) {
           const errMsg = String(error && error.message ? error.message : error);
@@ -4661,7 +4676,7 @@
           // missingApiEndpoint → 500ms 뒤 재시도 1회
           if (errMsg === "missingApiEndpoint" && window.LUMI_API_ENDPOINT) {
             appendBootDebug("missingApiEndpoint → retry in 500ms (window value found)");
-            setTimeout(function() { loadMyMessages(lumiId); }, 500);
+            setTimeout(function() { loadMyMessages(lumiId, retry); }, 500);
             return;
           }
           // timeout/네트워크 에러: loadDone 확정하되 캐시 유지 (기존 정책)
