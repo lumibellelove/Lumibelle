@@ -1364,6 +1364,8 @@
           preview: source.preview || body.replace(/\s+/g, " ").slice(0, 80),
           icon: icon,
           lines: body ? body.split(/\n+/).filter(Boolean) : [source.title || "루미벨에서 도착한 문자예요."],
+          actionLabel: source.actionLabel || source.linkLabel || "",
+          actionUrl: source.actionUrl || source.linkUrl || source.url || "",
           choices: parseReplyOptionsFromSource_(source)
         };
       }
@@ -8430,9 +8432,31 @@
     if (save) save.classList.toggle("hidden", !!saved);
     if (unsave) unsave.classList.toggle("hidden", !saved);
   }
+  function openLumiMessageActionUrl_(url) {
+    const href = String(url || "").trim();
+    if (!href) return;
+    try {
+      window.open(href, "_blank", "noopener");
+    } catch (error) {
+      window.location.href = href;
+    }
+  }
+  function renderMessageActionButton_(m, replies) {
+    if (!m || !replies) return false;
+    const actionUrl = String(m.actionUrl || "").trim();
+    if (!actionUrl) return false;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = String(m.actionLabel || "자세히 보기").trim() || "자세히 보기";
+    btn.className = "lumiMsg-actionLink";
+    btn.addEventListener("click", () => openLumiMessageActionUrl_(actionUrl));
+    replies.appendChild(btn);
+    return true;
+  }
   function renderReplyChoices(m, overwrite){
     const root = pageEl(); const replies = $("#lumiMsgReplies", root); if (!replies) return;
     replies.innerHTML = "";
+    renderMessageActionButton_(m, replies);
     (m.choices || []).forEach(choice => {
       const btn = document.createElement("button");
       btn.type = "button";
@@ -8444,6 +8468,7 @@
   function renderReplies(m, already){
     const root = pageEl(); const replies = $("#lumiMsgReplies", root); if (!replies) return;
     replies.innerHTML = "";
+    const hasAction = renderMessageActionButton_(m, replies);
     if (!m.choices || !m.choices.length) return;
     if (already) {
       const btn = document.createElement("button");
