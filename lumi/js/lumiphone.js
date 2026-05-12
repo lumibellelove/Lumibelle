@@ -40,6 +40,9 @@
       let currentUser = null;
       let myReservations = [];
       let reservationsLoadState = "idle"; // PATCH 51-41: idle/loading/loaded/error
+      // fix2L-3-6W-fix1: 예약 캐시 렌더 중에는 특전권(메아테) 카드 문구를 확정하지 않는다.
+      // 캐시 → API 순서로 메아테 문구가 시로나/Lumibelle 등으로 흔들리는 것을 막기 위한 플래그.
+      let LUMI_RESERVATIONS_CACHE_RENDERING = false;
       let bootDebugText = "";
 
       function setBootDebug(text) {
@@ -744,7 +747,12 @@
 
         if (cachedRes) {
           myReservations = cachedRes;
-          renderMyReservations(cachedRes);
+          LUMI_RESERVATIONS_CACHE_RENDERING = true;
+          try {
+            renderMyReservations(cachedRes);
+          } finally {
+            LUMI_RESERVATIONS_CACHE_RENDERING = false;
+          }
         } else {
           // fix2H-1d: 예약 캐시가 없는 신규 계정/새 브라우저에서도
           // 티켓 탭이 제목만 보이지 않도록 안정적인 empty 상태를 먼저 표시한다.
@@ -816,7 +824,11 @@
         // PATCH 51-48: 특전권/이벤트권 캐시 즉시 복원
         const cachedLumiTickets = cacheRead_(lid, "lumiTickets", 24 * 60 * 60 * 1000);
         if (cachedLumiTickets && Array.isArray(cachedLumiTickets)) {
-          renderLumiTickets(cachedLumiTickets);
+          // fix2L-3-6W-fix1: API 모드에서는 특전권 캐시를 즉시 렌더하지 않는다.
+          // Birthday Ticket/메아테 카드가 캐시 값으로 잠깐 보였다가 API 값으로 바뀌는 잔상을 막는다.
+          if (!LUMI_API_ENDPOINT()) {
+            renderLumiTickets(cachedLumiTickets);
+          }
           appendBootDebug("lumiTickets cache: " + cachedLumiTickets.length + " items");
         }
 
@@ -942,14 +954,6 @@
         $$(".tab").forEach((el) => el.classList.toggle("active", el.dataset.page === targetName));
         if (targetName === "message" && typeof window.showLumiMessageInbox === "function") {
           window.showLumiMessageInbox();
-        }
-        if (targetName === "ticket") {
-          // fix2L-3-6W: 티켓함은 안정 기준처럼 지난 티켓을 기본 입구로 둔다.
-          // 특전권 탭이 이전 상태/정적 HTML로 먼저 보이며 문구가 깜빡이는 것을 막는다.
-          window.setTimeout(function() {
-            try { setMiniPage("ticket-past"); } catch(e) {}
-            try { setMiniPage("ticket-pc-past"); } catch(e) {}
-          }, 0);
         }
         window.scrollTo({ top: 0, behavior: "auto" });
       }
@@ -4641,7 +4645,11 @@
         }
 
         updateHomeReservationSummary(normalized);
-        updateMeateBenefitUi(normalized); // PATCH 51-51: 예약 meate/paymentStatus 기반 혜택 표시
+        // fix2L-3-6W-fix1: 캐시 렌더 중에는 메아테 특전권 문구를 확정하지 않는다.
+        // API 응답이 도착했을 때 한 번만 실제 예매 데이터 기준으로 표시한다.
+        if (!LUMI_RESERVATIONS_CACHE_RENDERING) {
+          updateMeateBenefitUi(normalized); // PATCH 51-51: 예약 meate/paymentStatus 기반 혜택 표시
+        }
         initTicketPagers();
       }
 
@@ -5285,9 +5293,8 @@
             var perkMap = { welcome:"welcome", join:"join", meate:"meate", birthday:"birthday", event:"welcome", general:"welcome" };
             list.forEach(function(t) {
               var ticketTypeKeyForPerk = String(t && t.ticketType || "").trim().toLowerCase();
-              // fix2L-3-6W: 메아테 특전권 카드는 예약의 meate/paymentStatus가 기준이다.
-              // lumi_tickets의 meate row가 뒤늦게 들어와 카드 문구를 덮으면
-              // 다른 팀 메아테(예: 시로나) → Lumibelle 혜택 대상처럼 흔들려 보이는 문제가 생긴다.
+              // fix2L-3-6W-fix1: 메아테 특전권 카드는 예약의 meate/paymentStatus만 기준으로 둔다.
+              // lumi_tickets의 meate row가 뒤늦게 들어와 실제 예매 메아테 팀 표시를 덮지 않게 한다.
               if (ticketTypeKeyForPerk === "meate") return;
               var perk = perkMap[t.ticketType] || t.ticketType;
               var card = pcGrid.querySelector('[data-perk="' + perk + '"]');
@@ -5359,8 +5366,7 @@
 
           list.forEach(function(t) {
             var ticketTypeKeyForBenefit = String(t && t.ticketType || "").trim().toLowerCase();
-            // fix2L-3-6W: 모바일 메아테 카드도 예약 데이터 기준으로만 갱신한다.
-            // 특전권 API의 meate row는 실제 예매 메아테 팀 표시를 덮어쓰지 않는다.
+            // fix2L-3-6W-fix1: 모바일 메아테 카드도 예약 데이터 기준으로만 갱신한다.
             if (ticketTypeKeyForBenefit === "meate") return;
             var expectedTitle = titleMap[t.ticketType];
             if (!expectedTitle) return; // 매핑 없는 타입은 skip
@@ -10073,7 +10079,7 @@
 
     const monthText = pad2(birth.month) + ".01 ~ " + pad2(birth.month) + "." + pad2(last);
     const monthCode = String(year) + pad2(birth.month);
-    const birthdaySubText = "· lumibelle " + monthCode + " 생일월\n· Birthday Ticket 자동 발급";
+    const birthdaySubText = "· Lumibelle " + monthCode + " 생일월\n· Birthday Ticket 자동 발급";
     return {
       year: year,
       month: birth.month,
