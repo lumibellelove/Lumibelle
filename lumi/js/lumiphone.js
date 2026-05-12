@@ -4305,7 +4305,7 @@
         if (hasMeate && isLumibelleMeate_(meate)) {
           return { state:"eligible", meate:meate, label:"루미벨 메아테 혜택 대상", shortLabel:"혜택 대상", desc:"Lumibelle 메아테 선택이 확인되어 루미벨 메아테 혜택 대상이에요. 현장 물판/특전회에서 스탭 확인 후 안내돼요.", cardSmall:"메아테 혜택 대상", active:true, locked:false };
         }
-        return { state:"notEligible", meate:meate || "다른 팀", label:"루미벨 혜택 대상 아님", shortLabel:"대상 아님", desc:"이번 예매의 메아테는 " + (meate || "다른 팀") + " 기준이에요. 루미벨 메아테 혜택 대상은 아니지만, 공연 기록은 그대로 남아요.", cardSmall:"루미벨 혜택 대상 아님", active:false, locked:true };
+        return { state:"notEligible", meate:meate || "다른 팀", label:"루미벨 혜택 대상 아님", shortLabel:"대상 아님", desc:"· 메아테 : " + (meate || "다른 팀") + "\n· 루미벨 메아테 특전권&포인트 대상은 아니지만,\n공연 기록은 루미폰에 그대로 남아요.", cardSmall:"루미벨 혜택 대상 아님", active:false, locked:true };
       }
 
       function updateTextIfExists_(root, selector, text) {
@@ -4336,7 +4336,10 @@
             updateTextIfExists_(pcCard, "small", state.cardSmall);
             updateTextIfExists_(pcCard, "b", "메아테 특전권");
             var desc = Array.from(pcCard.children).find(function(el) { return el.tagName === "SPAN"; });
-            if (desc) desc.textContent = state.desc;
+            if (desc) {
+              desc.textContent = state.desc;
+              desc.style.whiteSpace = "pre-line";
+            }
             var statusSpan = pcCard.querySelector(".ticket-pc-card-actions span");
             if (statusSpan) {
               statusSpan.textContent = state.active ? "사용 가능" : state.shortLabel;
@@ -4351,7 +4354,10 @@
             var titleEl = mobileItem.querySelector(".ticket-title, .plain-row b, b");
             if (titleEl) titleEl.textContent = "메아테 특전권";
             var subEl = mobileItem.querySelector(".ticket-sub, .plain-row span");
-            if (subEl) subEl.textContent = state.desc;
+            if (subEl) {
+              subEl.textContent = state.desc;
+              subEl.style.whiteSpace = "pre-line";
+            }
             var smallEl = mobileItem.querySelector(".ticket-kicker, small");
             if (smallEl) smallEl.textContent = state.cardSmall;
             var statusCells = Array.from(mobileItem.querySelectorAll(".ticket-cell"));
@@ -4629,16 +4635,39 @@
           const safeMessages = Array.isArray(messages) ? messages : [];
           if (DEBUG_MODE) console.log("[lumi] loadMyMessages: messages arrived, count=", safeMessages.length);
 
-          // fix2L-3-6U-fix5: 문자함만 간헐적으로 0건으로 내려오는 경우가 있어,
-          // 바로 캐시/화면을 비우지 않고 짧게 재시도한다.
-          // 진짜 신규 계정/진짜 0건은 재시도 후에만 empty로 확정한다.
+          // fix2L-3-6U-fix6: 문자 row가 실제로 있는데 API/렌더링 순간 0건으로 내려오는 경우,
+          // 직전 정상 문자 목록을 바로 지우지 않는다. 진짜 0건인 신규 계정만 empty로 확정한다.
+          const runtimeMailBackup = Array.isArray(LUMI_RUNTIME_MAIL_ITEMS) ? LUMI_RUNTIME_MAIL_ITEMS : [];
+          const runtimeSmsBackup = Array.isArray(LUMI_RUNTIME_MESSAGE_ITEMS) ? LUMI_RUNTIME_MESSAGE_ITEMS : [];
+          const cachedMailBackup = cacheRead_(lumiId, "mail", 1000 * 60 * 60 * 24 * 14) || [];
+          const cachedSmsBackup = cacheRead_(lumiId, "sms",  1000 * 60 * 60 * 24 * 14) || [];
+          const hasStaleMessages =
+            runtimeMailBackup.length > 0 || runtimeSmsBackup.length > 0 ||
+            cachedMailBackup.length > 0 || cachedSmsBackup.length > 0;
+
           if (safeMessages.length === 0 && retry.emptyRetry < 2) {
-            appendBootDebug("messages empty from API → retry " + (retry.emptyRetry + 1) + "/2 before clearing UI");
+            appendBootDebug("messages empty from API → retry " + (retry.emptyRetry + 1) + "/2, keep current message UI");
             window.__lumiMessagesLoadDone = false;
             LUMI_MESSAGES_LOAD_DONE = false;
             setTimeout(function() {
               loadMyMessages(lumiId, { emptyRetry: retry.emptyRetry + 1 });
             }, retry.emptyRetry === 0 ? 450 : 900);
+            return;
+          }
+
+          if (safeMessages.length === 0 && hasStaleMessages) {
+            const fallbackMail = runtimeMailBackup.length ? runtimeMailBackup : cachedMailBackup;
+            const fallbackSms  = runtimeSmsBackup.length  ? runtimeSmsBackup  : cachedSmsBackup;
+            LUMI_MESSAGES_LOAD_DONE = true;
+            window.__lumiMessagesLoadDone = true;
+            LUMI_RUNTIME_MAIL_ITEMS = fallbackMail;
+            LUMI_RUNTIME_MESSAGE_ITEMS = fallbackSms;
+            window.__lumiRuntimeMailItems = fallbackMail;
+            window.__lumiRuntimeMessageItems = fallbackSms;
+            renderMailAll();
+            if (typeof window.showLumiMessageInbox === "function") window.showLumiMessageInbox();
+            if (typeof window.__lumiRefreshMessageList === "function") window.__lumiRefreshMessageList();
+            appendBootDebug("messages empty after retry → stale fallback kept: mail=" + fallbackMail.length + " sms=" + fallbackSms.length);
             return;
           }
 
@@ -4683,11 +4712,14 @@
           LUMI_MESSAGES_LOAD_DONE = true;
           window.__lumiMessagesLoadDone = true;
           appendBootDebug("message load error (cache kept): " + errMsg);
-          if (!Array.isArray(LUMI_RUNTIME_MAIL_ITEMS) || LUMI_RUNTIME_MAIL_ITEMS.length === 0) {
-            LUMI_RUNTIME_MAIL_ITEMS = [];
-            window.__lumiRuntimeMailItems = [];
-            LUMI_RUNTIME_MESSAGE_ITEMS = LUMI_RUNTIME_MESSAGE_ITEMS || [];
-            window.__lumiRuntimeMessageItems = window.__lumiRuntimeMessageItems || [];
+          if ((!Array.isArray(LUMI_RUNTIME_MAIL_ITEMS) || LUMI_RUNTIME_MAIL_ITEMS.length === 0) &&
+              (!Array.isArray(LUMI_RUNTIME_MESSAGE_ITEMS) || LUMI_RUNTIME_MESSAGE_ITEMS.length === 0)) {
+            const cachedMail = cacheRead_(lumiId, "mail", 1000 * 60 * 60 * 24 * 14) || [];
+            const cachedSms  = cacheRead_(lumiId, "sms",  1000 * 60 * 60 * 24 * 14) || [];
+            LUMI_RUNTIME_MAIL_ITEMS = cachedMail;
+            LUMI_RUNTIME_MESSAGE_ITEMS = cachedSms;
+            window.__lumiRuntimeMailItems = cachedMail;
+            window.__lumiRuntimeMessageItems = cachedSms;
             renderMailAll();
           }
           // 캐시가 있으면 기존 UI 유지 (에러/타임아웃 시에만)
@@ -9908,12 +9940,15 @@
     else if (today > end) state = "expired";
 
     const monthText = pad2(birth.month) + ".01 ~ " + pad2(birth.month) + "." + pad2(last);
+    const monthCode = String(year) + pad2(birth.month);
+    const birthdaySubText = "· Lumibelle " + monthCode + " 생일월\n· Birthday Ticket 자동 발급";
     return {
       year: year,
       month: birth.month,
       day: birth.day,
       last: last,
       period: monthText,
+      monthCode: monthCode,
       state: state,
       isActive: state === "available",
       titleText: "Birthday Ticket",
@@ -9922,7 +9957,7 @@
       periodLabel: "사용 기간",
       statusText: state === "used" ? "Birthday Ticket 사용 완료" : state === "available" ? "Birthday Ticket 사용 가능" : state === "expired" ? "올해 Birthday Ticket 사용 기간이 지났어요" : "생일 당월에 열려요",
       statusShort: state === "used" ? "사용 완료" : state === "available" ? "미사용 / 기간 내" : state === "expired" ? "기간 종료" : "대기 중",
-      subText: state === "available" ? "생일 기념 촬영 특전권 · Birthday Ticket 사용 가능" : state === "used" ? "생일 기념 촬영 특전권 · 올해 사용 완료" : state === "expired" ? "생일 기념 촬영 특전권 · 올해 사용 기간 종료" : "생일 기념 촬영 특전권 · 생일 당월 1일에 열려요",
+      subText: birthdaySubText,
       detailCopy: "Birthday Ticket은 생일 당월 1일부터 말일까지 사용할 수 있는 생일 기념 촬영 특전권이에요. 현재 상태: " + (state === "used" ? "Birthday Ticket 사용 완료" : state === "available" ? "Birthday Ticket 사용 가능" : state === "expired" ? "올해 Birthday Ticket 사용 기간이 지났어요" : "생일 당월에 열려요") + "."
     };
   }
@@ -9956,7 +9991,9 @@
     setText(section.querySelector(".ticket-pc-label"), state.labelText || "HAPPY BIRTHDAY · SPECIAL TICKET");
     setHtml(section.querySelector(".ticket-pc-date"), (state.periodLabel || "사용 기간") + "<br>" + state.period);
     setText(section.querySelector(".ticket-pc-title-en"), state.titleText || "Birthday Ticket");
-    setText(section.querySelector(".ticket-pc-place"), state.subText);
+    const pcBirthdayPlace = section.querySelector(".ticket-pc-place");
+    setText(pcBirthdayPlace, state.subText);
+    if (pcBirthdayPlace) pcBirthdayPlace.style.whiteSpace = "pre-line";
     setText(section.querySelector(".ticket-pc-entry small"), state.entryLabel || "BIRTHDAY MONTH");
     setText(section.querySelector(".ticket-pc-entry strong"), state.period);
     const statusCell = Array.from(section.querySelectorAll(".ticket-pc-meta div")).find((cell) => /STATUS/.test(cell.textContent || ""));
@@ -9971,7 +10008,9 @@
       setText(card.querySelector(".ticket-title"), state.titleText || "Birthday Ticket");
       setText(card.querySelector(".ticket-number small"), state.entryLabel || "BIRTHDAY MONTH");
       setText(card.querySelector(".ticket-number strong"), state.period);
-      setText(card.querySelector(".ticket-sub"), state.subText);
+      const birthdayTicketSub = card.querySelector(".ticket-sub");
+      setText(birthdayTicketSub, state.subText);
+      if (birthdayTicketSub) birthdayTicketSub.style.whiteSpace = "pre-line";
       const statusCell = Array.from(card.querySelectorAll(".ticket-cell")).find((cell) => /STATUS/.test(cell.textContent || ""));
       if (statusCell) setHtml(statusCell.querySelector("b"), state.statusShort.replace(" / ", "<br>"));
     });
@@ -9982,7 +10021,9 @@
       const title = card.querySelector("b");
       if (!title || title.textContent.trim() !== "Birthday Ticket") return;
       setText(card.querySelector("small"), state.state === "available" ? "사용 가능" : state.state === "used" ? "사용 완료" : state.state === "expired" ? "기간 종료" : "생일 등록 후 열림");
-      setText(card.querySelector("span"), state.state === "unregistered" ? "생일을 등록하면 생일 시즌에 열려요." : "생일 기념 촬영 특전권 · " + state.period);
+      const walletBirthdayDesc = card.querySelector("span");
+      setText(walletBirthdayDesc, state.state === "unregistered" ? "생일을 등록하면 생일 시즌에 열려요." : state.subText);
+      if (walletBirthdayDesc) walletBirthdayDesc.style.whiteSpace = "pre-line";
       const status = card.querySelector(".ticket-pc-card-actions span");
       setText(status, state.statusText);
       if (status) status.classList.toggle("active", state.isActive);
