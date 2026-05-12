@@ -1115,16 +1115,12 @@
 
       const LUMI_SMS_MESSAGE_TYPES = new Set([
         "paymentconfirmed",
-        "paymentconfirm",  // PATCH 51-45: 시트에 paymentConfirm으로 저장된 경우도 허용
+        "paymentconfirm",
         "entrycomplete",
         "reservationconfirmed",
-        "birthdaynotice",
-        // fix2L-3-6L: 생일 멤버 축하/사전 안내는 senderType=member여도 루미레터가 아니라 생일 문자함으로 유지
-        "birthdaymessage",
         "birthdaydaymessage",
-        "birthdayletter",
-        "birthdayprenotice",
-        "birthdaymonthnotice",
+        "birthdaymessage",
+        "memberbirthdaymessage",
         "jointicket",
         "welcometicket",
         "livereminder",
@@ -1132,8 +1128,17 @@
       ]);
 
       const LUMI_MAIL_MESSAGE_TYPES = new Set([
+        "welcomemail",
+        "birthdaynotice",
+        "birthdayprenotice",
+        "birthdaymonthnotice",
+        "birthdayticketnotice",
+        "eventguide",
+        "liveguide",
+        "debutliveguide",
         "afterliveletter",
         "memberletter",
+        "officialletter",
         "lumiletter",
         "archiveletter",
         "eventstory",
@@ -1161,12 +1166,36 @@
         return key === 'hiddenlight' || key === 'comingsoon' || key === 'newlight' || key === 'secretlight' || key === 'unknownlight';
       }
 
+      function isBirthdayPreNoticeSource_(item) {
+        const source = item || {};
+        const type = normalizeMessageTypeKey(source.messageType || source.type);
+        const src = normalizeMessageTypeKey(source.source || source.messageSource || source.reason);
+        const senderType = String(source.senderType || '').trim().toLowerCase();
+        const title = String(source.title || '').trim();
+        if (senderType === 'member') return false;
+        if (type === 'birthdaynotice' || type === 'birthdayprenotice' || type === 'birthdaymonthnotice' || type === 'birthdayticketnotice') return true;
+        if (src === 'birthdayprenotice' || src === 'birthdaymonthnotice') return true;
+        if (/Birthday Ticket|생일 특전권|생일월/.test(title)) return true;
+        return false;
+      }
+
+      function isBirthdayDayMessageSource_(item) {
+        const source = item || {};
+        const type = normalizeMessageTypeKey(source.messageType || source.type);
+        const src = normalizeMessageTypeKey(source.source || source.messageSource || source.reason);
+        const senderType = String(source.senderType || '').trim().toLowerCase();
+        if (type === 'birthdaydaymessage' || type === 'birthdaymessage' || type === 'memberbirthdaymessage') return true;
+        if (src === 'birthdaydaymessage' || src === 'birthdaymessage') return true;
+        return senderType === 'member' && type.indexOf('birthday') !== -1;
+      }
+
       function isBirthdayMessageSource_(item) {
         const source = item || {};
         const type = normalizeMessageTypeKey(source.messageType || source.type);
         const src = normalizeMessageTypeKey(source.source || source.messageSource || source.reason);
         const tag = String(source.tag || '').trim();
         const title = String(source.title || '').trim();
+        if (isBirthdayPreNoticeSource_(source) || isBirthdayDayMessageSource_(source)) return true;
         if (type.indexOf('birthday') !== -1) return true;
         if (src.indexOf('birthday') !== -1) return true;
         if (tag === '생일') return true;
@@ -1205,8 +1234,9 @@
 
       function getLumiMessageChannel(item) {
         const key = normalizeMessageTypeKey(item && (item.messageType || item.type));
-        // fix2L-3-6L: 생일 메시지는 멤버 발신이어도 문자/생일 필터 유지
-        if (isBirthdayMessageSource_(item)) return "message";
+        // fix2L-3-6M: Birthday Ticket 사전 안내는 우편함, 생일 당일 멤버 축하는 문자함/생일 필터
+        if (isBirthdayPreNoticeSource_(item)) return "mail";
+        if (isBirthdayDayMessageSource_(item)) return "message";
         if (LUMI_MAIL_MESSAGE_TYPES.has(key)) return "mail";
         if (LUMI_SMS_MESSAGE_TYPES.has(key)) return "message";
         const senderType = String(item && item.senderType || "").trim().toLowerCase();
@@ -1279,7 +1309,7 @@
           messageId: id,
           box: channel === "mail" ? "inbox" : "message",
           channel: channel,
-          category: senderType === "member" ? "member" : (source.category || "event"),
+          category: isBirthdayPreNoticeSource_(source) ? "guide" : (senderType === "member" ? "member" : (source.category || "event")),
           messageType: source.messageType || "",
           senderType: senderType,
           senderMember: senderMember,
@@ -1311,12 +1341,13 @@
         const icon = messageIconFromType(source);
         let tag = source.tag || "운영";
         let filterType = "staff";
-        const isBirthdayMessage = isBirthdayMessageSource_(source);
+        const isBirthdayDayMessage = isBirthdayDayMessageSource_(source);
+        if (type === "paymentconfirmed" || type === "paymentconfirm") { tag = source.tag || "운영"; filterType = "staff"; }
         if (type === "livereminder" || type === "entrycomplete") { tag = source.tag || "라이브"; filterType = "live"; }
-        if (isBirthdayMessage) { tag = source.tag || "생일"; filterType = "birthday"; }
+        if (isBirthdayDayMessage) { tag = source.tag || "생일"; filterType = "birthday"; }
         if (type === "welcometicket" || type === "jointicket") { tag = source.tag || "티켓"; filterType = "staff"; }
-        // fix2L-3-6L: 멤버 발신이어도 생일 메시지는 루미레터로 덮어쓰지 않는다.
-        if (senderType === "member" && !isBirthdayMessage) { tag = source.tag || "루미레터"; filterType = "lumiletter"; }
+        // fix2L-3-6M: 멤버 발신이어도 생일 당일 메시지는 루미레터로 덮어쓰지 않는다.
+        if (senderType === "member" && !isBirthdayDayMessage) { tag = source.tag || "루미레터"; filterType = "lumiletter"; }
         const isReadValue = String(source.isRead == null ? "" : source.isRead).toLowerCase();
         const isRead = source.isRead === true || isReadValue === "true" || isReadValue === "1" || isReadValue === "읽음";
         return {
@@ -4532,7 +4563,8 @@
           if (DEBUG_MODE) console.log("[lumi] loadMyMessages: messages arrived, count=", safeMessages.length);
           const publicMessages = safeMessages.filter((item) => {
             const member = String(item && item.senderMember || "").toLowerCase();
-            return member !== "iro" && member !== "lunar" && member !== "luna";
+            if (member === "iro" || member === "lunar" || member === "luna") return isIroLunarReleased_();
+            return true;
           });
           const normalized = publicMessages.map(normalizeLumiMessageItem);
           const mailItems = normalized.filter((item) => item.channel === "mail");
@@ -8166,12 +8198,13 @@
     const icon = messageIconFromType(source);
     let tag = source.tag || "운영";
     let filterType = "staff";
-    const isBirthdayMessage = isBirthdayMessageSource_(source);
+    const isBirthdayDayMessage = isBirthdayDayMessageSource_(source);
+    if (type === "paymentconfirmed" || type === "paymentconfirm") { tag = source.tag || "운영"; filterType = "staff"; }
     if (type === "livereminder" || type === "entrycomplete") { tag = source.tag || "라이브"; filterType = "live"; }
-    if (isBirthdayMessage) { tag = source.tag || "생일"; filterType = "birthday"; }
+    if (isBirthdayDayMessage) { tag = source.tag || "생일"; filterType = "birthday"; }
     if (type === "welcometicket" || type === "jointicket") { tag = source.tag || "티켓"; filterType = "staff"; }
-    // fix2L-3-6L: 멤버 발신이어도 생일 메시지는 루미레터로 덮어쓰지 않는다.
-    if (senderType === "member" && !isBirthdayMessage) { tag = source.tag || "루미레터"; filterType = "lumiletter"; }
+    // fix2L-3-6M: 멤버 발신이어도 생일 당일 메시지는 루미레터로 덮어쓰지 않는다.
+    if (senderType === "member" && !isBirthdayDayMessage) { tag = source.tag || "루미레터"; filterType = "lumiletter"; }
     const isReadValue = String(source.isRead == null ? "" : source.isRead).toLowerCase();
     const isReadFromApi = source.isRead === true || isReadValue === "true" || isReadValue === "1" || isReadValue === "읽음";
     // PATCH 51-39: local read state 우선 병합 (API 응답이 느리거나 실패해도 NEW 재등장 방지)
