@@ -10195,7 +10195,8 @@
     }
   });
 
+  // fix-shake: 120/500/1200/2400ms 폴링 제거. 이 4회 반복이 특전권 탭 카드 전체를 흔드는 원인.
+  // applyBirthdayTicketState는 DOMContentLoaded 1회 + 외부에서 __lumiApplyBirthdayTicketState()로 필요 시 호출.
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", applyBirthdayTicketState);
   else applyBirthdayTicketState();
-  [120, 500, 1200, 2400].forEach((delay) => setTimeout(applyBirthdayTicketState, delay));
 })();
