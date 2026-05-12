@@ -1233,15 +1233,17 @@
         return out.slice(0, 3);
       }
 
-      // fix2L-3-6U-fix2: 멤버별 첫 특전 메시지 선택지/후속답장 보정
-      function isMemberFirstChekiMessageSource_(item) {
-        const type = normalizeMessageTypeKey(item && (item.messageType || item.type));
-        return type === "memberfirstcheki";
+      // fix2L-3-6U-fix3: 멤버별 첫 특전 메시지는 문자함/라이브 분류 + 선택지 답장 보정
+      function isMemberFirstChekiMessageSource_(source) {
+        const item = source || {};
+        const type = normalizeMessageTypeKey(item.messageType || item.type);
+        const key = String(item.messageKey || item.id || item.messageId || '').toLowerCase();
+        return type === 'memberfirstcheki' || key.indexOf('memberfirstcheki__') !== -1;
       }
 
       function compactMemberFirstChekiChoice_(choice) {
-        const text = String(choice == null ? "" : choice).trim();
-        if (text === "링링이랑 또 반짝이는 시간 만들래") return "반짝이는 시간 만들래";
+        const text = String(choice == null ? '' : choice).trim();
+        if (text === '링링이랑 또 반짝이는 시간 만들래') return '반짝이는 시간 만들래';
         return text;
       }
 
@@ -1255,18 +1257,18 @@
 
       function memberFirstChekiAfterMap_(source) {
         if (!isMemberFirstChekiMessageSource_(source)) return {};
-        const member = String(source && source.senderMember || "").trim().toLowerCase();
-        if (member === "lulu") {
+        const member = String(source && source.senderMember || '').trim().toLowerCase();
+        if (member === 'lulu') {
           return {
-            "루루랑 또 포근하게 만나고 싶어": ["정말...? 루루도 또 만나고 싶어…! 🐰🩷"],
-            "오늘 루루 너무 귀여웠어": ["에헤헤... 그렇게 말해주면 루루 부끄럽지만 너무 기뻐…🐰💦"],
-            "앞으로도 한 걸음씩 같이 갈게": ["응… 루루만의 길로 한발씩, 같이 걸어가자…! 🐰✨️"]
+            '루루랑 또 포근하게 만나고 싶어': ['정말...? 루루도 또 만나고 싶어…! 🐰🩷'],
+            '오늘 루루 너무 귀여웠어': ['에헤헤... 그렇게 말해주면 루루 부끄럽지만 너무 기뻐…🐰💦'],
+            '앞으로도 한 걸음씩 같이 갈게': ['응… 루루만의 길로 한발씩, 같이 걸어가자…! 🐰✨️']
           };
         }
         return {
-          "반짝이는 시간 만들래": ["좋아! 링링이랑 다음에도 더 반짝이는 시간 만들자!"],
-          "별빛 따라 계속 같이 갈게": ["그 말, 링링 루미폰에 오래 저장해둘게.", "앞으로도 같이 예쁜 풍경 보러 가자!"],
-          "오늘 기억 오래 간직할게": ["고마워. 오늘의 반짝임도 링링이 오래 간직할게!"]
+          '반짝이는 시간 만들래': ['좋아! 링링이랑 다음에도 더 반짝이는 시간 만들자!'],
+          '별빛 따라 계속 같이 갈게': ['그 말, 링링 루미폰에 오래 저장해둘게.', '앞으로도 같이 예쁜 풍경 보러 가자!'],
+          '오늘 기억 오래 간직할게': ['고마워. 오늘의 반짝임도 링링이 오래 간직할게!']
         };
       }
 
@@ -1407,6 +1409,7 @@
         if (type === "welcometicket" || type === "jointicket") { tag = source.tag || "티켓"; filterType = "staff"; }
         if (type === "memberfirstcheki") { tag = source.tag || "라이브"; filterType = "live"; }
         // fix2L-3-6M: 멤버 발신이어도 생일 당일 메시지는 루미레터로 덮어쓰지 않는다.
+        // fix2L-3-6U-fix3: 멤버별 첫 특전 메시지는 루미레터가 아니라 문자함/라이브로 둔다.
         if (senderType === "member" && !isBirthdayDayMessage && type !== "memberfirstcheki") { tag = source.tag || "루미레터"; filterType = "lumiletter"; }
         const isReadValue = String(source.isRead == null ? "" : source.isRead).toLowerCase();
         const isRead = source.isRead === true || isReadValue === "true" || isReadValue === "1" || isReadValue === "읽음";
@@ -8266,9 +8269,8 @@
     if (type === "livereminder" || type === "entrycomplete") { tag = source.tag || "라이브"; filterType = "live"; }
     if (isBirthdayDayMessage) { tag = source.tag || "생일"; filterType = "birthday"; }
     if (type === "welcometicket" || type === "jointicket") { tag = source.tag || "티켓"; filterType = "staff"; }
-    if (type === "memberfirstcheki") { tag = source.tag || "라이브"; filterType = "live"; }
     // fix2L-3-6M: 멤버 발신이어도 생일 당일 메시지는 루미레터로 덮어쓰지 않는다.
-    if (senderType === "member" && !isBirthdayDayMessage && type !== "memberfirstcheki") { tag = source.tag || "루미레터"; filterType = "lumiletter"; }
+    if (senderType === "member" && !isBirthdayDayMessage) { tag = source.tag || "루미레터"; filterType = "lumiletter"; }
     const isReadValue = String(source.isRead == null ? "" : source.isRead).toLowerCase();
     const isReadFromApi = source.isRead === true || isReadValue === "true" || isReadValue === "1" || isReadValue === "읽음";
     // PATCH 51-39: local read state 우선 병합 (API 응답이 느리거나 실패해도 NEW 재등장 방지)
@@ -8295,8 +8297,7 @@
       preview: source.preview || body.replace(/\s+/g, " ").slice(0, 80),
       icon: icon,
       lines: splitLumiMessageParagraphs_(body, source.title || "루미벨에서 도착한 문자예요."),
-      choices: isMemberFirstChekiMessageSource_(source) ? normalizeMemberFirstChekiChoices_(source) : parseReplyOptionsFromSource_(source),
-      after: isMemberFirstChekiMessageSource_(source) ? memberFirstChekiAfterMap_(source) : (source.after || {})
+      choices: parseReplyOptionsFromSource_(source)
     };
   }
   function isComingSoonMessage(m){
@@ -8458,8 +8459,7 @@
       let state = "읽음", cls = "read";
       if (!isRead(m.id)) { state = "NEW"; cls = ""; }
       else if (isSaved(m.id)) { state = "소장"; cls = "saved"; }
-      const iconClass = normalizeMessageTypeKey(m.messageType || m.type) === "memberfirstcheki" ? " lumiMsg-icon--multi" : "";
-      btn.innerHTML = '<div class="lumiMsg-icon'+iconClass+'">'+(m.icon||"💌")+'</div><div class="lumiMsg-meta">'+m.from+' <small>· '+m.date+'</small></div><span class="lumiMsg-tag">'+m.tag+'</span><b class="lumiMsg-title">'+m.title+'</b><span class="lumiMsg-preview">'+m.preview+'</span><em class="lumiMsg-state '+cls+'">'+state+'</em>';
+      btn.innerHTML = '<div class="lumiMsg-icon">'+(m.icon||"💌")+'</div><div class="lumiMsg-meta">'+m.from+' <small>· '+m.date+'</small></div><span class="lumiMsg-tag">'+m.tag+'</span><b class="lumiMsg-title">'+m.title+'</b><span class="lumiMsg-preview">'+m.preview+'</span><em class="lumiMsg-state '+cls+'">'+state+'</em>';
       btn.addEventListener("click", () => openMessage(m.id, true));
       list.appendChild(btn);
     });
