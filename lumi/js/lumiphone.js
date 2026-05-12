@@ -8597,7 +8597,10 @@
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "lumiMsg-item message-preview-card";
-      if (isMemberFirstChekiMessageSource_(m)) btn.classList.add("member-first-cheki-message");
+      // fix2L-3-6U-fix13: isMemberFirstChekiMessageSource_는 외부 IIFE 스코프라 접근 불가 → inline 조건으로 대체
+      const _mType = String((m && (m.messageType || m.type)) || "").trim().toLowerCase().replace(/[\s_\-]/g, "");
+      const _mKey  = String((m && (m.messageKey || m.id || m.messageId)) || "").toLowerCase();
+      if (_mType === "memberfirstcheki" || _mKey.indexOf("memberfirstcheki__") !== -1) btn.classList.add("member-first-cheki-message");
       btn.dataset.lumimsgId = m.id;
       btn.style.display = "grid";
       btn.style.width = "100%";
@@ -8752,7 +8755,10 @@
       }
     }
     const title = $("#lumiMsgChatTitle", root), date = $("#lumiMsgChatDate", root), tag = $("#lumiMsgChatTag", root), log = $("#lumiMsgChatLog", root), replies = $("#lumiMsgReplies", root), view = $("#lumiMsgView", root);
-    if (view) view.classList.toggle("member-first-cheki-message", isMemberFirstChekiMessageSource_(m));
+    // fix2L-3-6U-fix13: isMemberFirstChekiMessageSource_는 외부 IIFE 스코프라 접근 불가 → inline 조건으로 대체
+    const _vMType = String((m && (m.messageType || m.type)) || "").trim().toLowerCase().replace(/[\s_\-]/g, "");
+    const _vMKey  = String((m && (m.messageKey || m.id || m.messageId)) || "").toLowerCase();
+    if (view) view.classList.toggle("member-first-cheki-message", _vMType === "memberfirstcheki" || _vMKey.indexOf("memberfirstcheki__") !== -1);
     if (title) title.textContent = m.from + " · " + m.title;
     if (date) date.textContent = m.date;
     if (tag) tag.textContent = m.tag;
