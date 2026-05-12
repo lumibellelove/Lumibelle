@@ -4320,7 +4320,7 @@
           return { state:"none", meate:"-", label:"예매 정보 없음", shortLabel:"예매 없음", desc:"예약 티켓이 연결되면 메아테 혜택 대상 여부가 표시돼요.", cardSmall:"메아테 안내", active:false, locked:true };
         }
         if (!confirmed) {
-          return { state:"pending", meate:meate || "-", label:"입금 확인 후 메아테 혜택 확정", shortLabel:"확인 중", desc:"입금 확인 후, 예매 시 선택한 메아테 팀 기준으로 루미벨 혜택 대상 여부가 표시됩니다.", cardSmall:"입금 확인 후 표시", active:false, locked:false };
+          return { state:"pending", meate:meate || "-", label:"입금 확인 전", shortLabel:"입금 확인 전", desc:"예매/입금 확인 후 메아테 혜택 대상 여부가 표시돼요.", cardSmall:"메아테 안내", active:false, locked:false };
         }
         if (hasMeate && isLumibelleMeate_(meate)) {
           return { state:"eligible", meate:meate, label:"루미벨 메아테 혜택 대상", shortLabel:"혜택 대상", desc:"· 메아테 : Lumibelle\n· 특전회 시간에 루미벨 팀으로 와주세요.\n스탭 확인 후 특전권&포인트가 안내됩니다.", cardSmall:"메아테 혜택 대상", active:true, locked:false };
@@ -5189,7 +5189,7 @@
         available:  "사용 가능",
         used:       "사용 완료",
         expired:    "만료",
-        pending:    "확인 중",
+        pending:    "발급 전",
         cancelled:  "취소"
       };
 
@@ -5308,7 +5308,7 @@
                 if (statusEl) { statusEl.textContent = welcomeLines ? welcomeLines.statusLabel : "사용 완료"; statusEl.className = ""; }
               } else if (t.status === "pending") {
                 cardEl.classList.remove("is-locked");
-                if (statusEl) { statusEl.textContent = "확인 중"; statusEl.className = ""; }
+                if (statusEl) { statusEl.textContent = "발급 전"; statusEl.className = ""; }
               }
               // small 레이블 갱신
               if (smallEl && t.source) {
@@ -10051,9 +10051,9 @@
         labelText: "BIRTHDAY TICKET GUIDE",
         entryLabel: "BIRTHDAY GUIDE",
         periodLabel: "상태",
-        statusText: "생일 등록 후 열림",
-        statusShort: "생일 등록 후 열림",
-        subText: "생일을 등록하면 생일 시즌에 열려요.",
+        statusText: "생일 등록 후 안내 예정",
+        statusShort: "안내 예정",
+        subText: "생일을 등록하면 생일 시즌에 안내가 도착해요.",
         detailCopy: "생일을 등록하면 생일 시즌에 Birthday Ticket이 열려요. 사용 가능 기간은 생일 당월 1일부터 말일까지예요. 실제 사용은 현장에서 스탭 확인 후 진행됩니다."
       };
     }
@@ -10082,8 +10082,8 @@
       labelText: "HAPPY BIRTHDAY · SPECIAL TICKET",
       entryLabel: "BIRTHDAY MONTH",
       periodLabel: "사용 기간",
-      statusText: state === "used" ? "Birthday Ticket 사용 완료" : state === "available" ? "Birthday Ticket 사용 가능" : state === "expired" ? "올해 Birthday Ticket 사용 기간이 지났어요" : "생일 당월에 열려요",
-      statusShort: state === "used" ? "사용 완료" : state === "available" ? "미사용 / 기간 내" : state === "expired" ? "기간 종료" : "대기 중",
+      statusText: state === "used" ? "Birthday Ticket 사용 완료" : state === "available" ? "Birthday Ticket 사용 가능" : state === "expired" ? "올해 Birthday Ticket 사용 기간이 지났어요" : "생일월 1일 00:00 발급 예정",
+      statusShort: state === "used" ? "사용 완료" : state === "available" ? "미사용 / 기간 내" : state === "expired" ? "기간 종료" : "발급 예정",
       subText: birthdaySubText,
       detailCopy: "Birthday Ticket은 생일 당월 1일부터 말일까지 사용할 수 있는 생일 기념 촬영 특전권이에요. 현재 상태: " + (state === "used" ? "Birthday Ticket 사용 완료" : state === "available" ? "Birthday Ticket 사용 가능" : state === "expired" ? "올해 Birthday Ticket 사용 기간이 지났어요" : "생일 당월에 열려요") + "."
     };
@@ -10147,7 +10147,7 @@
     document.querySelectorAll(".ticket-pc-wallet-card").forEach((card) => {
       const title = card.querySelector("b");
       if (!title || title.textContent.trim() !== "Birthday Ticket") return;
-      setText(card.querySelector("small"), state.state === "available" ? "사용 가능" : state.state === "used" ? "사용 완료" : state.state === "expired" ? "기간 종료" : "생일 등록 후 열림");
+      setText(card.querySelector("small"), state.state === "available" ? "사용 가능" : state.state === "used" ? "사용 완료" : state.state === "expired" ? "기간 종료" : "생일 안내 예정");
       const walletBirthdayDesc = card.querySelector("span");
       setText(walletBirthdayDesc, state.state === "unregistered" ? "생일을 등록하면 생일 시즌에 열려요." : state.subText);
       if (walletBirthdayDesc) walletBirthdayDesc.style.whiteSpace = "pre-line";
