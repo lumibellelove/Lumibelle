@@ -4318,7 +4318,7 @@
           return { state:"pending", meate:meate || "-", label:"입금 확인 후 메아테 혜택 확정", shortLabel:"확인 중", desc:"입금 확인 후, 예매 시 선택한 메아테 팀 기준으로 루미벨 혜택 대상 여부가 표시돼요.", cardSmall:"입금 확인 후 표시", active:false, locked:false };
         }
         if (hasMeate && isLumibelleMeate_(meate)) {
-          return { state:"eligible", meate:"Lumibelle", label:"루미벨 메아테 혜택 대상", shortLabel:"혜택 대상", desc:"· 메아테 : Lumibelle\n· 수령 안내 : 특전회 시간에 루미벨 팀으로 와주세요.\n· 스탭 확인 후 특전권&포인트가 안내됩니다.", cardSmall:"루미벨 메아테 혜택 대상", active:true, locked:false };
+          return { state:"eligible", meate:meate, label:"루미벨 메아테 혜택 대상", shortLabel:"혜택 대상", desc:"Lumibelle 메아테 선택이 확인되어 루미벨 메아테 혜택 대상이에요. 현장 물판/특전회에서 스탭 확인 후 안내돼요.", cardSmall:"메아테 혜택 대상", active:true, locked:false };
         }
         return { state:"notEligible", meate:meate || "다른 팀", label:"루미벨 혜택 대상 아님", shortLabel:"대상 아님", desc:"· 메아테 : " + (meate || "다른 팀") + "\n· 루미벨 메아테 특전권&포인트 대상은 아니지만,\n공연 기록은 루미폰에 그대로 남아요.", cardSmall:"루미벨 혜택 대상 아님", active:false, locked:true };
       }
@@ -4326,39 +4326,6 @@
       function updateTextIfExists_(root, selector, text) {
         var el = root && root.querySelector ? root.querySelector(selector) : null;
         if (el) el.textContent = text;
-      }
-
-      // fix2L-3-6W-fix3: 특전권 탭 초기 렌더 잠금/흔들림 방지.
-      // 정적 기본 카드가 확정값처럼 먼저 보이지 않도록 로딩 카드만 먼저 보여주고,
-      // 예약/루미티켓 데이터가 들어온 뒤 해당 카드만 해제한다.
-      function markTicketBenefitReady_(scope) {
-        try {
-          var root = scope || document;
-          Array.from(root.querySelectorAll('[data-benefit-loading], [data-benefit-loading-pc]')).forEach(function(el) {
-            el.hidden = true;
-          });
-          initTicketPagers();
-        } catch(e) {}
-      }
-
-      function revealTicketBenefitElement_(el) {
-        if (!el) return;
-        el.hidden = false;
-        var card = el.closest && (el.closest('.ticket-page-item') || el.closest('.ticket-pc-wallet-card'));
-        if (card) card.hidden = false;
-      }
-
-      function ensureMobileMeateBenefitItem_() {
-        var list = document.querySelector('#ticket-benefit .ticket-paged-list');
-        if (!list) return null;
-        var item = findTicketBenefitItemByTitle_('메아테');
-        if (item) return item;
-        item = document.createElement('div');
-        item.className = 'ticket-page-item';
-        item.dataset.ticketCategory = '메아테';
-        item.innerHTML = '<article class="plain-row"><b>메아테 특전권</b><span>예매/입금/메아테 정보를 불러오는 중이에요.</span></article>';
-        list.appendChild(item);
-        return item;
       }
 
       function findTicketBenefitItemByTitle_(titleText) {
@@ -4380,8 +4347,6 @@
           var pcBtn = document.querySelector('#ticket-pc-benefit [data-perk="meate"]');
           var pcCard = pcBtn ? pcBtn.closest(".ticket-pc-wallet-card") : null;
           if (pcCard) {
-            revealTicketBenefitElement_(pcCard);
-            markTicketBenefitReady_(document.querySelector('#ticket-pc-benefit'));
             pcCard.classList.toggle("is-locked", Boolean(state.locked));
             updateTextIfExists_(pcCard, "small", state.cardSmall);
             updateTextIfExists_(pcCard, "b", "메아테 특전권");
@@ -4399,10 +4364,8 @@
         } catch(e) {}
 
         try {
-          var mobileItem = ensureMobileMeateBenefitItem_();
+          var mobileItem = findTicketBenefitItemByTitle_("메아테");
           if (mobileItem) {
-            revealTicketBenefitElement_(mobileItem);
-            markTicketBenefitReady_(document.querySelector('#ticket-benefit'));
             var titleEl = mobileItem.querySelector(".ticket-title, .plain-row b, b");
             if (titleEl) titleEl.textContent = "메아테 특전권";
             var subEl = mobileItem.querySelector(".ticket-sub, .plain-row span");
@@ -5318,8 +5281,6 @@
               if (!card) return;
               var cardEl = card.closest(".ticket-pc-wallet-card");
               if (!cardEl) return;
-              revealTicketBenefitElement_(cardEl);
-              markTicketBenefitReady_(document.querySelector('#ticket-pc-benefit'));
               var statusEl = cardEl.querySelector(".ticket-pc-card-actions span");
               var smallEl  = cardEl.querySelector("small");
               var spanEl   = cardEl.querySelector("b + span, small + b + span, span:not(.ticket-pc-card-actions span)");
@@ -5422,14 +5383,10 @@
                   '</div>' +
                 '</div></article>';
               benefitList.insertBefore(newItem, benefitList.firstChild);
-              revealTicketBenefitElement_(newItem);
-              markTicketBenefitReady_(document.querySelector('#ticket-benefit'));
               return;
             }
 
             // 기존 카드 찾음 → 상태/멤버/설명만 업데이트
-            revealTicketBenefitElement_(targetItem);
-            markTicketBenefitReady_(document.querySelector('#ticket-benefit'));
             var mobileTicketTypeKey = String(t.ticketType || "").trim().toLowerCase();
             var isWelcomeTicket = mobileTicketTypeKey === "welcome";
             var isBirthdayTicket = mobileTicketTypeKey === "birthday";
