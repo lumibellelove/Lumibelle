@@ -294,7 +294,8 @@
       return v;
     }
 
-    function jsonp(params) {
+    function jsonp(params, timeoutMs) {
+      timeoutMs = timeoutMs || 15000;
       return new Promise(function(resolve, reject) {
         const cbName = "__lumibelle_cb_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
         params.callback = cbName;
@@ -307,7 +308,7 @@
         const timer = setTimeout(function() {
           cleanup();
           reject(new Error("요청 시간이 초과됐어요."));
-        }, 15000);
+        }, timeoutMs);
 
         function cleanup() {
           clearTimeout(timer);
@@ -526,24 +527,73 @@
       return '<div class="line"><strong>' + label + '</strong><span>' + (raw ? value : escapeHtml(value || "-")) + '</span></div>';
     }
 
+    let checkinBusy = false;
+
+    function findExactTicketFromSearch_(items, ticketId) {
+      if (!items || !items.length) return null;
+      const target = clean(ticketId || "");
+      const targetCode = getEntryCode(ticketId || "");
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const itemTicket = clean(item.ticketId || "");
+        if (itemTicket === target) return item;
+        if (targetCode && getEntryCode(item.ticketId || "") === targetCode) return item;
+      }
+      return items[0] || null;
+    }
+
+    async function verifyCheckinAfterTimeout_(ticketId) {
+      try {
+        msg("응답이 늦어져서 입장완료 반영 여부를 다시 확인하고 있어요...", "");
+        const verify = await jsonp({ action: "search", q: ticketId }, 15000);
+        const item = verify && verify.items ? findExactTicketFromSearch_(verify.items, ticketId) : null;
+        if (item && normalizeEntryValue(item.entryStatus) === "입장완료") {
+          msg("입장완료가 시트에 반영된 것을 확인했어요.", "ok");
+          renderDetail(item);
+          return true;
+        }
+        if (item) {
+          renderDetail(item);
+        }
+        msg("요청 시간이 초과됐어요. 입장완료가 반영되지 않았으면 잠시 후 다시 조회해 주세요.", "err");
+        return false;
+      } catch (verifyErr) {
+        msg("요청 시간이 초과됐어요. 예약번호를 다시 조회해서 입장상태를 확인해 주세요.", "err");
+        return false;
+      }
+    }
+
     async function checkin() {
+      if (checkinBusy) return msg("입장완료 처리 중이에요. 잠시만 기다려 주세요.", "");
       if (!selectedTicketId) return msg("예약번호를 찾지 못했어요.", "err");
       if (!confirm("이 예약을 입장완료 처리할까요?")) return;
 
+      checkinBusy = true;
       msg("입장완료 처리 중이에요...", "");
 
       try {
-        const res = await jsonp({ action: "checkin", ticketId: selectedTicketId });
+        const res = await jsonp({ action: "checkin", ticketId: selectedTicketId }, 25000);
 
         if (!res.ok) {
           msg("입장 처리 오류: " + escapeHtml(res.error || "알 수 없는 오류"), "err");
           return;
         }
 
-        msg("입장완료 처리됐어요.", "ok");
+        if (res.alreadyEntered) {
+          msg("이미 입장완료 처리된 예약이에요.", "ok");
+        } else {
+          msg("입장완료 처리됐어요.", "ok");
+        }
         renderDetail(res.item);
       } catch (e) {
-        msg(escapeHtml(e.message || e), "err");
+        const message = String(e && e.message ? e.message : e);
+        if (message.indexOf("요청 시간이 초과") !== -1) {
+          await verifyCheckinAfterTimeout_(selectedTicketId);
+        } else {
+          msg(escapeHtml(message), "err");
+        }
+      } finally {
+        checkinBusy = false;
       }
     }
 
