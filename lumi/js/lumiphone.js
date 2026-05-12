@@ -8446,6 +8446,7 @@
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "lumiMsg-item message-preview-card";
+      if (isMemberFirstChekiMessageSource_(m)) btn.classList.add("member-first-cheki-message");
       btn.dataset.lumimsgId = m.id;
       btn.style.display = "grid";
       btn.style.width = "100%";
@@ -8600,6 +8601,7 @@
       }
     }
     const title = $("#lumiMsgChatTitle", root), date = $("#lumiMsgChatDate", root), tag = $("#lumiMsgChatTag", root), log = $("#lumiMsgChatLog", root), replies = $("#lumiMsgReplies", root), view = $("#lumiMsgView", root);
+    if (view) view.classList.toggle("member-first-cheki-message", isMemberFirstChekiMessageSource_(m));
     if (title) title.textContent = m.from + " · " + m.title;
     if (date) date.textContent = m.date;
     if (tag) tag.textContent = m.tag;
