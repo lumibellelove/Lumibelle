@@ -1118,6 +1118,7 @@
         "paymentconfirmed",
         "paymentconfirm",
         "entrycomplete",
+        "memberfirstcheki", // fix2L-3-6U-fix1: 멤버별 첫 특전 달성 메시지는 선택지가 있으므로 문자함으로 분류
         "reservationconfirmed",
         "birthdaydaymessage",
         "birthdaymessage",
