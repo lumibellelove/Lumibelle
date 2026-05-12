@@ -5282,7 +5282,9 @@
             // fix-shake: meate는 updateMeateBenefitUi()가 최종 담당. 여기서 건드리면 3중 갱신으로 흔들림 발생.
             var perkMap = { welcome:"welcome", join:"join", meate:"meate", birthday:"birthday", event:"welcome", general:"welcome" };
             list.forEach(function(t) {
-              if (String(t.ticketType || "").trim().toLowerCase() === "meate") return; // updateMeateBenefitUi가 담당
+              var _type = String(t.ticketType || "").trim().toLowerCase();
+              if (_type === "meate") return;    // updateMeateBenefitUi가 최종 담당
+              if (_type === "birthday") return; // applyBirthdayTicketState가 최종 담당
               var perk = perkMap[t.ticketType] || t.ticketType;
               var card = pcGrid.querySelector('[data-perk="' + perk + '"]');
               if (!card) return;
@@ -5354,8 +5356,9 @@
           list.forEach(function(t) {
             var expectedTitle = titleMap[t.ticketType];
             if (!expectedTitle) return; // 매핑 없는 타입은 skip
-            // fix-shake: meate는 updateMeateBenefitUi()가 최종 담당. 여기서 갱신하면 3중 덮어쓰기로 흔들림 발생.
-            if (String(t.ticketType || "").trim().toLowerCase() === "meate") return;
+            var _mtype = String(t.ticketType || "").trim().toLowerCase();
+            if (_mtype === "meate") return;    // updateMeateBenefitUi가 최종 담당
+            if (_mtype === "birthday") return; // applyBirthdayTicketState가 최종 담당
 
             // 해당 제목의 카드 찾기
             var allItems = Array.from(benefitList.querySelectorAll(".ticket-page-item"));
