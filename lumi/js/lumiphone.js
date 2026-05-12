@@ -1232,6 +1232,26 @@
       }
 
 
+      // fix2L-3-6M-fix3: 문자 상세 말풍선은 줄마다 쪼개지지 않게 빈 줄 기준으로만 분리한다.
+      // 한 문단 안의 줄바꿈은 그대로 보존해서 예약번호/입장번호 묶음이 한 박스로 보이게 한다.
+      function splitLumiMessageParagraphs_(body, fallback) {
+        const text = String(body == null ? "" : body)
+          .replace(/\r\n/g, "\n")
+          .replace(/\r/g, "\n")
+          .trim();
+
+        if (!text) {
+          const fb = String(fallback == null ? "" : fallback).trim();
+          return fb ? [fb] : [];
+        }
+
+        return text
+          .split(/\n\s*\n+/)
+          .map(part => part.trim())
+          .filter(Boolean);
+      }
+
+
       function getLumiMessageChannel(item) {
         const key = normalizeMessageTypeKey(item && (item.messageType || item.type));
         // fix2L-3-6M: Birthday Ticket 사전 안내는 우편함, 생일 당일 멤버 축하는 문자함/생일 필터
@@ -1363,7 +1383,7 @@
           title: source.title || "루미벨에서 도착한 문자",
           preview: source.preview || body.replace(/\s+/g, " ").slice(0, 80),
           icon: icon,
-          lines: body ? body.split(/\n+/).filter(Boolean) : [source.title || "루미벨에서 도착한 문자예요."],
+          lines: splitLumiMessageParagraphs_(body, source.title || "루미벨에서 도착한 문자예요."),
           actionLabel: source.actionLabel || source.linkLabel || "",
           actionUrl: source.actionUrl || source.linkUrl || source.url || "",
           choices: parseReplyOptionsFromSource_(source)
@@ -8232,7 +8252,7 @@
       title: source.title || "루미벨에서 도착한 문자",
       preview: source.preview || body.replace(/\s+/g, " ").slice(0, 80),
       icon: icon,
-      lines: body ? body.split(/\n+/).filter(Boolean) : [source.title || "루미벨에서 도착한 문자예요."],
+      lines: splitLumiMessageParagraphs_(body, source.title || "루미벨에서 도착한 문자예요."),
       choices: parseReplyOptionsFromSource_(source)
     };
   }
@@ -8432,6 +8452,17 @@
     if (save) save.classList.toggle("hidden", !!saved);
     if (unsave) unsave.classList.toggle("hidden", !saved);
   }
+
+  // fix2L-3-6M-fix3: 말풍선 내부 줄바꿈 유지
+  function ensureLumiMessageParagraphStyle_fix3_() {
+    const styleId = "lumiMessageParagraphFix3Style";
+    if (document.getElementById(styleId)) return;
+    const style = document.createElement("style");
+    style.id = styleId;
+    style.textContent = ".lumiMsg-bubble,.lumi-message-bubble,.lumiMsgLine,.lumi-msg-line{white-space:pre-line;}";
+    document.head.appendChild(style);
+  }
+
   function openLumiMessageActionUrl_(url) {
     const href = String(url || "").trim();
     if (!href) return;
@@ -8454,6 +8485,7 @@
     return true;
   }
   function renderReplyChoices(m, overwrite){
+    ensureLumiMessageParagraphStyle_fix3_();
     const root = pageEl(); const replies = $("#lumiMsgReplies", root); if (!replies) return;
     replies.innerHTML = "";
     renderMessageActionButton_(m, replies);
