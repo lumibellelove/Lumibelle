@@ -9008,7 +9008,7 @@
     var body = document.getElementById('achPcModalBody');
     if (!body) return;
     var canEquip = (a.state === 'done' && !!a.title);
-    body.innerHTML = '<div style="width:74px;height:74px;border-radius:24px;display:grid;place-items:center;margin:0 auto 14px;background:linear-gradient(135deg,#fff0f7,#fff);border:1px solid #f2d8e7;font-style:normal;font-size:36px;line-height:1;">' + esc(a.icon) + '</div>'
+    body.innerHTML = '<div style="width:74px;height:74px;border-radius:24px;display:grid;place-items:center;margin:0 auto 14px;background:linear-gradient(135deg,#fff0f7,#fff);border:1px solid #f2d8e7;font-style:normal;font-size:28px;line-height:1;letter-spacing:-.12em;overflow:hidden;">' + esc(a.icon) + '</div>'
       + '<h4 style="margin:0 0 12px;color:#d77ca7;font-size:28px;line-height:1.24;font-weight:900;">' + esc(a.name) + '</h4>'
       + '<p style="margin:0 0 18px;color:#76586a;font-size:16px;line-height:1.75;font-weight:900;">' + esc(a.desc) + '</p>'
       + '<div style="display:grid;grid-template-columns:92px minmax(0,1fr);gap:8px 10px;padding:16px;border:1px solid #f2d8e7;border-radius:20px;background:#fffafd;text-align:left;margin-bottom:20px;">'
