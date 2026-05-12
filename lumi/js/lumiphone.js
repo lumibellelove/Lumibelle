@@ -943,6 +943,14 @@
         if (targetName === "message" && typeof window.showLumiMessageInbox === "function") {
           window.showLumiMessageInbox();
         }
+        if (targetName === "ticket") {
+          // fix2L-3-6W: 티켓함은 안정 기준처럼 지난 티켓을 기본 입구로 둔다.
+          // 특전권 탭이 이전 상태/정적 HTML로 먼저 보이며 문구가 깜빡이는 것을 막는다.
+          window.setTimeout(function() {
+            try { setMiniPage("ticket-past"); } catch(e) {}
+            try { setMiniPage("ticket-pc-past"); } catch(e) {}
+          }, 0);
+        }
         window.scrollTo({ top: 0, behavior: "auto" });
       }
 
@@ -5276,6 +5284,11 @@
             // ticketType → data-perk 매핑
             var perkMap = { welcome:"welcome", join:"join", meate:"meate", birthday:"birthday", event:"welcome", general:"welcome" };
             list.forEach(function(t) {
+              var ticketTypeKeyForPerk = String(t && t.ticketType || "").trim().toLowerCase();
+              // fix2L-3-6W: 메아테 특전권 카드는 예약의 meate/paymentStatus가 기준이다.
+              // lumi_tickets의 meate row가 뒤늦게 들어와 카드 문구를 덮으면
+              // 다른 팀 메아테(예: 시로나) → Lumibelle 혜택 대상처럼 흔들려 보이는 문제가 생긴다.
+              if (ticketTypeKeyForPerk === "meate") return;
               var perk = perkMap[t.ticketType] || t.ticketType;
               var card = pcGrid.querySelector('[data-perk="' + perk + '"]');
               if (!card) return;
@@ -5345,6 +5358,10 @@
           };
 
           list.forEach(function(t) {
+            var ticketTypeKeyForBenefit = String(t && t.ticketType || "").trim().toLowerCase();
+            // fix2L-3-6W: 모바일 메아테 카드도 예약 데이터 기준으로만 갱신한다.
+            // 특전권 API의 meate row는 실제 예매 메아테 팀 표시를 덮어쓰지 않는다.
+            if (ticketTypeKeyForBenefit === "meate") return;
             var expectedTitle = titleMap[t.ticketType];
             if (!expectedTitle) return; // 매핑 없는 타입은 skip
 
@@ -10056,7 +10073,7 @@
 
     const monthText = pad2(birth.month) + ".01 ~ " + pad2(birth.month) + "." + pad2(last);
     const monthCode = String(year) + pad2(birth.month);
-    const birthdaySubText = "· Lumibelle " + monthCode + " 생일월\n· Birthday Ticket 자동 발급";
+    const birthdaySubText = "· lumibelle " + monthCode + " 생일월\n· Birthday Ticket 자동 발급";
     return {
       year: year,
       month: birth.month,
