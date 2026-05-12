@@ -476,6 +476,8 @@ function apiRequest(params){
   if(!isApiMode()) return Promise.resolve(mockRequest(params));
   const url=new URL(ADMIN_API_URL);
   Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v==null?'':v));
+  // fix2L-3-6N: 관리자 처리 직후 이전 JSONP/브라우저 캐시를 보지 않도록 호출마다 cache buster 부여
+  url.searchParams.set('_nocache', String(Date.now()));
   if(ADMIN_KEY) url.searchParams.set('adminKey',ADMIN_KEY);
   // Apps Script JSONP 응답을 우선 지원한다. JSON만 반환하는 배포도 callback을 무시하면 동작 가능하도록 에러를 표시한다.
   return new Promise((resolve,reject)=>{
@@ -551,6 +553,48 @@ function replaceReservationInCache(updated){
   const idx=reservationCacheByEvent[key].findIndex(r=>(next.rowId&&String(r.rowId)===String(next.rowId))||(next.reservationNumber&&r.reservationNumber===next.reservationNumber));
   if(idx>-1)reservationCacheByEvent[key][idx]=next;
   else reservationCacheByEvent[key].push(next);
+}
+
+// fix2L-3-6N: 입금확인 성공 후 서버 원본을 강제 재조회해서 화면/캐시를 즉시 동기화
+async function refreshReservationAfterAdminAction(updated){
+  const normalized=normalizeReservation(updated||selected);
+  if(!normalized)return null;
+  let fresh=normalized;
+
+  try{
+    const list=await loadSelectedEventReservations(true);
+    const found=(list||[]).map(normalizeReservation).find(r=>
+      (normalized.rowId&&String(r.rowId)===String(normalized.rowId))||
+      (normalized.reservationNumber&&String(r.reservationNumber)===String(normalized.reservationNumber))
+    );
+    if(found)fresh=found;
+  }catch(err){
+    console.warn('[fix2L-3-6N] refresh list failed',err);
+  }
+
+  // 서버 응답이 아직 지연되어도 사용자가 방금 처리한 예약은 화면에서 확정 상태로 즉시 보이게 보정
+  if(getStatusKey('payment',fresh.paymentStatus)!=='confirmed'){
+    fresh=Object.assign({},fresh,{
+      paymentStatus:'confirmed',
+      paymentStatusLabel:statusLabel('payment','confirmed'),
+      paymentConfirmedAt:fresh.paymentConfirmedAt||nowText(),
+      processedAt:fresh.processedAt||nowText()
+    });
+  }
+
+  replaceReservationInCache(fresh);
+  currentResults=currentResults.map(r=>{
+    const n=normalizeReservation(r);
+    if((fresh.rowId&&String(n.rowId)===String(fresh.rowId))||(fresh.reservationNumber&&String(n.reservationNumber)===String(fresh.reservationNumber)))return fresh;
+    return n;
+  });
+  if(!currentResults.length)currentResults=[fresh];
+
+  selected=fresh;
+  renderResults(currentResults);
+  selected=fresh;
+  renderDetail();
+  return fresh;
 }
 
 function getAdminResponseItems(res){
@@ -806,10 +850,12 @@ async function confirmPayment(){
       const idx=reservations.findIndex(r=>r.reservationNumber===updated.reservationNumber);
       if(idx>-1) reservations[idx]=updated;
       saveMock();
+      renderResults([updated]);
+      selected=updated;renderDetail();
+    }else{
+      await refreshReservationAfterAdminAction(updated);
     }
-    renderResults([updated]);
-    selected=updated;renderDetail();
-    let msg='입금 확인 완료 처리되었습니다. 루미폰 티켓함에는 예약 확정 상태로 반영될 수 있습니다.';
+    let msg='입금 확인 완료 처리되었습니다. 화면을 최신 상태로 갱신했어요.';
     const warnings=getAdminWarnings(res);
     if((res.meateBenefitStatus||updated.benefitStatus)==='eligiblePending') msg+=' Lumibelle 메아테 혜택 대상입니다.';
     toast(msg);
