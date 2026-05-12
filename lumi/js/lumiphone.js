@@ -736,9 +736,10 @@
         }
 
         // PATCH 51-37: 캐시 즉시 복원 (동기, 0ms)
-        const cachedRes    = cacheRead_(lid, "reservations", 24 * 60 * 60 * 1000);
-        const cachedMail   = cacheRead_(lid, "mail",         24 * 60 * 60 * 1000);
-        const cachedSms    = cacheRead_(lid, "sms",          24 * 60 * 60 * 1000);
+        // fix2L-3-6N: 입금확인 직후 티켓/문자 상태가 오래된 캐시에 묶이지 않도록 짧게 유지
+        const cachedRes    = cacheRead_(lid, "reservations", 60 * 1000);
+        const cachedMail   = cacheRead_(lid, "mail",         60 * 1000);
+        const cachedSms    = cacheRead_(lid, "sms",          60 * 1000);
         const cachedVisits = cacheRead_(lid, "visits",       24 * 60 * 60 * 1000);
 
         if (cachedRes) {
