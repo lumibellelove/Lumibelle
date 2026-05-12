@@ -8378,10 +8378,12 @@
     const isBirthdayDayMessage = isBirthdayDayMessageSource_(source);
     if (type === "paymentconfirmed" || type === "paymentconfirm") { tag = source.tag || "운영"; filterType = "staff"; }
     if (type === "livereminder" || type === "entrycomplete") { tag = source.tag || "라이브"; filterType = "live"; }
+    // fix2L-3-6U-fix8: 멤버별 첫 특전 메시지는 멤버 발신이어도 루미레터가 아니라 문자함/라이브로 고정한다.
+    if (type === "memberfirstcheki") { tag = source.tag || "라이브"; filterType = "live"; }
     if (isBirthdayDayMessage) { tag = source.tag || "생일"; filterType = "birthday"; }
     if (type === "welcometicket" || type === "jointicket") { tag = source.tag || "티켓"; filterType = "staff"; }
-    // fix2L-3-6M: 멤버 발신이어도 생일 당일 메시지는 루미레터로 덮어쓰지 않는다.
-    if (senderType === "member" && !isBirthdayDayMessage) { tag = source.tag || "루미레터"; filterType = "lumiletter"; }
+    // fix2L-3-6M + 3-6U-fix8: 멤버 발신이어도 생일 당일/첫 특전 메시지는 루미레터로 덮어쓰지 않는다.
+    if (senderType === "member" && !isBirthdayDayMessage && type !== "memberfirstcheki") { tag = source.tag || "루미레터"; filterType = "lumiletter"; }
     const isReadValue = String(source.isRead == null ? "" : source.isRead).toLowerCase();
     const isReadFromApi = source.isRead === true || isReadValue === "true" || isReadValue === "1" || isReadValue === "읽음";
     // PATCH 51-39: local read state 우선 병합 (API 응답이 느리거나 실패해도 NEW 재등장 방지)
@@ -8484,47 +8486,70 @@
     return result;
   }
   function updateBadges(){
-    // 2순위 유령 알림 방지: API 모드에서 loadDone 전에는 배지/홈 알림을 0으로 처리
+    // fix2L-3-6U-fix9: 홈 NEW 카드가 실제 항목 위치(문자함/우편함)로 이동하도록 라우팅을 분리한다.
     const apiMode = !!(window.LUMI_API_ENDPOINT && window.__lumiGetCurrentId && window.__lumiGetCurrentId());
     const loadDone = window.__lumiMessagesLoadDone === true;
     const unreadItems = (apiMode && !loadDone) ? [] : getAllLumiMessageItems().filter(m => isVisibleInboxMessage(m) && !isRead(m.id));
     const unread = unreadItems.length;
+    const unreadMailItems = (apiMode && !loadDone) ? [] : (typeof getAllMailItems === "function" ? getAllMailItems().filter(mail => {
+      const boxName = String((mail && mail.box) || "inbox");
+      const statusName = String((mail && mail.status) || "NEW").trim().toUpperCase();
+      const id = String((mail && (mail.id || mail.messageId)) || "");
+      const read = typeof isMailRead === "function" ? isMailRead(id) : statusName === "읽음";
+      return boxName === "inbox" && !read && statusName === "NEW";
+    }) : []);
     const messageMini = document.querySelector('.app-icon[data-go="message"] .mini, .kawaii-app-icon[data-go="message"] .mini');
     if (messageMini) { messageMini.textContent = unread > 0 ? String(Math.min(unread,9)) : ""; messageMini.style.display = unread > 0 ? "inline-flex" : "none"; }
     const homeCard = document.getElementById("homeMessageCard");
     const homeTitle = document.getElementById("homeMessageTitle");
     const homePreview = document.getElementById("homeMessagePreview");
     const homeKicker = document.getElementById("homeMessageKicker");
+    const homeButton = homeCard ? homeCard.querySelector("[data-go]") : null;
+    function setHomeRoute_(target, label) {
+      if (!homeButton) return;
+      homeButton.dataset.go = target || "message";
+      homeButton.textContent = label || (target === "mail" ? "우편 보기" : "문자 보기");
+    }
     if (homeCard) {
       homeCard.classList.remove("hidden");
-      // fix2H-1c: API 확인 중에도 홈 카드에는 큰 로딩 문구를 노출하지 않는다.
-      // 신규 가입 계정 첫 화면이 서버 불안처럼 보이지 않도록 안정적인 empty 안내를 유지한다.
       if (apiMode && !loadDone) {
         if (homeKicker) homeKicker.textContent = "MESSAGE";
         if (homeTitle) homeTitle.textContent = "문자함";
         if (homePreview) homePreview.textContent = "새 문자는 없지만, 도착했던 메시지를 다시 볼 수 있어요.";
+        setHomeRoute_("message", "문자 보기");
         return;
       }
       const publicUnreadItems = unreadItems.filter(m => isVisibleInboxMessage(m));
       const first = publicUnreadItems[0];
       if (first) {
+        setHomeRoute_("message", "문자 보기");
         const firstType = String(first.messageType || first.type || "").trim().toLowerCase().replace(/[\s_\-]/g, "");
         const firstSenderType = String(first.senderType || "").trim().toLowerCase();
         const firstFrom = first.from || (firstSenderType === "member" ? "멤버" : "LUMIBELLE 운영");
+        const isLetterType = firstType === "memberletter" || firstType === "lumiletter" || firstType === "afterliveletter";
         if (firstType === "welcomemail") {
           if (homeKicker) homeKicker.textContent = publicUnreadItems.length > 1 ? "NEW MESSAGES" : "NEW MESSAGE";
           if (homeTitle) homeTitle.textContent = firstFrom + "에게서 새 문자 " + publicUnreadItems.length + "통";
           if (homePreview) homePreview.textContent = "루미폰 개통 첫 우편이 도착했어요.";
-        } else if (firstSenderType === "member" || firstType === "memberletter" || firstType === "lumiletter" || firstType === "afterliveletter") {
+        } else if (isLetterType) {
+          // letter 타입이 문자 목록에 섞여 들어온 경우에도 클릭은 문자함이 아니라 우편함으로 보낸다.
+          setHomeRoute_("mail", "우편 보기");
           if (homeKicker) homeKicker.textContent = publicUnreadItems.length > 1 ? "NEW LETTERS" : "NEW LETTER";
           if (homeTitle) homeTitle.textContent = firstFrom + "에게서 새 루미레터 " + publicUnreadItems.length + "통";
-          if (homePreview) homePreview.textContent = "따뜻한 마음이 담긴 메시지를 확인해 보세요.";
+          if (homePreview) homePreview.textContent = "따뜻한 마음이 담긴 우편을 확인해 보세요.";
         } else {
           if (homeKicker) homeKicker.textContent = publicUnreadItems.length > 1 ? "NEW MESSAGES" : "NEW MESSAGE";
           if (homeTitle) homeTitle.textContent = firstFrom ? firstFrom + "에게서 새 문자 " + publicUnreadItems.length + "통" : "새 문자 확인";
-          if (homePreview) homePreview.textContent = "도착한 안내 메시지를 확인해 주세요.";
+          if (homePreview) homePreview.textContent = firstType === "memberfirstcheki" ? "첫 특전의 반짝이는 메시지를 확인해 보세요." : "도착한 안내 메시지를 확인해 주세요.";
         }
+      } else if (unreadMailItems.length) {
+        const firstMail = unreadMailItems[0] || {};
+        setHomeRoute_("mail", "우편 보기");
+        if (homeKicker) homeKicker.textContent = unreadMailItems.length > 1 ? "NEW LETTERS" : "NEW LETTER";
+        if (homeTitle) homeTitle.textContent = (firstMail.from || "LUMIBELLE") + "에게서 새 우편 " + unreadMailItems.length + "통";
+        if (homePreview) homePreview.textContent = firstMail.preview || "루미폰 우편함에 새 기록이 도착했어요.";
       } else {
+        setHomeRoute_("message", "문자 보기");
         if (homeKicker) homeKicker.textContent = "MESSAGE";
         if (homeTitle) homeTitle.textContent = "문자함";
         if (homePreview) homePreview.textContent = "새 문자는 없지만, 도착했던 메시지를 다시 볼 수 있어요.";
@@ -8540,13 +8565,16 @@
     list.style.gap = "10px";
     list.style.minHeight = "1px";
 
-    // fix2H-1c: 로딩 중에도 큰 로딩 문구 대신 기존 empty 안내를 유지한다.
+    // fix2L-3-6U-fix8: 로딩 중에도 캐시/직전 정상 메시지가 있으면 빈 화면으로 확정하지 않는다.
     if (!window.__lumiMessagesLoadDone && window.LUMI_API_ENDPOINT) {
-      list.innerHTML = "";
-      if (empty) empty.classList.remove("hidden");
-      if (pager) pager.classList.add("hidden");
-      updateBadges();
-      return;
+      const cachedDuringLoad = getAllLumiMessageItems();
+      if (!Array.isArray(cachedDuringLoad) || !cachedDuringLoad.length) {
+        list.innerHTML = "";
+        if (empty) empty.classList.remove("hidden");
+        if (pager) pager.classList.add("hidden");
+        updateBadges();
+        return;
+      }
     }
     const items = filtered();
     const pp = perPage();
