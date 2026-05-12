@@ -8519,8 +8519,8 @@
       homeButton.textContent = label || (target === "mail" ? "우편 보기" : "문자 보기");
     }
     if (homeCard) {
-      homeCard.classList.remove("hidden");
       if (apiMode && !loadDone) {
+        homeCard.classList.remove("hidden");
         if (homeKicker) homeKicker.textContent = "MESSAGE";
         if (homeTitle) homeTitle.textContent = "문자함";
         if (homePreview) homePreview.textContent = "새 문자는 없지만, 도착했던 메시지를 다시 볼 수 있어요.";
@@ -8530,6 +8530,7 @@
       const publicUnreadItems = unreadItems.filter(m => isVisibleInboxMessage(m));
       const first = publicUnreadItems[0];
       if (first) {
+        homeCard.classList.remove("hidden");
         // fix2L-3-6U-fix10: 홈 NEW 카드 버튼의 실제 이동 탭을 메시지 종류에 맞춰 동적으로 보정한다.
         // - memberFirstCheki / 입금확인 / 입장완료 등 문자형: 문자함
         // - member letter / lumi letter / welcome mail 등 우편형: 우편함
@@ -8554,16 +8555,15 @@
           if (homePreview) homePreview.textContent = firstType === "memberfirstcheki" ? "첫 특전의 반짝이는 메시지를 확인해 보세요." : "도착한 안내 메시지를 확인해 주세요.";
         }
       } else if (unreadMailItems.length) {
+        homeCard.classList.remove("hidden");
         const firstMail = unreadMailItems[0] || {};
         setHomeRoute_("mail", "우편 보기");
         if (homeKicker) homeKicker.textContent = unreadMailItems.length > 1 ? "NEW LETTERS" : "NEW LETTER";
         if (homeTitle) homeTitle.textContent = (firstMail.from || "LUMIBELLE") + "에게서 새 우편 " + unreadMailItems.length + "통";
         if (homePreview) homePreview.textContent = firstMail.preview || "루미폰 우편함에 새 기록이 도착했어요.";
       } else {
-        setHomeRoute_("message", "문자 보기");
-        if (homeKicker) homeKicker.textContent = "MESSAGE";
-        if (homeTitle) homeTitle.textContent = "문자함";
-        if (homePreview) homePreview.textContent = "새 문자는 없지만, 도착했던 메시지를 다시 볼 수 있어요.";
+        // fix2L-3-6U-fix12: unread가 0이면 NEW 카드를 숨긴다.
+        homeCard.classList.add("hidden");
       }
     }
   }
