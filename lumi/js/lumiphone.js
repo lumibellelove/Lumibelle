@@ -1119,6 +1119,12 @@
         "entrycomplete",
         "reservationconfirmed",
         "birthdaynotice",
+        // fix2L-3-6L: 생일 멤버 축하/사전 안내는 senderType=member여도 루미레터가 아니라 생일 문자함으로 유지
+        "birthdaymessage",
+        "birthdaydaymessage",
+        "birthdayletter",
+        "birthdayprenotice",
+        "birthdaymonthnotice",
         "jointicket",
         "welcometicket",
         "livereminder",
@@ -1137,9 +1143,70 @@
       function normalizeMessageTypeKey(value) {
         return String(value || "").trim().toLowerCase().replace(/[\s_\-]/g, "");
       }
+      // fix2L-3-6L: 생일 메시지/공개일 가드 공통 유틸
+      const IRO_LUNAR_TEASER_START = new Date(2026, 7, 1, 0, 0, 0);      // 2026-08-01 KST 기준 브라우저 날짜
+      const IRO_LUNAR_PUBLIC_RELEASE = new Date(2026, 9, 18, 0, 0, 0);   // 2026-10-18
+
+      function isIroLunarReleased_() {
+        return new Date().getTime() >= IRO_LUNAR_PUBLIC_RELEASE.getTime();
+      }
+
+      function isIroLunarTeaserPeriod_() {
+        const now = new Date().getTime();
+        return now >= IRO_LUNAR_TEASER_START.getTime() && now < IRO_LUNAR_PUBLIC_RELEASE.getTime();
+      }
+
+      function isHiddenLightKey_(value) {
+        const key = String(value || '').trim().toLowerCase().replace(/[\s_\-]/g, '');
+        return key === 'hiddenlight' || key === 'comingsoon' || key === 'newlight' || key === 'secretlight' || key === 'unknownlight';
+      }
+
+      function isBirthdayMessageSource_(item) {
+        const source = item || {};
+        const type = normalizeMessageTypeKey(source.messageType || source.type);
+        const src = normalizeMessageTypeKey(source.source || source.messageSource || source.reason);
+        const tag = String(source.tag || '').trim();
+        const title = String(source.title || '').trim();
+        if (type.indexOf('birthday') !== -1) return true;
+        if (src.indexOf('birthday') !== -1) return true;
+        if (tag === '생일') return true;
+        if (/Birthday Ticket|생일/.test(title)) return true;
+        return false;
+      }
+
+      function parseReplyOptionsFromSource_(source) {
+        const item = source || {};
+        const out = [];
+        function push(v) {
+          v = String(v == null ? '' : v).trim();
+          if (v && out.indexOf(v) === -1) out.push(v);
+        }
+        const raw = item.replyOptions || item.choices || item.replies || '';
+        if (Array.isArray(raw)) {
+          raw.forEach(push);
+        } else {
+          const text = String(raw == null ? '' : raw).trim();
+          if (text) {
+            try {
+              const parsed = JSON.parse(text);
+              if (Array.isArray(parsed)) parsed.forEach(push);
+              else text.split(/[|,]/).forEach(push);
+            } catch (error) {
+              text.split(/[|,]/).forEach(push);
+            }
+          }
+        }
+        push(item.reply1);
+        push(item.reply2);
+        push(item.reply3);
+        return out.slice(0, 3);
+      }
+
 
       function getLumiMessageChannel(item) {
         const key = normalizeMessageTypeKey(item && (item.messageType || item.type));
+        // fix2L-3-6L: 생일 메시지는 멤버 발신이어도 문자/생일 필터 유지
+        if (isBirthdayMessageSource_(item)) return "message";
         if (LUMI_MAIL_MESSAGE_TYPES.has(key)) return "mail";
         if (LUMI_SMS_MESSAGE_TYPES.has(key)) return "message";
         const senderType = String(item && item.senderType || "").trim().toLowerCase();
@@ -1162,8 +1229,10 @@
         const value = String(key || "").trim().toLowerCase();
         if (value === "mariring") return "마리링 🎀⭐";
         if (value === "lulu") return "루루 🍼🐰";
-        // 공개 전 멤버는 팬 화면에서 이름/오시마크를 직접 노출하지 않는다.
-        if (value === "iro" || value === "lunar" || value === "luna") return "새로운 빛";
+        if (isHiddenLightKey_(value)) return "새로운 빛";
+        // fix2L-3-6L: 이로/루나는 2026-10-18 전까지 팬 화면에서 직접 이름/오시마크 노출 금지, 이후 자동 해금
+        if (value === "iro") return isIroLunarReleased_() ? "이로 👼🏻💎" : "새로운 빛";
+        if (value === "lunar" || value === "luna") return isIroLunarReleased_() ? "루나 🌙🐱" : "새로운 빛";
         return "LUMIBELLE 운영";
       }
 
@@ -1176,14 +1245,16 @@
         if (senderType === "member") {
           if (senderMember === "mariring") return "🎀⭐";
           if (senderMember === "lulu") return "🍼🐰";
-          // 공개 전 멤버는 직접 오시마크 노출 금지
-          if (senderMember === "iro" || senderMember === "lunar" || senderMember === "luna") return "✦";
+          // fix2L-3-6L: 공개일 전 이로/루나 오시마크 숨김, 공개일 이후 자동 해금
+          if (senderMember === "iro") return isIroLunarReleased_() ? "👼🏻💎" : "✦";
+          if (senderMember === "lunar" || senderMember === "luna") return isIroLunarReleased_() ? "🌙🐱" : "✦";
+          if (isHiddenLightKey_(senderMember)) return "✦";
           return "💌";
         }
 
         if (type === "paymentconfirmed") return "🎫";
         if (type === "entrycomplete") return "🎀";
-        if (type === "birthdaynotice" || type === "birthday") return "🎂";
+        if (isBirthdayMessageSource_(item)) return "🎂";
         if (type === "welcometicket" || type === "jointicket") return "🎟️";
         if (type === "livereminder" || type === "beforelive" || type === "prelive") return "📣";
 
@@ -1240,10 +1311,12 @@
         const icon = messageIconFromType(source);
         let tag = source.tag || "운영";
         let filterType = "staff";
+        const isBirthdayMessage = isBirthdayMessageSource_(source);
         if (type === "livereminder" || type === "entrycomplete") { tag = source.tag || "라이브"; filterType = "live"; }
-        if (type === "birthdaynotice") { tag = source.tag || "생일"; filterType = "birthday"; }
+        if (isBirthdayMessage) { tag = source.tag || "생일"; filterType = "birthday"; }
         if (type === "welcometicket" || type === "jointicket") { tag = source.tag || "티켓"; filterType = "staff"; }
-        if (senderType === "member") { tag = source.tag || "루미레터"; filterType = "lumiletter"; }
+        // fix2L-3-6L: 멤버 발신이어도 생일 메시지는 루미레터로 덮어쓰지 않는다.
+        if (senderType === "member" && !isBirthdayMessage) { tag = source.tag || "루미레터"; filterType = "lumiletter"; }
         const isReadValue = String(source.isRead == null ? "" : source.isRead).toLowerCase();
         const isRead = source.isRead === true || isReadValue === "true" || isReadValue === "1" || isReadValue === "읽음";
         return {
@@ -1260,7 +1333,7 @@
           preview: source.preview || body.replace(/\s+/g, " ").slice(0, 80),
           icon: icon,
           lines: body ? body.split(/\n+/).filter(Boolean) : [source.title || "루미벨에서 도착한 문자예요."],
-          choices: []
+          choices: parseReplyOptionsFromSource_(source)
         };
       }
 
@@ -8093,10 +8166,12 @@
     const icon = messageIconFromType(source);
     let tag = source.tag || "운영";
     let filterType = "staff";
+    const isBirthdayMessage = isBirthdayMessageSource_(source);
     if (type === "livereminder" || type === "entrycomplete") { tag = source.tag || "라이브"; filterType = "live"; }
-    if (type === "birthdaynotice") { tag = source.tag || "생일"; filterType = "birthday"; }
+    if (isBirthdayMessage) { tag = source.tag || "생일"; filterType = "birthday"; }
     if (type === "welcometicket" || type === "jointicket") { tag = source.tag || "티켓"; filterType = "staff"; }
-    if (senderType === "member") { tag = source.tag || "루미레터"; filterType = "lumiletter"; }
+    // fix2L-3-6L: 멤버 발신이어도 생일 메시지는 루미레터로 덮어쓰지 않는다.
+    if (senderType === "member" && !isBirthdayMessage) { tag = source.tag || "루미레터"; filterType = "lumiletter"; }
     const isReadValue = String(source.isRead == null ? "" : source.isRead).toLowerCase();
     const isReadFromApi = source.isRead === true || isReadValue === "true" || isReadValue === "1" || isReadValue === "읽음";
     // PATCH 51-39: local read state 우선 병합 (API 응답이 느리거나 실패해도 NEW 재등장 방지)
@@ -8123,7 +8198,7 @@
       preview: source.preview || body.replace(/\s+/g, " ").slice(0, 80),
       icon: icon,
       lines: body ? body.split(/\n+/).filter(Boolean) : [source.title || "루미벨에서 도착한 문자예요."],
-      choices: []
+      choices: parseReplyOptionsFromSource_(source)
     };
   }
   function isComingSoonMessage(m){
