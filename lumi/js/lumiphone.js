@@ -4574,7 +4574,7 @@
             'START ' + escapeHtml(item.startTime || "18:00") + '</div>' +
           '</div>' +
           '<div class="lumi-pass-title">LUMI PASS</div>' +
-          '<div class="lumi-pass-sub">Stardust Admission Ticket · ' + escapeHtml(item.eventTitle) + '</div>' +
+          '<div class="lumi-pass-sub">' + escapeHtml(item.eventTitle) + '</div>' +
           '<div class="lumi-pass-place">' + escapeHtml(paymentSt) + ' · ' + escapeHtml(entrySt) + (item.meate ? ' · 메아테 ' + escapeHtml(item.meate) : '') + '</div>' +
           '<div class="lumi-entry-box"><small>ENTRY NO.</small><strong>' + escapeHtml(entryCode || item.reservationNumber) + '</strong></div>' +
           '<div class="ticket-meta">' +
