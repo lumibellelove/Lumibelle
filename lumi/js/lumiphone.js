@@ -4574,7 +4574,7 @@
             'START ' + escapeHtml(item.startTime || "18:00") + '</div>' +
           '</div>' +
           '<div class="lumi-pass-title">LUMI PASS</div>' +
-          '<div class="lumi-pass-sub">' + escapeHtml(item.eventTitle) + '</div>' +
+          '<div class="lumi-pass-sub">Stardust Admission Ticket · ' + escapeHtml(item.eventTitle) + '</div>' +
           '<div class="lumi-pass-place">' + escapeHtml(paymentSt) + ' · ' + escapeHtml(entrySt) + (item.meate ? ' · 메아테 ' + escapeHtml(item.meate) : '') + '</div>' +
           '<div class="lumi-entry-box"><small>ENTRY NO.</small><strong>' + escapeHtml(entryCode || item.reservationNumber) + '</strong></div>' +
           '<div class="ticket-meta">' +
@@ -7600,10 +7600,55 @@
           visitType: "checkin",
           eventDate: rawDate,
           visitedAt: rawDate,
-          eventTitle: "루미 체크인 완료",
+          eventTitle: "루미 체크인",
           note: eventTitle + (member ? " · " + member : "") + " · " + stampText,
           _recordSource: "checkin"
         };
+      }
+
+      // fix2L-3-6X-12:
+      // 기록 타임라인 용어만 정리한다.
+      // 첫 번째 방문/체크인만 "첫 루미 방문" / "첫 루미 체크인"으로 보이고,
+      // 두 번째부터는 "루미 방문" / "루미 체크인"으로 보이게 한다.
+      // 날짜 기준, 필터, API 데이터 구조는 변경하지 않는다.
+      function recordTimeValue_(item) {
+        var d = new Date((item && (item.eventDate || item.visitedAt)) || "");
+        return isNaN(d.getTime()) ? 0 : d.getTime();
+      }
+
+      function isVisitRecordForLabel_(item) {
+        if (!item || item._recordSource === "checkin") return false;
+        var title = String(item.eventTitle || "").trim();
+        var type = String(item.visitType || "").trim().toLowerCase();
+        return type === "visit" || type === "entry" || title === "첫 루미 방문" || title === "루미 방문";
+      }
+
+      function applyFirstVisitCheckinLabels_(items) {
+        var list = Array.isArray(items) ? items.slice() : [];
+        var visitRecords = list.filter(isVisitRecordForLabel_).sort(function(a, b) {
+          return recordTimeValue_(a) - recordTimeValue_(b);
+        });
+        var checkinRecords = list.filter(function(item) {
+          return item && item._recordSource === "checkin";
+        }).sort(function(a, b) {
+          return recordTimeValue_(a) - recordTimeValue_(b);
+        });
+
+        visitRecords.forEach(function(item, index) {
+          item.eventTitle = index === 0 ? "첫 루미 방문" : "루미 방문";
+          if (!String(item.note || "").trim() || /첫 루미 방문|루미 방문/.test(String(item.note || ""))) {
+            item.note = index === 0 ? "와준 순간을 남기는 방문 기록" : "루미벨을 보러 와준 방문 기록";
+          }
+        });
+
+        checkinRecords.forEach(function(item, index) {
+          item.eventTitle = index === 0 ? "첫 루미 체크인" : "루미 체크인";
+          if (!String(item.note || "").trim() || String(item.note || "").indexOf("루미 체크인") !== -1) {
+            item.note = index === 0 ? "촬영·교류 참여 완료" : "특전회 촬영·교류 참여 완료";
+          }
+        });
+
+        return list;
       }
 
       function allRecordItems() {
@@ -7611,7 +7656,7 @@
         var checkinItems = (Array.isArray(runtimeCheckins) ? runtimeCheckins : [])
           .filter(function(item) { return String(item.status || "active") === "active"; })
           .map(normalizeCheckinForRecord);
-        return visitItems.concat(checkinItems).sort(function(a, b) {
+        return applyFirstVisitCheckinLabels_(visitItems.concat(checkinItems)).sort(function(a, b) {
           var da = new Date(a.eventDate || a.visitedAt || "");
           var db = new Date(b.eventDate || b.visitedAt || "");
           if (isNaN(da.getTime()) && isNaN(db.getTime())) return 0;
