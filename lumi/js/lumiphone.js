@@ -718,6 +718,16 @@
 
         // Lumi Signup Patch 1-fix2A: 계정별 격리 - 로그인 시 해당 계정 프로필 로드
         loadProfileState(lid);
+        // fix2L-3-6X-7: 첫 렌더 전에 최근 장착 칭호를 우선 적용해 새로고침 직후 예전 칭호 잔상을 막는다.
+        const bootEquippedTitle = readEquippedTitleMeta_(24 * 60 * 60 * 1000) || String((currentUser && currentUser.equippedTitle) || "").trim();
+        if (bootEquippedTitle) {
+          runtimeEquippedTitleFromApi = bootEquippedTitle;
+          profileState = normalizeProfileState(Object.assign({}, profileState, {
+            info: normalizeProfileInfo(Object.assign({}, profileState.info || {}, { title: bootEquippedTitle }))
+          }));
+          profileDraft = cloneProfileState(profileState);
+          saveProfileState();
+        }
         renderProfileView();
 
         // PATCH 51-54: 로그인 응답/lumi_users 기반 프로필 표시값 즉시 반영
@@ -729,7 +739,10 @@
         // profile 캐시가 있으면 먼저 보강한다.
         const cachedProfile = cacheRead_(lid, "profile", 24 * 60 * 60 * 1000);
         if (cachedProfile && cachedProfile.user) {
-          currentUser = normalizeLumiUser(Object.assign({}, currentUser || {}, cachedProfile.user));
+          const recentCachedTitle = readEquippedTitleMeta_(24 * 60 * 60 * 1000);
+          const cachedUserForSync = Object.assign({}, currentUser || {}, cachedProfile.user);
+          if (recentCachedTitle) cachedUserForSync.equippedTitle = recentCachedTitle;
+          currentUser = normalizeLumiUser(cachedUserForSync);
           saveLoginState(currentUser);
           syncProfileInfoFromUser(currentUser);
           syncRecordJoinDateFromUser(currentUser);
@@ -2109,8 +2122,14 @@
         }
         const normalizedOshi = normalizeOshiForProfile(user.oshi);
         if (normalizedOshi) nextInfo.oshi = normalizedOshi;
-        const title = user.equippedTitle || runtimeEquippedTitleFromApi;
-        if (title) nextInfo.title = title;
+        // fix2L-3-6X-7: 최근 장착 칭호가 있으면 오래된 profile cache가 먼저 덮지 못하게 우선 적용
+        const recentEquippedTitle = readEquippedTitleMeta_(24 * 60 * 60 * 1000);
+        const title = recentEquippedTitle || user.equippedTitle || runtimeEquippedTitleFromApi;
+        if (title) {
+          nextInfo.title = title;
+          runtimeEquippedTitleFromApi = title;
+          if (currentUser) currentUser = Object.assign({}, currentUser, { equippedTitle: title });
+        }
         const joined = formatProfileJoinDate(user.joinedAt || user.createdAt);
         if (joined) nextInfo.joinedAt = joined;
         if (user.birthMonth || user.birthdayMonth) nextInfo.birthdayMonth = user.birthMonth || user.birthdayMonth;
@@ -2412,6 +2431,59 @@
         document.body.classList.remove("profile-title-modal-open");
       }
 
+      // fix2L-3-6X-7: 대표 칭호 새로고침 직후 캐시 잔상 방지용 최근 저장 메타
+      // - 칭호 장착 직후에는 profileState/loginState/profile cache/achievements cache가 서로 다른 타이밍에 갱신될 수 있다.
+      // - 새로고침 직후 오래된 profileState가 먼저 그려졌다가 API 응답 후 최신 칭호로 바뀌는 잔상을 막기 위해,
+      //   최근 장착 성공 칭호를 계정별 localStorage에 짧게 보관하고 첫 렌더 전에 우선 적용한다.
+      const EQUIPPED_TITLE_META_VERSION = "v1";
+      function equippedTitleMetaKey_(lumiId) {
+        const id = normId(lumiId || getCurrentLumiId() || "");
+        return "lumiphone.equippedTitle.recent." + EQUIPPED_TITLE_META_VERSION + "." + (id || "guest").toLowerCase();
+      }
+      function writeEquippedTitleMeta_(titleName) {
+        try {
+          const lid = getCurrentLumiId();
+          const title = clampText(titleName || "", 18);
+          if (!lid || !title) return;
+          localStorage.setItem(equippedTitleMetaKey_(lid), JSON.stringify({ title: title, savedAt: Date.now() }));
+        } catch(e) {}
+      }
+      function readEquippedTitleMeta_(maxAgeMs) {
+        try {
+          const lid = getCurrentLumiId();
+          if (!lid) return "";
+          const raw = localStorage.getItem(equippedTitleMetaKey_(lid));
+          if (!raw) return "";
+          const obj = JSON.parse(raw);
+          const title = clampText((obj && obj.title) || "", 18);
+          const savedAt = Number(obj && obj.savedAt || 0);
+          if (!title) return "";
+          if (maxAgeMs && savedAt && Date.now() - savedAt > maxAgeMs) return "";
+          return title;
+        } catch(e) { return ""; }
+      }
+      function applyEquippedTitleToLocalCaches_(titleName) {
+        const nextTitle = clampText(titleName || "", 18);
+        const lid = getCurrentLumiId();
+        if (!nextTitle || !lid) return;
+        try {
+          cacheWrite_(lid, "profile", { ok: true, user: Object.assign({}, currentUser || {}, { equippedTitle: nextTitle }) });
+        } catch(e) {}
+        try {
+          const cachedAchievements = cacheRead_(lid, "achievements", 24 * 60 * 60 * 1000);
+          if (cachedAchievements && typeof cachedAchievements === "object") {
+            const nextPayload = Object.assign({}, cachedAchievements, { equippedTitle: nextTitle });
+            if (Array.isArray(nextPayload.titles)) {
+              nextPayload.titles = nextPayload.titles.map(function(item) {
+                const name = String((item && (item.titleName || item.title || item.name || item.value)) || "").trim();
+                return Object.assign({}, item || {}, { equipped: name === nextTitle });
+              });
+            }
+            cacheWrite_(lid, "achievements", nextPayload);
+          }
+        } catch(e) {}
+      }
+
       // fix2L-3-6X-5: 칭호 장착 1회 클릭 즉시 반영 + 서버 저장 보강
       // renderProfileView()는 runtimeEquippedTitleFromApi를 info.title보다 우선 표시한다.
       // 그래서 칭호를 바꿀 때 runtime 값까지 먼저 바꿔야 첫 클릭에 화면이 바로 바뀐다.
@@ -2422,6 +2494,8 @@
         profileState = normalizeProfileState(Object.assign({}, profileState, { info: nextInfo }));
         profileDraft = cloneProfileState(profileState);
         saveProfileState();
+        writeEquippedTitleMeta_(nextTitle);
+        applyEquippedTitleToLocalCaches_(nextTitle);
         updateProfileTitleOptions(nextTitle);
         if (profileInputTitle) profileInputTitle.value = nextTitle;
         if (profileSelectedTitle) profileSelectedTitle.textContent = nextTitle;
@@ -2461,6 +2535,8 @@
               try {
                 cacheWrite_(lid, "profile", { ok: true, user: Object.assign({}, currentUser || {}, { equippedTitle: nextTitle }) });
               } catch(e) {}
+              writeEquippedTitleMeta_(nextTitle);
+              applyEquippedTitleToLocalCaches_(nextTitle);
               renderProfileView();
             } else {
               appendBootDebug("title equip server save failed: " + String((res && (res.message || res.error)) || "unknown"));
@@ -3711,13 +3787,18 @@
         // 업적/칭호 API의 오래된 equipped 값(특히 "첫 번째 점")이
         // 방금 저장한 프로필 장착칭호를 다시 덮지 않게 한다.
         const apiEquippedTitle = String(equippedTitle || "").trim();
+        const recentPreferredTitle = readEquippedTitleMeta_(24 * 60 * 60 * 1000);
         const userPreferredTitle = String((currentUser && currentUser.equippedTitle) || "").trim();
         const localPreferredTitle = String(normalizeProfileInfo(profileState.info).title || "").trim();
         const titleSheetEquippedTitle = titleNameOf_(activeTitles.find(isEquippedTitle_) || null) || "";
         const keepLocalAgainstDefault = localPreferredTitle && localPreferredTitle !== "첫 번째 점" && apiEquippedTitle === "첫 번째 점";
-        runtimeEquippedTitleFromApi = keepLocalAgainstDefault
+        runtimeEquippedTitleFromApi = recentPreferredTitle || (keepLocalAgainstDefault
           ? localPreferredTitle
-          : (apiEquippedTitle || userPreferredTitle || localPreferredTitle || titleSheetEquippedTitle || "");
+          : (apiEquippedTitle || userPreferredTitle || localPreferredTitle || titleSheetEquippedTitle || ""));
+        if (runtimeEquippedTitleFromApi && currentUser) {
+          currentUser = Object.assign({}, currentUser, { equippedTitle: runtimeEquippedTitleFromApi });
+          saveLoginState(currentUser);
+        }
         if (runtimeEquippedTitleFromApi) {
           if (profileTitlePill) profileTitlePill.textContent = runtimeEquippedTitleFromApi;
           if (profileSelectedTitle) profileSelectedTitle.textContent = runtimeEquippedTitleFromApi;
@@ -3814,7 +3895,10 @@
         const payload = await fetchLumiApi({ action: "lumiGetMyProfile", lumiId: id });
         if (payload && payload.ok && payload.user) {
           cacheWrite_(id, "profile", payload);
-          currentUser = normalizeLumiUser(Object.assign({}, currentUser || {}, payload.user));
+          const recentProfileTitle = readEquippedTitleMeta_(24 * 60 * 60 * 1000);
+          const profileUserForSync = Object.assign({}, currentUser || {}, payload.user);
+          if (recentProfileTitle) profileUserForSync.equippedTitle = recentProfileTitle;
+          currentUser = normalizeLumiUser(profileUserForSync);
           saveLoginState(currentUser);
           syncProfileInfoFromUser(currentUser);
           syncRecordJoinDateFromUser(currentUser);
