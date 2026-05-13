@@ -3707,7 +3707,17 @@
         }
         const activeTitles = Array.isArray(titles) ? titles.filter(isActiveTitle_) : [];
         const ownedTitleNames = Array.from(new Set(activeTitles.map(titleNameOf_).filter(Boolean)));
-        runtimeEquippedTitleFromApi = String(equippedTitle || "").trim() || titleNameOf_(activeTitles.find(isEquippedTitle_) || null) || "";
+        // fix2L-3-6X-6: 대표 칭호 기준 단일화.
+        // 업적/칭호 API의 오래된 equipped 값(특히 "첫 번째 점")이
+        // 방금 저장한 프로필 장착칭호를 다시 덮지 않게 한다.
+        const apiEquippedTitle = String(equippedTitle || "").trim();
+        const userPreferredTitle = String((currentUser && currentUser.equippedTitle) || "").trim();
+        const localPreferredTitle = String(normalizeProfileInfo(profileState.info).title || "").trim();
+        const titleSheetEquippedTitle = titleNameOf_(activeTitles.find(isEquippedTitle_) || null) || "";
+        const keepLocalAgainstDefault = localPreferredTitle && localPreferredTitle !== "첫 번째 점" && apiEquippedTitle === "첫 번째 점";
+        runtimeEquippedTitleFromApi = keepLocalAgainstDefault
+          ? localPreferredTitle
+          : (apiEquippedTitle || userPreferredTitle || localPreferredTitle || titleSheetEquippedTitle || "");
         if (runtimeEquippedTitleFromApi) {
           if (profileTitlePill) profileTitlePill.textContent = runtimeEquippedTitleFromApi;
           if (profileSelectedTitle) profileSelectedTitle.textContent = runtimeEquippedTitleFromApi;
