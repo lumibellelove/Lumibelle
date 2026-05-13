@@ -4574,7 +4574,7 @@
             'START ' + escapeHtml(item.startTime || "18:00") + '</div>' +
           '</div>' +
           '<div class="lumi-pass-title">LUMI PASS</div>' +
-          '<div class="lumi-pass-sub">' + escapeHtml(item.eventTitle) + '</div>' +
+          '<div class="lumi-pass-sub">Stardust Admission Ticket · ' + escapeHtml(item.eventTitle) + '</div>' +
           '<div class="lumi-pass-place">' + escapeHtml(paymentSt) + ' · ' + escapeHtml(entrySt) + (item.meate ? ' · 메아테 ' + escapeHtml(item.meate) : '') + '</div>' +
           '<div class="lumi-entry-box"><small>ENTRY NO.</small><strong>' + escapeHtml(entryCode || item.reservationNumber) + '</strong></div>' +
           '<div class="ticket-meta">' +
@@ -4592,7 +4592,7 @@
         return '<article class="plain-row">' +
           '<b>' + escapeHtml(item.eventTitle) + '</b>' +
           '<span>' + escapeHtml(item.eventDate || "날짜 확인 중") + ' · ' + escapeHtml(item.venueName) + '<br>예약번호 ' + escapeHtml(item.reservationNumber) + ' · ' + escapeHtml(paymentLabel(item.paymentStatus)) + '</span>' +
-          '<a class="btn sub ticket-api-link" data-ticket-memory="past" href="#record">추억 보기</a>' +
+          '<a class="btn sub ticket-api-link" href="' + escapeHtml(href) + '">추억 보기</a>' +
           '</article>';
       }
 
@@ -4649,7 +4649,7 @@
           '<small>' + escapeHtml(item.eventDate || "날짜 확인 중") + '</small>' +
           '<b>' + escapeHtml(item.eventTitle) + '</b>' +
           '<span>' + escapeHtml(item.venueName) + '<br>예약번호 ' + escapeHtml(item.reservationNumber) + '</span>' +
-          '<div class="ticket-pc-card-actions"><a data-ticket-memory="past" href="#record">추억 보기</a><span>' + escapeHtml(paymentLabel(item.paymentStatus)) + '</span></div>' +
+          '<div class="ticket-pc-card-actions"><a href="' + escapeHtml(href) + '">추억 보기</a><span>' + escapeHtml(paymentLabel(item.paymentStatus)) + '</span></div>' +
           '</article>';
       }
 
@@ -4787,10 +4787,6 @@
         updateHomeReservationSummary(normalized);
         updateMeateBenefitUi(normalized); // PATCH 51-51: 예약 meate/paymentStatus 기반 혜택 표시
         initTicketPagers();
-        // fix2L-3-6X-9: 지난 티켓 데이터가 도착하면 기록 타임라인의 티켓 기록도 갱신한다.
-        if (typeof window.__lumiRefreshRecordTimeline === "function") {
-          try { window.__lumiRefreshRecordTimeline(); } catch(e) {}
-        }
       }
 
       function renderReservationsLoading() {
@@ -7525,8 +7521,8 @@
         (function() {
           for (var i = 0; i < runtimeVisits.length; i++) {
             var raw = runtimeVisits[i].eventDate || runtimeVisits[i].visitedAt || "";
-            var d = parseRecordDate_(raw);
-            if (d) {
+            var d = new Date(raw);
+            if (!isNaN(d.getTime())) {
               currentYear  = d.getFullYear();
               currentMonth = d.getMonth() + 1;
               break;
@@ -7536,45 +7532,6 @@
       }
 
       function pad2(v) { return String(v).padStart(2, "0"); }
-      function parseRecordDate_(value) {
-        if (!value) return null;
-        if (Object.prototype.toString.call(value) === "[object Date]" && !isNaN(value.getTime())) return value;
-        var text = String(value || "").trim();
-        if (!text) return null;
-
-        // Google Sheets/Apps Script에서 올 수 있는 형태 보정:
-        // 2026-05-13 11:08:00 / 2026. 5. 13 오전 11:08:00 / 2026.05.13 등
-        var m = text.match(/(20\d{2})[.\/-]\s*(\d{1,2})[.\/-]\s*(\d{1,2})(?:\s*(오전|오후|AM|PM|am|pm)?\s*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?)?/);
-        if (m) {
-          var year = Number(m[1]);
-          var month = Number(m[2]);
-          var day = Number(m[3]);
-          var marker = String(m[4] || "").toLowerCase();
-          var hour = Number(m[5] || 0);
-          var minute = Number(m[6] || 0);
-          var second = Number(m[7] || 0);
-          if (marker === "오후" || marker === "pm") {
-            if (hour < 12) hour += 12;
-          }
-          if (marker === "오전" || marker === "am") {
-            if (hour === 12) hour = 0;
-          }
-          var parsed = new Date(year, month - 1, day, hour, minute, second);
-          if (!isNaN(parsed.getTime())) return parsed;
-        }
-
-        var fallback = new Date(text.replace(/\./g, "-"));
-        if (!isNaN(fallback.getTime())) return fallback;
-        fallback = new Date(text);
-        return isNaN(fallback.getTime()) ? null : fallback;
-      }
-
-      function formatRecordDate_(value) {
-        var d = parseRecordDate_(value);
-        if (d) return d.getFullYear() + "." + pad2(d.getMonth() + 1) + "." + pad2(d.getDate());
-        return String(value || "").slice(0, 10).replace(/-/g, ".");
-      }
-
       function currentMonthKey() { return currentYear + "." + pad2(currentMonth); }
 
       function updateMonthLabel() {
@@ -7605,8 +7562,8 @@
           var first = null;
           runtimeVisits.forEach(function(v) {
             var raw = v.eventDate || v.visitedAt || "";
-            var d = parseRecordDate_(raw);
-            if (!d) return;
+            var d = new Date(raw);
+            if (isNaN(d.getTime())) return;
             if (!first || d.getTime() < first.getTime()) first = d;
           });
           if (!first) return;
@@ -7621,7 +7578,6 @@
         if (visitType === "live") return "라이브";
         if (visitType === "checkin") return "체크인";
         if (visitType === "online") return "온라인";
-        if (visitType === "ticket") return "티켓";
         return "라이브";
       }
 
@@ -7630,7 +7586,6 @@
         if (visitType === "live") return "🎤";
         if (visitType === "checkin") return "📸";
         if (visitType === "online") return "📡";
-        if (visitType === "ticket") return "🎟️";
         return "🎤";
       }
 
@@ -7639,7 +7594,7 @@
         var stampCount = parseInt(item.stampCount || 0, 10) || 0;
         var eventTitle = item.eventTitle || "루미 체크인";
         var member = item.memberName || item.member || "";
-        var rawDate = item.checkedInAt || item.checkedAt || item.createdAt || item.recordedAt || item.timestamp || item.usedAt || item.visitedAt || item.eventDate || "";
+        var rawDate = item.checkedInAt || item.checkedAt || item.eventDate || "";
         var stampText = stampCount > 0 ? "스탬프 +1" : "오늘 스탬프 지급 완료";
         return {
           visitType: "checkin",
@@ -7651,39 +7606,17 @@
         };
       }
 
-      // fix2L-3-6X-9: 지난 티켓은 라이브 기록에 메아테를 섞지 않고,
-      // 티켓 필터의 별도 기록으로 남긴다.
-      function normalizePastTicketForRecord(item) {
-        item = normalizeReservationItem(item || {});
-        var rawDate = item.eventDate || item.eventEndAt || "";
-        var date = formatRecordDate_(rawDate);
-        var meate = String(item.meate || "").trim();
-        return {
-          visitType: "ticket",
-          eventDate: item.eventDate || item.eventEndAt || rawDate,
-          visitedAt: item.eventEndAt || item.eventDate || rawDate,
-          eventTitle: item.eventTitle || "지난 티켓 저장",
-          note: date + (meate ? " · 메아테 " + meate : ""),
-          _recordSource: "ticket",
-          reservationNumber: item.reservationNumber || ""
-        };
-      }
-
       function allRecordItems() {
         var visitItems = Array.isArray(runtimeVisits) ? runtimeVisits.slice() : [];
         var checkinItems = (Array.isArray(runtimeCheckins) ? runtimeCheckins : [])
           .filter(function(item) { return String(item.status || "active") === "active"; })
           .map(normalizeCheckinForRecord);
-        var ticketItems = (Array.isArray(myReservations) ? myReservations : [])
-          .map(normalizeReservationItem)
-          .filter(function(item) { return isPastReservation(item); })
-          .map(normalizePastTicketForRecord);
-        return visitItems.concat(checkinItems, ticketItems).sort(function(a, b) {
-          var da = parseRecordDate_(a.eventDate || a.visitedAt || "");
-          var db = parseRecordDate_(b.eventDate || b.visitedAt || "");
-          if (!da && !db) return 0;
-          if (!da) return 1;
-          if (!db) return -1;
+        return visitItems.concat(checkinItems).sort(function(a, b) {
+          var da = new Date(a.eventDate || a.visitedAt || "");
+          var db = new Date(b.eventDate || b.visitedAt || "");
+          if (isNaN(da.getTime()) && isNaN(db.getTime())) return 0;
+          if (isNaN(da.getTime())) return 1;
+          if (isNaN(db.getTime())) return -1;
           return db.getTime() - da.getTime();
         });
       }
@@ -7693,8 +7626,8 @@
           var matchFilter = currentFilter === "전체" || visitTypeToCategory(v.visitType) === currentFilter;
           // PATCH 51-35-fix3: new Date()로 파싱 (시트에서 Date 객체 직렬화 형태로 올 수 있음)
           var raw = v.eventDate || v.visitedAt || "";
-          var d = parseRecordDate_(raw);
-          var matchMonth = !!d &&
+          var d = new Date(raw);
+          var matchMonth = !isNaN(d.getTime()) &&
             d.getFullYear() === currentYear &&
             (d.getMonth() + 1) === currentMonth;
           return matchFilter && matchMonth;
@@ -7731,7 +7664,10 @@
             var icon = visitTypeToIcon(v.visitType);
             // PATCH 51-35-fix3: new Date()로 파싱해서 yyyy.MM.dd 형식으로 표시
             var raw = v.eventDate || v.visitedAt || "";
-            var date = formatRecordDate_(raw);
+            var d = new Date(raw);
+            var date = isNaN(d.getTime())
+              ? raw.slice(0, 10).replace(/-/g, ".")
+              : d.getFullYear() + "." + pad2(d.getMonth() + 1) + "." + pad2(d.getDate());
             var title = v.eventTitle || "루미벨 공연";
             var desc  = v.note || (cat + " · " + date);
             return '<article class="record-memory-card" ' +
@@ -7843,7 +7779,8 @@
         function parseVisitDate(v) {
           var raw = v.eventDate || v.visitedAt || "";
           if (!raw) return null;
-          return parseRecordDate_(raw);
+          var d = new Date(raw);
+          return isNaN(d.getTime()) ? null : d;
         }
 
         function jumpToLatest(visits) {
@@ -7949,21 +7886,6 @@
       // PATCH 51-57-fix5: checkins 로더가 나중에 도착해도 기록 타임라인을 다시 렌더한다.
       window.__lumiRefreshRecordTimeline = function(checkins) {
         if (Array.isArray(checkins)) runtimeCheckins = checkins;
-        // fix2L-3-6X-10: visits가 없고 checkins만 먼저 도착한 경우에도
-        // 체크인 날짜 월로 자동 이동한다. 사용자가 월을 직접 넘긴 뒤에는 건드리지 않는다.
-        if (!recordUserMovedMonth && !recordAutoJumpDone) {
-          var all = allRecordItems();
-          for (var i = 0; i < all.length; i++) {
-            var d = parseRecordDate_(all[i].eventDate || all[i].visitedAt || "");
-            if (d) {
-              currentYear = d.getFullYear();
-              currentMonth = d.getMonth() + 1;
-              currentPage = 1;
-              recordAutoJumpDone = true;
-              break;
-            }
-          }
-        }
         renderRecordPage();
       };
 
