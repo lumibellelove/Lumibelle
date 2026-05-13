@@ -2419,6 +2419,43 @@
         if (profileSelectedTitle) profileSelectedTitle.textContent = currentTitle || "아직 칭호가 없어요";
       }
 
+      // fix2L-3-6X-4: 칭호 장착값을 서버 equippedTitle에도 저장한다.
+      // 기존 localStorage/UI 즉시 반영은 유지하고, 서버 저장 실패 시에도 화면은 막지 않는다.
+      function persistEquippedTitleToServer(nextTitle) {
+        const title = clampText(nextTitle || "나만의 루미나", 18) || "나만의 루미나";
+        runtimeEquippedTitleFromApi = title;
+        if (currentUser) {
+          currentUser = Object.assign({}, currentUser, { equippedTitle: title });
+          saveLoginState(currentUser);
+        }
+        const lid = getCurrentLumiId();
+        if (lid) {
+          try {
+            const cachedProfile = cacheRead_(lid, "profile", 24 * 60 * 60 * 1000);
+            const cachedUser = cachedProfile && cachedProfile.user ? cachedProfile.user : {};
+            cacheWrite_(lid, "profile", {
+              ok: true,
+              user: Object.assign({}, cachedUser, currentUser || {}, { equippedTitle: title })
+            });
+          } catch (cacheErr) {}
+        }
+        if (!LUMI_API_ENDPOINT() || !lid || typeof postLumiApi !== "function") return;
+        postLumiApi({
+          action: "lumiUpdateMyProfile",
+          lumiId: lid,
+          sessionToken: (currentUser && currentUser.sessionToken) || "",
+          equippedTitle: title
+        }).then(function(res) {
+          if (res && res.ok) {
+            appendBootDebug("equippedTitle server save OK");
+          } else {
+            appendBootDebug("equippedTitle server save failed: " + String((res && res.message) || "unknown"));
+          }
+        }).catch(function(err) {
+          appendBootDebug("equippedTitle server save error: " + String(err && err.message || err));
+        });
+      }
+
       function selectProfileTitle(titleName) {
         const nextTitle = clampText(titleName || "아직 칭호가 없어요", 18) || "아직 칭호가 없어요";
         profileDraft.info = normalizeProfileInfo(Object.assign({}, profileDraft.info, { title: nextTitle }));
@@ -2426,6 +2463,7 @@
         saveProfileState();
         updateProfileTitleOptions(nextTitle);
         renderProfileView();
+        persistEquippedTitleToServer(nextTitle);
         closeProfileTitleModal();
       }
 
@@ -3424,6 +3462,7 @@
         saveProfileState();
         updateProfileTitleOptions(nextTitle);
         renderProfileView();
+        persistEquippedTitleToServer(nextTitle);
         // fix2L-3-6G: 칭호 장착은 상태만 바꾸고 팝업/토스트를 띄우지 않는다.
         // 업적 해금 알림은 신규 업적/칭호가 API에서 감지될 때만 achievement-toast로 표시한다.
         if (showFeedback) {
@@ -6828,7 +6867,8 @@
             space: savedInfo.space || "",
             letterName: savedInfo.letterName || "",
             broadcastName: savedInfo.broadcastName || "",
-            profileMessage: savedInfo.profileMessage || ""
+            profileMessage: savedInfo.profileMessage || "",
+            equippedTitle: savedInfo.title || ""
           }).then(function(res) {
             if (res && res.ok) {
               appendBootDebug("profile server save OK");
@@ -6841,7 +6881,8 @@
                   space: savedInfo.space || "",
                   letterName: savedInfo.letterName || "",
                   broadcastName: savedInfo.broadcastName || "",
-                  profileMessage: savedInfo.profileMessage || ""
+                  profileMessage: savedInfo.profileMessage || "",
+                  equippedTitle: savedInfo.title || ""
                 });
                 saveLoginState(currentUser);
               }
@@ -6856,7 +6897,8 @@
                     space: savedInfo.space || "",
                     letterName: savedInfo.letterName || "",
                     broadcastName: savedInfo.broadcastName || "",
-                    profileMessage: savedInfo.profileMessage || ""
+                    profileMessage: savedInfo.profileMessage || "",
+                    equippedTitle: savedInfo.title || ""
                   })
                 };
                 cacheWrite_(lid, "profile", profileCachePayload);
