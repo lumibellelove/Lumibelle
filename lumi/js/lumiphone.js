@@ -8349,7 +8349,9 @@
       if (prevPage) prevPage.addEventListener("click", () => { currentPage -= 1; renderList(); });
       if (nextPage) nextPage.addEventListener("click", () => { currentPage += 1; renderList(); });
 
-      render();
+      // fix2L-3-6X-16c: public_schedule 응답이 오기 전에는 캘린더 DOM을 건드리지 않는다.
+      // 기존 HTML의 조용한 안내 화면을 그대로 두고, 실제 일정 데이터가 준비된 뒤 한 번만 갱신한다.
+      // 그래서 "일정 없음 > 일정 표시"처럼 깜빡이는 현상을 줄인다.
       loadPublicSchedule();
 
     })();
