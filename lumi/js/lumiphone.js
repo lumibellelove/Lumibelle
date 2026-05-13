@@ -8046,13 +8046,16 @@
       const nextPage = root.querySelector('[data-calendar-page="next"]');
       const filters = Array.from(root.querySelectorAll("[data-calendar-filter]"));
       const monthButtons = root.querySelectorAll("[data-calendar-month]");
+      const summaryCards = Array.from(root.querySelectorAll(".calendar-summary-card"));
       const pageSize = 4;
       const minMonth = new Date(2026, 0, 1);
       let currentMonth = new Date(2026, 6, 1);
       let activeFilter = "all";
       let currentPage = 0;
+      let scheduleLoaded = false;
+      let userMovedMonth = false;
 
-      const events = [
+      let events = [
         { date:"2026-07-12", type:"live", icon:"●", title:"Lumibelle Debut Live", desc:"입장 17:30 / 공연 18:00 · 티켓함에서 확인", tags:["라이브", "티켓함"] },
         { date:"2026-08-17", type:"birthday", icon:"♥", title:"루루 생일", desc:"축하 예정", tags:["생일", "루루"] },
         { date:"2026-09-21", type:"birthday", icon:"♥", title:"마리링 생일", desc:"축하 예정", tags:["생일", "마리링"] },
@@ -8061,11 +8064,100 @@
 
       function pad(n){ return String(n).padStart(2, "0"); }
       function ym(date){ return date.getFullYear() + "-" + pad(date.getMonth()+1); }
-      function sameMonth(dateStr){ return dateStr.slice(0,7) === ym(currentMonth); }
-      function dateLabel(dateStr){ return dateStr.replace(/-/g, "."); }
-
+      function sameMonth(dateStr){ return String(dateStr || "").slice(0,7) === ym(currentMonth); }
+      function dateLabel(dateStr){ return String(dateStr || "").replace(/-/g, "."); }
+      function todayKey(){ const d = new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+      function safeText(value, fallback){
+        const text = String(value == null ? "" : value).trim();
+        return text || (fallback || "");
+      }
+      function normalizeCalendarType(value){
+        const raw = String(value || "").trim().toLowerCase();
+        if (["라이브", "live", "공연"].includes(raw)) return "live";
+        if (["생일", "birthday", "birth"].includes(raw)) return "birthday";
+        if (["이벤트", "event", "special"].includes(raw)) return "event";
+        if (["on air", "onair", "방송"].includes(raw)) return "onair";
+        return "event";
+      }
+      function typeLabel(type){
+        return { live:"라이브", birthday:"생일", event:"이벤트", onair:"ON AIR" }[type] || "일정";
+      }
+      function statusLabel(status, displayStatus){
+        const shown = safeText(displayStatus, "");
+        if (shown) return shown;
+        const raw = String(status || "").trim();
+        const map = {
+          reservationOpen: "예매중",
+          open: "예매중",
+          upcoming: "예정",
+          scheduled: "예정",
+          ongoing: "진행 중",
+          ended: "종료",
+          archived: "종료",
+          cancelled: "취소",
+          hidden: "비공개"
+        };
+        return map[raw] || raw || "예정";
+      }
+      function normalizeScheduleItem(item){
+        const date = safeText(item.date || item.eventDate || item.startDate, "").slice(0, 10);
+        const type = normalizeCalendarType(item.category || item.type || item.eventType);
+        const title = safeText(item.title || item.eventTitle || item.name, "루미벨 일정");
+        const venue = safeText(item.venue || item.venueName, "");
+        const startTime = safeText(item.startTime || item.time, "");
+        const display = statusLabel(item.status, item.displayStatus);
+        const description = safeText(item.description || item.desc || item.note, "");
+        const descParts = [];
+        if (startTime) descParts.push(startTime);
+        if (venue) descParts.push(venue);
+        if (display) descParts.push(display);
+        if (description) descParts.push(description);
+        return {
+          scheduleId: safeText(item.scheduleId || item.id, ""),
+          eventId: safeText(item.eventId, ""),
+          date: date,
+          type: type,
+          icon: type === "birthday" ? "♥" : (type === "live" ? "●" : (type === "onair" ? "✦" : "★")),
+          title: title,
+          desc: descParts.join(" · ") || "공홈 SCHEDULE에서 확인해 주세요.",
+          tags: [typeLabel(type)].concat(display ? [display] : []).filter(Boolean),
+          ticketUrl: safeText(item.ticketUrl || item.url, ""),
+          sortOrder: Number(item.sortOrder || 9999) || 9999
+        };
+      }
+      function sortCalendarEvents(a, b){
+        return String(a.date || "").localeCompare(String(b.date || "")) || (a.sortOrder || 9999) - (b.sortOrder || 9999) || String(a.title || "").localeCompare(String(b.title || ""));
+      }
       function monthEvents(){
         return events.filter(ev => sameMonth(ev.date) && (activeFilter === "all" || ev.type === activeFilter));
+      }
+      function upcomingEvents(type){
+        const today = todayKey();
+        return events.filter(ev => ev.date && ev.date >= today && (!type || ev.type === type)).sort(sortCalendarEvents);
+      }
+      function updateSummaryCards(){
+        if (!summaryCards.length) return;
+        const today = todayKey();
+        const todayLives = events.filter(ev => ev.date === today && ev.type === "live");
+        const nextLive = upcomingEvents("live")[0];
+        const nextBirthday = upcomingEvents("birthday")[0];
+        const nextEvent = upcomingEvents("event")[0] || upcomingEvents("onair")[0];
+        const data = [
+          todayLives.length ? { small:"오늘", big:"오늘 라이브 있음", span: todayLives[0].title } : { small:"오늘", big:"예정된 라이브 없음", span:"다음 루미 일정은 아래 일정표에서 확인해 주세요." },
+          nextLive ? { small:"다음 라이브", big: dateLabel(nextLive.date), span: nextLive.title + (nextLive.desc ? " · " + nextLive.desc : "") } : { small:"다음 라이브", big:"등록 대기", span:"공홈 SCHEDULE에 등록되면 표시돼요." },
+          nextBirthday ? { small:"다가오는 생일", big: dateLabel(nextBirthday.date), span: nextBirthday.title } : { small:"다가오는 생일", big:"등록 대기", span:"생일 일정이 등록되면 표시돼요." },
+          nextEvent ? { small:"중요 이벤트", big: dateLabel(nextEvent.date), span: nextEvent.title } : { small:"중요 이벤트", big:"등록 대기", span:"이벤트 일정이 등록되면 표시돼요." }
+        ];
+        summaryCards.forEach((card, idx) => {
+          const info = data[idx];
+          if (!info) return;
+          const small = card.querySelector("small");
+          const big = card.querySelector("b");
+          const span = card.querySelector("span");
+          if (small) small.textContent = info.small;
+          if (big) big.textContent = info.big;
+          if (span) span.textContent = info.span;
+        });
       }
 
       function renderCalendar(){
@@ -8076,8 +8168,9 @@
         const firstDay = new Date(year, month, 1).getDay();
         const lastDate = new Date(year, month+1, 0).getDate();
         const byDay = {};
-        events.filter(ev => ev.date.slice(0,7) === ym(currentMonth)).forEach(ev => {
-          const day = Number(ev.date.slice(8,10));
+        events.filter(ev => String(ev.date || "").slice(0,7) === ym(currentMonth)).forEach(ev => {
+          const day = Number(String(ev.date || "").slice(8,10));
+          if (!day) return;
           if (!byDay[day]) byDay[day] = [];
           byDay[day].push(ev);
         });
@@ -8111,10 +8204,11 @@
         currentPage = Math.max(0, Math.min(currentPage, totalPages - 1));
         const shown = items.slice(currentPage * pageSize, currentPage * pageSize + pageSize);
         if (!shown.length) {
-          list.innerHTML = '<article class="calendar-event-card"><small>일정 없음</small><b>이 달에는 표시할 루미 일정이 없어요</b><span>공홈 SCHEDULE에 새 일정이 등록되면 루미폰 캘린더에도 연결될 예정이에요.</span></article>';
+          const msg = scheduleLoaded ? "공홈 SCHEDULE에 공개 일정이 등록되면 이곳에 표시돼요." : "공홈 SCHEDULE 정보를 불러오는 중이에요.";
+          list.innerHTML = '<article class="calendar-event-card"><small>일정 없음</small><b>이 달에는 표시할 루미 일정이 없어요</b><span>'+ msg +'</span></article>';
         } else {
           list.innerHTML = shown.map(ev => (
-            '<article class="calendar-event-card" data-calendar-detail="'+ ev.date +'">' +
+            '<article class="calendar-event-card" data-calendar-detail="'+ ev.date +'" data-calendar-title="'+ ev.title.replace(/"/g, '&quot;') +'">' +
               '<small>'+ dateLabel(ev.date) +' · '+ typeLabel(ev.type) +'</small>' +
               '<b>'+ ev.title +'</b>' +
               '<span>'+ ev.desc +'</span>' +
@@ -8124,7 +8218,8 @@
           list.querySelectorAll("[data-calendar-detail]").forEach(card => {
             card.addEventListener("click", () => {
               const date = card.getAttribute("data-calendar-detail");
-              const ev = events.find(item => item.date === date && card.textContent.includes(item.title));
+              const title = card.getAttribute("data-calendar-title") || "";
+              const ev = events.find(item => item.date === date && item.title === title) || events.find(item => item.date === date);
               if (ev && typeof openLumiModal === "function") openLumiModal(ev.title, dateLabel(ev.date) + "\n" + ev.desc);
             });
           });
@@ -8134,13 +8229,41 @@
         if (nextPage) nextPage.disabled = currentPage >= totalPages - 1;
       }
 
-      function typeLabel(type){
-        return { live:"라이브", birthday:"생일", event:"이벤트", onair:"ON AIR" }[type] || "일정";
-      }
-
       function render(){
+        updateSummaryCards();
         renderCalendar();
         renderList();
+      }
+
+      async function loadPublicSchedule(retry){
+        retry = retry || 0;
+        try {
+          const fetcher = window.__lumiFetchApi;
+          if (typeof fetcher !== "function") {
+            if (retry < 20) return setTimeout(() => loadPublicSchedule(retry + 1), 250);
+            scheduleLoaded = true;
+            render();
+            return;
+          }
+          const payload = await fetcher({ action: "lumiGetPublicSchedule" });
+          if (payload && payload.ok && Array.isArray(payload.schedules)) {
+            const nextEvents = payload.schedules.map(normalizeScheduleItem).filter(ev => ev.date).sort(sortCalendarEvents);
+            events = nextEvents;
+            scheduleLoaded = true;
+            if (!userMovedMonth) {
+              const firstUpcoming = upcomingEvents()[0] || events[0];
+              if (firstUpcoming && firstUpcoming.date) {
+                const parts = firstUpcoming.date.split("-").map(Number);
+                if (parts[0] && parts[1]) currentMonth = new Date(parts[0], parts[1] - 1, 1);
+              }
+            }
+            currentPage = 0;
+            render();
+            return;
+          }
+        } catch(e) {}
+        scheduleLoaded = true;
+        render();
       }
 
       filters.forEach(btn => {
@@ -8159,6 +8282,7 @@
           const next = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + dir, 1);
           if (next < minMonth) return;
           currentMonth = next;
+          userMovedMonth = true;
           currentPage = 0;
           render();
         });
@@ -8168,6 +8292,7 @@
       if (nextPage) nextPage.addEventListener("click", () => { currentPage += 1; renderList(); });
 
       render();
+      loadPublicSchedule();
 
     })();
 
