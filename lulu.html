@@ -1,162 +1,792 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>루루 | Lumibelle</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>루루 | Lumibelle</title>
+  <link rel="stylesheet" href="style.css">
 
-<style>
+  <style>
+    :root {
+      --lulu-soft: #FFD9E8;
+      --lulu-deep: #FFC0D7;
+      --lulu-text: #8a6375;
+      --lulu-point: #d982a3;
+      --lulu-line: #f4d4e1;
+      --lulu-bg: #fff8fb;
+    }
 
-/* SNS 동그라미 버튼 */
-.sns-buttons {
-  display: flex;
-  gap: 16px;
-  margin-top: 20px;
-  justify-content: center;
-}
+    .lulu-page-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
 
-.sns-btn {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  font-weight: 900;
+    .lulu-title {
+      text-align: center;
+      margin: 28px 0 22px;
+    }
 
-  background: linear-gradient(180deg, #ffc0d7, #ffd9e8);
-  box-shadow: 0 8px 18px rgba(255, 192, 215, 0.25);
+    .lulu-title h2 {
+      margin: 0;
+      color: var(--lulu-point);
+      font-size: 56px;
+      font-weight: 900;
+      line-height: 1;
+    }
 
-  transition: transform 0.18s ease, opacity 0.18s ease;
-}
+    .lulu-title p {
+      margin: 10px 0 0;
+      color: #d9a3bc;
+      font-size: 16px;
+      font-weight: 700;
+      transform: translateX(-12px);
+    }
 
-.sns-btn:hover {
-  transform: translateY(-4px);
-  opacity: 0.95;
-}
+    .lulu-card {
+      background: var(--lulu-bg);
+      border: 1px solid var(--lulu-line);
+      border-radius: 32px;
+      padding: 48px;
+      box-sizing: border-box;
+      margin-bottom: 34px;
+    }
 
-.sns-btn img {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-}
+    .lulu-grid {
+      display: grid;
+      grid-template-columns: 460px minmax(0, 1fr);
+      gap: 42px;
+      align-items: stretch;
+    }
 
-/* 하단 버튼 */
-.back-group {
-  margin-top: 30px;
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-}
+    .lulu-photo {
+      width: 100%;
+      max-width: 460px;
+      aspect-ratio: 2 / 3;
+      border-radius: 28px;
+      background-image: url('img/member/lulu/lulu.webp');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border: 1px solid var(--lulu-line);
+      background-color: #fff;
+      box-sizing: border-box;
+      box-shadow: 0 16px 36px rgba(255, 192, 215, 0.18);
+    }
 
-.back-btn {
-  padding: 12px 26px;
-  border-radius: 999px;
-  text-decoration: none;
-  font-weight: 800;
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
+    .lulu-info-section {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      height: 100%;
+      padding-top: 8px;
+    }
 
-/* 멤버 목록 */
-.back-btn.pink {
-  border: 1.5px solid #f0bfd4;
-  color: #e27aa9;
-  background: #fff;
-}
+    .lulu-name-section {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 22px;
+    }
 
-/* 메인으로 */
-.back-btn.purple {
-  border: 1.5px solid #d4c0f0;
-  color: #9f7ae2;
-  background: #fff;
-}
+    .lulu-name {
+      font-size: 82px;
+      font-weight: 900;
+      color: var(--lulu-point);
+      margin: 0;
+      line-height: 0.95;
+      text-align: center;
+      transform: translateX(-12px);
+      transition: color 0.3s ease, text-shadow 0.3s ease;
+      text-shadow:
+        0 0 10px rgba(255, 192, 215, 0.22),
+        0 4px 8px rgba(255, 192, 215, 0.18);
+    }
 
-.back-btn:hover {
-  transform: translateY(-2px);
-  background: #fff0f7;
-}
+    .lulu-name.voice-active {
+      color: #f08aad;
+      text-shadow:
+        0 0 14px rgba(255,255,255,0.20),
+        0 4px 10px rgba(255, 192, 215, 0.26),
+        0 0 10px rgba(255, 217, 232, 0.34);
+      transform: translateX(-12px);
+    }
 
-</style>
+    .lulu-en {
+      font-size: 20px;
+      letter-spacing: 0.24em;
+      color: #d9a3bc;
+      margin-top: 12px;
+      font-weight: 800;
+      text-align: center;
+      transform: translateX(-4px);
+    }
+
+    .lulu-voice-area {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lulu-voice {
+      position: relative;
+      min-width: 168px;
+      min-height: 52px;
+      padding: 12px 26px;
+      border-radius: 999px;
+      border: 2px solid var(--lulu-deep);
+      background: #fff;
+      color: var(--lulu-point);
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      overflow: visible;
+    }
+
+    .lulu-voice:hover {
+      transform: translateY(-2px);
+    }
+
+    .lulu-voice.playing {
+      background: linear-gradient(135deg, var(--lulu-soft), var(--lulu-deep));
+      color: #8a6375;
+      animation: luluVoicePulse 1.2s infinite;
+    }
+
+    .lulu-voice-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 64px;
+      line-height: 1;
+    }
+
+    .lulu-sound-bars {
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 3px;
+      height: 16px;
+    }
+
+    .lulu-sound-bars span {
+      width: 3px;
+      height: 100%;
+      border-radius: 999px;
+      background: currentColor;
+      transform-origin: bottom center;
+      animation: luluBars 0.9s infinite ease-in-out;
+    }
+
+    .lulu-sound-bars span:nth-child(1) { animation-delay: 0s; }
+    .lulu-sound-bars span:nth-child(2) { animation-delay: 0.12s; }
+    .lulu-sound-bars span:nth-child(3) { animation-delay: 0.24s; }
+
+    .lulu-voice.playing .lulu-sound-bars {
+      display: inline-flex;
+    }
+
+    .lulu-voice-effect {
+      position: absolute;
+      right: -12px;
+      top: -12px;
+      font-size: 22px;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .lulu-voice.playing .lulu-voice-effect {
+      opacity: 1;
+      animation: luluPop 1.2s infinite;
+    }
+
+    .lulu-voice-text {
+      min-height: 24px;
+      margin: 0;
+      color: #a8768d;
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.6;
+      text-align: center;
+      word-break: keep-all;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .lulu-voice-text.text-change {
+      color: #d982a3;
+      transform: translateY(-1px);
+    }
+
+    @keyframes luluVoicePulse {
+      0%, 100% { box-shadow: 0 0 0 rgba(255, 192, 215, 0); }
+      50% { box-shadow: 0 0 24px rgba(255, 192, 215, 0.44); }
+    }
+
+    @keyframes luluBars {
+      0%, 100% { transform: scaleY(0.35); }
+      50% { transform: scaleY(1); }
+    }
+
+    @keyframes luluPop {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-4px) scale(1.08); }
+    }
+
+    .lulu-copy {
+      width: 100%;
+    }
+
+    .lulu-keywords {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .lulu-keyword {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 30px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: #fff;
+      color: var(--lulu-point);
+      border: 1px solid var(--lulu-line);
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .lulu-message-block {
+      background: #fff;
+      border: 1px solid var(--lulu-line);
+      border-radius: 24px;
+      padding: 24px 26px;
+      box-sizing: border-box;
+      margin-bottom: 20px;
+    }
+
+    .lulu-line-main {
+      margin: 0;
+      color: #c87598;
+      font-size: 23px;
+      font-weight: 900;
+      line-height: 1.45;
+      word-break: keep-all;
+    }
+
+    .lulu-line-sub {
+      margin: 12px 0 0;
+      color: var(--lulu-text);
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.65;
+      word-break: keep-all;
+    }
+
+    .lulu-detail-block {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .lulu-detail-row {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      padding: 13px 16px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid var(--lulu-line);
+      box-sizing: border-box;
+    }
+
+    .lulu-detail-label {
+      color: #c88ca6;
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .lulu-detail-value {
+      color: #76586a;
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.45;
+      word-break: keep-all;
+    }
+
+    .lulu-color-point {
+      color: #d982a3;
+      font-weight: 900;
+    }
+
+    .lulu-bottom {
+      width: 100%;
+      margin-top: auto;
+    }
+
+    .lulu-sns-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .lulu-sns-item {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      background: linear-gradient(180deg, var(--lulu-deep), var(--lulu-soft));
+      box-shadow: 0 8px 18px rgba(255, 192, 215, 0.26);
+      border: 1px solid rgba(255,255,255,0.9);
+      transition: transform 0.18s ease, opacity 0.18s ease;
+      color: #8a6375;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .lulu-sns-item:hover {
+      transform: translateY(-4px);
+      opacity: 0.95;
+    }
+
+    .lulu-sns-item img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    .lulu-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .lulu-btn {
+      min-width: 140px;
+      min-height: 46px;
+      padding: 0 24px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 900;
+      box-sizing: border-box;
+      transition: transform 0.18s ease, opacity 0.18s ease;
+    }
+
+    .lulu-btn:hover {
+      transform: translateY(-2px);
+      opacity: 0.95;
+    }
+
+    .lulu-btn.pink {
+      background: linear-gradient(180deg, var(--lulu-deep), var(--lulu-soft));
+      color: #8a6375;
+      box-shadow: 0 8px 18px rgba(255, 192, 215, 0.26);
+    }
+
+    .lulu-btn.purple {
+      background: #fff;
+      color: var(--lulu-point);
+      border: 1px solid var(--lulu-line);
+    }
+
+    .lulu-movie-section {
+      background: var(--lulu-bg);
+      border: 1px solid var(--lulu-line);
+      border-radius: 32px;
+      padding: 38px 36px 34px;
+      box-sizing: border-box;
+      margin-bottom: 56px;
+    }
+
+    .lulu-movie-head {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .lulu-movie-head h3 {
+      margin: 0;
+      color: var(--lulu-point);
+      font-size: 40px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .lulu-movie-head p {
+      margin: 10px 0 0;
+      color: #d9a3bc;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .lulu-movie-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .lulu-movie-coming {
+      min-height: 240px;
+      border-radius: 24px;
+      border: 1px solid var(--lulu-line);
+      background:
+        radial-gradient(circle at 90% 8%, rgba(255,255,255,0.85), transparent 22%),
+        linear-gradient(135deg, #fff, var(--lulu-soft));
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    .lulu-movie-coming strong {
+      display: block;
+      color: #c87598;
+      font-size: 24px;
+      line-height: 1.25;
+      font-weight: 900;
+    }
+
+    .lulu-movie-coming span {
+      display: block;
+      margin-top: 10px;
+      color: var(--lulu-text);
+      font-size: 14px;
+      line-height: 1.6;
+      font-weight: 800;
+      word-break: keep-all;
+    }
+
+    @media (max-width: 900px) {
+      .lulu-card {
+        padding: 36px 28px;
+      }
+
+      .lulu-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        text-align: center;
+      }
+
+      .lulu-photo {
+        max-width: 430px;
+        margin: 0 auto;
+      }
+
+      .lulu-info-section {
+        align-items: center;
+        padding-top: 0;
+      }
+
+      .lulu-name-section,
+      .lulu-name,
+      .lulu-en,
+      .lulu-copy {
+        text-align: center;
+      }
+
+      .lulu-keywords,
+      .lulu-sns-row,
+      .lulu-actions {
+        justify-content: center;
+      }
+
+      .lulu-detail-block {
+        width: 100%;
+      }
+
+      .lulu-movie-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .lulu-movie-section {
+        padding: 28px 22px 26px;
+      }
+
+      .lulu-movie-head h3 {
+        font-size: 34px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .lulu-title h2 {
+        font-size: 44px;
+      }
+
+      .lulu-card,
+      .lulu-movie-section {
+        padding: 24px;
+        border-radius: 24px;
+      }
+
+      .lulu-photo {
+        max-width: 100%;
+        border-radius: 22px;
+      }
+
+      .lulu-name {
+        font-size: 52px;
+        transform: none;
+      }
+
+      .lulu-name.voice-active {
+        transform: none;
+      }
+
+      .lulu-en {
+        font-size: 18px;
+        letter-spacing: 0.2em;
+        transform: none;
+      }
+
+      .lulu-line-main {
+        font-size: 20px;
+      }
+
+      .lulu-line-sub {
+        font-size: 14px;
+      }
+
+      .lulu-detail-row {
+        grid-template-columns: 1fr;
+        gap: 4px;
+        text-align: center;
+      }
+
+      .lulu-actions {
+        width: 100%;
+      }
+
+      .lulu-btn {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <header>
+    <div class="wrap">
+      <div class="header-box">
+        <div class="top-bow">🎀</div>
+        <div class="logo">
+          <h1>Lumibelle</h1>
+          <p>루미벨</p>
+        </div>
+        <nav>
+          <a href="index.html"><b>TOP</b><span>탑</span></a>
+          <a href="news.html"><b>NEWS</b><span>공지사항</span></a>
+          <a href="member.html" class="current"><b>MEMBER</b><span>멤버 소개</span></a>
+          <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
+          <a href="fanname.html"><b>FANNAME</b><span>팬네임</span></a>
+          <a href="info.html"><b>INFO</b><span>안내</span></a>
+        </nav>
+      </div>
+    </div>
+  </header>
 
-<header>
-<div class="wrap">
-<div class="header-box">
-<div class="top-bow">🎀</div>
+  <main class="page-shell">
+    <div class="wrap lulu-page-wrap">
+      <div class="lulu-title">
+        <h2>LULU</h2>
+        <p>루루</p>
+      </div>
 
-<div class="logo">
-<h1>Lumibelle</h1>
-<p>루미벨</p>
-</div>
+      <section class="lulu-card">
+        <div class="lulu-grid">
+          <div class="lulu-photo"></div>
 
-<nav>
-<a href="index.html"><b>TOP</b><span>탑</span></a>
-<a href="news.html"><b>NEWS</b><span>공지사항</span></a>
-<a href="member.html" class="current"><b>MEMBER</b><span>멤버 소개</span></a>
-<a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
-<a href="fanname.html"><b>FANNAME</b><span>팬네임</span></a>
-<a href="info.html"><b>INFO</b><span>안내</span></a>
-</nav>
+          <div class="lulu-info-section">
+            <div class="lulu-name-section">
+              <h3 class="lulu-name">루루</h3>
+              <div class="lulu-en">LULU</div>
 
-</div>
-</div>
-</header>
+              <div class="lulu-voice-area">
+                <button class="lulu-voice" type="button" onclick="playRandomVoice(this)">
+                  <span class="lulu-voice-label">▶ VOICE</span>
+                  <span class="lulu-sound-bars" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </span>
+                  <span class="lulu-voice-effect"></span>
+                </button>
 
-<main class="page-shell">
-<div class="wrap">
+                <p id="luluVoiceText" class="lulu-voice-text">
+                  버튼을 눌러 루루의 보이스를 들어보세요 🐰🩷
+                </p>
+              </div>
+            </div>
 
-<div class="page-title">
-<h2>LULU</h2>
-<p>루루</p>
-</div>
+            <div class="lulu-copy">
+              <div class="lulu-keywords">
+                <span class="lulu-keyword">#포근함</span>
+                <span class="lulu-keyword">#작은용기</span>
+                <span class="lulu-keyword">#아기토끼공주</span>
+              </div>
 
-<div class="profile-card">
-<div class="profile-grid">
+              <div class="lulu-message-block">
+                <p class="lulu-line-main">+ﾟ··•♡*.+ﾟ 핑크빛 베이비 프린세스ᕱ⑅ᕱ ྀིྀི ··•♡*.+ﾟ</p>
+                <p class="lulu-line-sub">“루루만의 길로 한발씩, 포근하게!”</p>
+              </div>
 
-<div class="profile-photo" style="background-image:url('lulu.jpg');"></div>
+              <div class="lulu-detail-block">
+                <div class="lulu-detail-row">
+                  <div class="lulu-detail-label">나마콜</div>
+                  <div class="lulu-detail-value">루루삐 🐰🍼</div>
+                </div>
+                <div class="lulu-detail-row">
+                  <div class="lulu-detail-label">담당 컬러</div>
+                  <div class="lulu-detail-value lulu-color-point">Milky Pink · #FFD9E8 / #FFC0D7</div>
+                </div>
+                <div class="lulu-detail-row">
+                  <div class="lulu-detail-label">생일</div>
+                  <div class="lulu-detail-value">08.17</div>
+                </div>
+                <div class="lulu-detail-row">
+                  <div class="lulu-detail-label">호출 태그</div>
+                  <div class="lulu-detail-value">#아기토끼루루뿅</div>
+                </div>
+                <div class="lulu-detail-row">
+                  <div class="lulu-detail-label">체키 메시</div>
+                  <div class="lulu-detail-value">#루루맘마냠냠</div>
+                </div>
+              </div>
+            </div>
 
-<div>
+            <div class="lulu-bottom">
+              <div class="lulu-sns-row">
+                <a href="https://x.com/LMB_Lulu" class="lulu-sns-item" target="_blank" rel="noopener noreferrer" aria-label="루루 X">
+                  <img src="img/ui/X.webp" alt="X">
+                </a>
+                <a href="https://www.instagram.com/babylulu_s2/" class="lulu-sns-item" target="_blank" rel="noopener noreferrer" aria-label="루루 Instagram">
+                  IG
+                </a>
+              </div>
 
-<h3 class="profile-name">루루</h3>
-<div class="profile-en">LULU</div>
+              <div class="lulu-actions">
+                <a href="member.html" class="lulu-btn pink">멤버 목록</a>
+                <a href="index.html#member" class="lulu-btn purple">메인으로</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-<div class="profile-meta">
-  <div><strong>담당 컬러</strong> · 밀키핑크</div>
-  <div><strong>일본어 표기</strong> · ミルキーピンク</div>
-  <div><strong>키워드</strong> · 러블리 / 포근함</div>
-  <div><strong>한마디</strong> · 오늘도 다정한 하루가 되길!</div>
-</div>
+      <section class="lulu-movie-section">
+        <div class="lulu-movie-head">
+          <h3>MOVIE</h3>
+          <p>영상</p>
+        </div>
 
-<!-- SNS 버튼 -->
-<div class="sns-buttons">
-  <a href="https://x.com/LMB_Lulu" target="_blank" class="sns-btn">
-    <img src="img/x.png">
-  </a>
-  <a href="https://www.instagram.com/babylulu_s2/" target="_blank" class="sns-btn">
-    <img src="img/instagram.png">
-  </a>
-</div>
+        <div class="lulu-movie-grid">
+          <div class="lulu-movie-coming">
+            <div>
+              <strong>Coming Soon</strong>
+              <span>루루의 무대 영상은 순차적으로 업데이트될 예정이에요.</span>
+            </div>
+          </div>
+          <div class="lulu-movie-coming">
+            <div>
+              <strong>LULU Archive</strong>
+              <span>포근한 루루의 순간들을 조금씩 기록해둘게요.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
 
-<!-- 이동 버튼 -->
-<div class="back-group">
-  <a href="member.html" class="back-btn pink">멤버 목록</a>
-  <a href="index.html#member" class="back-btn purple">메인으로</a>
-</div>
+  <footer>© 2026 Lumibelle All Rights Reserved.</footer>
 
-</div>
+  <script>
+    let lastIndex = -1;
+    let isPlaying = false;
 
-</div>
-</div>
+    const luluVoiceLines = [
+      "어... 루루 보러 와준 거야...? 🐰🩷",
+      "루루만의 길로 한발씩, 포근하게 갈게...! 🍼🐰",
+      "오늘도 루루랑 같이 있어줄래...? 🐰✨"
+    ];
 
-</div>
-</main>
+    const luluEffects = ["🐰", "🍼", "🩷"];
 
-<footer>© 2026 Lumibelle All Rights Reserved.</footer>
+    function setVoiceButtonState(btn, state) {
+      const nameEl = document.querySelector(".lulu-name");
+      const textEl = document.getElementById("luluVoiceText");
+      const labelEl = btn.querySelector(".lulu-voice-label");
 
+      if (state === "playing") {
+        btn.classList.add("playing");
+        nameEl.classList.add("voice-active");
+        labelEl.textContent = "⏸ PAUSE";
+      } else {
+        btn.classList.remove("playing");
+        nameEl.classList.remove("voice-active");
+        labelEl.textContent = "▶ VOICE";
+
+        if (state === "reset") {
+          textEl.classList.remove("text-change");
+          textEl.textContent = "버튼을 눌러 루루의 보이스를 들어보세요 🐰🩷";
+        }
+      }
+    }
+
+    function getRandomIndex(length) {
+      if (length === 1) return 0;
+
+      let newIndex;
+      do {
+        newIndex = Math.floor(Math.random() * length);
+      } while (newIndex === lastIndex);
+
+      return newIndex;
+    }
+
+    function playRandomVoice(btn) {
+      const textEl = document.getElementById("luluVoiceText");
+      const effectEl = btn.querySelector(".lulu-voice-effect");
+
+      if (isPlaying) {
+        isPlaying = false;
+        setVoiceButtonState(btn, "reset");
+        return;
+      }
+
+      const randomIndex = getRandomIndex(luluVoiceLines.length);
+      lastIndex = randomIndex;
+      const randomEffect = luluEffects[Math.floor(Math.random() * luluEffects.length)];
+      effectEl.textContent = randomEffect;
+
+      isPlaying = true;
+      setVoiceButtonState(btn, "playing");
+
+      textEl.textContent = luluVoiceLines[randomIndex];
+      textEl.classList.add("text-change");
+
+      window.setTimeout(function () {
+        isPlaying = false;
+        setVoiceButtonState(btn, "reset");
+      }, 2600);
+    }
+  </script>
 </body>
 </html>
