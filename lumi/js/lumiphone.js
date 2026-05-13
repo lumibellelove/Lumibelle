@@ -4574,7 +4574,7 @@
             'START ' + escapeHtml(item.startTime || "18:00") + '</div>' +
           '</div>' +
           '<div class="lumi-pass-title">LUMI PASS</div>' +
-          '<div class="lumi-pass-sub">Stardust Admission Ticket · ' + escapeHtml(item.eventTitle) + '</div>' +
+          '<div class="lumi-pass-sub">' + escapeHtml(item.eventTitle) + '</div>' +
           '<div class="lumi-pass-place">' + escapeHtml(paymentSt) + ' · ' + escapeHtml(entrySt) + (item.meate ? ' · 메아테 ' + escapeHtml(item.meate) : '') + '</div>' +
           '<div class="lumi-entry-box"><small>ENTRY NO.</small><strong>' + escapeHtml(entryCode || item.reservationNumber) + '</strong></div>' +
           '<div class="ticket-meta">' +
@@ -4592,7 +4592,7 @@
         return '<article class="plain-row">' +
           '<b>' + escapeHtml(item.eventTitle) + '</b>' +
           '<span>' + escapeHtml(item.eventDate || "날짜 확인 중") + ' · ' + escapeHtml(item.venueName) + '<br>예약번호 ' + escapeHtml(item.reservationNumber) + ' · ' + escapeHtml(paymentLabel(item.paymentStatus)) + '</span>' +
-          '<a class="btn sub ticket-api-link" href="' + escapeHtml(href) + '">추억 보기</a>' +
+          '<a class="btn sub ticket-api-link" data-ticket-memory="past" href="#record">추억 보기</a>' +
           '</article>';
       }
 
@@ -4649,7 +4649,7 @@
           '<small>' + escapeHtml(item.eventDate || "날짜 확인 중") + '</small>' +
           '<b>' + escapeHtml(item.eventTitle) + '</b>' +
           '<span>' + escapeHtml(item.venueName) + '<br>예약번호 ' + escapeHtml(item.reservationNumber) + '</span>' +
-          '<div class="ticket-pc-card-actions"><a href="' + escapeHtml(href) + '">추억 보기</a><span>' + escapeHtml(paymentLabel(item.paymentStatus)) + '</span></div>' +
+          '<div class="ticket-pc-card-actions"><a data-ticket-memory="past" href="#record">추억 보기</a><span>' + escapeHtml(paymentLabel(item.paymentStatus)) + '</span></div>' +
           '</article>';
       }
 
@@ -4787,6 +4787,10 @@
         updateHomeReservationSummary(normalized);
         updateMeateBenefitUi(normalized); // PATCH 51-51: 예약 meate/paymentStatus 기반 혜택 표시
         initTicketPagers();
+        // fix2L-3-6X-9: 지난 티켓 데이터가 도착하면 기록 타임라인의 티켓 기록도 갱신한다.
+        if (typeof window.__lumiRefreshRecordTimeline === "function") {
+          try { window.__lumiRefreshRecordTimeline(); } catch(e) {}
+        }
       }
 
       function renderReservationsLoading() {
@@ -7578,6 +7582,7 @@
         if (visitType === "live") return "라이브";
         if (visitType === "checkin") return "체크인";
         if (visitType === "online") return "온라인";
+        if (visitType === "ticket") return "티켓";
         return "라이브";
       }
 
@@ -7586,6 +7591,7 @@
         if (visitType === "live") return "🎤";
         if (visitType === "checkin") return "📸";
         if (visitType === "online") return "📡";
+        if (visitType === "ticket") return "🎟️";
         return "🎤";
       }
 
@@ -7606,12 +7612,37 @@
         };
       }
 
+      // fix2L-3-6X-9: 지난 티켓은 라이브 기록에 메아테를 섞지 않고,
+      // 티켓 필터의 별도 기록으로 남긴다.
+      function normalizePastTicketForRecord(item) {
+        item = normalizeReservationItem(item || {});
+        var rawDate = item.eventDate || item.eventEndAt || "";
+        var d = new Date(rawDate);
+        var date = isNaN(d.getTime())
+          ? String(rawDate || "").slice(0, 10).replace(/-/g, ".")
+          : d.getFullYear() + "." + pad2(d.getMonth() + 1) + "." + pad2(d.getDate());
+        var meate = String(item.meate || "").trim();
+        return {
+          visitType: "ticket",
+          eventDate: item.eventDate || item.eventEndAt || rawDate,
+          visitedAt: item.eventEndAt || item.eventDate || rawDate,
+          eventTitle: item.eventTitle || "지난 티켓 저장",
+          note: date + (meate ? " · 메아테 " + meate : ""),
+          _recordSource: "ticket",
+          reservationNumber: item.reservationNumber || ""
+        };
+      }
+
       function allRecordItems() {
         var visitItems = Array.isArray(runtimeVisits) ? runtimeVisits.slice() : [];
         var checkinItems = (Array.isArray(runtimeCheckins) ? runtimeCheckins : [])
           .filter(function(item) { return String(item.status || "active") === "active"; })
           .map(normalizeCheckinForRecord);
-        return visitItems.concat(checkinItems).sort(function(a, b) {
+        var ticketItems = (Array.isArray(myReservations) ? myReservations : [])
+          .map(normalizeReservationItem)
+          .filter(function(item) { return isPastReservation(item); })
+          .map(normalizePastTicketForRecord);
+        return visitItems.concat(checkinItems, ticketItems).sort(function(a, b) {
           var da = new Date(a.eventDate || a.visitedAt || "");
           var db = new Date(b.eventDate || b.visitedAt || "");
           if (isNaN(da.getTime()) && isNaN(db.getTime())) return 0;
