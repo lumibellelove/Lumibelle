@@ -757,6 +757,7 @@
 
         if (cachedRes) {
           myReservations = cachedRes;
+          window.__lumiRuntimeReservations = cachedRes; // fix2L-3-6X-16f: 날씨 카드가 예약 여부를 조용히 참고
           renderMyReservations(cachedRes);
         } else {
           // fix2H-1d: 예약 캐시가 없는 신규 계정/새 브라우저에서도
@@ -4950,6 +4951,7 @@
           const reservations = await getMyReservations(lumiId);
           reservationsLoadState = "loaded";
           myReservations = reservations;
+          window.__lumiRuntimeReservations = reservations; // fix2L-3-6X-16f: 날씨 카드가 예약 여부를 조용히 참고
           cacheWrite_(lumiId, "reservations", reservations); // PATCH 51-36: 캐시 저장
           renderMyReservations(myReservations);
         } catch (error) {
@@ -8393,6 +8395,304 @@
       loadPublicSchedule();
 
     })();
+
+
+/* ===== fix2L-3-6X-16f: home weather user-location default + venue forecast near event ===== */
+(function(){
+  const WEATHER_CARD_LABEL_FIX2L_3_6X_16F = "오늘의 루미 날씨";
+  const CALENDAR_CACHE_KEY_FIX2L_3_6X_16F = "lumibelle_public_schedule_cache_v1";
+  const WEATHER_CACHE_KEY_FIX2L_3_6X_16F = "lumibelle_home_weather_cache_v2";
+  const USER_COORD_CACHE_KEY_FIX2L_3_6X_16F = "lumibelle_user_weather_coords_v1";
+  const FORECAST_VISIBLE_DAYS_FIX2L_3_6X_16F = 10;
+
+  function pad_fix2L_3_6X_16F(n){ return String(n).padStart(2, "0"); }
+  function todayKey_fix2L_3_6X_16F(){
+    const d = new Date();
+    return d.getFullYear() + "-" + pad_fix2L_3_6X_16F(d.getMonth() + 1) + "-" + pad_fix2L_3_6X_16F(d.getDate());
+  }
+  function dateLabel_fix2L_3_6X_16F(dateStr){ return String(dateStr || "").replace(/-/g, "."); }
+  function safeText_fix2L_3_6X_16F(value, fallback){
+    const text = String(value == null ? "" : value).trim();
+    return text || (fallback || "");
+  }
+  function getWeatherCard_fix2L_3_6X_16F(){
+    return Array.from(document.querySelectorAll(".home-grid .home-card")).find(function(card){
+      const small = card.querySelector("small");
+      return small && String(small.textContent || "").trim() === WEATHER_CARD_LABEL_FIX2L_3_6X_16F;
+    });
+  }
+  function setWeatherCard_fix2L_3_6X_16F(title, desc, icon){
+    const card = getWeatherCard_fix2L_3_6X_16F();
+    if (!card) return;
+    const iconEl = card.querySelector(".home-card-icon");
+    const titleEl = card.querySelector("b");
+    const descEl = card.querySelector("span");
+    if (iconEl && icon) iconEl.textContent = icon;
+    if (titleEl) titleEl.textContent = title;
+    if (descEl) descEl.textContent = desc;
+  }
+  function getDaysUntil_fix2L_3_6X_16F(dateStr){
+    const target = new Date(String(dateStr || "") + "T00:00:00+09:00");
+    const today = new Date(todayKey_fix2L_3_6X_16F() + "T00:00:00+09:00");
+    if (isNaN(target.getTime())) return null;
+    return Math.round((target.getTime() - today.getTime()) / 86400000);
+  }
+  function readJson_fix2L_3_6X_16F(key, maxAgeMs){
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed) return null;
+      if (maxAgeMs && parsed.cachedAt && (Date.now() - Number(parsed.cachedAt)) > maxAgeMs) return null;
+      return parsed;
+    } catch(e) { return null; }
+  }
+  function writeJson_fix2L_3_6X_16F(key, value){
+    try { localStorage.setItem(key, JSON.stringify(Object.assign({ cachedAt: Date.now() }, value || {}))); } catch(e) {}
+  }
+  function readScheduleCache_fix2L_3_6X_16F(){
+    const parsed = readJson_fix2L_3_6X_16F(CALENDAR_CACHE_KEY_FIX2L_3_6X_16F, 24 * 60 * 60 * 1000);
+    return parsed && Array.isArray(parsed.schedules) ? parsed.schedules : [];
+  }
+  function readWeatherCache_fix2L_3_6X_16F(){
+    const parsed = readJson_fix2L_3_6X_16F(WEATHER_CACHE_KEY_FIX2L_3_6X_16F, 30 * 60 * 1000);
+    if (!parsed || !parsed.title || !parsed.desc) return null;
+    return parsed;
+  }
+  function writeWeatherCache_fix2L_3_6X_16F(title, desc, icon){
+    writeJson_fix2L_3_6X_16F(WEATHER_CACHE_KEY_FIX2L_3_6X_16F, { title:title, desc:desc, icon:icon || "☁" });
+  }
+  function readUserCoords_fix2L_3_6X_16F(){
+    const parsed = readJson_fix2L_3_6X_16F(USER_COORD_CACHE_KEY_FIX2L_3_6X_16F, 7 * 24 * 60 * 60 * 1000);
+    if (!parsed || !isFinite(Number(parsed.lat)) || !isFinite(Number(parsed.lon))) return null;
+    return { lat:Number(parsed.lat), lon:Number(parsed.lon), label:parsed.label || "내 위치" };
+  }
+  function writeUserCoords_fix2L_3_6X_16F(coords){
+    if (!coords) return;
+    writeJson_fix2L_3_6X_16F(USER_COORD_CACHE_KEY_FIX2L_3_6X_16F, { lat:coords.lat, lon:coords.lon, label:coords.label || "내 위치" });
+  }
+  function currentLumiId_fix2L_3_6X_16F(){
+    try { return window.__lumiGetCurrentId ? String(window.__lumiGetCurrentId() || "").trim() : ""; } catch(e) { return ""; }
+  }
+  function readReservationCache_fix2L_3_6X_16F(){
+    const live = window.__lumiRuntimeReservations;
+    if (Array.isArray(live)) return live;
+    const lumiId = currentLumiId_fix2L_3_6X_16F();
+    if (!lumiId || typeof window.__lumiCacheRead !== "function") return [];
+    const cached = window.__lumiCacheRead(lumiId, "reservations", 24 * 60 * 60 * 1000);
+    return Array.isArray(cached) ? cached : [];
+  }
+  function normalizeScheduleForWeather_fix2L_3_6X_16F(item){
+    const date = safeText_fix2L_3_6X_16F(item && (item.date || item.eventDate || item.startDate), "").slice(0, 10);
+    const category = safeText_fix2L_3_6X_16F(item && (item.category || item.type || item.eventType), "").toLowerCase();
+    return {
+      eventId: safeText_fix2L_3_6X_16F(item && (item.eventId || item.id), ""),
+      date: date,
+      title: safeText_fix2L_3_6X_16F(item && (item.title || item.eventTitle || item.name), "루미벨 일정"),
+      venue: safeText_fix2L_3_6X_16F(item && (item.venue || item.venueName), "공연장"),
+      category: category,
+      lat: Number(item && (item.weatherLat || item.lat || item.latitude || "")),
+      lon: Number(item && (item.weatherLon || item.lon || item.longitude || "")),
+      weatherNote: safeText_fix2L_3_6X_16F(item && (item.weatherNote || item.weather || item.note), "")
+    };
+  }
+  function normalizeReservationForWeather_fix2L_3_6X_16F(item){
+    const date = safeText_fix2L_3_6X_16F(item && (item.eventDate || item.date || item.startDate), "").slice(0, 10);
+    return {
+      eventId: safeText_fix2L_3_6X_16F(item && item.eventId, ""),
+      date: date,
+      title: safeText_fix2L_3_6X_16F(item && (item.eventTitle || item.eventName || item.title), "예약 공연"),
+      venue: safeText_fix2L_3_6X_16F(item && (item.venueName || item.venue || item.location), "공연장"),
+      paymentStatus: safeText_fix2L_3_6X_16F(item && item.paymentStatus, ""),
+      eventEndAt: safeText_fix2L_3_6X_16F(item && item.eventEndAt, "")
+    };
+  }
+  function selectNextReservation_fix2L_3_6X_16F(reservations){
+    const today = todayKey_fix2L_3_6X_16F();
+    return (Array.isArray(reservations) ? reservations : [])
+      .map(normalizeReservationForWeather_fix2L_3_6X_16F)
+      .filter(function(item){ return item.date && item.date >= today; })
+      .sort(function(a,b){ return String(a.date).localeCompare(String(b.date)); })[0] || null;
+  }
+  function mergeScheduleWithReservation_fix2L_3_6X_16F(reservation, schedules){
+    if (!reservation) return null;
+    const normalizedSchedules = (Array.isArray(schedules) ? schedules : []).map(normalizeScheduleForWeather_fix2L_3_6X_16F);
+    const found = normalizedSchedules.find(function(s){
+      return (reservation.eventId && s.eventId && reservation.eventId === s.eventId) ||
+        (reservation.date && s.date && reservation.date === s.date && String(s.title || "").indexOf(String(reservation.title || "")) >= 0);
+    });
+    return Object.assign({}, found || {}, reservation, {
+      lat: found && isFinite(found.lat) ? found.lat : NaN,
+      lon: found && isFinite(found.lon) ? found.lon : NaN,
+      weatherNote: found ? found.weatherNote : ""
+    });
+  }
+  function venueCoords_fix2L_3_6X_16F(item){
+    if (item && isFinite(item.lat) && isFinite(item.lon) && item.lat && item.lon) {
+      return { lat:item.lat, lon:item.lon, label:item.venue || "공연장" };
+    }
+    const venue = String(item && item.venue || "");
+    if (/상상마당|홍대|마포/.test(venue)) return { lat:37.5509, lon:126.9230, label:item.venue || "홍대 공연장" };
+    return { lat:37.5665, lon:126.9780, label:item && item.venue ? item.venue : "서울" };
+  }
+  function weatherLabel_fix2L_3_6X_16F(code){
+    const n = Number(code);
+    if ([0].includes(n)) return { icon:"☀", text:"맑음" };
+    if ([1,2,3].includes(n)) return { icon:"⛅", text:"구름 조금" };
+    if ([45,48].includes(n)) return { icon:"🌫", text:"안개" };
+    if ([51,53,55,56,57].includes(n)) return { icon:"🌦", text:"이슬비" };
+    if ([61,63,65,66,67,80,81,82].includes(n)) return { icon:"☔", text:"비" };
+    if ([71,73,75,77,85,86].includes(n)) return { icon:"❄", text:"눈" };
+    if ([95,96,99].includes(n)) return { icon:"⛈", text:"소나기" };
+    return { icon:"☁", text:"날씨 확인" };
+  }
+  async function fetchCurrentWeather_fix2L_3_6X_16F(coords){
+    const url = "https://api.open-meteo.com/v1/forecast" +
+      "?latitude=" + encodeURIComponent(coords.lat) +
+      "&longitude=" + encodeURIComponent(coords.lon) +
+      "&current=weather_code,temperature_2m,precipitation" +
+      "&timezone=Asia%2FSeoul";
+    const response = await fetch(url, { cache:"no-store" });
+    if (!response.ok) throw new Error("weatherFetchFailed");
+    const data = await response.json();
+    const current = data && data.current ? data.current : {};
+    const info = weatherLabel_fix2L_3_6X_16F(current.weather_code);
+    const temp = current.temperature_2m;
+    const precipitation = current.precipitation;
+    return {
+      icon: info.icon,
+      title: "내 위치 " + info.text + " · " + (temp == null ? "기온 확인 중" : Math.round(temp) + "°C"),
+      desc: "오늘 기준 · " + (coords.label || "내 위치") + " · 강수 " + (precipitation == null ? "확인 중" : precipitation + "mm")
+    };
+  }
+  async function fetchVenueForecast_fix2L_3_6X_16F(item){
+    const coords = venueCoords_fix2L_3_6X_16F(item);
+    const url = "https://api.open-meteo.com/v1/forecast" +
+      "?latitude=" + encodeURIComponent(coords.lat) +
+      "&longitude=" + encodeURIComponent(coords.lon) +
+      "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max" +
+      "&timezone=Asia%2FSeoul&forecast_days=16";
+    const response = await fetch(url, { cache:"no-store" });
+    if (!response.ok) throw new Error("weatherFetchFailed");
+    const data = await response.json();
+    const dates = data && data.daily && Array.isArray(data.daily.time) ? data.daily.time : [];
+    const idx = dates.indexOf(item.date);
+    if (idx === -1) return null;
+    const info = weatherLabel_fix2L_3_6X_16F(data.daily.weather_code && data.daily.weather_code[idx]);
+    const max = data.daily.temperature_2m_max && data.daily.temperature_2m_max[idx];
+    const min = data.daily.temperature_2m_min && data.daily.temperature_2m_min[idx];
+    const pop = data.daily.precipitation_probability_max && data.daily.precipitation_probability_max[idx];
+    return {
+      icon: info.icon,
+      title: "공연장 " + info.text + " · " + Math.round(min) + "~" + Math.round(max) + "°C",
+      desc: dateLabel_fix2L_3_6X_16F(item.date) + " · " + coords.label + " · 강수확률 " + (pop == null ? "확인 중" : Math.round(pop) + "%")
+    };
+  }
+  function requestUserWeather_fix2L_3_6X_16F(){
+    if (!navigator.geolocation) {
+      setWeatherCard_fix2L_3_6X_16F("날씨 안내 준비 중", "이 브라우저에서는 위치 날씨를 사용할 수 없어요.", "☁");
+      return;
+    }
+    setWeatherCard_fix2L_3_6X_16F("내 위치 날씨 확인 중", "위치 권한을 허용하면 오늘 날씨를 표시해요.", "☁");
+    navigator.geolocation.getCurrentPosition(function(pos){
+      const coords = { lat:pos.coords.latitude, lon:pos.coords.longitude, label:"내 위치" };
+      writeUserCoords_fix2L_3_6X_16F(coords);
+      fetchCurrentWeather_fix2L_3_6X_16F(coords).then(function(result){
+        setWeatherCard_fix2L_3_6X_16F(result.title, result.desc, result.icon);
+        writeWeatherCache_fix2L_3_6X_16F(result.title, result.desc, result.icon);
+      }).catch(function(){
+        setWeatherCard_fix2L_3_6X_16F("날씨 확인 대기", "내 위치 날씨를 잠시 후 다시 확인해 주세요.", "☁");
+      });
+    }, function(){
+      setWeatherCard_fix2L_3_6X_16F("내 위치 날씨 보기", "위치 권한을 허용하면 오늘 날씨를 표시해요. 공연 10일 전부터는 공연장 날씨로 바뀌어요.", "☁");
+    }, { enableHighAccuracy:false, timeout:7000, maximumAge:30 * 60 * 1000 });
+  }
+  function showUserWeatherOrPrompt_fix2L_3_6X_16F(extraDesc){
+    const cachedCoords = readUserCoords_fix2L_3_6X_16F();
+    if (cachedCoords) {
+      fetchCurrentWeather_fix2L_3_6X_16F(cachedCoords).then(function(result){
+        const desc = extraDesc ? result.desc + " · " + extraDesc : result.desc;
+        setWeatherCard_fix2L_3_6X_16F(result.title, desc, result.icon);
+        writeWeatherCache_fix2L_3_6X_16F(result.title, desc, result.icon);
+      }).catch(function(){
+        setWeatherCard_fix2L_3_6X_16F("내 위치 날씨 보기", extraDesc || "위치 권한을 허용하면 오늘 날씨를 표시해요.", "☁");
+      });
+      return;
+    }
+    if (navigator.permissions && navigator.permissions.query) {
+      navigator.permissions.query({ name:"geolocation" }).then(function(status){
+        if (status && status.state === "granted") requestUserWeather_fix2L_3_6X_16F();
+        else setWeatherCard_fix2L_3_6X_16F("내 위치 날씨 보기", extraDesc || "카드를 누르면 오늘 날씨를 확인할 수 있어요.", "☁");
+      }).catch(function(){
+        setWeatherCard_fix2L_3_6X_16F("내 위치 날씨 보기", extraDesc || "카드를 누르면 오늘 날씨를 확인할 수 있어요.", "☁");
+      });
+    } else {
+      setWeatherCard_fix2L_3_6X_16F("내 위치 날씨 보기", extraDesc || "카드를 누르면 오늘 날씨를 확인할 수 있어요.", "☁");
+    }
+  }
+  function renderWeather_fix2L_3_6X_16F(schedules){
+    const reservation = selectNextReservation_fix2L_3_6X_16F(readReservationCache_fix2L_3_6X_16F());
+    const eventForWeather = mergeScheduleWithReservation_fix2L_3_6X_16F(reservation, schedules);
+    const days = eventForWeather ? getDaysUntil_fix2L_3_6X_16F(eventForWeather.date) : null;
+
+    if (eventForWeather && days != null && days <= FORECAST_VISIBLE_DAYS_FIX2L_3_6X_16F) {
+      if (eventForWeather.weatherNote) {
+        const title = "공연장 날씨 메모";
+        const desc = dateLabel_fix2L_3_6X_16F(eventForWeather.date) + " · " + eventForWeather.venue + " · " + eventForWeather.weatherNote;
+        setWeatherCard_fix2L_3_6X_16F(title, desc, "☁");
+        writeWeatherCache_fix2L_3_6X_16F(title, desc, "☁");
+        return;
+      }
+      setWeatherCard_fix2L_3_6X_16F("공연장 날씨 확인 중", dateLabel_fix2L_3_6X_16F(eventForWeather.date) + " · " + eventForWeather.venue + " 기준으로 확인하고 있어요.", "☁");
+      fetchVenueForecast_fix2L_3_6X_16F(eventForWeather).then(function(result){
+        if (!result) {
+          showUserWeatherOrPrompt_fix2L_3_6X_16F("공연장 날씨는 예보가 열리면 표시돼요.");
+          return;
+        }
+        setWeatherCard_fix2L_3_6X_16F(result.title, result.desc, result.icon);
+        writeWeatherCache_fix2L_3_6X_16F(result.title, result.desc, result.icon);
+      }).catch(function(){
+        showUserWeatherOrPrompt_fix2L_3_6X_16F("공연장 날씨는 잠시 후 다시 확인해 주세요.");
+      });
+      return;
+    }
+
+    const extra = eventForWeather && days != null && days > FORECAST_VISIBLE_DAYS_FIX2L_3_6X_16F
+      ? "다음 공연 D-" + days + ", 공연장 날씨는 10일 전부터 표시돼요."
+      : "공연 예약이 없으면 내 위치 날씨를 보여줘요.";
+    showUserWeatherOrPrompt_fix2L_3_6X_16F(extra);
+  }
+  async function loadWeatherData_fix2L_3_6X_16F(retry){
+    retry = retry || 0;
+    try {
+      const fetcher = window.__lumiFetchApi;
+      if (typeof fetcher !== "function") {
+        if (retry < 20) return setTimeout(function(){ loadWeatherData_fix2L_3_6X_16F(retry + 1); }, 250);
+        renderWeather_fix2L_3_6X_16F(readScheduleCache_fix2L_3_6X_16F());
+        return;
+      }
+      const payload = await fetcher({ action:"lumiGetPublicSchedule" });
+      if (payload && payload.ok && Array.isArray(payload.schedules)) {
+        renderWeather_fix2L_3_6X_16F(payload.schedules);
+        return;
+      }
+    } catch(e) {}
+    renderWeather_fix2L_3_6X_16F(readScheduleCache_fix2L_3_6X_16F());
+  }
+
+  const cachedWeather = readWeatherCache_fix2L_3_6X_16F();
+  if (cachedWeather) setWeatherCard_fix2L_3_6X_16F(cachedWeather.title, cachedWeather.desc, cachedWeather.icon);
+
+  const card = getWeatherCard_fix2L_3_6X_16F();
+  if (card && !card.__lumiWeatherClickFix2L_3_6X_16F) {
+    card.__lumiWeatherClickFix2L_3_6X_16F = true;
+    card.style.cursor = "pointer";
+    card.addEventListener("click", function(){ requestUserWeather_fix2L_3_6X_16F(); });
+  }
+
+  loadWeatherData_fix2L_3_6X_16F();
+  setTimeout(function(){ loadWeatherData_fix2L_3_6X_16F(); }, 1200);
+})();
 
 
 /* ===== onair-mobile-tabs-click-fix-js ===== */
