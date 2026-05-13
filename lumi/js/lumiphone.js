@@ -8466,7 +8466,43 @@
   function clearTimers(){ timers.forEach(t => clearTimeout(t)); timers = []; }
   function delay(fn,ms){ const t = setTimeout(() => { timers = timers.filter(x => x !== t); fn(); }, ms); timers.push(t); return t; }
   function markRead(id){ const arr = getArr(KEY.read); if (!arr.includes(id)) { arr.push(id); setArr(KEY.read, arr); } }
-  function setSaved(id,yes){ let arr = getArr(KEY.saved); arr = yes ? Array.from(new Set(arr.concat(id))) : arr.filter(x => x !== id); setArr(KEY.saved, arr); }
+  function getMessageForSaveSync_(id){
+    try {
+      const targetId = String(id || "").trim();
+      if (!targetId) return null;
+      const items = getAllLumiMessageItems();
+      if (!Array.isArray(items)) return null;
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i] || {};
+        const itemId = String(item.messageId || item.id || "").trim();
+        if (itemId === targetId) return item;
+      }
+    } catch(e) {}
+    return null;
+  }
+  function syncMessageSaveToServer_(id, yes){
+    try {
+      const lumiId = window.__lumiGetCurrentId ? window.__lumiGetCurrentId() : "";
+      const fetcher = window.__lumiFetchApi;
+      if (!lumiId || !id || typeof fetcher !== "function") return;
+      const item = getMessageForSaveSync_(id) || {};
+      const messageType = String(item.messageType || item.type || item.tag || "").trim();
+      fetcher({
+        action: yes ? "lumiSaveMessage" : "lumiUnsaveMessage",
+        lumiId: lumiId,
+        messageId: id,
+        messageType: messageType,
+        source: "lumiphone_sms"
+      }).catch(() => {});
+    } catch(e) {}
+  }
+  function setSaved(id,yes){
+    let arr = getArr(KEY.saved);
+    arr = yes ? Array.from(new Set(arr.concat(id))) : arr.filter(x => x !== id);
+    setArr(KEY.saved, arr);
+    // fix2L-3-6X-1: 화면 반영은 localStorage로 즉시 처리하고, 서버 기록은 백그라운드로 남긴다.
+    syncMessageSaveToServer_(id, yes);
+  }
   function getReplyData(){ return getObj(KEY.replies); }
   function saveReply(id, choice, after){ const data = getReplyData(); data[id] = { choice, after }; setObj(KEY.replies, data); }
   function filtered(){
