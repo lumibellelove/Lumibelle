@@ -8055,12 +8055,10 @@
       let scheduleLoaded = false;
       let userMovedMonth = false;
 
-      let events = [
-        { date:"2026-07-12", type:"live", icon:"●", title:"Lumibelle Debut Live", desc:"입장 17:30 / 공연 18:00 · 티켓함에서 확인", tags:["라이브", "티켓함"] },
-        { date:"2026-08-17", type:"birthday", icon:"♥", title:"루루 생일", desc:"축하 예정", tags:["생일", "루루"] },
-        { date:"2026-09-21", type:"birthday", icon:"♥", title:"마리링 생일", desc:"축하 예정", tags:["생일", "마리링"] },
-        { date:"2026-10-18", type:"event", icon:"★", title:"새로운 빛이 열리는 날", desc:"자세한 내용은 추후 공개됩니다.", tags:["이벤트", "예정"] }
-      ];
+      // fix2L-3-6X-16a: 하드코딩 샘플 일정을 먼저 보여주지 않는다.
+      // public_schedule API가 도착하기 전에는 비어 있는 상태로 두어
+      // "일정이 나왔다가 사라지는" 깜빡임을 막는다.
+      let events = [];
 
       function pad(n){ return String(n).padStart(2, "0"); }
       function ym(date){ return date.getFullYear() + "-" + pad(date.getMonth()+1); }
