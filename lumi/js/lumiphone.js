@@ -8119,6 +8119,44 @@
       // public_schedule API가 도착하기 전에는 비어 있는 상태로 두어
       // "일정이 나왔다가 사라지는" 깜빡임을 막는다.
       let events = [];
+      const CALENDAR_CACHE_KEY_FIX2L_3_6X_16D = "lumibelle_public_schedule_cache_v1";
+
+      function readCalendarCache_fix2L_3_6X_16D(){
+        try {
+          const raw = localStorage.getItem(CALENDAR_CACHE_KEY_FIX2L_3_6X_16D);
+          if (!raw) return [];
+          const parsed = JSON.parse(raw);
+          if (!parsed || !Array.isArray(parsed.schedules)) return [];
+          return parsed.schedules;
+        } catch(e) {
+          return [];
+        }
+      }
+
+      function writeCalendarCache_fix2L_3_6X_16D(list){
+        try {
+          if (!Array.isArray(list)) return;
+          localStorage.setItem(CALENDAR_CACHE_KEY_FIX2L_3_6X_16D, JSON.stringify({
+            cachedAt: Date.now(),
+            schedules: list
+          }));
+        } catch(e) {}
+      }
+
+      function setCalendarEvents_fix2L_3_6X_16D(list){
+        const nextEvents = (Array.isArray(list) ? list : [])
+          .map(normalizeScheduleItem)
+          .filter(ev => ev.date)
+          .sort(sortCalendarEvents);
+        events = nextEvents;
+        if (!userMovedMonth) {
+          const firstUpcoming = upcomingEvents()[0] || events[0];
+          if (firstUpcoming && firstUpcoming.date) {
+            const parts = firstUpcoming.date.split("-").map(Number);
+            if (parts[0] && parts[1]) currentMonth = new Date(parts[0], parts[1] - 1, 1);
+          }
+        }
+      }
 
       function pad(n){ return String(n).padStart(2, "0"); }
       function ym(date){ return date.getFullYear() + "-" + pad(date.getMonth()+1); }
@@ -8305,23 +8343,17 @@
           }
           const payload = await fetcher({ action: "lumiGetPublicSchedule" });
           if (payload && payload.ok && Array.isArray(payload.schedules)) {
-            const nextEvents = payload.schedules.map(normalizeScheduleItem).filter(ev => ev.date).sort(sortCalendarEvents);
-            events = nextEvents;
+            writeCalendarCache_fix2L_3_6X_16D(payload.schedules);
+            setCalendarEvents_fix2L_3_6X_16D(payload.schedules);
             scheduleLoaded = true;
-            if (!userMovedMonth) {
-              const firstUpcoming = upcomingEvents()[0] || events[0];
-              if (firstUpcoming && firstUpcoming.date) {
-                const parts = firstUpcoming.date.split("-").map(Number);
-                if (parts[0] && parts[1]) currentMonth = new Date(parts[0], parts[1] - 1, 1);
-              }
-            }
             currentPage = 0;
             render();
             return;
           }
         } catch(e) {}
         scheduleLoaded = true;
-        render();
+        if (events.length) render();
+        else render();
       }
 
       filters.forEach(btn => {
@@ -8349,9 +8381,15 @@
       if (prevPage) prevPage.addEventListener("click", () => { currentPage -= 1; renderList(); });
       if (nextPage) nextPage.addEventListener("click", () => { currentPage += 1; renderList(); });
 
-      // fix2L-3-6X-16c: public_schedule 응답이 오기 전에는 캘린더 DOM을 건드리지 않는다.
-      // 기존 HTML의 조용한 안내 화면을 그대로 두고, 실제 일정 데이터가 준비된 뒤 한 번만 갱신한다.
-      // 그래서 "일정 없음 > 일정 표시"처럼 깜빡이는 현상을 줄인다.
+      // fix2L-3-6X-16d: 문자함처럼 마지막으로 받아온 public_schedule을 localStorage에 보관한다.
+      // 새로고침 직후에는 캐시된 일정으로 먼저 고정 표시하고, 뒤에서 최신 시트 데이터를 조용히 갱신한다.
+      // 캐시가 전혀 없는 첫 방문일 때만 기존 HTML 안내 화면을 유지한다.
+      const cachedSchedules_fix2L_3_6X_16D = readCalendarCache_fix2L_3_6X_16D();
+      if (cachedSchedules_fix2L_3_6X_16D.length) {
+        setCalendarEvents_fix2L_3_6X_16D(cachedSchedules_fix2L_3_6X_16D);
+        scheduleLoaded = true;
+        render();
+      }
       loadPublicSchedule();
 
     })();
