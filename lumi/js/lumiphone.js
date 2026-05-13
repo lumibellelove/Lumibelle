@@ -3279,7 +3279,7 @@
         ctx.fillStyle = muted;
         ctx.font = "900 38px sans-serif";
         ctx.textAlign = "left";
-        ctx.fillText("📍 " + (payload.space || "루루의 방"), leftX + 4, pillY1 + 128);
+        ctx.fillText("📍 " + (payload.space || "겐바 현장"), leftX + 4, pillY1 + 128);
 
         function getProfileShareStampText() {
           // fix2L-3-6X-14: 공유 카드 스탬프는 화면 고정값이 아니라 현재 계정의 checkins 렌더값을 우선 사용한다.
