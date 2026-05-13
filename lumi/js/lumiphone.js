@@ -2797,21 +2797,59 @@
         ctx.textAlign = oldAlign;
       }
 
+      const LUMI_SHARE_QR_URL = "https://lumibellelove.com/lumi/";
+      const LUMI_SHARE_QR_MATRIX = `11111110000100100011001111111
+10000010011110001000001000001
+10111010000100110101101011101
+10111010001101001010001011101
+10111010001010000110101011101
+10000010111010011111001000001
+11111110101010101010101111111
+00000000000001011110100000000
+10010110100100101000010100000
+10000101000111011000111001001
+01110111001101110001100111110
+00101100010001001010011010110
+10001010011110110110011001011
+01110101110101111001110000000
+00110010000011100000111011111
+10101101010000010110100011010
+11100011010011000100110000010
+00111001001011111100011101001
+10101010001100111000110110011
+00010000001010100100111000011
+10011010001000011001111110100
+00000000101100110111100010111
+11111110001010001000101010010
+10000010111010101010100011101
+10111010001100011100111110010
+10111010101101001001001011101
+10111010010001000101000011101
+10000010011000110111101100010
+11111110111011010100100101010`.split("\n");
+
       function fakeQr(ctx, x, y, size) {
+        // fix2L-3-6X-14: 기존 장식 QR을 실제 스캔 가능한 루미폰 링크 QR로 교체한다.
+        // QR 내용: https://lumibellelove.com/lumi/
+        const matrix = LUMI_SHARE_QR_MATRIX;
+        const count = matrix.length;
+        const quiet = Math.max(8, Math.round(size * 0.08));
+        const qrSize = size - quiet * 2;
+        const cell = qrSize / count;
+
+        ctx.save();
         ctx.fillStyle = "#fff";
         ctx.fillRect(x, y, size, size);
-        ctx.strokeStyle = "#fff";
-        ctx.lineWidth = 10;
-        ctx.strokeRect(x, y, size, size);
         ctx.fillStyle = "#7c5b6d";
-        const cell = size / 9;
-        for (let row = 0; row < 9; row += 1) {
-          for (let col = 0; col < 9; col += 1) {
-            if ((row * 3 + col * 5 + row * col) % 4 === 0 || (row < 3 && col < 3) || (row > 5 && col > 5)) {
-              ctx.fillRect(x + col * cell, y + row * cell, cell * .86, cell * .86);
+        for (let row = 0; row < count; row += 1) {
+          const line = matrix[row] || "";
+          for (let col = 0; col < count; col += 1) {
+            if (line.charAt(col) === "1") {
+              ctx.fillRect(x + quiet + col * cell, y + quiet + row * cell, Math.ceil(cell), Math.ceil(cell));
             }
           }
         }
+        ctx.restore();
       }
 
       function achievementImageFileName(payload) {
@@ -3244,13 +3282,23 @@
         ctx.fillText("📍 " + (payload.space || "루루의 방"), leftX + 4, pillY1 + 128);
 
         function getProfileShareStampText() {
+          // fix2L-3-6X-14: 공유 카드 스탬프는 화면 고정값이 아니라 현재 계정의 checkins 렌더값을 우선 사용한다.
+          try {
+            const cycleStamps = parseInt(window.__lumiStampCycleStamps || 0, 10) || 0;
+            return cycleStamps + " / 20";
+          } catch (error) {}
           const statusText = document.querySelector(".stamp-status span")?.textContent || "";
           const match = statusText.match(/(\d+\s*\/\s*\d+)/);
-          return match ? match[1].replace(/\s+/g, " ") : "1 / 20";
+          return match ? match[1].replace(/\s+/g, " ") : "0 / 20";
         }
 
         function getProfileShareXpText() {
-          const cards = Array.from(document.querySelectorAll(".point-card"));
+          // fix2L-3-6X-14: 공유 카드 반짝 XP는 points API 렌더값을 우선 사용한다.
+          try {
+            const xp = parseInt((window.__lumiPointTotals && window.__lumiPointTotals.xp) || 0, 10) || 0;
+            return xp + " XP";
+          } catch (error) {}
+          const cards = Array.from(document.querySelectorAll(".point-card, .point-ledger-summary-card, .profile-stat"));
           const xpCard = cards.find((card) => (card.querySelector("small")?.textContent || "").includes("반짝 XP"));
           const raw = xpCard?.querySelector("b")?.textContent || "0XP";
           return raw.replace(/\s+/g, " ").replace(/XP$/i, " XP");
@@ -4574,7 +4622,7 @@
             'START ' + escapeHtml(item.startTime || "18:00") + '</div>' +
           '</div>' +
           '<div class="lumi-pass-title">LUMI PASS</div>' +
-          '<div class="lumi-pass-sub">' + escapeHtml(item.eventTitle) + '</div>' +
+          '<div class="lumi-pass-sub">Stardust Admission Ticket · ' + escapeHtml(item.eventTitle) + '</div>' +
           '<div class="lumi-pass-place">' + escapeHtml(paymentSt) + ' · ' + escapeHtml(entrySt) + (item.meate ? ' · 메아테 ' + escapeHtml(item.meate) : '') + '</div>' +
           '<div class="lumi-entry-box"><small>ENTRY NO.</small><strong>' + escapeHtml(entryCode || item.reservationNumber) + '</strong></div>' +
           '<div class="ticket-meta">' +
@@ -4592,7 +4640,7 @@
         return '<article class="plain-row">' +
           '<b>' + escapeHtml(item.eventTitle) + '</b>' +
           '<span>' + escapeHtml(item.eventDate || "날짜 확인 중") + ' · ' + escapeHtml(item.venueName) + '<br>예약번호 ' + escapeHtml(item.reservationNumber) + ' · ' + escapeHtml(paymentLabel(item.paymentStatus)) + '</span>' +
-          '<a class="btn sub ticket-api-link" href="#record" data-ticket-memory="1" data-ticket-date="' + escapeHtml(item.eventDate || item.eventEndAt || '') + '" data-ticket-event-id="' + escapeHtml(item.eventId || '') + '">추억 보기</a>' +
+          '<a class="btn sub ticket-api-link" href="' + escapeHtml(href) + '">추억 보기</a>' +
           '</article>';
       }
 
@@ -4649,7 +4697,7 @@
           '<small>' + escapeHtml(item.eventDate || "날짜 확인 중") + '</small>' +
           '<b>' + escapeHtml(item.eventTitle) + '</b>' +
           '<span>' + escapeHtml(item.venueName) + '<br>예약번호 ' + escapeHtml(item.reservationNumber) + '</span>' +
-          '<div class="ticket-pc-card-actions"><a href="#record" data-ticket-memory="1" data-ticket-date="' + escapeHtml(item.eventDate || item.eventEndAt || '') + '" data-ticket-event-id="' + escapeHtml(item.eventId || '') + '">추억 보기</a><span>' + escapeHtml(paymentLabel(item.paymentStatus)) + '</span></div>' +
+          '<div class="ticket-pc-card-actions"><a href="' + escapeHtml(href) + '">추억 보기</a><span>' + escapeHtml(paymentLabel(item.paymentStatus)) + '</span></div>' +
           '</article>';
       }
 
@@ -7600,55 +7648,10 @@
           visitType: "checkin",
           eventDate: rawDate,
           visitedAt: rawDate,
-          eventTitle: "루미 체크인",
+          eventTitle: "루미 체크인 완료",
           note: eventTitle + (member ? " · " + member : "") + " · " + stampText,
           _recordSource: "checkin"
         };
-      }
-
-      // fix2L-3-6X-12:
-      // 기록 타임라인 용어만 정리한다.
-      // 첫 번째 방문/체크인만 "첫 루미 방문" / "첫 루미 체크인"으로 보이고,
-      // 두 번째부터는 "루미 방문" / "루미 체크인"으로 보이게 한다.
-      // 날짜 기준, 필터, API 데이터 구조는 변경하지 않는다.
-      function recordTimeValue_(item) {
-        var d = new Date((item && (item.eventDate || item.visitedAt)) || "");
-        return isNaN(d.getTime()) ? 0 : d.getTime();
-      }
-
-      function isVisitRecordForLabel_(item) {
-        if (!item || item._recordSource === "checkin") return false;
-        var title = String(item.eventTitle || "").trim();
-        var type = String(item.visitType || "").trim().toLowerCase();
-        return type === "visit" || type === "entry" || title === "첫 루미 방문" || title === "루미 방문";
-      }
-
-      function applyFirstVisitCheckinLabels_(items) {
-        var list = Array.isArray(items) ? items.slice() : [];
-        var visitRecords = list.filter(isVisitRecordForLabel_).sort(function(a, b) {
-          return recordTimeValue_(a) - recordTimeValue_(b);
-        });
-        var checkinRecords = list.filter(function(item) {
-          return item && item._recordSource === "checkin";
-        }).sort(function(a, b) {
-          return recordTimeValue_(a) - recordTimeValue_(b);
-        });
-
-        visitRecords.forEach(function(item, index) {
-          item.eventTitle = index === 0 ? "첫 루미 방문" : "루미 방문";
-          if (!String(item.note || "").trim() || /첫 루미 방문|루미 방문/.test(String(item.note || ""))) {
-            item.note = index === 0 ? "와준 순간을 남기는 방문 기록" : "루미벨을 보러 와준 방문 기록";
-          }
-        });
-
-        checkinRecords.forEach(function(item, index) {
-          item.eventTitle = index === 0 ? "첫 루미 체크인" : "루미 체크인";
-          if (!String(item.note || "").trim() || String(item.note || "").indexOf("루미 체크인") !== -1) {
-            item.note = index === 0 ? "촬영·교류 참여 완료" : "특전회 촬영·교류 참여 완료";
-          }
-        });
-
-        return list;
       }
 
       function allRecordItems() {
@@ -7656,7 +7659,7 @@
         var checkinItems = (Array.isArray(runtimeCheckins) ? runtimeCheckins : [])
           .filter(function(item) { return String(item.status || "active") === "active"; })
           .map(normalizeCheckinForRecord);
-        return applyFirstVisitCheckinLabels_(visitItems.concat(checkinItems)).sort(function(a, b) {
+        return visitItems.concat(checkinItems).sort(function(a, b) {
           var da = new Date(a.eventDate || a.visitedAt || "");
           var db = new Date(b.eventDate || b.visitedAt || "");
           if (isNaN(da.getTime()) && isNaN(db.getTime())) return 0;
@@ -7810,31 +7813,6 @@
         currentYear = y; currentMonth = m; currentPage = 1;
         renderRecordPageAfterMonthMove();
       }
-
-
-      // fix2L-3-6X-13: 지난 티켓의 '추억 보기' 버튼이 기록 탭의 해당 공연 월로 이동할 수 있게 한다.
-      // 기록 데이터 자체를 새로 만들지 않고, 월/필터 이동만 담당한다.
-      function jumpRecordToTicketMemoryMonth(dateStr, filter) {
-        var raw = String(dateStr || "").trim();
-        var d = raw ? new Date(raw) : null;
-        if (d && isNaN(d.getTime())) {
-          d = new Date(raw.replace(/\./g, "-").replace(/\s+/g, ""));
-        }
-        if (d && !isNaN(d.getTime())) {
-          currentYear = d.getFullYear();
-          currentMonth = d.getMonth() + 1;
-        }
-        recordUserMovedMonth = true;
-        currentPage = 1;
-        currentFilter = filter || "전체";
-        recordFilterButtons.forEach(function(btn) {
-          btn.classList.toggle("active", btn.dataset.recordFilter === currentFilter);
-        });
-        renderRecordPageAfterMonthMove();
-        setTimeout(loadVisits, 80);
-      }
-
-      window.__lumiShowRecordMonth = jumpRecordToTicketMemoryMonth;
 
       // ── API 로드 ──────────────────────────────────────────────
       function loadVisits() {
@@ -9240,28 +9218,6 @@
     modal.setAttribute("aria-hidden", "false");
   }
 
-  function openTicketMemoryRecord(button, event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    const date = button && button.getAttribute ? (button.getAttribute("data-ticket-date") || "") : "";
-    const recordTab = document.querySelector('.tab[data-page="record"]');
-    const recordIcon = document.querySelector('[data-go="record"]');
-    if (recordTab) recordTab.click();
-    else if (recordIcon) recordIcon.click();
-    else {
-      document.querySelectorAll(".page").forEach((el) => el.classList.toggle("active", el.id === "page-record"));
-      document.querySelectorAll(".tab").forEach((el) => el.classList.toggle("active", el.dataset.page === "record"));
-      window.scrollTo({ top: 0, behavior: "auto" });
-    }
-    setTimeout(function() {
-      if (typeof window.__lumiShowRecordMonth === "function") {
-        window.__lumiShowRecordMonth(date, "전체");
-      }
-    }, 80);
-  }
-
   function bindTicketDetailButtons() {
     document.querySelectorAll("[data-perk]").forEach((button) => {
       if (button.dataset.ticketDetailBound === "true") return;
@@ -9275,16 +9231,19 @@
     document.querySelectorAll("[data-ticket-memory]").forEach((button) => {
       if (button.dataset.ticketMemoryBound === "true") return;
       button.dataset.ticketMemoryBound = "true";
-      button.addEventListener("click", (event) => openTicketMemoryRecord(button, event));
-    });
-  }
-
-  if (!window.__lumiTicketMemoryDelegateBound) {
-    window.__lumiTicketMemoryDelegateBound = true;
-    document.addEventListener("click", function(event) {
-      const button = event.target && event.target.closest ? event.target.closest("[data-ticket-memory]") : null;
-      if (!button) return;
-      openTicketMemoryRecord(button, event);
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const recordTab = document.querySelector('.tab[data-page="record"]');
+        const recordIcon = document.querySelector('[data-go="record"]');
+        if (recordTab) recordTab.click();
+        else if (recordIcon) recordIcon.click();
+        else {
+          document.querySelectorAll(".page").forEach((el) => el.classList.toggle("active", el.id === "page-record"));
+          document.querySelectorAll(".tab").forEach((el) => el.classList.toggle("active", el.dataset.page === "record"));
+          window.scrollTo({ top: 0, behavior: "auto" });
+        }
+      });
     });
   }
 
