@@ -8049,6 +8049,66 @@
       const summaryCards = Array.from(root.querySelectorAll(".calendar-summary-card"));
       const pageSize = 4;
       const minMonth = new Date(2026, 0, 1);
+
+      // fix2L-3-6X-16b: 루미 캘린더 일정 카드 가독성 보정
+      // public_schedule 연동 후 실제 공연명/장소/설명이 들어오면서 글자가 너무 작아 보여서,
+      // 캘린더 영역 안의 요약 카드/일정 카드 텍스트 크기만 살짝 키운다.
+      function ensureCalendarReadabilityStyle_fix2L_3_6X_16b(){
+        if (document.getElementById('calendarReadabilityStyle_fix2L_3_6X_16b')) return;
+        const style = document.createElement('style');
+        style.id = 'calendarReadabilityStyle_fix2L_3_6X_16b';
+        style.textContent = `
+          #page-calendar .calendar-summary-card small{
+            font-size:13px;
+            line-height:1.45;
+            letter-spacing:-0.01em;
+          }
+          #page-calendar .calendar-summary-card b{
+            font-size:25px;
+            line-height:1.18;
+            letter-spacing:-0.045em;
+          }
+          #page-calendar .calendar-summary-card span{
+            font-size:13.5px;
+            line-height:1.55;
+            letter-spacing:-0.025em;
+          }
+          #page-calendar .calendar-event-card small{
+            font-size:14px;
+            line-height:1.45;
+            letter-spacing:-0.01em;
+          }
+          #page-calendar .calendar-event-card b{
+            font-size:22px;
+            line-height:1.25;
+            letter-spacing:-0.045em;
+          }
+          #page-calendar .calendar-event-card span{
+            display:block;
+            margin-top:8px;
+            font-size:15px;
+            line-height:1.65;
+            letter-spacing:-0.035em;
+            word-break:keep-all;
+          }
+          #page-calendar .calendar-event-tags{
+            margin-top:12px;
+            gap:7px;
+          }
+          #page-calendar .calendar-event-tags i{
+            font-size:12.5px;
+            line-height:1.25;
+          }
+          @media (max-width: 640px){
+            #page-calendar .calendar-summary-card b{ font-size:22px; }
+            #page-calendar .calendar-summary-card span{ font-size:13px; }
+            #page-calendar .calendar-event-card b{ font-size:20px; }
+            #page-calendar .calendar-event-card span{ font-size:14px; line-height:1.6; }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+      ensureCalendarReadabilityStyle_fix2L_3_6X_16b();
       let currentMonth = new Date(2026, 6, 1);
       let activeFilter = "all";
       let currentPage = 0;
