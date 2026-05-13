@@ -2412,6 +2412,67 @@
         document.body.classList.remove("profile-title-modal-open");
       }
 
+      // fix2L-3-6X-5: 칭호 장착 1회 클릭 즉시 반영 + 서버 저장 보강
+      // renderProfileView()는 runtimeEquippedTitleFromApi를 info.title보다 우선 표시한다.
+      // 그래서 칭호를 바꿀 때 runtime 값까지 먼저 바꿔야 첫 클릭에 화면이 바로 바뀐다.
+      function applyEquippedTitleLocal_(titleName) {
+        const nextTitle = clampText(titleName || "나만의 루미나", 18) || "나만의 루미나";
+        runtimeEquippedTitleFromApi = nextTitle;
+        const nextInfo = normalizeProfileInfo(Object.assign({}, profileState.info || {}, { title: nextTitle }));
+        profileState = normalizeProfileState(Object.assign({}, profileState, { info: nextInfo }));
+        profileDraft = cloneProfileState(profileState);
+        saveProfileState();
+        updateProfileTitleOptions(nextTitle);
+        if (profileInputTitle) profileInputTitle.value = nextTitle;
+        if (profileSelectedTitle) profileSelectedTitle.textContent = nextTitle;
+        if (profileTitlePill) profileTitlePill.textContent = nextTitle;
+        if (currentUser) {
+          currentUser = Object.assign({}, currentUser, { equippedTitle: nextTitle });
+          saveLoginState(currentUser);
+        }
+        try {
+          const lid = getCurrentLumiId();
+          if (lid) {
+            cacheWrite_(lid, "profile", { ok: true, user: Object.assign({}, currentUser || {}, { equippedTitle: nextTitle }) });
+          }
+        } catch(e) {}
+        renderProfileView();
+        return nextTitle;
+      }
+
+      function persistEquippedTitleToServer_(titleName) {
+        const nextTitle = clampText(titleName || "나만의 루미나", 18) || "나만의 루미나";
+        try {
+          const lid = getCurrentLumiId();
+          if (!LUMI_API_ENDPOINT() || !lid || typeof postLumiApi !== "function") return;
+          postLumiApi({
+            action: "lumiUpdateMyProfile",
+            lumiId: lid,
+            sessionToken: (currentUser && currentUser.sessionToken) || "",
+            equippedTitle: nextTitle
+          }).then(function(res) {
+            if (res && res.ok) {
+              appendBootDebug("title equip server save OK");
+              runtimeEquippedTitleFromApi = nextTitle;
+              if (currentUser) {
+                currentUser = Object.assign({}, currentUser, { equippedTitle: nextTitle });
+                saveLoginState(currentUser);
+              }
+              try {
+                cacheWrite_(lid, "profile", { ok: true, user: Object.assign({}, currentUser || {}, { equippedTitle: nextTitle }) });
+              } catch(e) {}
+              renderProfileView();
+            } else {
+              appendBootDebug("title equip server save failed: " + String((res && (res.message || res.error)) || "unknown"));
+            }
+          }).catch(function(err) {
+            appendBootDebug("title equip server save error: " + String(err && err.message || err));
+          });
+        } catch(e) {
+          appendBootDebug("title equip server save skipped: " + String(e && e.message || e));
+        }
+      }
+
       function updateProfileTitleOptions(currentTitle) {
         $$(".profile-title-option[data-title-value]").forEach((button) => {
           button.classList.toggle("active", button.dataset.titleValue === currentTitle);
@@ -2419,51 +2480,10 @@
         if (profileSelectedTitle) profileSelectedTitle.textContent = currentTitle || "아직 칭호가 없어요";
       }
 
-      // fix2L-3-6X-4: 칭호 장착값을 서버 equippedTitle에도 저장한다.
-      // 기존 localStorage/UI 즉시 반영은 유지하고, 서버 저장 실패 시에도 화면은 막지 않는다.
-      function persistEquippedTitleToServer(nextTitle) {
-        const title = clampText(nextTitle || "나만의 루미나", 18) || "나만의 루미나";
-        runtimeEquippedTitleFromApi = title;
-        if (currentUser) {
-          currentUser = Object.assign({}, currentUser, { equippedTitle: title });
-          saveLoginState(currentUser);
-        }
-        const lid = getCurrentLumiId();
-        if (lid) {
-          try {
-            const cachedProfile = cacheRead_(lid, "profile", 24 * 60 * 60 * 1000);
-            const cachedUser = cachedProfile && cachedProfile.user ? cachedProfile.user : {};
-            cacheWrite_(lid, "profile", {
-              ok: true,
-              user: Object.assign({}, cachedUser, currentUser || {}, { equippedTitle: title })
-            });
-          } catch (cacheErr) {}
-        }
-        if (!LUMI_API_ENDPOINT() || !lid || typeof postLumiApi !== "function") return;
-        postLumiApi({
-          action: "lumiUpdateMyProfile",
-          lumiId: lid,
-          sessionToken: (currentUser && currentUser.sessionToken) || "",
-          equippedTitle: title
-        }).then(function(res) {
-          if (res && res.ok) {
-            appendBootDebug("equippedTitle server save OK");
-          } else {
-            appendBootDebug("equippedTitle server save failed: " + String((res && res.message) || "unknown"));
-          }
-        }).catch(function(err) {
-          appendBootDebug("equippedTitle server save error: " + String(err && err.message || err));
-        });
-      }
-
       function selectProfileTitle(titleName) {
         const nextTitle = clampText(titleName || "아직 칭호가 없어요", 18) || "아직 칭호가 없어요";
-        profileDraft.info = normalizeProfileInfo(Object.assign({}, profileDraft.info, { title: nextTitle }));
-        profileState = normalizeProfileState(Object.assign({}, profileState, { info: profileDraft.info }));
-        saveProfileState();
-        updateProfileTitleOptions(nextTitle);
-        renderProfileView();
-        persistEquippedTitleToServer(nextTitle);
+        applyEquippedTitleLocal_(nextTitle);
+        persistEquippedTitleToServer_(nextTitle);
         closeProfileTitleModal();
       }
 
@@ -3454,15 +3474,10 @@
 
       function equipAchievementTitle(titleName, showFeedback) {
         const nextTitle = clampText(titleName || "나만의 루미나", 18) || "나만의 루미나";
-        const currentTitle = normalizeProfileInfo(profileState.info).title;
+        const currentTitle = runtimeEquippedTitleFromApi || normalizeProfileInfo(profileState.info).title;
         if (currentTitle === nextTitle) return;
-        const nextInfo = normalizeProfileInfo(Object.assign({}, profileState.info, { title: nextTitle }));
-        profileState = normalizeProfileState(Object.assign({}, profileState, { info: nextInfo }));
-        profileDraft = cloneProfileState(profileState);
-        saveProfileState();
-        updateProfileTitleOptions(nextTitle);
-        renderProfileView();
-        persistEquippedTitleToServer(nextTitle);
+        applyEquippedTitleLocal_(nextTitle);
+        persistEquippedTitleToServer_(nextTitle);
         // fix2L-3-6G: 칭호 장착은 상태만 바꾸고 팝업/토스트를 띄우지 않는다.
         // 업적 해금 알림은 신규 업적/칭호가 API에서 감지될 때만 achievement-toast로 표시한다.
         if (showFeedback) {
@@ -6867,8 +6882,7 @@
             space: savedInfo.space || "",
             letterName: savedInfo.letterName || "",
             broadcastName: savedInfo.broadcastName || "",
-            profileMessage: savedInfo.profileMessage || "",
-            equippedTitle: savedInfo.title || ""
+            profileMessage: savedInfo.profileMessage || ""
           }).then(function(res) {
             if (res && res.ok) {
               appendBootDebug("profile server save OK");
@@ -6881,8 +6895,7 @@
                   space: savedInfo.space || "",
                   letterName: savedInfo.letterName || "",
                   broadcastName: savedInfo.broadcastName || "",
-                  profileMessage: savedInfo.profileMessage || "",
-                  equippedTitle: savedInfo.title || ""
+                  profileMessage: savedInfo.profileMessage || ""
                 });
                 saveLoginState(currentUser);
               }
@@ -6897,8 +6910,7 @@
                     space: savedInfo.space || "",
                     letterName: savedInfo.letterName || "",
                     broadcastName: savedInfo.broadcastName || "",
-                    profileMessage: savedInfo.profileMessage || "",
-                    equippedTitle: savedInfo.title || ""
+                    profileMessage: savedInfo.profileMessage || ""
                   })
                 };
                 cacheWrite_(lid, "profile", profileCachePayload);
