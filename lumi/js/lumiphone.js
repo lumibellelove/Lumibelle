@@ -737,7 +737,7 @@
 
         // PATCH 51-37: 캐시 즉시 복원 (동기, 0ms)
         // fix2L-3-6N-fix2: 입금확인 후 오래된 티켓 상태가 길게 남지 않도록 예약 캐시를 짧게 유지
-        const cachedRes    = cacheRead_(lid, "reservations", 60 * 1000);
+        const cachedRes    = cacheRead_(lid, "reservations", 24 * 60 * 60 * 1000); // ticket flicker fix: 메아테/티켓 보관함은 마지막 실제 상태를 먼저 복원
         const cachedMail   = cacheRead_(lid, "mail",         60 * 1000);
         const cachedSms    = cacheRead_(lid, "sms",          60 * 1000);
         const cachedVisits = cacheRead_(lid, "visits",       24 * 60 * 60 * 1000);
@@ -813,16 +813,14 @@
           appendBootDebug("cheki cache: " + cachedCheki.length + " items");
         }
 
-        // PATCH 51-48: 특전권/이벤트권 캐시 즉시 복원
-        // fix-shake: API 모드에서는 캐시로 renderLumiTickets를 즉시 실행하지 않는다.
-        // 캐시값 → API값 순으로 두 번 카드가 갱신되면서 특전권 탭이 흔들리는 원인.
-        // API 모드일 때는 loadMyLumiTickets() API 응답 후 1회만 renderLumiTickets가 실행되게 둔다.
+        // PATCH ticket-flicker-fix: 특전권/이벤트권 마지막 실제 상태 즉시 복원
+        // 정적 HTML의 발급 전/안내 화면이 먼저 보였다가 API 값으로 바뀌는 깜빡임을 줄인다.
+        // 같은 lumiId 캐시만 사용하며, API 응답이 오면 항상 최신값으로 다시 덮어쓴다.
+        // 캐시가 없는 첫 접속 계정은 기존 정적 안내 화면을 그대로 사용한다.
         const cachedLumiTickets = cacheRead_(lid, "lumiTickets", 24 * 60 * 60 * 1000);
-        if (cachedLumiTickets && Array.isArray(cachedLumiTickets) && !LUMI_API_ENDPOINT()) {
+        if (cachedLumiTickets && Array.isArray(cachedLumiTickets) && cachedLumiTickets.length > 0) {
           renderLumiTickets(cachedLumiTickets);
-          appendBootDebug("lumiTickets cache: " + cachedLumiTickets.length + " items");
-        } else if (cachedLumiTickets && Array.isArray(cachedLumiTickets)) {
-          appendBootDebug("lumiTickets cache: deferred (API mode, " + cachedLumiTickets.length + " items)");
+          appendBootDebug("lumiTickets cache restored first: " + cachedLumiTickets.length + " items");
         }
 
         // PATCH 51-49: 루미 체크인/스탬프 캐시 즉시 복원
