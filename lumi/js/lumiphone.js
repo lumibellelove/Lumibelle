@@ -4574,7 +4574,7 @@
             'START ' + escapeHtml(item.startTime || "18:00") + '</div>' +
           '</div>' +
           '<div class="lumi-pass-title">LUMI PASS</div>' +
-          '<div class="lumi-pass-sub">Stardust Admission Ticket · ' + escapeHtml(item.eventTitle) + '</div>' +
+          '<div class="lumi-pass-sub">' + escapeHtml(item.eventTitle) + '</div>' +
           '<div class="lumi-pass-place">' + escapeHtml(paymentSt) + ' · ' + escapeHtml(entrySt) + (item.meate ? ' · 메아테 ' + escapeHtml(item.meate) : '') + '</div>' +
           '<div class="lumi-entry-box"><small>ENTRY NO.</small><strong>' + escapeHtml(entryCode || item.reservationNumber) + '</strong></div>' +
           '<div class="ticket-meta">' +
@@ -4592,7 +4592,7 @@
         return '<article class="plain-row">' +
           '<b>' + escapeHtml(item.eventTitle) + '</b>' +
           '<span>' + escapeHtml(item.eventDate || "날짜 확인 중") + ' · ' + escapeHtml(item.venueName) + '<br>예약번호 ' + escapeHtml(item.reservationNumber) + ' · ' + escapeHtml(paymentLabel(item.paymentStatus)) + '</span>' +
-          '<a class="btn sub ticket-api-link" href="' + escapeHtml(href) + '">추억 보기</a>' +
+          '<a class="btn sub ticket-api-link" href="#record" data-ticket-memory="1" data-ticket-date="' + escapeHtml(item.eventDate || item.eventEndAt || '') + '" data-ticket-event-id="' + escapeHtml(item.eventId || '') + '">추억 보기</a>' +
           '</article>';
       }
 
@@ -4649,7 +4649,7 @@
           '<small>' + escapeHtml(item.eventDate || "날짜 확인 중") + '</small>' +
           '<b>' + escapeHtml(item.eventTitle) + '</b>' +
           '<span>' + escapeHtml(item.venueName) + '<br>예약번호 ' + escapeHtml(item.reservationNumber) + '</span>' +
-          '<div class="ticket-pc-card-actions"><a href="' + escapeHtml(href) + '">추억 보기</a><span>' + escapeHtml(paymentLabel(item.paymentStatus)) + '</span></div>' +
+          '<div class="ticket-pc-card-actions"><a href="#record" data-ticket-memory="1" data-ticket-date="' + escapeHtml(item.eventDate || item.eventEndAt || '') + '" data-ticket-event-id="' + escapeHtml(item.eventId || '') + '">추억 보기</a><span>' + escapeHtml(paymentLabel(item.paymentStatus)) + '</span></div>' +
           '</article>';
       }
 
@@ -7811,6 +7811,31 @@
         renderRecordPageAfterMonthMove();
       }
 
+
+      // fix2L-3-6X-13: 지난 티켓의 '추억 보기' 버튼이 기록 탭의 해당 공연 월로 이동할 수 있게 한다.
+      // 기록 데이터 자체를 새로 만들지 않고, 월/필터 이동만 담당한다.
+      function jumpRecordToTicketMemoryMonth(dateStr, filter) {
+        var raw = String(dateStr || "").trim();
+        var d = raw ? new Date(raw) : null;
+        if (d && isNaN(d.getTime())) {
+          d = new Date(raw.replace(/\./g, "-").replace(/\s+/g, ""));
+        }
+        if (d && !isNaN(d.getTime())) {
+          currentYear = d.getFullYear();
+          currentMonth = d.getMonth() + 1;
+        }
+        recordUserMovedMonth = true;
+        currentPage = 1;
+        currentFilter = filter || "전체";
+        recordFilterButtons.forEach(function(btn) {
+          btn.classList.toggle("active", btn.dataset.recordFilter === currentFilter);
+        });
+        renderRecordPageAfterMonthMove();
+        setTimeout(loadVisits, 80);
+      }
+
+      window.__lumiShowRecordMonth = jumpRecordToTicketMemoryMonth;
+
       // ── API 로드 ──────────────────────────────────────────────
       function loadVisits() {
         const lumiId = typeof window.__lumiGetCurrentId === "function" ? window.__lumiGetCurrentId() : "";
@@ -9215,6 +9240,28 @@
     modal.setAttribute("aria-hidden", "false");
   }
 
+  function openTicketMemoryRecord(button, event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    const date = button && button.getAttribute ? (button.getAttribute("data-ticket-date") || "") : "";
+    const recordTab = document.querySelector('.tab[data-page="record"]');
+    const recordIcon = document.querySelector('[data-go="record"]');
+    if (recordTab) recordTab.click();
+    else if (recordIcon) recordIcon.click();
+    else {
+      document.querySelectorAll(".page").forEach((el) => el.classList.toggle("active", el.id === "page-record"));
+      document.querySelectorAll(".tab").forEach((el) => el.classList.toggle("active", el.dataset.page === "record"));
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
+    setTimeout(function() {
+      if (typeof window.__lumiShowRecordMonth === "function") {
+        window.__lumiShowRecordMonth(date, "전체");
+      }
+    }, 80);
+  }
+
   function bindTicketDetailButtons() {
     document.querySelectorAll("[data-perk]").forEach((button) => {
       if (button.dataset.ticketDetailBound === "true") return;
@@ -9228,19 +9275,16 @@
     document.querySelectorAll("[data-ticket-memory]").forEach((button) => {
       if (button.dataset.ticketMemoryBound === "true") return;
       button.dataset.ticketMemoryBound = "true";
-      button.addEventListener("click", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        const recordTab = document.querySelector('.tab[data-page="record"]');
-        const recordIcon = document.querySelector('[data-go="record"]');
-        if (recordTab) recordTab.click();
-        else if (recordIcon) recordIcon.click();
-        else {
-          document.querySelectorAll(".page").forEach((el) => el.classList.toggle("active", el.id === "page-record"));
-          document.querySelectorAll(".tab").forEach((el) => el.classList.toggle("active", el.dataset.page === "record"));
-          window.scrollTo({ top: 0, behavior: "auto" });
-        }
-      });
+      button.addEventListener("click", (event) => openTicketMemoryRecord(button, event));
+    });
+  }
+
+  if (!window.__lumiTicketMemoryDelegateBound) {
+    window.__lumiTicketMemoryDelegateBound = true;
+    document.addEventListener("click", function(event) {
+      const button = event.target && event.target.closest ? event.target.closest("[data-ticket-memory]") : null;
+      if (!button) return;
+      openTicketMemoryRecord(button, event);
     });
   }
 
