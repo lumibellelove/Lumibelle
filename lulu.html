@@ -7,15 +7,6 @@
   <link rel="stylesheet" href="style.css">
 
   <style>
-    :root {
-      --lulu-soft: #FFD9E8;
-      --lulu-deep: #FFC0D7;
-      --lulu-text: #8a6375;
-      --lulu-point: #d982a3;
-      --lulu-line: #f4d4e1;
-      --lulu-bg: #fff8fb;
-    }
-
     .lulu-page-wrap {
       max-width: 1280px;
       margin: 0 auto;
@@ -28,7 +19,7 @@
 
     .lulu-title h2 {
       margin: 0;
-      color: var(--lulu-point);
+      color: #FFC0D7;
       font-size: 56px;
       font-weight: 900;
       line-height: 1;
@@ -36,15 +27,16 @@
 
     .lulu-title p {
       margin: 10px 0 0;
-      color: #d9a3bc;
+      color: #e5a1b9;
       font-size: 16px;
       font-weight: 700;
       transform: translateX(-12px);
     }
 
+    /* profile */
     .lulu-card {
-      background: var(--lulu-bg);
-      border: 1px solid var(--lulu-line);
+      background: #fff8fb;
+      border: 1px solid #f2d8e7;
       border-radius: 32px;
       padding: 48px;
       box-sizing: border-box;
@@ -67,10 +59,9 @@
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      border: 1px solid var(--lulu-line);
+      border: 1px solid #f0dde8;
       background-color: #fff;
       box-sizing: border-box;
-      box-shadow: 0 16px 36px rgba(255, 192, 215, 0.18);
     }
 
     .lulu-info-section {
@@ -91,36 +82,35 @@
     .lulu-name {
       font-size: 82px;
       font-weight: 900;
-      color: var(--lulu-point);
+      color: #FFC0D7;
       margin: 0;
       line-height: 0.95;
       text-align: center;
       transform: translateX(-12px);
       transition: color 0.3s ease, text-shadow 0.3s ease;
-      text-shadow:
-        0 0 10px rgba(255, 192, 215, 0.22),
-        0 4px 8px rgba(255, 192, 215, 0.18);
     }
 
     .lulu-name.voice-active {
-      color: #f08aad;
+      color: #FFC0D7;
       text-shadow:
-        0 0 14px rgba(255,255,255,0.20),
-        0 4px 10px rgba(255, 192, 215, 0.26),
-        0 0 10px rgba(255, 217, 232, 0.34);
+        0 0 16px rgba(255,255,255,0.22),
+        0 6px 10px rgba(178, 222, 255, 0.22),
+        0 0 12px rgba(178, 222, 255, 0.32),
+        0 0 22px rgba(178, 222, 255, 0.15);
       transform: translateX(-12px);
     }
 
     .lulu-en {
       font-size: 20px;
       letter-spacing: 0.24em;
-      color: #d9a3bc;
+      color: #e5a1b9;
       margin-top: 12px;
       font-weight: 800;
       text-align: center;
       transform: translateX(-4px);
     }
 
+    /* voice */
     .lulu-voice-area {
       margin-top: 14px;
       display: flex;
@@ -135,9 +125,9 @@
       min-height: 52px;
       padding: 12px 26px;
       border-radius: 999px;
-      border: 2px solid var(--lulu-deep);
+      border: 2px solid #FFC0D7;
       background: #fff;
-      color: var(--lulu-point);
+      color: #FFC0D7;
       font-weight: 800;
       cursor: pointer;
       transition: all 0.25s ease;
@@ -145,7 +135,7 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      overflow: visible;
+      overflow: hidden;
     }
 
     .lulu-voice:hover {
@@ -153,8 +143,8 @@
     }
 
     .lulu-voice.playing {
-      background: linear-gradient(135deg, var(--lulu-soft), var(--lulu-deep));
-      color: #8a6375;
+      background: linear-gradient(135deg, #FFC0D7, #FFD9E8);
+      color: #fff;
       animation: luluVoicePulse 1.2s infinite;
     }
 
@@ -184,148 +174,166 @@
     }
 
     .lulu-sound-bars span:nth-child(1) { animation-delay: 0s; }
-    .lulu-sound-bars span:nth-child(2) { animation-delay: 0.12s; }
-    .lulu-sound-bars span:nth-child(3) { animation-delay: 0.24s; }
+    .lulu-sound-bars span:nth-child(2) { animation-delay: 0.15s; }
+    .lulu-sound-bars span:nth-child(3) { animation-delay: 0.3s; }
 
     .lulu-voice.playing .lulu-sound-bars {
       display: inline-flex;
     }
 
-    .lulu-voice-effect {
-      position: absolute;
-      right: -12px;
-      top: -12px;
-      font-size: 22px;
-      pointer-events: none;
-      opacity: 0;
-    }
-
-    .lulu-voice.playing .lulu-voice-effect {
-      opacity: 1;
-      animation: luluPop 1.2s infinite;
-    }
-
-    .lulu-voice-text {
-      min-height: 24px;
-      margin: 0;
-      color: #a8768d;
-      font-size: 14px;
-      font-weight: 800;
-      line-height: 1.6;
-      text-align: center;
-      word-break: keep-all;
-      transition: opacity 0.2s ease, transform 0.2s ease;
-    }
-
-    .lulu-voice-text.text-change {
-      color: #d982a3;
-      transform: translateY(-1px);
+    @keyframes luluBars {
+      0%, 100% {
+        transform: scaleY(0.35);
+        opacity: 0.65;
+      }
+      50% {
+        transform: scaleY(1);
+        opacity: 1;
+      }
     }
 
     @keyframes luluVoicePulse {
-      0%, 100% { box-shadow: 0 0 0 rgba(255, 192, 215, 0); }
-      50% { box-shadow: 0 0 24px rgba(255, 192, 215, 0.44); }
+      0% { box-shadow: 0 0 0 0 rgba(255,192,215,0.50); }
+      70% { box-shadow: 0 0 0 12px rgba(255,192,215,0); }
+      100% { box-shadow: 0 0 0 0 rgba(255,192,215,0); }
     }
 
-    @keyframes luluBars {
-      0%, 100% { transform: scaleY(0.35); }
-      50% { transform: scaleY(1); }
+    .lulu-voice-effect {
+      position: absolute;
+      left: 50%;
+      bottom: 6px;
+      transform: translateX(-50%);
+      opacity: 0;
+      font-size: 14px;
+      pointer-events: none;
     }
 
-    @keyframes luluPop {
-      0%, 100% { transform: translateY(0) scale(1); }
-      50% { transform: translateY(-4px) scale(1.08); }
+    .lulu-voice.playing .lulu-voice-effect {
+      animation: luluPopEffect 0.8s ease;
     }
 
+    @keyframes luluPopEffect {
+      0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(0) scale(0.5);
+      }
+      40% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-25px) scale(1.3);
+      }
+    }
+
+    .lulu-voice-text {
+      margin: 0;
+      min-height: 1.6em;
+      font-size: 14px;
+      font-weight: 700;
+      color: #e5a1b9;
+      text-align: center;
+      transition: opacity 0.25s ease, transform 0.25s ease, color 0.25s ease;
+    }
+
+    .lulu-voice-text.text-change {
+      color: #FFC0D7;
+      transform: translateY(-1px);
+    }
+
+    /* copy */
     .lulu-copy {
       width: 100%;
+      max-width: 720px;
+      color: #8f7183;
     }
 
     .lulu-keywords {
       display: flex;
+      gap: 10px;
       flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 18px;
+      justify-content: center;
+      margin-bottom: 24px;
     }
 
     .lulu-keyword {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 30px;
-      padding: 0 14px;
+      height: 38px;
+      padding: 0 16px;
       border-radius: 999px;
       background: #fff;
-      color: var(--lulu-point);
-      border: 1px solid var(--lulu-line);
-      font-size: 13px;
+      border: 1px solid #f0dde8;
+      color: #e89ab6;
+      font-size: 14px;
       font-weight: 800;
-      white-space: nowrap;
     }
 
     .lulu-message-block {
-      background: #fff;
-      border: 1px solid var(--lulu-line);
-      border-radius: 24px;
-      padding: 24px 26px;
-      box-sizing: border-box;
-      margin-bottom: 20px;
+      text-align: center;
+      margin-bottom: 28px;
     }
 
     .lulu-line-main {
-      margin: 0;
-      color: #c87598;
-      font-size: 23px;
+      margin: 0 0 14px;
+      color: #b86d92;
+      font-size: 24px;
       font-weight: 900;
-      line-height: 1.45;
-      word-break: keep-all;
+      line-height: 1.7;
+    }
+
+    .lulu-highlight {
+      color: #FFC0D7;
+      font-weight: 900;
+    }
+
+    .lulu-color-point {
+      color: #FFC0D7;
+      font-weight: 900;
     }
 
     .lulu-line-sub {
-      margin: 12px 0 0;
-      color: var(--lulu-text);
-      font-size: 16px;
-      font-weight: 800;
-      line-height: 1.65;
-      word-break: keep-all;
+      margin: 0;
+      color: #8f7183;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.9;
     }
 
     .lulu-detail-block {
-      display: grid;
-      gap: 10px;
-      margin-bottom: 22px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid #f3dbe7;
+      border-radius: 22px;
+      padding: 16px 18px;
+      max-width: 520px;
+      width: 100%;
+      margin: 0 auto;
+      box-sizing: border-box;
     }
 
     .lulu-detail-row {
       display: grid;
-      grid-template-columns: 120px minmax(0, 1fr);
-      gap: 12px;
-      align-items: center;
-      padding: 13px 16px;
-      border-radius: 18px;
-      background: #fff;
-      border: 1px solid var(--lulu-line);
-      box-sizing: border-box;
+      grid-template-columns: 84px 1fr;
+      gap: 10px;
+      align-items: start;
+      font-size: 15px;
+      line-height: 1.75;
+      color: #8f7183;
+    }
+
+    .lulu-detail-row + .lulu-detail-row {
+      margin-top: 4px;
     }
 
     .lulu-detail-label {
-      color: #c88ca6;
-      font-size: 13px;
+      color: #e89ab6;
       font-weight: 900;
-      white-space: nowrap;
     }
 
     .lulu-detail-value {
-      color: #76586a;
-      font-size: 15px;
-      font-weight: 800;
-      line-height: 1.45;
       word-break: keep-all;
-    }
-
-    .lulu-color-point {
-      color: #d982a3;
-      font-weight: 900;
+      overflow-wrap: break-word;
     }
 
     .lulu-bottom {
@@ -333,83 +341,173 @@
       margin-top: auto;
     }
 
+    /* sns */
     .lulu-sns-row {
       display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 20px;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 18px;
+      margin-bottom: 12px;
+      padding-left: 0;
     }
 
     .lulu-sns-item {
+      position: relative;
       width: 58px;
       height: 58px;
       border-radius: 50%;
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      line-height: 0;
       text-decoration: none;
-      background: linear-gradient(180deg, var(--lulu-deep), var(--lulu-soft));
-      box-shadow: 0 8px 18px rgba(255, 192, 215, 0.26);
-      border: 1px solid rgba(255,255,255,0.9);
-      transition: transform 0.18s ease, opacity 0.18s ease;
-      color: #8a6375;
-      font-size: 13px;
-      font-weight: 900;
-      letter-spacing: 0.02em;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease, background-color 0.25s ease;
+      background: #fff8fb;
+      border: 1px solid #FFD9E8;
+      color: #FFC0D7;
+      overflow: visible;
     }
 
     .lulu-sns-item:hover {
-      transform: translateY(-4px);
-      opacity: 0.95;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(255, 192, 215, 0.26);
+      opacity: 0.98;
+      background: #FFC0D7;
     }
 
     .lulu-sns-item img {
-      width: 24px;
-      height: 24px;
-      object-fit: contain;
+      width: 58px;
+      height: 58px;
+      display: block;
+      position: relative;
+      z-index: 2;
+      transition: all 0.3s ease;
     }
 
+    .lulu-sns-item:hover img {
+      transform: scale(1.1);
+    }
+
+    .lulu-sns-item::before {
+      content: "✨";
+      position: absolute;
+      top: -10px;
+      right: -4px;
+      font-size: 18px;
+      line-height: 1;
+      opacity: 0;
+      transform: scale(0.4) translateY(6px);
+      pointer-events: none;
+      z-index: 10;
+      text-shadow:
+        0 0 6px rgba(255,255,255,0.9),
+        0 0 12px rgba(255, 192, 215, 0.55);
+    }
+
+    .lulu-sns-item:hover::before {
+      animation: luluSparklePop 0.75s ease forwards;
+    }
+
+    @keyframes luluSparklePop {
+      0% {
+        opacity: 0;
+        transform: scale(0.35) translateY(8px);
+      }
+      35% {
+        opacity: 1;
+        transform: scale(1.15) translateY(-2px);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.9) translateY(-14px);
+      }
+    }
+
+    .lulu-sns-item::after {
+      content: "";
+      position: absolute;
+      inset: 50%;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255,217,232,0.58);
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .lulu-sns-item:active::after {
+      animation: luluRipple 0.55s ease-out;
+    }
+
+    @keyframes luluRipple {
+      0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.75;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(9);
+        opacity: 0;
+      }
+    }
+
+    /* buttons */
     .lulu-actions {
       display: flex;
-      gap: 12px;
+      gap: 18px;
+      align-items: center;
+      justify-content: center;
       flex-wrap: wrap;
+      margin-top: 28px;
     }
 
     .lulu-btn {
-      min-width: 140px;
-      min-height: 46px;
-      padding: 0 24px;
+      min-width: 156px;
+      height: 68px;
+      padding: 0 28px;
       border-radius: 999px;
+      font-weight: 800;
+      font-size: 15px;
+      text-decoration: none;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 900;
+      text-align: center;
+      line-height: 1;
       box-sizing: border-box;
-      transition: transform 0.18s ease, opacity 0.18s ease;
-    }
-
-    .lulu-btn:hover {
-      transform: translateY(-2px);
-      opacity: 0.95;
+      background: rgba(255, 255, 255, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
     }
 
     .lulu-btn.pink {
-      background: linear-gradient(180deg, var(--lulu-deep), var(--lulu-soft));
-      color: #8a6375;
-      box-shadow: 0 8px 18px rgba(255, 192, 215, 0.26);
+      border: 2px solid #FFC0D7;
+      color: #FFC0D7;
     }
 
     .lulu-btn.purple {
-      background: #fff;
-      color: var(--lulu-point);
-      border: 1px solid var(--lulu-line);
+      border: 2px solid #a892f0;
+      color: #a892f0;
     }
 
+    .lulu-btn.pink:hover {
+      transform: translateY(-2px);
+      background: #FFC0D7;
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(255, 111, 165, 0.22);
+    }
+
+    .lulu-btn.purple:hover {
+      transform: translateY(-2px);
+      background: #a892f0;
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(168, 146, 240, 0.22);
+    }
+
+    /* movie */
     .lulu-movie-section {
-      background: var(--lulu-bg);
-      border: 1px solid var(--lulu-line);
+      background: #fff8fb;
+      border: 1px solid #f2d8e7;
       border-radius: 32px;
       padding: 38px 36px 34px;
       box-sizing: border-box;
@@ -423,7 +521,7 @@
 
     .lulu-movie-head h3 {
       margin: 0;
-      color: var(--lulu-point);
+      color: #FFC0D7;
       font-size: 40px;
       font-weight: 900;
       line-height: 1;
@@ -431,7 +529,7 @@
 
     .lulu-movie-head p {
       margin: 10px 0 0;
-      color: #d9a3bc;
+      color: #e5a1b9;
       font-size: 15px;
       font-weight: 700;
     }
@@ -443,36 +541,239 @@
       align-items: stretch;
     }
 
-    .lulu-movie-coming {
-      min-height: 240px;
+    .lulu-movie-feature,
+    .lulu-movie-sub {
+      display: block;
+      text-decoration: none;
+      background: #fff;
+      border: 1px solid #f0dde8;
       border-radius: 24px;
-      border: 1px solid var(--lulu-line);
-      background:
-        radial-gradient(circle at 90% 8%, rgba(255,255,255,0.85), transparent 22%),
-        linear-gradient(135deg, #fff, var(--lulu-soft));
-      display: grid;
-      place-items: center;
+      overflow: hidden;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+      color: inherit;
+    }
+
+    .lulu-movie-feature {
+      cursor: pointer;
+    }
+
+    .lulu-movie-feature-thumb,
+    .lulu-movie-sub-thumb {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #fdf1f7;
+      overflow: hidden;
+    }
+
+    .lulu-movie-feature-thumb img,
+    .lulu-movie-sub-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .lulu-movie-feature-play,
+    .lulu-movie-sub-play {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FFC0D7, #FFD9E8);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 900;
+      box-shadow: 0 8px 18px rgba(255, 111, 165, 0.25);
+      transition: all 0.25s ease;
+    }
+
+    .lulu-movie-feature-info {
+      padding: 18px 20px 20px;
       text-align: center;
+    }
+
+    .lulu-movie-sub-info {
+      padding: 16px 18px 18px;
+      text-align: center;
+    }
+
+    .lulu-movie-feature-info strong,
+    .lulu-movie-sub-info strong {
+      display: block;
+      color: #e89ab6;
+      font-weight: 900;
+      margin-bottom: 6px;
+      transition: all 0.25s ease;
+      text-align: center;
+    }
+
+    .lulu-movie-feature-info strong {
+      font-size: 24px;
+    }
+
+    .lulu-movie-sub-info strong {
+      font-size: 20px;
+    }
+
+    .lulu-movie-feature-info span,
+    .lulu-movie-sub-info span {
+      display: block;
+      color: #8f7183;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .lulu-movie-more-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 22px;
+    }
+
+    .lulu-movie-more {
+      min-width: 240px;
+      height: 62px;
+      padding: 0 30px;
+      border-radius: 999px;
+      background: #f8dce9;
+      color: #e89ab6;
+      font-size: 15px;
+      font-weight: 900;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .lulu-movie-more:hover {
+      transform: translateY(-2px);
+      background: #f4d0e1;
+      box-shadow: 0 12px 24px rgba(215, 124, 167, 0.12);
+    }
+
+    .lulu-movie-feature:hover,
+    .lulu-movie-sub:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(255, 111, 165, 0.18);
+      border-color: #edbfd5;
+    }
+
+    .lulu-movie-feature:hover .lulu-movie-feature-thumb img,
+    .lulu-movie-sub:hover .lulu-movie-sub-thumb img {
+      transform: scale(1.06);
+    }
+
+    .lulu-movie-feature:hover .lulu-movie-feature-play,
+    .lulu-movie-sub:hover .lulu-movie-sub-play {
+      transform: scale(1.15);
+      background: #FFC0D7;
+    }
+
+    .lulu-movie-feature:hover strong,
+    .lulu-movie-sub:hover strong {
+      color: #FFC0D7;
+      letter-spacing: 0.02em;
+    }
+
+    /* modal */
+    .video-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
       padding: 24px;
       box-sizing: border-box;
     }
 
-    .lulu-movie-coming strong {
-      display: block;
-      color: #c87598;
-      font-size: 24px;
-      line-height: 1.25;
-      font-weight: 900;
+    .video-modal-inner {
+      width: min(960px, 100%);
+      background: #111;
+      border-radius: 22px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
     }
 
-    .lulu-movie-coming span {
+    .video-close {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      width: 42px;
+      height: 42px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      font-size: 28px;
+      line-height: 1;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .video-close:hover {
+      background: rgba(255,255,255,0.24);
+    }
+
+    .video-player-wrap {
+      aspect-ratio: 16 / 9;
+      background: #000;
+    }
+
+    .video-player-wrap iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
       display: block;
-      margin-top: 10px;
-      color: var(--lulu-text);
+    }
+
+    .video-modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      padding: 18px 18px 22px;
+      background: #fff8fb;
+    }
+
+    .video-modal-link {
+      min-width: 180px;
+      height: 56px;
+      padding: 0 24px;
+      border-radius: 999px;
+      text-decoration: none;
       font-size: 14px;
-      line-height: 1.6;
-      font-weight: 800;
-      word-break: keep-all;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .video-modal-link.youtube {
+      background: #FFC0D7;
+      color: #fff;
+    }
+
+    .video-modal-link.back {
+      border: 2px solid #a892f0;
+      color: #a892f0;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .video-modal-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.12);
     }
 
     @media (max-width: 900px) {
@@ -503,14 +804,18 @@
         text-align: center;
       }
 
-      .lulu-keywords,
-      .lulu-sns-row,
-      .lulu-actions {
+      .lulu-keywords {
         justify-content: center;
       }
 
       .lulu-detail-block {
         width: 100%;
+        box-sizing: border-box;
+      }
+
+      .lulu-sns-row,
+      .lulu-actions {
+        justify-content: center;
       }
 
       .lulu-movie-grid {
@@ -523,6 +828,11 @@
 
       .lulu-movie-head h3 {
         font-size: 34px;
+      }
+
+      .lulu-movie-more {
+        width: 100%;
+        min-width: 0;
       }
     }
 
@@ -543,18 +853,12 @@
       }
 
       .lulu-name {
-        font-size: 52px;
-        transform: none;
-      }
-
-      .lulu-name.voice-active {
-        transform: none;
+        font-size: 46px;
       }
 
       .lulu-en {
         font-size: 18px;
         letter-spacing: 0.2em;
-        transform: none;
       }
 
       .lulu-line-main {
@@ -562,21 +866,48 @@
       }
 
       .lulu-line-sub {
-        font-size: 14px;
+        font-size: 16px;
+      }
+
+      .lulu-detail-block {
+        padding: 16px;
+        max-width: 100%;
       }
 
       .lulu-detail-row {
         grid-template-columns: 1fr;
-        gap: 4px;
-        text-align: center;
+        gap: 2px;
+        font-size: 15px;
+      }
+
+      .lulu-sns-item,
+      .lulu-sns-item img {
+        width: 52px;
+        height: 52px;
       }
 
       .lulu-actions {
+        flex-direction: column;
+        gap: 10px;
         width: 100%;
       }
 
       .lulu-btn {
-        flex: 1 1 100%;
+        width: 100%;
+        min-width: 0;
+      }
+
+      .video-modal {
+        padding: 16px;
+      }
+
+      .video-modal-actions {
+        flex-direction: column;
+      }
+
+      .video-modal-link {
+        width: 100%;
+        min-width: 0;
       }
     }
   </style>
@@ -633,6 +964,10 @@
                 <p id="luluVoiceText" class="lulu-voice-text">
                   버튼을 눌러 루루의 보이스를 들어보세요 🐰🩷
                 </p>
+
+                <audio class="lulu-audio" src="voice/LuluVoice1.mp3"></audio>
+                <audio class="lulu-audio" src="voice/LuluVoice2.mp3"></audio>
+                <audio class="lulu-audio" src="voice/LuluVoice3.mp3"></audio>
               </div>
             </div>
 
@@ -648,37 +983,39 @@
                 <p class="lulu-line-sub">“루루만의 길로 한발씩, 포근하게!”</p>
               </div>
 
-              <div class="lulu-detail-block">
-                <div class="lulu-detail-row">
-                  <div class="lulu-detail-label">나마콜</div>
-                  <div class="lulu-detail-value">루루삐 🐰🍼</div>
-                </div>
-                <div class="lulu-detail-row">
-                  <div class="lulu-detail-label">담당 컬러</div>
-                  <div class="lulu-detail-value lulu-color-point">Milky Pink · #FFD9E8 / #FFC0D7</div>
-                </div>
-                <div class="lulu-detail-row">
-                  <div class="lulu-detail-label">생일</div>
-                  <div class="lulu-detail-value">08.17</div>
-                </div>
-                <div class="lulu-detail-row">
-                  <div class="lulu-detail-label">호출 태그</div>
-                  <div class="lulu-detail-value">#아기토끼루루뿅</div>
-                </div>
-                <div class="lulu-detail-row">
-                  <div class="lulu-detail-label">체키 메시</div>
-                  <div class="lulu-detail-value">#루루맘마냠냠</div>
-                </div>
-              </div>
-            </div>
+<div class="lulu-detail-block">
+  <div class="lulu-detail-row">
+    <div class="lulu-detail-label">나마콜</div>
+    <div class="lulu-detail-value">루루삐 🐰🍼</div>
+  </div>
+  <div class="lulu-detail-row">
+    <div class="lulu-detail-label">담당 컬러</div>
+    <div class="lulu-detail-value lulu-color-point">Milky Pink</div>
+  </div>
+  <div class="lulu-detail-row">
+    <div class="lulu-detail-label">생일</div>
+    <div class="lulu-detail-value">08.17</div>
+  </div>
+  <div class="lulu-detail-row">
+    <div class="lulu-detail-label">호출 태그</div>
+    <div class="lulu-detail-value">#아기토끼루루뿅</div>
+  </div>
+  <div class="lulu-detail-row">
+    <div class="lulu-detail-label">체키 메시</div>
+    <div class="lulu-detail-value">#루루맘마냠냠</div>
+  </div>
+</div>
 
             <div class="lulu-bottom">
               <div class="lulu-sns-row">
-                <a href="https://x.com/LMB_Lulu" class="lulu-sns-item" target="_blank" rel="noopener noreferrer" aria-label="루루 X">
+                <a href="https://x.com/LMB_Lulu" class="lulu-sns-item" target="_blank" rel="noopener noreferrer">
                   <img src="img/ui/X.webp" alt="X">
                 </a>
-                <a href="https://www.instagram.com/babylulu_s2/" class="lulu-sns-item" target="_blank" rel="noopener noreferrer" aria-label="루루 Instagram">
-                  IG
+                <a href="https://www.instagram.com/babylulu_s2/" class="lulu-sns-item" target="_blank" rel="noopener noreferrer">
+                  <img src="img/ui/instargram.png" alt="Instagram">
+                </a>
+                <a href="#" class="lulu-sns-item" target="_blank" rel="noopener noreferrer">
+                  <img src="img/ui/tiktok.webp" alt="TikTok">
                 </a>
               </div>
 
@@ -698,33 +1035,98 @@
         </div>
 
         <div class="lulu-movie-grid">
-          <div class="lulu-movie-coming">
-            <div>
-              <strong>Coming Soon</strong>
-              <span>루루의 무대 영상은 순차적으로 업데이트될 예정이에요.</span>
+          <div class="lulu-movie-feature" onclick="location.href='video.html'">
+            <div class="lulu-movie-feature-thumb">
+              <img src="img/member/lulu/lulu.webp" alt="루루 대표 영상">
+              <div class="lulu-movie-feature-play">▶</div>
+            </div>
+            <div class="lulu-movie-feature-info">
+              <strong>대표 영상</strong>
+              <span>Click to Play</span>
             </div>
           </div>
-          <div class="lulu-movie-coming">
-            <div>
-              <strong>LULU Archive</strong>
-              <span>포근한 루루의 순간들을 조금씩 기록해둘게요.</span>
+
+          <a href="video.html" target="_blank" rel="noopener noreferrer" class="lulu-movie-sub">
+            <div class="lulu-movie-sub-thumb">
+              <img src="img/member/lulu/lulu.webp" alt="루루 영상 이동">
+              <div class="lulu-movie-sub-play">▶</div>
             </div>
-          </div>
+            <div class="lulu-movie-sub-info">
+              <strong>영상 페이지 이동</strong>
+              <span>Lulu Video</span>
+            </div>
+          </a>
+        </div>
+
+        <div class="lulu-movie-more-wrap">
+          <a href="video.html" class="lulu-movie-more">MORE VIDEO</a>
         </div>
       </section>
     </div>
   </main>
 
+  <div id="videoModal" class="video-modal">
+    <div class="video-modal-inner">
+      <button class="video-close" type="button" onclick="closeVideo()">×</button>
+      <div class="video-player-wrap">
+        <iframe
+          id="videoFrame"
+          src=""
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
+      </div>
+      <div class="video-modal-actions">
+        <a id="videoYoutubeLink"
+           class="video-modal-link youtube"
+           href="video.html"
+           target="_blank"
+           rel="noopener noreferrer">
+          YOUTUBE에서 보기
+        </a>
+        <button class="video-modal-link back" type="button" onclick="closeVideo()">닫기</button>
+      </div>
+    </div>
+  </div>
+
   <footer>© 2026 Lumibelle All Rights Reserved.</footer>
 
   <script>
+    function openVideo(videoId) {
+      const modal = document.getElementById("videoModal");
+      const frame = document.getElementById("videoFrame");
+      const youtubeLink = document.getElementById("videoYoutubeLink");
+
+      frame.src = "https://www.youtube.com/embed/" + videoId + "?autoplay=1&rel=0";
+      youtubeLink.href = "https://www.youtube.com/watch?v=" + videoId;
+      modal.style.display = "flex";
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeVideo() {
+      const modal = document.getElementById("videoModal");
+      const frame = document.getElementById("videoFrame");
+
+      modal.style.display = "none";
+      frame.src = "";
+      document.body.style.overflow = "";
+    }
+
+    document.addEventListener("click", function (e) {
+      const modal = document.getElementById("videoModal");
+      if (e.target === modal) {
+        closeVideo();
+      }
+    });
+
     let lastIndex = -1;
+    let currentAudio = null;
     let isPlaying = false;
 
     const luluVoiceLines = [
-      "어... 루루 보러 와준 거야...? 🐰🩷",
-      "루루만의 길로 한발씩, 포근하게 갈게...! 🍼🐰",
-      "오늘도 루루랑 같이 있어줄래...? 🐰✨"
+      "루루 보러 와준 거야...? 고마워 🐰🩷",
+      "루루만의 길로 한발씩, 포근하게...! 🐰✨",
+      "오늘도 루루랑 같이 있어줄래...? 🍼🐰"
     ];
 
     const luluEffects = ["🐰", "🍼", "🩷"];
@@ -762,30 +1164,46 @@
     }
 
     function playRandomVoice(btn) {
+      const audios = document.querySelectorAll(".lulu-audio");
       const textEl = document.getElementById("luluVoiceText");
       const effectEl = btn.querySelector(".lulu-voice-effect");
 
-      if (isPlaying) {
+      if (!audios.length) return;
+
+      if (isPlaying && currentAudio) {
+        currentAudio.pause();
         isPlaying = false;
-        setVoiceButtonState(btn, "reset");
+        setVoiceButtonState(btn, "paused");
         return;
       }
 
-      const randomIndex = getRandomIndex(luluVoiceLines.length);
+      if (currentAudio && currentAudio.currentTime > 0 && !currentAudio.ended) {
+        currentAudio.play();
+        isPlaying = true;
+        setVoiceButtonState(btn, "playing");
+        return;
+      }
+
+      const randomIndex = getRandomIndex(audios.length);
       lastIndex = randomIndex;
+      currentAudio = audios[randomIndex];
+
       const randomEffect = luluEffects[Math.floor(Math.random() * luluEffects.length)];
       effectEl.textContent = randomEffect;
 
+      currentAudio.currentTime = 0;
+      currentAudio.play();
       isPlaying = true;
+
       setVoiceButtonState(btn, "playing");
 
-      textEl.textContent = luluVoiceLines[randomIndex];
+      textEl.textContent = luluVoiceLines[randomIndex % luluVoiceLines.length];
       textEl.classList.add("text-change");
 
-      window.setTimeout(function () {
+      currentAudio.onended = () => {
         isPlaying = false;
         setVoiceButtonState(btn, "reset");
-      }, 2600);
+      };
     }
   </script>
 </body>
