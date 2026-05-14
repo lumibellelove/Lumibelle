@@ -2315,6 +2315,27 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   outline-offset:0 !important;
 }
 
+
+/* ===== fix20: 투표 설명 제거 / 표 삭제 조건 / 글씨 크기 안정화 ===== */
+.news-body-editor.table-all-selected{
+  outline:none !important;
+  outline-offset:0 !important;
+}
+.poll-desc-space{
+  height:14px !important;
+  margin:8px 0 2px !important;
+}
+.news-body-editor{
+  font-size:15px !important;
+}
+.news-body-editor span[data-lumi-font-size]{
+  line-height:inherit;
+}
+.news-table-wrap.is-selected{
+  outline:2px solid #ff8ac2 !important;
+  outline-offset:2px !important;
+}
+
 </style>
 </head>
 <body>
@@ -2557,7 +2578,7 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
           <div>
             <span class="eyebrow">POLL</span>
             <h2>투표 만들기</h2>
-            <p class="panel-desc">본문 안에 들어갈 투표 블록을 만듭니다.</p>
+            <div class="poll-desc-space" aria-hidden="true"></div>
           </div>
           <button type="button" class="modal-close" onclick="closePollModal()">×</button>
         </div>
@@ -3005,6 +3026,7 @@ function seedNewsIfEmpty(){
 
 
 let savedNewsRange=null;
+let currentTypingFontSize=15;
 const LUMI_COLORS=[
   '#000000','#ffffff','#eeeeee','#9e9e9e','#ff4fa3','#ff8ac2','#ffc0d7','#ffd9e8',
   '#ef4444','#f97316','#facc15','#22c55e','#14b8a6','#38bdf8','#3b82f6','#8b5cf6',
@@ -3148,51 +3170,60 @@ function styleNewsSelection(styleObj){
   savedNewsRange=newRange.cloneRange();
   return true;
 }
+function normalizeNewsFontSizeSpans(){
+  const editor=q('newsBodyEditor');
+  if(!editor)return;
+  editor.querySelectorAll('font[size="7"]').forEach(font=>{
+    const span=document.createElement('span');
+    span.setAttribute('data-lumi-font-size','1');
+    span.style.fontSize=(currentTypingFontSize||15)+'px';
+    span.innerHTML=font.innerHTML;
+    font.replaceWith(span);
+  });
+}
 function applyNewsFontSize(px){
   const size=parseInt(px,10);
   if(!Number.isFinite(size)||size<8||size>96){toast('글씨 크기를 확인해 주세요');return}
+  currentTypingFontSize=size;
   q('fontSizeInput').value=size;
 
   const editor=q('newsBodyEditor');
-  if(!editor) return;
+  if(!editor)return;
 
-  // 현재 selection 확인, 없으면 savedNewsRange 복원 시도
   let sel=window.getSelection();
   let range=null;
-  if(sel && sel.rangeCount && !sel.getRangeAt(0).collapsed && editor.contains(sel.getRangeAt(0).commonAncestorContainer)){
+
+  if(sel && sel.rangeCount && editor.contains(sel.getRangeAt(0).commonAncestorContainer)){
     range=sel.getRangeAt(0);
-  } else if(savedNewsRange && !savedNewsRange.collapsed){
-    // 숫자 입력창 포커스로 selection 날아간 경우 savedRange 복원
+  }else if(savedNewsRange && editor.contains(savedNewsRange.commonAncestorContainer)){
     try{
-      if(editor.contains(savedNewsRange.commonAncestorContainer)){
-        editor.focus();
-        sel=window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(savedNewsRange);
-        range=sel.getRangeAt(0);
-      }
+      editor.focus();
+      sel=window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(savedNewsRange);
+      range=sel.getRangeAt(0);
     }catch(e){range=null;}
   }
-  if(!range || range.collapsed) return;
 
-  // 선택 영역에 font-size 적용
-  const frag=range.extractContents();
-  frag.querySelectorAll('[style]').forEach(el=>{
-    el.style.removeProperty('font-size');
-    if(!el.getAttribute('style')) el.removeAttribute('style');
-  });
-  frag.querySelectorAll('font[size]').forEach(f=>f.removeAttribute('size'));
-  const span=document.createElement('span');
-  span.style.fontSize=size+'px';
-  span.appendChild(frag);
-  range.insertNode(span);
+  editor.focus();
 
-  // 적용 후 선택 유지
-  const newRange=document.createRange();
-  newRange.selectNodeContents(span);
-  sel.removeAllRanges();
-  sel.addRange(newRange);
-  savedNewsRange=newRange.cloneRange();
+  // 선택 영역 있음: 선택한 글자만 해당 px로 변경
+  if(range && !range.collapsed){
+    sel=window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    document.execCommand('fontSize',false,'7');
+    normalizeNewsFontSizeSpans();
+    saveNewsSelection();
+    return;
+  }
+
+  // 선택 영역 없음: 앞으로 입력할 글씨 크기 저장 + 브라우저 입력 상태에 fontSize 적용
+  try{
+    document.execCommand('fontSize',false,'7');
+    normalizeNewsFontSizeSpans();
+  }catch(e){}
+  saveNewsSelection();
 }
 function stepNewsFontSize(delta){
   const input=q('fontSizeInput');
@@ -3487,35 +3518,43 @@ function setupTableDeleteKey(){
   if(!editor || editor.dataset.tableDeleteReady)return;
   editor.dataset.tableDeleteReady='1';
 
-  // 표 클릭 감지 - 셀 밖 클릭 시 표 선택, 셀 안 클릭 시 선택 해제
   document.addEventListener('click',e=>{
     const wrap=e.target.closest('.news-table-wrap');
     const cell=e.target.closest('td,th');
-    // 선택 초기화
+
     if(selectedNewsTableWrap){
       selectedNewsTableWrap.classList.remove('is-selected');
       selectedNewsTableWrap=null;
     }
-    // 셀 밖 표 영역 클릭 → 표 선택 상태
+
+    // 셀 안을 클릭하면 현재 표는 기억하지 않음: 셀 내부 글자 삭제가 우선
     if(wrap && !cell && editor.contains(wrap)){
       wrap.classList.add('is-selected');
       selectedNewsTableWrap=wrap;
     }
   });
 
-  // document 레벨에서 키 감지 (셀 안에 포커스 있어도 잡힘)
   document.addEventListener('keydown',e=>{
-    if(!selectedNewsTableWrap) return;
     if((e.ctrlKey||e.metaKey) && (e.key.toLowerCase()==='z'||e.key.toLowerCase()==='y')) return;
-    if(e.key==='Backspace' || e.key==='Delete'){
-      e.preventDefault();
-      const p=document.createElement('p');
-      p.innerHTML='<br>';
-      selectedNewsTableWrap.after(p);
-      selectedNewsTableWrap.remove();
-      selectedNewsTableWrap=null;
-      activeNewsTableCell=null;
-    }
+
+    if(!selectedNewsTableWrap || !selectedNewsTableWrap.classList.contains('is-selected')) return;
+    if(e.key!=='Backspace' && e.key!=='Delete') return;
+
+    const active=document.activeElement;
+    const activeInCell=active && active.closest && active.closest('td,th');
+    const sel=window.getSelection();
+    const selectionInCell=sel && sel.rangeCount && sel.getRangeAt(0).commonAncestorContainer.closest?.('td,th');
+
+    // 셀 안에서 커서/선택이 있으면 글자 삭제가 우선
+    if(activeInCell || selectionInCell) return;
+
+    e.preventDefault();
+    const p=document.createElement('p');
+    p.innerHTML='<br>';
+    selectedNewsTableWrap.after(p);
+    selectedNewsTableWrap.remove();
+    selectedNewsTableWrap=null;
+    activeNewsTableCell=null;
   });
 }
 
@@ -3560,7 +3599,7 @@ function setupEditorDeleteShortcuts(){
       return;
     }
   });
-  editor.addEventListener('input',()=>{newsEditorAllSelected=false;editor.classList.remove('table-all-selected')});
+  editor.addEventListener('input',()=>{newsEditorAllSelected=false;editor.classList.remove('table-all-selected');normalizeNewsFontSizeSpans();});
   editor.addEventListener('click',()=>{
     newsEditorAllSelected=false;
     editor.classList.remove('table-all-selected');
