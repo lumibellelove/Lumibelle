@@ -2363,6 +2363,16 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   outline:none !important;
 }
 
+
+/* ===== fix24: 드래그 선택 유지한 채 글씨 크기 반복 조정 ===== */
+.font-size-stepper input:focus{
+  box-shadow:none !important;
+  outline:none !important;
+}
+.news-body-editor span[data-lumi-font-size]{
+  line-height:inherit;
+}
+
 </style>
 </head>
 <body>
@@ -2706,7 +2716,7 @@ document.getElementById(isOpen?'main':'locked').hidden=false;
 const state={news:[],schedules:[],inner:{}};
 function q(id){return document.getElementById(id)}
 function toast(msg='저장 완료'){const el=q('toast');el.textContent=msg;el.classList.add('show');clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>el.classList.remove('show'),1400)}
-function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};seedNewsIfEmpty();renderAll();initColorGrid();setupNewsImageInput();setupEditorToolbarSelectionGuard();setupFontSizeSelectionGuard();setupNewsTableDelegation();setupTableDeleteKey();setupEditorDeleteShortcuts();updateDraftCount();openPanel(location.hash?.replace('#','')||'home')}
+function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};seedNewsIfEmpty();renderAll();initColorGrid();setupNewsImageInput();setupEditorToolbarSelectionGuard();setupNewsSelectionMemory();setupFontSizeSelectionGuard();setupNewsTableDelegation();setupTableDeleteKey();setupEditorDeleteShortcuts();updateDraftCount();openPanel(location.hash?.replace('#','')||'home')}
 function persist(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
 function saveAll(show=false){saveInnerFromFields();persist();if(show)toast('전체 저장 완료')}
 function openPanel(id){if(id==='home-go'){location.href='index.html';return}document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));const panel=q(id)||q('home');panel.classList.add('active');document.querySelector(`.menu-tab[data-target="${id}"]`)?.classList.add('active');history.replaceState(null,'','#'+id)}
@@ -3219,13 +3229,11 @@ function getEditorRangeForFormat(){
   const editor=q('newsBodyEditor');
   const sel=window.getSelection();
 
-  // 현재 선택이 에디터 안에 살아있으면 그걸 우선 사용
   if(sel && sel.rangeCount){
     const r=sel.getRangeAt(0);
     if(nodeInsideNewsEditor(r.commonAncestorContainer)) return r.cloneRange();
   }
 
-  // 입력칸 클릭으로 선택이 풀렸으면 직전 저장 range 사용
   if(savedNewsRange && nodeInsideNewsEditor(savedNewsRange.commonAncestorContainer)){
     return savedNewsRange.cloneRange();
   }
@@ -3246,6 +3254,11 @@ function cleanFontSizeInside(node){
   node.querySelectorAll('[style]').forEach(el=>{
     if(el.style) el.style.removeProperty('font-size');
     if(el.getAttribute('style')==='') el.removeAttribute('style');
+  });
+  node.querySelectorAll('font[size]').forEach(font=>{
+    const span=document.createElement('span');
+    span.innerHTML=font.innerHTML;
+    font.replaceWith(span);
   });
 }
 function normalizeNewsFontSizeSpans(){
@@ -3271,23 +3284,36 @@ function applyNewsFontSize(px){
 
   const range=getEditorRangeForFormat();
 
-  // 선택 영역 있음: 저장된 선택 영역을 복원해서 execCommand로 처리
-  // 직접 DOM range.extractContents보다 Ctrl+Z 스택이 덜 꼬임
+  // 선택 영역 있음: 드래그한 글자를 직접 span으로 감싸고, 그 span 내용을 다시 선택해 둔다.
+  // 그래서 + / - 를 여러 번 눌러도 같은 선택 영역에 계속 적용된다.
   if(range && !range.collapsed){
     restoreRangeForFormat(range);
-    document.execCommand('fontSize',false,'7');
-    normalizeNewsFontSizeSpans();
-    setSavedRangeToEditorSelection();
+
+    const liveRange=window.getSelection().getRangeAt(0);
+    const span=document.createElement('span');
+    span.setAttribute('data-lumi-font-size','1');
+    span.style.fontSize=size+'px';
+
+    const frag=liveRange.extractContents();
+    cleanFontSizeInside(frag);
+    span.appendChild(frag);
+    liveRange.insertNode(span);
+
+    const sel=window.getSelection();
+    sel.removeAllRanges();
+    const nextRange=document.createRange();
+    nextRange.selectNodeContents(span);
+    sel.addRange(nextRange);
+    savedNewsRange=nextRange.cloneRange();
     return;
   }
 
-  // 선택 영역 없음: 앞으로 입력될 글씨 크기만 저장
-  // 단, execCommand 상태만 걸고 normalize는 입력 직후가 아니라 blur/save/preview 쪽에서 처리
+  // 선택 영역 없음: 앞으로 입력할 글씨 크기 저장
   editor.focus();
   try{
     document.execCommand('fontSize',false,'7');
   }catch(e){}
-  setSavedRangeToEditorSelection();
+  savedNewsRange=null;
 }
 function stepNewsFontSize(delta){
   const input=q('fontSizeInput');
@@ -3331,7 +3357,6 @@ function setupEditorToolbarSelectionGuard(){
   const sizeInput=q('fontSizeInput');
   if(sizeInput && !sizeInput.dataset.sizeReady){
     sizeInput.dataset.sizeReady='1';
-    sizeInput.addEventListener('focus',saveNewsSelection);
   }
 }
 function setupNewsImageInput(){
@@ -3404,25 +3429,51 @@ function deleteAllDrafts(){
   toast('임시글을 모두 삭제했어요');
 }
 
+
+function setupNewsSelectionMemory(){
+  const editor=q('newsBodyEditor');
+  if(!editor || editor.dataset.selectionMemoryReady)return;
+  editor.dataset.selectionMemoryReady='1';
+
+  document.addEventListener('selectionchange',()=>{
+    const sel=window.getSelection();
+    if(!sel || !sel.rangeCount)return;
+    const range=sel.getRangeAt(0);
+    if(nodeInsideNewsEditor(range.commonAncestorContainer)){
+      savedNewsRange=range.cloneRange();
+    }
+  });
+
+  ['mouseup','keyup','touchend'].forEach(ev=>{
+    editor.addEventListener(ev,()=>setSavedRangeToEditorSelection(),{capture:true});
+  });
+}
 function setupFontSizeSelectionGuard(){
   const sizeInput=q('fontSizeInput');
-  if(sizeInput && !sizeInput.dataset.guardReady){
-    sizeInput.dataset.guardReady='1';
+  if(sizeInput && !sizeInput.dataset.fontSizeDirectReady){
+    sizeInput.dataset.fontSizeDirectReady='1';
+
     ['pointerdown','mousedown'].forEach(ev=>{
       sizeInput.addEventListener(ev,()=>setSavedRangeToEditorSelection(),{capture:true});
     });
-    sizeInput.addEventListener('change',()=>applyNewsFontSize(sizeInput.value));
+
     sizeInput.addEventListener('keydown',e=>{
-      if(e.key==='Enter'){e.preventDefault();applyNewsFontSize(sizeInput.value);}
+      if(e.key==='Enter'){
+        e.preventDefault();
+        applyNewsFontSize(sizeInput.value);
+      }
     });
+    sizeInput.addEventListener('change',()=>applyNewsFontSize(sizeInput.value));
+    sizeInput.addEventListener('blur',()=>applyNewsFontSize(sizeInput.value));
   }
+
   document.querySelectorAll('.font-size-stepper button').forEach(btn=>{
-    if(btn.dataset.guardReady)return;
-    btn.dataset.guardReady='1';
+    if(btn.dataset.fontSizeStepReady)return;
+    btn.dataset.fontSizeStepReady='1';
     ['pointerdown','mousedown'].forEach(ev=>{
       btn.addEventListener(ev,e=>{
         setSavedRangeToEditorSelection();
-        e.preventDefault();
+        e.preventDefault(); // 버튼 클릭 때문에 드래그 선택이 풀리는 것 방지
       },{capture:true});
     });
   });
