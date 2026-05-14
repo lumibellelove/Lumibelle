@@ -2864,6 +2864,289 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 @media(max-width:1100px){.schedule-admin-list .schedule-row-news{grid-template-columns:30px 84px 84px 1fr}.schedule-place-main,.schedule-button-pills,.schedule-row-actions{grid-column:4}.schedule-row-actions{justify-content:flex-start}.schedule-write-layout{grid-template-columns:1fr!important}.schedule-write-panel .cafe-write-sidebar{position:static!important}}
 @media(max-width:760px){.schedule-admin-list .schedule-row-news{grid-template-columns:28px 1fr}.schedule-date-short,.schedule-row-actions,.schedule-place-main,.schedule-button-pills,.schedule-visibility-pills{grid-column:2}.schedule-calendar-grid,.schedule-calendar-weekdays{gap:6px}.schedule-cal-day{min-height:74px;padding:7px}.schedule-cal-title{font-size:11px}.schedule-title-box .write-select-row{grid-template-columns:1fr}}
 
+
+/* ===== schedule-admin-v2: 공홈 스케줄형 관리자 ===== */
+
+/* NEWS처럼 작은 체크박스 유지 */
+#schedule input[type="checkbox"],
+#scheduleWrite input[type="checkbox"]{
+  width:14px !important;
+  height:14px !important;
+  min-width:14px !important;
+  min-height:14px !important;
+  max-width:14px !important;
+  max-height:14px !important;
+  transform:none !important;
+  accent-color:#ff5fa5;
+}
+#schedule .board-check,
+#schedule .row-check,
+#schedule .select-all-check,
+#scheduleWrite .side-check input{
+  width:14px !important;
+  height:14px !important;
+}
+
+/* 스케줄 목록은 공지 관리 톤 유지 */
+#schedule .schedule-board-row{
+  display:grid !important;
+  grid-template-columns: 34px 118px 92px minmax(220px,1.15fr) minmax(180px,.9fr) 185px 250px !important;
+  align-items:center !important;
+  min-height:70px !important;
+  padding:0 22px !important;
+  gap:14px !important;
+  border-bottom:1px solid #f2d8e7 !important;
+}
+#schedule .schedule-board-row:last-child{border-bottom:0 !important;}
+#schedule .schedule-board-row:hover{background:#fff5fb !important;}
+#schedule .schedule-board-date{
+  font-size:15px !important;
+  font-weight:900 !important;
+  color:#a98296 !important;
+  white-space:nowrap !important;
+}
+#schedule .schedule-board-title{
+  font-size:16px !important;
+  font-weight:900 !important;
+  color:#786675 !important;
+  min-width:0 !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:nowrap !important;
+}
+#schedule .schedule-board-venue{
+  font-size:14px !important;
+  font-weight:800 !important;
+  color:#9f7d90 !important;
+  min-width:0 !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:nowrap !important;
+}
+#schedule .schedule-board-pills{
+  display:flex !important;
+  gap:6px !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+}
+#schedule .schedule-row-actions{
+  display:flex !important;
+  gap:6px !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+}
+
+/* 목록 아래 MORE SCHEDULE: 공홈 버튼 느낌 */
+#schedule .schedule-more-area{
+  margin-top:24px !important;
+  display:flex !important;
+  justify-content:center !important;
+}
+#schedule .schedule-more-btn{
+  border:0 !important;
+  min-width:190px !important;
+  min-height:50px !important;
+  padding:0 28px !important;
+  border-radius:999px !important;
+  background:linear-gradient(135deg,#f8d4e5,#f0c9dc) !important;
+  color:#c76f9c !important;
+  font-size:15px !important;
+  font-weight:900 !important;
+  letter-spacing:.03em !important;
+  box-shadow:0 14px 28px rgba(220, 124, 167, .16) !important;
+  cursor:pointer !important;
+}
+#schedule .schedule-more-btn:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.03);
+}
+
+/* 관리자 캘린더 박스는 공홈 schedule.html 캘린더처럼 */
+#schedule .schedule-calendar-admin-box,
+#scheduleWrite .schedule-write-calendar-box{
+  margin-top:22px !important;
+  border:1px solid #f2d8e7 !important;
+  border-radius:30px !important;
+  background:rgba(255,248,252,.72) !important;
+  padding:32px !important;
+  box-shadow:0 18px 44px rgba(255,118,173,.08) !important;
+}
+#schedule .schedule-calendar-admin-box.is-hidden{
+  display:none !important;
+}
+#schedule .schedule-calendar-head,
+#scheduleWrite .schedule-calendar-head{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:18px !important;
+  margin:0 0 18px !important;
+}
+#schedule .schedule-calendar-head h3,
+#scheduleWrite .schedule-calendar-head h3{
+  margin:0 !important;
+  color:#d77ca7 !important;
+  font-size:28px !important;
+  font-weight:900 !important;
+  letter-spacing:.02em !important;
+}
+#schedule .calendar-nav-btn,
+#scheduleWrite .calendar-nav-btn{
+  width:36px !important;
+  height:36px !important;
+  border-radius:50% !important;
+  border:1px solid #efbfd4 !important;
+  background:#fff !important;
+  color:#d77ca7 !important;
+  font-weight:900 !important;
+  cursor:pointer !important;
+}
+#schedule .schedule-calendar-note,
+#scheduleWrite .schedule-calendar-note{
+  text-align:center !important;
+  color:#a98fa0 !important;
+  font-size:13px !important;
+  font-weight:800 !important;
+  margin:0 0 22px !important;
+}
+#schedule .schedule-calendar-weekdays,
+#scheduleWrite .schedule-calendar-weekdays{
+  display:grid !important;
+  grid-template-columns:repeat(7,1fr) !important;
+  gap:10px !important;
+  margin-bottom:12px !important;
+  color:#c889a9 !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+  text-align:center !important;
+}
+#schedule .schedule-calendar-grid,
+#scheduleWrite .schedule-calendar-grid{
+  display:grid !important;
+  grid-template-columns:repeat(7,1fr) !important;
+  gap:10px !important;
+}
+#schedule .schedule-cal-day,
+#scheduleWrite .schedule-cal-day{
+  min-height:112px !important;
+  border:1px solid #f2d8e7 !important;
+  border-radius:20px !important;
+  background:#fff !important;
+  padding:12px !important;
+  cursor:pointer !important;
+  transition:.15s ease !important;
+  position:relative !important;
+}
+#schedule .schedule-cal-day:hover,
+#scheduleWrite .schedule-cal-day:hover{
+  transform:translateY(-1px) !important;
+  border-color:#ff9cc8 !important;
+  box-shadow:0 10px 24px rgba(255,118,173,.12) !important;
+}
+#schedule .schedule-cal-day.empty,
+#scheduleWrite .schedule-cal-day.empty{
+  background:transparent !important;
+  border-color:transparent !important;
+  box-shadow:none !important;
+  cursor:default !important;
+}
+#schedule .schedule-cal-day.selected,
+#scheduleWrite .schedule-cal-day.selected{
+  background:#fff0f7 !important;
+  border-color:#ff8ac2 !important;
+}
+#schedule .schedule-cal-head,
+#scheduleWrite .schedule-cal-head{
+  display:flex !important;
+  align-items:center !important;
+  gap:7px !important;
+  flex-wrap:wrap !important;
+  margin-bottom:7px !important;
+}
+#schedule .schedule-cal-num,
+#scheduleWrite .schedule-cal-num{
+  font-size:18px !important;
+  line-height:1 !important;
+  font-weight:900 !important;
+  color:#9f7d90 !important;
+}
+#schedule .schedule-cal-title,
+#scheduleWrite .schedule-cal-title{
+  font-size:13.5px !important;
+  line-height:1.35 !important;
+  font-weight:900 !important;
+  color:#7f6a77 !important;
+  word-break:keep-all !important;
+}
+#schedule .schedule-calendar-detail,
+#scheduleWrite .schedule-calendar-detail{
+  margin-top:20px !important;
+  border:1px solid #f2d8e7 !important;
+  background:#fff !important;
+  border-radius:22px !important;
+  min-height:76px !important;
+  padding:20px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+#schedule .schedule-calendar-detail .detail-empty,
+#scheduleWrite .schedule-calendar-detail .detail-empty{
+  color:#a98fa0 !important;
+  font-weight:800 !important;
+}
+
+/* 글쓰기 내부 캘린더도 압축형 제거하고 공홈형으로 */
+#scheduleWrite .schedule-write-calendar-box{
+  margin-top:22px !important;
+  padding:30px !important;
+}
+#scheduleWrite .compact-calendar .schedule-cal-day{
+  min-height:112px !important;
+  border-radius:20px !important;
+  padding:12px !important;
+}
+#scheduleWrite .schedule-calendar-head.small-head h3{
+  font-size:28px !important;
+}
+
+/* 모바일/좁은 화면 */
+@media(max-width:1100px){
+  #schedule .schedule-board-row{
+    grid-template-columns:34px 92px 78px 1fr !important;
+  }
+  #schedule .schedule-board-venue,
+  #schedule .schedule-board-pills,
+  #schedule .schedule-row-actions{
+    grid-column:4 !important;
+    justify-content:flex-start !important;
+  }
+  #schedule .schedule-calendar-grid,
+  #scheduleWrite .schedule-calendar-grid{
+    gap:7px !important;
+  }
+  #schedule .schedule-cal-day,
+  #scheduleWrite .schedule-cal-day{
+    min-height:92px !important;
+    padding:9px !important;
+  }
+}
+@media(max-width:760px){
+  #schedule .schedule-calendar-admin-box,
+  #scheduleWrite .schedule-write-calendar-box{
+    padding:18px !important;
+    border-radius:24px !important;
+    overflow-x:auto !important;
+  }
+  #schedule .schedule-calendar-grid,
+  #schedule .schedule-calendar-weekdays,
+  #scheduleWrite .schedule-calendar-grid,
+  #scheduleWrite .schedule-calendar-weekdays{
+    min-width:720px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -3178,13 +3461,14 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 
       <div class="news-admin-list schedule-admin-list" id="scheduleList"></div>
 
-      <div class="schedule-calendar-admin-box">
+      <div class="schedule-more-area"><button type="button" class="schedule-more-btn" id="scheduleMoreToggle" onclick="toggleScheduleCalendar()">MORE SCHEDULE</button></div>
+      <div class="schedule-calendar-admin-box is-hidden" id="scheduleCalendarBox">
         <div class="schedule-calendar-head">
           <button type="button" class="calendar-nav-btn" onclick="moveScheduleAdminMonth(-1)">‹</button>
           <h3 id="scheduleAdminMonth">2026.07</h3>
           <button type="button" class="calendar-nav-btn" onclick="moveScheduleAdminMonth(1)">›</button>
         </div>
-        <div class="schedule-calendar-note">빈 날짜를 더블클릭하면 그 날짜로 새 스케줄을 작성합니다. 일정이 있는 날짜를 더블클릭하면 수정으로 이동합니다.</div>
+        <div class="schedule-calendar-note">날짜를 선택하면 상세 일정이 보여집니다. 빈 날짜를 더블클릭하면 새 일정을 작성합니다.</div>
         <div class="schedule-calendar-weekdays"><div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div></div>
         <div class="schedule-calendar-grid" id="scheduleAdminCalendar"></div>
         <div class="schedule-calendar-detail" id="scheduleAdminDetail"><p class="detail-empty">날짜를 선택하면 상세 일정이 보여집니다.</p></div>
@@ -3242,7 +3526,7 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
               <h3 id="scheduleWriteMonth">2026.07</h3>
               <button type="button" class="calendar-nav-btn" onclick="moveScheduleWriteMonth(1)">›</button>
             </div>
-            <div class="schedule-calendar-note">캘린더에서 날짜를 더블클릭하면 날짜가 자동 입력됩니다.</div>
+            <div class="schedule-calendar-note">날짜를 선택하면 날짜가 자동 입력됩니다.</div>
             <div class="schedule-calendar-weekdays"><div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div></div>
             <div class="schedule-calendar-grid compact-calendar" id="scheduleWriteCalendar"></div>
           </div>
@@ -4504,6 +4788,19 @@ function closeSchedulePreview(){q('schedulePreviewModal').hidden=true}
 function renderScheduleCalendar(targetId,monthDate,mode='admin'){
  const grid=q(targetId);if(!grid)return;grid.innerHTML='';const y=monthDate.getFullYear(),m=monthDate.getMonth();const label=`${y}.${String(m+1).padStart(2,'0')}`;if(mode==='admin'&&q('scheduleAdminMonth'))q('scheduleAdminMonth').textContent=label;if(mode==='write'&&q('scheduleWriteMonth'))q('scheduleWriteMonth').textContent=label;const first=new Date(y,m,1).getDay(),last=new Date(y,m+1,0).getDate();for(let i=0;i<first;i++){const e=document.createElement('div');e.className='schedule-cal-day empty';grid.appendChild(e)}for(let d=1;d<=last;d++){const dateKey=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const events=(state.schedules||[]).filter(s=>s.date===dateKey&&s.published!=='draft'&&s.calendar!==false);const cell=document.createElement('div');cell.className='schedule-cal-day';cell.innerHTML=`<div class="schedule-cal-head"><span class="schedule-cal-num">${d}</span>${events[0]?`<span class="schedule-admin-badge ${scheduleBadgeClass(events[0].badge)}">${scheduleBadgeLabel(events[0].badge)}</span>`:''}</div>${events[0]?`<div class="schedule-cal-title">${htmlEscape(events[0].title||'라이브 예정')}</div>`:''}`;cell.addEventListener('click',()=>showScheduleDayDetail(dateKey));cell.addEventListener('dblclick',()=>{if(events[0])openScheduleEditor(events[0].id);else openScheduleEditor(null,dateKey)});grid.appendChild(cell)}}
 function showScheduleDayDetail(dateKey){const detail=q('scheduleAdminDetail');if(!detail)return;const list=(state.schedules||[]).filter(s=>s.date===dateKey&&s.published!=='draft'&&s.calendar!==false);document.querySelectorAll('.schedule-cal-day').forEach(c=>c.classList.remove('selected'));if(!list.length){detail.innerHTML='<p class="detail-empty">해당 날짜에는 등록된 일정이 없습니다.</p>';return}detail.innerHTML=list.map(s=>`<div class="schedule-detail-row"><div class="schedule-detail-main"><div class="schedule-detail-date">${formatScheduleDate(s.date)}</div><div><span class="schedule-admin-badge ${scheduleBadgeClass(s.badge)}">${scheduleBadgeLabel(s.badge)}</span> ${htmlEscape(s.venue||'장소 추후 안내')}</div><b>${htmlEscape(s.title||'라이브 예정')}</b></div><div class="schedule-detail-actions">${scheduleButtonsHtml(s)}<button class="schedule-pill" onclick="openScheduleEditor('${htmlEscape(s.id)}')">수정</button></div></div>`).join('')}
+
+function toggleScheduleCalendar(){
+  const box=document.getElementById('scheduleCalendarBox');
+  const btn=document.getElementById('scheduleMoreToggle');
+  if(!box||!btn)return;
+  const closed=box.classList.toggle('is-hidden');
+  btn.textContent=closed?'MORE SCHEDULE':'CLOSE';
+  if(!closed){
+    renderScheduleAdminCalendar?.();
+    setTimeout(()=>box.scrollIntoView({behavior:'smooth',block:'start'}),40);
+  }
+}
+
 function renderScheduleAdminCalendar(){renderScheduleCalendar('scheduleAdminCalendar',scheduleAdminDate,'admin')}
 function renderScheduleWriteCalendar(){renderScheduleCalendar('scheduleWriteCalendar',scheduleWriteDate,'write')}
 function moveScheduleAdminMonth(delta){scheduleAdminDate.setMonth(scheduleAdminDate.getMonth()+delta);renderScheduleAdminCalendar()}
