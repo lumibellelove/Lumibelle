@@ -1,50 +1,600 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" /><title>TICKET 관리 | Lumibelle Admin</title><style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=SUIT:wght@500;600;700;800;900&display=swap');
-:root{--pink:#ff5fa8;--pink2:#d77ca7;--line:#f2d8e7;--text:#7f6a77;--muted:#b28ea2;--shadow:0 14px 32px rgba(232,191,211,.16)}*{box-sizing:border-box}html,body{margin:0;min-height:100%}body{font-family:"SUIT","Noto Sans KR",system-ui,sans-serif;color:var(--text);background:radial-gradient(circle at 8% 5%,rgba(255,192,215,.34),transparent 29%),radial-gradient(circle at 92% 10%,rgba(202,167,255,.24),transparent 28%),linear-gradient(180deg,#fffafc,#fff0f7);overflow-x:hidden}a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:inherit}.wrap{width:min(1240px,calc(100% - 30px));margin:0 auto;padding:22px 0 54px}.locked,.panel,.side-box,.preview-box{border:1px solid var(--line);background:rgba(255,255,255,.9);box-shadow:var(--shadow);border-radius:30px}.locked{width:min(560px,calc(100% - 32px));margin:82px auto;padding:32px;text-align:center}.locked h1{font-family:"Cormorant Garamond",serif;color:var(--pink);font-size:58px;line-height:.88;margin:12px 0 6px}.btn{min-height:43px;border:0;border-radius:999px;padding:0 17px;background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;font-size:14px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 10px 22px rgba(255,95,165,.18)}.btn.sub{background:#fff;color:var(--pink2);border:1px solid #f0bfd4;box-shadow:0 4px 10px rgba(255,95,165,.08)}.btn.danger{background:#fff;color:#c87536;border:1px solid #ffd5b6}.btn:hover{transform:translateY(-1px)}.eyebrow{display:inline-flex;min-height:30px;align-items:center;justify-content:center;padding:0 13px;border-radius:999px;background:#fff;border:1px solid #f0bfd4;color:var(--pink2);font-size:12px;font-weight:900;letter-spacing:.04em}
-.menu-shell{margin:26px auto 14px;max-width:1260px;padding:18px 22px;background:rgba(255,255,255,.92);border:1px solid var(--line);box-shadow:0 8px 24px rgba(232,191,211,.12);border-radius:32px}.main-menu{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:18px;text-align:center}.menu-tab{position:relative;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:54px;border-radius:22px;background:transparent;color:#d97ca9}.menu-tab b,.menu-tab span{display:block;width:100%;text-align:center;white-space:nowrap;position:relative;z-index:1}.menu-tab b{font-size:1.2em;font-weight:700;color:#d97ca9}.menu-tab span{margin-top:6px;font-size:.94em;font-weight:600;color:#c697b1}.menu-tab::before{content:"";position:absolute;inset:0;border-radius:18px;background:linear-gradient(90deg,rgba(255,217,232,0) 0%,rgba(255,192,215,.20) 50%,rgba(255,217,232,0) 100%);opacity:0;transition:.18s}.menu-tab.active::before,.menu-tab:hover::before{opacity:1}.menu-tab.active b,.menu-tab:hover b{color:#ff59a5}.menu-tab.active span,.menu-tab:hover span{color:#d88dad}
-.panel{padding:22px;margin-top:14px}.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}.panel h2{margin:0 0 10px;color:var(--pink2);font-size:32px;line-height:1.15}.panel-desc{margin:0;color:#806b78;font-size:15px;font-weight:900;line-height:1.6}.filters{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0 12px}.filter{height:42px;padding:0 20px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:var(--pink2);font-size:14px;font-weight:900;cursor:pointer}.filter.active{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;border-color:transparent}.search{width:430px;max-width:100%;height:42px;padding:0 18px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:var(--text);font-weight:900;outline:none}.board-tools{min-height:64px;padding:0 24px;border:1px solid var(--line);border-radius:22px;background:#fff8fc;display:flex;align-items:center;justify-content:space-between;margin:14px 0}.select-line{display:flex;gap:10px;align-items:center;font-size:13px;font-weight:900}.select-line input,.row-check{width:14px;height:14px;accent-color:var(--pink)}.bulk{display:flex;gap:8px;flex-wrap:wrap}.list{border:1px solid var(--line);border-radius:24px;overflow:hidden;background:rgba(255,255,255,.76)}.row{display:grid;grid-template-columns:30px 96px 92px minmax(240px,1fr) minmax(190px,.8fr) 108px 260px;gap:12px;align-items:center;min-height:66px;padding:0 22px;border-bottom:1px solid var(--line);font-weight:900}.row:last-child{border-bottom:0}.pill{display:inline-flex;align-items:center;justify-content:center;min-height:26px;padding:0 10px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:var(--pink2);font-size:11.5px;font-weight:900;white-space:nowrap}.pill.blue{color:#4b9cd5;background:#eef8ff;border-color:#c6e7ff}.pill.purple{color:#8d70d5;background:#f7f2ff;border-color:#d7caf6}.pill.gold{color:#c87536;background:#fff7ef;border-color:#ffd5b6}.row-actions{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}.mini{min-height:32px;padding:0 12px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:var(--pink2);font-size:12px;font-weight:900;cursor:pointer}.pager{display:flex;gap:22px;align-items:center;justify-content:center;margin:18px 0 6px;font-weight:900;color:#a48698}.pager button{width:34px;height:34px;border-radius:50%;border:1px solid #f2d8e7;background:#fff;color:#d77ca7;cursor:pointer}.note{font-size:13px;margin-top:14px;color:#a48698;font-weight:900}.empty{min-height:86px;display:flex;align-items:center;justify-content:center;color:#a48698;font-size:13px;font-weight:900}
-.write-page{display:none}.write-page.active{display:block}.write-head{display:flex;justify-content:space-between;gap:18px;margin:20px 0 18px}.write-head h2{margin:12px 0 0;color:var(--pink2);font-size:42px;line-height:1;font-weight:900}.write-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.edit-layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:22px;align-items:start}.ticket-edit-shell{border:1px solid var(--line);border-radius:30px;background:rgba(255,255,255,.9);padding:22px;box-shadow:var(--shadow)}.ticket-hero{display:grid;grid-template-columns:minmax(270px,.85fr) minmax(0,1.15fr);gap:24px;align-items:stretch}.poster-box{min-height:520px;border:1px solid var(--line);border-radius:28px;background:linear-gradient(180deg,#fff5fb,#fff0f7);display:flex;align-items:center;justify-content:center;text-align:center;color:var(--pink2);font-weight:900;font-size:22px;line-height:1.5}.section-title{color:var(--pink2);font-size:32px;font-weight:900;margin:0 0 16px}.info-lead input{font-weight:900;color:#8f7183;line-height:1.6}.cast-list{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px}.cast-chip{border:1px solid #f0bfd4;border-radius:999px;background:#fff;padding:8px 13px;color:var(--pink2);font-weight:900;font-size:13px}.info-grid{display:grid;gap:10px}.info-row{display:grid;grid-template-columns:110px 1fr;gap:12px;align-items:start;border:1px solid var(--line);border-radius:18px;background:#fff;padding:14px 16px;font-weight:900;min-height:50px}.info-row strong{color:var(--pink2)}.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px}.detail-box,.package-box,.reservation-box{border:1px solid var(--line);border-radius:24px;background:#fff;padding:20px}.detail-box h3,.package-box h3,.reservation-box h3{margin:0 0 12px;color:var(--pink2);font-size:22px}.detail-box ul{margin:12px 0 0;padding-left:18px;color:#8f7183;font-weight:800;line-height:1.75}.package-box,.reservation-box{margin-top:18px}.package-buttons{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.ticket-product{display:flex;align-items:center;justify-content:space-between;gap:14px;border:1px solid var(--line);border-radius:20px;background:#fff;padding:18px;margin:12px 0}.ticket-product h4{margin:0}.ticket-price{font-size:28px;font-weight:900;color:var(--pink)}.form-preview-grid{display:grid;grid-template-columns:1fr 140px;gap:10px}.maeate-preview{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}.maeate-preview span{border:1px solid #f0bfd4;border-radius:999px;background:#fff;padding:10px;text-align:center;color:var(--pink2);font-weight:900}.edit-field{border:1px dashed #f2bfd7;border-radius:16px;background:#fffaff;padding:10px;margin:8px 0}.edit-field label{display:block;color:#b28ea2;font-size:12px;font-weight:900;margin-bottom:6px}.edit-field input,.edit-field textarea,.edit-field select,.info-lead input,.ticket-product input{width:100%;border:1px solid #f0bfd4;border-radius:14px;background:#fff;color:#7f6a77;padding:11px 12px;font-weight:900;outline:none}.edit-field textarea,.info-row textarea,.detail-box textarea{min-height:90px;resize:vertical;line-height:1.6}.side{position:sticky;top:20px;display:grid;gap:12px}.side-box{padding:16px;background:#fff8fc}.side-box h3{margin:0 0 12px;color:var(--pink2);font-size:18px}.side-box label{display:block;color:#b28ea2;font-size:12px;font-weight:900;margin:8px 0 6px}.side-box input,.side-box select{width:100%;height:38px;border:1px solid #f0bfd4;border-radius:14px;background:#fff;color:#7f6a77;font-weight:900;padding:0 12px}.preview-box{padding:16px;background:#fff8fc}.preview-mini{border:1px solid var(--line);border-radius:20px;background:#fff;padding:18px}.preview-mini h4{margin:8px 0 8px;color:#7f6a77;font-size:20px}.preview-mini .date{color:var(--pink2);font-size:20px;font-weight:900}.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:1000;background:#ff5fa8;color:#fff;border-radius:999px;padding:12px 18px;font-weight:900;box-shadow:0 12px 26px rgba(255,95,165,.28);opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
-@media(max-width:1080px){.row{grid-template-columns:30px 86px 82px minmax(180px,1fr);row-gap:8px;min-height:104px;padding-top:12px;padding-bottom:12px}.row .venue,.row-actions{grid-column:4}.row-actions{justify-content:flex-start}.ticket-hero,.detail-grid,.edit-layout{grid-template-columns:1fr}.side{position:static}.main-menu{gap:8px}.menu-tab b{font-size:1em}.menu-tab span{font-size:.82em}}@media(max-width:720px){.wrap{width:calc(100% - 20px);padding-top:12px}.menu-shell{padding:12px}.main-menu{grid-template-columns:repeat(4,1fr)}.panel{padding:18px}.panel-head,.write-head{display:block}.write-actions{justify-content:flex-start;margin-top:12px}.search{width:100%}.board-tools{display:block;padding:14px}.bulk{margin-top:12px}.row{grid-template-columns:24px 70px 72px 1fr;padding:12px}.poster-box{min-height:280px}.section-title,.write-head h2{font-size:32px}.package-buttons,.form-preview-grid,.maeate-preview{grid-template-columns:1fr}}
-</style></head><body><div id="toast" class="toast">저장 완료</div><div id="locked" class="locked" hidden><span class="eyebrow">LUMIBELLE ADMIN</span><h1>Locked</h1><p>관리자 홈에서 먼저 입장해 주세요.</p><button class="btn" type="button" onclick="sessionStorage.setItem('lumiOfficeOpen','1');location.reload()">임시 입장</button></div><main id="main" hidden><div class="wrap">
-<nav class="menu-shell"><div class="main-menu">
-<a class="menu-tab home" href="../content-admin.html"><b>HOME</b><span>관리자 홈</span></a>
-<a class="menu-tab" href="news.html"><b>NEWS</b><span>공지·뉴스</span></a>
-<a class="menu-tab" href="../content-admin.html#member"><b>MEMBER</b><span>멤버소개</span></a>
-<a class="menu-tab" href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
-<a class="menu-tab active" href="ticket.html"><b>TICKET</b><span>티켓 페이지</span></a>
-<a class="menu-tab" href="../content-admin.html#goods"><b>GOODS</b><span>굿즈</span></a>
-<a class="menu-tab" href="../content-admin.html#setlist"><b>SETLIST</b><span>응원가이드</span></a>
-<a class="menu-tab" href="../content-admin.html#info"><b>INFO</b><span>인포·가이드</span></a>
-</div></nav>
-<section class="panel" id="ticketList"><div class="panel-head"><div><h2>TICKET 관리</h2><p class="panel-desc">공홈 TICKET 페이지에 노출될 공연/예매 글을 관리합니다.</p></div><button class="btn" type="button" onclick="openWrite()">글쓰기</button></div><div class="filters" id="ticketFilters"><button class="filter active" data-filter="all">전체</button><button class="filter" data-filter="open">예매중</button><button class="filter" data-filter="upcoming">예정</button><button class="filter" data-filter="closed">마감</button><button class="filter" data-filter="archive">지난공연</button><button class="filter" data-filter="private">비공개</button><button class="filter" data-filter="draft">임시글</button></div><input class="search" id="ticketSearch" placeholder="TICKET 검색" oninput="renderTickets()" /><div class="board-tools"><label class="select-line"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)"> 전체 선택</label><div class="bulk"><button class="btn sub" type="button" onclick="bulkSet('public')">선택 공개</button><button class="btn sub" type="button" onclick="bulkSet('private')">선택 비공개</button><button class="btn danger" type="button" onclick="bulkDelete()">선택 삭제</button></div></div><div class="list" id="ticketRows"></div><div class="pager"><button type="button" onclick="movePage(-1)">‹</button><span id="ticketPager">1 / 1</span><button type="button" onclick="movePage(1)">›</button></div><p class="note">티켓 글은 상태에 따라 현재 티켓 페이지와 지난공연 보기로 나누어 표시됩니다.</p></section>
-<section class="write-page" id="ticketWrite"><div class="write-head"><div><button class="btn sub" type="button" onclick="backToList()">← 목록으로 돌아가기</button><h2>TICKET 글쓰기</h2></div><div class="write-actions"><button class="btn sub" type="button" onclick="saveTicket('draft')">임시등록</button><button class="btn sub" type="button" onclick="previewToast()">미리보기</button><button class="btn" type="button" onclick="saveTicket('save')">등록</button></div></div><div class="edit-layout"><div class="ticket-edit-shell"><div class="ticket-hero"><div><div class="poster-box" id="posterPreview">공연 포스터<br><span id="posterDatePreview">2026.07.12</span><br><span id="posterTitlePreview">Shine Me UP</span></div><div class="edit-field"><label>포스터 이미지 URL</label><input id="posterUrl" placeholder="이미지 주소 / 비워두면 포스터 박스 표시" oninput="updatePreview()"></div></div><div><h3 class="section-title">공연 정보</h3><p class="info-lead"><input id="leadText" value="빛나는 미소의 소녀들, Lumibelle의 첫 시작을 함께해 주세요." oninput="updatePreview()"></p><div class="edit-field"><label>CAST / 출연진 안내</label><input id="casts" value="시로나, 옵시드, 너에게 닿기를, 스이타, 이토리, Lumibelle" oninput="updatePreview()"></div><div class="cast-list" id="castPreview"></div><div class="info-grid"><div class="info-row"><strong>일시</strong><span id="infoDatePreview">2026년 7월 12일 (일) 14:20 공연 시작</span></div><div class="info-row"><strong>입장</strong><span><input id="entryText" value="13:50부터 가능" oninput="updatePreview()"></span></div><div class="info-row"><strong>장소</strong><span><textarea id="venueText" oninput="updatePreview()">KT&G 상상마당 라이브홀\n서울 마포구 어울마당로 65 B2F</textarea></span></div></div></div></div><div class="detail-grid"><div class="detail-box"><h3>입장 및 대기 규칙</h3><textarea id="ruleEntry" oninput="updatePreview()">줄 대기 시작: 13:20부터 가능 합니다.\n13:20 이전 대기는 절대 불가합니다.\n입장 순서: 사전 예약 입장(13:50~) ▶ 현장 입장\n입장 시 닉네임 + 숫자 4자리 가 일치해야 합니다.</textarea><ul id="ruleEntryPreview"></ul></div><div class="detail-box"><h3>취소 및 환불</h3><textarea id="ruleRefund" oninput="updatePreview()">한정 패키지: 6/15 마감 후 환불 불가\n일반 예약: 7/5(일) 23:59까지 가능\n정가 외 프리미엄 양도 적발 시 예약이 강제 취소될 수 있습니다.</textarea><ul id="ruleRefundPreview"></ul></div><div class="detail-box" style="grid-column:1/-1"><h3>관람 유의사항</h3><textarea id="ruleNotice" oninput="updatePreview()">500ml 생수 외 모든 음식물, 주류, 꽃다발 반입은 불가합니다.\n코인락커는 500원짜리 동전만 사용 가능하며, 지폐에서 동전 교환은 불가합니다.\n아티스트 선물은 로비 스태프를 통해서만 전달 가능합니다.\n공연장 내 주차가 불가하므로 대중교통 이용을 권장합니다.</textarea><ul id="ruleNoticePreview"></ul></div></div><div class="package-box"><h3>한정 패키지 안내</h3><div class="edit-field"><label>패키지 안내 문구</label><input id="packageText" value="데뷔 기념 한정 A/B 패키지는 굿즈 상세 페이지에서 구성과 안내를 확인한 뒤 구매할 수 있어요." oninput="updatePreview()"></div><div class="package-buttons"><button class="btn sub" type="button">A 패키지 보러가기</button><button class="btn sub" type="button">B 패키지 보러가기</button></div><div class="edit-field"><label>A 패키지 링크</label><input id="packageALink" placeholder="goods/packages/2026-07-12/a.html"></div><div class="edit-field"><label>B 패키지 링크</label><input id="packageBLink" placeholder="goods/packages/2026-07-12/b.html"></div></div><div class="reservation-box"><h3>예매 정보 입력</h3><div class="form-preview-grid"><div class="edit-field"><label>계좌</label><input id="bankText" value="국민은행 000000-00-000000" oninput="updatePreview()"></div><div class="edit-field"><label>예금주</label><input id="holderText" value="루미벨" oninput="updatePreview()"></div></div><div class="ticket-product"><div><h4><input id="ticketName" value="사전 예약 티켓" oninput="updatePreview()"></h4><p><input id="ticketDesc" value="일반 입장권 / 입금 확인 후 예약 확정" oninput="updatePreview()"></p></div><div class="ticket-price" id="pricePreview">₩10,000</div></div><div class="edit-field"><label>가격</label><input id="priceText" value="10000" oninput="updatePreview()"></div><div class="edit-field"><label>메아테 선택지</label><input id="maeateText" value="시로나, 옵시드, 너에게 닿기를, 스이타, 이토리, Lumibelle" oninput="updatePreview()"></div><div class="maeate-preview" id="maeatePreview"></div><button class="btn" type="button" style="width:min(360px,100%);margin:12px auto 0;display:flex" id="reserveBtnPreview">예매하기</button></div></div><aside class="side"><div class="side-box"><h3>공개 설정</h3><label>상태</label><select id="publishStatus"><option value="public">공개</option><option value="private">비공개</option><option value="draft">임시글</option></select><label>티켓 상태</label><select id="ticketStatus"><option value="open">예매중</option><option value="upcoming">예정</option><option value="closed">마감</option><option value="archive">지난공연</option></select></div><div class="side-box"><h3>티켓 정보</h3><label>티켓 ID</label><input id="ticketId" value="저장 시 자동 생성"><label>작성일</label><input id="createdAt" type="date"></div><div class="side-box"><h3>기본 정보</h3><label>말머리</label><select id="badge"><option>LIVE</option><option>DEBUT</option><option>EVENT</option><option>예정</option></select><label>공연명</label><input id="title" value="루미벨 데뷔라이브" oninput="updatePreview()"><label>날짜</label><input id="date" type="date" value="2026-07-12" oninput="updatePreview()"><label>요일/시간</label><input id="timeText" value="(일) 14:20 공연 시작" oninput="updatePreview()"></div><div class="preview-box"><span class="pill">PREVIEW</span><div class="preview-mini"><div class="date" id="miniDate">2026.07.12</div><p><span class="pill blue" id="miniBadge">DEBUT</span> <span id="miniVenue">KT&G 상상마당 라이브홀</span></p><h4 id="miniTitle">루미벨 데뷔라이브</h4><span class="pill" id="miniStatus">TICKET</span></div></div></aside></div></section></div></main><script>
-const STORAGE_KEY='lumibelle_ticket_admin_v1';
-const PAGE_SIZE=5;
-const state={tickets:[],filter:'all',page:1,editingId:null,selected:new Set()};
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TICKET 관리 | Lumibelle Admin</title>
+<style>
+:root{
+  --pink:#ff5fa5;
+  --pink2:#dc7aaa;
+  --soft:#fff7fb;
+  --line:#f3c9dc;
+  --line2:#f6d8e7;
+  --text:#725d6a;
+  --muted:#a98fa0;
+  --purple:#8e73dc;
+  --orange:#c56a22;
+  --blue:#5d9fe7;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}
+body{
+  background:
+    radial-gradient(circle at 18% 6%, rgba(255,173,211,.34), transparent 30%),
+    radial-gradient(circle at 88% 12%, rgba(205,182,255,.38), transparent 32%),
+    linear-gradient(180deg,#fffafc 0%,#fff2f8 100%);
+  font-weight:800;
+}
+a{text-decoration:none;color:inherit}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.wrap{width:min(1280px,calc(100% - 96px));margin:86px auto 80px}
+.menu-shell{
+  width:100%;
+  background:rgba(255,255,255,.86);
+  border:1px solid var(--line2);
+  border-radius:28px;
+  display:grid;
+  grid-template-columns:repeat(8,1fr);
+  gap:4px;
+  padding:18px 28px;
+  margin-bottom:22px;
+  box-shadow:0 18px 42px rgba(255,132,188,.09);
+}
+.menu-tab{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:56px;border-radius:18px;color:#d776a7;font-weight:900;
+}
+.menu-tab strong{font-size:16px;line-height:1}
+.menu-tab span{font-size:12px;margin-top:10px;color:#bf86a5}
+.menu-tab.active{color:#ff4fa0;background:radial-gradient(circle,rgba(255,223,240,.72),transparent 70%)}
+.panel{
+  position:relative;
+  background:rgba(255,255,255,.86);
+  border:1px solid var(--line2);
+  border-radius:28px;
+  padding:34px;
+  box-shadow:0 18px 44px rgba(255,132,188,.10);
+}
+.panel + .panel{margin-top:22px}
+.panel-head{padding-right:112px}
+h1,h2,h3{margin:0;color:var(--pink2);letter-spacing:-.035em}
+.panel-title{font-size:32px;line-height:1.15;margin-bottom:12px}
+.panel-desc{font-size:15px;line-height:1.6;color:#746371;margin:0}
+.write-fab{
+  position:absolute;right:34px;top:34px;border:0;border-radius:999px;
+  height:52px;padding:0 24px;background:var(--pink);color:#fff;
+  font-size:15px;font-weight:950;box-shadow:0 14px 28px rgba(255,95,165,.28)
+}
+.filter-row{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 12px}
+.pill-btn{
+  border:1px solid #f0b7d0;background:#fff;border-radius:999px;
+  height:42px;padding:0 20px;color:#d979a6;font-size:14px;font-weight:950
+}
+.pill-btn.active{background:var(--pink);color:#fff;border-color:var(--pink)}
+.search-input{
+  width:430px;max-width:100%;height:42px;border:1px solid #f0b7d0;border-radius:999px;
+  background:rgba(255,255,255,.78);padding:0 18px;color:#725d6a;font-size:14px;font-weight:850;
+  outline:none;margin-bottom:14px
+}
+.search-input::placeholder{color:#b49aaa}
+.bulk-row{
+  min-height:64px;border:1px solid var(--line2);border-radius:22px;background:rgba(255,248,252,.74);
+  display:flex;align-items:center;justify-content:space-between;padding:0 24px;margin-bottom:14px;gap:12px
+}
+.checkline{display:flex;align-items:center;gap:10px;font-size:13px;color:#725d6a}
+input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
+.bulk-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.btn{
+  border:1px solid #f0b7d0;background:#fff;color:#d979a6;border-radius:999px;
+  min-height:40px;padding:0 18px;font-size:13px;font-weight:950
+}
+.btn.warn{border-color:#ffc78c;color:#c76f22}
+.btn.primary{background:var(--pink);border-color:var(--pink);color:#fff;box-shadow:0 12px 28px rgba(255,95,165,.22)}
+.table-card{border:1px solid var(--line2);border-radius:22px;overflow:hidden;background:rgba(255,255,255,.76)}
+.ticket-row{
+  display:grid;grid-template-columns:30px 86px 98px minmax(230px,1fr) minmax(190px,.9fr) 100px 210px;
+  gap:12px;align-items:center;min-height:64px;padding:0 22px;border-bottom:1px solid var(--line2)
+}
+.ticket-row:last-child{border-bottom:0}
+.date{color:#9b7588;font-size:15px;font-weight:950}
+.title-main{font-size:16px;color:#6f5968;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.place-main{font-size:14px;color:#8b7081;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:72px;height:26px;padding:0 12px;border-radius:999px;border:1px solid #f3bfd5;
+  background:#fff;color:#d77ca7;font-size:11px;font-weight:950
+}
+.badge.debut{background:#f7efff;border-color:#d8c4ff;color:#8d70d5}
+.badge.live{background:#edf7ff;border-color:#bfe0ff;color:#5d9fe7}
+.badge.event{background:#fff4ec;border-color:#ffc99b;color:#d47a2d}
+.status{background:#eaf6ff;border-color:#bfe2ff;color:#4d94d7}
+.status.soon,.status.closed{background:#fff5ec;border-color:#ffd2a6;color:#c8782d}
+.status.archive{background:#f2f0f2;border-color:#ded3dc;color:#8e7b87}
+.row-actions{display:flex;justify-content:flex-end;gap:6px;flex-wrap:nowrap}
+.mini-btn{
+  border:1px solid #f0b7d0;background:#fff;color:#d979a6;border-radius:999px;
+  height:32px;padding:0 12px;font-size:12px;font-weight:950;white-space:nowrap
+}
+.pager{display:flex;align-items:center;justify-content:center;gap:28px;margin:16px 0 2px;color:#9b7588;font-weight:950}
+.pager button{width:34px;height:34px;border-radius:999px;border:1px solid #f7d9e7;background:#fff;color:#e8aec8}
+.note{font-size:13px;color:#a98fa0;margin-top:14px}
+
+/* write */
+.hidden{display:none!important}
+.top-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px}
+.back-btn{border:1px solid #f0b7d0;background:#fff;border-radius:999px;color:#d979a6;height:42px;padding:0 18px;font-size:14px;font-weight:950}
+.action-buttons{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.write-title{font-size:34px;margin-bottom:18px}
+.write-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:22px}
+.form-card{
+  background:rgba(255,255,255,.84);border:1px solid var(--line2);
+  border-radius:24px;padding:24px;margin-bottom:18px
+}
+.form-card h3{font-size:24px;margin-bottom:16px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:grid;gap:7px}
+.field.full{grid-column:1/-1}
+.field label{font-size:13px;color:#c37d9f;font-weight:950}
+.input,.textarea,.select{
+  width:100%;border:1px solid #efbfd4;border-radius:16px;background:#fff;
+  color:#725d6a;font-size:14px;font-weight:850;outline:none;
+}
+.input,.select{height:46px;padding:0 14px}
+.textarea{min-height:108px;padding:13px 14px;resize:vertical;line-height:1.55}
+.hint{font-size:12px;color:#b59aa9;font-weight:800}
+.side-card{
+  background:rgba(255,248,252,.84);border:1px solid var(--line2);
+  border-radius:24px;padding:20px;margin-bottom:16px
+}
+.side-card h3{font-size:20px;margin-bottom:14px}
+.side-card .field{margin-bottom:12px}
+.preview-mini{
+  border:1px solid var(--line2);background:#fff;border-radius:20px;padding:18px;display:grid;gap:10px
+}
+.preview-mini .pdate{font-size:22px;color:#d77ca7;font-weight:950}
+.preview-mini .ptitle{font-size:18px;color:#6f5968;font-weight:950}
+.preview-mini .pmeta{font-size:13px;color:#8b7081}
+.modal{
+  position:fixed;inset:0;background:rgba(60,43,54,.32);backdrop-filter:blur(8px);
+  display:none;z-index:50;align-items:flex-start;justify-content:center;overflow:auto;padding:60px 24px
+}
+.modal.active{display:flex}
+.modal-box{
+  width:min(1100px,100%);background:#fffafd;border:1px solid var(--line2);
+  border-radius:28px;padding:28px;box-shadow:0 30px 70px rgba(58,38,54,.22);position:relative
+}
+.close{position:absolute;right:24px;top:22px;border:1px solid #f0b7d0;background:#fff;border-radius:999px;width:42px;height:42px;color:#d979a6;font-size:24px}
+.ticket-preview-page{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:26px;margin-top:36px}
+.poster-box{
+  min-height:520px;border:1px solid var(--line2);border-radius:28px;background:#fff4fa;
+  display:flex;align-items:center;justify-content:center;text-align:center;color:#d77ca7;font-size:20px;font-weight:950;overflow:hidden
+}
+.poster-box img{width:100%;height:100%;object-fit:cover}
+.public-section{border:1px solid var(--line2);border-radius:24px;background:#fff;padding:20px;margin-bottom:16px}
+.public-section h3{font-size:22px;margin-bottom:12px}
+.public-line{display:grid;grid-template-columns:90px 1fr;gap:12px;border:1px solid var(--line2);border-radius:16px;padding:14px;margin-bottom:10px}
+.public-line strong{color:#d77ca7}
+.public-section ul{margin:0;padding-left:22px;line-height:1.8;color:#7d6574}
+.ticket-box{border:1px solid var(--line2);border-radius:22px;background:#fff;padding:22px;margin-top:14px}
+.ticket-price{float:right;color:var(--pink);font-size:32px;font-weight:950}
+.empty{min-height:92px;display:flex;align-items:center;justify-content:center;color:#a98fa0;font-size:14px;font-weight:850}
+@media(max-width:980px){
+  .wrap{width:calc(100% - 28px);margin-top:28px}
+  .menu-shell{grid-template-columns:repeat(4,1fr);padding:14px}
+  .write-grid,.ticket-preview-page{grid-template-columns:1fr}
+  .ticket-row{grid-template-columns:24px 70px 82px minmax(0,1fr);min-height:92px}
+  .place-main,.status,.row-actions{grid-column:4}
+  .row-actions{justify-content:flex-start}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <nav class="menu-shell">
+    <a class="menu-tab" href="../content-admin.html"><strong>HOME</strong><span>관리자 홈</span></a>
+    <a class="menu-tab" href="news.html"><strong>NEWS</strong><span>공지·뉴스</span></a>
+    <a class="menu-tab" href="../content-admin.html#member"><strong>MEMBER</strong><span>멤버소개</span></a>
+    <a class="menu-tab" href="schedule.html"><strong>SCHEDULE</strong><span>스케줄</span></a>
+    <a class="menu-tab active" href="ticket.html"><strong>TICKET</strong><span>티켓 페이지</span></a>
+    <a class="menu-tab" href="../content-admin.html#goods"><strong>GOODS</strong><span>굿즈</span></a>
+    <a class="menu-tab" href="../content-admin.html#setlist"><strong>SETLIST</strong><span>응원가이드</span></a>
+    <a class="menu-tab" href="../content-admin.html#info"><strong>INFO</strong><span>인포·가이드</span></a>
+  </nav>
+
+  <section id="listPanel" class="panel">
+    <button class="write-fab" onclick="openWrite()">글쓰기</button>
+    <div class="panel-head">
+      <h1 class="panel-title">TICKET 관리</h1>
+      <p class="panel-desc">공홈 TICKET 페이지에 노출될 공연/예매 글을 관리합니다.</p>
+    </div>
+
+    <div class="filter-row" id="filters"></div>
+    <input id="searchInput" class="search-input" placeholder="TICKET 검색" oninput="renderList()" />
+
+    <div class="bulk-row">
+      <label class="checkline"><input type="checkbox" id="checkAll" onchange="toggleAll(this.checked)"> 전체 선택</label>
+      <div class="bulk-actions">
+        <button class="btn" onclick="bulkSet('public')">선택 공개</button>
+        <button class="btn" onclick="bulkSet('private')">선택 비공개</button>
+        <button class="btn warn" onclick="bulkDelete()">선택 삭제</button>
+      </div>
+    </div>
+
+    <div class="table-card" id="ticketRows"></div>
+    <div class="pager">
+      <button onclick="movePage(-1)">‹</button>
+      <span id="pageText">1 / 1</span>
+      <button onclick="movePage(1)">›</button>
+    </div>
+    <p class="note">티켓 글은 상태에 따라 현재 티켓 페이지와 지난공연 보기로 나누어 표시됩니다.</p>
+  </section>
+
+  <section id="writePanel" class="panel hidden">
+    <div class="top-actions">
+      <button class="back-btn" onclick="backToList()">← 목록으로 돌아가기</button>
+      <div class="action-buttons">
+        <button class="btn" onclick="saveDraft()">임시저장</button>
+        <button class="btn" onclick="openPreview()">미리보기</button>
+        <button class="btn primary" onclick="saveTicket()">등록</button>
+      </div>
+    </div>
+    <h1 class="write-title">TICKET 글쓰기</h1>
+
+    <div class="write-grid">
+      <div>
+        <div class="form-card">
+          <h3>기본 정보</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label>말머리</label>
+              <select class="select" id="badge">
+                <option>DEBUT</option><option>LIVE</option><option>EVENT</option><option>INFO</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>티켓 상태</label>
+              <select class="select" id="ticketStatus">
+                <option value="sale">예매중</option>
+                <option value="soon">예정</option>
+                <option value="closed">마감</option>
+                <option value="archive">지난공연</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label>공연명</label>
+              <input class="input" id="title" value="루미벨 데뷔라이브">
+            </div>
+            <div class="field">
+              <label>날짜</label>
+              <input class="input" id="date" type="date" value="2026-07-12">
+            </div>
+            <div class="field">
+              <label>요일/시간</label>
+              <input class="input" id="timeText" value="(일) 14:20 공연 시작">
+            </div>
+            <div class="field full">
+              <label>장소</label>
+              <input class="input" id="venue" value="KT&G 상상마당 라이브홀">
+            </div>
+            <div class="field full">
+              <label>포스터 이미지 URL</label>
+              <input class="input" id="posterUrl" placeholder="이미지 주소 / 비워두면 포스터 박스 표시">
+              <p class="hint">공지처럼 우선 이미지 URL 방식으로 관리하고, 실제 업로드형은 나중에 붙이면 됩니다.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3>공연 정보</h3>
+          <div class="form-grid">
+            <div class="field full">
+              <label>소개 문구</label>
+              <input class="input" id="intro" value="빛나는 미소의 소녀들, Lumibelle의 첫 시작을 함께해 주세요.">
+            </div>
+            <div class="field full">
+              <label>출연진</label>
+              <input class="input" id="cast" value="시로나, 옵시드, 너에게 닿기를, 스이타, 이토리, Lumibelle">
+            </div>
+            <div class="field">
+              <label>입장</label>
+              <input class="input" id="entry" value="13:50부터 가능">
+            </div>
+            <div class="field">
+              <label>장소 상세</label>
+              <input class="input" id="venueDetail" value="서울 마포구 어울마당로 65 B2F">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3>상세 안내</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label>입장 및 대기 규칙</label>
+              <textarea class="textarea" id="ruleEntry">줄 대기 시작: 13:20부터 가능합니다.
+13:20 이전 대기는 절대 불가합니다.
+입장 순서: 사전 예약 입장(13:50~) ▶ 현장 입장
+입장 시 닉네임 + 숫자 4자리가 일치해야 합니다.</textarea>
+            </div>
+            <div class="field">
+              <label>취소 및 환불</label>
+              <textarea class="textarea" id="ruleRefund">한정 패키지: 6/15 마감 후 환불 불가
+일반 예약: 7/5(일) 23:59까지 가능
+정가 외 프리미엄 양도 적발 시 예약이 강제 취소될 수 있습니다.</textarea>
+            </div>
+            <div class="field full">
+              <label>관람 유의사항</label>
+              <textarea class="textarea" id="ruleNotice">500ml 생수 외 모든 음식물, 주류, 꽃다발 반입은 불가합니다.
+코인락커는 500원짜리 동전만 사용 가능하며, 지폐에서 동전 교환은 불가합니다.
+아티스트 선물은 로비 스태프를 통해서만 전달 가능합니다.
+공연장 내 주차가 불가하므로 대중교통 이용을 권장합니다.</textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3>한정 패키지 안내</h3>
+          <div class="form-grid">
+            <div class="field full">
+              <label>패키지 안내 문구</label>
+              <input class="input" id="packageText" value="데뷔 기념 한정 A/B 패키지는 굿즈 상세 페이지에서 구성과 안내를 확인한 뒤 구매할 수 있어요.">
+            </div>
+            <div class="field">
+              <label>A 패키지 링크</label>
+              <input class="input" id="packageA" value="goods/packages/2026-07-12/a.html">
+            </div>
+            <div class="field">
+              <label>B 패키지 링크</label>
+              <input class="input" id="packageB" value="goods/packages/2026-07-12/b.html">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3>예매 정보</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label>계좌</label>
+              <input class="input" id="account" value="국민은행 000000-00-000000">
+            </div>
+            <div class="field">
+              <label>예금주</label>
+              <input class="input" id="holder" value="루미벨">
+            </div>
+            <div class="field">
+              <label>티켓명</label>
+              <input class="input" id="ticketName" value="사전 예약 티켓">
+            </div>
+            <div class="field">
+              <label>가격</label>
+              <input class="input" id="price" value="10000">
+            </div>
+            <div class="field full">
+              <label>티켓 설명</label>
+              <input class="input" id="ticketDesc" value="일반 입장권 / 입금 확인 후 예약 확정">
+            </div>
+            <div class="field full">
+              <label>메아테 선택지</label>
+              <input class="input" id="mateOptions" value="시로나, 옵시드, 너에게 닿기를, 스이타, 이토리, Lumibelle">
+            </div>
+            <div class="field full">
+              <label>예매 버튼 문구</label>
+              <input class="input" id="reserveText" value="예매하기">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside>
+        <div class="side-card">
+          <h3>공개 설정</h3>
+          <div class="field">
+            <label>상태</label>
+            <select class="select" id="publishStatus">
+              <option value="public">공개</option>
+              <option value="private">비공개</option>
+              <option value="draft">임시글</option>
+            </select>
+          </div>
+        </div>
+        <div class="side-card">
+          <h3>티켓 정보</h3>
+          <div class="field">
+            <label>티켓 ID</label>
+            <input class="input" id="ticketId" value="저장 시 자동 생성" readonly>
+          </div>
+          <div class="field">
+            <label>작성일</label>
+            <input class="input" id="createdAt" type="date" value="2026-05-14">
+          </div>
+        </div>
+        <div class="side-card">
+          <h3>미리보기 카드</h3>
+          <div class="preview-mini" id="miniPreview"></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<div id="previewModal" class="modal">
+  <div class="modal-box">
+    <button class="close" onclick="closePreview()">×</button>
+    <span class="badge">PREVIEW</span>
+    <h1 class="write-title" style="margin-top:14px">TICKET 미리보기</h1>
+    <div id="fullPreview"></div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY='lumibelle_ticket_admin_v2';
+const pageSize=5;
+let state={
+  view:'list', filter:'all', page:1, editingId:null, selected:new Set(),
+  tickets:[
+    {id:'tk-20260712',date:'2026-07-12',badge:'DEBUT',title:'루미벨 데뷔라이브',venue:'KT&G 상상마당 라이브홀',ticketStatus:'sale',publishStatus:'public'},
+    {id:'tk-20261018',date:'2026-10-18',badge:'LIVE',title:'빅 이벤트 라이브 예정',venue:'장소 추후 안내',ticketStatus:'soon',publishStatus:'public'}
+  ]
+};
+const filters=[
+  ['all','전체'],['sale','예매중'],['soon','예정'],['closed','마감'],['archive','지난공연'],['private','비공개'],['draft','임시글']
+];
 const $=id=>document.getElementById(id);
-function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1400)}
-function today(){return new Date().toISOString().slice(0,10)}
-function seed(){if(state.tickets.length)return;state.tickets=[{id:'TICKET-20260712-001',title:'루미벨 데뷔라이브',date:'2026-07-12',badge:'DEBUT',venue:'KT&G 상상마당 라이브홀',status:'open',published:'public',ticketName:'사전 예약 티켓',priceText:'10000',createdAt:today()},{id:'TICKET-20261018-001',title:'빅 이벤트 라이브 예정',date:'2026-10-18',badge:'LIVE',venue:'장소 추후 안내',status:'upcoming',published:'private',ticketName:'추후 안내',priceText:'',createdAt:today()}]}
-function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'));state.selected=new Set()}catch(e){}seed();$('createdAt').value=today();renderTickets();updatePreview()}
-function persist(){const save={...state,selected:[]};localStorage.setItem(STORAGE_KEY,JSON.stringify(save))}
-function statusLabel(s){return {open:'예매중',upcoming:'예정',closed:'마감',archive:'지난공연'}[s]||s}
-function statusClass(s){return s==='archive'?'purple':s==='closed'?'gold':s==='upcoming'?'gold':'blue'}
-function filtered(){let q=($('ticketSearch')?.value||'').trim().toLowerCase();return state.tickets.filter(t=>{let ok=state.filter==='all'||t.status===state.filter||t.published===state.filter;if(!ok)return false;if(!q)return true;return [t.title,t.date,t.venue,t.badge,t.id].join(' ').toLowerCase().includes(q)})}
-function renderTickets(){const rows=$('ticketRows');const list=filtered();const total=Math.max(1,Math.ceil(list.length/PAGE_SIZE));if(state.page>total)state.page=total;let view=list.slice((state.page-1)*PAGE_SIZE,state.page*PAGE_SIZE);$('ticketPager').textContent=`${state.page} / ${total}`;if(!view.length){rows.innerHTML='<div class="empty">저장된 TICKET이 없습니다.</div>';return}rows.innerHTML=view.map(t=>`<div class="row"><input class="row-check" type="checkbox" ${state.selected.has(t.id)?'checked':''} onchange="toggleSelect('${esc(t.id)}',this.checked)"><span>${esc((t.date||'-').slice(5).replace('-','.'))}</span><span class="pill ${statusClass(t.status)}">${esc(t.badge||'LIVE')}</span><strong>${esc(t.title||'제목 없음')}</strong><span class="venue">${esc(t.venue||'장소 추후 안내')}</span><span class="pill ${statusClass(t.status)}">${statusLabel(t.status)}</span><div class="row-actions"><button class="mini" onclick="openWrite('${esc(t.id)}')">수정</button><button class="mini" onclick="previewRow('${esc(t.id)}')">미리보기</button><button class="mini" onclick="togglePublic('${esc(t.id)}')">${t.published==='public'?'비공개':'공개'}</button></div></div>`).join('')}
-function movePage(d){const total=Math.max(1,Math.ceil(filtered().length/PAGE_SIZE));state.page=Math.min(total,Math.max(1,state.page+d));renderTickets()}
-document.addEventListener('click',e=>{const f=e.target.closest('.filter');if(f){document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));f.classList.add('active');state.filter=f.dataset.filter;state.page=1;renderTickets()}})
-function toggleSelect(id,on){on?state.selected.add(id):state.selected.delete(id)}function toggleSelectAll(on){filtered().slice((state.page-1)*PAGE_SIZE,state.page*PAGE_SIZE).forEach(t=>on?state.selected.add(t.id):state.selected.delete(t.id));renderTickets()}
-function bulkSet(p){state.tickets.forEach(t=>{if(state.selected.has(t.id))t.published=p});persist();renderTickets();toast('선택 항목 수정 완료')}
-function bulkDelete(){if(!state.selected.size)return toast('선택된 항목이 없어요');state.tickets=state.tickets.filter(t=>!state.selected.has(t.id));state.selected.clear();persist();renderTickets();toast('선택 삭제 완료')}
-function togglePublic(id){const t=state.tickets.find(x=>x.id===id);if(!t)return;t.published=t.published==='public'?'private':'public';persist();renderTickets();toast('공개 상태 변경')}
-function openWrite(id){state.editingId=id||null;$('ticketList').style.display='none';$('ticketWrite').classList.add('active');fillForm(id?state.tickets.find(t=>t.id===id):null);updatePreview();scrollTo(0,0)}
-function backToList(){$('ticketWrite').classList.remove('active');$('ticketList').style.display='block';renderTickets();scrollTo(0,0)}
-function fillForm(t){$('ticketId').value=t?.id||'저장 시 자동 생성';$('createdAt').value=t?.createdAt||today();$('title').value=t?.title||'루미벨 데뷔라이브';$('date').value=t?.date||'2026-07-12';$('badge').value=t?.badge||'DEBUT';$('ticketStatus').value=t?.status||'open';$('publishStatus').value=t?.published||'public';$('venueText').value=t?.venueText||'KT&G 상상마당 라이브홀\n서울 마포구 어울마당로 65 B2F';$('ticketName').value=t?.ticketName||'사전 예약 티켓';$('priceText').value=t?.priceText||'10000'}
-function collect(){let id=$('ticketId').value;if(!id||id==='저장 시 자동 생성')id='TICKET-'+Date.now();return {id,createdAt:$('createdAt').value||today(),title:$('title').value,date:$('date').value,badge:$('badge').value,status:$('ticketStatus').value,published:$('publishStatus').value,venue:($('venueText').value||'').split('\n')[0]||'장소 추후 안내',venueText:$('venueText').value,ticketName:$('ticketName').value,priceText:$('priceText').value}}
-function saveTicket(mode){const t=collect();if(mode==='draft')t.published='draft';const i=state.tickets.findIndex(x=>x.id===t.id);if(i>=0)state.tickets[i]={...state.tickets[i],...t};else state.tickets.unshift(t);$('ticketId').value=t.id;state.editingId=t.id;persist();toast(mode==='draft'?'임시 저장 완료':'저장 완료');renderTickets()}
-function previewToast(){toast('현재 화면이 미리보기입니다')}function previewRow(id){const t=state.tickets.find(x=>x.id===id);if(t)toast(`${t.title} 미리보기`)}
-function splitLines(v){return String(v||'').split('\n').map(x=>x.trim()).filter(Boolean)}function renderList(id,lines){$(id).innerHTML=splitLines(lines).map(x=>`<li>${esc(x)}</li>`).join('')}
-function updatePreview(){const date=$('date').value||'2026-07-12';const compact=date.replaceAll('-','.');$('posterDatePreview').textContent=compact;$('posterTitlePreview').textContent=$('title').value||'Shine Me UP';$('infoDatePreview').textContent=`${compact} ${$('timeText').value||''}`;$('miniDate').textContent=compact;$('miniBadge').textContent=$('badge').value;$('miniTitle').textContent=$('title').value||'루미벨 데뷔라이브';$('miniVenue').textContent=($('venueText').value||'장소 추후 안내').split('\n')[0];$('miniStatus').textContent=$('ticketStatus').value==='open'?'TICKET':statusLabel($('ticketStatus').value);$('pricePreview').textContent=$('priceText').value?`₩${Number($('priceText').value.replace(/[^0-9]/g,'')||0).toLocaleString()}`:'추후 안내';$('castPreview').innerHTML=splitLines(($('casts').value||'').replaceAll(',', '\n')).map(x=>`<span class="cast-chip">${esc(x)}</span>`).join('');$('maeatePreview').innerHTML=splitLines(($('maeateText').value||'').replaceAll(',', '\n')).map(x=>`<span>${esc(x)}</span>`).join('');renderList('ruleEntryPreview',$('ruleEntry').value);renderList('ruleRefundPreview',$('ruleRefund').value);renderList('ruleNoticePreview',$('ruleNotice').value)}
-if(sessionStorage.getItem('lumiOfficeOpen')==='1'){$('main').hidden=false}else{$('locked').hidden=false}load();
-</script></body></html>
+const esc=s=>(s??'').toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function saveLocal(){localStorage.setItem(STORAGE_KEY,JSON.stringify({...state,selected:[]}))}
+function loadLocal(){try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'); if(saved.tickets) state={...state,...saved,selected:new Set()}}catch(e){}}
+function fmtDate(d){if(!d)return '-'; const [y,m,day]=d.split('-'); return `${m}.${day}`}
+function fmtLongDate(d){if(!d)return '-'; return d.replaceAll('-','.')}
+function badgeClass(b){return (b||'').toLowerCase()}
+function statusLabel(s){return {sale:'예매중',soon:'예정',closed:'마감',archive:'지난공연'}[s]||'예정'}
+function statusClass(s){return `badge status ${s||''}`}
+function renderFilters(){
+  $('filters').innerHTML=filters.map(([key,label])=>`<button class="pill-btn ${state.filter===key?'active':''}" onclick="setFilter('${key}')">${label}</button>`).join('');
+}
+function getFiltered(){
+  const q=$('searchInput')?.value?.trim()?.toLowerCase()||'';
+  return state.tickets.filter(t=>{
+    const filterOk = state.filter==='all' ||
+      (state.filter==='private'&&t.publishStatus==='private') ||
+      (state.filter==='draft'&&t.publishStatus==='draft') ||
+      t.ticketStatus===state.filter;
+    const text=`${t.date} ${t.badge} ${t.title} ${t.venue} ${statusLabel(t.ticketStatus)}`.toLowerCase();
+    return filterOk && (!q || text.includes(q));
+  });
+}
+function renderList(){
+  renderFilters();
+  const list=getFiltered();
+  const total=Math.max(1,Math.ceil(list.length/pageSize));
+  state.page=Math.min(state.page,total);
+  const start=(state.page-1)*pageSize;
+  const page=list.slice(start,start+pageSize);
+  $('ticketRows').innerHTML = page.length ? page.map(t=>`
+    <div class="ticket-row">
+      <input type="checkbox" ${state.selected.has(t.id)?'checked':''} onchange="toggleSelect('${t.id}',this.checked)">
+      <div class="date">${fmtDate(t.date)}</div>
+      <div><span class="badge ${badgeClass(t.badge)}">${esc(t.badge)}</span></div>
+      <div class="title-main">${esc(t.title)}</div>
+      <div class="place-main">${esc(t.venue)}</div>
+      <div><span class="${statusClass(t.ticketStatus)}">${statusLabel(t.ticketStatus)}</span></div>
+      <div class="row-actions">
+        <button class="mini-btn" onclick="editTicket('${t.id}')">수정</button>
+        <button class="mini-btn" onclick="previewTicket('${t.id}')">미리보기</button>
+        <button class="mini-btn" onclick="togglePublish('${t.id}')">${t.publishStatus==='public'?'비공개':'공개'}</button>
+      </div>
+    </div>
+  `).join('') : '<div class="empty">저장된 TICKET이 없습니다.</div>';
+  $('pageText').textContent=`${state.page} / ${total}`;
+}
+function setFilter(f){state.filter=f;state.page=1;renderList()}
+function movePage(n){const total=Math.max(1,Math.ceil(getFiltered().length/pageSize));state.page=Math.min(total,Math.max(1,state.page+n));renderList()}
+function toggleSelect(id,checked){checked?state.selected.add(id):state.selected.delete(id)}
+function toggleAll(checked){getFiltered().forEach(t=>checked?state.selected.add(t.id):state.selected.delete(t.id));renderList()}
+function bulkSet(status){state.tickets.forEach(t=>{if(state.selected.has(t.id))t.publishStatus=status});saveLocal();renderList()}
+function bulkDelete(){state.tickets=state.tickets.filter(t=>!state.selected.has(t.id));state.selected.clear();saveLocal();renderList()}
+function togglePublish(id){const t=state.tickets.find(x=>x.id===id);if(!t)return;t.publishStatus=t.publishStatus==='public'?'private':'public';saveLocal();renderList()}
+
+function openWrite(){state.editingId=null;clearForm();showWrite()}
+function showWrite(){ $('listPanel').classList.add('hidden'); $('writePanel').classList.remove('hidden'); updateMiniPreview(); window.scrollTo({top:0,behavior:'smooth'})}
+function backToList(){ $('writePanel').classList.add('hidden'); $('listPanel').classList.remove('hidden'); renderList(); window.scrollTo({top:0,behavior:'smooth'})}
+function clearForm(){
+  const defaults={badge:'DEBUT',ticketStatus:'sale',title:'루미벨 데뷔라이브',date:'2026-07-12',timeText:'(일) 14:20 공연 시작',venue:'KT&G 상상마당 라이브홀',posterUrl:'',intro:'빛나는 미소의 소녀들, Lumibelle의 첫 시작을 함께해 주세요.',cast:'시로나, 옵시드, 너에게 닿기를, 스이타, 이토리, Lumibelle',entry:'13:50부터 가능',venueDetail:'서울 마포구 어울마당로 65 B2F',packageText:'데뷔 기념 한정 A/B 패키지는 굿즈 상세 페이지에서 구성과 안내를 확인한 뒤 구매할 수 있어요.',packageA:'goods/packages/2026-07-12/a.html',packageB:'goods/packages/2026-07-12/b.html',account:'국민은행 000000-00-000000',holder:'루미벨',ticketName:'사전 예약 티켓',price:'10000',ticketDesc:'일반 입장권 / 입금 확인 후 예약 확정',mateOptions:'시로나, 옵시드, 너에게 닿기를, 스이타, 이토리, Lumibelle',reserveText:'예매하기',publishStatus:'public',createdAt:'2026-05-14'};
+  Object.entries(defaults).forEach(([k,v])=>{if($(k))$(k).value=v});
+  $('ticketId').value='저장 시 자동 생성';
+}
+function readForm(){
+  const ids=['badge','ticketStatus','title','date','timeText','venue','posterUrl','intro','cast','entry','venueDetail','ruleEntry','ruleRefund','ruleNotice','packageText','packageA','packageB','account','holder','ticketName','price','ticketDesc','mateOptions','reserveText','publishStatus','createdAt'];
+  const obj={};
+  ids.forEach(id=>obj[id]=$(id)?.value||'');
+  obj.id=state.editingId||`tk-${Date.now()}`;
+  return obj;
+}
+function fillForm(t){
+  const ids=['badge','ticketStatus','title','date','timeText','venue','posterUrl','intro','cast','entry','venueDetail','ruleEntry','ruleRefund','ruleNotice','packageText','packageA','packageB','account','holder','ticketName','price','ticketDesc','mateOptions','reserveText','publishStatus','createdAt'];
+  ids.forEach(id=>{if($(id)&&t[id]!=null)$(id).value=t[id]});
+  $('ticketId').value=t.id||'저장 시 자동 생성';
+}
+function editTicket(id){
+  const t=state.tickets.find(x=>x.id===id); if(!t)return;
+  state.editingId=id; clearForm(); fillForm(t); showWrite();
+}
+function saveDraft(){ $('publishStatus').value='draft'; saveTicket() }
+function saveTicket(){
+  const data=readForm();
+  const idx=state.tickets.findIndex(t=>t.id===data.id);
+  if(idx>=0) state.tickets[idx]=data; else state.tickets.unshift(data);
+  state.editingId=data.id;
+  saveLocal(); alert('저장했어요.'); backToList();
+}
+function previewTicket(id){const t=state.tickets.find(x=>x.id===id); openPreview(t)}
+function openPreview(ticket){
+  const data=ticket||readForm();
+  $('fullPreview').innerHTML=buildPublicPreview(data);
+  $('previewModal').classList.add('active');
+}
+function closePreview(){$('previewModal').classList.remove('active')}
+function linesToList(v){return (v||'').split(/\n+/).filter(Boolean).map(x=>`<li>${esc(x)}</li>`).join('')}
+function buildPublicPreview(t){
+  const img=t.posterUrl?`<img src="${esc(t.posterUrl)}" alt="">`:`공연 포스터<br>${esc(fmtLongDate(t.date))}<br>${esc(t.title)}`;
+  const mates=(t.mateOptions||'').split(',').map(x=>x.trim()).filter(Boolean).map(x=>`<span class="btn">${esc(x)}</span>`).join('');
+  return `
+    <div class="ticket-preview-page">
+      <div>
+        <div class="poster-box">${img}</div>
+        <div class="public-section">
+          <h3>공연 정보</h3>
+          <p>${esc(t.intro)}</p>
+          <div class="public-line"><strong>CAST</strong><span>${esc(t.cast)}</span></div>
+          <div class="public-line"><strong>일시</strong><span>${esc(fmtLongDate(t.date))} ${esc(t.timeText)}</span></div>
+          <div class="public-line"><strong>입장</strong><span>${esc(t.entry)}</span></div>
+          <div class="public-line"><strong>장소</strong><span>${esc(t.venue)}<br>${esc(t.venueDetail)}</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="public-section">
+          <h3>입장 및 대기 규칙</h3><ul>${linesToList(t.ruleEntry)}</ul>
+        </div>
+        <div class="public-section">
+          <h3>취소 및 환불</h3><ul>${linesToList(t.ruleRefund)}</ul>
+        </div>
+        <div class="public-section">
+          <h3>관람 유의사항</h3><ul>${linesToList(t.ruleNotice)}</ul>
+        </div>
+        <div class="public-section">
+          <h3>한정 패키지 안내</h3>
+          <p>${esc(t.packageText)}</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="btn">A 패키지 보러가기</button><button class="btn">B 패키지 보러가기</button></div>
+        </div>
+        <div class="public-section">
+          <h3>예매 정보 입력</h3>
+          <p><span class="badge">계좌 · ${esc(t.account)}</span> <span class="badge">예금주 · ${esc(t.holder)}</span></p>
+          <div class="ticket-box">
+            <strong>${esc(t.ticketName)}</strong>
+            <span class="ticket-price">₩${Number(t.price||0).toLocaleString()}</span>
+            <p>${esc(t.ticketDesc)}</p>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px">${mates}</div>
+          <button class="btn primary" style="width:60%;margin:22px auto 0;display:block">${esc(t.reserveText)}</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+function updateMiniPreview(){
+  const t=readForm();
+  $('miniPreview').innerHTML=`
+    <div class="pdate">${esc(fmtLongDate(t.date))}</div>
+    <div class="pmeta"><span class="badge ${badgeClass(t.badge)}">${esc(t.badge)}</span> ${esc(t.venue)}</div>
+    <div class="ptitle">${esc(t.title)}</div>
+    <div><span class="${statusClass(t.ticketStatus)}">${statusLabel(t.ticketStatus)}</span></div>
+  `;
+}
+document.addEventListener('input',e=>{if(e.target.closest('#writePanel'))updateMiniPreview()});
+document.addEventListener('change',e=>{if(e.target.closest('#writePanel'))updateMiniPreview()});
+loadLocal();
+renderList();
+</script>
+</body>
+</html>
