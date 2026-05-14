@@ -221,6 +221,89 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
   .image-pick-row{grid-template-columns:1fr}
 }
 
+
+/* ===== ticket-v4 package side + preview readability ===== */
+.package-option-card{display:none!important}
+
+#previewModal .modal-box{
+  width:min(1180px,calc(100% - 48px)) !important;
+  padding:34px !important;
+}
+
+#previewModal .ticket-preview-page{
+  align-items:start !important;
+}
+
+#previewModal .public-section{
+  background:rgba(255,255,255,.96) !important;
+  box-shadow:0 8px 24px rgba(255,132,188,.05) !important;
+}
+
+#previewModal .public-section,
+#previewModal .public-section p,
+#previewModal .public-section li,
+#previewModal .public-line,
+#previewModal .ticket-box{
+  font-weight:750 !important;
+  letter-spacing:-.015em !important;
+  word-break:keep-all !important;
+}
+
+#previewModal .public-section h3{
+  font-size:24px !important;
+  line-height:1.22 !important;
+  font-weight:950 !important;
+}
+
+#previewModal .public-line{
+  grid-template-columns:86px minmax(0,1fr) !important;
+  align-items:center !important;
+}
+
+#previewModal .badge,
+#previewModal .btn{
+  white-space:nowrap !important;
+  line-height:1 !important;
+  font-weight:900 !important;
+}
+
+#previewModal .poster-box{
+  align-self:start !important;
+  min-height:560px !important;
+  background:#fff6fb !important;
+}
+
+#previewModal .poster-box img{
+  display:block !important;
+  width:100% !important;
+  height:auto !important;
+  max-height:720px !important;
+  object-fit:contain !important;
+  background:#fff !important;
+}
+
+#previewModal .ticket-price{
+  line-height:1 !important;
+  white-space:nowrap !important;
+}
+
+#previewModal .mate-preview-list{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+  align-items:center !important;
+}
+
+@media(max-width:980px){
+  #previewModal .modal-box{
+    width:calc(100% - 24px) !important;
+    padding:22px !important;
+  }
+  #previewModal .poster-box{
+    min-height:360px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -371,17 +454,10 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
             </div>
           </div>
         </div>
-        <div class="form-card package-option-card">
-          <h3>한정 패키지 안내</h3>
-          <p class="hint">필요한 공연에서만 옵션을 켜고 내용을 입력합니다.</p>
-          <button type="button" class="btn" onclick="openPackageModal()">패키지 안내 수정</button>
-          <span id="packageStateText" class="package-state">사용 안 함</span>
-          <input type="hidden" id="packageEnabled" value="false">
-          <input type="hidden" id="packageText" value="">
-          <input type="hidden" id="packageA" value="">
-          <input type="hidden" id="packageB" value="">
-
-        </div>
+        <input type="hidden" id="packageEnabled" value="false">
+        <input type="hidden" id="packageText" value="">
+        <input type="hidden" id="packageA" value="">
+        <input type="hidden" id="packageB" value="">
 
         <div class="form-card">
           <h3>예매 정보</h3>
@@ -436,6 +512,12 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
             <label>작성일</label>
             <input class="input" id="createdAt" type="date" value="2026-05-14">
           </div>
+        </div>
+        <div class="side-card">
+          <h3>한정 패키지 안내</h3>
+          <p class="hint">필요할 때만 사용함으로 바꾸고 내용을 입력합니다.</p>
+          <button type="button" class="btn" onclick="openPackageModal()">패키지 안내 수정</button>
+          <span id="packageStateText" class="package-state">사용 안 함</span>
         </div>
       </aside>
     </div>
@@ -535,7 +617,7 @@ function renderList(){
       <input type="checkbox" ${state.selected.has(t.id)?'checked':''} onchange="toggleSelect('${t.id}',this.checked)">
       <div class="date">${fmtDate(t.date)}</div>
       <div><span class="badge ${badgeClass(t.badge)}">${esc(t.badge)}</span></div>
-      <div class="title-main">${esc(t.title)}</div>
+      <div class="title-main">${esc(t.title||'공연명 미입력')}</div>
       <div class="place-main">${esc(t.venue)}</div>
       <div><span class="${statusClass(t.ticketStatus)}">${statusLabel(t.ticketStatus)}</span></div>
       <div class="row-actions">
@@ -635,7 +717,7 @@ function buildPublicPreview(t){
             <span class="ticket-price">₩${Number(t.price||0).toLocaleString()}</span>
             <p>${esc(t.ticketDesc)}</p>
           </div>
-          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px">${mates}</div>
+          <div class="mate-preview-list" style="margin-top:14px">${mates}</div>
           <button class="btn primary" style="width:60%;margin:22px auto 0;display:block">예매하기</button>
         </div>
       </div>
