@@ -304,6 +304,32 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
   }
 }
 
+
+/* ===== ticket-v5 side option boxes ===== */
+.side-mini-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin:10px 0;
+}
+.side-mini-actions .btn,
+.side-card > .btn{
+  height:38px;
+  min-height:38px;
+  padding:0 14px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.side-card .package-state{
+  margin-top:8px;
+}
+#reserveModal .modal-box,
+#packageModal .modal-box{
+  margin-top:20px;
+}
+
 </style>
 </head>
 <body>
@@ -458,36 +484,13 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
         <input type="hidden" id="packageText" value="">
         <input type="hidden" id="packageA" value="">
         <input type="hidden" id="packageB" value="">
+        <input type="hidden" id="account" value="국민은행 000000-00-000000">
+        <input type="hidden" id="holder" value="루미벨">
+        <input type="hidden" id="ticketName" value="사전 예약 티켓">
+        <input type="hidden" id="price" value="10000">
+        <input type="hidden" id="ticketDesc" value="일반 입장권 / 입금 확인 후 예약 확정">
+        <input type="hidden" id="mateOptions" value="시로나, 옵시드, 너에게 닿기를, 스이타, 이토리, Lumibelle">
 
-        <div class="form-card">
-          <h3>예매 정보</h3>
-          <div class="form-grid">
-            <div class="field">
-              <label>계좌</label>
-              <input class="input" id="account" value="국민은행 000000-00-000000">
-            </div>
-            <div class="field">
-              <label>예금주</label>
-              <input class="input" id="holder" value="루미벨">
-            </div>
-            <div class="field">
-              <label>티켓명</label>
-              <input class="input" id="ticketName" value="사전 예약 티켓">
-            </div>
-            <div class="field">
-              <label>가격</label>
-              <input class="input" id="price" value="10000">
-            </div>
-            <div class="field full">
-              <label>티켓 설명</label>
-              <input class="input" id="ticketDesc" value="일반 입장권 / 입금 확인 후 예약 확정">
-            </div>
-            <div class="field full">
-              <label>메아테 선택지</label>
-              <input class="input" id="mateOptions" value="시로나, 옵시드, 너에게 닿기를, 스이타, 이토리, Lumibelle">
-            </div>
-          </div>
-        </div>
       </div>
 
       <aside>
@@ -516,8 +519,14 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
         <div class="side-card">
           <h3>한정 패키지 안내</h3>
           <p class="hint">필요할 때만 사용함으로 바꾸고 내용을 입력합니다.</p>
-          <button type="button" class="btn" onclick="openPackageModal()">패키지 안내 수정</button>
+          <div class="side-mini-actions"><button type="button" class="btn" onclick="openPackageModal()">패키지 안내 수정</button><button type="button" class="btn" onclick="setPackageOff()">사용 안 함</button></div>
           <span id="packageStateText" class="package-state">사용 안 함</span>
+        </div>
+        <div class="side-card">
+          <h3>예매 정보</h3>
+          <p class="hint">예매 정보는 팝업에서 한 번에 수정합니다.</p>
+          <button type="button" class="btn" onclick="openReserveModal()">예매 정보 수정</button>
+          <span id="reserveStateText" class="package-state">기본값</span>
         </div>
       </aside>
     </div>
@@ -555,6 +564,47 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
       <div class="action-buttons" style="margin-top:18px">
         <button type="button" class="btn" onclick="closePackageModal()">취소</button>
         <button type="button" class="btn primary" onclick="applyPackageModal()">적용</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="reserveModal" class="modal">
+  <div class="modal-box package-modal-box">
+    <button class="close" onclick="closeReserveModal()">×</button>
+    <span class="badge">RESERVE</span>
+    <h1 class="write-title" style="margin-top:14px">예매 정보</h1>
+    <div class="form-card" style="margin-bottom:0">
+      <div class="form-grid">
+        <div class="field">
+          <label>계좌</label>
+          <input class="input" id="accountDraft" placeholder="계좌">
+        </div>
+        <div class="field">
+          <label>예금주</label>
+          <input class="input" id="holderDraft" placeholder="예금주">
+        </div>
+        <div class="field">
+          <label>티켓명</label>
+          <input class="input" id="ticketNameDraft" placeholder="티켓명">
+        </div>
+        <div class="field">
+          <label>가격</label>
+          <input class="input" id="priceDraft" placeholder="가격">
+        </div>
+        <div class="field full">
+          <label>티켓 설명</label>
+          <input class="input" id="ticketDescDraft" placeholder="티켓 설명">
+        </div>
+        <div class="field full">
+          <label>메아테 선택지</label>
+          <input class="input" id="mateOptionsDraft" placeholder="쉼표로 구분해서 입력">
+        </div>
+      </div>
+      <div class="action-buttons" style="margin-top:18px">
+        <button type="button" class="btn" onclick="closeReserveModal()">취소</button>
+        <button type="button" class="btn primary" onclick="applyReserveModal()">적용</button>
       </div>
     </div>
   </div>
@@ -740,6 +790,39 @@ function handlePosterFile(event){
   };
   reader.readAsDataURL(file);
 }
+
+function setPackageOff(){
+  if($('packageEnabled')) $('packageEnabled').value='false';
+  updatePackageState();
+}
+function updateReserveState(){
+  const name=$('ticketName')?.value?.trim()||'사전 예약 티켓';
+  const price=$('price')?.value?.trim()||'10000';
+  if($('reserveStateText')) $('reserveStateText').textContent=`${name} · ₩${Number(price||0).toLocaleString()}`;
+}
+function openReserveModal(){
+  $('accountDraft').value=$('account')?.value||'';
+  $('holderDraft').value=$('holder')?.value||'';
+  $('ticketNameDraft').value=$('ticketName')?.value||'';
+  $('priceDraft').value=$('price')?.value||'';
+  $('ticketDescDraft').value=$('ticketDesc')?.value||'';
+  $('mateOptionsDraft').value=$('mateOptions')?.value||'';
+  $('reserveModal').classList.add('active');
+}
+function closeReserveModal(){
+  $('reserveModal').classList.remove('active');
+}
+function applyReserveModal(){
+  $('account').value=$('accountDraft').value;
+  $('holder').value=$('holderDraft').value;
+  $('ticketName').value=$('ticketNameDraft').value;
+  $('price').value=$('priceDraft').value;
+  $('ticketDesc').value=$('ticketDescDraft').value;
+  $('mateOptions').value=$('mateOptionsDraft').value;
+  updateReserveState();
+  closeReserveModal();
+}
+
 function updatePackageState(){
   const enabled=$('packageEnabled')?.value==='true';
   const hasText=($('packageText')?.value||$('packageA')?.value||$('packageB')?.value||'').trim();
@@ -767,6 +850,7 @@ function applyPackageModal(){
 
 function updateMiniPreview(){
   updatePackageState();
+  updateReserveState();
 }
 document.addEventListener('input',e=>{if(e.target.closest('#writePanel'))updateMiniPreview()});
 document.addEventListener('change',e=>{if(e.target.closest('#writePanel'))updateMiniPreview()});
