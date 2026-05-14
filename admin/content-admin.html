@@ -1728,6 +1728,41 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   .cafe-write-sidebar{width:100% !important}
 }
 
+
+/* ===== NEWS 글쓰기 안정화 8차: 크기/정렬/컬러 적용 보정 ===== */
+.tool-square{
+  width:46px !important;
+  min-width:46px !important;
+}
+.tool-pill{
+  padding:0 17px !important;
+}
+.align-popover{
+  gap:8px !important;
+  padding:14px !important;
+}
+.align-popover button{
+  width:auto !important;
+  min-width:54px !important;
+  padding:0 12px !important;
+  font-size:13px !important;
+  white-space:nowrap !important;
+}
+.write-select-like .badge-picker.compact{
+  gap:16px !important;
+  row-gap:12px !important;
+}
+.write-select-like .badge-picker.compact .badge-choice{
+  min-width:76px !important;
+  justify-content:center !important;
+}
+.font-size-stepper{
+  grid-template-columns:42px 72px 42px !important;
+}
+.color-popover{
+  z-index:7000 !important;
+}
+
 </style>
 </head>
 <body>
@@ -1860,10 +1895,10 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
               <button type="button" class="tool-square" onclick="formatNews('underline')"><u>U</u></button>
               <button type="button" class="tool-square" onclick="toggleAlignPalette()" aria-label="정렬">☰</button>
               <div class="align-popover" id="alignPopover" hidden>
-                <button type="button" onclick="applyNewsAlign('justifyLeft')">☰</button>
-                <button type="button" onclick="applyNewsAlign('justifyCenter')">≡</button>
-                <button type="button" onclick="applyNewsAlign('justifyRight')">☷</button>
-                <button type="button" onclick="applyNewsAlign('justifyFull')">▤</button>
+                <button type="button" onclick="applyNewsAlign('justifyLeft')" title="왼쪽 정렬">왼쪽</button>
+                <button type="button" onclick="applyNewsAlign('justifyCenter')" title="가운데 정렬">중앙</button>
+                <button type="button" onclick="applyNewsAlign('justifyRight')" title="오른쪽 정렬">오른쪽</button>
+                <button type="button" onclick="applyNewsAlign('justifyFull')" title="양쪽 정렬">양쪽</button>
               </div>
               <div class="color-picker-wrap">
                 <button type="button" class="tool-square color-tool" id="colorToolBtn" onclick="toggleColorPalette()" aria-label="글씨 색">A<span id="currentColorChip"></span></button>
@@ -2375,6 +2410,7 @@ const LUMI_COLORS=[
 ];
 const BRAND_COLORS=['#ff59a5','#ffd9e8','#ffc0d7','#9bdcff','#b99cff','#d77ca7'];
 let recentNewsColors=['#000000','#ff59a5'];
+let pendingNewsColor=null;
 function saveNewsSelection(){
   const sel=window.getSelection();
   if(sel && sel.rangeCount && q('newsBodyEditor')?.contains(sel.anchorNode)){
@@ -2415,14 +2451,19 @@ function initColorGrid(){
   const hex=q('newsColorHex');
   if(custom && hex){
     custom.addEventListener('input',()=>{
-      hex.value=custom.value;
-      q('customColorChip').style.background=custom.value;
+      const v=custom.value.toLowerCase();
+      hex.value=v;
+      pendingNewsColor=v;
+      q('customColorChip').style.background=v;
+      q('currentColorChip').style.background=v;
     });
     hex.addEventListener('input',()=>{
-      const v=hex.value.trim();
+      const v=hex.value.trim().toLowerCase();
       if(/^#[0-9a-fA-F]{6}$/.test(v)){
         custom.value=v;
+        pendingNewsColor=v;
         q('customColorChip').style.background=v;
+        q('currentColorChip').style.background=v;
       }
     });
   }
@@ -2440,8 +2481,9 @@ function toggleColorPalette(){
   pop.hidden=!pop.hidden;
 }
 function applyCustomColor(){
-  const hex=q('newsColorHex').value.trim();
+  const hex=q('newsColorHex').value.trim().toLowerCase();
   if(!/^#[0-9a-fA-F]{6}$/.test(hex)){toast('HEX 색상 코드를 확인해 주세요');return}
+  pendingNewsColor=null;
   applyNewsColor(hex);
 }
 function applyNewsColor(color){
@@ -2461,6 +2503,7 @@ function applyNewsColor(color){
     if(q('newsColorCustom')) q('newsColorCustom').value='#d77ca7';
     if(q('customColorChip')) q('customColorChip').style.background='#d77ca7';
   }
+  pendingNewsColor=null;
   q('colorPopover').hidden=true;
   saveNewsSelection();
 }
@@ -2490,11 +2533,20 @@ function styleNewsSelection(styleObj){
 function applyNewsFontSize(px){
   const size=parseInt(px,10);
   if(!Number.isFinite(size) || size<8 || size>96){toast('글씨 크기를 확인해 주세요');return}
-  const applied=styleNewsSelection({fontSize:size+'px'});
-  if(!applied){
-    restoreNewsSelection();
-    document.execCommand('insertHTML',false,`<span style="font-size:${size}px">&nbsp;</span>`);
-  }
+  restoreNewsSelection();
+  const editor=q('newsBodyEditor');
+  document.execCommand('fontSize', false, '7');
+  editor.querySelectorAll('font[size="7"]').forEach(font=>{
+    const span=document.createElement('span');
+    span.style.fontSize=size+'px';
+    span.innerHTML=font.innerHTML;
+    // 기존 안쪽 font-size가 우선 적용되는 문제 방지
+    span.querySelectorAll('[style]').forEach(el=>{
+      if(el.style) el.style.fontSize='';
+      if(el.getAttribute('style')==='') el.removeAttribute('style');
+    });
+    font.replaceWith(span);
+  });
   q('fontSizeInput').value=size;
   saveNewsSelection();
 }
@@ -2518,7 +2570,13 @@ function applyNewsAlign(command){
 document.addEventListener('click',e=>{
   const pop=q('colorPopover');
   const wrap=document.querySelector('.color-picker-wrap');
-  if(pop && wrap && !wrap.contains(e.target)) pop.hidden=true;
+  if(pop && wrap && !wrap.contains(e.target)){
+    if(pendingNewsColor && /^#[0-9a-fA-F]{6}$/.test(pendingNewsColor)){
+      applyNewsColor(pendingNewsColor);
+    }else{
+      pop.hidden=true;
+    }
+  }
   const align=q('alignPopover');
   if(align && !align.hidden && !align.contains(e.target) && !e.target.closest('[onclick*="toggleAlignPalette"]')) align.hidden=true;
 });
