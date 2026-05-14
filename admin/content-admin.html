@@ -3593,6 +3593,119 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   min-height:1px !important;
 }
 
+
+/* ===== schedule-fix4: 캘린더 날짜 클릭 상세카드 공홈 스케줄형 ===== */
+#schedule .schedule-calendar-detail{
+  margin-top:18px !important;
+  border:0 !important;
+  background:transparent !important;
+  padding:0 !important;
+  text-align:left !important;
+}
+
+#schedule .schedule-calendar-detail .detail-empty{
+  margin:0 !important;
+  border:1px solid #f2d8e7 !important;
+  border-radius:24px !important;
+  background:rgba(255,255,255,.86) !important;
+  min-height:74px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  color:#a98fa0 !important;
+  font-size:14px !important;
+  font-weight:800 !important;
+}
+
+#schedule .schedule-detail-card-public{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) auto !important;
+  align-items:center !important;
+  gap:20px !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+  border:1px solid #f2d8e7 !important;
+  border-radius:24px !important;
+  background:rgba(255,255,255,.88) !important;
+  padding:24px 28px !important;
+  margin:0 0 12px !important;
+  min-height:128px !important;
+  box-shadow:0 12px 30px rgba(255,118,173,.06) !important;
+}
+
+#schedule .schedule-detail-public-main{
+  display:grid !important;
+  gap:9px !important;
+  min-width:0 !important;
+}
+
+#schedule .schedule-detail-public-date{
+  color:#d77ca7 !important;
+  font-size:24px !important;
+  line-height:1.1 !important;
+  font-weight:900 !important;
+  letter-spacing:.01em !important;
+}
+
+#schedule .schedule-detail-public-meta{
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  flex-wrap:wrap !important;
+  color:#a48698 !important;
+  font-size:14px !important;
+  font-weight:800 !important;
+}
+
+#schedule .schedule-detail-public-title{
+  color:#7f6a77 !important;
+  font-size:18px !important;
+  line-height:1.25 !important;
+  font-weight:900 !important;
+  word-break:keep-all !important;
+}
+
+#schedule .schedule-detail-public-actions{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+  min-width:210px !important;
+}
+
+#schedule .schedule-detail-public-actions .schedule-pill{
+  min-width:92px !important;
+  min-height:42px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:0 18px !important;
+  border-radius:999px !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+  background:#fff !important;
+  border:1px solid #efbfd4 !important;
+  color:#e27aa9 !important;
+}
+
+#schedule .schedule-detail-public-actions .schedule-pill.detail{
+  color:#8d70d5 !important;
+  border-color:#d7caf6 !important;
+  background:#f7f2ff !important;
+}
+
+@media(max-width:760px){
+  #schedule .schedule-detail-card-public{
+    grid-template-columns:1fr !important;
+    padding:20px !important;
+  }
+  #schedule .schedule-detail-public-actions{
+    justify-content:flex-start !important;
+    min-width:0 !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -5340,18 +5453,30 @@ function previewSavedSchedule(id){const s=state.schedules.find(x=>x.id===id);if(
 function closeSchedulePreview(){q('schedulePreviewModal').hidden=true}
 function renderScheduleCalendar(targetId,monthDate,mode='admin'){
  const grid=q(targetId);if(!grid)return;grid.innerHTML='';const y=monthDate.getFullYear(),m=monthDate.getMonth();const label=`${y}.${String(m+1).padStart(2,'0')}`;if(mode==='admin'&&q('scheduleAdminMonth'))q('scheduleAdminMonth').textContent=label;if(mode==='write'&&q('scheduleWriteMonth'))q('scheduleWriteMonth').textContent=label;const first=new Date(y,m,1).getDay(),last=new Date(y,m+1,0).getDate();for(let i=0;i<first;i++){const e=document.createElement('div');e.className='schedule-cal-day empty';grid.appendChild(e)}for(let d=1;d<=last;d++){const dateKey=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const events=(state.schedules||[]).filter(s=>s.date===dateKey&&s.published!=='draft'&&s.calendar!==false);const cell=document.createElement('div');cell.className='schedule-cal-day';cell.innerHTML=`<div class="schedule-cal-head"><span class="schedule-cal-num">${d}</span>${events[0]?`<span class="schedule-admin-badge ${scheduleBadgeClass(events[0].badge)}">${scheduleBadgeLabel(events[0].badge)}</span>`:''}</div>${events[0]?`<div class="schedule-cal-title">${htmlEscape(events[0].title||'라이브 예정')}</div>`:''}`;cell.addEventListener('click',()=>showScheduleDayDetail(dateKey));cell.addEventListener('dblclick',()=>{if(events[0])openScheduleEditor(events[0].id);else openScheduleEditor(null,dateKey)});grid.appendChild(cell)}}
-function showScheduleDayDetail(dateKey){const detail=q('scheduleAdminDetail');if(!detail)return;const list=(state.schedules||[]).filter(s=>s.date===dateKey&&s.published!=='draft'&&s.calendar!==false);document.querySelectorAll('.schedule-cal-day').forEach(c=>c.classList.remove('selected'));if(!list.length){detail.innerHTML='<p class="detail-empty">해당 날짜에는 등록된 일정이 없습니다.</p>';return}detail.innerHTML=list.map(s=>`<div class="schedule-detail-row"><div class="schedule-detail-main"><div class="schedule-detail-date">${formatScheduleDate(s.date)}</div><div><span class="schedule-admin-badge ${scheduleBadgeClass(s.badge)}">${scheduleBadgeLabel(s.badge)}</span> ${htmlEscape(s.venue||'장소 추후 안내')}</div><b>${htmlEscape(s.title||'라이브 예정')}</b></div><div class="schedule-detail-actions">${scheduleButtonsHtml(s)}<button class="schedule-pill" onclick="openScheduleEditor('${htmlEscape(s.id)}')">수정</button></div></div>`).join('')}
-
-function toggleScheduleCalendar(){
-  const box=document.getElementById('scheduleCalendarBox');
-  const btn=document.getElementById('scheduleMoreToggle');
-  if(!box||!btn)return;
-  const closed=box.classList.toggle('is-hidden');
-  btn.textContent=closed?'MORE SCHEDULE':'CLOSE';
-  if(!closed){
-    renderScheduleAdminCalendar?.();
-    setTimeout(()=>box.scrollIntoView({behavior:'smooth',block:'start'}),40);
+function showScheduleDayDetail(dateKey){
+  const detail=q('scheduleAdminDetail');
+  if(!detail)return;
+  const list=(state.schedules||[]).filter(s=>s.date===dateKey&&s.published!=='draft'&&s.calendar!==false);
+  document.querySelectorAll('.schedule-cal-day').forEach(c=>c.classList.remove('selected'));
+  if(!list.length){
+    detail.innerHTML='<p class="detail-empty">해당 날짜에는 등록된 일정이 없습니다.</p>';
+    return;
   }
+  detail.innerHTML=list.map(s=>`
+    <div class="schedule-detail-card-public" ondblclick="openScheduleEditor('${htmlEscape(s.id)}')">
+      <div class="schedule-detail-public-main">
+        <div class="schedule-detail-public-date">${formatScheduleDate(s.date)}</div>
+        <div class="schedule-detail-public-meta">
+          <span class="schedule-admin-badge ${scheduleBadgeClass(s.badge)}">${scheduleBadgeLabel(s.badge)}</span>
+          <span>${htmlEscape(s.venue||'장소 추후 안내')}</span>
+        </div>
+        <div class="schedule-detail-public-title">${htmlEscape(s.title||'라이브 예정')}</div>
+      </div>
+      <div class="schedule-detail-public-actions">
+        ${scheduleButtonsHtml(s)}
+      </div>
+    </div>
+  `).join('');
 }
 
 function renderScheduleAdminCalendar(){renderScheduleCalendar('scheduleAdminCalendar',scheduleAdminDate,'admin')}
