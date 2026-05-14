@@ -806,6 +806,167 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 @media(max-width:1080px){.main-menu{grid-template-columns:repeat(4,1fr)}.subnav-wrap,.inner-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:760px){.wrap{width:min(100% - 22px,1240px)}.main-menu,.subnav-wrap,.grid,.grid3,.inner-grid{grid-template-columns:1fr}.panel{padding:16px}.panel-head{display:block}.menu-tab{min-height:54px}.subnav-card,.inner-card{min-height:auto}}
 @media print{.menu-shell,.top-actions,.subnav-wrap,.actions,.tool-row,.subnav,.no-print{display:none!important}body{background:#fff}.wrap{width:100%;padding:0}.hero,.panel,.item{box-shadow:none;border:0}.panel{display:block}.panel:not(.print-target){display:none}}
+
+/* ===== NEWS 글쓰기 간소화/가독성 보정 ===== */
+.cafe-write-layout{
+  grid-template-columns:minmax(0,1fr) 300px !important;
+}
+.write-title-box{
+  padding:22px !important;
+}
+.write-select-row{
+  grid-template-columns:1fr !important;
+}
+.write-select-like{
+  min-height:auto !important;
+  padding:0 0 14px;
+  align-items:flex-start !important;
+}
+.write-select-like label{
+  width:84px;
+  padding-top:8px;
+}
+.write-title-input{
+  min-height:64px !important;
+  font-size:22px !important;
+  background:#fff8fc !important;
+}
+.editor-toolbar{
+  padding:14px !important;
+  gap:10px !important;
+}
+.editor-toolbar button,
+.editor-toolbar select,
+.color-tool{
+  min-height:38px !important;
+  font-size:14px !important;
+}
+.color-picker-wrap{
+  position:relative;
+  display:inline-flex;
+}
+#currentColorChip{
+  width:18px;
+  height:18px;
+  border-radius:5px;
+  background:#d77ca7;
+  display:inline-block;
+  border:1px solid rgba(0,0,0,.08);
+}
+.color-popover{
+  position:absolute;
+  left:0;
+  top:46px;
+  width:236px;
+  padding:14px;
+  border:1px solid #f2d8e7;
+  border-radius:18px;
+  background:#fff;
+  box-shadow:0 18px 40px rgba(82,52,73,.18);
+  z-index:6000;
+}
+.color-pop-title{
+  color:#8f7183;
+  font-weight:900;
+  font-size:13px;
+  margin-bottom:10px;
+}
+.color-grid{
+  display:grid;
+  grid-template-columns:repeat(10, 18px);
+  gap:4px;
+}
+.color-swatch{
+  width:18px;
+  height:18px;
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:4px;
+  cursor:pointer;
+}
+.color-swatch.is-none{
+  background:linear-gradient(135deg, transparent 0 45%, #ff4f8e 47% 53%, transparent 55% 100%);
+}
+.color-custom{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+  align-items:center;
+}
+.color-custom input{
+  width:42px;
+  height:32px;
+  padding:0;
+  border:1px solid #f0bfd4;
+  border-radius:8px;
+  background:#fff;
+}
+.color-custom button{
+  flex:1;
+  min-height:32px;
+  border-radius:999px;
+  border:1px solid #f0bfd4;
+  background:#fff8fc;
+  color:#d77ca7;
+  font-weight:900;
+}
+.editor-template-toolbar{
+  padding:14px !important;
+}
+.news-body-editor{
+  min-height:520px !important;
+  padding:30px !important;
+  font-size:17px !important;
+  line-height:1.95 !important;
+}
+.news-info-card{
+  display:grid;
+  gap:12px;
+  margin:18px 0 24px;
+}
+.news-info-card .info-row{
+  display:grid;
+  grid-template-columns:92px 1fr;
+  align-items:center;
+  gap:14px;
+  padding:15px 18px;
+  border:1px solid #f2d8e7;
+  border-radius:18px;
+  background:#fff8fc;
+}
+.news-info-card .info-label{
+  color:#d77ca7;
+  font-weight:900;
+}
+.news-info-card .info-value{
+  color:#7f6a77;
+  font-weight:800;
+  outline:none;
+}
+.news-info-card .info-value:empty:before{
+  content:attr(data-placeholder);
+  color:#c7b3bf;
+}
+.side-box{
+  padding:18px !important;
+}
+.side-top-checks{
+  display:grid;
+  gap:8px;
+}
+.side-check,.side-radio{
+  justify-content:flex-start !important;
+  font-size:15px !important;
+}
+.side-box h3{
+  font-size:18px !important;
+}
+.cafe-write-sidebar{
+  gap:14px !important;
+}
+@media(max-width:1080px){
+  .cafe-write-layout{grid-template-columns:1fr !important}
+}
+
 </style>
 </head>
 <body>
@@ -934,7 +1095,17 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
             <button type="button" onclick="formatNews('bold')"><b>B</b></button>
             <button type="button" onclick="formatNews('italic')"><i>I</i></button>
             <button type="button" onclick="formatNews('underline')"><u>U</u></button>
-            <label class="color-tool">색 <input type="color" id="newsColor" value="#d77ca7" onchange="formatNews('foreColor', this.value)"></label>
+            <div class="color-picker-wrap">
+              <button type="button" class="color-tool" id="colorToolBtn" onclick="toggleColorPalette()">색 <span id="currentColorChip"></span></button>
+              <div class="color-popover" id="colorPopover" hidden>
+                <div class="color-pop-title">글씨 색</div>
+                <div class="color-grid" id="colorGrid"></div>
+                <div class="color-custom">
+                  <input type="color" id="newsColorCustom" value="#d77ca7">
+                  <button type="button" onclick="applyCustomColor()">확인</button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="editor-template-toolbar">
@@ -947,7 +1118,7 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
         </main>
 
         <aside class="cafe-write-sidebar">
-          <section class="side-box">
+          <section class="side-box side-top-checks">
             <label class="side-check"><input type="checkbox" id="newsPinnedCheck"> 상단 고정</label>
             <label class="side-check"><input type="checkbox" id="newsHomeCheck" checked> 메인 노출</label>
           </section>
@@ -960,35 +1131,27 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
           </section>
 
           <section class="side-box">
-            <h3>상세 정보</h3>
+            <h3>글 정보</h3>
             <label>글 ID<input id="newsId" readonly placeholder="저장 시 자동 생성"></label>
             <label>작성일<input id="newsDate" type="date"></label>
-            <label>대표 이미지 URL<input id="newsHeroImage" placeholder="이미지 URL 또는 추후 업로드 경로"></label>
-            <label>대표 이미지 ALT<input id="newsHeroAlt" placeholder="이미지 설명"></label>
-            <label>DATE<input id="newsInfoDate" placeholder="2026.07.12 (토)"></label>
-            <label>PLACE<input id="newsInfoPlace" placeholder="KT&G 상상마당 라이브홀 홍대"></label>
-            <label>TIME<input id="newsInfoTime" placeholder="OPEN 13:50 / START 14:20"></label>
-            <label>TICKET<input id="newsInfoTicket" placeholder="구글폼 예약 진행"></label>
           </section>
 
           <section class="side-box">
-            <h3>버튼 설정</h3>
-            <label>버튼 1 텍스트<input id="newsBtn1Text" placeholder="TICKET"></label>
-            <label>버튼 1 링크<input id="newsBtn1Link" placeholder="/ticket/index.html"></label>
-            <label>버튼 2 텍스트<input id="newsBtn2Text" placeholder="BACK TO NEWS"></label>
-            <label>버튼 2 링크<input id="newsBtn2Link" placeholder="news.html"></label>
-          </section>
-
-          <section class="side-box">
-            <h3>본문 이미지</h3>
-            <label>본문 이미지 URL<input id="newsBodyImage" placeholder="본문 중간 이미지 URL"></label>
-            <label>본문 이미지 ALT<input id="newsBodyAlt" placeholder="본문 이미지 설명"></label>
+            <h3>대표 이미지</h3>
+            <label>이미지 URL<input id="newsHeroImage" placeholder="대표 이미지 URL"></label>
+            <label>이미지 설명<input id="newsHeroAlt" placeholder="이미지 ALT"></label>
           </section>
 
           <section class="side-box side-actions">
             <button type="button" class="btn sub" onclick="previewNews()">미리보기</button>
             <button type="button" class="btn sub" onclick="backToNewsList()">취소</button>
           </section>
+
+          <div class="hidden-news-fields" hidden>
+            <input id="newsInfoDate"><input id="newsInfoPlace"><input id="newsInfoTime"><input id="newsInfoTicket">
+            <input id="newsBtn1Text"><input id="newsBtn1Link"><input id="newsBtn2Text"><input id="newsBtn2Link">
+            <input id="newsBodyImage"><input id="newsBodyAlt">
+          </div>
         </aside>
       </div>
     </section>
@@ -1069,7 +1232,7 @@ document.getElementById(isOpen?'main':'locked').hidden=false;
 const state={news:[],schedules:[],inner:{}};
 function q(id){return document.getElementById(id)}
 function toast(msg='저장 완료'){const el=q('toast');el.textContent=msg;el.classList.add('show');clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>el.classList.remove('show'),1400)}
-function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};seedNewsIfEmpty();renderAll();openPanel(location.hash?.replace('#','')||'home')}
+function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};seedNewsIfEmpty();renderAll();initColorGrid();openPanel(location.hash?.replace('#','')||'home')}
 function persist(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
 function saveAll(show=false){saveInnerFromFields();persist();if(show)toast('전체 저장 완료')}
 function openPanel(id){if(id==='home-go'){location.href='index.html';return}document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));const panel=q(id)||q('home');panel.classList.add('active');document.querySelector(`.menu-tab[data-target="${id}"]`)?.classList.add('active');history.replaceState(null,'','#'+id)}
@@ -1246,8 +1409,9 @@ function saveNewsRow(row,msg){
   backToNewsList();
 }
 function formatNews(command,value=null){
-  q('newsBodyEditor').focus();
+  restoreNewsSelection();
   document.execCommand(command,false,value);
+  saveNewsSelection();
 }
 function insertNewsImage(){
   const url=prompt('이미지 URL을 입력해 주세요.');
@@ -1264,18 +1428,17 @@ function insertNewsLink(){
 }
 function insertDetailTemplate(){
   q('newsBodyEditor').focus();
-  const date=q('newsInfoDate').value||'2026.07.12 (토)';
-  const place=q('newsInfoPlace').value||'KT&G 상상마당 라이브홀 홍대';
-  const time=q('newsInfoTime').value||'OPEN 13:50 / START 14:20';
-  const ticket=q('newsInfoTicket').value||'구글폼 예약 진행';
-  document.execCommand('insertHTML',false,`
-    <div class="news-template-info">
-      <div class="news-template-row"><strong>DATE</strong><span>${htmlEscape(date)}</span></div>
-      <div class="news-template-row"><strong>PLACE</strong><span>${htmlEscape(place)}</span></div>
-      <div class="news-template-row"><strong>TIME</strong><span>${htmlEscape(time)}</span></div>
-      <div class="news-template-row"><strong>TICKET</strong><span>${htmlEscape(ticket)}</span></div>
+  const html=`
+    <div class="news-info-card">
+      <div class="info-row"><span class="info-label">DATE</span><span class="info-value" contenteditable="true" data-placeholder="2026.07.12 (토)">2026.07.12 (토)</span></div>
+      <div class="info-row"><span class="info-label">PLACE</span><span class="info-value" contenteditable="true" data-placeholder="장소 입력">KT&G 상상마당 라이브홀 홍대</span></div>
+      <div class="info-row"><span class="info-label">TIME</span><span class="info-value" contenteditable="true" data-placeholder="OPEN 13:50 / START 14:20">OPEN 13:50 / START 14:20</span></div>
+      <div class="info-row"><span class="info-label">TICKET</span><span class="info-value" contenteditable="true" data-placeholder="티켓 안내">구글폼 예약 진행</span></div>
     </div>
-  `);
+    <p><br></p>
+  `;
+  document.execCommand('insertHTML',false,html);
+  saveNewsSelection();
 }
 function insertPlainLine(){
   q('newsBodyEditor').focus();
@@ -1388,6 +1551,63 @@ function seedNewsIfEmpty(){
     {id:'NEWS-20260501-001',title:'굿즈 관련 안내 예정',date:'2026-05-01',category:'공지',badges:['INFO'],body:'굿즈 관련 안내 예정입니다.',published:true,draft:false,home:false,pinned:false,link:'news-detail.html?id=NEWS-20260501-001'}
   ];
 }
+
+let savedNewsRange=null;
+const LUMI_COLORS=['#000000','#ff59a5','#d77ca7','#ff8ac2','#ffc0d7','#ffd9e8','#ef4444','#f97316','#facc15','#22c55e','#14b8a6','#38bdf8','#3b82f6','#8b5cf6','#a855f7','#ec4899','#ffffff','#6b7280','#9ca3af','#4b5563'];
+function saveNewsSelection(){
+  const sel=window.getSelection();
+  if(sel && sel.rangeCount && q('newsBodyEditor')?.contains(sel.anchorNode)){
+    savedNewsRange=sel.getRangeAt(0).cloneRange();
+  }
+}
+function restoreNewsSelection(){
+  const editor=q('newsBodyEditor');
+  editor?.focus();
+  if(savedNewsRange){
+    const sel=window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(savedNewsRange);
+  }
+}
+function initColorGrid(){
+  const grid=q('colorGrid');
+  if(!grid || grid.dataset.ready)return;
+  grid.dataset.ready='1';
+  grid.innerHTML='<button type="button" class="color-swatch is-none" title="색 제거" onclick="applyNewsColor(null)"></button>'+
+    LUMI_COLORS.map(c=>`<button type="button" class="color-swatch" style="background:${c}" title="${c}" onclick="applyNewsColor('${c}')"></button>`).join('');
+  const ed=q('newsBodyEditor');
+  if(ed){
+    ed.addEventListener('keyup',saveNewsSelection);
+    ed.addEventListener('mouseup',saveNewsSelection);
+    ed.addEventListener('focus',saveNewsSelection);
+  }
+}
+function toggleColorPalette(){
+  initColorGrid();
+  saveNewsSelection();
+  const pop=q('colorPopover');
+  pop.hidden=!pop.hidden;
+}
+function applyCustomColor(){
+  applyNewsColor(q('newsColorCustom').value);
+}
+function applyNewsColor(color){
+  restoreNewsSelection();
+  if(color){
+    document.execCommand('foreColor',false,color);
+    q('currentColorChip').style.background=color;
+  }else{
+    document.execCommand('removeFormat',false,null);
+    q('currentColorChip').style.background='#d77ca7';
+  }
+  q('colorPopover').hidden=true;
+  saveNewsSelection();
+}
+document.addEventListener('click',e=>{
+  const pop=q('colorPopover');
+  const wrap=document.querySelector('.color-picker-wrap');
+  if(pop && wrap && !wrap.contains(e.target)) pop.hidden=true;
+});
 function saveSchedule(){const id=q('scheduleId').value.trim()||`SCH-${String(Date.now()).slice(-6)}`;const row={id,title:q('scheduleTitle').value.trim(),date:q('scheduleDate').value,day:q('scheduleDay').value,venue:q('scheduleVenue').value,status:q('scheduleStatus').value,ticket:q('scheduleTicket').value,newsId:q('scheduleNewsId').value,published:q('schedulePublished').value==='true',home:q('scheduleHome').value==='true',updatedAt:new Date().toISOString()};const idx=state.schedules.findIndex(x=>x.id===id);if(idx>=0)state.schedules[idx]=row;else state.schedules.unshift(row);persist();q('scheduleId').value=id;renderSchedules();toast('SCHEDULE 저장 완료')}
 function editSchedule(id){const s=state.schedules.find(x=>x.id===id);if(!s)return;q('scheduleId').value=s.id;q('scheduleTitle').value=s.title||'';q('scheduleDate').value=s.date||'';q('scheduleDay').value=s.day||'';q('scheduleVenue').value=s.venue||'';q('scheduleStatus').value=s.status||'COMING SOON';q('scheduleTicket').value=s.ticket||'';q('scheduleNewsId').value=s.newsId||'';q('schedulePublished').value=String(!!s.published);q('scheduleHome').value=String(!!s.home);toast('수정할 SCHEDULE을 불러왔어요')}
 function clearScheduleForm(){['scheduleId','scheduleTitle','scheduleDate','scheduleDay','scheduleVenue','scheduleTicket','scheduleNewsId'].forEach(id=>q(id).value='');q('scheduleStatus').value='COMING SOON';q('schedulePublished').value='true';q('scheduleHome').value='true';q('schedulePreview').style.display='none'}
