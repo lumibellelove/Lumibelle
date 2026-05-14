@@ -3146,24 +3146,26 @@ function applyNewsFontSize(px){
   if(!Number.isFinite(size)||size<8||size>96){toast('글씨 크기를 확인해 주세요');return}
   q('fontSizeInput').value=size;
 
-  restoreNewsSelection();
+  // savedNewsRange 직접 사용 (restoreNewsSelection 경유 안 함 - undo 스택 보존)
+  if(!savedNewsRange || savedNewsRange.collapsed) return;
+
+  const editor=q('newsBodyEditor');
+  if(!editor || !editor.contains(savedNewsRange.commonAncestorContainer)) return;
+
+  // 선택 복원
   const sel=window.getSelection();
-  if(!sel||!sel.rangeCount)return;
+  editor.focus();
+  sel.removeAllRanges();
+  sel.addRange(savedNewsRange);
   const range=sel.getRangeAt(0);
 
-  // 선택 없으면 숫자만 바꾸고 끝 (커서 위치 조작 안 함 - 버그 원인)
-  if(range.collapsed) return;
-
-  // 선택 영역에만 font-size 적용
+  // 선택 영역에 font-size 적용
   const frag=range.extractContents();
-  // 내부 기존 font-size 제거 (중첩 방지)
   frag.querySelectorAll('[style]').forEach(el=>{
     el.style.removeProperty('font-size');
     if(!el.getAttribute('style')) el.removeAttribute('style');
   });
-  frag.querySelectorAll('font[size]').forEach(f=>{
-    f.removeAttribute('size');
-  });
+  frag.querySelectorAll('font[size]').forEach(f=>f.removeAttribute('size'));
   const span=document.createElement('span');
   span.style.fontSize=size+'px';
   span.appendChild(frag);
@@ -3208,13 +3210,19 @@ document.addEventListener('click',e=>{
 });
 
 function setupEditorToolbarSelectionGuard(){
+  // 툴바 버튼 mousedown 시 selection 저장 + 포커스 이동 방지
   document.querySelectorAll('.font-control-row button, .font-control-row select, .color-popover button, .color-popover input').forEach(el=>{
     if(el.dataset.guardReady)return;
     el.dataset.guardReady='1';
     el.addEventListener('mousedown',e=>{
-      if(el.id==='fontSizeInput' || el.tagName==='INPUT' && el.type==='text')return;
-      saveNewsSelection();
-      if(el.tagName==='BUTTON')e.preventDefault();
+      if(el.id==='fontSizeInput' || (el.tagName==='INPUT' && el.type==='text'))return;
+      // pointerdown 시점 selection을 즉시 캡처
+      const sel=window.getSelection();
+      const editor=q('newsBodyEditor');
+      if(sel && sel.rangeCount && editor?.contains(sel.anchorNode)){
+        savedNewsRange=sel.getRangeAt(0).cloneRange();
+      }
+      if(el.tagName==='BUTTON') e.preventDefault();
     });
   });
   const sizeInput=q('fontSizeInput');
@@ -3297,13 +3305,27 @@ function setupFontSizeSelectionGuard(){
   const sizeInput=q('fontSizeInput');
   if(sizeInput && !sizeInput.dataset.guardReady){
     sizeInput.dataset.guardReady='1';
-    ['pointerdown','mousedown','focus'].forEach(ev=>sizeInput.addEventListener(ev,saveNewsSelection,{capture:true}));
+    // input 포커스 받기 직전에 selection 저장
+    ['pointerdown','mousedown'].forEach(ev=>sizeInput.addEventListener(ev,()=>{
+      const sel=window.getSelection();
+      const editor=q('newsBodyEditor');
+      if(sel && sel.rangeCount && editor?.contains(sel.anchorNode)){
+        savedNewsRange=sel.getRangeAt(0).cloneRange();
+      }
+    },{capture:true}));
     sizeInput.addEventListener('change',()=>applyNewsFontSize(sizeInput.value));
   }
   document.querySelectorAll('.font-size-stepper button').forEach(btn=>{
     if(btn.dataset.guardReady)return;
     btn.dataset.guardReady='1';
-    ['pointerdown','mousedown'].forEach(ev=>btn.addEventListener(ev,e=>{saveNewsSelection();e.preventDefault();},{capture:true}));
+    ['pointerdown','mousedown'].forEach(ev=>btn.addEventListener(ev,e=>{
+      const sel=window.getSelection();
+      const editor=q('newsBodyEditor');
+      if(sel && sel.rangeCount && editor?.contains(sel.anchorNode)){
+        savedNewsRange=sel.getRangeAt(0).cloneRange();
+      }
+      e.preventDefault();
+    },{capture:true}));
   });
 }
 function insertNewsTable(){
@@ -3460,30 +3482,40 @@ function deleteNewsTable(el){
   wrap.remove();
   saveNewsSelection();
 }
+let selectedNewsTableWrap=null;
+
 function setupTableDeleteKey(){
   const editor=q('newsBodyEditor');
   if(!editor || editor.dataset.tableDeleteReady)return;
   editor.dataset.tableDeleteReady='1';
-  editor.addEventListener('click',e=>{
-    editor.querySelectorAll('.news-table-wrap.is-selected').forEach(x=>x.classList.remove('is-selected'));
+
+  // 표 클릭 감지 - 셀 밖 클릭 시 표 선택, 셀 안 클릭 시 선택 해제
+  document.addEventListener('click',e=>{
     const wrap=e.target.closest('.news-table-wrap');
     const cell=e.target.closest('td,th');
-    if(wrap && !cell){
-      // 셀 밖 표 영역 클릭 → 표 선택
-      wrap.classList.add('is-selected');
+    // 선택 초기화
+    if(selectedNewsTableWrap){
+      selectedNewsTableWrap.classList.remove('is-selected');
+      selectedNewsTableWrap=null;
     }
-    // 셀 안 클릭은 is-selected 붙이지 않음 (셀 편집 모드)
+    // 셀 밖 표 영역 클릭 → 표 선택 상태
+    if(wrap && !cell && editor.contains(wrap)){
+      wrap.classList.add('is-selected');
+      selectedNewsTableWrap=wrap;
+    }
   });
-  editor.addEventListener('keydown',e=>{
-    if((e.ctrlKey || e.metaKey) && (e.key.toLowerCase()==='z' || e.key.toLowerCase()==='y')) return;
-    if(e.key!=='Backspace' && e.key!=='Delete') return;
-    const selected=editor.querySelector('.news-table-wrap.is-selected');
-    if(selected){
+
+  // document 레벨에서 키 감지 (셀 안에 포커스 있어도 잡힘)
+  document.addEventListener('keydown',e=>{
+    if(!selectedNewsTableWrap) return;
+    if((e.ctrlKey||e.metaKey) && (e.key.toLowerCase()==='z'||e.key.toLowerCase()==='y')) return;
+    if(e.key==='Backspace' || e.key==='Delete'){
       e.preventDefault();
       const p=document.createElement('p');
       p.innerHTML='<br>';
-      selected.after(p);
-      selected.remove();
+      selectedNewsTableWrap.after(p);
+      selectedNewsTableWrap.remove();
+      selectedNewsTableWrap=null;
       activeNewsTableCell=null;
     }
   });
@@ -3516,7 +3548,6 @@ function setupEditorDeleteShortcuts(){
   if(!editor || editor.dataset.deleteShortcutReady)return;
   editor.dataset.deleteShortcutReady='1';
   editor.addEventListener('keydown',e=>{
-    // Ctrl+Z / Ctrl+Y는 브라우저 기본 동작에 맡김
     if((e.ctrlKey || e.metaKey) && (e.key.toLowerCase()==='z' || e.key.toLowerCase()==='y')){
       return;
     }
@@ -3530,25 +3561,11 @@ function setupEditorDeleteShortcuts(){
       clearNewsEditorContent();
       return;
     }
-    if(e.key!=='Backspace' && e.key!=='Delete')return;
-    const selected=editor.querySelector('.news-table-wrap.is-selected');
-    if(selected){
-      e.preventDefault();
-      const p=document.createElement('p');
-      p.innerHTML='<br>';
-      selected.after(p);
-      selected.remove();
-      activeNewsTableCell=null;
-    }
   });
   editor.addEventListener('input',()=>{newsEditorAllSelected=false;editor.classList.remove('table-all-selected')});
-  editor.addEventListener('click',e=>{
+  editor.addEventListener('click',()=>{
     newsEditorAllSelected=false;
     editor.classList.remove('table-all-selected');
-    editor.querySelectorAll('.news-table-wrap.is-selected').forEach(x=>x.classList.remove('is-selected'));
-    const wrap=e.target.closest('.news-table-wrap');
-    const cell=e.target.closest('td,th');
-    if(wrap && !cell) wrap.classList.add('is-selected');
   });
 }
 function saveSchedule(){const id=q('scheduleId').value.trim()||`SCH-${String(Date.now()).slice(-6)}`;const row={id,title:q('scheduleTitle').value.trim(),date:q('scheduleDate').value,day:q('scheduleDay').value,venue:q('scheduleVenue').value,status:q('scheduleStatus').value,ticket:q('scheduleTicket').value,newsId:q('scheduleNewsId').value,published:q('schedulePublished').value==='true',home:q('scheduleHome').value==='true',updatedAt:new Date().toISOString()};const idx=state.schedules.findIndex(x=>x.id===id);if(idx>=0)state.schedules[idx]=row;else state.schedules.unshift(row);persist();q('scheduleId').value=id;renderSchedules();toast('SCHEDULE 저장 완료')}
