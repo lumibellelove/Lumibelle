@@ -351,6 +351,177 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
   display:none;
 }
 
+
+/* ===== ticket-v7 preview clean rewrite ===== */
+#previewModal .modal-box{
+  width:min(1120px,calc(100% - 56px)) !important;
+  padding:30px !important;
+  background:#fffafd !important;
+}
+
+#previewModal .write-title{
+  font-size:32px !important;
+  line-height:1.15 !important;
+  letter-spacing:-.03em !important;
+}
+
+#previewModal .ticket-preview-page{
+  display:grid !important;
+  grid-template-columns:minmax(0,.92fr) minmax(0,1fr) !important;
+  gap:24px !important;
+  align-items:start !important;
+  margin-top:28px !important;
+  color:#725d6a !important;
+  font-weight:650 !important;
+}
+
+#previewModal .poster-box{
+  width:100% !important;
+  min-height:0 !important;
+  max-height:520px !important;
+  aspect-ratio:4/5 !important;
+  border:1px solid #f3c9dc !important;
+  border-radius:24px !important;
+  background:#fff6fb !important;
+  overflow:hidden !important;
+  font-size:18px !important;
+  line-height:1.6 !important;
+  font-weight:800 !important;
+  color:#d77ca7 !important;
+}
+
+#previewModal .poster-box img{
+  width:100% !important;
+  height:100% !important;
+  max-height:none !important;
+  object-fit:cover !important;
+  object-position:center !important;
+  display:block !important;
+}
+
+#previewModal .public-section{
+  border:1px solid #f3c9dc !important;
+  border-radius:22px !important;
+  background:#fff !important;
+  padding:20px !important;
+  margin-bottom:14px !important;
+  box-shadow:none !important;
+}
+
+#previewModal .public-section h3{
+  margin:0 0 12px !important;
+  font-size:23px !important;
+  line-height:1.25 !important;
+  letter-spacing:-.03em !important;
+  font-weight:850 !important;
+  color:#dc7aaa !important;
+}
+
+#previewModal .public-section p,
+#previewModal .public-section li,
+#previewModal .public-line,
+#previewModal .ticket-box{
+  font-size:15px !important;
+  line-height:1.7 !important;
+  font-weight:600 !important;
+  letter-spacing:-.01em !important;
+  color:#725d6a !important;
+  word-break:keep-all !important;
+}
+
+#previewModal .public-section ul{
+  margin:0 !important;
+  padding-left:20px !important;
+}
+
+#previewModal .public-line{
+  display:grid !important;
+  grid-template-columns:72px minmax(0,1fr) !important;
+  gap:12px !important;
+  align-items:start !important;
+  border:1px solid #f3c9dc !important;
+  border-radius:15px !important;
+  padding:12px 14px !important;
+  margin-bottom:9px !important;
+}
+
+#previewModal .public-line strong{
+  color:#d77ca7 !important;
+  font-size:14px !important;
+  font-weight:850 !important;
+}
+
+#previewModal .badge{
+  min-width:0 !important;
+  height:24px !important;
+  padding:0 10px !important;
+  font-size:11px !important;
+  line-height:1 !important;
+  font-weight:800 !important;
+  white-space:nowrap !important;
+}
+
+#previewModal .btn{
+  min-height:34px !important;
+  height:34px !important;
+  padding:0 14px !important;
+  font-size:12px !important;
+  line-height:1 !important;
+  font-weight:800 !important;
+  white-space:nowrap !important;
+}
+
+#previewModal .ticket-box{
+  border:1px solid #f3c9dc !important;
+  border-radius:18px !important;
+  padding:18px !important;
+  margin-top:12px !important;
+  min-height:96px !important;
+}
+
+#previewModal .ticket-box strong{
+  display:block !important;
+  font-size:16px !important;
+  font-weight:750 !important;
+  margin-bottom:8px !important;
+}
+
+#previewModal .ticket-price{
+  float:right !important;
+  font-size:28px !important;
+  line-height:1 !important;
+  font-weight:850 !important;
+  color:#ff5fa5 !important;
+  white-space:nowrap !important;
+}
+
+#previewModal .mate-preview-list{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  gap:8px !important;
+  align-items:center !important;
+  margin-top:12px !important;
+}
+
+#previewModal .reserve-button{
+  width:min(360px,80%) !important;
+  margin:18px auto 0 !important;
+  display:flex !important;
+}
+
+@media(max-width:980px){
+  #previewModal .modal-box{
+    width:calc(100% - 24px) !important;
+    padding:22px !important;
+  }
+  #previewModal .ticket-preview-page{
+    grid-template-columns:1fr !important;
+  }
+  #previewModal .poster-box{
+    max-height:460px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -506,7 +677,7 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
         <input type="hidden" id="ticketName" value="사전 예약 티켓">
         <input type="hidden" id="price" value="10000">
         <input type="hidden" id="ticketDesc" value="일반 입장권 / 입금 확인 후 예약 확정">
-        <input type="hidden" id="mateOptions" value="시로나, 옵시드, 너에게 닿기를, 스이타, 이토리, Lumibelle">
+        <input type="hidden" id="mateOptions" value="">
 
       </div>
 
@@ -615,7 +786,7 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
         </div>
         <div class="field full">
           <label>메아테 선택지</label>
-          <input class="input" id="mateOptionsDraft" placeholder="쉼표로 구분해서 입력">
+          <input class="input" id="mateOptionsDraft" placeholder="예: Lumibelle, 게스트명">
         </div>
       </div>
       <div class="action-buttons" style="margin-top:18px">
@@ -707,7 +878,7 @@ function openWrite(){state.editingId=null;clearForm();showWrite()}
 function showWrite(){ $('listPanel').classList.add('hidden'); $('writePanel').classList.remove('hidden'); updateMiniPreview(); window.scrollTo({top:0,behavior:'smooth'})}
 function backToList(){ $('writePanel').classList.add('hidden'); $('listPanel').classList.remove('hidden'); renderList(); window.scrollTo({top:0,behavior:'smooth'})}
 function clearForm(){
-  const defaults={badge:'DEBUT',ticketStatus:'sale',title:'',date:'2026-07-12',timeText:'',venue:'',posterUrl:'',intro:'',cast:'',entry:'',venueDetail:'',packageEnabled:'false',packageText:'',packageA:'',packageB:'',account:'국민은행 000000-00-000000',holder:'루미벨',ticketName:'사전 예약 티켓',price:'10000',ticketDesc:'일반 입장권 / 입금 확인 후 예약 확정',mateOptions:'시로나, 옵시드, 너에게 닿기를, 스이타, 이토리, Lumibelle',publishStatus:'public',createdAt:'2026-05-14'};
+  const defaults={badge:'DEBUT',ticketStatus:'sale',title:'',date:'2026-07-12',timeText:'',venue:'',posterUrl:'',intro:'',cast:'',entry:'',venueDetail:'',packageEnabled:'false',packageText:'',packageA:'',packageB:'',account:'국민은행 000000-00-000000',holder:'루미벨',ticketName:'사전 예약 티켓',price:'10000',ticketDesc:'일반 입장권 / 입금 확인 후 예약 확정',mateOptions:'',publishStatus:'public',createdAt:'2026-05-14'};
   Object.entries(defaults).forEach(([k,v])=>{if($(k))$(k).value=v});
   $('ticketId').value='저장 시 자동 생성';
 }
@@ -744,47 +915,70 @@ function openPreview(ticket){
 function closePreview(){$('previewModal').classList.remove('active')}
 function linesToList(v){return (v||'').split(/\n+/).filter(Boolean).map(x=>`<li>${esc(x)}</li>`).join('')}
 function buildPublicPreview(t){
-  const img=t.posterUrl?`<img src="${esc(t.posterUrl)}" alt="">`:`공연 포스터<br>${esc(fmtLongDate(t.date)||'-')}<br>${esc(t.title||'공연명 미입력')}`;
-  const mates=(t.mateOptions||'').split(',').map(x=>x.trim()).filter(Boolean).map(x=>`<span class="btn">${esc(x)}</span>`).join('');
+  const img=t.posterUrl
+    ? `<img src="${esc(t.posterUrl)}" alt="">`
+    : `공연 포스터<br>${esc(fmtLongDate(t.date)||'-')}<br>${esc(t.title||'공연명')}`;
+
+  const mateItems=(t.mateOptions||'')
+    .split(',')
+    .map(x=>x.trim())
+    .filter(Boolean);
+
+  const mates=mateItems
+    .map(x=>`<span class="btn">${esc(x)}</span>`)
+    .join('');
+
+  const infoLines=[
+    ['CAST', t.cast],
+    ['일시', `${fmtLongDate(t.date)||''}${t.timeText ? ' ' + t.timeText : ''}`.trim()],
+    ['입장', t.entry],
+    ['장소', [t.venue, t.venueDetail].filter(Boolean).join('<br>')]
+  ].filter(x=>x[1]);
+
+  const infoHtml=infoLines
+    .map(([label,value])=>`<div class="public-line"><strong>${esc(label)}</strong><span>${value.includes('<br>') ? value.split('<br>').map(esc).join('<br>') : esc(value)}</span></div>`)
+    .join('');
+
+  const ruleEntry=linesToList(t.ruleEntry);
+  const ruleRefund=linesToList(t.ruleRefund);
+  const ruleNotice=linesToList(t.ruleNotice);
+
   return `
     <div class="ticket-preview-page">
       <div>
         <div class="poster-box">${img}</div>
         <div class="public-section">
           <h3>공연 정보</h3>
-          <p>${esc(t.intro||'소개 문구가 들어갑니다.')}</p>
-          <div class="public-line"><strong>CAST</strong><span>${esc(t.cast||'출연진 정보가 들어갑니다.')}</span></div>
-          <div class="public-line"><strong>일시</strong><span>${esc(fmtLongDate(t.date))} ${esc(t.timeText)}</span></div>
-          <div class="public-line"><strong>입장</strong><span>${esc(t.entry||'입장 시간 미입력')}</span></div>
-          <div class="public-line"><strong>장소</strong><span>${esc(t.venue||'장소 미입력')}<br>${esc(t.venueDetail||'상세 장소 미입력')}</span></div>
+          ${t.intro ? `<p>${esc(t.intro)}</p>` : ''}
+          ${infoHtml || '<p>공연 정보가 입력되면 이곳에 표시됩니다.</p>'}
         </div>
       </div>
       <div>
-        <div class="public-section">
-          <h3>입장 및 대기 규칙</h3><ul>${linesToList(t.ruleEntry)}</ul>
-        </div>
-        <div class="public-section">
-          <h3>취소 및 환불</h3><ul>${linesToList(t.ruleRefund)}</ul>
-        </div>
-        <div class="public-section">
-          <h3>관람 유의사항</h3><ul>${linesToList(t.ruleNotice)}</ul>
-        </div>
+        ${ruleEntry ? `<div class="public-section"><h3>입장 및 대기 규칙</h3><ul>${ruleEntry}</ul></div>` : ''}
+        ${ruleRefund ? `<div class="public-section"><h3>취소 및 환불</h3><ul>${ruleRefund}</ul></div>` : ''}
+        ${ruleNotice ? `<div class="public-section"><h3>관람 유의사항</h3><ul>${ruleNotice}</ul></div>` : ''}
         ${t.packageEnabled==='true'?`
         <div class="public-section">
           <h3>한정 패키지 안내</h3>
-          <p>${esc(t.packageText)}</p>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="btn">A 패키지 보러가기</button><button class="btn">B 패키지 보러가기</button></div>
+          ${t.packageText ? `<p>${esc(t.packageText)}</p>` : ''}
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <button class="btn">A 패키지 보러가기</button>
+            <button class="btn">B 패키지 보러가기</button>
+          </div>
         </div>`:''}
         <div class="public-section">
           <h3>예매 정보 입력</h3>
-          <p><span class="badge">계좌 · ${esc(t.account)}</span> <span class="badge">예금주 · ${esc(t.holder)}</span></p>
+          <p>
+            ${t.account ? `<span class="badge">계좌 · ${esc(t.account)}</span>` : ''}
+            ${t.holder ? `<span class="badge">예금주 · ${esc(t.holder)}</span>` : ''}
+          </p>
           <div class="ticket-box">
-            <strong>${esc(t.ticketName)}</strong>
             <span class="ticket-price">₩${Number(t.price||0).toLocaleString()}</span>
-            <p>${esc(t.ticketDesc)}</p>
+            <strong>${esc(t.ticketName||'사전 예약 티켓')}</strong>
+            ${t.ticketDesc ? `<p>${esc(t.ticketDesc)}</p>` : ''}
           </div>
-          <div class="mate-preview-list" style="margin-top:14px">${mates}</div>
-          <button class="btn primary" style="width:60%;margin:22px auto 0;display:block">예매하기</button>
+          ${mates ? `<div class="mate-preview-list">${mates}</div>` : ''}
+          <button class="btn primary reserve-button">예매하기</button>
         </div>
       </div>
     </div>
