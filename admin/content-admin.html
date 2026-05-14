@@ -2054,6 +2054,89 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   overflow:auto;
 }
 
+
+/* ===== NEWS 글쓰기 안정화 12차: 투표 모달/표 삭제 보정 ===== */
+.news-poll-modal{
+  max-height:88vh !important;
+  padding:30px !important;
+  overflow:auto !important;
+}
+.news-poll-modal .panel-desc{
+  font-size:16px !important;
+  font-weight:800 !important;
+  line-height:1.6 !important;
+  color:#8f7183 !important;
+}
+.poll-label,
+.poll-form label,
+.news-poll-modal label{
+  font-size:16px !important;
+  color:#b26f94 !important;
+  font-weight:900 !important;
+}
+.poll-option-input span{
+  font-size:17px !important;
+}
+.poll-option-input input,
+.poll-form input,
+.poll-form select{
+  min-height:48px !important;
+  font-size:16px !important;
+}
+.poll-add-btn{
+  min-height:42px !important;
+  font-size:15px !important;
+}
+.news-poll-modal .modal-actions{
+  position:sticky;
+  bottom:0;
+  background:#fffafc;
+  padding-top:14px;
+  margin-top:18px;
+  justify-content:flex-end;
+}
+.news-table-wrap{
+  position:relative !important;
+  resize:both !important;
+  overflow:auto !important;
+  min-height:90px;
+  padding:18px 36px 18px 18px !important;
+}
+.news-table-wrap.is-selected{
+  outline:2px solid #ff8ac2;
+  outline-offset:2px;
+}
+.news-table-delete-btn{
+  position:absolute;
+  right:6px;
+  bottom:6px;
+  min-height:30px;
+  padding:0 10px;
+  border:1px solid #f0bfd4;
+  border-radius:999px;
+  background:#fff;
+  color:#d77ca7;
+  font-weight:900;
+  cursor:pointer;
+  z-index:5;
+}
+.news-table-menu-btn{
+  right:6px !important;
+  top:6px !important;
+}
+.news-table-menu{
+  right:6px !important;
+  top:40px !important;
+  z-index:8 !important;
+}
+.news-table-wrap table{
+  width:100%;
+  min-width:100%;
+}
+.news-table-wrap td{
+  min-width:80px;
+}
+
 </style>
 </head>
 <body>
@@ -2384,7 +2467,7 @@ document.getElementById(isOpen?'main':'locked').hidden=false;
 const state={news:[],schedules:[],inner:{}};
 function q(id){return document.getElementById(id)}
 function toast(msg='저장 완료'){const el=q('toast');el.textContent=msg;el.classList.add('show');clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>el.classList.remove('show'),1400)}
-function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};seedNewsIfEmpty();renderAll();initColorGrid();setupNewsImageInput();setupEditorToolbarSelectionGuard();setupFontSizeSelectionGuard();setupNewsTableDelegation();updateDraftCount();openPanel(location.hash?.replace('#','')||'home')}
+function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};seedNewsIfEmpty();renderAll();initColorGrid();setupNewsImageInput();setupEditorToolbarSelectionGuard();setupFontSizeSelectionGuard();setupNewsTableDelegation();setupTableDeleteKey();updateDraftCount();openPanel(location.hash?.replace('#','')||'home')}
 function persist(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
 function saveAll(show=false){saveInnerFromFields();persist();if(show)toast('전체 저장 완료')}
 function openPanel(id){if(id==='home-go'){location.href='index.html';return}document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));const panel=q(id)||q('home');panel.classList.add('active');document.querySelector(`.menu-tab[data-target="${id}"]`)?.classList.add('active');history.replaceState(null,'','#'+id)}
@@ -3017,6 +3100,7 @@ function insertNewsTable(){
     <button type="button" class="news-table-add-col" style="left:50%;" onclick="toggleNewsTableMenu(this)">＋</button>
     <button type="button" class="news-table-add-row" style="top:50%;" onclick="toggleNewsTableMenu(this)">＋</button>
     <button type="button" class="news-table-menu-btn" onclick="toggleNewsTableMenu(this)">표</button>
+    <button type="button" class="news-table-delete-btn" onclick="deleteNewsTable(this)">삭제</button>
     <div class="news-table-menu" hidden>
       <button type="button" onclick="addNewsTableColumn(this)">열 추가</button>
       <button type="button" onclick="addNewsTableRow(this)">행 추가</button>
@@ -3025,7 +3109,7 @@ function insertNewsTable(){
       <button type="button" onclick="fitNewsTableWidth(this)">너비 맞춤</button>
       <button type="button" onclick="removeNewsTableColumn(this)">열 삭제</button>
       <button type="button" onclick="removeNewsTableRow(this)">행 삭제</button>
-      <button type="button" onclick="this.closest('.news-table-wrap').remove()">표 삭제</button>
+      <button type="button" onclick="deleteNewsTable(this)">표 삭제</button>
     </div>
     <table class="news-table" contenteditable="true"><tbody><tr><td><br></td><td><br></td></tr><tr><td><br></td><td><br></td></tr></tbody></table>
   </div><p><br></p>`;
@@ -3165,6 +3249,39 @@ function splitNewsTableCell(el){
 function fitNewsTableWidth(el){
   const wrap=getNewsTableWrap(el);
   if(wrap)wrap.style.width='100%';
+}
+
+function deleteNewsTable(el){
+  const wrap=getNewsTableWrap(el);
+  if(!wrap)return;
+  const next=document.createElement('p');
+  next.innerHTML='<br>';
+  wrap.after(next);
+  wrap.remove();
+  saveNewsSelection();
+}
+function setupTableDeleteKey(){
+  const editor=q('newsBodyEditor');
+  if(!editor || editor.dataset.tableDeleteReady)return;
+  editor.dataset.tableDeleteReady='1';
+  editor.addEventListener('click',e=>{
+    editor.querySelectorAll('.news-table-wrap.is-selected').forEach(x=>x.classList.remove('is-selected'));
+    const wrap=e.target.closest('.news-table-wrap');
+    if(wrap){
+      wrap.classList.add('is-selected');
+    }
+  });
+  editor.addEventListener('keydown',e=>{
+    if(e.key!=='Backspace' && e.key!=='Delete')return;
+    const selected=editor.querySelector('.news-table-wrap.is-selected');
+    if(selected && (document.activeElement===editor || selected.contains(document.activeElement))){
+      e.preventDefault();
+      const p=document.createElement('p');
+      p.innerHTML='<br>';
+      selected.after(p);
+      selected.remove();
+    }
+  });
 }
 function saveSchedule(){const id=q('scheduleId').value.trim()||`SCH-${String(Date.now()).slice(-6)}`;const row={id,title:q('scheduleTitle').value.trim(),date:q('scheduleDate').value,day:q('scheduleDay').value,venue:q('scheduleVenue').value,status:q('scheduleStatus').value,ticket:q('scheduleTicket').value,newsId:q('scheduleNewsId').value,published:q('schedulePublished').value==='true',home:q('scheduleHome').value==='true',updatedAt:new Date().toISOString()};const idx=state.schedules.findIndex(x=>x.id===id);if(idx>=0)state.schedules[idx]=row;else state.schedules.unshift(row);persist();q('scheduleId').value=id;renderSchedules();toast('SCHEDULE 저장 완료')}
 function editSchedule(id){const s=state.schedules.find(x=>x.id===id);if(!s)return;q('scheduleId').value=s.id;q('scheduleTitle').value=s.title||'';q('scheduleDate').value=s.date||'';q('scheduleDay').value=s.day||'';q('scheduleVenue').value=s.venue||'';q('scheduleStatus').value=s.status||'COMING SOON';q('scheduleTicket').value=s.ticket||'';q('scheduleNewsId').value=s.newsId||'';q('schedulePublished').value=String(!!s.published);q('scheduleHome').value=String(!!s.home);toast('수정할 SCHEDULE을 불러왔어요')}
