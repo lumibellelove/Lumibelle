@@ -2145,7 +2145,12 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   display:none !important;
 }
 .news-table-wrap{
-  padding:18px !important;
+  position:relative !important;
+  resize:none !important;
+  overflow:visible !important;
+  padding:6px 0 !important;
+  margin:10px 0 !important;
+  min-height:unset !important;
 }
 .news-table-wrap.is-selected{
   outline:2px solid #ff8ac2;
@@ -2155,12 +2160,79 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   outline:2px solid #ff8ac2;
   outline-offset:-2px;
 }
+/* 표 셀은 내용이 늘어나면 세로 확장 */
+.news-table{
+  width:100%;
+  table-layout:fixed;
+  border-collapse:collapse;
+}
+.news-table td,
+.news-table th{
+  min-width:60px;
+  word-break:break-all;
+  vertical-align:top;
+  resize:none !important;
+  overflow:visible !important;
+}
+
+/* ===== 우클릭 컨텍스트 메뉴 (네이버 스타일) ===== */
+#tableContextMenu{
+  position:fixed;
+  z-index:9999;
+  min-width:170px;
+  border:1px solid #f2d8e7;
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 12px 32px rgba(82,52,73,.18);
+  padding:6px 0;
+  display:none;
+}
+#tableContextMenu.show{display:block}
+#tableContextMenu button{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  min-height:40px;
+  border:0;
+  border-bottom:1px solid #f9eef5;
+  background:#fff;
+  color:#7f6a77;
+  font-size:14px;
+  font-weight:900;
+  text-align:left;
+  padding:0 16px;
+  cursor:pointer;
+  white-space:nowrap;
+}
+#tableContextMenu button:last-child{border-bottom:0}
+#tableContextMenu button:hover{background:#fff0f7;color:#ff59a5}
+#tableContextMenu button .ctx-icon{
+  font-size:16px;
+  width:20px;
+  text-align:center;
+  flex:0 0 auto;
+}
+#tableContextMenu hr{
+  border:0;
+  border-top:1px solid #f2d8e7;
+  margin:4px 0;
+}
 
 </style>
 </head>
 <body>
 <div id="toast" class="toast">저장 완료</div>
-<div id="locked" class="locked" hidden>
+<!-- 표 우클릭 컨텍스트 메뉴 -->
+<div id="tableContextMenu">
+  <button type="button" onclick="ctxMergeCell()"><span class="ctx-icon">⊞</span> 셀 병합</button>
+  <button type="button" onclick="ctxSplitRow()"><span class="ctx-icon">⊟</span> 행 분할</button>
+  <button type="button" onclick="ctxSplitCol()"><span class="ctx-icon">⊡</span> 열 분할</button>
+  <hr>
+  <button type="button" onclick="ctxFitWidth()"><span class="ctx-icon">↔</span> 너비 맞춤</button>
+  <hr>
+  <button type="button" onclick="ctxDeleteTable()" style="color:#c05070"><span class="ctx-icon">🗑</span> 삭제</button>
+</div>
   <span class="eyebrow">ADMIN LOCKED</span>
   <h1>LUMI<br>OFFICE</h1>
   <p>관리자 메인에서 먼저 입장해 주세요.</p>
@@ -2638,6 +2710,8 @@ function openNewsEditor(id=null){
   showOnlyPanel('newsWrite');
   history.replaceState(null,'','#news-write');
   window.scrollTo({top:0,behavior:'smooth'});
+  // 컨텍스트 메뉴 셋업 (패널이 열릴 때마다 보장)
+  setTimeout(setupTableContextMenu, 0);
 }
 function backToNewsList(){
   openPanel('news');
@@ -2969,34 +3043,43 @@ function applyNewsFontSize(px){
   if(!sel || !sel.rangeCount) return;
   const range=sel.getRangeAt(0);
   if(range.collapsed){ q('fontSizeInput').value=size; return; }
-  // 선택 영역을 span으로 감싸서 fontSize 직접 지정 (execCommand 사용 안 함 → 기존 크기 덮어쓰기 문제 방지)
-  const frag=range.extractContents();
-  // 내부에 이미 fontSize 스타일 있으면 제거
-  frag.querySelectorAll('[style]').forEach(el=>{
-    el.style.fontSize='';
-    if(el.getAttribute('style')==='') el.removeAttribute('style');
+  // execCommand로 font size=7 마커를 심은 뒤 span으로 교체
+  // → 이 방식은 undo 스택을 보존함 (Ctrl+Z 가능)
+  const editor=q('newsBodyEditor');
+  const before=new Set(editor.querySelectorAll('font[size="7"]'));
+  document.execCommand('fontSize',false,'7');
+  const newFonts=Array.from(editor.querySelectorAll('font[size="7"]')).filter(f=>!before.has(f));
+  // 새로 생긴 font 태그를 span으로 교체하고 내부 중복 fontSize 정리
+  const spans=newFonts.map(font=>{
+    const span=document.createElement('span');
+    span.style.fontSize=size+'px';
+    span.innerHTML=font.innerHTML;
+    span.querySelectorAll('[style]').forEach(el=>{
+      el.style.fontSize='';
+      if(el.getAttribute('style')==='') el.removeAttribute('style');
+    });
+    font.replaceWith(span);
+    return span;
   });
-  const span=document.createElement('span');
-  span.style.fontSize=size+'px';
-  span.appendChild(frag);
-  range.insertNode(span);
   // 적용 후 선택 유지 (태그 풀림 방지)
-  const newRange=document.createRange();
-  newRange.selectNodeContents(span);
-  sel.removeAllRanges();
-  sel.addRange(newRange);
-  savedNewsRange=newRange.cloneRange();
+  if(spans.length){
+    const newRange=document.createRange();
+    if(spans.length===1){
+      newRange.selectNodeContents(spans[0]);
+    }else{
+      newRange.setStartBefore(spans[0]);
+      newRange.setEndAfter(spans[spans.length-1]);
+    }
+    sel.removeAllRanges();
+    sel.addRange(newRange);
+    savedNewsRange=newRange.cloneRange();
+  }
   q('fontSizeInput').value=size;
 }
 function stepNewsFontSize(delta){
   const input=q('fontSizeInput');
-  let current=parseInt(input.value||'15',10);
-  if(savedNewsRange){
-    const container=savedNewsRange.commonAncestorContainer;
-    const el=container.nodeType===1?container:container.parentElement;
-    const fs=el&&window.getComputedStyle(el).fontSize;
-    if(fs)current=Math.round(parseFloat(fs));
-  }
+  // 현재 표시된 숫자를 기준으로 +/-  (getComputedStyle 사용하지 않음 → 부모 스타일 오염 방지)
+  const current=parseInt(input.value||'15',10);
   const next=Math.max(8,Math.min(96,current+delta));
   input.value=next;
   applyNewsFontSize(next);
@@ -3373,7 +3456,83 @@ function exportData(){saveAll(false);const blob=new Blob([JSON.stringify(state,n
 q('importFile')?.addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{Object.assign(state,JSON.parse(reader.result));persist();renderAll();toast('JSON 불러오기 완료')}catch(err){alert('JSON 파일을 확인해 주세요.')}};reader.readAsText(file)});
 function resetConsole(){if(!confirm('INNER/NEWS/SCHEDULE 임시 저장 데이터를 초기화할까요?'))return;localStorage.removeItem(STORAGE_KEY);location.reload()}
 function renderAll(){restoreInner();renderNews();renderSchedules()}
+
+/* ===== 표 우클릭 컨텍스트 메뉴 ===== */
+let ctxTargetWrap=null;
+let ctxTargetCell=null;
+function showTableContextMenu(e,wrap){
+  e.preventDefault();
+  e.stopPropagation();
+  ctxTargetWrap=wrap;
+  ctxTargetCell=e.target.closest('td,th')||wrap.querySelector('td,th');
+  const menu=document.getElementById('tableContextMenu');
+  menu.style.left=Math.min(e.clientX, window.innerWidth-190)+'px';
+  menu.style.top=Math.min(e.clientY, window.innerHeight-260)+'px';
+  menu.classList.add('show');
+}
+function hideTableContextMenu(){
+  document.getElementById('tableContextMenu')?.classList.remove('show');
+  ctxTargetWrap=null;
+  ctxTargetCell=null;
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#tableContextMenu')) hideTableContextMenu();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') hideTableContextMenu();
+});
+function setupTableContextMenu(){
+  const editor=q('newsBodyEditor');
+  if(!editor||editor.dataset.ctxReady)return;
+  editor.dataset.ctxReady='1';
+  editor.addEventListener('contextmenu',e=>{
+    const wrap=e.target.closest('.news-table-wrap');
+    if(wrap) showTableContextMenu(e,wrap);
+  });
+}
+function ctxMergeCell(){
+  if(!ctxTargetCell)return;
+  const next=ctxTargetCell.nextElementSibling;
+  if(!next){hideTableContextMenu();return}
+  const cur=parseInt(ctxTargetCell.getAttribute('colspan')||'1',10);
+  ctxTargetCell.setAttribute('colspan',cur+parseInt(next.getAttribute('colspan')||'1',10));
+  ctxTargetCell.innerHTML=(ctxTargetCell.innerHTML||'')+' '+(next.innerHTML||'');
+  next.remove();
+  hideTableContextMenu();
+}
+function ctxSplitRow(){
+  if(!ctxTargetWrap)return;
+  const table=ctxTargetWrap.querySelector('table');
+  if(!table)return;
+  const cols=table.rows[0]?.cells.length||2;
+  const tr=table.insertRow(-1);
+  for(let i=0;i<cols;i++){const td=tr.insertCell(-1);td.innerHTML='<br>';}
+  hideTableContextMenu();
+}
+function ctxSplitCol(){
+  if(!ctxTargetWrap)return;
+  const table=ctxTargetWrap.querySelector('table');
+  if(!table)return;
+  Array.from(table.rows).forEach(row=>{const td=row.insertCell(-1);td.innerHTML='<br>';});
+  hideTableContextMenu();
+}
+function ctxFitWidth(){
+  if(!ctxTargetWrap)return;
+  const table=ctxTargetWrap.querySelector('table');
+  if(table){table.style.width='100%';}
+  hideTableContextMenu();
+}
+function ctxDeleteTable(){
+  if(!ctxTargetWrap)return;
+  const p=document.createElement('p');p.innerHTML='<br>';
+  ctxTargetWrap.after(p);ctxTargetWrap.remove();
+  hideTableContextMenu();
+  saveNewsSelection();
+}
+
+// load 에 setupTableContextMenu 추가
 load();
+(function(){setupTableContextMenu();})();
 </script>
 </body>
 </html>
