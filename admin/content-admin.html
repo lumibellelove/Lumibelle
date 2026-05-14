@@ -1112,6 +1112,114 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   .draft-item{grid-template-columns:1fr}
 }
 
+
+/* ===== NEWS 글쓰기/미리보기 3차 보정 ===== */
+.preview-article{
+  overflow:hidden !important;
+  box-sizing:border-box !important;
+}
+.preview-body{
+  overflow-x:hidden !important;
+  box-sizing:border-box !important;
+}
+.preview-body img,
+.preview-article img,
+.preview-hero{
+  max-width:100% !important;
+  height:auto !important;
+  display:block !important;
+  box-sizing:border-box !important;
+}
+.preview-body img{
+  margin:16px auto !important;
+  border-radius:18px !important;
+}
+.preview-date{
+  display:block !important;
+  margin:10px 0 18px !important;
+  color:#b28ea2 !important;
+  font-size:16px !important;
+  font-weight:900 !important;
+}
+.preview-info{
+  margin-top:16px !important;
+}
+.modal-backdrop{
+  cursor:pointer;
+}
+.news-preview-modal,
+.news-draft-modal{
+  cursor:auto;
+}
+.color-popover{
+  width:270px !important;
+  padding:14px !important;
+}
+.color-pop-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.color-recent{
+  display:flex;
+  gap:5px;
+  margin:8px 0 12px;
+}
+.color-section-label{
+  margin:10px 0 7px;
+  color:#8f7183;
+  font-size:12px;
+  font-weight:900;
+}
+.color-grid{
+  grid-template-columns:repeat(10, 20px) !important;
+  gap:5px !important;
+}
+.color-swatch{
+  width:20px !important;
+  height:20px !important;
+  border-radius:4px !important;
+}
+.color-more-area{
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid #f2d8e7;
+}
+.color-more-area[hidden]{display:none!important}
+.color-custom{
+  display:grid !important;
+  grid-template-columns:44px 1fr 64px;
+  gap:8px;
+  align-items:center;
+  margin-top:8px !important;
+}
+.color-custom input[type="text"]{
+  width:100%;
+  min-height:32px;
+  border:1px solid #f0bfd4;
+  border-radius:8px;
+  padding:0 8px;
+  color:#7f6a77;
+  font-weight:800;
+}
+.color-more-toggle{
+  width:100%;
+  min-height:30px;
+  margin-top:10px;
+  border:0;
+  background:#fff;
+  color:#8f7183;
+  font-weight:900;
+  cursor:pointer;
+}
+.news-detail-date{
+  display:block;
+  margin:4px 0 22px;
+  color:#b28ea2;
+  font-weight:900;
+  font-size:16px;
+}
+
 </style>
 </head>
 <body>
@@ -1245,10 +1353,18 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
               <button type="button" class="color-tool" id="colorToolBtn" onclick="toggleColorPalette()">색 <span id="currentColorChip"></span></button>
               <div class="color-popover" id="colorPopover" hidden>
                 <div class="color-pop-title">글씨 색</div>
+                <div class="color-section-label">최근 사용한 글자색</div>
+                <div class="color-recent" id="recentColorGrid"></div>
+                <div class="color-section-label">기본 색상</div>
                 <div class="color-grid" id="colorGrid"></div>
-                <div class="color-custom">
+                <button type="button" class="color-more-toggle" onclick="toggleColorMore()">더보기⌄</button>
+                <div class="color-more-area" id="colorMoreArea" hidden>
                   <input type="color" id="newsColorCustom" value="#d77ca7">
-                  <button type="button" onclick="applyCustomColor()">확인</button>
+                  <div class="color-custom">
+                    <span id="customColorChip" class="color-swatch" style="background:#d77ca7"></span>
+                    <input type="text" id="newsColorHex" value="#d77ca7" maxlength="7" aria-label="HEX 색상 코드">
+                    <button type="button" onclick="applyCustomColor()">확인</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1696,6 +1812,22 @@ function previewSavedNews(id){
   q('newsPreviewModal').hidden=false;
 }
 function closeNewsPreview(){q('newsPreviewModal').hidden=true}
+function closeModalOnBackdrop(e,id){
+  if(e.target && e.target.id===id){
+    if(id==='newsPreviewModal')closeNewsPreview();
+    if(id==='newsDraftModal')closeDraftModal();
+  }
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if(q('newsPreviewModal') && !q('newsPreviewModal').hidden)closeNewsPreview();
+    if(q('newsDraftModal') && !q('newsDraftModal').hidden)closeDraftModal();
+  }
+});
+document.addEventListener('click',e=>{
+  if(e.target?.id==='newsPreviewModal')closeNewsPreview();
+  if(e.target?.id==='newsDraftModal')closeDraftModal();
+});
 document.querySelectorAll('.news-filter').forEach(btn=>btn.addEventListener('click',()=>{
   document.querySelectorAll('.news-filter').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
@@ -1714,8 +1846,10 @@ function seedNewsIfEmpty(){
   ];
 }
 
+
 let savedNewsRange=null;
 const LUMI_COLORS=['#000000','#ff59a5','#d77ca7','#ff8ac2','#ffc0d7','#ffd9e8','#ef4444','#f97316','#facc15','#22c55e','#14b8a6','#38bdf8','#3b82f6','#8b5cf6','#a855f7','#ec4899','#ffffff','#6b7280','#9ca3af','#4b5563'];
+let recentNewsColors=['#000000','#ff59a5'];
 function saveNewsSelection(){
   const sel=window.getSelection();
   if(sel && sel.rangeCount && q('newsBodyEditor')?.contains(sel.anchorNode)){
@@ -1731,12 +1865,38 @@ function restoreNewsSelection(){
     sel.addRange(savedNewsRange);
   }
 }
+function renderRecentColors(){
+  const el=q('recentColorGrid');
+  if(!el)return;
+  el.innerHTML=recentNewsColors.map(c=>`<button type="button" class="color-swatch" style="background:${c}" title="${c}" onclick="applyNewsColor('${c}')"></button>`).join('');
+}
+function pushRecentColor(color){
+  if(!color)return;
+  recentNewsColors=[color,...recentNewsColors.filter(c=>c.toLowerCase()!==color.toLowerCase())].slice(0,6);
+  renderRecentColors();
+}
 function initColorGrid(){
   const grid=q('colorGrid');
   if(!grid || grid.dataset.ready)return;
   grid.dataset.ready='1';
   grid.innerHTML='<button type="button" class="color-swatch is-none" title="색 제거" onclick="applyNewsColor(null)"></button>'+
     LUMI_COLORS.map(c=>`<button type="button" class="color-swatch" style="background:${c}" title="${c}" onclick="applyNewsColor('${c}')"></button>`).join('');
+  renderRecentColors();
+  const custom=q('newsColorCustom');
+  const hex=q('newsColorHex');
+  if(custom && hex){
+    custom.addEventListener('input',()=>{
+      hex.value=custom.value;
+      q('customColorChip').style.background=custom.value;
+    });
+    hex.addEventListener('input',()=>{
+      const v=hex.value.trim();
+      if(/^#[0-9a-fA-F]{6}$/.test(v)){
+        custom.value=v;
+        q('customColorChip').style.background=v;
+      }
+    });
+  }
   const ed=q('newsBodyEditor');
   if(ed){
     ed.addEventListener('keyup',saveNewsSelection);
@@ -1750,14 +1910,22 @@ function toggleColorPalette(){
   const pop=q('colorPopover');
   pop.hidden=!pop.hidden;
 }
+function toggleColorMore(){
+  const area=q('colorMoreArea');
+  area.hidden=!area.hidden;
+  document.querySelector('.color-more-toggle').textContent=area.hidden?'더보기⌄':'접기⌃';
+}
 function applyCustomColor(){
-  applyNewsColor(q('newsColorCustom').value);
+  const hex=q('newsColorHex').value.trim();
+  if(!/^#[0-9a-fA-F]{6}$/.test(hex)){toast('HEX 색상 코드를 확인해 주세요');return}
+  applyNewsColor(hex);
 }
 function applyNewsColor(color){
   restoreNewsSelection();
   if(color){
     document.execCommand('foreColor',false,color);
     q('currentColorChip').style.background=color;
+    pushRecentColor(color);
   }else{
     document.execCommand('removeFormat',false,null);
     q('currentColorChip').style.background='#d77ca7';
@@ -1770,7 +1938,6 @@ document.addEventListener('click',e=>{
   const wrap=document.querySelector('.color-picker-wrap');
   if(pop && wrap && !wrap.contains(e.target)) pop.hidden=true;
 });
-
 function setupNewsImageInput(){
   const input=q('newsImageFileInput');
   if(!input || input.dataset.ready)return;
