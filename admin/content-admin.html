@@ -2373,6 +2373,16 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   line-height:inherit;
 }
 
+
+/* ===== fix25: 글씨 크기 직접입력 선택영역 유지 ===== */
+.font-size-stepper input:focus{
+  box-shadow:none !important;
+  outline:none !important;
+}
+.news-body-editor span[data-lumi-font-size]{
+  line-height:inherit;
+}
+
 </style>
 </head>
 <body>
@@ -3064,6 +3074,7 @@ function seedNewsIfEmpty(){
 
 let savedNewsRange=null;
 let currentTypingFontSize=15;
+let fontSizeTargetRange=null;
 const LUMI_COLORS=[
   '#000000','#ffffff','#eeeeee','#9e9e9e','#ff4fa3','#ff8ac2','#ffc0d7','#ffd9e8',
   '#ef4444','#f97316','#facc15','#22c55e','#14b8a6','#38bdf8','#3b82f6','#8b5cf6',
@@ -3220,6 +3231,7 @@ function setSavedRangeToEditorSelection(){
     const range=sel.getRangeAt(0);
     if(nodeInsideNewsEditor(range.commonAncestorContainer)){
       savedNewsRange=range.cloneRange();
+      fontSizeTargetRange=range.cloneRange();
       return true;
     }
   }
@@ -3282,14 +3294,16 @@ function applyNewsFontSize(px){
   const editor=q('newsBodyEditor');
   if(!editor)return;
 
-  const range=getEditorRangeForFormat();
+  const range=getFontSizeTargetRange();
 
-  // 선택 영역 있음: 드래그한 글자를 직접 span으로 감싸고, 그 span 내용을 다시 선택해 둔다.
-  // 그래서 + / - 를 여러 번 눌러도 같은 선택 영역에 계속 적용된다.
+  // 드래그 선택이 있으면: input으로 포커스가 넘어가도 기억해 둔 range에 적용
   if(range && !range.collapsed){
     restoreRangeForFormat(range);
 
-    const liveRange=window.getSelection().getRangeAt(0);
+    const liveSel=window.getSelection();
+    if(!liveSel || !liveSel.rangeCount)return;
+    const liveRange=liveSel.getRangeAt(0);
+
     const span=document.createElement('span');
     span.setAttribute('data-lumi-font-size','1');
     span.style.fontSize=size+'px';
@@ -3299,25 +3313,30 @@ function applyNewsFontSize(px){
     span.appendChild(frag);
     liveRange.insertNode(span);
 
-    const sel=window.getSelection();
-    sel.removeAllRanges();
     const nextRange=document.createRange();
     nextRange.selectNodeContents(span);
+
+    const sel=window.getSelection();
+    sel.removeAllRanges();
     sel.addRange(nextRange);
+
     savedNewsRange=nextRange.cloneRange();
+    fontSizeTargetRange=nextRange.cloneRange();
     return;
   }
 
-  // 선택 영역 없음: 앞으로 입력할 글씨 크기 저장
+  // 선택 영역이 없을 때: 앞으로 입력할 크기 저장
   editor.focus();
   try{
     document.execCommand('fontSize',false,'7');
   }catch(e){}
   savedNewsRange=null;
+  fontSizeTargetRange=null;
 }
 function stepNewsFontSize(delta){
+  rememberFontSizeTargetRange();
   const input=q('fontSizeInput');
-  const current=parseInt(input.value||'15',10);
+  const current=parseInt(input.value||currentTypingFontSize||'15',10);
   const next=Math.max(8,Math.min(96,current+delta));
   input.value=next;
   applyNewsFontSize(next);
@@ -3430,6 +3449,42 @@ function deleteAllDrafts(){
 }
 
 
+
+function rememberFontSizeTargetRange(){
+  const editor=q('newsBodyEditor');
+  const sel=window.getSelection();
+  if(!editor || !sel || !sel.rangeCount)return false;
+  const range=sel.getRangeAt(0);
+  if(nodeInsideNewsEditor(range.commonAncestorContainer)){
+    fontSizeTargetRange=range.cloneRange();
+    savedNewsRange=range.cloneRange();
+    return true;
+  }
+  return false;
+}
+function getFontSizeTargetRange(){
+  const editor=q('newsBodyEditor');
+  const sel=window.getSelection();
+
+  if(sel && sel.rangeCount){
+    const current=sel.getRangeAt(0);
+    if(nodeInsideNewsEditor(current.commonAncestorContainer)){
+      fontSizeTargetRange=current.cloneRange();
+      savedNewsRange=current.cloneRange();
+      return current.cloneRange();
+    }
+  }
+
+  if(fontSizeTargetRange && nodeInsideNewsEditor(fontSizeTargetRange.commonAncestorContainer)){
+    return fontSizeTargetRange.cloneRange();
+  }
+
+  if(savedNewsRange && nodeInsideNewsEditor(savedNewsRange.commonAncestorContainer)){
+    return savedNewsRange.cloneRange();
+  }
+
+  return null;
+}
 function setupNewsSelectionMemory(){
   const editor=q('newsBodyEditor');
   if(!editor || editor.dataset.selectionMemoryReady)return;
@@ -3454,9 +3509,14 @@ function setupFontSizeSelectionGuard(){
     sizeInput.dataset.fontSizeDirectReady='1';
 
     ['pointerdown','mousedown'].forEach(ev=>{
-      sizeInput.addEventListener(ev,()=>setSavedRangeToEditorSelection(),{capture:true});
+      sizeInput.addEventListener(ev,()=>rememberFontSizeTargetRange(),{capture:true});
     });
 
+    sizeInput.addEventListener('focus',()=>rememberFontSizeTargetRange(),{capture:true});
+    sizeInput.addEventListener('input',()=>{
+      const size=parseInt(sizeInput.value,10);
+      if(Number.isFinite(size)) currentTypingFontSize=size;
+    });
     sizeInput.addEventListener('keydown',e=>{
       if(e.key==='Enter'){
         e.preventDefault();
@@ -3472,8 +3532,8 @@ function setupFontSizeSelectionGuard(){
     btn.dataset.fontSizeStepReady='1';
     ['pointerdown','mousedown'].forEach(ev=>{
       btn.addEventListener(ev,e=>{
-        setSavedRangeToEditorSelection();
-        e.preventDefault(); // 버튼 클릭 때문에 드래그 선택이 풀리는 것 방지
+        rememberFontSizeTargetRange();
+        e.preventDefault();
       },{capture:true});
     });
   });
