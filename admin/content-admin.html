@@ -3586,6 +3586,38 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   white-space:nowrap !important;
 }
 
+
+/* ===== schedule-fix2: 목록 상태칩은 TICKET / DETAIL만 표시 ===== */
+#schedule .schedule-button-pills .news-status-pill:not(.schedule-link-pill){
+  display:none !important;
+}
+#schedule .schedule-button-pills{
+  max-width:150px !important;
+  display:flex !important;
+  flex-wrap:wrap !important;
+  gap:6px !important;
+  align-items:center !important;
+}
+#schedule .schedule-link-pill{
+  display:inline-flex !important;
+  min-height:26px !important;
+  padding:0 10px !important;
+  border-radius:999px !important;
+  font-size:11.5px !important;
+  font-weight:900 !important;
+  white-space:nowrap !important;
+}
+#schedule .schedule-link-pill.ticket{
+  color:#d77ca7 !important;
+  border-color:#f0bfd4 !important;
+  background:#fff !important;
+}
+#schedule .schedule-link-pill.detail{
+  color:#9b7ce8 !important;
+  border-color:#d9c3ff !important;
+  background:#f7efff !important;
+}
+
 </style>
 </head>
 <body>
@@ -5241,12 +5273,14 @@ function renderSchedulePreview(s=buildSchedulePreviewData(),targetId='schedulePr
   el.innerHTML=`<div class="schedule-preview-card"><div class="schedule-preview-date">${formatScheduleDate(s.date)}</div><div class="schedule-preview-topline"><span class="schedule-admin-badge ${scheduleBadgeClass(s.badge)}">${scheduleBadgeLabel(s.badge)}</span><span>${htmlEscape(s.venue||'장소 추후 안내')}</span></div><p class="schedule-preview-title">${htmlEscape(s.title||'라이브 예정')}</p><div class="schedule-preview-buttons">${ticketBtn}${detailBtn}</div></div>`;
 }
 function scheduleStatusPill(s){if(s.published==='draft')return '<span class="schedule-pill off">임시글</span>';return s.published===false||s.published==='false'?'<span class="schedule-pill off">비공개</span>':'<span class="schedule-pill">공개</span>'}
-function scheduleButtonsHtml(s){return `${s.ticket?'<span class="schedule-pill">TICKET</span>':'<span class="schedule-pill off">추후 안내</span>'}${s.detail?'<span class="schedule-pill detail">DETAIL</span>':''}`}
-function scheduleVisibilityHtml(s){return `${s.topLine?'<span class="schedule-pill">상단</span>':'<span class="schedule-pill off">상단OFF</span>'}${s.calendar?'<span class="schedule-pill">캘린더</span>':'<span class="schedule-pill off">캘린더OFF</span>'}`}
-function openScheduleEditor(id=null,date=''){
-  clearScheduleForm(false);
-  if(id)loadScheduleToForm(id); else if(date){q('scheduleDate').value=date;q('scheduleCreatedAt').value=new Date().toISOString().slice(0,10)}
-  renderSchedulePreview(); renderScheduleWriteCalendar(); openPanel('scheduleWrite');
+function scheduleButtonsHtml(s){
+  const ticket = s.ticket
+    ? `<span class="news-status-pill schedule-link-pill ticket">TICKET</span>`
+    : '';
+  const detail = s.detail
+    ? `<span class="news-status-pill schedule-link-pill detail">DETAIL</span>`
+    : '';
+  return `${ticket}${detail}`;
 }
 function backToScheduleList(){openPanel('schedule');renderSchedules();renderScheduleAdminCalendar()}
 function loadScheduleToForm(id){const s=(state.schedules||[]).find(x=>x.id===id);if(!s)return;q('scheduleId').value=s.id||'';q('scheduleDate').value=s.date||'';q('scheduleTitle').value=s.title||'';q('scheduleVenue').value=s.venue||'';q('scheduleBadge').value=s.badge||s.type||'LIVE';q('scheduleTicket').value=s.ticket||'';q('scheduleDetail').value=s.detail||'';q('scheduleTopLineCheck').checked=s.topLine!==false;q('scheduleCalendarCheck').checked=s.calendar!==false;setSchedulePublishValue(s.published===false?'false':(s.published==='draft'?'draft':'true'));q('scheduleCreatedAt').value=s.createdAt||new Date().toISOString().slice(0,10)}
