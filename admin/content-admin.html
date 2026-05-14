@@ -3025,7 +3025,9 @@ function saveNewsSelection(){
 }
 function restoreNewsSelection(){
   const editor=q('newsBodyEditor');
-  editor?.focus();
+  if(!editor) return;
+  // 이미 에디터가 포커스 상태면 focus() 호출 안 함 (undo 스택 보존)
+  if(document.activeElement !== editor) editor.focus();
   if(savedNewsRange){
     const sel=window.getSelection();
     sel.removeAllRanges();
@@ -3142,49 +3144,37 @@ function styleNewsSelection(styleObj){
 function applyNewsFontSize(px){
   const size=parseInt(px,10);
   if(!Number.isFinite(size)||size<8||size>96){toast('글씨 크기를 확인해 주세요');return}
+  q('fontSizeInput').value=size;
+
   restoreNewsSelection();
   const sel=window.getSelection();
   if(!sel||!sel.rangeCount)return;
   const range=sel.getRangeAt(0);
-  q('fontSizeInput').value=size;
-  if(range.collapsed){
-    // 커서만 있을 때: 이후 타이핑에 적용되도록 execCommand 사용
-    document.execCommand('fontSize', false, '7');
-    const editor=q('newsBodyEditor');
-    if(editor){
-      editor.querySelectorAll('font[size="7"]').forEach(f=>{
-        f.removeAttribute('size');
-        f.style.fontSize=size+'px';
-      });
-    }
-    return;
-  }
 
-  // Range에서 내용을 꺼내 span으로 감싸기 (가장 신뢰성 높은 방법)
-  // 기존 fontSize span이 있으면 내부 텍스트만 꺼내 중첩 방지
+  // 선택 없으면 숫자만 바꾸고 끝 (커서 위치 조작 안 함 - 버그 원인)
+  if(range.collapsed) return;
+
+  // 선택 영역에만 font-size 적용
   const frag=range.extractContents();
-  // 내부 이미 적용된 fontSize 제거
+  // 내부 기존 font-size 제거 (중첩 방지)
   frag.querySelectorAll('[style]').forEach(el=>{
     el.style.removeProperty('font-size');
-    if(!el.getAttribute('style'))el.removeAttribute('style');
+    if(!el.getAttribute('style')) el.removeAttribute('style');
   });
-  // 내부 font 태그(execCommand 잔재) 제거
-  frag.querySelectorAll('font').forEach(f=>{
-    const txt=document.createTextNode(f.textContent);
-    f.replaceWith(txt);
+  frag.querySelectorAll('font[size]').forEach(f=>{
+    f.removeAttribute('size');
   });
   const span=document.createElement('span');
   span.style.fontSize=size+'px';
   span.appendChild(frag);
   range.insertNode(span);
 
-  // 선택 유지
+  // 적용 후 선택 유지
   const newRange=document.createRange();
   newRange.selectNodeContents(span);
   sel.removeAllRanges();
   sel.addRange(newRange);
   savedNewsRange=newRange.cloneRange();
-  q('fontSizeInput').value=size;
 }
 function stepNewsFontSize(delta){
   const input=q('fontSizeInput');
@@ -3477,13 +3467,16 @@ function setupTableDeleteKey(){
   editor.addEventListener('click',e=>{
     editor.querySelectorAll('.news-table-wrap.is-selected').forEach(x=>x.classList.remove('is-selected'));
     const wrap=e.target.closest('.news-table-wrap');
-    if(wrap){
+    const cell=e.target.closest('td,th');
+    if(wrap && !cell){
+      // 셀 밖 표 영역 클릭 → 표 선택
       wrap.classList.add('is-selected');
     }
+    // 셀 안 클릭은 is-selected 붙이지 않음 (셀 편집 모드)
   });
   editor.addEventListener('keydown',e=>{
     if((e.ctrlKey || e.metaKey) && (e.key.toLowerCase()==='z' || e.key.toLowerCase()==='y')) return;
-    if(e.key!=='Backspace' && e.key!=='Delete')return;
+    if(e.key!=='Backspace' && e.key!=='Delete') return;
     const selected=editor.querySelector('.news-table-wrap.is-selected');
     if(selected){
       e.preventDefault();
@@ -3554,7 +3547,8 @@ function setupEditorDeleteShortcuts(){
     editor.classList.remove('table-all-selected');
     editor.querySelectorAll('.news-table-wrap.is-selected').forEach(x=>x.classList.remove('is-selected'));
     const wrap=e.target.closest('.news-table-wrap');
-    if(wrap)wrap.classList.add('is-selected');
+    const cell=e.target.closest('td,th');
+    if(wrap && !cell) wrap.classList.add('is-selected');
   });
 }
 function saveSchedule(){const id=q('scheduleId').value.trim()||`SCH-${String(Date.now()).slice(-6)}`;const row={id,title:q('scheduleTitle').value.trim(),date:q('scheduleDate').value,day:q('scheduleDay').value,venue:q('scheduleVenue').value,status:q('scheduleStatus').value,ticket:q('scheduleTicket').value,newsId:q('scheduleNewsId').value,published:q('schedulePublished').value==='true',home:q('scheduleHome').value==='true',updatedAt:new Date().toISOString()};const idx=state.schedules.findIndex(x=>x.id===id);if(idx>=0)state.schedules[idx]=row;else state.schedules.unshift(row);persist();q('scheduleId').value=id;renderSchedules();toast('SCHEDULE 저장 완료')}
