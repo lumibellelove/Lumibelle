@@ -188,6 +188,39 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
   .place-main,.status,.row-actions{grid-column:4}
   .row-actions{justify-content:flex-start}
 }
+
+/* ===== ticket-v3 request fixes ===== */
+.image-pick-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+}
+.package-option-card{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+}
+.package-option-card h3{width:100%;margin-bottom:4px}
+.package-state{
+  display:inline-flex;
+  min-height:34px;
+  align-items:center;
+  padding:0 13px;
+  border:1px solid #f0bfd4;
+  border-radius:999px;
+  color:#d77ca7;
+  background:#fff;
+  font-size:12px;
+  font-weight:950;
+}
+.package-modal-box{width:min(760px,100%)}
+.preview-mini{display:none!important}
+@media(max-width:760px){
+  .image-pick-row{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
@@ -237,6 +270,7 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
       <div class="action-buttons">
         <button class="btn" onclick="saveDraft()">임시저장</button>
         <button class="btn" onclick="openPreview()">미리보기</button>
+        <button class="btn" onclick="cancelWrite()">취소</button>
         <button class="btn primary" onclick="saveTicket()">등록</button>
       </div>
     </div>
@@ -264,7 +298,7 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
             </div>
             <div class="field full">
               <label>공연명</label>
-              <input class="input" id="title" value="루미벨 데뷔라이브">
+              <input class="input" id="title" value="" placeholder="공연명을 입력해 주세요">
             </div>
             <div class="field">
               <label>날짜</label>
@@ -272,16 +306,20 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
             </div>
             <div class="field">
               <label>요일/시간</label>
-              <input class="input" id="timeText" value="(일) 14:20 공연 시작">
+              <input class="input" id="timeText" value="" placeholder="예: (일) 14:20 공연 시작">
             </div>
             <div class="field full">
               <label>장소</label>
-              <input class="input" id="venue" value="KT&G 상상마당 라이브홀">
+              <input class="input" id="venue" value="" placeholder="장소를 입력해 주세요">
             </div>
             <div class="field full">
-              <label>포스터 이미지 URL</label>
-              <input class="input" id="posterUrl" placeholder="이미지 주소 / 비워두면 포스터 박스 표시">
-              <p class="hint">공지처럼 우선 이미지 URL 방식으로 관리하고, 실제 업로드형은 나중에 붙이면 됩니다.</p>
+              <label>포스터 이미지</label>
+              <div class="image-pick-row">
+                <input class="input" id="posterUrl" placeholder="이미지 주소 / 비워두면 포스터 박스 표시">
+                <button type="button" class="btn" onclick="document.getElementById('posterFile').click()">사진 넣기</button>
+              </div>
+              <input id="posterFile" type="file" accept="image/*" hidden onchange="handlePosterFile(event)">
+              <p class="hint">이미지 주소를 붙여넣거나, 사진 넣기로 파일을 선택하면 미리보기에 반영됩니다.</p>
             </div>
           </div>
         </div>
@@ -291,19 +329,19 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
           <div class="form-grid">
             <div class="field full">
               <label>소개 문구</label>
-              <input class="input" id="intro" value="빛나는 미소의 소녀들, Lumibelle의 첫 시작을 함께해 주세요.">
+              <input class="input" id="intro" value="" placeholder="소개 문구를 입력해 주세요">
             </div>
             <div class="field full">
               <label>출연진</label>
-              <input class="input" id="cast" value="시로나, 옵시드, 너에게 닿기를, 스이타, 이토리, Lumibelle">
+              <input class="input" id="cast" value="" placeholder="출연진을 입력해 주세요">
             </div>
             <div class="field">
               <label>입장</label>
-              <input class="input" id="entry" value="13:50부터 가능">
+              <input class="input" id="entry" value="" placeholder="입장 시간을 입력해 주세요">
             </div>
             <div class="field">
               <label>장소 상세</label>
-              <input class="input" id="venueDetail" value="서울 마포구 어울마당로 65 B2F">
+              <input class="input" id="venueDetail" value="" placeholder="상세 주소를 입력해 주세요">
             </div>
           </div>
         </div>
@@ -333,23 +371,16 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
             </div>
           </div>
         </div>
-
-        <div class="form-card">
+        <div class="form-card package-option-card">
           <h3>한정 패키지 안내</h3>
-          <div class="form-grid">
-            <div class="field full">
-              <label>패키지 안내 문구</label>
-              <input class="input" id="packageText" value="데뷔 기념 한정 A/B 패키지는 굿즈 상세 페이지에서 구성과 안내를 확인한 뒤 구매할 수 있어요.">
-            </div>
-            <div class="field">
-              <label>A 패키지 링크</label>
-              <input class="input" id="packageA" value="goods/packages/2026-07-12/a.html">
-            </div>
-            <div class="field">
-              <label>B 패키지 링크</label>
-              <input class="input" id="packageB" value="goods/packages/2026-07-12/b.html">
-            </div>
-          </div>
+          <p class="hint">필요한 공연에서만 옵션을 켜고 내용을 입력합니다.</p>
+          <button type="button" class="btn" onclick="openPackageModal()">패키지 안내 수정</button>
+          <span id="packageStateText" class="package-state">사용 안 함</span>
+          <input type="hidden" id="packageEnabled" value="false">
+          <input type="hidden" id="packageText" value="">
+          <input type="hidden" id="packageA" value="">
+          <input type="hidden" id="packageB" value="">
+
         </div>
 
         <div class="form-card">
@@ -379,10 +410,6 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
               <label>메아테 선택지</label>
               <input class="input" id="mateOptions" value="시로나, 옵시드, 너에게 닿기를, 스이타, 이토리, Lumibelle">
             </div>
-            <div class="field full">
-              <label>예매 버튼 문구</label>
-              <input class="input" id="reserveText" value="예매하기">
-            </div>
           </div>
         </div>
       </div>
@@ -410,14 +437,46 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
             <input class="input" id="createdAt" type="date" value="2026-05-14">
           </div>
         </div>
-        <div class="side-card">
-          <h3>미리보기 카드</h3>
-          <div class="preview-mini" id="miniPreview"></div>
-        </div>
       </aside>
     </div>
   </section>
 </main>
+
+
+<div id="packageModal" class="modal">
+  <div class="modal-box package-modal-box">
+    <button class="close" onclick="closePackageModal()">×</button>
+    <span class="badge">PACKAGE</span>
+    <h1 class="write-title" style="margin-top:14px">한정 패키지 안내</h1>
+    <div class="form-card" style="margin-bottom:0">
+      <div class="form-grid">
+        <div class="field full">
+          <label>패키지 사용 여부</label>
+          <select class="select" id="packageEnabledDraft">
+            <option value="false">사용 안 함</option>
+            <option value="true">사용함</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label>패키지 안내 문구</label>
+          <input class="input" id="packageTextDraft" placeholder="패키지 안내 문구를 입력해 주세요">
+        </div>
+        <div class="field">
+          <label>A 패키지 링크</label>
+          <input class="input" id="packageADraft" placeholder="A 패키지 링크">
+        </div>
+        <div class="field">
+          <label>B 패키지 링크</label>
+          <input class="input" id="packageBDraft" placeholder="B 패키지 링크">
+        </div>
+      </div>
+      <div class="action-buttons" style="margin-top:18px">
+        <button type="button" class="btn" onclick="closePackageModal()">취소</button>
+        <button type="button" class="btn primary" onclick="applyPackageModal()">적용</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div id="previewModal" class="modal">
   <div class="modal-box">
@@ -500,19 +559,19 @@ function openWrite(){state.editingId=null;clearForm();showWrite()}
 function showWrite(){ $('listPanel').classList.add('hidden'); $('writePanel').classList.remove('hidden'); updateMiniPreview(); window.scrollTo({top:0,behavior:'smooth'})}
 function backToList(){ $('writePanel').classList.add('hidden'); $('listPanel').classList.remove('hidden'); renderList(); window.scrollTo({top:0,behavior:'smooth'})}
 function clearForm(){
-  const defaults={badge:'DEBUT',ticketStatus:'sale',title:'루미벨 데뷔라이브',date:'2026-07-12',timeText:'(일) 14:20 공연 시작',venue:'KT&G 상상마당 라이브홀',posterUrl:'',intro:'빛나는 미소의 소녀들, Lumibelle의 첫 시작을 함께해 주세요.',cast:'시로나, 옵시드, 너에게 닿기를, 스이타, 이토리, Lumibelle',entry:'13:50부터 가능',venueDetail:'서울 마포구 어울마당로 65 B2F',packageText:'데뷔 기념 한정 A/B 패키지는 굿즈 상세 페이지에서 구성과 안내를 확인한 뒤 구매할 수 있어요.',packageA:'goods/packages/2026-07-12/a.html',packageB:'goods/packages/2026-07-12/b.html',account:'국민은행 000000-00-000000',holder:'루미벨',ticketName:'사전 예약 티켓',price:'10000',ticketDesc:'일반 입장권 / 입금 확인 후 예약 확정',mateOptions:'시로나, 옵시드, 너에게 닿기를, 스이타, 이토리, Lumibelle',reserveText:'예매하기',publishStatus:'public',createdAt:'2026-05-14'};
+  const defaults={badge:'DEBUT',ticketStatus:'sale',title:'',date:'2026-07-12',timeText:'',venue:'',posterUrl:'',intro:'',cast:'',entry:'',venueDetail:'',packageEnabled:'false',packageText:'',packageA:'',packageB:'',account:'국민은행 000000-00-000000',holder:'루미벨',ticketName:'사전 예약 티켓',price:'10000',ticketDesc:'일반 입장권 / 입금 확인 후 예약 확정',mateOptions:'시로나, 옵시드, 너에게 닿기를, 스이타, 이토리, Lumibelle',publishStatus:'public',createdAt:'2026-05-14'};
   Object.entries(defaults).forEach(([k,v])=>{if($(k))$(k).value=v});
   $('ticketId').value='저장 시 자동 생성';
 }
 function readForm(){
-  const ids=['badge','ticketStatus','title','date','timeText','venue','posterUrl','intro','cast','entry','venueDetail','ruleEntry','ruleRefund','ruleNotice','packageText','packageA','packageB','account','holder','ticketName','price','ticketDesc','mateOptions','reserveText','publishStatus','createdAt'];
+  const ids=['badge','ticketStatus','title','date','timeText','venue','posterUrl','intro','cast','entry','venueDetail','ruleEntry','ruleRefund','ruleNotice','packageEnabled','packageText','packageA','packageB','account','holder','ticketName','price','ticketDesc','mateOptions','publishStatus','createdAt'];
   const obj={};
   ids.forEach(id=>obj[id]=$(id)?.value||'');
   obj.id=state.editingId||`tk-${Date.now()}`;
   return obj;
 }
 function fillForm(t){
-  const ids=['badge','ticketStatus','title','date','timeText','venue','posterUrl','intro','cast','entry','venueDetail','ruleEntry','ruleRefund','ruleNotice','packageText','packageA','packageB','account','holder','ticketName','price','ticketDesc','mateOptions','reserveText','publishStatus','createdAt'];
+  const ids=['badge','ticketStatus','title','date','timeText','venue','posterUrl','intro','cast','entry','venueDetail','ruleEntry','ruleRefund','ruleNotice','packageEnabled','packageText','packageA','packageB','account','holder','ticketName','price','ticketDesc','mateOptions','publishStatus','createdAt'];
   ids.forEach(id=>{if($(id)&&t[id]!=null)$(id).value=t[id]});
   $('ticketId').value=t.id||'저장 시 자동 생성';
 }
@@ -537,7 +596,7 @@ function openPreview(ticket){
 function closePreview(){$('previewModal').classList.remove('active')}
 function linesToList(v){return (v||'').split(/\n+/).filter(Boolean).map(x=>`<li>${esc(x)}</li>`).join('')}
 function buildPublicPreview(t){
-  const img=t.posterUrl?`<img src="${esc(t.posterUrl)}" alt="">`:`공연 포스터<br>${esc(fmtLongDate(t.date))}<br>${esc(t.title)}`;
+  const img=t.posterUrl?`<img src="${esc(t.posterUrl)}" alt="">`:`공연 포스터<br>${esc(fmtLongDate(t.date)||'-')}<br>${esc(t.title||'공연명 미입력')}`;
   const mates=(t.mateOptions||'').split(',').map(x=>x.trim()).filter(Boolean).map(x=>`<span class="btn">${esc(x)}</span>`).join('');
   return `
     <div class="ticket-preview-page">
@@ -545,11 +604,11 @@ function buildPublicPreview(t){
         <div class="poster-box">${img}</div>
         <div class="public-section">
           <h3>공연 정보</h3>
-          <p>${esc(t.intro)}</p>
-          <div class="public-line"><strong>CAST</strong><span>${esc(t.cast)}</span></div>
+          <p>${esc(t.intro||'소개 문구가 들어갑니다.')}</p>
+          <div class="public-line"><strong>CAST</strong><span>${esc(t.cast||'출연진 정보가 들어갑니다.')}</span></div>
           <div class="public-line"><strong>일시</strong><span>${esc(fmtLongDate(t.date))} ${esc(t.timeText)}</span></div>
-          <div class="public-line"><strong>입장</strong><span>${esc(t.entry)}</span></div>
-          <div class="public-line"><strong>장소</strong><span>${esc(t.venue)}<br>${esc(t.venueDetail)}</span></div>
+          <div class="public-line"><strong>입장</strong><span>${esc(t.entry||'입장 시간 미입력')}</span></div>
+          <div class="public-line"><strong>장소</strong><span>${esc(t.venue||'장소 미입력')}<br>${esc(t.venueDetail||'상세 장소 미입력')}</span></div>
         </div>
       </div>
       <div>
@@ -562,11 +621,12 @@ function buildPublicPreview(t){
         <div class="public-section">
           <h3>관람 유의사항</h3><ul>${linesToList(t.ruleNotice)}</ul>
         </div>
+        ${t.packageEnabled==='true'?`
         <div class="public-section">
           <h3>한정 패키지 안내</h3>
           <p>${esc(t.packageText)}</p>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="btn">A 패키지 보러가기</button><button class="btn">B 패키지 보러가기</button></div>
-        </div>
+        </div>`:''}
         <div class="public-section">
           <h3>예매 정보 입력</h3>
           <p><span class="badge">계좌 · ${esc(t.account)}</span> <span class="badge">예금주 · ${esc(t.holder)}</span></p>
@@ -576,20 +636,55 @@ function buildPublicPreview(t){
             <p>${esc(t.ticketDesc)}</p>
           </div>
           <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px">${mates}</div>
-          <button class="btn primary" style="width:60%;margin:22px auto 0;display:block">${esc(t.reserveText)}</button>
+          <button class="btn primary" style="width:60%;margin:22px auto 0;display:block">예매하기</button>
         </div>
       </div>
     </div>
   `;
 }
+
+function cancelWrite(){
+  if(confirm('작성 중인 내용을 취소하고 목록으로 돌아갈까요?')){
+    backToList();
+  }
+}
+function handlePosterFile(event){
+  const file=event.target.files&&event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    $('posterUrl').value=reader.result;
+    updateMiniPreview();
+  };
+  reader.readAsDataURL(file);
+}
+function updatePackageState(){
+  const enabled=$('packageEnabled')?.value==='true';
+  const hasText=($('packageText')?.value||$('packageA')?.value||$('packageB')?.value||'').trim();
+  const label=enabled?'사용함':'사용 안 함';
+  if($('packageStateText'))$('packageStateText').textContent=hasText?label+' · 내용 있음':label;
+}
+function openPackageModal(){
+  $('packageEnabledDraft').value=$('packageEnabled')?.value||'false';
+  $('packageTextDraft').value=$('packageText')?.value||'';
+  $('packageADraft').value=$('packageA')?.value||'';
+  $('packageBDraft').value=$('packageB')?.value||'';
+  $('packageModal').classList.add('active');
+}
+function closePackageModal(){
+  $('packageModal').classList.remove('active');
+}
+function applyPackageModal(){
+  $('packageEnabled').value=$('packageEnabledDraft').value;
+  $('packageText').value=$('packageTextDraft').value;
+  $('packageA').value=$('packageADraft').value;
+  $('packageB').value=$('packageBDraft').value;
+  updatePackageState();
+  closePackageModal();
+}
+
 function updateMiniPreview(){
-  const t=readForm();
-  $('miniPreview').innerHTML=`
-    <div class="pdate">${esc(fmtLongDate(t.date))}</div>
-    <div class="pmeta"><span class="badge ${badgeClass(t.badge)}">${esc(t.badge)}</span> ${esc(t.venue)}</div>
-    <div class="ptitle">${esc(t.title)}</div>
-    <div><span class="${statusClass(t.ticketStatus)}">${statusLabel(t.ticketStatus)}</span></div>
-  `;
+  updatePackageState();
 }
 document.addEventListener('input',e=>{if(e.target.closest('#writePanel'))updateMiniPreview()});
 document.addEventListener('change',e=>{if(e.target.closest('#writePanel'))updateMiniPreview()});
