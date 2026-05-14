@@ -1503,6 +1503,140 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   .color-popover{width:calc(100vw - 56px) !important}
 }
 
+
+/* ===== NEWS 글쓰기 안정화 6차: 글꼴/팔레트/사이드 정렬 ===== */
+.write-page-head h2{
+  font-size:32px !important;
+  letter-spacing:-0.03em;
+}
+.write-title-input{
+  min-height:50px !important;
+  height:50px !important;
+  font-size:19px !important;
+  padding:0 14px !important;
+}
+.write-select-like{
+  align-items:flex-start !important;
+  gap:14px !important;
+}
+.write-select-like label{
+  width:72px !important;
+  min-width:72px !important;
+  padding-top:8px !important;
+  font-size:15px !important;
+}
+.badge-picker.compact{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  gap:12px !important;
+  row-gap:10px !important;
+}
+.badge-picker.compact .badge-choice{
+  min-height:36px !important;
+  padding:0 15px !important;
+  margin:0 !important;
+  font-size:14px !important;
+  gap:8px !important;
+}
+.badge-picker.compact .badge-choice input{
+  transform:scale(1.08);
+}
+.font-toolbox{
+  display:block !important;
+  padding:16px 18px !important;
+}
+.font-family-row select{
+  width:260px !important;
+  min-width:0 !important;
+  max-width:100% !important;
+}
+.font-control-row{
+  gap:8px !important;
+}
+.font-size-stepper{
+  grid-template-columns:40px 68px 40px !important;
+}
+.font-size-stepper input::-webkit-outer-spin-button,
+.font-size-stepper input::-webkit-inner-spin-button{
+  -webkit-appearance:none;
+  margin:0;
+}
+.font-size-stepper input{
+  -moz-appearance:textfield;
+}
+.side-box{
+  text-align:left !important;
+  padding:18px !important;
+}
+.side-box *{
+  text-align:left !important;
+  word-break:keep-all !important;
+}
+.side-check,
+.side-radio{
+  display:flex !important;
+  flex-direction:row !important;
+  justify-content:flex-start !important;
+  align-items:center !important;
+  gap:9px !important;
+  width:100% !important;
+  min-height:32px !important;
+  white-space:nowrap !important;
+}
+.side-check input,
+.side-radio input{
+  flex:0 0 auto !important;
+  margin:0 !important;
+}
+.side-actions{
+  justify-content:flex-start !important;
+}
+.cafe-write-layout{
+  grid-template-columns:minmax(0,1fr) 320px !important;
+}
+.color-popover{
+  width:322px !important;
+  padding:18px !important;
+}
+.color-grid{
+  grid-template-columns:repeat(8, 26px) !important;
+  gap:8px !important;
+  padding-right:0 !important;
+}
+.color-recent,
+.color-brand-grid{
+  gap:8px !important;
+}
+.color-swatch{
+  width:26px !important;
+  height:26px !important;
+  border-radius:6px !important;
+}
+.color-pop-title{
+  margin-bottom:12px !important;
+}
+.color-custom{
+  grid-template-columns:28px 1fr 38px 58px !important;
+  gap:8px !important;
+}
+.preview-info.auto-date-only{
+  display:none !important;
+}
+.preview-body{
+  overflow-x:hidden !important;
+}
+.preview-body img,
+.preview-article img,
+.preview-hero{
+  max-width:100% !important;
+  height:auto !important;
+  display:block !important;
+  box-sizing:border-box !important;
+}
+@media(max-width:1080px){
+  .cafe-write-layout{grid-template-columns:1fr !important}
+}
+
 </style>
 </head>
 <body>
@@ -2222,12 +2356,19 @@ function applyCustomColor(){
 function applyNewsColor(color){
   restoreNewsSelection();
   if(color){
-    document.execCommand('foreColor',false,color);
-    q('currentColorChip').style.background=color;
-    pushRecentColor(color);
+    const hex=color.toLowerCase();
+    document.execCommand('foreColor',false,hex);
+    q('currentColorChip').style.background=hex;
+    if(q('newsColorHex')) q('newsColorHex').value=hex;
+    if(q('newsColorCustom')) q('newsColorCustom').value=hex;
+    if(q('customColorChip')) q('customColorChip').style.background=hex;
+    pushRecentColor(hex);
   }else{
     document.execCommand('removeFormat',false,null);
     q('currentColorChip').style.background='#d77ca7';
+    if(q('newsColorHex')) q('newsColorHex').value='#d77ca7';
+    if(q('newsColorCustom')) q('newsColorCustom').value='#d77ca7';
+    if(q('customColorChip')) q('customColorChip').style.background='#d77ca7';
   }
   q('colorPopover').hidden=true;
   saveNewsSelection();
@@ -2236,12 +2377,25 @@ function applyNewsFontSize(px){
   const size=parseInt(px,10);
   if(!Number.isFinite(size) || size<8 || size>96){toast('글씨 크기를 확인해 주세요');return}
   restoreNewsSelection();
-  document.execCommand('fontSize',false,'7');
-  const editor=q('newsBodyEditor');
-  editor.querySelectorAll('font[size="7"]').forEach(el=>{
-    el.removeAttribute('size');
-    el.style.fontSize=size+'px';
-  });
+  const sel=window.getSelection();
+  if(sel && sel.rangeCount && !sel.isCollapsed){
+    const range=sel.getRangeAt(0);
+    const span=document.createElement('span');
+    span.style.fontSize=size+'px';
+    try{
+      range.surroundContents(span);
+    }catch(e){
+      const frag=range.extractContents();
+      span.appendChild(frag);
+      range.insertNode(span);
+    }
+    sel.removeAllRanges();
+    const after=document.createRange();
+    after.selectNodeContents(span);
+    sel.addRange(after);
+  }else{
+    document.execCommand('insertHTML',false,`<span style="font-size:${size}px">&nbsp;</span>`);
+  }
   q('fontSizeInput').value=size;
   saveNewsSelection();
 }
