@@ -967,6 +967,151 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   .cafe-write-layout{grid-template-columns:1fr !important}
 }
 
+
+/* ===== NEWS 글쓰기 사용성 2차 보정 ===== */
+.write-page-head h2{
+  font-size:34px !important;
+  letter-spacing:-0.03em;
+}
+.write-page-head .panel-desc{
+  font-size:14px !important;
+  line-height:1.55 !important;
+}
+.write-select-like label{
+  font-size:15px !important;
+  color:#d77ca7 !important;
+}
+.badge-picker.compact .badge-choice{
+  min-height:36px !important;
+  padding:0 14px !important;
+  font-size:14px !important;
+  gap:8px !important;
+}
+.badge-picker.compact .badge-choice input{
+  transform:scale(1.12);
+}
+.side-check,
+.side-radio{
+  justify-content:flex-start !important;
+  text-align:left !important;
+}
+.side-check input,
+.side-radio input{
+  margin:0 8px 0 0 !important;
+}
+.side-box{
+  text-align:left !important;
+}
+.side-box label{
+  text-align:left !important;
+}
+.side-actions{
+  justify-content:flex-start !important;
+}
+.draft-open-btn span{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:22px;
+  min-height:22px;
+  margin-left:6px;
+  border-radius:999px;
+  background:#fff;
+  color:#d77ca7;
+  font-size:12px;
+  font-weight:900;
+}
+.news-draft-modal{
+  width:min(720px,100%);
+  max-height:84vh;
+  overflow:auto;
+  border:1px solid #f2d8e7;
+  border-radius:30px;
+  background:#fffafc;
+  box-shadow:0 24px 60px rgba(82,52,73,.22);
+  padding:26px;
+}
+.draft-tools{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:10px 0 16px;
+  padding:13px 16px;
+  border:1px solid #f2d8e7;
+  border-radius:18px;
+  background:#fff8fc;
+  color:#8f7183;
+  font-weight:900;
+}
+.draft-list{
+  display:grid;
+  gap:10px;
+}
+.draft-item{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:10px;
+  align-items:center;
+  padding:14px 16px;
+  border:1px solid #f2d8e7;
+  border-radius:18px;
+  background:#fff;
+}
+.draft-item-title{
+  min-width:0;
+  color:#7f6a77;
+  font-weight:900;
+}
+.draft-item-meta{
+  display:block;
+  margin-top:4px;
+  color:#b28ea2;
+  font-size:12px;
+  font-weight:800;
+}
+.draft-item button{
+  min-height:32px;
+  padding:0 12px;
+  border-radius:999px;
+  border:1px solid #f0bfd4;
+  background:#fff8fc;
+  color:#d77ca7;
+  font-weight:900;
+  cursor:pointer;
+}
+.news-divider{
+  display:block;
+  border:0;
+  border-top:1px solid #f2d8e7;
+  margin:20px 0;
+}
+.news-body-editor p{
+  min-height:1.35em;
+}
+.news-body-editor img.inserted-news-image{
+  display:block;
+  max-width:100%;
+  height:auto;
+  margin:16px 0;
+  border-radius:18px;
+  border:1px solid #f2d8e7;
+}
+.color-popover{
+  width:252px !important;
+}
+.color-grid{
+  grid-template-columns:repeat(10, 20px) !important;
+}
+.color-swatch{
+  width:20px !important;
+  height:20px !important;
+  border-radius:6px !important;
+}
+@media(max-width:760px){
+  .draft-item{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
@@ -1049,6 +1194,7 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
         </div>
         <div class="write-top-actions">
           <button type="button" class="btn sub" onclick="saveNewsDraft()">임시등록</button>
+          <button type="button" class="btn sub draft-open-btn" onclick="openDraftModal()">임시글 <span id="draftCountBadge">0</span></button>
           <button type="button" class="btn" onclick="saveNews()">등록</button>
         </div>
       </div>
@@ -1113,6 +1259,7 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
             <button type="button" class="btn sub" onclick="insertPlainLine()">구분선 넣기</button>
           </div>
 
+          <input type="file" id="newsImageFileInput" accept="image/*" hidden>
           <div id="newsBodyEditor" class="news-body-editor" contenteditable="true" data-placeholder="내용을 입력하세요."></div>
           <textarea id="newsBody" hidden></textarea>
         </main>
@@ -1135,14 +1282,7 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
             <label>글 ID<input id="newsId" readonly placeholder="저장 시 자동 생성"></label>
             <label>작성일<input id="newsDate" type="date"></label>
           </section>
-
-          <section class="side-box">
-            <h3>대표 이미지</h3>
-            <label>이미지 URL<input id="newsHeroImage" placeholder="대표 이미지 URL"></label>
-            <label>이미지 설명<input id="newsHeroAlt" placeholder="이미지 ALT"></label>
-          </section>
-
-          <section class="side-box side-actions">
+<section class="side-box side-actions">
             <button type="button" class="btn sub" onclick="previewNews()">미리보기</button>
             <button type="button" class="btn sub" onclick="backToNewsList()">취소</button>
           </section>
@@ -1151,10 +1291,29 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
             <input id="newsInfoDate"><input id="newsInfoPlace"><input id="newsInfoTime"><input id="newsInfoTicket">
             <input id="newsBtn1Text"><input id="newsBtn1Link"><input id="newsBtn2Text"><input id="newsBtn2Link">
             <input id="newsBodyImage"><input id="newsBodyAlt">
-          </div>
+          <input id="newsHeroImage"><input id="newsHeroAlt"></div>
         </aside>
       </div>
     </section>
+
+
+    <div class="modal-backdrop" id="newsDraftModal" hidden>
+      <section class="news-draft-modal" role="dialog" aria-modal="true" aria-label="임시글 목록">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow">DRAFT</span>
+            <h2>임시글 보관함</h2>
+            <p class="panel-desc">임시등록한 NEWS 글을 다시 불러오거나 삭제할 수 있습니다.</p>
+          </div>
+          <button type="button" class="modal-close" onclick="closeDraftModal()">×</button>
+        </div>
+        <div class="draft-tools">
+          <span id="draftCountText">임시글 0개</span>
+          <button type="button" class="btn danger" onclick="deleteAllDrafts()">전체삭제</button>
+        </div>
+        <div id="draftList" class="draft-list"></div>
+      </section>
+    </div>
 
 <div class="modal-backdrop" id="newsPreviewModal" hidden>
       <section class="news-preview-modal" role="dialog" aria-modal="true" aria-label="NEWS 미리보기">
@@ -1232,7 +1391,7 @@ document.getElementById(isOpen?'main':'locked').hidden=false;
 const state={news:[],schedules:[],inner:{}};
 function q(id){return document.getElementById(id)}
 function toast(msg='저장 완료'){const el=q('toast');el.textContent=msg;el.classList.add('show');clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>el.classList.remove('show'),1400)}
-function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};seedNewsIfEmpty();renderAll();initColorGrid();openPanel(location.hash?.replace('#','')||'home')}
+function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};seedNewsIfEmpty();renderAll();initColorGrid();setupNewsImageInput();updateDraftCount();openPanel(location.hash?.replace('#','')||'home')}
 function persist(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
 function saveAll(show=false){saveInnerFromFields();persist();if(show)toast('전체 저장 완료')}
 function openPanel(id){if(id==='home-go'){location.href='index.html';return}document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));const panel=q(id)||q('home');panel.classList.add('active');document.querySelector(`.menu-tab[data-target="${id}"]`)?.classList.add('active');history.replaceState(null,'','#'+id)}
@@ -1389,14 +1548,16 @@ function backToNewsList(){
 }
 function saveNewsDraft(){
   const row=collectNewsForm({draft:true});
-  saveNewsRow(row,'임시등록 완료');
+  if(!row.title) row.title='제목 없는 임시글';
+  saveNewsRow(row,'임시등록이 완료되었습니다.', {stay:true});
+  updateDraftCount();
 }
 function saveNews(){
   const row=collectNewsForm();
   if(!row.title){toast('제목을 입력해 주세요');return}
   saveNewsRow(row,'NEWS 등록 완료');
 }
-function saveNewsRow(row,msg){
+function saveNewsRow(row,msg,opt={}){
   const idx=state.news.findIndex(x=>x.id===row.id);
   if(idx>=0)state.news[idx]=row;
   else state.news.unshift(row);
@@ -1405,8 +1566,9 @@ function saveNewsRow(row,msg){
   q('newsEditorMode').textContent=`${row.id} 수정 중`;
   persist();
   renderNews();
+  updateDraftCount();
   toast(msg);
-  backToNewsList();
+  if(!opt.stay) backToNewsList();
 }
 function formatNews(command,value=null){
   restoreNewsSelection();
@@ -1414,10 +1576,8 @@ function formatNews(command,value=null){
   saveNewsSelection();
 }
 function insertNewsImage(){
-  const url=prompt('이미지 URL을 입력해 주세요.');
-  if(!url)return;
-  q('newsBodyEditor').focus();
-  document.execCommand('insertHTML',false,`<p><img src="${htmlEscape(url)}" alt=""></p>`);
+  saveNewsSelection();
+  q('newsImageFileInput').click();
 }
 function insertNewsLink(){
   const url=prompt('링크 URL을 입력해 주세요.');
@@ -1441,8 +1601,9 @@ function insertDetailTemplate(){
   saveNewsSelection();
 }
 function insertPlainLine(){
-  q('newsBodyEditor').focus();
-  document.execCommand('insertHTML',false,'<div class="news-template-line"></div>');
+  restoreNewsSelection();
+  document.execCommand('insertHTML',false,'<hr class="news-divider"><p><br></p>');
+  saveNewsSelection();
 }
 function renderBadgeHTML(n){
   const badges=[...(n.badges||[])];
@@ -1477,6 +1638,7 @@ function renderNews(){
       </div>
     </div>`).join('') || '<div class="news-admin-row"><div></div><div class="news-row-title">저장된 NEWS가 없습니다.</div></div>';
   q('newsSelectAll').checked=false;
+  updateDraftCount();
 }
 function selectedNewsIds(){
   return Array.from(document.querySelectorAll('.news-check:checked')).map(x=>x.value);
@@ -1608,6 +1770,76 @@ document.addEventListener('click',e=>{
   const wrap=document.querySelector('.color-picker-wrap');
   if(pop && wrap && !wrap.contains(e.target)) pop.hidden=true;
 });
+
+function setupNewsImageInput(){
+  const input=q('newsImageFileInput');
+  if(!input || input.dataset.ready)return;
+  input.dataset.ready='1';
+  input.addEventListener('change',()=>{
+    const file=input.files && input.files[0];
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=()=>{
+      restoreNewsSelection();
+      const safeName=htmlEscape(file.name||'news image');
+      document.execCommand('insertHTML',false,`<p><img class="inserted-news-image" src="${reader.result}" alt="${safeName}"></p><p><br></p>`);
+      saveNewsSelection();
+      input.value='';
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function getDrafts(){
+  return (state.news||[]).filter(n=>n.draft);
+}
+function updateDraftCount(){
+  const count=getDrafts().length;
+  const badge=q('draftCountBadge');
+  if(badge)badge.textContent=count;
+  const text=q('draftCountText');
+  if(text)text.textContent=`임시글 ${count}개`;
+}
+function openDraftModal(){
+  renderDraftList();
+  q('newsDraftModal').hidden=false;
+}
+function closeDraftModal(){
+  q('newsDraftModal').hidden=true;
+}
+function renderDraftList(){
+  const list=q('draftList');
+  const drafts=getDrafts().sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));
+  updateDraftCount();
+  list.innerHTML=drafts.map(d=>`
+    <div class="draft-item">
+      <div class="draft-item-title">${htmlEscape(d.title||'제목 없는 임시글')}<span class="draft-item-meta">${htmlEscape(d.id||'')} · ${htmlEscape(d.date||'-')} · ${htmlEscape(d.category||'-')}</span></div>
+      <button type="button" onclick="loadDraft('${htmlEscape(d.id)}')">불러오기</button>
+      <button type="button" onclick="deleteDraft('${htmlEscape(d.id)}')">삭제</button>
+    </div>
+  `).join('') || '<p class="small">임시등록한 글이 없습니다.</p>';
+}
+function loadDraft(id){
+  closeDraftModal();
+  openNewsEditor(id);
+}
+function deleteDraft(id){
+  if(!confirm('이 임시글을 삭제할까요?'))return;
+  state.news=state.news.filter(n=>n.id!==id);
+  persist();
+  renderNews();
+  renderDraftList();
+  toast('임시글을 삭제했어요');
+}
+function deleteAllDrafts(){
+  const drafts=getDrafts();
+  if(!drafts.length){toast('삭제할 임시글이 없습니다');return}
+  if(!confirm('임시글을 모두 삭제할까요?'))return;
+  state.news=state.news.filter(n=>!n.draft);
+  persist();
+  renderNews();
+  renderDraftList();
+  toast('임시글을 모두 삭제했어요');
+}
 function saveSchedule(){const id=q('scheduleId').value.trim()||`SCH-${String(Date.now()).slice(-6)}`;const row={id,title:q('scheduleTitle').value.trim(),date:q('scheduleDate').value,day:q('scheduleDay').value,venue:q('scheduleVenue').value,status:q('scheduleStatus').value,ticket:q('scheduleTicket').value,newsId:q('scheduleNewsId').value,published:q('schedulePublished').value==='true',home:q('scheduleHome').value==='true',updatedAt:new Date().toISOString()};const idx=state.schedules.findIndex(x=>x.id===id);if(idx>=0)state.schedules[idx]=row;else state.schedules.unshift(row);persist();q('scheduleId').value=id;renderSchedules();toast('SCHEDULE 저장 완료')}
 function editSchedule(id){const s=state.schedules.find(x=>x.id===id);if(!s)return;q('scheduleId').value=s.id;q('scheduleTitle').value=s.title||'';q('scheduleDate').value=s.date||'';q('scheduleDay').value=s.day||'';q('scheduleVenue').value=s.venue||'';q('scheduleStatus').value=s.status||'COMING SOON';q('scheduleTicket').value=s.ticket||'';q('scheduleNewsId').value=s.newsId||'';q('schedulePublished').value=String(!!s.published);q('scheduleHome').value=String(!!s.home);toast('수정할 SCHEDULE을 불러왔어요')}
 function clearScheduleForm(){['scheduleId','scheduleTitle','scheduleDate','scheduleDay','scheduleVenue','scheduleTicket','scheduleNewsId'].forEach(id=>q(id).value='');q('scheduleStatus').value='COMING SOON';q('schedulePublished').value='true';q('scheduleHome').value='true';q('schedulePreview').style.display='none'}
