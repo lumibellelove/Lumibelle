@@ -2414,6 +2414,208 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   flex:0 0 auto !important;
 }
 
+
+/* ===== SCHEDULE 관리: 가벼운 일정 등록형 ===== */
+.schedule-admin-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 340px;
+  gap:18px;
+  align-items:start;
+}
+.schedule-form-card,
+.schedule-mini-preview{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.88);
+  box-shadow:var(--shadow);
+  border-radius:28px;
+  padding:20px;
+}
+.schedule-form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.schedule-form-grid .full{grid-column:1/-1}
+.schedule-actions{
+  justify-content:flex-start;
+  margin-top:14px;
+}
+.schedule-mini-preview{
+  position:sticky;
+  top:18px;
+}
+.schedule-preview-inner{
+  margin-top:12px;
+  display:grid;
+  gap:10px;
+}
+.schedule-preview-card{
+  border:1px solid #f2d8e7;
+  background:#fff8fc;
+  border-radius:22px;
+  padding:18px;
+}
+.schedule-preview-date{
+  color:#d77ca7;
+  font-size:20px;
+  font-weight:900;
+  margin-bottom:12px;
+}
+.schedule-preview-topline{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  color:#b28ea2;
+  font-weight:900;
+  margin-bottom:8px;
+}
+.schedule-admin-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:26px;
+  padding:0 10px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:900;
+  border:1px solid transparent;
+  line-height:1;
+}
+.schedule-admin-badge.LIVE{background:#ffe7f1;color:#de77a7;border-color:#f3bfd5}
+.schedule-admin-badge.DEBUT{background:#f4ebff;color:#9f74d1;border-color:#dcc8fa}
+.schedule-admin-badge.EVENT{background:#eef7ff;color:#6f9bcf;border-color:#c9dff9}
+.schedule-admin-badge.예정{background:#fff0d9;color:#d58b42;border-color:#ffd8a5}
+.schedule-admin-badge.주최예정{background:#fff0f1;color:#de6c88;border-color:#f5c1cc}
+.schedule-preview-title{
+  color:#7f6a77;
+  font-size:18px;
+  font-weight:900;
+  margin:0 0 14px;
+}
+.schedule-preview-buttons{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.schedule-preview-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:38px;
+  padding:0 14px;
+  border-radius:999px;
+  border:1px solid #efbfd4;
+  background:#fff;
+  color:#e27aa9;
+  font-size:13px;
+  font-weight:900;
+}
+.schedule-preview-btn.detail{
+  background:#f4f0ff;
+  color:#8d70d5;
+  border-color:#d7caf6;
+}
+.schedule-preview-btn.muted{
+  opacity:.66;
+}
+.schedule-admin-tabs{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:18px 0 12px;
+}
+.schedule-filter{
+  min-height:38px;
+  padding:0 18px;
+  border-radius:999px;
+  border:1px solid #f0bfd4;
+  background:#fff;
+  color:#d77ca7;
+  font-weight:900;
+  cursor:pointer;
+}
+.schedule-filter.active,
+.schedule-filter:hover{
+  background:#ff5fa5;
+  color:#fff;
+  border-color:#ff5fa5;
+}
+.schedule-admin-list{
+  border:1px solid #f2d8e7;
+  border-radius:24px;
+  overflow:hidden;
+  background:#fff5fb;
+}
+.schedule-admin-row{
+  display:grid;
+  grid-template-columns:118px 88px minmax(0,1fr) 210px 150px 172px;
+  align-items:center;
+  gap:12px;
+  padding:16px 18px;
+  border-bottom:1px solid #f2d8e7;
+}
+.schedule-admin-row:last-child{border-bottom:0}
+.schedule-admin-row:hover{background:#fff0f7}
+.schedule-admin-date{
+  color:#ff5fa5;
+  font-size:16px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.schedule-admin-title{
+  min-width:0;
+  color:#846f81;
+  font-size:16px;
+  font-weight:900;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.schedule-admin-venue{
+  min-width:0;
+  color:#9f7d90;
+  font-size:13px;
+  font-weight:800;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.schedule-admin-buttons{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.schedule-admin-actions{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.schedule-admin-actions .mini-btn{
+  min-height:30px;
+  padding:0 10px;
+  border-radius:999px;
+  border:1px solid #f0bfd4;
+  background:#fff;
+  color:#d77ca7;
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+}
+@media(max-width:1080px){
+  .schedule-admin-layout{grid-template-columns:1fr}
+  .schedule-mini-preview{position:static}
+  .schedule-admin-row{grid-template-columns:90px 76px 1fr}
+  .schedule-admin-venue,.schedule-admin-buttons,.schedule-admin-actions{grid-column:3}
+  .schedule-admin-actions{justify-content:flex-start}
+}
+@media(max-width:760px){
+  .schedule-form-grid{grid-template-columns:1fr}
+  .schedule-admin-row{grid-template-columns:1fr}
+  .schedule-admin-date,.schedule-admin-venue,.schedule-admin-buttons,.schedule-admin-actions{grid-column:auto}
+}
+
 </style>
 </head>
 <body>
@@ -2694,23 +2896,94 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
     </div>
 
 
+
     <section class="panel" id="schedule">
-      <div class="panel-head"><div><h2>SCHEDULE 관리</h2><p class="panel-desc">공연 일정을 등록하고 수정합니다. 메인에는 가까운 예정 일정 3개만 표시하는 기준입니다.</p></div><span class="status">TICKET 버튼만 이동</span></div>
-      <div class="grid">
-        <div class="field"><label>스케줄 ID</label><input id="scheduleId" placeholder="SCH-0001"></div>
-        <div class="field"><label>공연일</label><input id="scheduleDate" type="date"></div>
-        <div class="field"><label>공연명</label><input id="scheduleTitle" placeholder="Lumibelle Debut Live"></div>
-        <div class="field"><label>요일</label><input id="scheduleDay" placeholder="토"></div>
-        <div class="field"><label>장소</label><input id="scheduleVenue" placeholder="KT&G 상상마당 홍대 라이브홀"></div>
-        <div class="field"><label>상태</label><select id="scheduleStatus"><option>TICKET</option><option>COMING SOON</option><option>CLOSED</option><option>CANCELLED</option></select></div>
-        <div class="field"><label>티켓 링크</label><input id="scheduleTicket" placeholder="/ticket/index.html 또는 외부 링크"></div>
-        <div class="field"><label>연결 공지글 ID</label><input id="scheduleNewsId" placeholder="NEWS-0001"></div>
-        <div class="field"><label>공개 여부</label><select id="schedulePublished"><option value="true">공개</option><option value="false">비공개</option></select></div>
-        <div class="field"><label>메인 노출</label><select id="scheduleHome"><option value="true">ON</option><option value="false">OFF</option></select></div>
+      <div class="panel-head schedule-admin-head">
+        <div>
+          <h2>SCHEDULE 관리</h2>
+          <p class="panel-desc">공홈 캘린더에 들어갈 일정만 가볍게 등록합니다. 티켓 링크가 없으면 자동으로 추후 안내로 표시됩니다.</p>
+        </div>
+        <span class="status">CALENDAR DATA</span>
       </div>
-      <div class="actions"><button type="button" class="btn" onclick="saveSchedule()">SCHEDULE 저장</button><button type="button" class="btn sub" onclick="clearScheduleForm()">새 일정 등록</button><button type="button" class="btn sub" onclick="previewSchedule()">미리보기</button></div>
-      <div class="list" id="scheduleList"></div>
-      <div class="pre" id="schedulePreview" style="display:none"></div>
+
+      <div class="schedule-admin-layout">
+        <section class="schedule-form-card">
+          <div class="schedule-form-grid">
+            <div class="field">
+              <label>스케줄 ID</label>
+              <input id="scheduleId" readonly placeholder="저장 시 자동 생성">
+            </div>
+            <div class="field">
+              <label>날짜</label>
+              <input id="scheduleDate" type="date">
+            </div>
+            <div class="field full">
+              <label>공연명</label>
+              <input id="scheduleTitle" placeholder="예: 루미벨 데뷔라이브">
+            </div>
+            <div class="field full">
+              <label>장소</label>
+              <input id="scheduleVenue" placeholder="예: KT&G 상상마당 라이브홀 홍대">
+            </div>
+            <div class="field">
+              <label>말머리칩</label>
+              <select id="scheduleBadge">
+                <option value="LIVE">LIVE</option>
+                <option value="DEBUT">DEBUT</option>
+                <option value="EVENT">EVENT</option>
+                <option value="예정">예정</option>
+                <option value="주최예정">주최예정</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>공개 여부</label>
+              <select id="schedulePublished">
+                <option value="true">공개</option>
+                <option value="false">비공개</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label>티켓 링크</label>
+              <input id="scheduleTicket" placeholder="있으면 TICKET / 비워두면 추후 안내">
+            </div>
+            <div class="field full">
+              <label>공지/상세 링크</label>
+              <input id="scheduleDetail" placeholder="있으면 DETAIL 버튼 표시 / 없으면 숨김">
+            </div>
+            <div class="field">
+              <label>메인 노출</label>
+              <select id="scheduleHome">
+                <option value="true">ON</option>
+                <option value="false">OFF</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="actions schedule-actions">
+            <button type="button" class="btn" onclick="saveSchedule()">SCHEDULE 저장</button>
+            <button type="button" class="btn sub" onclick="clearScheduleForm()">새 일정 등록</button>
+            <button type="button" class="btn sub" onclick="previewSchedule()">미리보기</button>
+          </div>
+        </section>
+
+        <section class="schedule-mini-preview" id="schedulePreviewBox">
+          <span class="eyebrow">PREVIEW</span>
+          <div id="schedulePreview" class="schedule-preview-inner">
+            날짜와 공연명을 입력하면 미리보기가 표시됩니다.
+          </div>
+        </section>
+      </div>
+
+      <div class="schedule-admin-tabs">
+        <button type="button" class="schedule-filter active" data-schedule-filter="전체" onclick="setScheduleFilter('전체')">전체</button>
+        <button type="button" class="schedule-filter" data-schedule-filter="예정" onclick="setScheduleFilter('예정')">예정</button>
+        <button type="button" class="schedule-filter" data-schedule-filter="LIVE" onclick="setScheduleFilter('LIVE')">LIVE</button>
+        <button type="button" class="schedule-filter" data-schedule-filter="DEBUT" onclick="setScheduleFilter('DEBUT')">DEBUT</button>
+        <button type="button" class="schedule-filter" data-schedule-filter="EVENT" onclick="setScheduleFilter('EVENT')">EVENT</button>
+        <button type="button" class="schedule-filter" data-schedule-filter="비공개" onclick="setScheduleFilter('비공개')">비공개</button>
+      </div>
+
+      <div class="schedule-admin-list" id="scheduleList"></div>
     </section>
 
     <section class="panel" id="member"><h2>MEMBER 관리</h2><div class="helpbox">공개 멤버소개 페이지의 프로필·사진·SNS·보이스·영상 링크 관리용입니다. 멤버가 직접 쓰거나 확인해야 하는 준비물/파트 분배/루미레터/루미로그는 멤버 허브 쪽으로 분리합니다.</div><div class="grid"><div class="field"><label>멤버</label><select><option>마리링</option><option>루루</option><option>이로</option><option>루나</option></select></div><div class="field"><label>공개 상태</label><select><option>공개</option><option>잠금/Coming Soon</option></select></div><div class="field full"><label>관리 메모</label><textarea placeholder="프로필 사진, 보이스, SNS, 영상 링크 변경 메모"></textarea></div></div><div class="actions"><button class="btn sub" type="button" onclick="toast('MEMBER 기능은 준비 중입니다')">준비 중</button></div></section>
@@ -2756,7 +3029,7 @@ document.getElementById(isOpen?'main':'locked').hidden=false;
 const state={news:[],schedules:[],inner:{}};
 function q(id){return document.getElementById(id)}
 function toast(msg='저장 완료'){const el=q('toast');el.textContent=msg;el.classList.add('show');clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>el.classList.remove('show'),1400)}
-function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};seedNewsIfEmpty();renderAll();initColorGrid();setupNewsImageInput();setupEditorToolbarSelectionGuard();setupNewsSelectionMemory();setupFontSizeSelectionGuard();setupNewsTableDelegation();setupTableDeleteKey();setupEditorDeleteShortcuts();updateDraftCount();openPanel(location.hash?.replace('#','')||'home')}
+function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};seedNewsIfEmpty();renderAll();setupScheduleLivePreview();renderSchedulePreview();initColorGrid();setupNewsImageInput();setupEditorToolbarSelectionGuard();setupNewsSelectionMemory();setupFontSizeSelectionGuard();setupNewsTableDelegation();setupTableDeleteKey();setupEditorDeleteShortcuts();updateDraftCount();openPanel(location.hash?.replace('#','')||'home')}
 function persist(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
 function saveAll(show=false){saveInnerFromFields();persist();if(show)toast('전체 저장 완료')}
 function openPanel(id){if(id==='home-go'){location.href='index.html';return}document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));const panel=q(id)||q('home');panel.classList.add('active');document.querySelector(`.menu-tab[data-target="${id}"]`)?.classList.add('active');history.replaceState(null,'','#'+id)}
@@ -3856,13 +4129,130 @@ function setupEditorDeleteShortcuts(){
     editor.classList.remove('table-all-selected');
   });
 }
-function saveSchedule(){const id=q('scheduleId').value.trim()||`SCH-${String(Date.now()).slice(-6)}`;const row={id,title:q('scheduleTitle').value.trim(),date:q('scheduleDate').value,day:q('scheduleDay').value,venue:q('scheduleVenue').value,status:q('scheduleStatus').value,ticket:q('scheduleTicket').value,newsId:q('scheduleNewsId').value,published:q('schedulePublished').value==='true',home:q('scheduleHome').value==='true',updatedAt:new Date().toISOString()};const idx=state.schedules.findIndex(x=>x.id===id);if(idx>=0)state.schedules[idx]=row;else state.schedules.unshift(row);persist();q('scheduleId').value=id;renderSchedules();toast('SCHEDULE 저장 완료')}
-function editSchedule(id){const s=state.schedules.find(x=>x.id===id);if(!s)return;q('scheduleId').value=s.id;q('scheduleTitle').value=s.title||'';q('scheduleDate').value=s.date||'';q('scheduleDay').value=s.day||'';q('scheduleVenue').value=s.venue||'';q('scheduleStatus').value=s.status||'COMING SOON';q('scheduleTicket').value=s.ticket||'';q('scheduleNewsId').value=s.newsId||'';q('schedulePublished').value=String(!!s.published);q('scheduleHome').value=String(!!s.home);toast('수정할 SCHEDULE을 불러왔어요')}
-function clearScheduleForm(){['scheduleId','scheduleTitle','scheduleDate','scheduleDay','scheduleVenue','scheduleTicket','scheduleNewsId'].forEach(id=>q(id).value='');q('scheduleStatus').value='COMING SOON';q('schedulePublished').value='true';q('scheduleHome').value='true';q('schedulePreview').style.display='none'}
-function toggleSchedule(id){const s=state.schedules.find(x=>x.id===id);if(s){s.published=!s.published;persist();renderSchedules()}}
-function previewSchedule(){q('schedulePreview').style.display='block';q('schedulePreview').textContent=`${q('scheduleDate').value} (${q('scheduleDay').value})\n${q('scheduleTitle').value}\n${q('scheduleVenue').value}\n상태: ${q('scheduleStatus').value}\n티켓: ${q('scheduleTicket').value||'-'}`}
-function renderSchedules(){q('scheduleList').innerHTML=state.schedules.map(s=>`<div class="item"><div class="item-head"><strong>${s.title||'(공연명 없음)'}</strong><span class="status ${s.published?'ok':'warn'}">${s.published?'공개':'비공개'}</span></div><p class="small">${s.id} · ${s.date||'-'}(${s.day||'-'}) · ${s.venue||'-'} · ${s.status}</p><div class="actions"><button class="btn sub" type="button" onclick="editSchedule('${s.id}')">수정</button><button class="btn sub" type="button" onclick="previewSavedSchedule('${s.id}')">미리보기</button><button class="btn sub" type="button" onclick="toggleSchedule('${s.id}')">${s.published?'비공개':'공개'} 전환</button></div></div>`).join('')||'<p class="small">저장된 SCHEDULE이 없습니다.</p>'}
-function previewSavedSchedule(id){const s=state.schedules.find(x=>x.id===id);if(!s)return;q('schedulePreview').style.display='block';q('schedulePreview').textContent=`${s.date} (${s.day})\n${s.title}\n${s.venue}\n상태: ${s.status}\n티켓: ${s.ticket||'-'}\n연결 공지: ${s.newsId||'-'}`}
+let currentScheduleFilter='전체';
+function scheduleBadgeClass(v='LIVE'){
+  return String(v||'LIVE').replace(/\s+/g,'');
+}
+function scheduleBadgeLabel(v='LIVE'){
+  return v||'LIVE';
+}
+function formatScheduleDate(date=''){
+  if(!date)return '-';
+  const parts=date.split('-');
+  if(parts.length!==3)return date;
+  return `${parts[0]}.${parts[1]}.${parts[2]}`;
+}
+function buildSchedulePreviewData(){
+  const ticket=(q('scheduleTicket').value||'').trim();
+  const detail=(q('scheduleDetail').value||'').trim();
+  return {
+    id:q('scheduleId').value.trim(),
+    date:q('scheduleDate').value,
+    title:q('scheduleTitle').value.trim(),
+    venue:q('scheduleVenue').value.trim(),
+    badge:q('scheduleBadge').value,
+    ticket,
+    detail,
+    published:q('schedulePublished').value==='true',
+    home:q('scheduleHome').value==='true',
+  };
+}
+function renderSchedulePreview(s=buildSchedulePreviewData()){
+  const ticketBtn=s.ticket
+    ? '<span class="schedule-preview-btn">TICKET</span>'
+    : '<span class="schedule-preview-btn muted">추후 안내</span>';
+  const detailBtn=s.detail
+    ? '<span class="schedule-preview-btn detail">DETAIL</span>'
+    : '';
+  q('schedulePreview').innerHTML=`<div class="schedule-preview-card">
+    <div class="schedule-preview-date">${formatScheduleDate(s.date)}</div>
+    <div class="schedule-preview-topline">
+      <span class="schedule-admin-badge ${scheduleBadgeClass(s.badge)}">${scheduleBadgeLabel(s.badge)}</span>
+      <span>${htmlEscape(s.venue||'장소 추후 안내')}</span>
+    </div>
+    <p class="schedule-preview-title">${htmlEscape(s.title||'라이브 예정')}</p>
+    <div class="schedule-preview-buttons">${ticketBtn}${detailBtn}</div>
+  </div>`;
+}
+function saveSchedule(){
+  const id=q('scheduleId').value.trim()||`SCH-${String(Date.now()).slice(-6)}`;
+  const row={...buildSchedulePreviewData(),id,updatedAt:new Date().toISOString()};
+  const idx=state.schedules.findIndex(x=>x.id===id);
+  if(idx>=0)state.schedules[idx]=row;else state.schedules.unshift(row);
+  persist();
+  q('scheduleId').value=id;
+  renderSchedulePreview(row);
+  renderSchedules();
+  toast('SCHEDULE 저장 완료');
+}
+function editSchedule(id){
+  const s=state.schedules.find(x=>x.id===id);if(!s)return;
+  q('scheduleId').value=s.id||'';
+  q('scheduleDate').value=s.date||'';
+  q('scheduleTitle').value=s.title||'';
+  q('scheduleVenue').value=s.venue||'';
+  q('scheduleBadge').value=s.badge||s.type||'LIVE';
+  q('scheduleTicket').value=s.ticket||'';
+  q('scheduleDetail').value=s.detail||s.detailUrl||s.newsId||'';
+  q('schedulePublished').value=String(s.published!==false);
+  q('scheduleHome').value=String(s.home!==false);
+  renderSchedulePreview(buildSchedulePreviewData());
+  toast('수정할 SCHEDULE을 불러왔어요');
+}
+function clearScheduleForm(){
+  ['scheduleId','scheduleDate','scheduleTitle','scheduleVenue','scheduleTicket','scheduleDetail'].forEach(id=>q(id).value='');
+  q('scheduleBadge').value='LIVE';
+  q('schedulePublished').value='true';
+  q('scheduleHome').value='true';
+  renderSchedulePreview({date:'',title:'',venue:'',badge:'LIVE',ticket:'',detail:''});
+}
+function toggleSchedule(id){
+  const s=state.schedules.find(x=>x.id===id);
+  if(s){s.published=!s.published;persist();renderSchedules();toast(s.published?'공개로 변경':'비공개로 변경')}
+}
+function previewSchedule(){
+  renderSchedulePreview(buildSchedulePreviewData());
+}
+function setScheduleFilter(filter){
+  currentScheduleFilter=filter;
+  document.querySelectorAll('.schedule-filter').forEach(b=>b.classList.toggle('active',b.dataset.scheduleFilter===filter));
+  renderSchedules();
+}
+function renderSchedules(){
+  const rows=(state.schedules||[]).filter(s=>{
+    if(currentScheduleFilter==='전체')return true;
+    if(currentScheduleFilter==='비공개')return s.published===false;
+    if(currentScheduleFilter==='예정')return s.badge==='예정'||s.badge==='주최예정';
+    return (s.badge||s.type)===currentScheduleFilter;
+  });
+  q('scheduleList').innerHTML=rows.map(s=>{
+    const ticketBtn=s.ticket?'<span class="schedule-preview-btn">TICKET</span>':'<span class="schedule-preview-btn muted">추후 안내</span>';
+    const detailBtn=s.detail?'<span class="schedule-preview-btn detail">DETAIL</span>':'';
+    return `<div class="schedule-admin-row">
+      <div class="schedule-admin-date">${formatScheduleDate(s.date)}</div>
+      <div><span class="schedule-admin-badge ${scheduleBadgeClass(s.badge||s.type)}">${scheduleBadgeLabel(s.badge||s.type)}</span></div>
+      <div class="schedule-admin-title">${htmlEscape(s.title||'라이브 예정')}</div>
+      <div class="schedule-admin-venue">${htmlEscape(s.venue||'장소 추후 안내')}</div>
+      <div class="schedule-admin-buttons">${ticketBtn}${detailBtn}</div>
+      <div class="schedule-admin-actions">
+        <button class="mini-btn" type="button" onclick="editSchedule('${htmlEscape(s.id)}')">수정</button>
+        <button class="mini-btn" type="button" onclick="renderSchedulePreview(state.schedules.find(x=>x.id==='${htmlEscape(s.id)}'))">미리보기</button>
+        <button class="mini-btn" type="button" onclick="toggleSchedule('${htmlEscape(s.id)}')">${s.published===false?'공개':'비공개'}</button>
+      </div>
+    </div>`;
+  }).join('')||'<p class="small" style="padding:18px">저장된 SCHEDULE이 없습니다.</p>';
+}
+function previewSavedSchedule(id){
+  const s=state.schedules.find(x=>x.id===id);if(s)renderSchedulePreview(s);
+} (${s.day})\n${s.title}\n${s.venue}\n상태: ${s.status}\n티켓: ${s.ticket||'-'}\n연결 공지: ${s.newsId||'-'}`}
+
+function setupScheduleLivePreview(){
+  ['scheduleDate','scheduleTitle','scheduleVenue','scheduleBadge','scheduleTicket','scheduleDetail','schedulePublished','scheduleHome'].forEach(id=>{
+    q(id)?.addEventListener('input',()=>renderSchedulePreview(buildSchedulePreviewData()));
+    q(id)?.addEventListener('change',()=>renderSchedulePreview(buildSchedulePreviewData()));
+  });
+}
+
 function saveInnerFromFields(){state.inner={eventId:q('innerEventId')?.value||'',eventTitle:q('innerEventTitle')?.value||'',eventDate:q('innerEventDate')?.value||'',venue:q('innerVenue')?.value||'',eventMemo:q('innerEventMemo')?.value||'',casting:q('innerCasting')?.value||'',guide:q('innerGuide')?.value||'',submit:q('innerSubmit')?.value||'',cue:q('innerCue')?.value||'',check:q('innerCheck')?.value||'',copy:q('innerCopy')?.value||''}}
 function saveInnerBasics(){saveInnerFromFields();persist();toast('EVENT MASTER 저장 완료')}
 function restoreInner(){const i=state.inner||{};['innerEventId','innerEventTitle','innerEventDate','innerVenue','innerEventMemo','innerCasting','innerGuide','innerSubmit','innerCue','innerCheck','innerCopy'].forEach(id=>{if(q(id)){const key=id.replace('inner','');const low=key.charAt(0).toLowerCase()+key.slice(1);q(id).value=i[low]||''}})}
