@@ -3412,6 +3412,170 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   }
 }
 
+
+/* ===== v5: 관리자 콘텐츠 공통 폭 확장 + SCHEDULE 칩 오버 방지 ===== */
+
+/* NEWS / SCHEDULE / 이후 TICKET까지 같은 관리자 카드 폭 기준 */
+#news,
+#schedule{
+  max-width:1280px !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+
+/* 공지와 스케줄 둘 다 너무 압축되지 않게 같은 폭으로 */
+#news .panel-inner,
+#schedule .panel-inner{
+  width:100% !important;
+}
+
+/* NEWS 쪽도 스케줄 기준 폭에 맞춰 여유 확보 */
+#news .news-admin-list,
+#news .news-board-tools,
+#schedule .news-admin-list,
+#schedule .news-board-tools{
+  width:100% !important;
+}
+
+/* 검색창은 둘 다 같은 크기 */
+#news .admin-search-input,
+#schedule .admin-search-input{
+  width:430px !important;
+  max-width:430px !important;
+  height:42px !important;
+}
+
+/* SCHEDULE 행은 정보가 많으므로 칸 비율 재조정 */
+#schedule .schedule-row-news{
+  display:grid !important;
+  grid-template-columns:
+    30px
+    86px
+    74px
+    minmax(180px, 1fr)
+    minmax(160px, .85fr)
+    minmax(150px, 170px)
+    minmax(220px, 240px) !important;
+  gap:12px !important;
+  align-items:center !important;
+  padding:0 22px !important;
+  min-height:66px !important;
+}
+
+/* 스케줄 상태 칩은 2줄까지 자연스럽게 */
+#schedule .schedule-button-pills{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  gap:5px 6px !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  min-width:0 !important;
+  max-width:170px !important;
+}
+
+#schedule .schedule-button-pills .news-status-pill,
+#schedule .schedule-button-pills .schedule-admin-badge{
+  height:26px !important;
+  min-height:26px !important;
+  padding:0 9px !important;
+  font-size:11px !important;
+  line-height:24px !important;
+  white-space:nowrap !important;
+}
+
+/* 오른쪽 관리 버튼 영역은 겹치지 않게 고정 */
+#schedule .schedule-row-actions{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  gap:6px !important;
+  justify-content:flex-end !important;
+  align-items:center !important;
+  min-width:220px !important;
+}
+
+#schedule .schedule-row-actions .mini-btn{
+  height:32px !important;
+  min-height:32px !important;
+  padding:0 12px !important;
+  font-size:12px !important;
+  white-space:nowrap !important;
+}
+
+/* 제목/장소 말줄임 안정화 */
+#schedule .schedule-title-main,
+#schedule .schedule-place-main{
+  min-width:0 !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:nowrap !important;
+}
+
+/* NEWS 행도 확장 폭 기준으로 살짝 여유 있게 */
+#news .news-admin-row{
+  grid-template-columns:30px 94px 96px minmax(260px,1fr) 78px 86px 220px !important;
+  gap:12px !important;
+  padding-left:22px !important;
+  padding-right:22px !important;
+}
+
+/* 체크박스는 다시 작게 고정 */
+#news input[type="checkbox"],
+#schedule input[type="checkbox"]{
+  width:14px !important;
+  height:14px !important;
+  min-width:14px !important;
+  min-height:14px !important;
+  max-width:14px !important;
+  max-height:14px !important;
+  transform:none !important;
+}
+
+/* 캘린더는 유지, 단 관리자 카드 폭 안에서만 */
+#schedule .schedule-calendar-admin-box{
+  width:100% !important;
+  box-sizing:border-box !important;
+}
+
+/* 좁은 화면에서는 행을 깨뜨려 오버 방지 */
+@media(max-width:1120px){
+  #schedule .schedule-row-news{
+    grid-template-columns:30px 78px 72px minmax(180px,1fr) !important;
+    row-gap:8px !important;
+    min-height:92px !important;
+    padding-top:12px !important;
+    padding-bottom:12px !important;
+  }
+  #schedule .schedule-place-main{
+    grid-column:4 !important;
+  }
+  #schedule .schedule-button-pills{
+    grid-column:4 !important;
+    max-width:none !important;
+  }
+  #schedule .schedule-row-actions{
+    grid-column:4 !important;
+    justify-content:flex-start !important;
+    min-width:0 !important;
+  }
+  #news .news-admin-row{
+    grid-template-columns:30px 86px 90px minmax(200px,1fr) !important;
+    row-gap:8px !important;
+    min-height:86px !important;
+  }
+  #news .news-row-actions{
+    grid-column:4 !important;
+    justify-content:flex-start !important;
+  }
+}
+
+@media(max-width:760px){
+  #news .admin-search-input,
+  #schedule .admin-search-input{
+    width:100% !important;
+    max-width:none !important;
+  }
+}
+
 </style>
 </head>
 <body>
