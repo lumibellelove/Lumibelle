@@ -1,0 +1,5229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>NEWS 관리 | Lumibelle Admin</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=SUIT:wght@500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=SUIT:wght@500;600;700;800;900&display=swap');
+:root{
+  --pink:#ff5fa8;--pink2:#d77ca7;--hot:#ff59a5;--line:#f2d8e7;--text:#7f6a77;--muted:#b28ea2;
+  --soft:#fff0f7;--purple:#f7efff;--blue:#4fc3ff;--gold:#ffb75f;--green:#31a963;
+  --shadow:0 14px 32px rgba(232,191,211,.16);--shadow2:0 18px 40px rgba(255,95,165,.14)
+}
+*{box-sizing:border-box}html,body{margin:0;padding:0;min-height:100%}
+body{font-family:"SUIT","Noto Sans KR",system-ui,sans-serif;color:var(--text);background:radial-gradient(circle at 8% 5%,rgba(255,192,215,.34),transparent 29%),radial-gradient(circle at 92% 10%,rgba(202,167,255,.24),transparent 28%),linear-gradient(180deg,#fffafc,#fff0f7);overflow-x:hidden}
+a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:inherit}.wrap{width:min(1240px,calc(100% - 30px));margin:0 auto;padding:22px 0 54px}
+.locked,.quick-card,.panel,.item,.inner-card{border:1px solid var(--line);background:rgba(255,255,255,.88);box-shadow:var(--shadow);border-radius:30px}.locked{width:min(560px,calc(100% - 32px));margin:82px auto;padding:32px;text-align:center}.locked h1{font-family:"Cormorant Garamond",serif;color:var(--pink);font-size:58px;line-height:.88;margin:12px 0 6px}
+.eyebrow{display:inline-flex;min-height:30px;align-items:center;justify-content:center;padding:0 13px;border-radius:999px;background:#fff;border:1px solid #f0bfd4;color:var(--pink2);font-size:12px;font-weight:900;letter-spacing:.04em}.panel p,.quick-card p,.inner-card p{font-weight:800;line-height:1.7}.top-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.btn{min-height:43px;border:0;border-radius:999px;padding:0 16px;background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;font-size:14px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:.16s ease;box-shadow:0 10px 22px rgba(255,95,165,.18)}.btn:hover{transform:translateY(-1px)}.btn.sub{background:#fff;color:var(--pink2);border:1px solid #f0bfd4;box-shadow:0 4px 10px rgba(255,95,165,.08)}.btn.gold{background:linear-gradient(180deg,#ffd27e,#ffb75f)}.btn.blue{background:linear-gradient(180deg,#78d6ff,#4fc3ff)}.btn.green{background:linear-gradient(180deg,#64d889,#31a963)}.btn.danger{background:#fff;color:#c87536;border:1px solid #ffd5b6;box-shadow:0 4px 10px rgba(255,183,95,.08)}
+.menu-shell{
+  margin:26px auto 0;
+  max-width:1260px;
+  padding:18px 22px;
+  background:rgba(255,255,255,.92);
+  border:1px solid var(--line);
+  box-shadow:0 8px 24px rgba(232,191,211,0.12);
+  border-radius:32px;
+  position:relative;
+  z-index:30;
+}
+.main-menu{
+  display:grid;
+  grid-template-columns:repeat(8, minmax(0, 1fr));
+  gap:18px;
+  text-align:center;
+  align-items:center;
+  width:100%;
+}
+.menu-tab{
+  position:relative;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-width:0;
+  min-height:54px;
+  border:0;
+  border-radius:22px;
+  overflow:visible;
+  background:transparent;
+  color:#d97ca9;
+  cursor:pointer;
+  isolation:isolate;
+  -webkit-tap-highlight-color:transparent;
+  transform:none !important;
+  transition:color .18s ease, background .18s ease !important;
+}
+.menu-tab b,
+.menu-tab span{
+  display:block;
+  width:100%;
+  text-align:center;
+  white-space:nowrap;
+  font-family:"SUIT","Noto Sans KR",sans-serif !important;
+  position:relative;
+  z-index:1;
+}
+.menu-tab b{
+  font-size:1.2em !important;
+  font-weight:700 !important;
+  color:#d97ca9 !important;
+  letter-spacing:-0.03em !important;
+}
+.menu-tab span{
+  margin-top:6px !important;
+  font-size:.94em !important;
+  font-weight:600 !important;
+  color:#c697b1 !important;
+  letter-spacing:-0.01em !important;
+}
+.menu-tab:hover,
+.menu-tab.active,
+.menu-tab:focus,
+.menu-tab:focus-visible,
+.menu-tab:active{
+  background:transparent !important;
+  box-shadow:none !important;
+  z-index:1;
+  outline:none !important;
+  transform:none !important;
+  top:auto !important;
+  bottom:auto !important;
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+  translate:none !important;
+  scale:none !important;
+}
+.menu-tab::before,
+.menu-tab.active::before,
+.menu-tab:hover::before,
+.menu-tab:focus::before,
+.menu-tab:focus-visible::before{
+  content:"";
+  position:absolute;
+  top:0 !important;
+  bottom:0 !important;
+  left:0 !important;
+  right:0 !important;
+  border-radius:18px !important;
+  background:linear-gradient(90deg,
+    rgba(255,217,232,0.00) 0%,
+    rgba(255,217,232,0.14) 16%,
+    rgba(255,192,215,0.16) 36%,
+    rgba(255,192,215,0.20) 50%,
+    rgba(255,192,215,0.16) 64%,
+    rgba(255,217,232,0.14) 84%,
+    rgba(255,217,232,0.00) 100%);
+  opacity:0;
+  transition:opacity .18s ease !important;
+  box-shadow:0 2px 8px rgba(255,192,215,0.04) !important;
+  z-index:0;
+  pointer-events:none;
+  transform:none !important;
+}
+.menu-tab.active::before,
+.menu-tab:hover::before,
+.menu-tab:focus::before,
+.menu-tab:focus-visible::before{opacity:1;}
+.menu-tab.active b,
+.menu-tab:hover b{color:#ff59a5 !important;}
+.menu-tab.active span,
+.menu-tab:hover span{color:#d88dad !important;}
+.menu-tab.home b{color:#d97ca9 !important;}
+.menu-tab.home span{color:#c697b1 !important;}
+.subnav-wrap{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:18px;
+  margin:18px auto 8px;
+  max-width:1260px;
+}
+.subnav-card{
+  position:relative;
+  padding:24px 30px;
+  border-radius:24px;
+  background:#fff5fb;
+  border:1px solid #f2d8e7;
+  box-shadow:0 8px 24px rgba(232, 191, 211, 0.12);
+  text-decoration:none;
+  text-align:center;
+  transition:transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  overflow:hidden;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.subnav-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 14px 30px rgba(232,191,211,0.18);
+  background:#fff0f7;
+}
+.subnav-card:focus,
+.subnav-card:focus-visible,
+.subnav-card:active{
+  transform:none !important;
+  outline:none !important;
+  box-shadow:0 8px 24px rgba(232, 191, 211, 0.12) !important;
+}
+.subnav-card h3{
+  margin:0 0 8px;
+  color:#ff59a5;
+  font-size:21px;
+  font-weight:900;
+  line-height:1;
+  letter-spacing:0.02em;
+}
+.subnav-card p{
+  margin:0;
+  color:#b28ea2;
+  font-size:15px;
+  font-weight:800;
+  line-height:1.3;
+}
+.coming-badge{
+  position:absolute;
+  top:10px;
+  right:10px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:5px 9px;
+  border-radius:999px;
+  background:#ff59a5;
+  color:#fff;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:0.04em;
+  line-height:1;
+  box-shadow:0 6px 14px rgba(255,89,165,0.22);
+}
+.menu-tab,
+.subnav-card{
+  isolation:isolate;
+}
+.menu-tab::after,
+.subnav-card::after{
+  content:"";
+  position:absolute;
+  top:-35%;
+  left:-42%;
+  width:22%;
+  height:170%;
+  background:linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.12) 35%,rgba(255,255,255,.28) 50%,rgba(255,255,255,.12) 65%,rgba(255,255,255,0) 100%);
+  transform:skewX(-22deg) translateX(0);
+  opacity:0;
+  pointer-events:none;
+  z-index:3;
+}
+.menu-tab:hover::after,
+.subnav-card:hover::after{animation:contentSweepShine .9s ease forwards;}
+@keyframes contentSweepShine{
+  0%{opacity:0;transform:skewX(-22deg) translateX(0);}
+  15%{opacity:1;}
+  100%{opacity:0;transform:skewX(-22deg) translateX(560%);}
+}
+.panel{display:none;padding:22px;margin-top:14px}.panel.active{display:block}.panel h2{margin:0 0 10px;color:var(--pink2);font-size:30px}.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}.panel-desc{margin:0;color:#8f7183}.subnav{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}.subpill{border:1px solid #f0bfd4;background:#fff;color:var(--pink2);border-radius:999px;padding:10px 13px;font-size:13px;font-weight:900;cursor:pointer}.subpill.active{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;border-color:transparent}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.field{display:grid;gap:7px;margin-bottom:12px}label{font-size:13px;font-weight:900;color:#9a7187}input,select,textarea{width:100%;border:1px solid var(--line);background:#fff;color:var(--text);border-radius:18px;padding:13px 14px;outline:none;font-size:15px;font-weight:800}textarea{min-height:105px;line-height:1.6;resize:vertical}input:focus,select:focus,textarea:focus{border-color:#f4a4ca;box-shadow:0 0 0 4px rgba(255,121,181,.12)}.full{grid-column:1/-1}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.list{display:grid;gap:10px;margin-top:12px}.item{padding:14px;box-shadow:0 8px 18px rgba(255,95,165,.08)}.item strong{color:var(--pink2)}.item-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.small{font-size:12px;color:var(--muted);font-weight:800}.status{display:inline-flex;border-radius:999px;padding:5px 9px;font-weight:900;font-size:11px;background:#fff0f7;color:var(--pink2);border:1px solid #f0bfd4}.status.warn{background:#fff2e8;color:#c87536;border-color:#ffd5b6}.status.ok{background:#e9fff0;color:#21864a;border-color:#bbefcc}.badge-picker{display:flex;flex-wrap:wrap;gap:8px}.badge-choice{display:inline-flex;align-items:center;gap:6px;border:1px solid #f0bfd4;background:#fff;border-radius:999px;padding:10px 13px;color:var(--pink2);font-size:13px;font-weight:900;cursor:pointer}.badge-choice input{width:auto;margin:0}.badge-choice:has(input:checked){background:linear-gradient(180deg,#ff7eb3,#ff5fa5);color:#fff;border-color:transparent}.helpbox{background:#fff7fb;border:1px solid var(--line);border-radius:20px;padding:13px 14px;margin:0 0 14px;color:#8f7183;font-weight:800;line-height:1.65}.inner-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.inner-card{padding:16px;min-height:132px}.tool-row{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 16px;padding:14px;border:1px dashed #efbfd5;background:rgba(255,255,255,.58);border-radius:22px}.pre{white-space:pre-wrap;background:#fff7fb;border:1px solid var(--line);border-radius:18px;padding:14px;line-height:1.7;font-weight:800;max-height:420px;overflow:auto}.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:1000;background:#ff5fa8;color:#fff;border-radius:999px;padding:12px 18px;font-weight:900;box-shadow:0 12px 26px rgba(255,95,165,.28);opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+
+
+/* ===== NEWS 글쓰기 전용 화면 ===== */
+.news-write-panel{display:none}
+.news-write-panel.active{display:block}
+.write-page-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:18px;
+  margin-bottom:18px;
+}
+.write-page-head h2{
+  margin:12px 0 8px;
+  color:#d77ca7;
+  font-size:42px;
+  line-height:1;
+  font-weight:900;
+}
+.write-top-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.cafe-write-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 260px;
+  gap:22px;
+  align-items:start;
+}
+.cafe-editor-main{
+  min-width:0;
+}
+.write-title-box{
+  border:1px solid #f2d8e7;
+  border-radius:24px;
+  background:#fff;
+  padding:18px;
+  margin-bottom:14px;
+}
+.write-select-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-bottom:14px;
+}
+.write-select-like{
+  min-height:54px;
+  border-bottom:1px solid #f2d8e7;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.write-select-like label{
+  flex:0 0 auto;
+  color:#b28ea2;
+  font-size:13px;
+  font-weight:900;
+}
+.write-select-like select{
+  width:100%;
+  border:0;
+  background:transparent;
+  color:#7f6a77;
+  font-size:16px;
+  font-weight:900;
+  outline:none;
+}
+.badge-picker.compact{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+}
+.badge-picker.compact .badge-choice{
+  min-height:30px;
+  padding:0 10px;
+  border-radius:999px;
+  border:1px solid #f0bfd4;
+  background:#fff;
+  color:#d77ca7;
+  font-size:12px;
+  font-weight:900;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+}
+.write-title-input{
+  width:100%;
+  min-height:56px;
+  border:0;
+  border-radius:14px;
+  background:#fff8fc;
+  color:#7f6a77;
+  font-size:18px;
+  font-weight:900;
+  padding:0 16px;
+  outline:none;
+}
+.editor-toolbar{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  border:1px solid #f2d8e7;
+  border-radius:20px 20px 0 0;
+  background:#fff8fc;
+  padding:12px;
+}
+.editor-toolbar button,
+.editor-toolbar select,
+.color-tool{
+  min-height:34px;
+  border:1px solid #f0bfd4;
+  border-radius:999px;
+  background:#fff;
+  color:#d77ca7;
+  padding:0 12px;
+  font-size:13px;
+  font-weight:900;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.editor-toolbar button{cursor:pointer}
+.color-tool input{
+  width:24px;
+  height:24px;
+  border:0;
+  padding:0;
+  background:transparent;
+}
+.editor-template-toolbar{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  padding:10px 12px;
+  border-left:1px solid #f2d8e7;
+  border-right:1px solid #f2d8e7;
+  background:#fff;
+}
+.news-body-editor{
+  min-height:430px;
+  padding:28px;
+  border:1px solid #f2d8e7;
+  border-radius:0 0 20px 20px;
+  background:#fff;
+  color:#7f6a77;
+  font-size:16px;
+  font-weight:700;
+  line-height:1.9;
+  outline:none;
+  overflow:auto;
+}
+.news-body-editor:empty:before{
+  content:attr(data-placeholder);
+  color:#bfa9b5;
+}
+.news-body-editor img{
+  max-width:100%;
+  border-radius:18px;
+  border:1px solid #f2d8e7;
+}
+.news-template-info{
+  display:grid;
+  gap:10px;
+  margin:18px 0;
+}
+.news-template-row{
+  display:grid;
+  grid-template-columns:90px 1fr;
+  gap:12px;
+  padding:12px 14px;
+  border:1px solid #f2d8e7;
+  border-radius:16px;
+  background:#fff8fc;
+}
+.news-template-row strong{
+  color:#d77ca7;
+  font-weight:900;
+}
+.news-template-line{
+  height:1px;
+  background:#f2d8e7;
+  margin:18px 0;
+}
+.cafe-write-sidebar{
+  position:sticky;
+  top:18px;
+  display:grid;
+  gap:12px;
+}
+.side-box{
+  background:#fff8fc;
+  border:1px solid #f2d8e7;
+  border-radius:20px;
+  padding:16px;
+}
+.side-box h3{
+  margin:0 0 12px;
+  color:#d77ca7;
+  font-size:16px;
+  font-weight:900;
+}
+.side-check,
+.side-radio{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-height:30px;
+  color:#7f6a77;
+  font-weight:900;
+  font-size:14px;
+}
+.side-box label:not(.side-check):not(.side-radio){
+  display:block;
+  margin:0 0 10px;
+  color:#b28ea2;
+  font-size:12px;
+  font-weight:900;
+}
+.side-box input:not([type="checkbox"]):not([type="radio"]){
+  width:100%;
+  min-height:38px;
+  margin-top:5px;
+  border:1px solid #f0bfd4;
+  border-radius:14px;
+  background:#fff;
+  color:#7f6a77;
+  font-weight:800;
+  padding:0 11px;
+  outline:none;
+}
+.side-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.news-status-pill.draft{
+  color:#c87536;
+  border-color:#ffd5b6;
+  background:#fff8ef;
+}
+@media(max-width:1080px){
+  .cafe-write-layout{grid-template-columns:1fr}
+  .cafe-write-sidebar{position:static;grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:760px){
+  .write-page-head{display:block}
+  .write-top-actions{justify-content:flex-start;margin-top:12px}
+  .write-select-row{grid-template-columns:1fr}
+  .cafe-write-sidebar{grid-template-columns:1fr}
+  .news-body-editor{min-height:340px;padding:18px}
+}
+
+/* ===== NEWS 관리자 게시판형 화면 ===== */
+.news-board-head{align-items:center}
+.news-admin-tabs{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:16px 0 14px;
+}
+.news-filter{
+  min-height:38px;
+  padding:0 18px;
+  border-radius:999px;
+  border:1px solid #f0bfd4;
+  background:#fff;
+  color:#d77ca7;
+  font-weight:900;
+  cursor:pointer;
+}
+.news-filter.active,
+.news-filter:hover{
+  background:#ff5fa5;
+  color:#fff;
+  border-color:#ff5fa5;
+  box-shadow:0 8px 18px rgba(255,95,165,.18);
+}
+.news-board-tools{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin:12px 0;
+  padding:14px 16px;
+  border:1px solid #f2d8e7;
+  border-radius:22px;
+  background:#fff8fc;
+}
+.select-all-line{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:900;
+  color:#8f7183;
+}
+.bulk-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.news-admin-list{
+  border:1px solid #f2d8e7;
+  border-radius:24px;
+  overflow:hidden;
+  background:#fff5fb;
+}
+.news-admin-row{
+  display:grid;
+  grid-template-columns:36px 92px 190px 1fr 74px 76px 190px;
+  align-items:center;
+  gap:12px;
+  padding:16px 18px;
+  border-bottom:1px solid #f2d8e7;
+  transition:background .16s ease;
+}
+.news-admin-row:last-child{border-bottom:0}
+.news-admin-row:hover{background:#fff0f7}
+.news-admin-row.is-pinned{box-shadow:inset 4px 0 0 #ff5fa5}
+.news-row-date{
+  color:#9b7d90;
+  font-size:15px;
+  font-weight:900;
+}
+.news-row-title{
+  color:#846f81;
+  font-size:17px;
+  font-weight:900;
+  line-height:1.45;
+  min-width:0;
+}
+.news-row-meta{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.news-admin-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:26px;
+  padding:0 11px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:900;
+  line-height:1;
+  border:1px solid transparent;
+}
+.news-admin-badge.NEW{background:#ff4fa3;color:#fff;border-color:#ff4fa3}
+.news-admin-badge.DEBUT{background:#f0e7ff;color:#a782e8;border-color:#d9c3ff}
+.news-admin-badge.LIVE{background:#eaf4ff;color:#73a1da;border-color:#c7def8}
+.news-admin-badge.INFO{background:#fbe8f4;color:#c97ca8;border-color:#efc6dc}
+.news-admin-badge.EVENT{background:#fff0d9;color:#d58b42;border-color:#ffd8a5}
+.news-admin-badge.UPDATE{background:#eef8ef;color:#65a878;border-color:#ccebd4}
+.news-status-pill{
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  min-height:28px;
+  padding:0 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+  border:1px solid #f0bfd4;
+  color:#d77ca7;
+  background:#fff;
+}
+.news-status-pill.off{
+  color:#aa8d9e;
+  border-color:#e7d7e1;
+  background:#fffafd;
+}
+.news-row-actions{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.news-row-actions .mini-btn{
+  min-height:30px;
+  padding:0 10px;
+  border-radius:999px;
+  border:1px solid #f0bfd4;
+  background:#fff;
+  color:#d77ca7;
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+}
+.news-row-actions .mini-btn:hover{background:#fff0f7;color:#ff59a5}
+.news-board-note{
+  margin-top:12px;
+  color:#b28ea2;
+  font-weight:800;
+  font-size:13px;
+  line-height:1.6;
+}
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:4000;
+  background:rgba(64,42,58,.28);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+.modal-backdrop[hidden]{display:none!important}
+.news-editor-modal,
+.news-preview-modal{
+  width:min(1080px,100%);
+  max-height:88vh;
+  overflow:auto;
+  border:1px solid #f2d8e7;
+  border-radius:30px;
+  background:#fffafc;
+  box-shadow:0 24px 60px rgba(82,52,73,.22);
+  padding:26px;
+}
+.news-preview-modal{width:min(920px,100%)}
+.modal-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:14px;
+  margin-bottom:18px;
+}
+.modal-head h2{
+  margin:10px 0 0;
+  color:#d77ca7;
+  font-size:38px;
+  line-height:1;
+}
+.modal-close{
+  width:42px;
+  height:42px;
+  border-radius:999px;
+  border:1px solid #f0bfd4;
+  background:#fff;
+  color:#d77ca7;
+  font-size:28px;
+  font-weight:800;
+  cursor:pointer;
+}
+.news-detail-form .field input[readonly]{
+  background:#fff8fc;
+  color:#b28ea2;
+}
+.news-write-preview-frame{
+  margin-top:18px;
+  padding:20px;
+  border:1px solid #f2d8e7;
+  border-radius:26px;
+  background:#fff5fb;
+}
+.news-write-title{
+  margin:0 0 14px;
+  color:#d77ca7;
+  font-size:20px;
+  font-weight:900;
+}
+.modal-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  margin-top:16px;
+}
+.news-preview-content{
+  padding:8px 4px 2px;
+}
+.preview-article{
+  border:1px solid #f2d8e7;
+  border-radius:28px;
+  background:#fff5fb;
+  padding:24px;
+}
+.preview-badges{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.preview-title{
+  margin:0;
+  color:#d77ca7;
+  font-size:34px;
+  font-weight:900;
+  line-height:1.18;
+}
+.preview-date{
+  margin:8px 0 18px;
+  color:#b28ea2;
+  font-weight:900;
+}
+.preview-hero{
+  width:100%;
+  max-height:320px;
+  object-fit:cover;
+  border-radius:24px;
+  border:1px solid #f2d8e7;
+  margin:0 0 18px;
+  background:#fff;
+}
+.preview-info{
+  display:grid;
+  gap:10px;
+  margin:18px 0;
+}
+.preview-info-row{
+  display:grid;
+  grid-template-columns:96px 1fr;
+  gap:14px;
+  align-items:center;
+  padding:13px 16px;
+  border:1px solid #f2d8e7;
+  border-radius:18px;
+  background:#fff;
+}
+.preview-info-row strong{
+  color:#d77ca7;
+  font-weight:900;
+}
+.preview-body{
+  margin-top:18px;
+  padding:18px;
+  border:1px solid #f2d8e7;
+  border-radius:22px;
+  background:#fff;
+  color:#846f81;
+  font-weight:700;
+  line-height:1.9;
+  white-space:pre-wrap;
+}
+.preview-buttons{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:18px;
+}
+.preview-link-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  padding:0 20px;
+  border-radius:999px;
+  border:1px solid #f0bfd4;
+  background:#fff;
+  color:#d77ca7;
+  font-weight:900;
+}
+.preview-link-btn.primary{
+  background:linear-gradient(180deg,#ff7eb3,#ff5fa5);
+  color:#fff;
+  border-color:#ff5fa5;
+}
+@media(max-width:1080px){
+  .news-admin-row{
+    grid-template-columns:30px 84px 1fr;
+  }
+  .news-row-meta,.news-status-pill,.news-row-actions{
+    grid-column:3;
+  }
+  .news-row-actions{justify-content:flex-start}
+}
+@media(max-width:760px){
+  .modal-backdrop{padding:12px;align-items:flex-start}
+  .news-editor-modal,.news-preview-modal{max-height:94vh;padding:18px;border-radius:24px}
+  .news-admin-row{grid-template-columns:28px 1fr;gap:8px}
+  .news-row-date,.news-row-meta,.news-row-title,.news-status-pill,.news-row-actions{grid-column:2}
+  .preview-info-row{grid-template-columns:1fr}
+}
+
+@media(max-width:1080px){.main-menu{grid-template-columns:repeat(4,1fr)}.subnav-wrap,.inner-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.wrap{width:min(100% - 22px,1240px)}.main-menu,.subnav-wrap,.grid,.grid3,.inner-grid{grid-template-columns:1fr}.panel{padding:16px}.panel-head{display:block}.menu-tab{min-height:54px}.subnav-card,.inner-card{min-height:auto}}
+@media print{.menu-shell,.top-actions,.subnav-wrap,.actions,.tool-row,.subnav,.no-print{display:none!important}body{background:#fff}.wrap{width:100%;padding:0}.hero,.panel,.item{box-shadow:none;border:0}.panel{display:block}.panel:not(.print-target){display:none}}
+
+/* ===== NEWS 글쓰기 간소화/가독성 보정 ===== */
+.cafe-write-layout{
+  grid-template-columns:minmax(0,1fr) 300px !important;
+}
+.write-title-box{
+  padding:22px !important;
+}
+.write-select-row{
+  grid-template-columns:1fr !important;
+}
+.write-select-like{
+  min-height:auto !important;
+  padding:0 0 14px;
+  align-items:flex-start !important;
+}
+.write-select-like label{
+  width:84px;
+  padding-top:8px;
+}
+.write-title-input{
+  min-height:64px !important;
+  font-size:22px !important;
+  background:#fff8fc !important;
+}
+.editor-toolbar{
+  padding:14px !important;
+  gap:10px !important;
+}
+.editor-toolbar button,
+.editor-toolbar select,
+.color-tool{
+  min-height:38px !important;
+  font-size:14px !important;
+}
+.color-picker-wrap{
+  position:relative;
+  display:inline-flex;
+}
+#currentColorChip{
+  width:18px;
+  height:18px;
+  border-radius:5px;
+  background:#d77ca7;
+  display:inline-block;
+  border:1px solid rgba(0,0,0,.08);
+}
+.color-popover{
+  position:absolute;
+  left:0;
+  top:46px;
+  width:236px;
+  padding:14px;
+  border:1px solid #f2d8e7;
+  border-radius:18px;
+  background:#fff;
+  box-shadow:0 18px 40px rgba(82,52,73,.18);
+  z-index:6000;
+}
+.color-pop-title{
+  color:#8f7183;
+  font-weight:900;
+  font-size:13px;
+  margin-bottom:10px;
+}
+.color-grid{
+  display:grid;
+  grid-template-columns:repeat(10, 18px);
+  gap:4px;
+}
+.color-swatch{
+  width:18px;
+  height:18px;
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:4px;
+  cursor:pointer;
+}
+.color-swatch.is-none{
+  background:linear-gradient(135deg, transparent 0 45%, #ff4f8e 47% 53%, transparent 55% 100%);
+}
+.color-custom{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+  align-items:center;
+}
+.color-custom input{
+  width:42px;
+  height:32px;
+  padding:0;
+  border:1px solid #f0bfd4;
+  border-radius:8px;
+  background:#fff;
+}
+.color-custom button{
+  flex:1;
+  min-height:32px;
+  border-radius:999px;
+  border:1px solid #f0bfd4;
+  background:#fff8fc;
+  color:#d77ca7;
+  font-weight:900;
+}
+.editor-template-toolbar{
+  padding:14px !important;
+}
+.news-body-editor{
+  min-height:520px !important;
+  padding:30px !important;
+  font-size:17px !important;
+  line-height:1.95 !important;
+}
+.news-info-card{
+  display:grid;
+  gap:12px;
+  margin:18px 0 24px;
+}
+.news-info-card .info-row{
+  display:grid;
+  grid-template-columns:92px 1fr;
+  align-items:center;
+  gap:14px;
+  padding:15px 18px;
+  border:1px solid #f2d8e7;
+  border-radius:18px;
+  background:#fff8fc;
+}
+.news-info-card .info-label{
+  color:#d77ca7;
+  font-weight:900;
+}
+.news-info-card .info-value{
+  color:#7f6a77;
+  font-weight:800;
+  outline:none;
+}
+.news-info-card .info-value:empty:before{
+  content:attr(data-placeholder);
+  color:#c7b3bf;
+}
+.side-box{
+  padding:18px !important;
+}
+.side-top-checks{
+  display:grid;
+  gap:8px;
+}
+.side-check,.side-radio{
+  justify-content:flex-start !important;
+  font-size:15px !important;
+}
+.side-box h3{
+  font-size:18px !important;
+}
+.cafe-write-sidebar{
+  gap:14px !important;
+}
+@media(max-width:1080px){
+  .cafe-write-layout{grid-template-columns:1fr !important}
+}
+
+
+/* ===== NEWS 글쓰기 사용성 2차 보정 ===== */
+.write-page-head h2{
+  font-size:34px !important;
+  letter-spacing:-0.03em;
+}
+.write-page-head .panel-desc{
+  font-size:14px !important;
+  line-height:1.55 !important;
+}
+.write-select-like label{
+  font-size:15px !important;
+  color:#d77ca7 !important;
+}
+.badge-picker.compact .badge-choice{
+  min-height:36px !important;
+  padding:0 14px !important;
+  font-size:14px !important;
+  gap:8px !important;
+}
+.badge-picker.compact .badge-choice input{
+  transform:scale(1.12);
+}
+.side-check,
+.side-radio{
+  justify-content:flex-start !important;
+  text-align:left !important;
+}
+.side-check input,
+.side-radio input{
+  margin:0 8px 0 0 !important;
+}
+.side-box{
+  text-align:left !important;
+}
+.side-box label{
+  text-align:left !important;
+}
+.side-actions{
+  justify-content:flex-start !important;
+}
+.draft-open-btn span{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:22px;
+  min-height:22px;
+  margin-left:6px;
+  border-radius:999px;
+  background:#fff;
+  color:#d77ca7;
+  font-size:12px;
+  font-weight:900;
+}
+.news-draft-modal{
+  width:min(720px,100%);
+  max-height:84vh;
+  overflow:auto;
+  border:1px solid #f2d8e7;
+  border-radius:30px;
+  background:#fffafc;
+  box-shadow:0 24px 60px rgba(82,52,73,.22);
+  padding:26px;
+}
+.draft-tools{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:10px 0 16px;
+  padding:13px 16px;
+  border:1px solid #f2d8e7;
+  border-radius:18px;
+  background:#fff8fc;
+  color:#8f7183;
+  font-weight:900;
+}
+.draft-list{
+  display:grid;
+  gap:10px;
+}
+.draft-item{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:10px;
+  align-items:center;
+  padding:14px 16px;
+  border:1px solid #f2d8e7;
+  border-radius:18px;
+  background:#fff;
+}
+.draft-item-title{
+  min-width:0;
+  color:#7f6a77;
+  font-weight:900;
+}
+.draft-item-meta{
+  display:block;
+  margin-top:4px;
+  color:#b28ea2;
+  font-size:12px;
+  font-weight:800;
+}
+.draft-item button{
+  min-height:32px;
+  padding:0 12px;
+  border-radius:999px;
+  border:1px solid #f0bfd4;
+  background:#fff8fc;
+  color:#d77ca7;
+  font-weight:900;
+  cursor:pointer;
+}
+.news-divider{
+  display:block;
+  border:0;
+  border-top:1px solid #f2d8e7;
+  margin:20px 0;
+}
+.news-body-editor p{
+  min-height:1.35em;
+}
+.news-body-editor img.inserted-news-image{
+  display:block;
+  max-width:100%;
+  height:auto;
+  margin:16px 0;
+  border-radius:18px;
+  border:1px solid #f2d8e7;
+}
+.color-popover{
+  width:252px !important;
+}
+.color-grid{
+  grid-template-columns:repeat(10, 20px) !important;
+}
+.color-swatch{
+  width:20px !important;
+  height:20px !important;
+  border-radius:6px !important;
+}
+@media(max-width:760px){
+  .draft-item{grid-template-columns:1fr}
+}
+
+
+/* ===== NEWS 글쓰기/미리보기 3차 보정 ===== */
+.preview-article{
+  overflow:hidden !important;
+  box-sizing:border-box !important;
+}
+.preview-body{
+  overflow-x:hidden !important;
+  box-sizing:border-box !important;
+}
+.preview-body img,
+.preview-article img,
+.preview-hero{
+  max-width:100% !important;
+  height:auto !important;
+  display:block !important;
+  box-sizing:border-box !important;
+}
+.preview-body img{
+  margin:16px auto !important;
+  border-radius:18px !important;
+}
+.preview-date{
+  display:block !important;
+  margin:10px 0 18px !important;
+  color:#b28ea2 !important;
+  font-size:16px !important;
+  font-weight:900 !important;
+}
+.preview-info{
+  margin-top:16px !important;
+}
+.modal-backdrop{
+  cursor:pointer;
+}
+.news-preview-modal,
+.news-draft-modal{
+  cursor:auto;
+}
+.color-popover{
+  width:270px !important;
+  padding:14px !important;
+}
+.color-pop-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.color-recent{
+  display:flex;
+  gap:5px;
+  margin:8px 0 12px;
+}
+.color-section-label{
+  margin:10px 0 7px;
+  color:#8f7183;
+  font-size:12px;
+  font-weight:900;
+}
+.color-grid{
+  grid-template-columns:repeat(10, 20px) !important;
+  gap:5px !important;
+}
+.color-swatch{
+  width:20px !important;
+  height:20px !important;
+  border-radius:4px !important;
+}
+.color-more-area{
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid #f2d8e7;
+}
+.color-more-area[hidden]{display:none!important}
+.color-custom{
+  display:grid !important;
+  grid-template-columns:44px 1fr 64px;
+  gap:8px;
+  align-items:center;
+  margin-top:8px !important;
+}
+.color-custom input[type="text"]{
+  width:100%;
+  min-height:32px;
+  border:1px solid #f0bfd4;
+  border-radius:8px;
+  padding:0 8px;
+  color:#7f6a77;
+  font-weight:800;
+}
+.color-more-toggle{
+  width:100%;
+  min-height:30px;
+  margin-top:10px;
+  border:0;
+  background:#fff;
+  color:#8f7183;
+  font-weight:900;
+  cursor:pointer;
+}
+.news-detail-date{
+  display:block;
+  margin:4px 0 22px;
+  color:#b28ea2;
+  font-weight:900;
+  font-size:16px;
+}
+
+
+/* ===== NEWS 글쓰기 도구 UI 5차 보정 ===== */
+.write-page-head h2{
+  font-size:32px !important;
+  letter-spacing:-0.03em;
+}
+.write-select-like label{
+  width:70px !important;
+  font-size:15px !important;
+  color:#d77ca7 !important;
+}
+.badge-picker.compact{
+  gap:10px !important;
+  row-gap:8px !important;
+}
+.badge-picker.compact .badge-choice{
+  min-height:36px !important;
+  padding:0 15px !important;
+  font-size:14px !important;
+}
+.font-toolbox{
+  display:block !important;
+  padding:18px !important;
+  border:1px solid #f2d8e7 !important;
+  border-radius:22px 22px 0 0 !important;
+  background:#fff8fc !important;
+  position:relative;
+}
+.font-panel-title{
+  color:#8f7183;
+  font-size:13px;
+  font-weight:900;
+  margin:0 0 9px;
+}
+.font-family-row select{
+  width:260px !important;
+  max-width:100%;
+  min-height:42px !important;
+  border:1px solid #f0bfd4 !important;
+  border-radius:12px !important;
+  background:#fff !important;
+  color:#7f6a77 !important;
+  font-weight:900 !important;
+  padding:0 13px !important;
+  outline:none;
+}
+.font-control-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+  position:relative;
+}
+.font-size-stepper{
+  display:inline-grid;
+  grid-template-columns:42px 70px 42px;
+  min-height:40px;
+  border:1px solid #f0bfd4;
+  border-radius:12px;
+  overflow:hidden;
+  background:#fff;
+}
+.font-size-stepper button,
+.font-size-stepper input{
+  border:0;
+  background:#fff;
+  color:#7f6a77;
+  font-size:17px;
+  font-weight:900;
+  text-align:center;
+  outline:none;
+}
+.font-size-stepper button{
+  cursor:pointer;
+  color:#d77ca7;
+  font-size:20px;
+}
+.font-size-stepper input{
+  border-left:1px solid #f2d8e7;
+  border-right:1px solid #f2d8e7;
+}
+.tool-square{
+  width:42px;
+  height:40px;
+  border:1px solid #f0bfd4;
+  border-radius:12px;
+  background:#fff;
+  color:#7f6a77;
+  font-size:16px;
+  font-weight:900;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+.tool-pill{
+  min-height:40px;
+  border:1px solid #f0bfd4;
+  border-radius:999px;
+  background:#fff;
+  color:#d77ca7;
+  font-weight:900;
+  padding:0 15px;
+  cursor:pointer;
+}
+.align-popover{
+  position:absolute;
+  left:326px;
+  top:88px;
+  z-index:6100;
+  display:flex;
+  gap:10px;
+  padding:14px;
+  border:1px solid #f2d8e7;
+  border-radius:18px;
+  background:#fff;
+  box-shadow:0 18px 40px rgba(82,52,73,.16);
+}
+.align-popover[hidden]{display:none!important}
+.align-popover button{
+  width:42px;
+  height:40px;
+  border:0;
+  border-radius:12px;
+  background:#fff8fc;
+  color:#7f6a77;
+  font-size:20px;
+  font-weight:900;
+  cursor:pointer;
+}
+.align-popover button:hover{
+  background:#ffeaf4;
+  color:#ff59a5;
+}
+.color-picker-wrap{
+  position:relative;
+  display:inline-flex;
+}
+.color-tool{
+  flex-direction:column;
+  gap:2px;
+  line-height:1;
+}
+#currentColorChip{
+  width:24px;
+  height:5px;
+  border-radius:999px;
+  background:#d77ca7;
+  display:block;
+}
+.color-popover{
+  position:absolute;
+  left:0;
+  top:48px;
+  width:310px !important;
+  padding:18px !important;
+  border:1px solid #f2d8e7;
+  border-radius:18px;
+  background:#fff;
+  box-shadow:0 18px 44px rgba(82,52,73,.18);
+  z-index:6200;
+}
+.color-popover[hidden]{display:none!important}
+.color-pop-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  color:#7f6a77;
+  font-weight:900;
+  font-size:16px;
+  margin-bottom:10px;
+}
+.color-x{
+  border:0;
+  background:transparent;
+  color:#8f7183;
+  font-size:22px;
+  cursor:pointer;
+}
+.color-section-label{
+  margin:12px 0 8px;
+  color:#8f7183;
+  font-size:12px;
+  font-weight:900;
+}
+.color-recent,
+.color-brand-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+.color-grid{
+  display:grid;
+  grid-template-columns:repeat(8, 26px) !important;
+  gap:7px !important;
+  padding-right:0 !important;
+}
+.color-swatch{
+  width:26px !important;
+  height:26px !important;
+  border-radius:6px !important;
+  border:1px solid rgba(0,0,0,.08);
+  cursor:pointer;
+}
+.color-swatch.is-none{
+  background:linear-gradient(135deg, transparent 0 45%, #ff4f8e 47% 53%, transparent 55% 100%);
+}
+.color-custom{
+  display:grid !important;
+  grid-template-columns:28px 1fr 36px 58px !important;
+  gap:8px !important;
+  align-items:center;
+  margin-top:14px !important;
+  padding-top:14px;
+  border-top:1px solid #f2d8e7;
+}
+.color-custom input[type="text"]{
+  min-width:0;
+  min-height:36px;
+  border:1px solid #f0bfd4;
+  border-radius:10px;
+  padding:0 10px;
+  color:#7f6a77;
+  font-weight:900;
+}
+.color-custom input[type="color"]{
+  width:36px;
+  height:36px;
+  padding:0;
+  border:1px solid #f0bfd4;
+  border-radius:10px;
+  background:#fff;
+}
+.color-custom button{
+  min-height:36px;
+  border:1px solid #f0bfd4;
+  border-radius:999px;
+  background:#fff8fc;
+  color:#d77ca7;
+  font-weight:900;
+}
+.side-box,
+.side-box *,
+.side-check,
+.side-radio{
+  text-align:left !important;
+}
+.side-check,
+.side-radio{
+  justify-content:flex-start !important;
+  align-items:center !important;
+  width:100%;
+  gap:9px !important;
+}
+.side-check input,
+.side-radio input{
+  flex:0 0 auto;
+  margin:0 !important;
+}
+.side-actions{
+  justify-content:flex-start !important;
+}
+.preview-info.auto-date-only{
+  display:none !important;
+}
+.preview-body{
+  overflow-x:hidden !important;
+}
+.preview-body img,
+.preview-article img,
+.preview-hero{
+  max-width:100% !important;
+  height:auto !important;
+  display:block !important;
+  box-sizing:border-box !important;
+}
+@media(max-width:760px){
+  .font-family-row select{width:100% !important}
+  .align-popover{left:0;top:138px}
+  .color-popover{width:calc(100vw - 56px) !important}
+}
+
+
+/* ===== NEWS 글쓰기 안정화 6차: 글꼴/팔레트/사이드 정렬 ===== */
+.write-page-head h2{
+  font-size:32px !important;
+  letter-spacing:-0.03em;
+}
+.write-title-input{
+  min-height:50px !important;
+  height:50px !important;
+  font-size:19px !important;
+  padding:0 14px !important;
+}
+.write-select-like{
+  align-items:flex-start !important;
+  gap:14px !important;
+}
+.write-select-like label{
+  width:72px !important;
+  min-width:72px !important;
+  padding-top:8px !important;
+  font-size:15px !important;
+}
+.badge-picker.compact{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  gap:12px !important;
+  row-gap:10px !important;
+}
+.badge-picker.compact .badge-choice{
+  min-height:36px !important;
+  padding:0 15px !important;
+  margin:0 !important;
+  font-size:14px !important;
+  gap:8px !important;
+}
+.badge-picker.compact .badge-choice input{
+  transform:scale(1.08);
+}
+.font-toolbox{
+  display:block !important;
+  padding:16px 18px !important;
+}
+.font-family-row select{
+  width:260px !important;
+  min-width:0 !important;
+  max-width:100% !important;
+}
+.font-control-row{
+  gap:8px !important;
+}
+.font-size-stepper{
+  grid-template-columns:40px 68px 40px !important;
+}
+.font-size-stepper input::-webkit-outer-spin-button,
+.font-size-stepper input::-webkit-inner-spin-button{
+  -webkit-appearance:none;
+  margin:0;
+}
+.font-size-stepper input{
+  -moz-appearance:textfield;
+}
+.side-box{
+  text-align:left !important;
+  padding:18px !important;
+}
+.side-box *{
+  text-align:left !important;
+  word-break:keep-all !important;
+}
+.side-check,
+.side-radio{
+  display:flex !important;
+  flex-direction:row !important;
+  justify-content:flex-start !important;
+  align-items:center !important;
+  gap:9px !important;
+  width:100% !important;
+  min-height:32px !important;
+  white-space:nowrap !important;
+}
+.side-check input,
+.side-radio input{
+  flex:0 0 auto !important;
+  margin:0 !important;
+}
+.side-actions{
+  justify-content:flex-start !important;
+}
+.cafe-write-layout{
+  grid-template-columns:minmax(0,1fr) 320px !important;
+}
+.color-popover{
+  width:322px !important;
+  padding:18px !important;
+}
+.color-grid{
+  grid-template-columns:repeat(8, 26px) !important;
+  gap:8px !important;
+  padding-right:0 !important;
+}
+.color-recent,
+.color-brand-grid{
+  gap:8px !important;
+}
+.color-swatch{
+  width:26px !important;
+  height:26px !important;
+  border-radius:6px !important;
+}
+.color-pop-title{
+  margin-bottom:12px !important;
+}
+.color-custom{
+  grid-template-columns:28px 1fr 38px 58px !important;
+  gap:8px !important;
+}
+.preview-info.auto-date-only{
+  display:none !important;
+}
+.preview-body{
+  overflow-x:hidden !important;
+}
+.preview-body img,
+.preview-article img,
+.preview-hero{
+  max-width:100% !important;
+  height:auto !important;
+  display:block !important;
+  box-sizing:border-box !important;
+}
+@media(max-width:1080px){
+  .cafe-write-layout{grid-template-columns:1fr !important}
+}
+
+
+/* ===== NEWS 글쓰기 안정화 7차: 선택영역/말머리/사이드 정렬 ===== */
+.write-select-like{
+  display:grid !important;
+  grid-template-columns:82px 1fr !important;
+  column-gap:18px !important;
+  align-items:start !important;
+}
+.write-select-like > label{
+  width:auto !important;
+  min-width:0 !important;
+  padding-top:10px !important;
+  font-size:16px !important;
+}
+.write-select-like .badge-picker.compact{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  gap:14px !important;
+  row-gap:12px !important;
+  padding:2px 0 0 !important;
+}
+.write-select-like .badge-picker.compact .badge-choice{
+  min-height:38px !important;
+  padding:0 17px !important;
+  margin:0 !important;
+  border-radius:999px !important;
+  font-size:14px !important;
+  line-height:1 !important;
+}
+.write-select-like .badge-picker.compact .badge-choice + .badge-choice{
+  margin-left:0 !important;
+}
+.write-title-input{
+  min-height:48px !important;
+  height:48px !important;
+  font-size:18px !important;
+}
+.cafe-write-sidebar{
+  width:320px !important;
+}
+.cafe-write-sidebar .side-box{
+  box-sizing:border-box !important;
+  width:100% !important;
+}
+.cafe-write-sidebar .side-check,
+.cafe-write-sidebar .side-radio{
+  display:grid !important;
+  grid-template-columns:22px minmax(0,1fr) !important;
+  align-items:center !important;
+  justify-content:start !important;
+  justify-items:start !important;
+  gap:8px !important;
+  width:100% !important;
+  min-height:34px !important;
+  white-space:nowrap !important;
+  text-align:left !important;
+}
+.cafe-write-sidebar .side-check input,
+.cafe-write-sidebar .side-radio input{
+  grid-column:1 !important;
+  justify-self:start !important;
+  margin:0 !important;
+}
+.cafe-write-sidebar .side-check span,
+.cafe-write-sidebar .side-radio span{
+  grid-column:2 !important;
+  display:block !important;
+  white-space:nowrap !important;
+  word-break:keep-all !important;
+  text-align:left !important;
+  writing-mode:horizontal-tb !important;
+  line-height:1.3 !important;
+}
+.color-section-label{
+  font-size:14px !important;
+  color:#8f7183 !important;
+  margin:14px 0 9px !important;
+}
+.color-pop-title{
+  font-size:18px !important;
+}
+.color-custom input[type="text"]{
+  text-transform:lowercase;
+}
+.font-size-stepper button{
+  user-select:none;
+}
+@media(max-width:1080px){
+  .cafe-write-sidebar{width:100% !important}
+}
+
+
+/* ===== NEWS 글쓰기 안정화 8차: 크기/정렬/컬러 적용 보정 ===== */
+.tool-square{
+  width:46px !important;
+  min-width:46px !important;
+}
+.tool-pill{
+  padding:0 17px !important;
+}
+.align-popover{
+  gap:8px !important;
+  padding:14px !important;
+}
+.align-popover button{
+  width:auto !important;
+  min-width:54px !important;
+  padding:0 12px !important;
+  font-size:13px !important;
+  white-space:nowrap !important;
+}
+.write-select-like .badge-picker.compact{
+  gap:16px !important;
+  row-gap:12px !important;
+}
+.write-select-like .badge-picker.compact .badge-choice{
+  min-width:76px !important;
+  justify-content:center !important;
+}
+.font-size-stepper{
+  grid-template-columns:42px 72px 42px !important;
+}
+.color-popover{
+  z-index:7000 !important;
+}
+
+
+/* ===== NEWS 글쓰기 안정화 9차: 말머리 확장/선택크기/표·투표 ===== */
+.write-select-like .badge-picker.compact{
+  gap:18px !important;
+  row-gap:12px !important;
+}
+.write-select-like .badge-picker.compact .badge-choice{
+  min-width:92px !important;
+  padding:0 18px !important;
+  justify-content:center !important;
+}
+.write-select-like .badge-picker.compact .badge-choice input{
+  margin-right:7px !important;
+}
+.tool-square{
+  width:48px !important;
+  min-width:48px !important;
+}
+.tool-pill{
+  min-width:58px !important;
+  justify-content:center !important;
+}
+.align-popover{
+  gap:10px !important;
+}
+.align-popover button{
+  min-width:44px !important;
+  width:44px !important;
+  padding:0 !important;
+  font-size:18px !important;
+}
+.news-table{
+  width:100%;
+  border-collapse:collapse;
+  margin:16px 0;
+  background:#fff;
+}
+.news-table td,
+.news-table th{
+  border:1px solid #f2d8e7;
+  padding:10px;
+  min-width:80px;
+}
+.news-poll-card{
+  margin:18px 0;
+  padding:18px;
+  border:1px solid #f2d8e7;
+  border-radius:18px;
+  background:#fff8fc;
+}
+.news-poll-title{
+  color:#d77ca7;
+  font-weight:900;
+  font-size:18px;
+  margin-bottom:10px;
+}
+.news-poll-meta{
+  color:#b28ea2;
+  font-size:13px;
+  font-weight:800;
+  margin-bottom:12px;
+}
+.news-poll-option{
+  padding:10px 12px;
+  border:1px solid #f2d8e7;
+  border-radius:12px;
+  background:#fff;
+  margin-top:8px;
+  color:#7f6a77;
+  font-weight:800;
+}
+.news-poll-modal{
+  width:min(640px,100%);
+  max-height:84vh;
+  overflow:auto;
+  border:1px solid #f2d8e7;
+  border-radius:30px;
+  background:#fffafc;
+  box-shadow:0 24px 60px rgba(82,52,73,.22);
+  padding:26px;
+}
+.poll-form{
+  display:grid;
+  gap:18px;
+}
+.poll-form label{
+  display:grid;
+  gap:6px;
+  color:#b28ea2;
+  font-weight:900;
+  font-size:13px;
+}
+.poll-form input,
+.poll-form textarea,
+.poll-form select{
+  width:100%;
+  min-height:42px;
+  border:1px solid #f0bfd4;
+  border-radius:14px;
+  background:#fff;
+  padding:0 12px;
+  color:#7f6a77;
+  font-weight:800;
+}
+.poll-form textarea{
+  min-height:120px;
+  padding:12px;
+  line-height:1.6;
+}
+
+
+/* ===== NEWS 글쓰기 안정화 10차: 말머리/글자크기/표/투표 삭제 ===== */
+.write-select-like .badge-picker.compact{
+  gap:18px !important;
+  row-gap:12px !important;
+}
+.write-select-like .badge-picker.compact .badge-choice{
+  min-width:98px !important;
+  padding:0 16px !important;
+  display:inline-flex !important;
+  justify-content:center !important;
+  align-items:center !important;
+  gap:6px !important;
+}
+.write-select-like .badge-picker.compact .badge-choice input{
+  margin:0 3px 0 0 !important;
+  flex:0 0 auto !important;
+}
+.align-popover{
+  justify-content:center !important;
+  align-items:center !important;
+}
+.align-popover button{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+.news-table-wrap{
+  position:relative;
+  margin:18px 0;
+  padding:18px 0 0 18px;
+}
+.news-table-add-col{
+  position:absolute;
+  top:0;
+  width:24px;
+  height:24px;
+  border:1px solid #cfcfcf;
+  border-radius:999px;
+  background:#fff;
+  color:#777;
+  font-weight:900;
+  line-height:1;
+  cursor:pointer;
+  z-index:2;
+}
+.news-table-add-row{
+  position:absolute;
+  left:0;
+  width:24px;
+  height:24px;
+  border:1px solid #cfcfcf;
+  border-radius:999px;
+  background:#fff;
+  color:#777;
+  font-weight:900;
+  line-height:1;
+  cursor:pointer;
+  z-index:2;
+}
+.news-table-wrap .news-table{
+  margin:0 !important;
+}
+.news-table-menu-btn{
+  position:absolute;
+  right:6px;
+  top:6px;
+  min-height:28px;
+  padding:0 10px;
+  border:1px solid #f0bfd4;
+  border-radius:999px;
+  background:#fff;
+  color:#d77ca7;
+  font-weight:900;
+  cursor:pointer;
+  z-index:2;
+}
+.news-table-menu{
+  position:absolute;
+  right:6px;
+  top:40px;
+  z-index:4;
+  display:grid;
+  gap:0;
+  min-width:150px;
+  border:1px solid #f2d8e7;
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 12px 30px rgba(82,52,73,.15);
+  overflow:hidden;
+}
+.news-table-menu[hidden]{display:none!important}
+.news-table-menu button{
+  min-height:38px;
+  border:0;
+  border-bottom:1px solid #f2d8e7;
+  background:#fff;
+  color:#7f6a77;
+  font-weight:900;
+  text-align:left;
+  padding:0 14px;
+  cursor:pointer;
+}
+.news-table-menu button:last-child{border-bottom:0}
+.news-table-menu button:hover{background:#fff8fc;color:#ff59a5}
+.news-poll-card{
+  position:relative;
+}
+.news-poll-delete{
+  position:absolute;
+  right:12px;
+  top:12px;
+  min-width:34px;
+  height:30px;
+  border:1px solid #f0bfd4;
+  border-radius:999px;
+  background:#fff;
+  color:#d77ca7;
+  font-weight:900;
+  cursor:pointer;
+}
+
+
+/* ===== NEWS 글쓰기 안정화 11차: 투표 입력/표 메뉴/폰트 선택 보강 ===== */
+.poll-options-block{
+  display:grid;
+  gap:8px;
+}
+.poll-label{
+  color:#b28ea2;
+  font-weight:900;
+  font-size:13px;
+}
+.poll-option-list{
+  display:grid;
+  gap:8px;
+}
+.poll-option-input{
+  display:grid;
+  grid-template-columns:32px 1fr;
+  align-items:center;
+  gap:8px;
+}
+.poll-option-input span{
+  color:#d77ca7;
+  font-weight:900;
+  text-align:center;
+}
+.poll-option-input input{
+  margin:0 !important;
+}
+.poll-add-btn{
+  justify-self:start;
+  min-height:36px;
+  padding:0 14px;
+  border:1px solid #f0bfd4;
+  border-radius:999px;
+  background:#fff;
+  color:#d77ca7;
+  font-weight:900;
+  cursor:pointer;
+}
+.news-table-wrap{
+  resize:horizontal;
+  overflow:auto;
+  min-width:260px;
+  max-width:100%;
+}
+.news-table td.is-selected,
+.news-table th.is-selected{
+  background:#d7f8e3 !important;
+}
+.news-table-menu{
+  min-width:162px !important;
+}
+.news-table td,
+.news-table th{
+  resize:horizontal;
+  overflow:auto;
+}
+
+
+/* ===== NEWS 글쓰기 안정화 12차: 투표 모달/표 삭제 보정 ===== */
+.news-poll-modal{
+  max-height:88vh !important;
+  padding:30px !important;
+  overflow:auto !important;
+}
+.news-poll-modal .panel-desc{
+  font-size:16px !important;
+  font-weight:800 !important;
+  line-height:1.6 !important;
+  color:#8f7183 !important;
+}
+.poll-label,
+.poll-form label,
+.news-poll-modal label{
+  font-size:16px !important;
+  color:#b26f94 !important;
+  font-weight:900 !important;
+}
+.poll-option-input span{
+  font-size:17px !important;
+}
+.poll-option-input input,
+.poll-form input,
+.poll-form select{
+  min-height:48px !important;
+  font-size:16px !important;
+}
+.poll-add-btn{
+  min-height:42px !important;
+  font-size:15px !important;
+}
+.news-poll-modal .modal-actions{
+  position:sticky;
+  bottom:0;
+  background:#fffafc;
+  padding-top:14px;
+  margin-top:18px;
+  justify-content:flex-end;
+}
+.news-table-wrap{
+  position:relative !important;
+  resize:both !important;
+  overflow:auto !important;
+  min-height:90px;
+  padding:18px 36px 18px 18px !important;
+}
+.news-table-wrap.is-selected{
+  outline:2px solid #ff8ac2;
+  outline-offset:2px;
+}
+.news-table-delete-btn{
+  position:absolute;
+  right:6px;
+  bottom:6px;
+  min-height:30px;
+  padding:0 10px;
+  border:1px solid #f0bfd4;
+  border-radius:999px;
+  background:#fff;
+  color:#d77ca7;
+  font-weight:900;
+  cursor:pointer;
+  z-index:5;
+}
+.news-table-menu-btn{
+  right:6px !important;
+  top:6px !important;
+}
+.news-table-menu{
+  right:6px !important;
+  top:40px !important;
+  z-index:8 !important;
+}
+.news-table-wrap table{
+  width:100%;
+  min-width:100%;
+}
+.news-table-wrap td{
+  min-width:80px;
+}
+
+
+/* ===== fix13: UI 보정 ===== */
+
+/* 2. panel-desc (NEWS 글쓰기 설명) 크기·간격 */
+.write-desc{
+  margin-top:10px !important;
+  font-size:16px !important;
+  font-weight:800 !important;
+  color:#8f7183 !important;
+  line-height:1.6 !important;
+}
+
+/* 4. 글꼴 레이블 / 글 ID·작성일 레이블 크기 — 분류 레이블(15px) 수준 */
+.font-panel-title{
+  font-size:15px !important;
+  font-weight:900 !important;
+  color:#b28ea2 !important;
+  margin-bottom:10px !important;
+}
+.side-box label:not(.side-check):not(.side-radio){
+  font-size:15px !important;
+  font-weight:900 !important;
+  color:#b28ea2 !important;
+}
+
+/* 3. 투표 모달 h2 축소 + panel-desc 간격 */
+.news-poll-modal .modal-head h2{
+  font-size:28px !important;
+  margin:6px 0 0 !important;
+}
+.news-poll-modal .modal-head .panel-desc{
+  margin-top:8px !important;
+  font-size:15px !important;
+  line-height:1.55 !important;
+}
+
+/* 5. locked 영역 — hidden 아닐 때만 표시, 중앙 정렬 유지 */
+#locked:not([hidden]){
+  margin-left:auto !important;
+  margin-right:auto !important;
+  display:block !important;
+}
+
+/* 7. 표 셀 가로 resize 복원 */
+.news-table-wrap{
+  overflow:hidden !important;
+}
+.news-table td,
+.news-table th{
+  resize:horizontal !important;
+  overflow:auto !important;
+  min-width:60px !important;
+}
+
+.news-table-menu-btn,
+.news-table-delete-btn,
+.news-table-menu{
+  display:none !important;
+}
+.news-table-wrap{
+  position:relative !important;
+  resize:none !important;
+  overflow:hidden !important;
+  padding:6px 0 !important;
+  margin:10px 0 !important;
+  min-height:unset !important;
+}
+.news-table-wrap.is-selected{
+  outline:2px solid #ff8ac2;
+  outline-offset:2px;
+}
+.news-body-editor.table-all-selected{
+  outline:2px solid #ff8ac2;
+  outline-offset:-2px;
+}
+.news-table{
+  width:100%;
+  table-layout:fixed;
+  border-collapse:collapse;
+}
+.news-table td,
+.news-table th{
+  min-width:60px;
+  word-break:break-all;
+  vertical-align:top;
+  resize:horizontal;
+  overflow:auto;
+  padding:8px;
+}
+
+/* ===== 우클릭 컨텍스트 메뉴 (네이버 스타일) ===== */
+#tableContextMenu{
+  position:fixed;
+  z-index:9999;
+  min-width:180px;
+  border:1px solid #f2d8e7;
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 12px 32px rgba(82,52,73,.18);
+  padding:6px 0;
+  display:none;
+}
+#tableContextMenu.show{display:block}
+#tableContextMenu button{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  min-height:42px;
+  border:0;
+  border-bottom:1px solid #f9eef5;
+  background:#fff;
+  color:#7f6a77;
+  font-size:14px;
+  font-weight:900;
+  text-align:left;
+  padding:0 16px;
+  cursor:pointer;
+  white-space:nowrap;
+}
+#tableContextMenu button:last-child{border-bottom:0}
+#tableContextMenu button:hover{background:#fff0f7;color:#ff59a5}
+#tableContextMenu button .ctx-icon{
+  font-size:16px;
+  width:22px;
+  text-align:center;
+  flex:0 0 auto;
+}
+#tableContextMenu hr{
+  border:0;
+  border-top:1px solid #f2d8e7;
+  margin:4px 0;
+}
+
+/* 3. 투표 모달 POLL 배지 ~ 제목 ~ 설명 간격 */
+.news-poll-modal .modal-head{
+  margin-bottom:0 !important;
+}
+.news-poll-modal .modal-head h2{
+  font-size:28px !important;
+  margin:6px 0 4px !important;
+}
+.news-poll-modal .modal-head .panel-desc{
+  margin-top:10px !important;
+  margin-bottom:2px !important;
+  font-size:15px !important;
+  line-height:1.6 !important;
+}
+
+/* 2. panel-desc (NEWS 글쓰기 설명) 크기·간격 */
+.write-desc{
+  margin-top:10px !important;
+  font-size:16px !important;
+  font-weight:800 !important;
+  color:#8f7183 !important;
+  line-height:1.6 !important;
+}
+
+/* 4. 글꼴 레이블 / 글 ID·작성일 레이블 크기 */
+.font-panel-title{
+  font-size:15px !important;
+  font-weight:900 !important;
+  color:#b28ea2 !important;
+  margin-bottom:10px !important;
+}
+.side-box label:not(.side-check):not(.side-radio){
+  font-size:15px !important;
+  font-weight:900 !important;
+  color:#b28ea2 !important;
+}
+
+
+/* ===== fix19: Ctrl+A 선택 핑크 테두리 제거 ===== */
+.news-body-editor.table-all-selected{
+  outline:none !important;
+  outline-offset:0 !important;
+}
+
+
+/* ===== fix20: 투표 설명 제거 / 표 삭제 조건 / 글씨 크기 안정화 ===== */
+.news-body-editor.table-all-selected{
+  outline:none !important;
+  outline-offset:0 !important;
+}
+.poll-desc-space{
+  height:14px !important;
+  margin:8px 0 2px !important;
+}
+.news-body-editor{
+  font-size:15px !important;
+}
+.news-body-editor span[data-lumi-font-size]{
+  line-height:inherit;
+}
+.news-table-wrap.is-selected{
+  outline:2px solid #ff8ac2 !important;
+  outline-offset:2px !important;
+}
+
+
+/* ===== fix21: 글씨 크기 선택/앞으로 입력 크기 보정 ===== */
+.font-size-stepper input:focus{
+  box-shadow:none !important;
+  outline:none !important;
+  border-color:transparent !important;
+}
+.news-body-editor span[data-lumi-font-size]{
+  font-size:inherit;
+}
+
+
+/* ===== fix22: 투표 모달 제목 위치 미세 조정 ===== */
+.news-poll-modal .modal-head h2{
+  margin-top:14px !important;
+}
+.news-poll-modal .modal-head{
+  padding-top:4px !important;
+}
+
+
+/* ===== fix23: 글씨 크기 직접입력/Undo 보정 ===== */
+.font-size-stepper input:focus{
+  box-shadow:none !important;
+  outline:none !important;
+}
+
+
+/* ===== fix24: 드래그 선택 유지한 채 글씨 크기 반복 조정 ===== */
+.font-size-stepper input:focus{
+  box-shadow:none !important;
+  outline:none !important;
+}
+.news-body-editor span[data-lumi-font-size]{
+  line-height:inherit;
+}
+
+
+/* ===== fix25: 글씨 크기 직접입력 선택영역 유지 ===== */
+.font-size-stepper input:focus{
+  box-shadow:none !important;
+  outline:none !important;
+}
+.news-body-editor span[data-lumi-font-size]{
+  line-height:inherit;
+}
+
+
+/* ===== fix26: 글씨 크기 두 번째 직접입력 유지 ===== */
+.news-body-editor span[data-lumi-active-font-target]{
+  outline:none !important;
+}
+
+
+/* ===== fix27: 설명 문구 제거 + 하단 액션 중앙 정렬 ===== */
+.write-page-header h1,
+.write-page-header .page-title,
+.write-page-header .panel-title{
+  margin-bottom: 10px !important;
+}
+.write-desc{
+  display:none !important;
+}
+.cafe-write-sidebar .side-actions{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:14px !important;
+  padding:8px 0 0 !important;
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  min-height:auto !important;
+}
+.cafe-write-sidebar .side-actions .btn{
+  flex:0 0 auto !important;
+}
+
+
+/* ===== SCHEDULE 관리: 가벼운 일정 등록형 ===== */
+.schedule-admin-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 340px;
+  gap:18px;
+  align-items:start;
+}
+.schedule-form-card,
+.schedule-mini-preview{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.88);
+  box-shadow:var(--shadow);
+  border-radius:28px;
+  padding:20px;
+}
+.schedule-form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.schedule-form-grid .full{grid-column:1/-1}
+.schedule-actions{
+  justify-content:flex-start;
+  margin-top:14px;
+}
+.schedule-mini-preview{
+  position:sticky;
+  top:18px;
+}
+.schedule-preview-inner{
+  margin-top:12px;
+  display:grid;
+  gap:10px;
+}
+.schedule-preview-card{
+  border:1px solid #f2d8e7;
+  background:#fff8fc;
+  border-radius:22px;
+  padding:18px;
+}
+.schedule-preview-date{
+  color:#d77ca7;
+  font-size:20px;
+  font-weight:900;
+  margin-bottom:12px;
+}
+.schedule-preview-topline{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  color:#b28ea2;
+  font-weight:900;
+  margin-bottom:8px;
+}
+.schedule-admin-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:26px;
+  padding:0 10px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:900;
+  border:1px solid transparent;
+  line-height:1;
+}
+.schedule-admin-badge.LIVE{background:#ffe7f1;color:#de77a7;border-color:#f3bfd5}
+.schedule-admin-badge.DEBUT{background:#f4ebff;color:#9f74d1;border-color:#dcc8fa}
+.schedule-admin-badge.EVENT{background:#eef7ff;color:#6f9bcf;border-color:#c9dff9}
+.schedule-admin-badge.예정{background:#fff0d9;color:#d58b42;border-color:#ffd8a5}
+.schedule-admin-badge.주최예정{background:#fff0f1;color:#de6c88;border-color:#f5c1cc}
+.schedule-preview-title{
+  color:#7f6a77;
+  font-size:18px;
+  font-weight:900;
+  margin:0 0 14px;
+}
+.schedule-preview-buttons{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.schedule-preview-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:38px;
+  padding:0 14px;
+  border-radius:999px;
+  border:1px solid #efbfd4;
+  background:#fff;
+  color:#e27aa9;
+  font-size:13px;
+  font-weight:900;
+}
+.schedule-preview-btn.detail{
+  background:#f4f0ff;
+  color:#8d70d5;
+  border-color:#d7caf6;
+}
+.schedule-preview-btn.muted{
+  opacity:.66;
+}
+.schedule-admin-tabs{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:18px 0 12px;
+}
+.schedule-filter{
+  min-height:38px;
+  padding:0 18px;
+  border-radius:999px;
+  border:1px solid #f0bfd4;
+  background:#fff;
+  color:#d77ca7;
+  font-weight:900;
+  cursor:pointer;
+}
+.schedule-filter.active,
+.schedule-filter:hover{
+  background:#ff5fa5;
+  color:#fff;
+  border-color:#ff5fa5;
+}
+.schedule-admin-list{
+  border:1px solid #f2d8e7;
+  border-radius:24px;
+  overflow:hidden;
+  background:#fff5fb;
+}
+.schedule-admin-row{
+  display:grid;
+  grid-template-columns:118px 88px minmax(0,1fr) 210px 150px 172px;
+  align-items:center;
+  gap:12px;
+  padding:16px 18px;
+  border-bottom:1px solid #f2d8e7;
+}
+.schedule-admin-row:last-child{border-bottom:0}
+.schedule-admin-row:hover{background:#fff0f7}
+.schedule-admin-date{
+  color:#ff5fa5;
+  font-size:16px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.schedule-admin-title{
+  min-width:0;
+  color:#846f81;
+  font-size:16px;
+  font-weight:900;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.schedule-admin-venue{
+  min-width:0;
+  color:#9f7d90;
+  font-size:13px;
+  font-weight:800;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.schedule-admin-buttons{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.schedule-admin-actions{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.schedule-admin-actions .mini-btn{
+  min-height:30px;
+  padding:0 10px;
+  border-radius:999px;
+  border:1px solid #f0bfd4;
+  background:#fff;
+  color:#d77ca7;
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+}
+@media(max-width:1080px){
+  .schedule-admin-layout{grid-template-columns:1fr}
+  .schedule-mini-preview{position:static}
+  .schedule-admin-row{grid-template-columns:90px 76px 1fr}
+  .schedule-admin-venue,.schedule-admin-buttons,.schedule-admin-actions{grid-column:3}
+  .schedule-admin-actions{justify-content:flex-start}
+}
+@media(max-width:760px){
+  .schedule-form-grid{grid-template-columns:1fr}
+  .schedule-admin-row{grid-template-columns:1fr}
+  .schedule-admin-date,.schedule-admin-venue,.schedule-admin-buttons,.schedule-admin-actions{grid-column:auto}
+}
+
+
+/* ===== fix-schedule-admin-03: SCHEDULE 관리 화면 정돈 ===== */
+#schedule{
+  max-width: 1360px !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+
+#schedule .panel-head{
+  align-items:flex-start !important;
+  gap:18px !important;
+  padding-bottom:18px !important;
+}
+
+#schedule .panel-head h2{
+  font-size:34px !important;
+  letter-spacing:-.03em !important;
+  margin-bottom:10px !important;
+}
+
+#schedule .panel-desc{
+  font-size:15px !important;
+  line-height:1.7 !important;
+  color:#846f81 !important;
+}
+
+#schedule .schedule-admin-layout{
+  grid-template-columns:minmax(0, 1fr) 360px !important;
+  gap:22px !important;
+  align-items:stretch !important;
+}
+
+#schedule .schedule-form-card,
+#schedule .schedule-mini-preview{
+  background:rgba(255,255,255,.94) !important;
+  border:1px solid #f2cfe0 !important;
+  border-radius:30px !important;
+  box-shadow:0 18px 44px rgba(255, 118, 173, .10) !important;
+}
+
+#schedule .schedule-form-card{
+  padding:24px 26px 22px !important;
+}
+
+#schedule .schedule-mini-preview{
+  padding:22px !important;
+  min-height:100% !important;
+}
+
+#schedule .schedule-form-grid{
+  gap:16px 16px !important;
+}
+
+#schedule .field label{
+  font-size:14px !important;
+  font-weight:900 !important;
+  color:#cf79a5 !important;
+  margin-bottom:8px !important;
+}
+
+#schedule input,
+#schedule select{
+  height:54px !important;
+  border-radius:18px !important;
+  border:1px solid #efbfd4 !important;
+  background:#fff !important;
+  color:#786675 !important;
+  font-size:15px !important;
+  font-weight:800 !important;
+  padding:0 18px !important;
+}
+
+#schedule input::placeholder{
+  color:#a98fa0 !important;
+  opacity:.85 !important;
+}
+
+#schedule input:focus,
+#schedule select:focus{
+  outline:none !important;
+  border-color:#ff7ab4 !important;
+  box-shadow:0 0 0 4px rgba(255, 122, 180, .12) !important;
+}
+
+#schedule .schedule-actions{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:12px !important;
+  padding-top:18px !important;
+  margin-top:18px !important;
+  border-top:1px solid #f7d8e7 !important;
+}
+
+#schedule .schedule-actions .btn{
+  min-height:46px !important;
+  padding:0 20px !important;
+}
+
+#schedule .schedule-mini-preview .eyebrow{
+  margin-bottom:14px !important;
+}
+
+#schedule .schedule-preview-card{
+  min-height:178px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  gap:10px !important;
+  padding:22px !important;
+  background:linear-gradient(135deg, #fff8fc 0%, #fff 100%) !important;
+}
+
+#schedule .schedule-preview-date{
+  font-size:18px !important;
+  margin-bottom:4px !important;
+}
+
+#schedule .schedule-preview-topline{
+  margin-bottom:0 !important;
+}
+
+#schedule .schedule-preview-title{
+  font-size:20px !important;
+  margin:2px 0 8px !important;
+  line-height:1.35 !important;
+}
+
+#schedule .schedule-preview-btn{
+  min-height:36px !important;
+  padding:0 16px !important;
+}
+
+#schedule .schedule-admin-tabs{
+  margin:24px 0 14px !important;
+  justify-content:flex-start !important;
+}
+
+#schedule .schedule-filter{
+  min-width:72px !important;
+  min-height:42px !important;
+  font-size:14px !important;
+}
+
+#schedule .schedule-admin-list{
+  background:rgba(255,255,255,.82) !important;
+  border-radius:26px !important;
+  box-shadow:0 14px 34px rgba(255, 118, 173, .08) !important;
+}
+
+#schedule .schedule-admin-list .small{
+  text-align:center !important;
+  color:#a98fa0 !important;
+  font-weight:900 !important;
+  padding:30px 18px !important;
+}
+
+#schedule .schedule-admin-row{
+  grid-template-columns:126px 90px minmax(180px,1fr) minmax(160px,220px) 156px 184px !important;
+  min-height:72px !important;
+}
+
+#schedule .schedule-admin-date{
+  font-size:17px !important;
+}
+
+#schedule .schedule-admin-title{
+  font-size:17px !important;
+}
+
+#schedule .schedule-admin-venue{
+  font-size:14px !important;
+}
+
+@media(max-width:1180px){
+  #schedule .schedule-admin-layout{
+    grid-template-columns:1fr !important;
+  }
+  #schedule .schedule-mini-preview{
+    position:static !important;
+  }
+}
+
+@media(max-width:760px){
+  #schedule .schedule-form-card,
+  #schedule .schedule-mini-preview{
+    padding:18px !important;
+    border-radius:24px !important;
+  }
+  #schedule .schedule-actions{
+    flex-wrap:wrap !important;
+  }
+  #schedule .schedule-actions .btn{
+    flex:1 1 auto !important;
+  }
+}
+
+
+/* ===== SCHEDULE NEWS형 관리자 화면 ===== */
+.schedule-admin-panel .panel-desc{max-width:720px}
+.schedule-admin-list .schedule-row-news{
+  display:grid;
+  grid-template-columns:34px 92px 92px minmax(190px,1fr) minmax(160px,220px) 178px 264px;
+  align-items:center;
+  gap:12px;
+  padding:16px 18px;
+  border-bottom:1px solid #f2d8e7;
+  background:rgba(255,255,255,.45);
+}
+.schedule-admin-list .schedule-row-news:hover{background:#fff0f7}
+.schedule-row-news:last-child{border-bottom:0}
+.schedule-date-short{color:#9f7d90;font-weight:900;font-size:15px;white-space:nowrap}
+.schedule-title-main{color:#7f6a77;font-weight:900;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.schedule-place-main{color:#a48698;font-weight:800;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.schedule-visibility-pills,.schedule-button-pills,.schedule-row-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.schedule-pill{display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:0 10px;border-radius:999px;border:1px solid #efbfd4;background:#fff;color:#d77ca7;font-weight:900;font-size:12px;white-space:nowrap}
+.schedule-pill.off{color:#b7a4b0;border-color:#e8d8e2;background:#fffafd}
+.schedule-pill.detail{color:#8d70d5;border-color:#d7caf6;background:#f7f2ff}
+.schedule-row-actions .mini-btn{min-height:30px;padding:0 10px;border-radius:999px;border:1px solid #f0bfd4;background:#fff;color:#d77ca7;font-size:12px;font-weight:900;cursor:pointer}
+.schedule-row-actions .mini-btn:hover{background:#ff5fa5;color:#fff;border-color:#ff5fa5}
+.schedule-calendar-admin-box{margin-top:22px;border:1px solid #f2d8e7;border-radius:28px;background:rgba(255,255,255,.72);padding:22px;box-shadow:0 18px 44px rgba(255,118,173,.08)}
+.schedule-calendar-head{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:10px}
+.schedule-calendar-head h3{margin:0;color:#d77ca7;font-size:24px;font-weight:900;letter-spacing:.02em}
+.schedule-calendar-note{text-align:center;color:#a98fa0;font-size:13px;font-weight:800;margin-bottom:16px}
+.schedule-calendar-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-bottom:10px;color:#c889a9;font-size:12px;font-weight:900;text-align:center}
+.schedule-calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
+.schedule-cal-day{min-height:104px;border:1px solid #f2d8e7;border-radius:18px;background:#fff; padding:10px; cursor:pointer; transition:.15s ease; position:relative}
+.schedule-cal-day:hover{transform:translateY(-1px);border-color:#ff9cc8;box-shadow:0 10px 24px rgba(255,118,173,.12)}
+.schedule-cal-day.empty{background:transparent;border-color:transparent;box-shadow:none;cursor:default}
+.schedule-cal-day.selected{background:#fff0f7;border-color:#ff8ac2}
+.schedule-cal-head{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.schedule-cal-num{font-size:17px;font-weight:900;color:#9f7d90}
+.schedule-cal-title{font-size:13px;line-height:1.35;font-weight:900;color:#7f6a77;word-break:keep-all}
+.schedule-calendar-detail{margin-top:16px;border:1px solid #f2d8e7;border-radius:20px;background:#fff;padding:16px;color:#846f81;font-weight:800;text-align:center}
+.schedule-detail-row{display:flex;justify-content:space-between;align-items:center;gap:14px;text-align:left}
+.schedule-detail-main{display:grid;gap:6px}.schedule-detail-date{font-size:18px;color:#d77ca7;font-weight:900}
+.schedule-detail-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.schedule-write-form-card{border:1px solid #f2d8e7;border-radius:26px;background:rgba(255,255,255,.78);padding:18px;display:grid;gap:14px;margin-top:14px}
+.schedule-write-form-card label{display:grid;gap:8px;color:#cf79a5;font-weight:900;font-size:14px}
+.schedule-write-form-card input{min-height:52px;border-radius:18px;border:1px solid #efbfd4;padding:0 16px;font-weight:800;color:#786675;background:#fff}
+.schedule-title-box .write-select-row{grid-template-columns:1fr 1fr}
+.schedule-title-box select,.schedule-title-box input[type="date"]{width:100%;min-height:52px;border:0;background:transparent;font-size:16px;font-weight:900;color:#786675}
+.schedule-write-calendar-box{margin-top:14px;border:1px solid #f2d8e7;border-radius:26px;background:rgba(255,255,255,.64);padding:18px}
+.schedule-calendar-head.small-head h3{font-size:20px}.compact-calendar .schedule-cal-day{min-height:78px;border-radius:16px;padding:8px}.compact-calendar .schedule-cal-title{font-size:12px}
+.schedule-side-preview .schedule-preview-card{box-shadow:none}.schedule-preview-card{border:1px solid #f2d8e7;background:#fff8fc;border-radius:20px;padding:16px}.schedule-preview-date{color:#d77ca7;font-size:17px;font-weight:900;margin-bottom:8px}.schedule-preview-topline{display:flex;gap:8px;align-items:center;flex-wrap:wrap;color:#a48698;font-weight:900;margin-bottom:8px}.schedule-preview-title{color:#7f6a77;font-weight:900;font-size:18px;margin:0 0 12px}.schedule-preview-buttons{display:flex;gap:8px;flex-wrap:wrap}.schedule-preview-btn{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 13px;border:1px solid #efbfd4;border-radius:999px;background:#fff;color:#e27aa9;font-size:12px;font-weight:900}.schedule-preview-btn.detail{color:#8d70d5;border-color:#d7caf6;background:#f7f2ff}.schedule-preview-btn.muted{color:#b7a4b0;border-color:#ead9e4;background:#fffafd}.schedule-admin-badge{display:inline-flex;align-items:center;justify-content:center;min-height:26px;padding:0 10px;border-radius:999px;font-size:11px;font-weight:900;border:1px solid transparent;line-height:1}.schedule-admin-badge.LIVE{background:#e8f5ff;color:#6f9bcf;border-color:#c9dff9}.schedule-admin-badge.DEBUT{background:#f4ebff;color:#9f74d1;border-color:#dcc8fa}.schedule-admin-badge.EVENT{background:#ffe7f1;color:#de77a7;border-color:#f3bfd5}.schedule-admin-badge.예정{background:#fff0d9;color:#d58b42;border-color:#ffd8a5}.schedule-admin-badge.주최예정{background:#fff0f1;color:#de6c88;border-color:#f5c1cc}
+@media(max-width:1100px){.schedule-admin-list .schedule-row-news{grid-template-columns:30px 84px 84px 1fr}.schedule-place-main,.schedule-button-pills,.schedule-row-actions{grid-column:4}.schedule-row-actions{justify-content:flex-start}.schedule-write-layout{grid-template-columns:1fr!important}.schedule-write-panel .cafe-write-sidebar{position:static!important}}
+@media(max-width:760px){.schedule-admin-list .schedule-row-news{grid-template-columns:28px 1fr}.schedule-date-short,.schedule-row-actions,.schedule-place-main,.schedule-button-pills,.schedule-visibility-pills{grid-column:2}.schedule-calendar-grid,.schedule-calendar-weekdays{gap:6px}.schedule-cal-day{min-height:74px;padding:7px}.schedule-cal-title{font-size:11px}.schedule-title-box .write-select-row{grid-template-columns:1fr}}
+
+
+/* ===== schedule-admin-v2: 공홈 스케줄형 관리자 ===== */
+
+/* NEWS처럼 작은 체크박스 유지 */
+#schedule input[type="checkbox"],
+#scheduleWrite input[type="checkbox"]{
+  width:14px !important;
+  height:14px !important;
+  min-width:14px !important;
+  min-height:14px !important;
+  max-width:14px !important;
+  max-height:14px !important;
+  transform:none !important;
+  accent-color:#ff5fa5;
+}
+#schedule .board-check,
+#schedule .row-check,
+#schedule .select-all-check,
+#scheduleWrite .side-check input{
+  width:14px !important;
+  height:14px !important;
+}
+
+/* 스케줄 목록은 공지 관리 톤 유지 */
+#schedule .schedule-board-row{
+  display:grid !important;
+  grid-template-columns: 34px 118px 92px minmax(220px,1.15fr) minmax(180px,.9fr) 185px 250px !important;
+  align-items:center !important;
+  min-height:70px !important;
+  padding:0 22px !important;
+  gap:14px !important;
+  border-bottom:1px solid #f2d8e7 !important;
+}
+#schedule .schedule-board-row:last-child{border-bottom:0 !important;}
+#schedule .schedule-board-row:hover{background:#fff5fb !important;}
+#schedule .schedule-board-date{
+  font-size:15px !important;
+  font-weight:900 !important;
+  color:#a98296 !important;
+  white-space:nowrap !important;
+}
+#schedule .schedule-board-title{
+  font-size:16px !important;
+  font-weight:900 !important;
+  color:#786675 !important;
+  min-width:0 !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:nowrap !important;
+}
+#schedule .schedule-board-venue{
+  font-size:14px !important;
+  font-weight:800 !important;
+  color:#9f7d90 !important;
+  min-width:0 !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:nowrap !important;
+}
+#schedule .schedule-board-pills{
+  display:flex !important;
+  gap:6px !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+}
+#schedule .schedule-row-actions{
+  display:flex !important;
+  gap:6px !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+}
+
+/* 목록 아래 MORE SCHEDULE: 공홈 버튼 느낌 */
+#schedule .schedule-more-area{
+  margin-top:24px !important;
+  display:flex !important;
+  justify-content:center !important;
+}
+#schedule .schedule-more-btn{
+  border:0 !important;
+  min-width:190px !important;
+  min-height:50px !important;
+  padding:0 28px !important;
+  border-radius:999px !important;
+  background:linear-gradient(135deg,#f8d4e5,#f0c9dc) !important;
+  color:#c76f9c !important;
+  font-size:15px !important;
+  font-weight:900 !important;
+  letter-spacing:.03em !important;
+  box-shadow:0 14px 28px rgba(220, 124, 167, .16) !important;
+  cursor:pointer !important;
+}
+#schedule .schedule-more-btn:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.03);
+}
+
+/* 관리자 캘린더 박스는 공홈 schedule.html 캘린더처럼 */
+#schedule .schedule-calendar-admin-box,
+#scheduleWrite .schedule-write-calendar-box{
+  margin-top:22px !important;
+  border:1px solid #f2d8e7 !important;
+  border-radius:30px !important;
+  background:rgba(255,248,252,.72) !important;
+  padding:32px !important;
+  box-shadow:0 18px 44px rgba(255,118,173,.08) !important;
+}
+#schedule .schedule-calendar-admin-box.is-hidden{
+  display:none !important;
+}
+#schedule .schedule-calendar-head,
+#scheduleWrite .schedule-calendar-head{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:18px !important;
+  margin:0 0 18px !important;
+}
+#schedule .schedule-calendar-head h3,
+#scheduleWrite .schedule-calendar-head h3{
+  margin:0 !important;
+  color:#d77ca7 !important;
+  font-size:28px !important;
+  font-weight:900 !important;
+  letter-spacing:.02em !important;
+}
+#schedule .calendar-nav-btn,
+#scheduleWrite .calendar-nav-btn{
+  width:36px !important;
+  height:36px !important;
+  border-radius:50% !important;
+  border:1px solid #efbfd4 !important;
+  background:#fff !important;
+  color:#d77ca7 !important;
+  font-weight:900 !important;
+  cursor:pointer !important;
+}
+#schedule .schedule-calendar-note,
+#scheduleWrite .schedule-calendar-note{
+  text-align:center !important;
+  color:#a98fa0 !important;
+  font-size:13px !important;
+  font-weight:800 !important;
+  margin:0 0 22px !important;
+}
+#schedule .schedule-calendar-weekdays,
+#scheduleWrite .schedule-calendar-weekdays{
+  display:grid !important;
+  grid-template-columns:repeat(7,1fr) !important;
+  gap:10px !important;
+  margin-bottom:12px !important;
+  color:#c889a9 !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+  text-align:center !important;
+}
+#schedule .schedule-calendar-grid,
+#scheduleWrite .schedule-calendar-grid{
+  display:grid !important;
+  grid-template-columns:repeat(7,1fr) !important;
+  gap:10px !important;
+}
+#schedule .schedule-cal-day,
+#scheduleWrite .schedule-cal-day{
+  min-height:112px !important;
+  border:1px solid #f2d8e7 !important;
+  border-radius:20px !important;
+  background:#fff !important;
+  padding:12px !important;
+  cursor:pointer !important;
+  transition:.15s ease !important;
+  position:relative !important;
+}
+#schedule .schedule-cal-day:hover,
+#scheduleWrite .schedule-cal-day:hover{
+  transform:translateY(-1px) !important;
+  border-color:#ff9cc8 !important;
+  box-shadow:0 10px 24px rgba(255,118,173,.12) !important;
+}
+#schedule .schedule-cal-day.empty,
+#scheduleWrite .schedule-cal-day.empty{
+  background:transparent !important;
+  border-color:transparent !important;
+  box-shadow:none !important;
+  cursor:default !important;
+}
+#schedule .schedule-cal-day.selected,
+#scheduleWrite .schedule-cal-day.selected{
+  background:#fff0f7 !important;
+  border-color:#ff8ac2 !important;
+}
+#schedule .schedule-cal-head,
+#scheduleWrite .schedule-cal-head{
+  display:flex !important;
+  align-items:center !important;
+  gap:7px !important;
+  flex-wrap:wrap !important;
+  margin-bottom:7px !important;
+}
+#schedule .schedule-cal-num,
+#scheduleWrite .schedule-cal-num{
+  font-size:18px !important;
+  line-height:1 !important;
+  font-weight:900 !important;
+  color:#9f7d90 !important;
+}
+#schedule .schedule-cal-title,
+#scheduleWrite .schedule-cal-title{
+  font-size:13.5px !important;
+  line-height:1.35 !important;
+  font-weight:900 !important;
+  color:#7f6a77 !important;
+  word-break:keep-all !important;
+}
+#schedule .schedule-calendar-detail,
+#scheduleWrite .schedule-calendar-detail{
+  margin-top:20px !important;
+  border:1px solid #f2d8e7 !important;
+  background:#fff !important;
+  border-radius:22px !important;
+  min-height:76px !important;
+  padding:20px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+#schedule .schedule-calendar-detail .detail-empty,
+#scheduleWrite .schedule-calendar-detail .detail-empty{
+  color:#a98fa0 !important;
+  font-weight:800 !important;
+}
+
+/* 글쓰기 내부 캘린더도 압축형 제거하고 공홈형으로 */
+#scheduleWrite .schedule-write-calendar-box{
+  margin-top:22px !important;
+  padding:30px !important;
+}
+#scheduleWrite .compact-calendar .schedule-cal-day{
+  min-height:112px !important;
+  border-radius:20px !important;
+  padding:12px !important;
+}
+#scheduleWrite .schedule-calendar-head.small-head h3{
+  font-size:28px !important;
+}
+
+/* 모바일/좁은 화면 */
+@media(max-width:1100px){
+  #schedule .schedule-board-row{
+    grid-template-columns:34px 92px 78px 1fr !important;
+  }
+  #schedule .schedule-board-venue,
+  #schedule .schedule-board-pills,
+  #schedule .schedule-row-actions{
+    grid-column:4 !important;
+    justify-content:flex-start !important;
+  }
+  #schedule .schedule-calendar-grid,
+  #scheduleWrite .schedule-calendar-grid{
+    gap:7px !important;
+  }
+  #schedule .schedule-cal-day,
+  #scheduleWrite .schedule-cal-day{
+    min-height:92px !important;
+    padding:9px !important;
+  }
+}
+@media(max-width:760px){
+  #schedule .schedule-calendar-admin-box,
+  #scheduleWrite .schedule-write-calendar-box{
+    padding:18px !important;
+    border-radius:24px !important;
+    overflow-x:auto !important;
+  }
+  #schedule .schedule-calendar-grid,
+  #schedule .schedule-calendar-weekdays,
+  #scheduleWrite .schedule-calendar-grid,
+  #scheduleWrite .schedule-calendar-weekdays{
+    min-width:720px !important;
+  }
+}
+
+
+/* ===== v3: NEWS/SCHEDULE 검색 + 작은 페이지네이션 ===== */
+.admin-search-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:14px 0 14px;
+}
+.admin-search-input{
+  width:100%;
+  max-width:420px;
+  height:42px;
+  border:1px solid #efbfd4;
+  border-radius:999px;
+  background:rgba(255,255,255,.92);
+  color:#7f6a77;
+  font-size:14px;
+  font-weight:800;
+  padding:0 18px;
+  outline:none;
+}
+.admin-search-input::placeholder{
+  color:#b796a8;
+}
+.admin-search-input:focus{
+  border-color:#ff7ab4;
+  box-shadow:0 0 0 4px rgba(255,122,180,.12);
+}
+.admin-pager{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:14px;
+  margin:18px 0 4px;
+}
+.admin-pager-btn{
+  width:34px;
+  height:34px;
+  border-radius:999px;
+  border:1px solid #efbfd4;
+  background:#fff;
+  color:#d77ca7;
+  font-size:18px;
+  font-weight:900;
+  line-height:1;
+  cursor:pointer;
+}
+.admin-pager-btn:disabled{
+  opacity:.35;
+  cursor:default;
+}
+.admin-pager-label{
+  min-width:74px;
+  text-align:center;
+  color:#9f7d90;
+  font-size:14px;
+  font-weight:900;
+}
+#schedule .schedule-admin-list .schedule-row-news{
+  grid-template-columns:34px 104px 88px minmax(210px,1.2fr) minmax(180px,.8fr) 176px 244px !important;
+}
+#schedule .select-all-line input,
+#news .select-all-line input,
+#schedule input.schedule-check,
+#news input.news-check{
+  width:14px !important;
+  height:14px !important;
+  min-width:14px !important;
+  min-height:14px !important;
+  max-width:14px !important;
+  max-height:14px !important;
+  transform:none !important;
+  accent-color:#ff5fa5 !important;
+}
+@media(max-width:760px){
+  .admin-search-input{max-width:none}
+  .admin-search-row{margin:12px 0}
+}
+
+
+/* ===== v4: SCHEDULE 관리 크기 NEWS 관리 기준으로 통일 ===== */
+#schedule{
+  max-width:1240px !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+
+#schedule .panel-head{
+  padding-bottom:0 !important;
+  margin-bottom:18px !important;
+}
+
+#schedule .panel-head h2{
+  font-size:32px !important;
+  line-height:1.15 !important;
+  margin:0 0 12px !important;
+  letter-spacing:-.03em !important;
+}
+
+#schedule .panel-desc{
+  font-size:15px !important;
+  line-height:1.6 !important;
+  margin:0 !important;
+}
+
+#schedule .news-admin-tabs{
+  margin:22px 0 12px !important;
+  gap:10px !important;
+}
+
+#schedule .news-filter,
+#schedule .schedule-filter{
+  min-width:auto !important;
+  height:42px !important;
+  padding:0 20px !important;
+  border-radius:999px !important;
+  font-size:14px !important;
+  line-height:1 !important;
+}
+
+#schedule .admin-search-row{
+  margin:10px 0 14px !important;
+}
+
+#schedule .admin-search-input{
+  width:420px !important;
+  max-width:420px !important;
+  height:42px !important;
+  padding:0 18px !important;
+  border-radius:999px !important;
+  font-size:14px !important;
+}
+
+#schedule .news-board-tools{
+  min-height:64px !important;
+  padding:0 24px !important;
+  border-radius:22px !important;
+  margin:0 0 14px !important;
+}
+
+#schedule .select-all-line{
+  gap:10px !important;
+  font-size:13px !important;
+  line-height:1.35 !important;
+}
+
+#schedule .select-all-line input,
+#schedule input[type="checkbox"],
+#schedule input.schedule-check{
+  width:14px !important;
+  height:14px !important;
+  min-width:14px !important;
+  min-height:14px !important;
+  max-width:14px !important;
+  max-height:14px !important;
+  transform:none !important;
+}
+
+#schedule .bulk-actions{
+  gap:8px !important;
+}
+
+#schedule .bulk-actions .btn{
+  min-height:40px !important;
+  height:40px !important;
+  padding:0 18px !important;
+  font-size:13px !important;
+  border-radius:999px !important;
+}
+
+#schedule .schedule-admin-list,
+#schedule .news-admin-list{
+  border-radius:22px !important;
+  margin-top:0 !important;
+}
+
+#schedule .schedule-row-news{
+  min-height:64px !important;
+  padding:0 24px !important;
+  gap:12px !important;
+  grid-template-columns:34px 104px 92px minmax(210px,1.15fr) minmax(180px,.85fr) 178px 232px !important;
+}
+
+#schedule .schedule-date-short{
+  font-size:15px !important;
+}
+
+#schedule .schedule-title-main{
+  font-size:16px !important;
+}
+
+#schedule .schedule-place-main{
+  font-size:14px !important;
+}
+
+#schedule .schedule-admin-badge,
+#schedule .news-status-pill,
+#schedule .mini-btn{
+  transform:none !important;
+}
+
+#schedule .schedule-row-actions{
+  gap:6px !important;
+}
+
+#schedule .schedule-row-actions .mini-btn{
+  min-height:32px !important;
+  padding:0 12px !important;
+  font-size:12px !important;
+}
+
+#schedule .schedule-button-pills{
+  gap:5px !important;
+}
+
+#schedule .schedule-button-pills .news-status-pill,
+#schedule .schedule-button-pills .schedule-admin-badge{
+  min-height:28px !important;
+  padding:0 10px !important;
+  font-size:11.5px !important;
+}
+
+#schedule .admin-pager{
+  margin:16px 0 2px !important;
+}
+
+#schedule .admin-pager-btn{
+  width:32px !important;
+  height:32px !important;
+  font-size:17px !important;
+}
+
+#schedule .admin-pager-label{
+  font-size:14px !important;
+}
+
+/* 캘린더는 공홈형 유지하되 버튼 위치/여백만 목록에 맞춤 */
+#schedule .schedule-more-area{
+  margin-top:18px !important;
+}
+
+#schedule .schedule-more-btn{
+  min-width:180px !important;
+  min-height:46px !important;
+  font-size:14px !important;
+}
+
+#schedule .news-board-note{
+  margin-top:14px !important;
+  font-size:13px !important;
+}
+
+/* NEWS와 SCHEDULE의 카드 높이 차이를 만드는 이전 보정 무력화 */
+#schedule .schedule-admin-list .small{
+  padding:24px 18px !important;
+  min-height:auto !important;
+}
+
+@media(max-width:760px){
+  #schedule .admin-search-input{
+    width:100% !important;
+    max-width:none !important;
+  }
+}
+
+
+/* ===== v5: 관리자 콘텐츠 공통 폭 확장 + SCHEDULE 칩 오버 방지 ===== */
+
+/* NEWS / SCHEDULE / 이후 TICKET까지 같은 관리자 카드 폭 기준 */
+#news,
+#schedule{
+  max-width:1280px !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+
+/* 공지와 스케줄 둘 다 너무 압축되지 않게 같은 폭으로 */
+#news .panel-inner,
+#schedule .panel-inner{
+  width:100% !important;
+}
+
+/* NEWS 쪽도 스케줄 기준 폭에 맞춰 여유 확보 */
+#news .news-admin-list,
+#news .news-board-tools,
+#schedule .news-admin-list,
+#schedule .news-board-tools{
+  width:100% !important;
+}
+
+/* 검색창은 둘 다 같은 크기 */
+#news .admin-search-input,
+#schedule .admin-search-input{
+  width:430px !important;
+  max-width:430px !important;
+  height:42px !important;
+}
+
+/* SCHEDULE 행은 정보가 많으므로 칸 비율 재조정 */
+#schedule .schedule-row-news{
+  display:grid !important;
+  grid-template-columns:
+    30px
+    86px
+    74px
+    minmax(180px, 1fr)
+    minmax(160px, .85fr)
+    minmax(150px, 170px)
+    minmax(220px, 240px) !important;
+  gap:12px !important;
+  align-items:center !important;
+  padding:0 22px !important;
+  min-height:66px !important;
+}
+
+/* 스케줄 상태 칩은 2줄까지 자연스럽게 */
+#schedule .schedule-button-pills{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  gap:5px 6px !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  min-width:0 !important;
+  max-width:170px !important;
+}
+
+#schedule .schedule-button-pills .news-status-pill,
+#schedule .schedule-button-pills .schedule-admin-badge{
+  height:26px !important;
+  min-height:26px !important;
+  padding:0 9px !important;
+  font-size:11px !important;
+  line-height:24px !important;
+  white-space:nowrap !important;
+}
+
+/* 오른쪽 관리 버튼 영역은 겹치지 않게 고정 */
+#schedule .schedule-row-actions{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  gap:6px !important;
+  justify-content:flex-end !important;
+  align-items:center !important;
+  min-width:220px !important;
+}
+
+#schedule .schedule-row-actions .mini-btn{
+  height:32px !important;
+  min-height:32px !important;
+  padding:0 12px !important;
+  font-size:12px !important;
+  white-space:nowrap !important;
+}
+
+/* 제목/장소 말줄임 안정화 */
+#schedule .schedule-title-main,
+#schedule .schedule-place-main{
+  min-width:0 !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:nowrap !important;
+}
+
+/* NEWS 행도 확장 폭 기준으로 살짝 여유 있게 */
+#news .news-admin-row{
+  grid-template-columns:30px 94px 96px minmax(260px,1fr) 78px 86px 220px !important;
+  gap:12px !important;
+  padding-left:22px !important;
+  padding-right:22px !important;
+}
+
+/* 체크박스는 다시 작게 고정 */
+#news input[type="checkbox"],
+#schedule input[type="checkbox"]{
+  width:14px !important;
+  height:14px !important;
+  min-width:14px !important;
+  min-height:14px !important;
+  max-width:14px !important;
+  max-height:14px !important;
+  transform:none !important;
+}
+
+/* 캘린더는 유지, 단 관리자 카드 폭 안에서만 */
+#schedule .schedule-calendar-admin-box{
+  width:100% !important;
+  box-sizing:border-box !important;
+}
+
+/* 좁은 화면에서는 행을 깨뜨려 오버 방지 */
+@media(max-width:1120px){
+  #schedule .schedule-row-news{
+    grid-template-columns:30px 78px 72px minmax(180px,1fr) !important;
+    row-gap:8px !important;
+    min-height:92px !important;
+    padding-top:12px !important;
+    padding-bottom:12px !important;
+  }
+  #schedule .schedule-place-main{
+    grid-column:4 !important;
+  }
+  #schedule .schedule-button-pills{
+    grid-column:4 !important;
+    max-width:none !important;
+  }
+  #schedule .schedule-row-actions{
+    grid-column:4 !important;
+    justify-content:flex-start !important;
+    min-width:0 !important;
+  }
+  #news .news-admin-row{
+    grid-template-columns:30px 86px 90px minmax(200px,1fr) !important;
+    row-gap:8px !important;
+    min-height:86px !important;
+  }
+  #news .news-row-actions{
+    grid-column:4 !important;
+    justify-content:flex-start !important;
+  }
+}
+
+@media(max-width:760px){
+  #news .admin-search-input,
+  #schedule .admin-search-input{
+    width:100% !important;
+    max-width:none !important;
+  }
+}
+
+
+/* ===== schedule-v5-fix1: 캘린더 칩 제거 후 칩 영역 정리 ===== */
+#schedule .schedule-button-pills{
+  max-width:140px !important;
+  gap:5px 6px !important;
+}
+#schedule .schedule-button-pills .news-status-pill{
+  white-space:nowrap !important;
+}
+
+
+/* ===== schedule-fix3: 목록 칩 TICKET / DETAIL only ===== */
+#schedule .schedule-button-pills:empty{
+  display:block !important;
+  min-height:1px !important;
+}
+
+
+/* ===== schedule-fix4b: 캘린더 날짜 클릭 상세카드 공홈 스케줄형 ===== */
+#schedule .schedule-calendar-detail{
+  margin-top:18px !important;
+  border:0 !important;
+  background:transparent !important;
+  padding:0 !important;
+  text-align:left !important;
+}
+
+#schedule .schedule-calendar-detail .detail-empty{
+  margin:0 !important;
+  border:1px solid #f2d8e7 !important;
+  border-radius:24px !important;
+  background:rgba(255,255,255,.86) !important;
+  min-height:74px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  color:#a98fa0 !important;
+  font-size:14px !important;
+  font-weight:800 !important;
+}
+
+#schedule .schedule-detail-card-public{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) auto !important;
+  align-items:center !important;
+  gap:20px !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+  border:1px solid #f2d8e7 !important;
+  border-radius:24px !important;
+  background:rgba(255,255,255,.88) !important;
+  padding:24px 28px !important;
+  margin:0 0 12px !important;
+  min-height:128px !important;
+  box-shadow:0 12px 30px rgba(255,118,173,.06) !important;
+}
+
+#schedule .schedule-detail-public-main{
+  display:grid !important;
+  gap:9px !important;
+  min-width:0 !important;
+}
+
+#schedule .schedule-detail-public-date{
+  color:#d77ca7 !important;
+  font-size:24px !important;
+  line-height:1.1 !important;
+  font-weight:900 !important;
+  letter-spacing:.01em !important;
+}
+
+#schedule .schedule-detail-public-meta{
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  flex-wrap:wrap !important;
+  color:#a48698 !important;
+  font-size:14px !important;
+  font-weight:800 !important;
+}
+
+#schedule .schedule-detail-public-title{
+  color:#7f6a77 !important;
+  font-size:18px !important;
+  line-height:1.25 !important;
+  font-weight:900 !important;
+  word-break:keep-all !important;
+}
+
+#schedule .schedule-detail-public-actions{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+  min-width:210px !important;
+}
+
+#schedule .schedule-detail-public-actions .schedule-pill{
+  min-width:92px !important;
+  min-height:42px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:0 18px !important;
+  border-radius:999px !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+  background:#fff !important;
+  border:1px solid #efbfd4 !important;
+  color:#e27aa9 !important;
+}
+
+#schedule .schedule-detail-public-actions .schedule-pill.detail{
+  color:#8d70d5 !important;
+  border-color:#d7caf6 !important;
+  background:#f7f2ff !important;
+}
+
+@media(max-width:760px){
+  #schedule .schedule-detail-card-public{
+    grid-template-columns:1fr !important;
+    padding:20px !important;
+  }
+  #schedule .schedule-detail-public-actions{
+    justify-content:flex-start !important;
+    min-width:0 !important;
+  }
+}
+
+</style>
+</head>
+<body>
+<div id="toast" class="toast">저장 완료</div>
+<div id="tableContextMenu">
+  <button type="button" onclick="ctxMergeCell()"><span class="ctx-icon">⊞</span> 셀 병합</button>
+  <hr>
+  <button type="button" onclick="ctxAddRow()"><span class="ctx-icon">＋</span> 행 추가</button>
+  <button type="button" onclick="ctxAddCol()"><span class="ctx-icon">＋</span> 열 추가</button>
+  <hr>
+  <button type="button" onclick="ctxDeleteRow()" style="color:#c07030"><span class="ctx-icon">✕</span> 이 행 삭제</button>
+  <button type="button" onclick="ctxDeleteCol()" style="color:#c07030"><span class="ctx-icon">✕</span> 이 열 삭제</button>
+  <hr>
+  <button type="button" onclick="ctxFitWidth()"><span class="ctx-icon">↔</span> 너비 맞춤</button>
+  <hr>
+  <button type="button" onclick="ctxDeleteTable()" style="color:#c05070"><span class="ctx-icon">🗑</span> 표 전체 삭제</button>
+</div>
+<div id="locked" class="locked" hidden>
+  <span class="eyebrow">ADMIN LOCKED</span>
+  <h1>LUMI<br>OFFICE</h1>
+  <p>관리자 메인에서 먼저 입장해 주세요.</p>
+  <a class="btn" href="https://lumibellelove.com/admin/content-admin.html">Admin Hub로 이동</a>
+</div>
+<main id="main" hidden>
+  <div class="wrap">
+
+    <nav class="menu-shell" aria-label="콘텐츠 관리 메뉴">
+      <div class="main-menu">
+        <button type="button" class="menu-tab home" onclick="location.href='https://lumibellelove.com/admin/content-admin.html'"><b>HOME</b><span>관리자 홈</span></button>
+        <button type="button" class="menu-tab active" onclick="openPanel('news')"><b>NEWS</b><span>공지·뉴스</span></button>
+        <button type="button" class="menu-tab" onclick="alert('준비 중')"><b>MEMBER</b><span>멤버소개</span></button>
+        <button type="button" class="menu-tab" onclick="location.href='https://lumibellelove.com/admin/content/schedule.html'"><b>SCHEDULE</b><span>스케줄</span></button>
+        <button type="button" class="menu-tab" onclick="alert('준비 중')"><b>TICKET</b><span>티켓 페이지</span></button>
+        <button type="button" class="menu-tab" onclick="alert('준비 중')"><b>GOODS</b><span>굿즈</span></button>
+        <button type="button" class="menu-tab" onclick="alert('준비 중')"><b>SETLIST</b><span>응원가이드</span></button>
+        <button type="button" class="menu-tab" onclick="alert('준비 중')"><b>INFO</b><span>인포·가이드</span></button>
+      </div>
+    </nav>
+
+    <section class="panel news-admin-panel" id="news" style="margin-top:18px;">
+      <div class="panel-head news-board-head">
+        <div>
+          <h2>NEWS 관리</h2>
+          <p class="panel-desc">공홈 NEWS 게시판처럼 목록을 먼저 보고, 글쓰기/수정은 상세 공지 양식으로 작성합니다.</p>
+        </div>
+        <button type="button" class="btn" onclick="openNewsEditor()">글쓰기</button>
+      </div>
+
+      <div class="news-admin-tabs" aria-label="NEWS 분류탭">
+        <button type="button" class="news-filter active" data-news-filter="전체">전체</button>
+        <button type="button" class="news-filter" data-news-filter="라이브">라이브</button>
+        <button type="button" class="news-filter" data-news-filter="공지">공지</button>
+        <button type="button" class="news-filter" data-news-filter="이벤트">이벤트</button>
+        <button type="button" class="news-filter" data-news-filter="업데이트">업데이트</button>
+      </div>
+
+      <div class="admin-search-row">
+        <input class="admin-search-input" id="newsSearchInput" type="search" placeholder="NEWS 검색">
+      </div>
+
+      <div class="news-board-tools">
+        <label class="select-all-line"><input type="checkbox" id="newsSelectAll"> 전체 선택</label>
+        <div class="bulk-actions">
+          <button type="button" class="btn sub" onclick="bulkNews('publish')">선택 공개</button>
+          <button type="button" class="btn sub" onclick="bulkNews('unpublish')">선택 비공개</button>
+          <button type="button" class="btn danger" onclick="bulkNews('delete')">선택 삭제</button>
+        </div>
+      </div>
+
+      <div class="news-admin-list" id="newsList"></div>
+      <div class="admin-pager" id="newsPager"></div>
+
+      <div class="news-board-note">
+        NEW는 작성일 기준 7일 동안 자동 표시됩니다. 글 ID는 새 글 저장 시 자동 생성되고, 수정 시 유지됩니다.
+      </div>
+    </section>
+
+    
+    <section class="panel news-write-panel" id="newsWrite">
+      <div class="write-page-head">
+        <div>
+          <button type="button" class="btn sub" onclick="backToNewsList()">← 목록으로 돌아가기</button>
+          <h2>NEWS 글쓰기</h2>
+                  </div>
+        <div class="write-top-actions">
+          <button type="button" class="btn sub" onclick="saveNewsDraft()">임시등록</button>
+          <button type="button" class="btn sub draft-open-btn" onclick="openDraftModal()">임시글 <span id="draftCountBadge">0</span></button>
+          <button type="button" class="btn" onclick="saveNews()">등록</button>
+        </div>
+      </div>
+
+      <div class="cafe-write-layout">
+        <main class="cafe-editor-main">
+          <div class="write-title-box">
+            <div class="write-select-row">
+              <div class="write-select-like">
+                <label>분류</label>
+                <select id="newsCategory" aria-label="분류"></select>
+              </div>
+              <div class="write-select-like">
+                <label>말머리</label>
+                <div class="badge-picker compact" id="newsBadgePicker">
+                  <label class="badge-choice"><input type="checkbox" value="LIVE"> LIVE</label>
+                  <label class="badge-choice"><input type="checkbox" value="INFO"> INFO</label>
+                  <label class="badge-choice"><input type="checkbox" value="EVENT"> EVENT</label>
+                  <label class="badge-choice"><input type="checkbox" value="UPDATE"> UPDATE</label>
+                  <label class="badge-choice"><input type="checkbox" value="DEBUT"> DEBUT</label>
+                </div>
+              </div>
+            </div>
+            <input id="newsTitle" class="write-title-input" placeholder="제목을 입력해 주세요.">
+          </div>
+
+          <div class="editor-toolbar font-toolbox" aria-label="본문 편집 도구">
+            <div class="font-panel-title">글꼴</div>
+            <div class="font-family-row">
+              <select id="fontNameSelect" onchange="formatNews('fontName', this.value)" aria-label="글씨체">
+                <option value="">기본서체</option>
+                <option value="SUIT">SUIT</option>
+                <option value="Noto Sans KR">Noto Sans KR</option>
+                <option value="Nanum Gothic">나눔고딕</option>
+                <option value="Nanum Myeongjo">나눔명조</option>
+                <option value="serif">Serif</option>
+              </select>
+            </div>
+            <div class="font-control-row">
+              <div class="font-size-stepper" aria-label="글씨 크기">
+                <button type="button" onclick="stepNewsFontSize(-1)">−</button>
+                <input id="fontSizeInput" type="number" value="15" min="8" max="72" step="1" onmousedown="saveNewsSelection()" onchange="applyNewsFontSize(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();applyNewsFontSize(this.value)}">
+                <button type="button" onclick="stepNewsFontSize(1)">＋</button>
+              </div>
+              <button type="button" class="tool-square" onclick="formatNews('bold')"><b>B</b></button>
+              <button type="button" class="tool-square" onclick="formatNews('italic')"><i>I</i></button>
+              <button type="button" class="tool-square" onclick="formatNews('underline')"><u>U</u></button>
+              <button type="button" class="tool-square" onclick="toggleAlignPalette()" aria-label="정렬">☰</button>
+              <div class="align-popover" id="alignPopover" hidden>
+                <button type="button" onclick="applyNewsAlign('justifyLeft')" title="왼쪽 정렬">☰</button>
+                <button type="button" onclick="applyNewsAlign('justifyCenter')" title="가운데 정렬">≡</button>
+                <button type="button" onclick="applyNewsAlign('justifyRight')" title="오른쪽 정렬">☷</button>
+              </div>
+              <div class="color-picker-wrap">
+                <button type="button" class="tool-square color-tool" id="colorToolBtn" onclick="toggleColorPalette()" aria-label="글씨 색">A<span id="currentColorChip"></span></button>
+                <div class="color-popover" id="colorPopover" hidden>
+                  <div class="color-pop-title">색상 <button type="button" class="color-x" onclick="toggleColorPalette()">×</button></div>
+                  <div class="color-section-label">사용 중인 색상</div>
+                  <div class="color-recent" id="recentColorGrid"></div>
+                  <div class="color-section-label">기본 팔레트</div>
+                  <div class="color-grid" id="colorGrid"></div>
+                  <div class="color-section-label">루미벨 색상</div>
+                  <div class="color-brand-grid" id="brandColorGrid"></div>
+                  <div class="color-custom">
+                    <span id="customColorChip" class="color-swatch" style="background:#d77ca7"></span>
+                    <input type="text" id="newsColorHex" value="#d77ca7" maxlength="7" aria-label="HEX 색상 코드">
+                    <input type="color" id="newsColorCustom" value="#d77ca7" aria-label="직접 색상 선택">
+                    <button type="button" onclick="applyCustomColor()">적용</button>
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="tool-pill" onclick="insertNewsImage()">사진</button>
+              <button type="button" class="tool-pill" onclick="insertNewsLink()">링크</button>
+              <button type="button" class="tool-pill" onclick="insertNewsTable()">표</button>
+              <button type="button" class="tool-pill" onclick="openPollModal()">투표</button>
+            </div>
+          </div>
+
+          <div class="editor-template-toolbar">
+            <button type="button" class="btn sub" onclick="insertDetailTemplate()">DATE/PLACE/TIME/TICKET 양식 넣기</button>
+            <button type="button" class="btn sub" onclick="insertPlainLine()">구분선 넣기</button>
+          </div>
+
+          <input type="file" id="newsImageFileInput" accept="image/*" hidden>
+          <div id="newsBodyEditor" class="news-body-editor" contenteditable="true" data-placeholder="내용을 입력하세요."></div>
+          <textarea id="newsBody" hidden></textarea>
+        </main>
+
+        <aside class="cafe-write-sidebar">
+          <section class="side-box side-top-checks">
+            <label class="side-check"><input type="checkbox" id="newsPinnedCheck"><span>상단 고정</span></label>
+            <label class="side-check"><input type="checkbox" id="newsHomeCheck" checked><span>메인 노출</span></label>
+          </section>
+
+          <section class="side-box">
+            <h3>공개 설정</h3>
+            <label class="side-radio"><input type="radio" name="newsPublishedRadio" value="true" checked><span>공개</span></label>
+            <label class="side-radio"><input type="radio" name="newsPublishedRadio" value="false"><span>비공개</span></label>
+            <label class="side-radio"><input type="radio" name="newsPublishedRadio" value="draft"><span>임시글</span></label>
+          </section>
+
+          <section class="side-box">
+            <h3>글 정보</h3>
+            <label>글 ID<input id="newsId" readonly placeholder="저장 시 자동 생성"></label>
+            <label>작성일<input id="newsDate" type="date"></label>
+          </section>
+<section class="side-box side-actions">
+            <button type="button" class="btn sub" onclick="previewNews()">미리보기</button>
+            <button type="button" class="btn sub" onclick="backToNewsList()">취소</button>
+          </section>
+
+          <div class="hidden-news-fields" hidden>
+            <input id="newsInfoDate"><input id="newsInfoPlace"><input id="newsInfoTime"><input id="newsInfoTicket">
+            <input id="newsBtn1Text"><input id="newsBtn1Link"><input id="newsBtn2Text"><input id="newsBtn2Link">
+            <input id="newsBodyImage"><input id="newsBodyAlt">
+          <input id="newsHeroImage"><input id="newsHeroAlt"></div>
+        </aside>
+      </div>
+    </section>
+
+
+    <div class="modal-backdrop" id="newsDraftModal" hidden>
+      <section class="news-draft-modal" role="dialog" aria-modal="true" aria-label="임시글 목록">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow">DRAFT</span>
+            <h2>임시글 보관함</h2>
+            <p class="panel-desc">임시등록한 NEWS 글을 다시 불러오거나 삭제할 수 있습니다.</p>
+          </div>
+          <button type="button" class="modal-close" onclick="closeDraftModal()">×</button>
+        </div>
+        <div class="draft-tools">
+          <span id="draftCountText">임시글 0개</span>
+          <button type="button" class="btn danger" onclick="deleteAllDrafts()">전체삭제</button>
+        </div>
+        <div id="draftList" class="draft-list"></div>
+      </section>
+    </div>
+
+
+    <div class="modal-backdrop" id="newsPollModal" hidden>
+      <section class="news-poll-modal" role="dialog" aria-modal="true" aria-label="투표 만들기">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow">POLL</span>
+            <h2>투표 만들기</h2>
+            <div class="poll-desc-space" aria-hidden="true"></div>
+          </div>
+          <button type="button" class="modal-close" onclick="closePollModal()">×</button>
+        </div>
+        <div class="poll-form">
+          <label>투표 제목<input id="pollTitle" placeholder="투표 제목을 입력해 주세요"></label>
+          <div class="poll-options-block">
+            <div class="poll-label">투표 항목</div>
+            <div id="pollOptionList" class="poll-option-list">
+              <div class="poll-option-input"><span>1</span><input placeholder="항목을 입력해 주세요"></div>
+              <div class="poll-option-input"><span>2</span><input placeholder="항목을 입력해 주세요"></div>
+              <div class="poll-option-input"><span>3</span><input placeholder="항목을 입력해 주세요"></div>
+            </div>
+            <button type="button" class="poll-add-btn" onclick="addPollOptionInput()">＋ 항목 추가</button>
+          </div>
+          <label>투표 종료일<input id="pollEndDate" type="date"></label>
+          <label>설정<select id="pollMode"><option value="anonymous">무기명 투표</option><option value="multiple">복수 선택 허용</option></select></label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn" onclick="insertNewsPoll()">투표 넣기</button>
+          <button type="button" class="btn sub" onclick="closePollModal()">취소</button>
+        </div>
+      </section>
+    </div>
+
+<div class="modal-backdrop" id="newsPreviewModal" hidden>
+      <section class="news-preview-modal" role="dialog" aria-modal="true" aria-label="NEWS 미리보기">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow">PREVIEW</span>
+            <h2>NEWS 미리보기</h2>
+          </div>
+          <button type="button" class="modal-close" onclick="closeNewsPreview()">×</button>
+        </div>
+        <div id="newsPreviewContent" class="news-preview-content"></div>
+      </section>
+    </div>
+
+  </div>
+</main>
+<script>
+const STORAGE_KEY='lumibelleContentAdminV2';
+const isOpen=sessionStorage.getItem('lumiOfficeOpen')==='1';
+document.getElementById(isOpen?'main':'locked').hidden=false;
+const state={news:[],schedules:[],inner:{}};
+function q(id){return document.getElementById(id)}
+function toast(msg='저장 완료'){const el=q('toast');el.textContent=msg;el.classList.add('show');clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>el.classList.remove('show'),1400)}
+function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};seedNewsIfEmpty();renderAll();setupScheduleLivePreview();renderSchedulePreview();renderScheduleAdminCalendar();renderScheduleWriteCalendar();initColorGrid();setupNewsImageInput();setupEditorToolbarSelectionGuard();setupNewsSelectionMemory();setupFontSizeSelectionGuard();setupNewsTableDelegation();setupTableDeleteKey();setupEditorDeleteShortcuts();updateDraftCount();openPanel(location.hash?.replace('#','')||'news')}
+function persist(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
+function saveAll(show=false){saveInnerFromFields();persist();if(show)toast('전체 저장 완료')}
+function openPanel(id){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));const panel=q(id)||q('news');if(panel)panel.classList.add('active');history.replaceState(null,'','#'+id)}
+// menu tabs use onclick directly
+// no data-target-card in this file
+
+
+let currentNewsFilter='전체';
+let newsPage=1;
+const NEWS_PAGE_SIZE=5;
+let editingNewsId=null;
+
+function htmlEscape(v=''){
+  return String(v).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+}
+function getBadges(){return Array.from(document.querySelectorAll('#newsBadgePicker input:checked')).map(x=>x.value)}
+function setBadges(arr=[]){document.querySelectorAll('#newsBadgePicker input').forEach(x=>x.checked=arr.includes(x.value))}
+function isNew(date){
+  if(!date)return false;
+  const d=new Date(date+'T00:00:00');
+  const now=new Date();
+  const diff=(now-d)/(1000*60*60*24);
+  return diff<=7 && diff>=0;
+}
+function toDotDate(date){
+  if(!date)return '-';
+  const [y,m,d]=date.split('-');
+  if(!y||!m||!d)return date;
+  return `${m}.${d}`;
+}
+function toLongDate(date){
+  if(!date)return '-';
+  const [y,m,d]=date.split('-');
+  if(!y||!m||!d)return date;
+  return `${y}.${m}.${d}`;
+}
+function defaultBadgeForCategory(cat){
+  return {라이브:'LIVE',공지:'INFO',이벤트:'EVENT',업데이트:'UPDATE'}[cat] || 'INFO';
+}
+function setupNewsCategorySelect(selected='공지'){
+  const cats = currentNewsFilter==='전체' ? ['라이브','공지','이벤트','업데이트'] : [currentNewsFilter];
+  q('newsCategory').innerHTML = cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  q('newsCategory').value = cats.includes(selected) ? selected : cats[0];
+}
+function generateNewsId(date){
+  const base=(date||new Date().toISOString().slice(0,10)).replaceAll('-','');
+  const prefix=`NEWS-${base}-`;
+  const nums=state.news
+    .filter(n=>String(n.id||'').startsWith(prefix))
+    .map(n=>parseInt(String(n.id).replace(prefix,''),10))
+    .filter(n=>Number.isFinite(n));
+  const next=(nums.length?Math.max(...nums)+1:1);
+  return prefix + String(next).padStart(3,'0');
+}
+function getPublishedValue(){
+  return document.querySelector('input[name="newsPublishedRadio"]:checked')?.value || 'true';
+}
+function setPublishedValue(v){
+  const val = v==='draft' ? 'draft' : String(v!==false);
+  const el = document.querySelector(`input[name="newsPublishedRadio"][value="${val}"]`);
+  if(el)el.checked=true;
+}
+function syncBodyToTextarea(){
+  q('newsBody').value = q('newsBodyEditor').innerHTML;
+}
+function collectNewsForm({draft=false}={}){
+  syncBodyToTextarea();
+  let id=q('newsId').value.trim();
+  const date=q('newsDate').value || new Date().toISOString().slice(0,10);
+  if(!id) id=generateNewsId(date);
+  const pubVal = draft ? 'draft' : getPublishedValue();
+  return {
+    id,
+    title:q('newsTitle').value.trim(),
+    date,
+    category:q('newsCategory').value,
+    badges:getBadges(),
+    body:q('newsBody').value,
+    published:pubVal==='true',
+    draft:pubVal==='draft',
+    home:q('newsHomeCheck').checked,
+    pinned:q('newsPinnedCheck').checked,
+    link:`news-detail.html?id=${id}`,
+    heroImage:q('newsHeroImage').value.trim(),
+    heroAlt:q('newsHeroAlt').value.trim(),
+    infoDate:q('newsInfoDate').value.trim(),
+    infoPlace:q('newsInfoPlace').value.trim(),
+    infoTime:q('newsInfoTime').value.trim(),
+    infoTicket:q('newsInfoTicket').value.trim(),
+    btn1Text:q('newsBtn1Text').value.trim(),
+    btn1Link:q('newsBtn1Link').value.trim(),
+    btn2Text:q('newsBtn2Text').value.trim(),
+    btn2Link:q('newsBtn2Link').value.trim(),
+    bodyImage:q('newsBodyImage').value.trim(),
+    bodyAlt:q('newsBodyAlt').value.trim(),
+    updatedAt:new Date().toISOString()
+  };
+}
+function fillNewsForm(n){
+  setupNewsCategorySelect(n.category||'공지');
+  q('newsId').value=n.id||'';
+  q('newsTitle').value=n.title||'';
+  q('newsDate').value=n.date||'';
+  setBadges(n.badges||[]);
+  q('newsBodyEditor').innerHTML=n.body||'';
+  q('newsBody').value=n.body||'';
+  setPublishedValue(n.draft?'draft':n.published!==false);
+  q('newsHomeCheck').checked=n.home!==false;
+  q('newsPinnedCheck').checked=!!n.pinned;
+  q('newsHeroImage').value=n.heroImage||'';
+  q('newsHeroAlt').value=n.heroAlt||'';
+  q('newsInfoDate').value=n.infoDate||'';
+  q('newsInfoPlace').value=n.infoPlace||'';
+  q('newsInfoTime').value=n.infoTime||'';
+  q('newsInfoTicket').value=n.infoTicket||'';
+  q('newsBtn1Text').value=n.btn1Text||'';
+  q('newsBtn1Link').value=n.btn1Link||'';
+  q('newsBtn2Text').value=n.btn2Text||'';
+  q('newsBtn2Link').value=n.btn2Link||'';
+  q('newsBodyImage').value=n.bodyImage||'';
+  q('newsBodyAlt').value=n.bodyAlt||'';
+}
+function clearNewsForm(){
+  const baseCat=currentNewsFilter==='전체'?'공지':currentNewsFilter;
+  setupNewsCategorySelect(baseCat);
+  ['newsId','newsTitle','newsHeroImage','newsHeroAlt','newsInfoDate','newsInfoPlace','newsInfoTime','newsInfoTicket','newsBtn1Text','newsBtn1Link','newsBtn2Text','newsBtn2Link','newsBodyImage','newsBodyAlt'].forEach(id=>q(id).value='');
+  q('newsDate').value=new Date().toISOString().slice(0,10);
+  q('newsBodyEditor').innerHTML='';
+  q('newsBody').value='';
+  setPublishedValue(true);
+  q('newsHomeCheck').checked=true;
+  q('newsPinnedCheck').checked=false;
+  setBadges([defaultBadgeForCategory(baseCat)]);
+  editingNewsId=null;
+  
+}
+function showOnlyPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  q(id)?.classList.add('active');
+}
+function openNewsEditor(id=null){
+  if(id){
+    const n=state.news.find(x=>x.id===id);
+    if(!n)return;
+    editingNewsId=id;
+    fillNewsForm(n);
+    
+  }else{
+    clearNewsForm();
+  }
+  showOnlyPanel('newsWrite');
+  history.replaceState(null,'','#news-write');
+  window.scrollTo({top:0,behavior:'smooth'});
+  // 컨텍스트 메뉴 셋업 (패널이 열릴 때마다 보장)
+  setTimeout(setupTableContextMenu, 0);
+}
+function backToNewsList(){openPanel('news');}
+function saveNewsDraft(){
+  const row=collectNewsForm({draft:true});
+  if(!row.title) row.title='제목 없는 임시글';
+  saveNewsRow(row,'임시등록이 완료되었습니다.', {stay:true});
+  updateDraftCount();
+}
+function saveNews(){
+  const row=collectNewsForm();
+  if(!row.title){toast('제목을 입력해 주세요');return}
+  saveNewsRow(row,'NEWS 등록 완료');
+}
+function saveNewsRow(row,msg,opt={}){
+  const idx=state.news.findIndex(x=>x.id===row.id);
+  if(idx>=0)state.news[idx]=row;
+  else state.news.unshift(row);
+  editingNewsId=row.id;
+  q('newsId').value=row.id;
+  
+  persist();
+  renderNews();
+  updateDraftCount();
+  toast(msg);
+  if(!opt.stay) backToNewsList();
+}
+function formatNews(command,value=null){
+  restoreNewsSelection();
+  document.execCommand(command,false,value);
+  saveNewsSelection();
+}
+function insertNewsImage(){
+  saveNewsSelection();
+  q('newsImageFileInput').click();
+}
+function insertNewsLink(){
+  const url=prompt('링크 URL을 입력해 주세요.');
+  if(!url)return;
+  const text=prompt('링크 문구를 입력해 주세요.') || url;
+  q('newsBodyEditor').focus();
+  document.execCommand('insertHTML',false,`<a href="${htmlEscape(url)}" target="_blank" rel="noopener">${htmlEscape(text)}</a>`);
+}
+function insertDetailTemplate(){
+  q('newsBodyEditor').focus();
+  const html=`
+    <div class="news-info-card">
+      <div class="info-row"><span class="info-label">DATE</span><span class="info-value" contenteditable="true" data-placeholder="2026.07.12 (토)">2026.07.12 (토)</span></div>
+      <div class="info-row"><span class="info-label">PLACE</span><span class="info-value" contenteditable="true" data-placeholder="장소 입력">KT&G 상상마당 라이브홀 홍대</span></div>
+      <div class="info-row"><span class="info-label">TIME</span><span class="info-value" contenteditable="true" data-placeholder="OPEN 13:50 / START 14:20">OPEN 13:50 / START 14:20</span></div>
+      <div class="info-row"><span class="info-label">TICKET</span><span class="info-value" contenteditable="true" data-placeholder="티켓 안내">구글폼 예약 진행</span></div>
+    </div>
+    <p><br></p>
+  `;
+  document.execCommand('insertHTML',false,html);
+  saveNewsSelection();
+}
+function insertPlainLine(){
+  restoreNewsSelection();
+  document.execCommand('insertHTML',false,'<hr class="news-divider"><p><br></p>');
+  saveNewsSelection();
+}
+function renderBadgeHTML(n){
+  const badges=[...(n.badges||[])];
+  if(!n.draft && isNew(n.date))badges.push('NEW');
+  return badges.map(b=>`<span class="news-admin-badge ${htmlEscape(b)}">${htmlEscape(b)}</span>`).join('');
+}
+
+function getNewsSearchTerm(){
+  return (q('newsSearchInput')?.value||'').trim().toLowerCase();
+}
+function newsMatchesSearch(n,term){
+  if(!term)return true;
+  const hay=[
+    n.date,toDotDate(n.date),n.category,n.title,n.body,
+    ...(n.badges||[]),n.infoDate,n.infoPlace,n.infoTime,n.infoTicket
+  ].join(' ').toLowerCase();
+  return hay.includes(term);
+}
+function filteredNews(){
+  let rows=[...state.news];
+  if(currentNewsFilter!=='전체') rows=rows.filter(n=>n.category===currentNewsFilter);
+  const term=getNewsSearchTerm();
+  rows=rows.filter(n=>newsMatchesSearch(n,term));
+  rows.sort((a,b)=>{
+    if(!!b.pinned!==!!a.pinned)return (b.pinned?1:0)-(a.pinned?1:0);
+    return String(b.date||'').localeCompare(String(a.date||''));
+  });
+  return rows;
+}
+function renderNewsPager(total){
+  const pager=q('newsPager');
+  if(!pager)return;
+  const pages=Math.max(1,Math.ceil(total/NEWS_PAGE_SIZE));
+  if(newsPage>pages)newsPage=pages;
+  pager.innerHTML=`
+    <button class="admin-pager-btn" type="button" ${newsPage<=1?'disabled':''} onclick="newsPage=Math.max(1,newsPage-1);renderNews()">‹</button>
+    <span class="admin-pager-label">${newsPage} / ${pages}</span>
+    <button class="admin-pager-btn" type="button" ${newsPage>=pages?'disabled':''} onclick="newsPage=Math.min(${pages},newsPage+1);renderNews()">›</button>
+  `;
+}
+function renderNews(){
+  const list=q('newsList');
+  if(!list)return;
+  const rows=filteredNews();
+  const pages=Math.max(1,Math.ceil(rows.length/NEWS_PAGE_SIZE));
+  if(newsPage>pages)newsPage=pages;
+  const start=(newsPage-1)*NEWS_PAGE_SIZE;
+  const pageRows=rows.slice(start,start+NEWS_PAGE_SIZE);
+  list.innerHTML=pageRows.map(n=>`
+    <div class="news-admin-row ${n.pinned?'is-pinned':''}">
+      <div><input type="checkbox" class="news-check" value="${htmlEscape(n.id)}"></div>
+      <div class="news-row-date">${htmlEscape(toDotDate(n.date))}</div>
+      <div class="news-row-meta">${renderBadgeHTML(n)}</div>
+      <div class="news-row-title">${htmlEscape(n.title||'(제목 없음)')}</div>
+      <span class="news-status-pill ${n.draft?'draft':(n.published?'':'off')}">${n.draft?'임시':(n.published?'공개':'비공개')}</span>
+      <span class="news-status-pill ${n.home?'':'off'}">메인${n.home?'ON':'OFF'}</span>
+      <div class="news-row-actions">
+        <button class="mini-btn" type="button" onclick="openNewsEditor('${htmlEscape(n.id)}')">수정</button>
+        <button class="mini-btn" type="button" onclick="previewSavedNews('${htmlEscape(n.id)}')">미리보기</button>
+        <button class="mini-btn" type="button" onclick="toggleNews('${htmlEscape(n.id)}')">${n.published&&!n.draft?'비공개':'공개'}</button>
+      </div>
+    </div>`).join('') || '<div class="news-admin-row"><div></div><div class="news-row-title">검색 결과가 없습니다.</div></div>';
+  q('newsSelectAll').checked=false;
+  renderNewsPager(rows.length);
+  updateDraftCount();
+}
+
+function selectedNewsIds(){
+  return Array.from(document.querySelectorAll('.news-check:checked')).map(x=>x.value);
+}
+function bulkNews(action){
+  const ids=selectedNewsIds();
+  if(!ids.length){toast('선택된 글이 없습니다');return}
+  if(action==='delete' && !confirm('선택한 글을 삭제할까요? 되돌리기 어렵습니다.'))return;
+  state.news=state.news.filter(n=>{
+    if(!ids.includes(n.id))return true;
+    if(action==='publish'){n.published=true;n.draft=false}
+    if(action==='unpublish'){n.published=false;n.draft=false}
+    return action!=='delete';
+  });
+  persist();renderNews();toast('처리 완료');
+}
+function toggleNews(id){
+  const n=state.news.find(x=>x.id===id);
+  if(n){n.published=!(n.published&&!n.draft);n.draft=false;persist();renderNews()}
+}
+function buildPreviewHTML(n){
+  const info=[
+    ['DATE',n.infoDate],
+    ['PLACE',n.infoPlace],
+    ['TIME',n.infoTime],
+    ['TICKET',n.infoTicket]
+  ].filter(x=>x[1]);
+  const badges=[...(n.badges||[])];
+  if(!n.draft && isNew(n.date))badges.push('NEW');
+  const btns=[
+    [n.btn1Text,n.btn1Link,true],
+    [n.btn2Text,n.btn2Link,false]
+  ].filter(x=>x[0]||x[1]);
+  return `
+    <article class="preview-article">
+      <div class="preview-badges">${badges.map(b=>`<span class="news-admin-badge ${htmlEscape(b)}">${htmlEscape(b)}</span>`).join('')}</div>
+      <h1 class="preview-title">${htmlEscape(n.title||'(제목 없음)')}</h1>
+      <div class="preview-date">${htmlEscape(toLongDate(n.date))}</div>
+      ${n.heroImage?`<img class="preview-hero" src="${htmlEscape(n.heroImage)}" alt="${htmlEscape(n.heroAlt||'')}">`:''}
+      ${info.length?`<div class="preview-info">${info.map(([k,v])=>`<div class="preview-info-row"><strong>${htmlEscape(k)}</strong><span>${htmlEscape(v)}</span></div>`).join('')}</div>`:''}
+      <div class="preview-body">${n.body||'공지 본문을 입력하세요.'}</div>
+      ${n.bodyImage?`<img class="preview-hero" src="${htmlEscape(n.bodyImage)}" alt="${htmlEscape(n.bodyAlt||'')}">`:''}
+      ${btns.length?`<div class="preview-buttons">${btns.map(([t,l,primary])=>`<a class="preview-link-btn ${primary?'primary':''}" href="${htmlEscape(l||'#')}" onclick="return false;">${htmlEscape(t||l)}</a>`).join('')}</div>`:''}
+    </article>`;
+}
+function previewNews(){
+  const n=collectNewsForm();
+  q('newsPreviewContent').innerHTML=buildPreviewHTML(n);
+  q('newsPreviewModal').hidden=false;
+}
+function previewSavedNews(id){
+  const n=state.news.find(x=>x.id===id);
+  if(!n)return;
+  q('newsPreviewContent').innerHTML=buildPreviewHTML(n);
+  q('newsPreviewModal').hidden=false;
+}
+function closeNewsPreview(){q('newsPreviewModal').hidden=true}
+function closeModalOnBackdrop(e,id){
+  if(e.target && e.target.id===id){
+    if(id==='newsPreviewModal')closeNewsPreview();
+    if(id==='newsDraftModal')closeDraftModal();
+  }
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if(q('newsPreviewModal') && !q('newsPreviewModal').hidden)closeNewsPreview();
+    if(q('newsDraftModal') && !q('newsDraftModal').hidden)closeDraftModal();
+    if(q('newsPollModal') && !q('newsPollModal').hidden)closePollModal();
+  }
+});
+document.addEventListener('click',e=>{
+  if(e.target?.id==='newsPreviewModal')closeNewsPreview();
+  if(e.target?.id==='newsDraftModal')closeDraftModal();
+  if(e.target?.id==='newsPollModal')closePollModal();
+});
+document.querySelectorAll('.news-filter').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.news-filter').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentNewsFilter=btn.dataset.newsFilter;
+  renderNews();
+}));
+q('newsSelectAll')?.addEventListener('change',e=>{
+  document.querySelectorAll('.news-check').forEach(ch=>ch.checked=e.target.checked);
+});
+function seedNewsIfEmpty(){
+  if(state.news && state.news.length)return;
+  state.news=[
+    {id:'NEWS-20260712-001',title:'루미벨 데뷔라이브 안내',date:'2026-07-12',category:'라이브',badges:['DEBUT'],body:'안녕하세요. 루미벨입니다.<br><br>루미벨의 데뷔라이브가 2026년 7월 12일 진행됩니다.<br><br>상세 안내와 예약 관련 내용은 아래 티켓 버튼을 통해 확인 부탁드립니다.',published:true,draft:false,home:true,pinned:true,link:'news-detail.html?id=NEWS-20260712-001',infoDate:'2026.07.12 (토)',infoPlace:'KT&G 상상마당 라이브홀 홍대',infoTime:'OPEN 13:50 / START 14:20',infoTicket:'구글폼 예약 진행',btn1Text:'TICKET',btn1Link:'/ticket/index.html',btn2Text:'BACK TO NEWS',btn2Link:'news.html'},
+    {id:'NEWS-20261018-001',title:'빅 이벤트 라이브 예정 안내',date:'2026-10-18',category:'라이브',badges:['LIVE'],body:'빅 이벤트 라이브 예정 안내입니다.',published:true,draft:false,home:true,pinned:false,link:'news-detail.html?id=NEWS-20261018-001'},
+    {id:'NEWS-20260501-001',title:'굿즈 관련 안내 예정',date:'2026-05-01',category:'공지',badges:['INFO'],body:'굿즈 관련 안내 예정입니다.',published:true,draft:false,home:false,pinned:false,link:'news-detail.html?id=NEWS-20260501-001'}
+  ];
+}
+
+
+
+let savedNewsRange=null;
+let currentTypingFontSize=15;
+let fontSizeTargetRange=null;
+let activeFontSizeTargetEl=null;
+const LUMI_COLORS=[
+  '#000000','#ffffff','#eeeeee','#9e9e9e','#ff4fa3','#ff8ac2','#ffc0d7','#ffd9e8',
+  '#ef4444','#f97316','#facc15','#22c55e','#14b8a6','#38bdf8','#3b82f6','#8b5cf6',
+  '#a855f7','#ec4899','#6b7280','#4b5563','#111827','#7c2d12','#166534','#155e75'
+];
+const BRAND_COLORS=['#ff59a5','#ffd9e8','#ffc0d7','#9bdcff','#b99cff','#d77ca7'];
+let recentNewsColors=['#000000','#ff59a5'];
+let pendingNewsColor=null;
+function saveNewsSelection(){
+  const sel=window.getSelection();
+  if(sel && sel.rangeCount && q('newsBodyEditor')?.contains(sel.anchorNode)){
+    savedNewsRange=sel.getRangeAt(0).cloneRange();
+    // 커서 위치의 실제 fontSize를 input에 동기화 (14→15처럼 숫자가 틀리는 문제 방지)
+    const node=sel.anchorNode;
+    const el=node.nodeType===1?node:node.parentElement;
+    if(el){
+      const fs=el.style.fontSize||el.closest('[style*="font-size"]')?.style.fontSize||'';
+      const input=q('fontSizeInput');
+      if(fs && input && !input.matches(':focus')){
+        const px=Math.round(parseFloat(fs));
+        if(px>=8 && px<=96) input.value=px;
+      }
+    }
+  }
+}
+function restoreNewsSelection(){
+  const editor=q('newsBodyEditor');
+  if(!editor) return;
+  // 이미 에디터가 포커스 상태면 focus() 호출 안 함 (undo 스택 보존)
+  if(document.activeElement !== editor) editor.focus();
+  if(savedNewsRange){
+    const sel=window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(savedNewsRange);
+  }
+}
+function renderRecentColors(){
+  const el=q('recentColorGrid');
+  if(!el)return;
+  el.innerHTML=recentNewsColors.map(c=>`<button type="button" class="color-swatch" style="background:${c}" title="${c}" onclick="applyNewsColor('${c}')"></button>`).join('');
+}
+function pushRecentColor(color){
+  if(!color)return;
+  recentNewsColors=[color,...recentNewsColors.filter(c=>c.toLowerCase()!==color.toLowerCase())].slice(0,8);
+  renderRecentColors();
+}
+function initColorGrid(){
+  const grid=q('colorGrid');
+  const brand=q('brandColorGrid');
+  if(!grid || grid.dataset.ready)return;
+  grid.dataset.ready='1';
+  grid.innerHTML='<button type="button" class="color-swatch is-none" title="색 제거" onclick="applyNewsColor(null)"></button>'+
+    LUMI_COLORS.map(c=>`<button type="button" class="color-swatch" style="background:${c}" title="${c}" onclick="applyNewsColor('${c}')"></button>`).join('');
+  if(brand){
+    brand.innerHTML=BRAND_COLORS.map(c=>`<button type="button" class="color-swatch" style="background:${c}" title="${c}" onclick="applyNewsColor('${c}')"></button>`).join('');
+  }
+  renderRecentColors();
+  const custom=q('newsColorCustom');
+  const hex=q('newsColorHex');
+  if(custom && hex){
+    custom.addEventListener('input',()=>{
+      const v=custom.value.toLowerCase();
+      hex.value=v;
+      pendingNewsColor=v;
+      q('customColorChip').style.background=v;
+      q('currentColorChip').style.background=v;
+    });
+    hex.addEventListener('input',()=>{
+      const v=hex.value.trim().toLowerCase();
+      if(/^#[0-9a-fA-F]{6}$/.test(v)){
+        custom.value=v;
+        pendingNewsColor=v;
+        q('customColorChip').style.background=v;
+        q('currentColorChip').style.background=v;
+      }
+    });
+  }
+  const ed=q('newsBodyEditor');
+  if(ed){
+    ed.addEventListener('keyup',saveNewsSelection);
+    ed.addEventListener('mouseup',saveNewsSelection);
+    ed.addEventListener('focus',saveNewsSelection);
+    ed.addEventListener('keyup',cleanupEmptyPollCards);
+  }
+}
+function toggleColorPalette(){
+  initColorGrid();
+  saveNewsSelection();
+  const pop=q('colorPopover');
+  pop.hidden=!pop.hidden;
+}
+function applyCustomColor(){
+  const hex=q('newsColorHex').value.trim().toLowerCase();
+  if(!/^#[0-9a-fA-F]{6}$/.test(hex)){toast('HEX 색상 코드를 확인해 주세요');return}
+  pendingNewsColor=null;
+  applyNewsColor(hex);
+}
+function applyNewsColor(color){
+  restoreNewsSelection();
+  if(color){
+    const hex=color.toLowerCase();
+    document.execCommand('foreColor',false,hex);
+    q('currentColorChip').style.background=hex;
+    if(q('newsColorHex')) q('newsColorHex').value=hex;
+    if(q('newsColorCustom')) q('newsColorCustom').value=hex;
+    if(q('customColorChip')) q('customColorChip').style.background=hex;
+    pushRecentColor(hex);
+  }else{
+    document.execCommand('removeFormat',false,null);
+    q('currentColorChip').style.background='#d77ca7';
+    if(q('newsColorHex')) q('newsColorHex').value='#d77ca7';
+    if(q('newsColorCustom')) q('newsColorCustom').value='#d77ca7';
+    if(q('customColorChip')) q('customColorChip').style.background='#d77ca7';
+  }
+  pendingNewsColor=null;
+  q('colorPopover').hidden=true;
+  saveNewsSelection();
+}
+
+function styleNewsSelection(styleObj){
+  restoreNewsSelection();
+  const sel=window.getSelection();
+  if(!sel || !sel.rangeCount)return false;
+  const range=sel.getRangeAt(0);
+  if(range.collapsed)return false;
+  const span=document.createElement('span');
+  Object.assign(span.style, styleObj);
+  const frag=range.extractContents();
+  // 이전 크기/색이 안쪽에 남아 새 크기를 방해하지 않게 정리
+  frag.querySelectorAll?.('[style]').forEach(el=>{
+    if(styleObj.fontSize) el.style.fontSize='';
+    if(styleObj.color) el.style.color='';
+    if(el.getAttribute('style')==='') el.removeAttribute('style');
+  });
+  span.appendChild(frag);
+  range.insertNode(span);
+  sel.removeAllRanges();
+  const newRange=document.createRange();
+  newRange.selectNodeContents(span);
+  sel.addRange(newRange);
+  savedNewsRange=newRange.cloneRange();
+  return true;
+}
+function nodeInsideNewsEditor(node){
+  const editor=q('newsBodyEditor');
+  if(!editor || !node)return false;
+  const n=node.nodeType===1 ? node : node.parentNode;
+  return !!(n && editor.contains(n));
+}
+function setSavedRangeToEditorSelection(){
+  const editor=q('newsBodyEditor');
+  const sel=window.getSelection();
+  if(sel && sel.rangeCount){
+    const range=sel.getRangeAt(0);
+    if(nodeInsideNewsEditor(range.commonAncestorContainer)){
+      savedNewsRange=range.cloneRange();
+      fontSizeTargetRange=range.cloneRange();
+      return true;
+    }
+  }
+  return false;
+}
+function getEditorRangeForFormat(){
+  const editor=q('newsBodyEditor');
+  const sel=window.getSelection();
+
+  if(sel && sel.rangeCount){
+    const r=sel.getRangeAt(0);
+    if(nodeInsideNewsEditor(r.commonAncestorContainer)) return r.cloneRange();
+  }
+
+  if(savedNewsRange && nodeInsideNewsEditor(savedNewsRange.commonAncestorContainer)){
+    return savedNewsRange.cloneRange();
+  }
+  return null;
+}
+function restoreRangeForFormat(range){
+  const editor=q('newsBodyEditor');
+  if(!editor || !range)return false;
+  editor.focus();
+  const sel=window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+  savedNewsRange=range.cloneRange();
+  return true;
+}
+function cleanFontSizeInside(node){
+  if(!node || !node.querySelectorAll)return;
+  node.querySelectorAll('[style]').forEach(el=>{
+    if(el.style) el.style.removeProperty('font-size');
+    if(el.getAttribute('style')==='') el.removeAttribute('style');
+  });
+  node.querySelectorAll('font[size]').forEach(font=>{
+    const span=document.createElement('span');
+    span.innerHTML=font.innerHTML;
+    font.replaceWith(span);
+  });
+}
+function normalizeNewsFontSizeSpans(){
+  const editor=q('newsBodyEditor');
+  if(!editor)return;
+  editor.querySelectorAll('font[size="7"]').forEach(font=>{
+    const span=document.createElement('span');
+    span.setAttribute('data-lumi-font-size','1');
+    span.style.fontSize=(currentTypingFontSize||15)+'px';
+    span.innerHTML=font.innerHTML;
+    cleanFontSizeInside(span);
+    font.replaceWith(span);
+  });
+}
+function applyNewsFontSize(px){
+  const size=parseInt(px,10);
+  if(!Number.isFinite(size)||size<8||size>96){toast('글씨 크기를 확인해 주세요');return}
+  currentTypingFontSize=size;
+  q('fontSizeInput').value=size;
+
+  const editor=q('newsBodyEditor');
+  if(!editor)return;
+
+  // 이미 글씨 크기 조정 대상으로 만든 span이 있으면, 두 번째부터는 재감싸기하지 않고 크기만 바꾼다.
+  if(activeFontSizeTargetEl && editor.contains(activeFontSizeTargetEl)){
+    activeFontSizeTargetEl.style.fontSize=size+'px';
+    reselectActiveFontTarget();
+    return;
+  }
+
+  const range=getFontSizeTargetRange();
+
+  // 드래그 선택이 있으면: input으로 포커스가 넘어가도 기억해 둔 range에 적용
+  if(range && !range.collapsed){
+    restoreRangeForFormat(range);
+
+    const liveSel=window.getSelection();
+    if(!liveSel || !liveSel.rangeCount)return;
+    const liveRange=liveSel.getRangeAt(0);
+
+    const span=document.createElement('span');
+    span.setAttribute('data-lumi-font-size','1');
+    span.style.fontSize=size+'px';
+
+    const frag=liveRange.extractContents();
+    cleanFontSizeInside(frag);
+    span.appendChild(frag);
+    liveRange.insertNode(span);
+
+    setActiveFontSizeTarget(span);
+    reselectActiveFontTarget();
+    return;
+  }
+
+  // 선택 영역이 없을 때: 앞으로 입력할 크기 저장
+  editor.focus();
+  try{
+    document.execCommand('fontSize',false,'7');
+  }catch(e){}
+  savedNewsRange=null;
+  fontSizeTargetRange=null;
+  setActiveFontSizeTarget(null);
+}
+function stepNewsFontSize(delta){
+  rememberFontSizeTargetRange();
+  const input=q('fontSizeInput');
+  const current=parseInt(input.value||currentTypingFontSize||'15',10);
+  const next=Math.max(8,Math.min(96,current+delta));
+  input.value=next;
+  applyNewsFontSize(next);
+}
+function toggleAlignPalette(){
+  saveNewsSelection();
+  q('alignPopover').hidden=!q('alignPopover').hidden;
+}
+function applyNewsAlign(command){
+  restoreNewsSelection();
+  document.execCommand(command,false,null);
+  q('alignPopover').hidden=true;
+  saveNewsSelection();
+}
+document.addEventListener('click',e=>{
+  const pop=q('colorPopover');
+  const wrap=document.querySelector('.color-picker-wrap');
+  if(pop && wrap && !wrap.contains(e.target)){
+    if(pendingNewsColor && /^#[0-9a-fA-F]{6}$/.test(pendingNewsColor)){
+      applyNewsColor(pendingNewsColor);
+    }else{
+      pop.hidden=true;
+    }
+  }
+  const align=q('alignPopover');
+  if(align && !align.hidden && !align.contains(e.target) && !e.target.closest('[onclick*="toggleAlignPalette"]')) align.hidden=true;
+});
+
+function setupEditorToolbarSelectionGuard(){
+  document.querySelectorAll('.font-control-row button, .color-popover button').forEach(el=>{
+    if(el.dataset.guardReady)return;
+    el.dataset.guardReady='1';
+    el.addEventListener('mousedown',e=>{
+      e.preventDefault(); // 포커스 이동 방지 → selection 그대로 유지
+    });
+  });
+  const sizeInput=q('fontSizeInput');
+  if(sizeInput && !sizeInput.dataset.sizeReady){
+    sizeInput.dataset.sizeReady='1';
+  }
+}
+function setupNewsImageInput(){
+  const input=q('newsImageFileInput');
+  if(!input || input.dataset.ready)return;
+  input.dataset.ready='1';
+  input.addEventListener('change',()=>{
+    const file=input.files && input.files[0];
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=()=>{
+      restoreNewsSelection();
+      const safeName=htmlEscape(file.name||'news image');
+      document.execCommand('insertHTML',false,`<p><img class="inserted-news-image" src="${reader.result}" alt="${safeName}"></p><p><br></p>`);
+      saveNewsSelection();
+      input.value='';
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function getDrafts(){
+  return (state.news||[]).filter(n=>n.draft);
+}
+function updateDraftCount(){
+  const count=getDrafts().length;
+  const badge=q('draftCountBadge');
+  if(badge)badge.textContent=count;
+  const text=q('draftCountText');
+  if(text)text.textContent=`임시글 ${count}개`;
+}
+function openDraftModal(){
+  renderDraftList();
+  q('newsDraftModal').hidden=false;
+}
+function closeDraftModal(){
+  q('newsDraftModal').hidden=true;
+}
+function renderDraftList(){
+  const list=q('draftList');
+  const drafts=getDrafts().sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));
+  updateDraftCount();
+  list.innerHTML=drafts.map(d=>`
+    <div class="draft-item">
+      <div class="draft-item-title">${htmlEscape(d.title||'제목 없는 임시글')}<span class="draft-item-meta">${htmlEscape(d.id||'')} · ${htmlEscape(d.date||'-')} · ${htmlEscape(d.category||'-')}</span></div>
+      <button type="button" onclick="loadDraft('${htmlEscape(d.id)}')">불러오기</button>
+      <button type="button" onclick="deleteDraft('${htmlEscape(d.id)}')">삭제</button>
+    </div>
+  `).join('') || '<p class="small">임시등록한 글이 없습니다.</p>';
+}
+function loadDraft(id){
+  closeDraftModal();
+  openNewsEditor(id);
+}
+function deleteDraft(id){
+  if(!confirm('이 임시글을 삭제할까요?'))return;
+  state.news=state.news.filter(n=>n.id!==id);
+  persist();
+  renderNews();
+  renderDraftList();
+  toast('임시글을 삭제했어요');
+}
+function deleteAllDrafts(){
+  const drafts=getDrafts();
+  if(!drafts.length){toast('삭제할 임시글이 없습니다');return}
+  if(!confirm('임시글을 모두 삭제할까요?'))return;
+  state.news=state.news.filter(n=>!n.draft);
+  persist();
+  renderNews();
+  renderDraftList();
+  toast('임시글을 모두 삭제했어요');
+}
+
+
+
+function rememberFontSizeTargetRange(){
+  const editor=q('newsBodyEditor');
+  const sel=window.getSelection();
+  if(!editor || !sel || !sel.rangeCount)return false;
+  const range=sel.getRangeAt(0);
+  if(nodeInsideNewsEditor(range.commonAncestorContainer)){
+    fontSizeTargetRange=range.cloneRange();
+    savedNewsRange=range.cloneRange();
+    return true;
+  }
+  return false;
+}
+function getFontSizeTargetRange(){
+  const editor=q('newsBodyEditor');
+  const sel=window.getSelection();
+
+  if(sel && sel.rangeCount){
+    const current=sel.getRangeAt(0);
+    if(nodeInsideNewsEditor(current.commonAncestorContainer)){
+      fontSizeTargetRange=current.cloneRange();
+      savedNewsRange=current.cloneRange();
+      return current.cloneRange();
+    }
+  }
+
+  if(fontSizeTargetRange && nodeInsideNewsEditor(fontSizeTargetRange.commonAncestorContainer)){
+    return fontSizeTargetRange.cloneRange();
+  }
+
+  if(savedNewsRange && nodeInsideNewsEditor(savedNewsRange.commonAncestorContainer)){
+    return savedNewsRange.cloneRange();
+  }
+
+  return null;
+}
+
+function rangeInsideNode(range,node){
+  if(!range || !node)return false;
+  const start=range.startContainer.nodeType===1 ? range.startContainer : range.startContainer.parentNode;
+  const end=range.endContainer.nodeType===1 ? range.endContainer : range.endContainer.parentNode;
+  return !!(start && end && node.contains(start) && node.contains(end));
+}
+function setActiveFontSizeTarget(el){
+  const editor=q('newsBodyEditor');
+  if(activeFontSizeTargetEl && activeFontSizeTargetEl!==el){
+    activeFontSizeTargetEl.removeAttribute('data-lumi-active-font-target');
+  }
+  activeFontSizeTargetEl=el && editor?.contains(el) ? el : null;
+  if(activeFontSizeTargetEl){
+    activeFontSizeTargetEl.setAttribute('data-lumi-active-font-target','1');
+  }
+}
+function reselectActiveFontTarget(){
+  if(!activeFontSizeTargetEl || !q('newsBodyEditor')?.contains(activeFontSizeTargetEl))return false;
+  const range=document.createRange();
+  range.selectNodeContents(activeFontSizeTargetEl);
+  const sel=window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+  savedNewsRange=range.cloneRange();
+  fontSizeTargetRange=range.cloneRange();
+  return true;
+}
+function setupNewsSelectionMemory(){
+  const editor=q('newsBodyEditor');
+  if(!editor || editor.dataset.selectionMemoryReady)return;
+  editor.dataset.selectionMemoryReady='1';
+
+  document.addEventListener('selectionchange',()=>{
+    const sel=window.getSelection();
+    if(!sel || !sel.rangeCount)return;
+    const range=sel.getRangeAt(0);
+    if(nodeInsideNewsEditor(range.commonAncestorContainer)){
+      savedNewsRange=range.cloneRange();
+    }
+  });
+
+  editor.addEventListener('click',e=>{
+    if(activeFontSizeTargetEl && !activeFontSizeTargetEl.contains(e.target)){
+      setActiveFontSizeTarget(null);
+    }
+  },{capture:true});
+  ['mouseup','keyup','touchend'].forEach(ev=>{
+    editor.addEventListener(ev,()=>setSavedRangeToEditorSelection(),{capture:true});
+  });
+}
+function setupFontSizeSelectionGuard(){
+  const sizeInput=q('fontSizeInput');
+  if(sizeInput && !sizeInput.dataset.fontSizeDirectReady){
+    sizeInput.dataset.fontSizeDirectReady='1';
+
+    ['pointerdown','mousedown'].forEach(ev=>{
+      sizeInput.addEventListener(ev,()=>{
+        if(!activeFontSizeTargetEl) rememberFontSizeTargetRange();
+      },{capture:true});
+    });
+
+    sizeInput.addEventListener('focus',()=>{
+      if(!activeFontSizeTargetEl) rememberFontSizeTargetRange();
+    },{capture:true});
+    sizeInput.addEventListener('input',()=>{
+      const size=parseInt(sizeInput.value,10);
+      if(Number.isFinite(size)) currentTypingFontSize=size;
+    });
+    sizeInput.addEventListener('keydown',e=>{
+      if(e.key==='Enter'){
+        e.preventDefault();
+        applyNewsFontSize(sizeInput.value);
+      }
+    });
+    sizeInput.addEventListener('change',()=>applyNewsFontSize(sizeInput.value));
+    sizeInput.addEventListener('blur',()=>applyNewsFontSize(sizeInput.value));
+  }
+
+  document.querySelectorAll('.font-size-stepper button').forEach(btn=>{
+    if(btn.dataset.fontSizeStepReady)return;
+    btn.dataset.fontSizeStepReady='1';
+    ['pointerdown','mousedown'].forEach(ev=>{
+      btn.addEventListener(ev,e=>{
+        if(!activeFontSizeTargetEl) rememberFontSizeTargetRange();
+        e.preventDefault();
+      },{capture:true});
+    });
+  });
+}
+function insertNewsTable(){
+  restoreNewsSelection();
+  const html=`<div class="news-table-wrap" contenteditable="false">
+    <button type="button" class="news-table-add-col" style="left:50%;" onclick="addNewsTableColumn(this)">＋</button>
+    <button type="button" class="news-table-add-row" style="top:50%;" onclick="addNewsTableRow(this)">＋</button>
+    <table class="news-table" contenteditable="true"><tbody><tr><td><br></td><td><br></td></tr><tr><td><br></td><td><br></td></tr></tbody></table>
+  </div><p><br></p>`;
+  document.execCommand('insertHTML',false,html);
+  saveNewsSelection();
+}
+function openPollModal(){
+  q('newsPollModal').hidden=false;
+}
+function closePollModal(){
+  q('newsPollModal').hidden=true;
+}
+function insertNewsPoll(){
+  const title=(q('pollTitle').value||'투표').trim();
+  const optionInputs=Array.from(document.querySelectorAll('#pollOptionList input'));
+  const options=optionInputs.map(x=>x.value.trim()).filter(Boolean);
+  const end=q('pollEndDate').value;
+  const mode=q('pollMode').value;
+  if(!options.length){toast('투표 항목을 입력해 주세요');return}
+  restoreNewsSelection();
+  const html=`<div class="news-poll-card" data-poll-mode="${htmlEscape(mode)}" data-poll-end="${htmlEscape(end)}">
+    <button type="button" class="news-poll-delete" contenteditable="false" onclick="this.closest('.news-poll-card').remove()">×</button>
+    <div class="news-poll-title">${htmlEscape(title)}</div>
+    ${end?`<div class="news-poll-meta">투표 종료일: ${htmlEscape(end)}</div>`:''}
+    ${options.map(o=>`<div class="news-poll-option">□ ${htmlEscape(o)}</div>`).join('')}
+  </div><p><br></p>`;
+  document.execCommand('insertHTML',false,html);
+  closePollModal();
+  q('pollTitle').value='';
+  resetPollOptions();
+  q('pollEndDate').value='';
+  saveNewsSelection();
+}
+
+function getNewsTableWrap(el){
+  return el.closest('.news-table-wrap');
+}
+function getNewsTable(el){
+  return getNewsTableWrap(el)?.querySelector('table');
+}
+function addNewsTableRow(el){
+  const table=getNewsTable(el);
+  if(!table)return;
+  const cols=table.rows[0]?.cells.length || 2;
+  const tr=table.insertRow(-1);
+  for(let i=0;i<cols;i++){
+    const td=tr.insertCell(-1);
+    td.innerHTML='<br>';
+  }
+}
+function addNewsTableColumn(el){
+  const table=getNewsTable(el);
+  if(!table)return;
+  Array.from(table.rows).forEach(row=>{
+    const td=row.insertCell(-1);
+    td.innerHTML='<br>';
+  });
+}
+function removeNewsTableRow(el){
+  const table=getNewsTable(el);
+  if(!table || table.rows.length<=1)return;
+  table.deleteRow(table.rows.length-1);
+}
+function removeNewsTableColumn(el){
+  const table=getNewsTable(el);
+  if(!table || !table.rows[0] || table.rows[0].cells.length<=1)return;
+  Array.from(table.rows).forEach(row=>row.deleteCell(row.cells.length-1));
+}
+function toggleNewsTableMenu(el){
+  const menu=getNewsTableWrap(el)?.querySelector('.news-table-menu');
+  if(menu)menu.hidden=!menu.hidden;
+}
+function cleanupEmptyPollCards(){
+  q('newsBodyEditor')?.querySelectorAll('.news-poll-card').forEach(card=>{
+    const clone=card.cloneNode(true);
+    clone.querySelectorAll('button').forEach(b=>b.remove());
+    if(!clone.textContent.trim()) card.remove();
+  });
+}
+
+function addPollOptionInput(value=''){
+  const list=q('pollOptionList');
+  const index=list.children.length+1;
+  const row=document.createElement('div');
+  row.className='poll-option-input';
+  row.innerHTML=`<span>${index}</span><input placeholder="항목을 입력해 주세요" value="${htmlEscape(value)}">`;
+  list.appendChild(row);
+}
+function resetPollOptions(){
+  const list=q('pollOptionList');
+  if(!list)return;
+  list.innerHTML='';
+  addPollOptionInput();
+  addPollOptionInput();
+  addPollOptionInput();
+}
+let activeNewsTableCell=null;
+function setupNewsTableDelegation(){
+  const editor=q('newsBodyEditor');
+  if(!editor || editor.dataset.tableReady)return;
+  editor.dataset.tableReady='1';
+  editor.addEventListener('click',e=>{
+    const cell=e.target.closest('td,th');
+    if(cell && editor.contains(cell)){
+      editor.querySelectorAll('.news-table .is-selected').forEach(x=>x.classList.remove('is-selected'));
+      cell.classList.add('is-selected');
+      activeNewsTableCell=cell;
+    }
+  });
+}
+function getActiveNewsTableCell(el){
+  const wrap=getNewsTableWrap(el);
+  if(activeNewsTableCell && wrap?.contains(activeNewsTableCell)) return activeNewsTableCell;
+  return wrap?.querySelector('td,th');
+}
+function mergeNewsTableCell(el){
+  const cell=getActiveNewsTableCell(el);
+  if(!cell)return;
+  const next=cell.nextElementSibling;
+  if(!next)return;
+  const current=parseInt(cell.getAttribute('colspan')||'1',10);
+  cell.setAttribute('colspan', current+parseInt(next.getAttribute('colspan')||'1',10));
+  cell.innerHTML=(cell.innerHTML||'') + ' ' + (next.innerHTML||'');
+  next.remove();
+}
+function splitNewsTableCell(el){
+  const cell=getActiveNewsTableCell(el);
+  if(!cell)return;
+  const colspan=parseInt(cell.getAttribute('colspan')||'1',10);
+  if(colspan>1){
+    cell.setAttribute('colspan', colspan-1);
+  }
+  const td=document.createElement(cell.tagName.toLowerCase());
+  td.innerHTML='<br>';
+  cell.after(td);
+}
+function fitNewsTableWidth(el){
+  const wrap=getNewsTableWrap(el);
+  if(wrap)wrap.style.width='100%';
+}
+
+function deleteNewsTable(el){
+  const wrap=getNewsTableWrap(el);
+  if(!wrap)return;
+  const next=document.createElement('p');
+  next.innerHTML='<br>';
+  wrap.after(next);
+  wrap.remove();
+  saveNewsSelection();
+}
+let selectedNewsTableWrap=null;
+
+function setupTableDeleteKey(){
+  const editor=q('newsBodyEditor');
+  if(!editor || editor.dataset.tableDeleteReady)return;
+  editor.dataset.tableDeleteReady='1';
+
+  document.addEventListener('click',e=>{
+    const wrap=e.target.closest('.news-table-wrap');
+    const cell=e.target.closest('td,th');
+
+    if(selectedNewsTableWrap){
+      selectedNewsTableWrap.classList.remove('is-selected');
+      selectedNewsTableWrap=null;
+    }
+
+    // 셀 안을 클릭하면 현재 표는 기억하지 않음: 셀 내부 글자 삭제가 우선
+    if(wrap && !cell && editor.contains(wrap)){
+      wrap.classList.add('is-selected');
+      selectedNewsTableWrap=wrap;
+    }
+  });
+
+  document.addEventListener('keydown',e=>{
+    if((e.ctrlKey||e.metaKey) && (e.key.toLowerCase()==='z'||e.key.toLowerCase()==='y')) return;
+
+    if(!selectedNewsTableWrap || !selectedNewsTableWrap.classList.contains('is-selected')) return;
+    if(e.key!=='Backspace' && e.key!=='Delete') return;
+
+    const active=document.activeElement;
+    const activeInCell=active && active.closest && active.closest('td,th');
+    const sel=window.getSelection();
+    const selectionInCell=sel && sel.rangeCount && sel.getRangeAt(0).commonAncestorContainer.closest?.('td,th');
+
+    // 셀 안에서 커서/선택이 있으면 글자 삭제가 우선
+    if(activeInCell || selectionInCell) return;
+
+    e.preventDefault();
+    const p=document.createElement('p');
+    p.innerHTML='<br>';
+    selectedNewsTableWrap.after(p);
+    selectedNewsTableWrap.remove();
+    selectedNewsTableWrap=null;
+    activeNewsTableCell=null;
+  });
+}
+
+let newsEditorAllSelected=false;
+function selectAllNewsEditorContent(){
+  const editor=q('newsBodyEditor');
+  if(!editor)return;
+  const range=document.createRange();
+  range.selectNodeContents(editor);
+  const sel=window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+  editor.classList.add('table-all-selected');
+  newsEditorAllSelected=true;
+}
+function clearNewsEditorContent(){
+  const editor=q('newsBodyEditor');
+  if(!editor)return;
+  editor.innerHTML='';
+  editor.classList.remove('table-all-selected');
+  newsEditorAllSelected=false;
+  const p=document.createElement('p');
+  p.innerHTML='<br>';
+  editor.appendChild(p);
+}
+function setupEditorDeleteShortcuts(){
+  const editor=q('newsBodyEditor');
+  if(!editor || editor.dataset.deleteShortcutReady)return;
+  editor.dataset.deleteShortcutReady='1';
+  editor.addEventListener('keydown',e=>{
+    if((e.ctrlKey || e.metaKey) && (e.key.toLowerCase()==='z' || e.key.toLowerCase()==='y')){
+      return;
+    }
+    if((e.ctrlKey || e.metaKey) && e.key.toLowerCase()==='a'){
+      e.preventDefault();
+      selectAllNewsEditorContent();
+      return;
+    }
+    if((e.key==='Backspace' || e.key==='Delete') && newsEditorAllSelected){
+      e.preventDefault();
+      clearNewsEditorContent();
+      return;
+    }
+  });
+  editor.addEventListener('input',()=>{newsEditorAllSelected=false;editor.classList.remove('table-all-selected');});
+  editor.addEventListener('blur',()=>normalizeNewsFontSizeSpans());
+  editor.addEventListener('click',()=>{
+    newsEditorAllSelected=false;
+    editor.classList.remove('table-all-selected');
+  });
+}
+
+let currentScheduleFilter='전체';
+
+// ── stubs (schedule/inner not in this file) ──
+function setupScheduleLivePreview(){}
+function renderSchedulePreview(){}
+function renderScheduleAdminCalendar(){}
+function renderScheduleWriteCalendar(){}
+function saveInnerFromFields(){}
+function restoreInner(){}
+function renderAll(){renderNews();updateDraftCount();}
+
+/* ===== 표 우클릭 컨텍스트 메뉴 ===== */
+let ctxTargetWrap=null;
+let ctxTargetCell=null;
+function showTableContextMenu(e,wrap){
+  e.preventDefault();
+  e.stopPropagation();
+  ctxTargetWrap=wrap;
+  ctxTargetCell=e.target.closest('td,th')||wrap.querySelector('td,th');
+  const menu=document.getElementById('tableContextMenu');
+  menu.style.left=Math.min(e.clientX, window.innerWidth-200)+'px';
+  menu.style.top=Math.min(e.clientY, window.innerHeight-340)+'px';
+  menu.classList.add('show');
+}
+function hideTableContextMenu(){
+  document.getElementById('tableContextMenu')?.classList.remove('show');
+  ctxTargetWrap=null;
+  ctxTargetCell=null;
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#tableContextMenu')) hideTableContextMenu();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') hideTableContextMenu();
+});
+function setupTableContextMenu(){
+  const editor=q('newsBodyEditor');
+  if(!editor||editor.dataset.ctxReady)return;
+  editor.dataset.ctxReady='1';
+  editor.addEventListener('contextmenu',e=>{
+    const wrap=e.target.closest('.news-table-wrap');
+    if(wrap) showTableContextMenu(e,wrap);
+  });
+}
+function ctxMergeCell(){
+  if(!ctxTargetCell)return;
+  const next=ctxTargetCell.nextElementSibling;
+  if(!next){toast('오른쪽에 합칠 셀이 없습니다');hideTableContextMenu();return;}
+  const cur=parseInt(ctxTargetCell.getAttribute('colspan')||'1',10);
+  ctxTargetCell.setAttribute('colspan',cur+parseInt(next.getAttribute('colspan')||'1',10));
+  ctxTargetCell.innerHTML=(ctxTargetCell.innerHTML||'')+(next.innerHTML||'');
+  next.remove();
+  hideTableContextMenu();
+}
+function ctxAddRow(){
+  if(!ctxTargetWrap)return;
+  const table=ctxTargetWrap.querySelector('table');
+  if(!table)return;
+  const cols=table.rows[0]?.cells.length||2;
+  const tr=table.insertRow(-1);
+  for(let i=0;i<cols;i++){const td=tr.insertCell(-1);td.innerHTML='<br>';}
+  hideTableContextMenu();
+}
+function ctxAddCol(){
+  if(!ctxTargetWrap)return;
+  const table=ctxTargetWrap.querySelector('table');
+  if(!table)return;
+  Array.from(table.rows).forEach(row=>{const td=row.insertCell(-1);td.innerHTML='<br>';});
+  hideTableContextMenu();
+}
+function ctxDeleteRow(){
+  if(!ctxTargetCell||!ctxTargetWrap)return;
+  const table=ctxTargetWrap.querySelector('table');
+  if(!table||table.rows.length<=1){toast('마지막 행은 삭제할 수 없습니다');hideTableContextMenu();return;}
+  const row=ctxTargetCell.closest('tr');
+  if(row) row.remove();
+  hideTableContextMenu();
+}
+function ctxDeleteCol(){
+  if(!ctxTargetCell||!ctxTargetWrap)return;
+  const table=ctxTargetWrap.querySelector('table');
+  if(!table||!table.rows[0]||table.rows[0].cells.length<=1){toast('마지막 열은 삭제할 수 없습니다');hideTableContextMenu();return;}
+  const cellIndex=ctxTargetCell.cellIndex;
+  Array.from(table.rows).forEach(row=>{if(row.cells[cellIndex])row.deleteCell(cellIndex);});
+  hideTableContextMenu();
+}
+function ctxFitWidth(){
+  if(!ctxTargetWrap)return;
+  const table=ctxTargetWrap.querySelector('table');
+  if(table){table.style.width='100%'; Array.from(table.querySelectorAll('td,th')).forEach(c=>c.style.width='');}
+  hideTableContextMenu();
+}
+function ctxDeleteTable(){
+  if(!ctxTargetWrap)return;
+  if(!confirm('표 전체를 삭제할까요?'))return;
+  const p=document.createElement('p');p.innerHTML='<br>';
+  ctxTargetWrap.after(p);ctxTargetWrap.remove();
+  hideTableContextMenu();
+  saveNewsSelection();
+}
+
+// load 에 setupTableContextMenu 추가
+load();
+(function(){setupTableContextMenu();})();
+(function(){setupTableContextMenu();})();
+</script>
+</body>
+</html>
