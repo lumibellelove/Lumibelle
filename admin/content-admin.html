@@ -1846,7 +1846,7 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 }
 .poll-form{
   display:grid;
-  gap:12px;
+  gap:18px;
 }
 .poll-form label{
   display:grid;
@@ -2173,8 +2173,8 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   line-height:1.55 !important;
 }
 
-/* 5. 왼쪽 레이아웃(locked 영역) 복구 — 원래 위치로 */
-#locked{
+/* 5. locked 영역 — hidden 아닐 때만 표시, 중앙 정렬 유지 */
+#locked:not([hidden]){
   margin-left:auto !important;
   margin-right:auto !important;
   display:block !important;
@@ -3146,7 +3146,19 @@ function applyNewsFontSize(px){
   const sel=window.getSelection();
   if(!sel||!sel.rangeCount)return;
   const range=sel.getRangeAt(0);
-  if(range.collapsed){q('fontSizeInput').value=size;return;}
+  q('fontSizeInput').value=size;
+  if(range.collapsed){
+    // 커서만 있을 때: 이후 타이핑에 적용되도록 execCommand 사용
+    document.execCommand('fontSize', false, '7');
+    const editor=q('newsBodyEditor');
+    if(editor){
+      editor.querySelectorAll('font[size="7"]').forEach(f=>{
+        f.removeAttribute('size');
+        f.style.fontSize=size+'px';
+      });
+    }
+    return;
+  }
 
   // Range에서 내용을 꺼내 span으로 감싸기 (가장 신뢰성 높은 방법)
   // 기존 fontSize span이 있으면 내부 텍스트만 꺼내 중첩 방지
@@ -3470,14 +3482,16 @@ function setupTableDeleteKey(){
     }
   });
   editor.addEventListener('keydown',e=>{
+    if((e.ctrlKey || e.metaKey) && (e.key.toLowerCase()==='z' || e.key.toLowerCase()==='y')) return;
     if(e.key!=='Backspace' && e.key!=='Delete')return;
     const selected=editor.querySelector('.news-table-wrap.is-selected');
-    if(selected && (document.activeElement===editor || selected.contains(document.activeElement))){
+    if(selected){
       e.preventDefault();
       const p=document.createElement('p');
       p.innerHTML='<br>';
       selected.after(p);
       selected.remove();
+      activeNewsTableCell=null;
     }
   });
 }
@@ -3509,6 +3523,10 @@ function setupEditorDeleteShortcuts(){
   if(!editor || editor.dataset.deleteShortcutReady)return;
   editor.dataset.deleteShortcutReady='1';
   editor.addEventListener('keydown',e=>{
+    // Ctrl+Z / Ctrl+Y는 브라우저 기본 동작에 맡김
+    if((e.ctrlKey || e.metaKey) && (e.key.toLowerCase()==='z' || e.key.toLowerCase()==='y')){
+      return;
+    }
     if((e.ctrlKey || e.metaKey) && e.key.toLowerCase()==='a'){
       e.preventDefault();
       selectAllNewsEditorContent();
