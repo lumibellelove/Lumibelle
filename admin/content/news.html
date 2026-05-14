@@ -3987,12 +3987,12 @@ document.getElementById(isOpen?'main':'locked').hidden=false;
 const state={news:[],schedules:[],inner:{}};
 function q(id){return document.getElementById(id)}
 function toast(msg='저장 완료'){const el=q('toast');el.textContent=msg;el.classList.add('show');clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>el.classList.remove('show'),1400)}
-function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};seedNewsIfEmpty();renderAll();setupScheduleLivePreview();renderSchedulePreview();renderScheduleAdminCalendar();renderScheduleWriteCalendar();initColorGrid();setupNewsImageInput();setupEditorToolbarSelectionGuard();setupNewsSelectionMemory();setupFontSizeSelectionGuard();setupNewsTableDelegation();setupTableDeleteKey();setupEditorDeleteShortcuts();updateDraftCount();openPanel(location.hash?.replace('#','')||'home')}
+function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};seedNewsIfEmpty();renderAll();setupScheduleLivePreview();renderSchedulePreview();renderScheduleAdminCalendar();renderScheduleWriteCalendar();initColorGrid();setupNewsImageInput();setupEditorToolbarSelectionGuard();setupNewsSelectionMemory();setupFontSizeSelectionGuard();setupNewsTableDelegation();setupTableDeleteKey();setupEditorDeleteShortcuts();updateDraftCount();openPanel(location.hash?.replace('#','')||'news')}
 function persist(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
 function saveAll(show=false){saveInnerFromFields();persist();if(show)toast('전체 저장 완료')}
-function openPanel(id){if(id==='home-go'){location.href='index.html';return}document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));const panel=q(id)||q('home');panel.classList.add('active');document.querySelector(`.menu-tab[data-target="${id}"]`)?.classList.add('active');history.replaceState(null,'','#'+id)}
-document.querySelectorAll('.menu-tab').forEach(btn=>btn.addEventListener('click',()=>{if(btn.dataset.target==='home'){location.href='index.html'}else openPanel(btn.dataset.target)}));
-document.querySelectorAll('[data-target-card]').forEach(card=>card.addEventListener('click',()=>openPanel(card.dataset.targetCard)));
+function openPanel(id){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));const panel=q(id)||q('news');if(panel)panel.classList.add('active');history.replaceState(null,'','#'+id)}
+// menu tabs use onclick directly
+// no data-target-card in this file
 
 
 let currentNewsFilter='전체';
@@ -4144,9 +4144,7 @@ function openNewsEditor(id=null){
   // 컨텍스트 메뉴 셋업 (패널이 열릴 때마다 보장)
   setTimeout(setupTableContextMenu, 0);
 }
-function backToNewsList(){
-  openPanel('news');
-}
+function backToNewsList(){openPanel('news');}
 function saveNewsDraft(){
   const row=collectNewsForm({draft:true});
   if(!row.title) row.title='제목 없는 임시글';
