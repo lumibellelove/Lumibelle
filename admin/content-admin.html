@@ -3594,7 +3594,7 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 }
 
 
-/* ===== schedule-fix4: 캘린더 날짜 클릭 상세카드 공홈 스케줄형 ===== */
+/* ===== schedule-fix4b: 캘린더 날짜 클릭 상세카드 공홈 스케줄형 ===== */
 #schedule .schedule-calendar-detail{
   margin-top:18px !important;
   border:0 !important;
@@ -5477,6 +5477,18 @@ function showScheduleDayDetail(dateKey){
       </div>
     </div>
   `).join('');
+}
+
+function toggleScheduleCalendar(){
+  const box=document.getElementById('scheduleCalendarBox');
+  const btn=document.getElementById('scheduleMoreToggle');
+  if(!box||!btn)return;
+  const closed=box.classList.toggle('is-hidden');
+  btn.textContent=closed?'MORE SCHEDULE':'CLOSE';
+  if(!closed){
+    renderScheduleAdminCalendar?.();
+    setTimeout(()=>box.scrollIntoView({behavior:'smooth',block:'start'}),40);
+  }
 }
 
 function renderScheduleAdminCalendar(){renderScheduleCalendar('scheduleAdminCalendar',scheduleAdminDate,'admin')}
