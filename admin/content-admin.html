@@ -2445,7 +2445,7 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
             <div class="font-control-row">
               <div class="font-size-stepper" aria-label="글씨 크기">
                 <button type="button" onclick="stepNewsFontSize(-1)">−</button>
-                <input id="fontSizeInput" type="number" value="15" min="8" max="72" step="1" onchange="applyNewsFontSize(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();applyNewsFontSize(this.value)}">
+                <input id="fontSizeInput" type="number" value="15" min="8" max="72" step="1" onmousedown="saveNewsSelection()" onchange="applyNewsFontSize(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();applyNewsFontSize(this.value)}">
                 <button type="button" onclick="stepNewsFontSize(1)">＋</button>
               </div>
               <button type="button" class="tool-square" onclick="formatNews('bold')"><b>B</b></button>
@@ -3146,18 +3146,27 @@ function applyNewsFontSize(px){
   if(!Number.isFinite(size)||size<8||size>96){toast('글씨 크기를 확인해 주세요');return}
   q('fontSizeInput').value=size;
 
-  // savedNewsRange 직접 사용 (restoreNewsSelection 경유 안 함 - undo 스택 보존)
-  if(!savedNewsRange || savedNewsRange.collapsed) return;
-
   const editor=q('newsBodyEditor');
-  if(!editor || !editor.contains(savedNewsRange.commonAncestorContainer)) return;
+  if(!editor) return;
 
-  // 선택 복원
-  const sel=window.getSelection();
-  editor.focus();
-  sel.removeAllRanges();
-  sel.addRange(savedNewsRange);
-  const range=sel.getRangeAt(0);
+  // 현재 selection 확인, 없으면 savedNewsRange 복원 시도
+  let sel=window.getSelection();
+  let range=null;
+  if(sel && sel.rangeCount && !sel.getRangeAt(0).collapsed && editor.contains(sel.getRangeAt(0).commonAncestorContainer)){
+    range=sel.getRangeAt(0);
+  } else if(savedNewsRange && !savedNewsRange.collapsed){
+    // 숫자 입력창 포커스로 selection 날아간 경우 savedRange 복원
+    try{
+      if(editor.contains(savedNewsRange.commonAncestorContainer)){
+        editor.focus();
+        sel=window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(savedNewsRange);
+        range=sel.getRangeAt(0);
+      }
+    }catch(e){range=null;}
+  }
+  if(!range || range.collapsed) return;
 
   // 선택 영역에 font-size 적용
   const frag=range.extractContents();
@@ -3210,19 +3219,11 @@ document.addEventListener('click',e=>{
 });
 
 function setupEditorToolbarSelectionGuard(){
-  // 툴바 버튼 mousedown 시 selection 저장 + 포커스 이동 방지
-  document.querySelectorAll('.font-control-row button, .font-control-row select, .color-popover button, .color-popover input').forEach(el=>{
+  document.querySelectorAll('.font-control-row button, .color-popover button').forEach(el=>{
     if(el.dataset.guardReady)return;
     el.dataset.guardReady='1';
     el.addEventListener('mousedown',e=>{
-      if(el.id==='fontSizeInput' || (el.tagName==='INPUT' && el.type==='text'))return;
-      // pointerdown 시점 selection을 즉시 캡처
-      const sel=window.getSelection();
-      const editor=q('newsBodyEditor');
-      if(sel && sel.rangeCount && editor?.contains(sel.anchorNode)){
-        savedNewsRange=sel.getRangeAt(0).cloneRange();
-      }
-      if(el.tagName==='BUTTON') e.preventDefault();
+      e.preventDefault(); // 포커스 이동 방지 → selection 그대로 유지
     });
   });
   const sizeInput=q('fontSizeInput');
@@ -3305,27 +3306,17 @@ function setupFontSizeSelectionGuard(){
   const sizeInput=q('fontSizeInput');
   if(sizeInput && !sizeInput.dataset.guardReady){
     sizeInput.dataset.guardReady='1';
-    // input 포커스 받기 직전에 selection 저장
-    ['pointerdown','mousedown'].forEach(ev=>sizeInput.addEventListener(ev,()=>{
-      const sel=window.getSelection();
-      const editor=q('newsBodyEditor');
-      if(sel && sel.rangeCount && editor?.contains(sel.anchorNode)){
-        savedNewsRange=sel.getRangeAt(0).cloneRange();
-      }
-    },{capture:true}));
     sizeInput.addEventListener('change',()=>applyNewsFontSize(sizeInput.value));
+    sizeInput.addEventListener('keydown',e=>{
+      if(e.key==='Enter'){e.preventDefault();applyNewsFontSize(sizeInput.value);}
+    });
   }
   document.querySelectorAll('.font-size-stepper button').forEach(btn=>{
     if(btn.dataset.guardReady)return;
     btn.dataset.guardReady='1';
-    ['pointerdown','mousedown'].forEach(ev=>btn.addEventListener(ev,e=>{
-      const sel=window.getSelection();
-      const editor=q('newsBodyEditor');
-      if(sel && sel.rangeCount && editor?.contains(sel.anchorNode)){
-        savedNewsRange=sel.getRangeAt(0).cloneRange();
-      }
-      e.preventDefault();
-    },{capture:true}));
+    btn.addEventListener('mousedown',e=>{
+      e.preventDefault(); // 포커스 이동 방지 → selection 그대로 유지
+    });
   });
 }
 function insertNewsTable(){
