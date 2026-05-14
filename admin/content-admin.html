@@ -1873,6 +1873,128 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   line-height:1.6;
 }
 
+
+/* ===== NEWS 글쓰기 안정화 10차: 말머리/글자크기/표/투표 삭제 ===== */
+.write-select-like .badge-picker.compact{
+  gap:18px !important;
+  row-gap:12px !important;
+}
+.write-select-like .badge-picker.compact .badge-choice{
+  min-width:98px !important;
+  padding:0 16px !important;
+  display:inline-flex !important;
+  justify-content:center !important;
+  align-items:center !important;
+  gap:6px !important;
+}
+.write-select-like .badge-picker.compact .badge-choice input{
+  margin:0 3px 0 0 !important;
+  flex:0 0 auto !important;
+}
+.align-popover{
+  justify-content:center !important;
+  align-items:center !important;
+}
+.align-popover button{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+.news-table-wrap{
+  position:relative;
+  margin:18px 0;
+  padding:18px 0 0 18px;
+}
+.news-table-add-col{
+  position:absolute;
+  top:0;
+  width:24px;
+  height:24px;
+  border:1px solid #cfcfcf;
+  border-radius:999px;
+  background:#fff;
+  color:#777;
+  font-weight:900;
+  line-height:1;
+  cursor:pointer;
+  z-index:2;
+}
+.news-table-add-row{
+  position:absolute;
+  left:0;
+  width:24px;
+  height:24px;
+  border:1px solid #cfcfcf;
+  border-radius:999px;
+  background:#fff;
+  color:#777;
+  font-weight:900;
+  line-height:1;
+  cursor:pointer;
+  z-index:2;
+}
+.news-table-wrap .news-table{
+  margin:0 !important;
+}
+.news-table-menu-btn{
+  position:absolute;
+  right:6px;
+  top:6px;
+  min-height:28px;
+  padding:0 10px;
+  border:1px solid #f0bfd4;
+  border-radius:999px;
+  background:#fff;
+  color:#d77ca7;
+  font-weight:900;
+  cursor:pointer;
+  z-index:2;
+}
+.news-table-menu{
+  position:absolute;
+  right:6px;
+  top:40px;
+  z-index:4;
+  display:grid;
+  gap:0;
+  min-width:150px;
+  border:1px solid #f2d8e7;
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 12px 30px rgba(82,52,73,.15);
+  overflow:hidden;
+}
+.news-table-menu[hidden]{display:none!important}
+.news-table-menu button{
+  min-height:38px;
+  border:0;
+  border-bottom:1px solid #f2d8e7;
+  background:#fff;
+  color:#7f6a77;
+  font-weight:900;
+  text-align:left;
+  padding:0 14px;
+  cursor:pointer;
+}
+.news-table-menu button:last-child{border-bottom:0}
+.news-table-menu button:hover{background:#fff8fc;color:#ff59a5}
+.news-poll-card{
+  position:relative;
+}
+.news-poll-delete{
+  position:absolute;
+  right:12px;
+  top:12px;
+  min-width:34px;
+  height:30px;
+  border:1px solid #f0bfd4;
+  border-radius:999px;
+  background:#fff;
+  color:#d77ca7;
+  font-weight:900;
+  cursor:pointer;
+}
+
 </style>
 </head>
 <body>
@@ -2609,6 +2731,7 @@ function initColorGrid(){
     ed.addEventListener('keyup',saveNewsSelection);
     ed.addEventListener('mouseup',saveNewsSelection);
     ed.addEventListener('focus',saveNewsSelection);
+    ed.addEventListener('keyup',cleanupEmptyPollCards);
   }
 }
 function toggleColorPalette(){
@@ -2672,11 +2795,22 @@ function styleNewsSelection(styleObj){
 function applyNewsFontSize(px){
   const size=parseInt(px,10);
   if(!Number.isFinite(size) || size<8 || size>96){toast('글씨 크기를 확인해 주세요');return}
-  const applied=styleNewsSelection({fontSize:size+'px'});
-  if(!applied){
-    restoreNewsSelection();
-    document.execCommand('insertHTML',false,`<span style="font-size:${size}px">&nbsp;</span>`);
-  }
+  restoreNewsSelection();
+  const editor=q('newsBodyEditor');
+  const beforeFonts=Array.from(editor.querySelectorAll('font[size="7"]'));
+  document.execCommand('fontSize', false, '7');
+  const fonts=Array.from(editor.querySelectorAll('font[size="7"]')).filter(f=>!beforeFonts.includes(f));
+  const targets=fonts.length ? fonts : Array.from(editor.querySelectorAll('font[size="7"]'));
+  targets.forEach(font=>{
+    const span=document.createElement('span');
+    span.style.fontSize=size+'px';
+    span.innerHTML=font.innerHTML;
+    span.querySelectorAll('[style]').forEach(el=>{
+      if(el.style) el.style.fontSize='';
+      if(el.getAttribute('style')==='') el.removeAttribute('style');
+    });
+    font.replaceWith(span);
+  });
   q('fontSizeInput').value=size;
   saveNewsSelection();
 }
@@ -2812,7 +2946,19 @@ function setupFontSizeSelectionGuard(){
 }
 function insertNewsTable(){
   restoreNewsSelection();
-  const html='<table class="news-table"><tbody><tr><td><br></td><td><br></td></tr><tr><td><br></td><td><br></td></tr></tbody></table><p><br></p>';
+  const html=`<div class="news-table-wrap" contenteditable="false">
+    <button type="button" class="news-table-add-col" style="left:50%;" onclick="addNewsTableColumn(this)">＋</button>
+    <button type="button" class="news-table-add-row" style="top:50%;" onclick="addNewsTableRow(this)">＋</button>
+    <button type="button" class="news-table-menu-btn" onclick="toggleNewsTableMenu(this)">표</button>
+    <div class="news-table-menu" hidden>
+      <button type="button" onclick="addNewsTableColumn(this)">열 추가</button>
+      <button type="button" onclick="addNewsTableRow(this)">행 추가</button>
+      <button type="button" onclick="removeNewsTableColumn(this)">열 삭제</button>
+      <button type="button" onclick="removeNewsTableRow(this)">행 삭제</button>
+      <button type="button" onclick="this.closest('.news-table-wrap').remove()">표 삭제</button>
+    </div>
+    <table class="news-table" contenteditable="true"><tbody><tr><td><br></td><td><br></td></tr><tr><td><br></td><td><br></td></tr></tbody></table>
+  </div><p><br></p>`;
   document.execCommand('insertHTML',false,html);
   saveNewsSelection();
 }
@@ -2830,6 +2976,7 @@ function insertNewsPoll(){
   if(!options.length){toast('투표 항목을 입력해 주세요');return}
   restoreNewsSelection();
   const html=`<div class="news-poll-card" data-poll-mode="${htmlEscape(mode)}" data-poll-end="${htmlEscape(end)}">
+    <button type="button" class="news-poll-delete" contenteditable="false" onclick="this.closest('.news-poll-card').remove()">×</button>
     <div class="news-poll-title">${htmlEscape(title)}</div>
     ${end?`<div class="news-poll-meta">투표 종료일: ${htmlEscape(end)}</div>`:''}
     ${options.map(o=>`<div class="news-poll-option">□ ${htmlEscape(o)}</div>`).join('')}
@@ -2840,6 +2987,52 @@ function insertNewsPoll(){
   q('pollOptions').value='';
   q('pollEndDate').value='';
   saveNewsSelection();
+}
+
+function getNewsTableWrap(el){
+  return el.closest('.news-table-wrap');
+}
+function getNewsTable(el){
+  return getNewsTableWrap(el)?.querySelector('table');
+}
+function addNewsTableRow(el){
+  const table=getNewsTable(el);
+  if(!table)return;
+  const cols=table.rows[0]?.cells.length || 2;
+  const tr=table.insertRow(-1);
+  for(let i=0;i<cols;i++){
+    const td=tr.insertCell(-1);
+    td.innerHTML='<br>';
+  }
+}
+function addNewsTableColumn(el){
+  const table=getNewsTable(el);
+  if(!table)return;
+  Array.from(table.rows).forEach(row=>{
+    const td=row.insertCell(-1);
+    td.innerHTML='<br>';
+  });
+}
+function removeNewsTableRow(el){
+  const table=getNewsTable(el);
+  if(!table || table.rows.length<=1)return;
+  table.deleteRow(table.rows.length-1);
+}
+function removeNewsTableColumn(el){
+  const table=getNewsTable(el);
+  if(!table || !table.rows[0] || table.rows[0].cells.length<=1)return;
+  Array.from(table.rows).forEach(row=>row.deleteCell(row.cells.length-1));
+}
+function toggleNewsTableMenu(el){
+  const menu=getNewsTableWrap(el)?.querySelector('.news-table-menu');
+  if(menu)menu.hidden=!menu.hidden;
+}
+function cleanupEmptyPollCards(){
+  q('newsBodyEditor')?.querySelectorAll('.news-poll-card').forEach(card=>{
+    const clone=card.cloneNode(true);
+    clone.querySelectorAll('button').forEach(b=>b.remove());
+    if(!clone.textContent.trim()) card.remove();
+  });
 }
 function saveSchedule(){const id=q('scheduleId').value.trim()||`SCH-${String(Date.now()).slice(-6)}`;const row={id,title:q('scheduleTitle').value.trim(),date:q('scheduleDate').value,day:q('scheduleDay').value,venue:q('scheduleVenue').value,status:q('scheduleStatus').value,ticket:q('scheduleTicket').value,newsId:q('scheduleNewsId').value,published:q('schedulePublished').value==='true',home:q('scheduleHome').value==='true',updatedAt:new Date().toISOString()};const idx=state.schedules.findIndex(x=>x.id===id);if(idx>=0)state.schedules[idx]=row;else state.schedules.unshift(row);persist();q('scheduleId').value=id;renderSchedules();toast('SCHEDULE 저장 완료')}
 function editSchedule(id){const s=state.schedules.find(x=>x.id===id);if(!s)return;q('scheduleId').value=s.id;q('scheduleTitle').value=s.title||'';q('scheduleDate').value=s.date||'';q('scheduleDay').value=s.day||'';q('scheduleVenue').value=s.venue||'';q('scheduleStatus').value=s.status||'COMING SOON';q('scheduleTicket').value=s.ticket||'';q('scheduleNewsId').value=s.newsId||'';q('schedulePublished').value=String(!!s.published);q('scheduleHome').value=String(!!s.home);toast('수정할 SCHEDULE을 불러왔어요')}
