@@ -2347,6 +2347,22 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   font-size:inherit;
 }
 
+
+/* ===== fix22: 투표 모달 제목 위치 미세 조정 ===== */
+.news-poll-modal .modal-head h2{
+  margin-top:14px !important;
+}
+.news-poll-modal .modal-head{
+  padding-top:4px !important;
+}
+
+
+/* ===== fix23: 글씨 크기 직접입력/Undo 보정 ===== */
+.font-size-stepper input:focus{
+  box-shadow:none !important;
+  outline:none !important;
+}
+
 </style>
 </head>
 <body>
@@ -3181,16 +3197,55 @@ function styleNewsSelection(styleObj){
   savedNewsRange=newRange.cloneRange();
   return true;
 }
+function nodeInsideNewsEditor(node){
+  const editor=q('newsBodyEditor');
+  if(!editor || !node)return false;
+  const n=node.nodeType===1 ? node : node.parentNode;
+  return !!(n && editor.contains(n));
+}
+function setSavedRangeToEditorSelection(){
+  const editor=q('newsBodyEditor');
+  const sel=window.getSelection();
+  if(sel && sel.rangeCount){
+    const range=sel.getRangeAt(0);
+    if(nodeInsideNewsEditor(range.commonAncestorContainer)){
+      savedNewsRange=range.cloneRange();
+      return true;
+    }
+  }
+  return false;
+}
+function getEditorRangeForFormat(){
+  const editor=q('newsBodyEditor');
+  const sel=window.getSelection();
+
+  // 현재 선택이 에디터 안에 살아있으면 그걸 우선 사용
+  if(sel && sel.rangeCount){
+    const r=sel.getRangeAt(0);
+    if(nodeInsideNewsEditor(r.commonAncestorContainer)) return r.cloneRange();
+  }
+
+  // 입력칸 클릭으로 선택이 풀렸으면 직전 저장 range 사용
+  if(savedNewsRange && nodeInsideNewsEditor(savedNewsRange.commonAncestorContainer)){
+    return savedNewsRange.cloneRange();
+  }
+  return null;
+}
+function restoreRangeForFormat(range){
+  const editor=q('newsBodyEditor');
+  if(!editor || !range)return false;
+  editor.focus();
+  const sel=window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+  savedNewsRange=range.cloneRange();
+  return true;
+}
 function cleanFontSizeInside(node){
   if(!node || !node.querySelectorAll)return;
   node.querySelectorAll('[style]').forEach(el=>{
     if(el.style) el.style.removeProperty('font-size');
     if(el.getAttribute('style')==='') el.removeAttribute('style');
-  });
-  node.querySelectorAll('font[size]').forEach(font=>{
-    const span=document.createElement('span');
-    span.innerHTML=font.innerHTML;
-    font.replaceWith(span);
   });
 }
 function normalizeNewsFontSizeSpans(){
@@ -3204,8 +3259,6 @@ function normalizeNewsFontSizeSpans(){
     cleanFontSizeInside(span);
     font.replaceWith(span);
   });
-  // 입력용으로 남은 빈 font 태그 정리
-  editor.querySelectorAll('font[size="7"]:empty').forEach(font=>font.remove());
 }
 function applyNewsFontSize(px){
   const size=parseInt(px,10);
@@ -3216,44 +3269,25 @@ function applyNewsFontSize(px){
   const editor=q('newsBodyEditor');
   if(!editor)return;
 
-  let sel=window.getSelection();
-  let range=null;
+  const range=getEditorRangeForFormat();
 
-  if(sel && sel.rangeCount && editor.contains(sel.getRangeAt(0).commonAncestorContainer)){
-    range=sel.getRangeAt(0).cloneRange();
-  }else if(savedNewsRange && editor.contains(savedNewsRange.commonAncestorContainer)){
-    range=savedNewsRange.cloneRange();
-  }
-
-  editor.focus();
-
-  // 1) 드래그 선택 영역 있음: 선택한 부분만 px span으로 직접 감싸기
+  // 선택 영역 있음: 저장된 선택 영역을 복원해서 execCommand로 처리
+  // 직접 DOM range.extractContents보다 Ctrl+Z 스택이 덜 꼬임
   if(range && !range.collapsed){
-    const span=document.createElement('span');
-    span.setAttribute('data-lumi-font-size','1');
-    span.style.fontSize=size+'px';
-
-    const frag=range.extractContents();
-    cleanFontSizeInside(frag);
-    span.appendChild(frag);
-    range.insertNode(span);
-
-    sel=window.getSelection();
-    sel.removeAllRanges();
-    const newRange=document.createRange();
-    newRange.selectNodeContents(span);
-    sel.addRange(newRange);
-    savedNewsRange=newRange.cloneRange();
+    restoreRangeForFormat(range);
+    document.execCommand('fontSize',false,'7');
+    normalizeNewsFontSizeSpans();
+    setSavedRangeToEditorSelection();
     return;
   }
 
-  // 2) 선택 영역 없음: 앞으로 입력할 글씨 크기만 저장 + 브라우저 typing state 지정
-  // 여기서 바로 normalize하면 typing state가 사라져서 + / -가 안 먹는 문제가 생김.
+  // 선택 영역 없음: 앞으로 입력될 글씨 크기만 저장
+  // 단, execCommand 상태만 걸고 normalize는 입력 직후가 아니라 blur/save/preview 쪽에서 처리
+  editor.focus();
   try{
-    restoreNewsSelection();
     document.execCommand('fontSize',false,'7');
   }catch(e){}
-  saveNewsSelection();
+  setSavedRangeToEditorSelection();
 }
 function stepNewsFontSize(delta){
   const input=q('fontSizeInput');
@@ -3374,9 +3408,9 @@ function setupFontSizeSelectionGuard(){
   const sizeInput=q('fontSizeInput');
   if(sizeInput && !sizeInput.dataset.guardReady){
     sizeInput.dataset.guardReady='1';
-    sizeInput.addEventListener('pointerdown',()=>saveNewsSelection(),{capture:true});
-    sizeInput.addEventListener('mousedown',()=>saveNewsSelection(),{capture:true});
-    sizeInput.addEventListener('focus',()=>saveNewsSelection(),{capture:true});
+    ['pointerdown','mousedown'].forEach(ev=>{
+      sizeInput.addEventListener(ev,()=>setSavedRangeToEditorSelection(),{capture:true});
+    });
     sizeInput.addEventListener('change',()=>applyNewsFontSize(sizeInput.value));
     sizeInput.addEventListener('keydown',e=>{
       if(e.key==='Enter'){e.preventDefault();applyNewsFontSize(sizeInput.value);}
@@ -3387,8 +3421,8 @@ function setupFontSizeSelectionGuard(){
     btn.dataset.guardReady='1';
     ['pointerdown','mousedown'].forEach(ev=>{
       btn.addEventListener(ev,e=>{
-        saveNewsSelection();
-        e.preventDefault(); // 포커스 이동 방지 → 드래그 선택 유지
+        setSavedRangeToEditorSelection();
+        e.preventDefault();
       },{capture:true});
     });
   });
@@ -3635,7 +3669,8 @@ function setupEditorDeleteShortcuts(){
       return;
     }
   });
-  editor.addEventListener('input',()=>{newsEditorAllSelected=false;editor.classList.remove('table-all-selected');normalizeNewsFontSizeSpans();});
+  editor.addEventListener('input',()=>{newsEditorAllSelected=false;editor.classList.remove('table-all-selected');});
+  editor.addEventListener('blur',()=>normalizeNewsFontSizeSpans());
   editor.addEventListener('click',()=>{
     newsEditorAllSelected=false;
     editor.classList.remove('table-all-selected');
