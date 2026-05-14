@@ -1763,6 +1763,116 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   z-index:7000 !important;
 }
 
+
+/* ===== NEWS 글쓰기 안정화 9차: 말머리 확장/선택크기/표·투표 ===== */
+.write-select-like .badge-picker.compact{
+  gap:18px !important;
+  row-gap:12px !important;
+}
+.write-select-like .badge-picker.compact .badge-choice{
+  min-width:92px !important;
+  padding:0 18px !important;
+  justify-content:center !important;
+}
+.write-select-like .badge-picker.compact .badge-choice input{
+  margin-right:7px !important;
+}
+.tool-square{
+  width:48px !important;
+  min-width:48px !important;
+}
+.tool-pill{
+  min-width:58px !important;
+  justify-content:center !important;
+}
+.align-popover{
+  gap:10px !important;
+}
+.align-popover button{
+  min-width:44px !important;
+  width:44px !important;
+  padding:0 !important;
+  font-size:18px !important;
+}
+.news-table{
+  width:100%;
+  border-collapse:collapse;
+  margin:16px 0;
+  background:#fff;
+}
+.news-table td,
+.news-table th{
+  border:1px solid #f2d8e7;
+  padding:10px;
+  min-width:80px;
+}
+.news-poll-card{
+  margin:18px 0;
+  padding:18px;
+  border:1px solid #f2d8e7;
+  border-radius:18px;
+  background:#fff8fc;
+}
+.news-poll-title{
+  color:#d77ca7;
+  font-weight:900;
+  font-size:18px;
+  margin-bottom:10px;
+}
+.news-poll-meta{
+  color:#b28ea2;
+  font-size:13px;
+  font-weight:800;
+  margin-bottom:12px;
+}
+.news-poll-option{
+  padding:10px 12px;
+  border:1px solid #f2d8e7;
+  border-radius:12px;
+  background:#fff;
+  margin-top:8px;
+  color:#7f6a77;
+  font-weight:800;
+}
+.news-poll-modal{
+  width:min(640px,100%);
+  max-height:84vh;
+  overflow:auto;
+  border:1px solid #f2d8e7;
+  border-radius:30px;
+  background:#fffafc;
+  box-shadow:0 24px 60px rgba(82,52,73,.22);
+  padding:26px;
+}
+.poll-form{
+  display:grid;
+  gap:12px;
+}
+.poll-form label{
+  display:grid;
+  gap:6px;
+  color:#b28ea2;
+  font-weight:900;
+  font-size:13px;
+}
+.poll-form input,
+.poll-form textarea,
+.poll-form select{
+  width:100%;
+  min-height:42px;
+  border:1px solid #f0bfd4;
+  border-radius:14px;
+  background:#fff;
+  padding:0 12px;
+  color:#7f6a77;
+  font-weight:800;
+}
+.poll-form textarea{
+  min-height:120px;
+  padding:12px;
+  line-height:1.6;
+}
+
 </style>
 </head>
 <body>
@@ -1895,10 +2005,9 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
               <button type="button" class="tool-square" onclick="formatNews('underline')"><u>U</u></button>
               <button type="button" class="tool-square" onclick="toggleAlignPalette()" aria-label="정렬">☰</button>
               <div class="align-popover" id="alignPopover" hidden>
-                <button type="button" onclick="applyNewsAlign('justifyLeft')" title="왼쪽 정렬">왼쪽</button>
-                <button type="button" onclick="applyNewsAlign('justifyCenter')" title="가운데 정렬">중앙</button>
-                <button type="button" onclick="applyNewsAlign('justifyRight')" title="오른쪽 정렬">오른쪽</button>
-                <button type="button" onclick="applyNewsAlign('justifyFull')" title="양쪽 정렬">양쪽</button>
+                <button type="button" onclick="applyNewsAlign('justifyLeft')" title="왼쪽 정렬">☰</button>
+                <button type="button" onclick="applyNewsAlign('justifyCenter')" title="가운데 정렬">≡</button>
+                <button type="button" onclick="applyNewsAlign('justifyRight')" title="오른쪽 정렬">☷</button>
               </div>
               <div class="color-picker-wrap">
                 <button type="button" class="tool-square color-tool" id="colorToolBtn" onclick="toggleColorPalette()" aria-label="글씨 색">A<span id="currentColorChip"></span></button>
@@ -1920,6 +2029,8 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
               </div>
               <button type="button" class="tool-pill" onclick="insertNewsImage()">사진</button>
               <button type="button" class="tool-pill" onclick="insertNewsLink()">링크</button>
+              <button type="button" class="tool-pill" onclick="insertNewsTable()">표</button>
+              <button type="button" class="tool-pill" onclick="openPollModal()">투표</button>
             </div>
           </div>
 
@@ -1981,6 +2092,30 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
           <button type="button" class="btn danger" onclick="deleteAllDrafts()">전체삭제</button>
         </div>
         <div id="draftList" class="draft-list"></div>
+      </section>
+    </div>
+
+
+    <div class="modal-backdrop" id="newsPollModal" hidden>
+      <section class="news-poll-modal" role="dialog" aria-modal="true" aria-label="투표 만들기">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow">POLL</span>
+            <h2>투표 만들기</h2>
+            <p class="panel-desc">본문 안에 들어갈 투표 블록을 만듭니다.</p>
+          </div>
+          <button type="button" class="modal-close" onclick="closePollModal()">×</button>
+        </div>
+        <div class="poll-form">
+          <label>투표 제목<input id="pollTitle" placeholder="투표 제목을 입력해 주세요"></label>
+          <label>투표 항목<textarea id="pollOptions" placeholder="한 줄에 하나씩 입력&#10;예: 마리링&#10;루루&#10;이로&#10;루나"></textarea></label>
+          <label>투표 종료일<input id="pollEndDate" type="date"></label>
+          <label>설정<select id="pollMode"><option value="anonymous">무기명 투표</option><option value="multiple">복수 선택 허용</option></select></label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn" onclick="insertNewsPoll()">투표 넣기</button>
+          <button type="button" class="btn sub" onclick="closePollModal()">취소</button>
+        </div>
       </section>
     </div>
 
@@ -2060,7 +2195,7 @@ document.getElementById(isOpen?'main':'locked').hidden=false;
 const state={news:[],schedules:[],inner:{}};
 function q(id){return document.getElementById(id)}
 function toast(msg='저장 완료'){const el=q('toast');el.textContent=msg;el.classList.add('show');clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>el.classList.remove('show'),1400)}
-function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};seedNewsIfEmpty();renderAll();initColorGrid();setupNewsImageInput();setupEditorToolbarSelectionGuard();updateDraftCount();openPanel(location.hash?.replace('#','')||'home')}
+function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};seedNewsIfEmpty();renderAll();initColorGrid();setupNewsImageInput();setupEditorToolbarSelectionGuard();setupFontSizeSelectionGuard();updateDraftCount();openPanel(location.hash?.replace('#','')||'home')}
 function persist(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
 function saveAll(show=false){saveInnerFromFields();persist();if(show)toast('전체 저장 완료')}
 function openPanel(id){if(id==='home-go'){location.href='index.html';return}document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));const panel=q(id)||q('home');panel.classList.add('active');document.querySelector(`.menu-tab[data-target="${id}"]`)?.classList.add('active');history.replaceState(null,'','#'+id)}
@@ -2376,11 +2511,13 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
     if(q('newsPreviewModal') && !q('newsPreviewModal').hidden)closeNewsPreview();
     if(q('newsDraftModal') && !q('newsDraftModal').hidden)closeDraftModal();
+    if(q('newsPollModal') && !q('newsPollModal').hidden)closePollModal();
   }
 });
 document.addEventListener('click',e=>{
   if(e.target?.id==='newsPreviewModal')closeNewsPreview();
   if(e.target?.id==='newsDraftModal')closeDraftModal();
+  if(e.target?.id==='newsPollModal')closePollModal();
 });
 document.querySelectorAll('.news-filter').forEach(btn=>btn.addEventListener('click',()=>{
   document.querySelectorAll('.news-filter').forEach(b=>b.classList.remove('active'));
@@ -2516,13 +2653,15 @@ function styleNewsSelection(styleObj){
   if(range.collapsed)return false;
   const span=document.createElement('span');
   Object.assign(span.style, styleObj);
-  try{
-    range.surroundContents(span);
-  }catch(e){
-    const frag=range.extractContents();
-    span.appendChild(frag);
-    range.insertNode(span);
-  }
+  const frag=range.extractContents();
+  // 이전 크기/색이 안쪽에 남아 새 크기를 방해하지 않게 정리
+  frag.querySelectorAll?.('[style]').forEach(el=>{
+    if(styleObj.fontSize) el.style.fontSize='';
+    if(styleObj.color) el.style.color='';
+    if(el.getAttribute('style')==='') el.removeAttribute('style');
+  });
+  span.appendChild(frag);
+  range.insertNode(span);
   sel.removeAllRanges();
   const newRange=document.createRange();
   newRange.selectNodeContents(span);
@@ -2533,20 +2672,11 @@ function styleNewsSelection(styleObj){
 function applyNewsFontSize(px){
   const size=parseInt(px,10);
   if(!Number.isFinite(size) || size<8 || size>96){toast('글씨 크기를 확인해 주세요');return}
-  restoreNewsSelection();
-  const editor=q('newsBodyEditor');
-  document.execCommand('fontSize', false, '7');
-  editor.querySelectorAll('font[size="7"]').forEach(font=>{
-    const span=document.createElement('span');
-    span.style.fontSize=size+'px';
-    span.innerHTML=font.innerHTML;
-    // 기존 안쪽 font-size가 우선 적용되는 문제 방지
-    span.querySelectorAll('[style]').forEach(el=>{
-      if(el.style) el.style.fontSize='';
-      if(el.getAttribute('style')==='') el.removeAttribute('style');
-    });
-    font.replaceWith(span);
-  });
+  const applied=styleNewsSelection({fontSize:size+'px'});
+  if(!applied){
+    restoreNewsSelection();
+    document.execCommand('insertHTML',false,`<span style="font-size:${size}px">&nbsp;</span>`);
+  }
   q('fontSizeInput').value=size;
   saveNewsSelection();
 }
@@ -2665,6 +2795,51 @@ function deleteAllDrafts(){
   renderNews();
   renderDraftList();
   toast('임시글을 모두 삭제했어요');
+}
+
+function setupFontSizeSelectionGuard(){
+  const sizeInput=q('fontSizeInput');
+  if(sizeInput && !sizeInput.dataset.guardReady){
+    sizeInput.dataset.guardReady='1';
+    sizeInput.addEventListener('mousedown',saveNewsSelection);
+    sizeInput.addEventListener('focus',saveNewsSelection);
+  }
+  document.querySelectorAll('.font-size-stepper button').forEach(btn=>{
+    if(btn.dataset.guardReady)return;
+    btn.dataset.guardReady='1';
+    btn.addEventListener('mousedown',e=>{saveNewsSelection();e.preventDefault();});
+  });
+}
+function insertNewsTable(){
+  restoreNewsSelection();
+  const html='<table class="news-table"><tbody><tr><td><br></td><td><br></td></tr><tr><td><br></td><td><br></td></tr></tbody></table><p><br></p>';
+  document.execCommand('insertHTML',false,html);
+  saveNewsSelection();
+}
+function openPollModal(){
+  q('newsPollModal').hidden=false;
+}
+function closePollModal(){
+  q('newsPollModal').hidden=true;
+}
+function insertNewsPoll(){
+  const title=(q('pollTitle').value||'투표').trim();
+  const options=(q('pollOptions').value||'').split('\\n').map(x=>x.trim()).filter(Boolean);
+  const end=q('pollEndDate').value;
+  const mode=q('pollMode').value;
+  if(!options.length){toast('투표 항목을 입력해 주세요');return}
+  restoreNewsSelection();
+  const html=`<div class="news-poll-card" data-poll-mode="${htmlEscape(mode)}" data-poll-end="${htmlEscape(end)}">
+    <div class="news-poll-title">${htmlEscape(title)}</div>
+    ${end?`<div class="news-poll-meta">투표 종료일: ${htmlEscape(end)}</div>`:''}
+    ${options.map(o=>`<div class="news-poll-option">□ ${htmlEscape(o)}</div>`).join('')}
+  </div><p><br></p>`;
+  document.execCommand('insertHTML',false,html);
+  closePollModal();
+  q('pollTitle').value='';
+  q('pollOptions').value='';
+  q('pollEndDate').value='';
+  saveNewsSelection();
 }
 function saveSchedule(){const id=q('scheduleId').value.trim()||`SCH-${String(Date.now()).slice(-6)}`;const row={id,title:q('scheduleTitle').value.trim(),date:q('scheduleDate').value,day:q('scheduleDay').value,venue:q('scheduleVenue').value,status:q('scheduleStatus').value,ticket:q('scheduleTicket').value,newsId:q('scheduleNewsId').value,published:q('schedulePublished').value==='true',home:q('scheduleHome').value==='true',updatedAt:new Date().toISOString()};const idx=state.schedules.findIndex(x=>x.id===id);if(idx>=0)state.schedules[idx]=row;else state.schedules.unshift(row);persist();q('scheduleId').value=id;renderSchedules();toast('SCHEDULE 저장 완료')}
 function editSchedule(id){const s=state.schedules.find(x=>x.id===id);if(!s)return;q('scheduleId').value=s.id;q('scheduleTitle').value=s.title||'';q('scheduleDate').value=s.date||'';q('scheduleDay').value=s.day||'';q('scheduleVenue').value=s.venue||'';q('scheduleStatus').value=s.status||'COMING SOON';q('scheduleTicket').value=s.ticket||'';q('scheduleNewsId').value=s.newsId||'';q('schedulePublished').value=String(!!s.published);q('scheduleHome').value=String(!!s.home);toast('수정할 SCHEDULE을 불러왔어요')}
