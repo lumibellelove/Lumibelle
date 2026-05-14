@@ -477,36 +477,22 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
   padding:18px !important;
   margin-top:12px !important;
   min-height:96px !important;
-  overflow:hidden !important;
-  display:flex !important;
-  flex-direction:column !important;
-  gap:6px !important;
-}
-
-#previewModal .ticket-price{
-  float:none !important;
-  font-size:27px !important;
-  line-height:1 !important;
-  font-weight:800 !important;
-  color:#ff5fa5 !important;
-  white-space:nowrap !important;
-  align-self:flex-end !important;
-  order:2 !important;
 }
 
 #previewModal .ticket-box strong{
   display:block !important;
   font-size:16px !important;
   font-weight:750 !important;
-  margin-bottom:0 !important;
-  order:1 !important;
+  margin-bottom:8px !important;
 }
 
-#previewModal .ticket-box p{
-  order:3 !important;
-  margin:0 !important;
-  font-size:13px !important;
-  color:#9b8492 !important;
+#previewModal .ticket-price{
+  float:right !important;
+  font-size:28px !important;
+  line-height:1 !important;
+  font-weight:850 !important;
+  color:#ff5fa5 !important;
+  white-space:nowrap !important;
 }
 
 #previewModal .mate-preview-list{
@@ -518,21 +504,9 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
 }
 
 #previewModal .reserve-button{
-  width:100% !important;
-  height:52px !important;
-  min-height:52px !important;
-  margin:16px 0 0 !important;
+  width:min(360px,80%) !important;
+  margin:18px auto 0 !important;
   display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  font-size:16px !important;
-  font-weight:800 !important;
-  border-radius:999px !important;
-  background:linear-gradient(180deg,#ff7eb3,#ff5fa5) !important;
-  color:#fff !important;
-  border:0 !important;
-  box-shadow:0 10px 24px rgba(255,95,165,.28) !important;
-  letter-spacing:-.02em !important;
 }
 
 @media(max-width:980px){
@@ -549,30 +523,7 @@ input[type="checkbox"]{width:14px;height:14px;accent-color:var(--pink)}
 }
 
 
-/* ===== ticket-v9 preview fix: reserve button + ticket-box + badge spacing ===== */
-#previewModal .public-section:has(.reserve-button){
-  padding-bottom:22px !important;
-}
-
-#previewModal .public-section p:has(.badge){
-  display:flex !important;
-  flex-wrap:wrap !important;
-  gap:8px !important;
-  margin:0 0 4px !important;
-}
-
-#previewModal .badge{
-  min-width:0 !important;
-  height:28px !important;
-  padding:0 12px !important;
-  font-size:12px !important;
-  line-height:1 !important;
-  font-weight:800 !important;
-  white-space:nowrap !important;
-  display:inline-flex !important;
-  align-items:center !important;
-}
-
+/* ===== ticket-v8 font polish: loud text reset ===== */
 body{
   font-weight:500 !important;
   letter-spacing:-.012em;
@@ -741,342 +692,59 @@ body{
 }
 
 #previewModal .reserve-button{
-  font-weight:800 !important;
+  font-weight:750 !important;
 }
 
 
-/* ===== TICKET 관리: NEWS 관리 기준 통일 ===== */
-
-/* 전체 wrap 폭·여백을 NEWS와 동일하게 */
-.wrap{
-  width: min(1240px, calc(100% - 30px)) !important;
-  margin: 0 auto !important;
-  padding: 22px 0 54px !important;
+/* ===== ticket-v9 from v8: poster type selector ===== */
+.segmented{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.seg-option{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  min-height:42px;
+  padding:0 16px;
+  border:1px solid #f3b7d3;
+  border-radius:999px;
+  background:#fff;
+  color:#d66f9e;
+  font-size:13px;
+  font-weight:750;
+  cursor:pointer;
+  user-select:none;
+}
+.seg-option input{
+  width:14px;
+  height:14px;
+  accent-color:#ff5fa5;
+}
+.seg-option:has(input:checked){
+  background:#fff1f8;
+  border-color:#ff8fc1;
+  box-shadow:0 8px 18px rgba(255,111,170,.10);
 }
 
-/* 메뉴 쉘 */
-.menu-shell{
-  margin: 26px auto 0 !important;
-  max-width: 1260px !important;
-  padding: 18px 22px !important;
-  background: rgba(255,255,255,.92) !important;
-  border: 1px solid #f2d8e7 !important;
-  box-shadow: 0 8px 24px rgba(232,191,211,0.12) !important;
-  border-radius: 32px !important;
-  grid-template-columns: repeat(8, minmax(0,1fr)) !important;
-  gap: 18px !important;
-  margin-bottom: 0 !important;
+/* 관리자 미리보기 포스터 표시 방식 */
+#previewModal .poster-box.poster-vertical{
+  aspect-ratio:4/5 !important;
+  max-height:520px !important;
 }
-.menu-tab{
-  min-height: 54px !important;
-  border-radius: 22px !important;
-  color: #d97ca9 !important;
-  font-weight: 700 !important;
+#previewModal .poster-box.poster-horizontal{
+  aspect-ratio:16/9 !important;
+  max-height:360px !important;
 }
-.menu-tab strong{
-  font-size: 1.2em !important;
-  font-weight: 700 !important;
-  color: #d97ca9 !important;
-  letter-spacing: -0.03em !important;
-  display: block !important;
-}
-.menu-tab span{
-  font-size: .94em !important;
-  font-weight: 600 !important;
-  color: #c697b1 !important;
-  margin-top: 6px !important;
-  display: block !important;
-}
-.menu-tab.active strong,
-.menu-tab:hover strong{ color: #ff59a5 !important; }
-.menu-tab.active{ background: transparent !important; }
-
-/* 패널 */
-.panel{
-  background: rgba(255,255,255,.88) !important;
-  border: 1px solid #f2d8e7 !important;
-  border-radius: 30px !important;
-  padding: 22px !important;
-  box-shadow: 0 14px 32px rgba(232,191,211,.16) !important;
-  margin-top: 18px !important;
-}
-.panel + .panel{ margin-top: 14px !important; }
-
-/* 패널 헤더 (h1 → NEWS의 h2 크기로) */
-.panel-head{
-  display: flex !important;
-  align-items: flex-start !important;
-  justify-content: space-between !important;
-  gap: 14px !important;
-  margin-bottom: 0 !important;
-  padding-right: 0 !important;
-}
-.panel-title{
-  font-size: 30px !important;
-  font-weight: 900 !important;
-  color: #d77ca7 !important;
-  letter-spacing: -0.03em !important;
-  margin-bottom: 10px !important;
-  line-height: 1.15 !important;
-}
-.panel-desc{
-  font-size: 15px !important;
-  font-weight: 800 !important;
-  color: #8f7183 !important;
-  line-height: 1.6 !important;
-  margin: 0 !important;
+#previewModal .poster-box.poster-vertical img,
+#previewModal .poster-box.poster-horizontal img{
+  object-fit:contain !important;
+  object-position:center !important;
+  background:#fff6fb !important;
 }
 
-/* 글쓰기 버튼: 절대위치 → 패널헤드 오른쪽 정렬 */
-.write-fab{
-  position: static !important;
-  min-height: 43px !important;
-  height: auto !important;
-  padding: 0 16px !important;
-  border-radius: 999px !important;
-  background: linear-gradient(180deg,#ff7eb3,#ff5fa5) !important;
-  color: #fff !important;
-  font-size: 14px !important;
-  font-weight: 900 !important;
-  box-shadow: 0 10px 22px rgba(255,95,165,.18) !important;
-  border: 0 !important;
-  white-space: nowrap !important;
-  flex-shrink: 0 !important;
-}
-
-/* 필터 탭 */
-.filter-row{
-  display: flex !important;
-  gap: 10px !important;
-  flex-wrap: wrap !important;
-  margin: 16px 0 14px !important;
-}
-.pill-btn{
-  min-height: 42px !important;
-  height: auto !important;
-  padding: 0 20px !important;
-  border-radius: 999px !important;
-  border: 1px solid #f0bfd4 !important;
-  background: #fff !important;
-  color: #d77ca7 !important;
-  font-size: 14px !important;
-  font-weight: 900 !important;
-}
-.pill-btn.active,
-.pill-btn:hover{
-  background: #ff5fa5 !important;
-  color: #fff !important;
-  border-color: #ff5fa5 !important;
-  box-shadow: 0 8px 18px rgba(255,95,165,.18) !important;
-}
-
-/* 검색 인풋 */
-.search-input{
-  width: 430px !important;
-  max-width: 100% !important;
-  height: 42px !important;
-  border: 1px solid #efbfd4 !important;
-  border-radius: 999px !important;
-  background: rgba(255,255,255,.92) !important;
-  padding: 0 18px !important;
-  font-size: 14px !important;
-  font-weight: 800 !important;
-  color: #7f6a77 !important;
-  margin-bottom: 0 !important;
-  display: block !important;
-  margin: 10px 0 14px !important;
-}
-.search-input::placeholder{ color: #b796a8 !important; }
-.search-input:focus{
-  border-color: #ff7ab4 !important;
-  box-shadow: 0 0 0 4px rgba(255,122,180,.12) !important;
-}
-
-/* 벌크 액션 줄 */
-.bulk-row{
-  min-height: 64px !important;
-  border: 1px solid #f2d8e7 !important;
-  border-radius: 22px !important;
-  background: #fff8fc !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  padding: 0 24px !important;
-  margin-bottom: 14px !important;
-  gap: 12px !important;
-}
-.checkline{
-  display: flex !important;
-  align-items: center !important;
-  gap: 10px !important;
-  font-size: 13px !important;
-  font-weight: 900 !important;
-  color: #8f7183 !important;
-}
-input[type="checkbox"]{
-  width: 14px !important;
-  height: 14px !important;
-  min-width: 14px !important;
-  min-height: 14px !important;
-  max-width: 14px !important;
-  max-height: 14px !important;
-  transform: none !important;
-  accent-color: #ff5fa5 !important;
-}
-.bulk-actions{
-  display: flex !important;
-  gap: 8px !important;
-  flex-wrap: wrap !important;
-}
-.btn{
-  min-height: 40px !important;
-  height: auto !important;
-  padding: 0 18px !important;
-  border-radius: 999px !important;
-  border: 1px solid #f0bfd4 !important;
-  background: #fff !important;
-  color: #d979a6 !important;
-  font-size: 13px !important;
-  font-weight: 900 !important;
-}
-.btn.primary{
-  background: linear-gradient(180deg,#ff7eb3,#ff5fa5) !important;
-  border-color: #ff5fa5 !important;
-  color: #fff !important;
-  box-shadow: 0 10px 22px rgba(255,95,165,.18) !important;
-}
-.btn.warn{
-  border-color: #ffd5b6 !important;
-  color: #c87536 !important;
-}
-
-/* 목록 테이블 */
-.table-card{
-  border: 1px solid #f2d8e7 !important;
-  border-radius: 24px !important;
-  overflow: hidden !important;
-  background: #fff5fb !important;
-}
-.ticket-row{
-  display: grid !important;
-  grid-template-columns: 30px 86px 98px minmax(230px,1fr) minmax(190px,.9fr) 100px 210px !important;
-  gap: 12px !important;
-  align-items: center !important;
-  min-height: 64px !important;
-  padding: 0 22px !important;
-  border-bottom: 1px solid #f2d8e7 !important;
-}
-.ticket-row:hover{ background: #fff0f7 !important; }
-.ticket-row:last-child{ border-bottom: 0 !important; }
-
-/* 날짜/제목/장소 */
-.date{
-  color: #9b7588 !important;
-  font-size: 15px !important;
-  font-weight: 900 !important;
-}
-.title-main{
-  font-size: 16px !important;
-  font-weight: 900 !important;
-  color: #7f6a77 !important;
-}
-.place-main{
-  font-size: 14px !important;
-  font-weight: 800 !important;
-  color: #9f7d90 !important;
-}
-
-/* 배지 */
-.badge{
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-height: 26px !important;
-  padding: 0 10px !important;
-  border-radius: 999px !important;
-  font-size: 11px !important;
-  font-weight: 900 !important;
-  white-space: nowrap !important;
-}
-.status{
-  min-height: 28px !important;
-  padding: 0 10px !important;
-  border-radius: 999px !important;
-  font-size: 12px !important;
-  font-weight: 900 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-/* 행 버튼들 */
-.row-actions{
-  display: flex !important;
-  justify-content: flex-end !important;
-  gap: 6px !important;
-}
-.mini-btn{
-  min-height: 30px !important;
-  height: auto !important;
-  padding: 0 10px !important;
-  border-radius: 999px !important;
-  border: 1px solid #f0bfd4 !important;
-  background: #fff !important;
-  color: #d77ca7 !important;
-  font-size: 12px !important;
-  font-weight: 900 !important;
-}
-.mini-btn:hover{ background: #fff0f7 !important; color: #ff59a5 !important; }
-
-/* 페이저 */
-.pager{
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 14px !important;
-  margin: 18px 0 4px !important;
-  color: #9f7d90 !important;
-  font-size: 14px !important;
-  font-weight: 900 !important;
-}
-.pager button{
-  width: 34px !important;
-  height: 34px !important;
-  border-radius: 999px !important;
-  border: 1px solid #efbfd4 !important;
-  background: #fff !important;
-  color: #d77ca7 !important;
-  font-size: 18px !important;
-  font-weight: 900 !important;
-}
-.note{
-  margin-top: 14px !important;
-  font-size: 13px !important;
-  font-weight: 800 !important;
-  color: #b28ea2 !important;
-  line-height: 1.6 !important;
-}
-
-/* 반응형 */
-@media(max-width:1120px){
-  .ticket-row{
-    grid-template-columns: 30px 78px 82px minmax(180px,1fr) !important;
-    row-gap: 8px !important;
-    min-height: 88px !important;
-    padding-top: 12px !important;
-    padding-bottom: 12px !important;
-  }
-  .place-main,.status,.row-actions{ grid-column: 4 !important; }
-  .row-actions{ justify-content: flex-start !important; }
-  .menu-shell{ grid-template-columns: repeat(4,1fr) !important; }
-}
-@media(max-width:760px){
-  .wrap{ width: min(100% - 22px,1240px) !important; }
-  .search-input{ width: 100% !important; max-width: none !important; }
-  .ticket-row{ grid-template-columns: 28px 1fr !important; }
-  .date,.place-main,.status,.row-actions{ grid-column: 2 !important; }
-  .row-actions{ justify-content: flex-start !important; }
-}
 </style>
 </head>
 <body>
@@ -1177,6 +845,21 @@ input[type="checkbox"]{
               <input id="posterFile" type="file" accept="image/*" hidden onchange="handlePosterFile(event)">
               <p class="hint">이미지 주소를 붙여넣거나, 사진 넣기로 파일을 선택하면 미리보기에 반영됩니다.</p>
             </div>
+
+        <div class="field full poster-type-field">
+          <label>포스터 형태</label>
+          <div class="segmented">
+            <label class="seg-option">
+              <input type="radio" name="posterType" value="vertical" checked>
+              <span>세로 포스터</span>
+            </label>
+            <label class="seg-option">
+              <input type="radio" name="posterType" value="horizontal">
+              <span>가로 포스터</span>
+            </label>
+          </div>
+          <p class="hint">글자 많은 세로 포스터는 세로, 가로형 웹 포스터는 가로를 선택합니다.</p>
+        </div>
           </div>
         </div>
 
@@ -1433,7 +1116,8 @@ function openWrite(){state.editingId=null;clearForm();showWrite()}
 function showWrite(){ $('listPanel').classList.add('hidden'); $('writePanel').classList.remove('hidden'); updateMiniPreview(); window.scrollTo({top:0,behavior:'smooth'})}
 function backToList(){ $('writePanel').classList.add('hidden'); $('listPanel').classList.remove('hidden'); renderList(); window.scrollTo({top:0,behavior:'smooth'})}
 function clearForm(){
-  const defaults={badge:'DEBUT',ticketStatus:'sale',title:'',date:'2026-07-12',timeText:'',venue:'',posterUrl:'',intro:'',cast:'',entry:'',venueDetail:'',packageEnabled:'false',packageText:'',packageA:'',packageB:'',account:'국민은행 000000-00-000000',holder:'루미벨',ticketName:'사전 예약 티켓',price:'10000',ticketDesc:'일반 입장권 / 입금 확인 후 예약 확정',mateOptions:'',publishStatus:'public',createdAt:'2026-05-14'};
+  const defaults={badge:'DEBUT',ticketStatus:'sale',title:'',date:'2026-07-12',timeText:'',venue:'',posterUrl:'', posterType:'vertical',
+    intro:'',cast:'',entry:'',venueDetail:'',packageEnabled:'false',packageText:'',packageA:'',packageB:'',account:'국민은행 000000-00-000000',holder:'루미벨',ticketName:'사전 예약 티켓',price:'10000',ticketDesc:'일반 입장권 / 입금 확인 후 예약 확정',mateOptions:'',publishStatus:'public',createdAt:'2026-05-14'};
   Object.entries(defaults).forEach(([k,v])=>{if($(k))$(k).value=v});
   $('ticketId').value='저장 시 자동 생성';
 }
@@ -1501,7 +1185,7 @@ function buildPublicPreview(t){
   return `
     <div class="ticket-preview-page">
       <div>
-        <div class="poster-box">${img}</div>
+        <div class="poster-box poster-${t.posterType||'vertical'}">${img}</div>
         <div class="public-section">
           <h3>공연 정보</h3>
           ${t.intro ? `<p>${esc(t.intro)}</p>` : ''}
