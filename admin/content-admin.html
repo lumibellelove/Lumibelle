@@ -2138,7 +2138,60 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 }
 
 
-/* ===== NEWS 글쓰기 안정화 14차: 표 삭제/CTRL+A 삭제 보정 ===== */
+/* ===== fix13: UI 보정 ===== */
+
+/* 2. panel-desc (NEWS 글쓰기 설명) 크기·간격 */
+.write-desc{
+  margin-top:10px !important;
+  font-size:16px !important;
+  font-weight:800 !important;
+  color:#8f7183 !important;
+  line-height:1.6 !important;
+}
+
+/* 4. 글꼴 레이블 / 글 ID·작성일 레이블 크기 — 분류 레이블(15px) 수준 */
+.font-panel-title{
+  font-size:15px !important;
+  font-weight:900 !important;
+  color:#b28ea2 !important;
+  margin-bottom:10px !important;
+}
+.side-box label:not(.side-check):not(.side-radio){
+  font-size:15px !important;
+  font-weight:900 !important;
+  color:#b28ea2 !important;
+}
+
+/* 3. 투표 모달 h2 축소 + panel-desc 간격 */
+.news-poll-modal .modal-head h2{
+  font-size:28px !important;
+  margin:6px 0 0 !important;
+}
+.news-poll-modal .modal-head .panel-desc{
+  margin-top:8px !important;
+  font-size:15px !important;
+  line-height:1.55 !important;
+}
+
+/* 5. 왼쪽 레이아웃(locked 영역) 복구 — 원래 위치로 */
+#locked{
+  margin-left:auto !important;
+  margin-right:auto !important;
+  display:block !important;
+}
+
+/* 7. 표 셀 가로 resize 복원 */
+.news-table-wrap{
+  overflow:hidden !important;
+}
+.news-table td,
+.news-table th{
+  resize:horizontal !important;
+  overflow:auto !important;
+  min-width:60px !important;
+}
+
+</style>
 .news-table-menu-btn,
 .news-table-delete-btn,
 .news-table-menu{
@@ -2304,9 +2357,8 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
       <div class="write-page-head">
         <div>
           <button type="button" class="btn sub" onclick="backToNewsList()">← 목록으로 돌아가기</button>
-          <span class="eyebrow" id="newsEditorMode">새 글 작성</span>
           <h2>NEWS 글쓰기</h2>
-          <p class="panel-desc">선택한 분류 게시판 기준으로 글을 작성합니다. 본문은 공홈 상세글처럼 보이도록 미리보기에서 확인할 수 있습니다.</p>
+          <p class="panel-desc write-desc">선택한 분류 게시판 기준으로 글을 작성합니다. 본문은 공홈 상세글처럼 보이도록 미리보기에서 확인할 수 있습니다.</p>
         </div>
         <div class="write-top-actions">
           <button type="button" class="btn sub" onclick="saveNewsDraft()">임시등록</button>
@@ -2691,7 +2743,7 @@ function clearNewsForm(){
   q('newsPinnedCheck').checked=false;
   setBadges([defaultBadgeForCategory(baseCat)]);
   editingNewsId=null;
-  q('newsEditorMode').textContent=currentNewsFilter==='전체'?'새 글 작성':`${currentNewsFilter} 게시판 새 글`;
+  
 }
 function showOnlyPanel(id){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -2703,7 +2755,7 @@ function openNewsEditor(id=null){
     if(!n)return;
     editingNewsId=id;
     fillNewsForm(n);
-    q('newsEditorMode').textContent=`${id} 수정 중`;
+    
   }else{
     clearNewsForm();
   }
@@ -2733,7 +2785,7 @@ function saveNewsRow(row,msg,opt={}){
   else state.news.unshift(row);
   editingNewsId=row.id;
   q('newsId').value=row.id;
-  q('newsEditorMode').textContent=`${row.id} 수정 중`;
+  
   persist();
   renderNews();
   updateDraftCount();
@@ -2917,6 +2969,17 @@ function saveNewsSelection(){
   const sel=window.getSelection();
   if(sel && sel.rangeCount && q('newsBodyEditor')?.contains(sel.anchorNode)){
     savedNewsRange=sel.getRangeAt(0).cloneRange();
+    // 커서 위치의 실제 fontSize를 input에 동기화 (14→15처럼 숫자가 틀리는 문제 방지)
+    const node=sel.anchorNode;
+    const el=node.nodeType===1?node:node.parentElement;
+    if(el){
+      const fs=el.style.fontSize||el.closest('[style*="font-size"]')?.style.fontSize||'';
+      const input=q('fontSizeInput');
+      if(fs && input && !input.matches(':focus')){
+        const px=Math.round(parseFloat(fs));
+        if(px>=8 && px<=96) input.value=px;
+      }
+    }
   }
 }
 function restoreNewsSelection(){
