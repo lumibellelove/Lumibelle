@@ -70,14 +70,21 @@ button{font:inherit}
 /* 2. Home Header */
 .top-lang-bar{
   width:100%;
-  max-width:var(--wrap);
+  max-width:1260px;
   margin:16px auto 0;
   display:flex;
   justify-content:flex-end;
   padding:0 34px 0 18px;
   box-sizing:border-box;
+  overflow:visible;
 }
-.lang-switch{display:flex;align-items:center;gap:10px;flex:0 0 auto;padding-right:2px}
+.lang-switch{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex:0 0 auto;
+  padding-right:2px;
+}
 .lang-switch a{
   display:inline-flex;
   align-items:center;
@@ -91,10 +98,17 @@ button{font:inherit}
   color:#d27ca8;
   font-size:12px;
   font-weight:900;
+  text-decoration:none;
   box-shadow:0 4px 10px rgba(255,95,165,.08);
+  transform:none !important;
+  transition:background .18s ease, color .18s ease !important;
 }
 .lang-switch a:hover,
-.lang-switch a.active{background:#fff0f7;color:var(--pink-deep)}
+.lang-switch a.active{
+  background:#fff0f7;
+  color:var(--pink-deep);
+  transform:none !important;
+}
 
 header{
   width:100%;
@@ -106,17 +120,22 @@ header{
   display:flex;
   align-items:center;
   gap:24px;
+  overflow:visible;
+  transform:none !important;
 }
 .logo{flex:0 0 auto;display:flex;align-items:center}
-.logo img{height:120px;width:auto;max-width:220px;object-fit:contain;}
+.logo img{height:120px;width:auto}
+
 nav{
-  flex:1;
   display:grid;
-  grid-template-columns:repeat(8,minmax(0,1fr));
+  grid-template-columns:repeat(8, minmax(0, 1fr));
   gap:18px;
   text-align:center;
   align-items:center;
+  flex:1;
   margin:0 20px;
+  overflow:visible;
+  transform:none !important;
 }
 nav a{
   position:relative;
@@ -126,15 +145,19 @@ nav a{
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  padding:10px 6px;
   border-radius:22px;
   overflow:visible;
   -webkit-tap-highlight-color:transparent;
+  transform:none !important;
+  transition:background-color .18s ease, color .18s ease !important;
 }
 nav a::before{
   content:"";
   position:absolute;
-  inset:0;
+  top:0;
+  bottom:0;
+  left:0;
+  right:0;
   border-radius:18px;
   opacity:0;
   background:linear-gradient(90deg,
@@ -148,9 +171,18 @@ nav a::before{
   transition:opacity .18s ease;
   pointer-events:none;
   z-index:0;
+  box-shadow:none !important;
 }
 nav a:hover::before,
 nav a.current::before{opacity:1}
+nav a:focus::before,
+nav a:focus-visible::before{opacity:1}
+nav a:focus,
+nav a:focus-visible,
+nav a:active{
+  transform:none !important;
+  outline:none !important;
+}
 nav a b,
 nav a span{
   position:relative;
@@ -161,23 +193,22 @@ nav a span{
   white-space:nowrap;
 }
 nav a b{
-  color:#d97ca9;
-  font-size:1.2em;
-  line-height:1.15;
-  font-weight:800;
+  font-size:1.2em !important;
+  font-weight:700 !important;
+  color:#d97ca9 !important;
   letter-spacing:-.03em;
 }
 nav a span{
   margin-top:6px;
-  color:#c697b1;
-  font-size:.94em;
-  line-height:1.2;
-  font-weight:700;
+  color:#c697b1 !important;
+  font-size:.94em !important;
+  font-weight:600 !important;
+  letter-spacing:-.01em;
 }
 nav a:hover b,
-nav a.current b{color:var(--pink-deep)}
+nav a.current b{color:var(--pink-deep) !important}
 nav a:hover span,
-nav a.current span{color:#d88dad}
+nav a.current span{color:#d88dad !important}
 
 /* 3. Page Sections */
 .setlist-page{flex:1;padding:10px 0 36px}
@@ -1412,15 +1443,13 @@ footer{
 @media (max-width:780px){
   .wrap{width:min(100% - 24px,var(--wrap))}
   .header-box{
-    min-height:auto;
-    padding:16px 14px;
+    flex-wrap:wrap;
+    justify-content:center;
     gap:16px;
-    flex-direction:column;
-    align-items:stretch;
   }
   .logo{justify-content:center}
   .logo img{height:88px}
-  nav{grid-template-columns:repeat(2,1fr);gap:12px}
+  nav{grid-template-columns:repeat(2,1fr);gap:12px;width:100%;margin:0}
   nav a b{font-size:1.08em}
   nav a span{font-size:.88em}
   .hero-card{padding:28px 20px;border-radius:24px}
@@ -2236,7 +2265,6 @@ section[aria-label="SETLIST SONGS"]{
   </main>
 
   <footer>© 2026 Lumibelle All Rights Reserved.</footer>
-  <button class="back-to-top" id="backToTop" aria-label="맨 위로 이동"><span class="top-arrow">↑</span><span class="top-label">TOP</span></button>
 
   <button class="scroll-top-btn" id="scrollTopBtn" type="button" aria-label="위로 올라가기">
     ↑ TOP
@@ -4244,145 +4272,6 @@ function triggerCardShineEffect(){
 
 
   <!-- Patch 7-76: TRACK · AUDIO 버튼 줄에 가이드 제보 버튼 추가 -->
-
-  <script>
-    const backToTop = document.getElementById('backToTop');
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 280) {
-        backToTop.classList.add('show');
-      } else {
-        backToTop.classList.remove('show');
-      }
-    });
-    backToTop.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  </script>
-  </script>
-
-<script>
-    function createLumibelleCursorMagic(x, y){
-      // 1) 먼저 둥근 빛 고리부터 크게 퍼지게
-      const ring = document.createElement('span');
-      ring.className = 'lumi-magic-ring';
-      ring.style.left = x + 'px';
-      ring.style.top = y + 'px';
-      document.body.appendChild(ring);
-      setTimeout(() => ring.remove(), 980);
-
-      // 2) 별빛은 점 덩어리처럼 보이지 않게 6개만, 십자 별로 퍼짐
-      const starCount = 8;
-      for(let i=0; i<starCount; i++){
-        const star = document.createElement('span');
-        star.className = 'lumi-magic-star';
-        const angle = (Math.PI * 2 * i) / starCount + (Math.random() * .35 - .18);
-        const distance = 28 + Math.random() * 34;
-        star.style.left = x + 'px';
-        star.style.top = y + 'px';
-        star.style.setProperty('--x', Math.cos(angle) * distance + 'px');
-        star.style.setProperty('--y', Math.sin(angle) * distance + 'px');
-        star.style.setProperty('--r', (Math.random() * 120 - 60) + 'deg');
-        document.body.appendChild(star);
-        setTimeout(() => star.remove(), 900);
-      }
-
-      // 3) 나비는 2~3개만 위/옆으로 날아가게
-      const butterflyCount = 2;
-      for(let i=0; i<butterflyCount; i++){
-        const butterfly = document.createElement('span');
-        butterfly.className = 'lumi-magic-butterfly';
-        const angle = -Math.PI / 2 + (i - 1) * .42 + (Math.random() * .22 - .11);
-        const distance = 54 + Math.random() * 38;
-        butterfly.style.left = x + 'px';
-        butterfly.style.top = y + 'px';
-        butterfly.style.setProperty('--x', Math.cos(angle) * distance + 'px');
-        butterfly.style.setProperty('--y', Math.sin(angle) * distance + 'px');
-        butterfly.style.setProperty('--r', (Math.random() * 54 - 27) + 'deg');
-        document.body.appendChild(butterfly);
-        setTimeout(() => butterfly.remove(), 1050);
-      }
-    }
-
-    // click magic is now handled globally below, including empty spaces.
-  </script>
-
-<script>
-    // 루미벨 커서 최종 효과: 허공 클릭 / 마우스 잔광 / hover 상태
-    (() => {
-      const canUseMagicCursor = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
-      if(!canUseMagicCursor) return;
-
-      const glow = document.createElement('span');
-      glow.className = 'lumi-cursor-glow';
-      document.body.appendChild(glow);
-
-      const core = document.createElement('span');
-      core.className = 'lumi-cursor-core';
-      document.body.appendChild(core);
-
-      let lastTrail = 0;
-      let lastX = 0;
-      let lastY = 0;
-
-      function moveCursor(x, y){
-        lastX = x;
-        lastY = y;
-        glow.style.left = x + 'px';
-        glow.style.top = y + 'px';
-        core.style.left = x + 'px';
-        core.style.top = y + 'px';
-      }
-
-      function createTrailSpark(x, y){
-        const spark = document.createElement('span');
-        spark.className = 'lumi-trail-spark';
-        spark.style.left = x + 'px';
-        spark.style.top = y + 'px';
-        spark.style.setProperty('--x', (Math.random() * 34 - 17) + 'px');
-        spark.style.setProperty('--y', (-16 - Math.random() * 28) + 'px');
-        document.body.appendChild(spark);
-        setTimeout(() => spark.remove(), 1000);
-      }
-
-      document.addEventListener('pointermove', (event) => {
-        moveCursor(event.clientX, event.clientY);
-        const now = performance.now();
-        if(now - lastTrail > 58){
-          lastTrail = now;
-          createTrailSpark(event.clientX, event.clientY);
-        }
-      }, { passive:true });
-
-      document.addEventListener('pointerover', (event) => {
-        if(event.target.closest('a, button, .ticket-option, .meate-option, .package-btn, .quick-icon-btn, .reserve-btn, .top-button, .back-to-top, .lang-switch a, nav a, .subnav-card, .live-guide-card, .member-card, .member-btn, .more-btn, .info-link-btn, .ticket-btn, .sns-icon, .news-item, .schedule-item')){
-          document.body.classList.add('lumi-cursor-hover');
-        }
-      });
-
-      document.addEventListener('pointerout', (event) => {
-        if(event.target.closest('a, button, .ticket-option, .meate-option, .package-btn, .quick-icon-btn, .reserve-btn, .top-button, .back-to-top, .lang-switch a, nav a, .subnav-card, .live-guide-card, .member-card, .member-btn, .more-btn, .info-link-btn, .ticket-btn, .sns-icon, .news-item, .schedule-item')){
-          document.body.classList.remove('lumi-cursor-hover');
-        }
-      });
-
-      document.addEventListener('click', (event) => {
-        // 클릭 가능한 곳뿐 아니라 허공 클릭도 전부 마법 효과 발생
-        createLumibelleCursorMagic(event.clientX, event.clientY);
-      });
-
-      document.addEventListener('mouseleave', () => {
-        glow.style.opacity = '0';
-        core.style.opacity = '0';
-      });
-
-      document.addEventListener('mouseenter', () => {
-        glow.style.opacity = '';
-        core.style.opacity = '';
-        moveCursor(lastX, lastY);
-      });
-    })();
-  </script>
-
 </body>
 </html>
 <!-- final patch: keep official audio box large, only center its contents -->
