@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lumibelle | Setlist</title>
+  <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -67,7 +68,7 @@ button{font:inherit}
 .wrap{width:min(var(--wrap),calc(100% - 28px));margin:0 auto}
 .reveal{opacity:1;transform:none}
 
-/* 2. Home Header */
+/* 2. Home Header — news.html 기준 그대로 */
 .top-lang-bar{
   width:100%;
   max-width:1260px;
@@ -76,7 +77,6 @@ button{font:inherit}
   justify-content:flex-end;
   padding:0 34px 0 18px;
   box-sizing:border-box;
-  overflow:visible;
 }
 .lang-switch{
   display:flex;
@@ -96,47 +96,22 @@ button{font:inherit}
   background:#fff;
   border:1px solid #f0bfd4;
   color:#d27ca8;
+  text-decoration:none;
   font-size:12px;
   font-weight:900;
-  text-decoration:none;
+  transition:background .18s ease, color .18s ease, box-shadow .18s ease;
   box-shadow:0 4px 10px rgba(255,95,165,.08);
-  transform:none !important;
-  transition:background .18s ease, color .18s ease !important;
 }
 .lang-switch a:hover,
 .lang-switch a.active{
   background:#fff0f7;
-  color:var(--pink-deep);
-  transform:none !important;
-}
-
-header{
-  width:100%;
-  background:transparent;
-  border:0;
-  box-shadow:none;
-  padding:0 14px;
-  box-sizing:border-box;
+  color:#ff59a5;
 }
 .header-box{
-  max-width:1260px;
-  margin:18px auto 14px;
-  padding:20px 24px;
-  min-height:150px;
   display:flex;
   align-items:center;
   gap:24px;
-  border:1px solid #f2d8e7;
-  border-radius:24px;
-  background:linear-gradient(180deg,rgba(255,252,254,.97),rgba(255,246,251,.95));
-  box-shadow:0 8px 24px rgba(232,191,211,.12);
-  overflow:visible;
-  transform:none !important;
-  box-sizing:border-box;
 }
-.logo{flex:0 0 auto;display:flex;align-items:center}
-.logo img{height:120px;width:auto}
-
 nav{
   display:grid;
   grid-template-columns:repeat(8, minmax(0, 1fr));
@@ -145,81 +120,107 @@ nav{
   align-items:center;
   flex:1;
   margin:0 20px;
-  overflow:visible;
-  transform:none !important;
 }
 nav a{
-  position:relative;
   width:100%;
-  min-width:0;
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
+  min-width:0;
+  position:relative;
   border-radius:22px;
   overflow:visible;
+  transform:none !important;
   -webkit-tap-highlight-color:transparent;
-  transform:none !important;
-  transition:background-color .18s ease, color .18s ease !important;
-}
-nav a::before{
-  content:"";
-  position:absolute;
-  top:0;
-  bottom:0;
-  left:0;
-  right:0;
-  border-radius:18px;
-  opacity:0;
-  background:linear-gradient(90deg,
-    rgba(255,217,232,0) 0%,
-    rgba(255,217,232,.14) 16%,
-    rgba(255,192,215,.16) 36%,
-    rgba(255,192,215,.20) 50%,
-    rgba(255,192,215,.16) 64%,
-    rgba(255,217,232,.14) 84%,
-    rgba(255,217,232,0) 100%);
-  transition:opacity .18s ease;
-  pointer-events:none;
-  z-index:0;
-  box-shadow:none !important;
-}
-nav a:hover::before,
-nav a.current::before{opacity:1}
-nav a:focus::before,
-nav a:focus-visible::before{opacity:1}
-nav a:focus,
-nav a:focus-visible,
-nav a:active{
-  transform:none !important;
-  outline:none !important;
 }
 nav a b,
 nav a span{
-  position:relative;
-  z-index:1;
   display:block;
   width:100%;
   text-align:center;
   white-space:nowrap;
 }
 nav a b{
+  font-size:1.18em;
+}
+nav a span{
+  margin-top:2px;
+}
+nav a.current,
+nav a:hover,
+nav a:focus,
+nav a:focus-visible,
+nav a:active{
+  background:transparent !important;
+  box-shadow:none !important;
+  z-index:1;
+  outline:none !important;
+  transform:none !important;
+}
+nav a.current::before,
+nav a:hover::before,
+nav a:focus::before,
+nav a:focus-visible::before{
+  content:"";
+  position:absolute;
+  top:0;
+  bottom:0;
+  left:0;
+  right:0;
+  border-radius:22px;
+  background:linear-gradient(90deg,
+    rgba(255,217,232,0) 0%,
+    rgba(255,217,232,.18) 16%,
+    rgba(255,192,215,.20) 36%,
+    rgba(255,192,215,.24) 50%,
+    rgba(255,192,215,.20) 64%,
+    rgba(255,217,232,.18) 84%,
+    rgba(255,217,232,0) 100%);
+  z-index:-1;
+  pointer-events:none;
+}
+nav a.current b,
+nav a:hover b{ color:#ff59a5 !important; }
+nav a.current span,
+nav a:hover span{ color:#d88dad !important; }
+nav a b{
   font-size:1.2em !important;
   font-weight:700 !important;
   color:#d97ca9 !important;
-  letter-spacing:-.03em;
 }
 nav a span{
-  margin-top:6px;
-  color:#c697b1 !important;
   font-size:.94em !important;
-  font-weight:600 !important;
-  letter-spacing:-.01em;
+  color:#c697b1 !important;
+  margin-top:6px !important;
 }
-nav a:hover b,
-nav a.current b{color:var(--pink-deep) !important}
-nav a:hover span,
-nav a.current span{color:#d88dad !important}
+/* 튐 방지 */
+.top-lang-bar, .header-box, nav, .lang-switch{ overflow:visible !important; }
+.lang-switch a,
+nav a,
+nav a:hover,
+nav a.current,
+nav a:focus,
+nav a:focus-visible,
+nav a:active{
+  transform:none !important;
+  translate:none !important;
+  scale:1 !important;
+}
+/* 반응형 */
+@media (max-width:1180px){
+  nav{ grid-template-columns:repeat(4,1fr); gap:16px; }
+}
+@media (max-width:980px){
+  .header-box{ flex-wrap:wrap; justify-content:center; }
+  nav{ grid-template-columns:repeat(4,1fr); width:100%; margin:0; }
+  .top-lang-bar{ justify-content:center; margin-top:14px; }
+}
+@media (max-width:780px){
+  nav{ grid-template-columns:repeat(2,1fr); gap:12px; margin:0; }
+  nav a b{ font-size:1.12em !important; }
+  nav a span{ font-size:.9em !important; }
+}
 
 /* 3. Page Sections */
 .setlist-page{flex:1;padding:24px 0 36px}
