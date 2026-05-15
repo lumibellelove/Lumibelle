@@ -45,14 +45,15 @@
     strong{font-weight:900;color:#6f5264}
     .wrap{width:min(1260px,calc(100% - 28px));margin:0 auto}
 
-    /* ===== 홈 기준 상단 ===== */
+    /* ===== 공통 헤더: news/member/schedule 기준 ===== */
     .top-lang-bar{
-      width:100%;
+      width:min(1260px, calc(100% - 28px));
       max-width:1260px;
       margin:16px auto 0;
       display:flex;
       justify-content:flex-end;
       padding:0 34px 0 18px;
+      box-sizing:border-box;
     }
 
     .lang-switch{
@@ -60,6 +61,7 @@
       align-items:center;
       gap:10px;
       flex:0 0 auto;
+      padding-right:2px;
     }
 
     .lang-switch a{
@@ -71,17 +73,21 @@
       padding:0 10px;
       border-radius:999px;
       background:#fff;
-      border:1px solid var(--line2);
+      border:1px solid #f0bfd4;
       color:#d27ca8;
-      font-size:13px;
+      text-decoration:none;
+      font-size:12px;
       font-weight:900;
-      box-shadow:0 4px 10px rgba(255,95,165,.08);
+      transition:background .18s ease, color .18s ease, box-shadow .18s ease;
+      box-shadow:0 4px 10px rgba(255,95,165,0.08);
+      -webkit-tap-highlight-color:transparent;
     }
 
-    .lang-switch a.active,
-    .lang-switch a:hover{
+    .lang-switch a:hover,
+    .lang-switch a.active{
       background:#fff0f7;
-      color:var(--pink);
+      color:#ff59a5;
+      transform:translateY(-1px);
     }
 
     header{
@@ -89,120 +95,184 @@
     }
 
     .header-box{
-      width:min(1260px,calc(100% - 28px));
+      width:100%;
+      max-width:1260px;
       margin:0 auto;
       padding:18px 24px;
       display:flex;
       align-items:center;
       gap:24px;
-      border:1px solid var(--line);
+      border:1px solid #f2d8e7;
       border-radius:28px;
       background:rgba(255,255,255,.72);
-      box-shadow:var(--shadow);
+      box-shadow:0 8px 24px rgba(232,191,211,.12);
       backdrop-filter:blur(12px);
+      box-sizing:border-box;
+      overflow:visible;
     }
 
     .logo{
-      flex:0 0 auto;
+      flex:0 0 130px;
       min-width:130px;
       display:flex;
       align-items:center;
       justify-content:center;
     }
 
-    .logo a{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      line-height:1;
+    .logo a,
+    .logo picture{
+      display:block;
+      width:130px;
+      line-height:0;
     }
 
-    .logo-main{
-      font-family:"Cormorant Garamond",serif;
-      font-size:34px;
-      font-weight:700;
-      color:var(--pink);
-      letter-spacing:-.03em;
-    }
-
-    .logo-sub{
-      margin-top:4px;
-      font-size:11px;
-      font-weight:900;
-      color:#c697b1;
-      letter-spacing:.18em;
+    .logo img{
+      display:block;
+      width:130px;
+      max-width:100%;
+      height:auto;
     }
 
     nav{
       display:grid;
-      grid-template-columns:repeat(8,minmax(0,1fr));
+      grid-template-columns:repeat(8, minmax(0, 1fr));
       gap:18px;
       text-align:center;
       align-items:center;
       flex:1;
       margin:0 20px;
+      min-width:0;
     }
 
     nav a{
       position:relative;
       width:100%;
       min-width:0;
+      min-height:66px;
       display:flex;
       flex-direction:column;
       align-items:center;
       justify-content:center;
       padding:12px 6px;
-      border-radius:18px;
-      overflow:hidden;
-      isolation:isolate;
+      border-radius:22px;
+      overflow:visible;
+      background:transparent;
+      box-shadow:none;
+      transform:none;
+      z-index:1;
       -webkit-tap-highlight-color:transparent;
     }
 
-    nav a::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      border-radius:18px;
-      background:linear-gradient(90deg,
-        rgba(255,217,232,0) 0%,
-        rgba(255,217,232,.14) 16%,
-        rgba(255,192,215,.20) 50%,
-        rgba(255,217,232,.14) 84%,
-        rgba(255,217,232,0) 100%);
-      opacity:0;
-      z-index:-1;
-    }
-
-    nav a.current::before,
-    nav a:hover::before{opacity:1}
-
-    nav a b{
+    nav a b,
+    nav a span{
       display:block;
       width:100%;
       text-align:center;
       white-space:nowrap;
-      font-size:1.2em;
+    }
+
+    nav a b{
+      font-size:1.18em;
       font-weight:700;
       color:#d97ca9;
       letter-spacing:-.03em;
     }
 
     nav a span{
-      display:block;
-      width:100%;
-      text-align:center;
-      white-space:nowrap;
-      margin-top:6px;
-      font-size:.94em;
+      margin-top:2px;
+      font-size:.9em;
       font-weight:600;
       color:#c697b1;
     }
 
-    nav a.current b,
-    nav a:hover b{color:var(--pink)}
+    nav a.current,
+    nav a:hover,
+    nav a:focus,
+    nav a:focus-visible,
+    nav a:active{
+      background:transparent;
+      box-shadow:none;
+      outline:none;
+      transform:none;
+    }
 
-    /* ===== page ===== */
+    nav a.current::before,
+    nav a:hover::before,
+    nav a:focus::before,
+    nav a:focus-visible::before{
+      content:"";
+      position:absolute;
+      top:0;
+      bottom:0;
+      left:0;
+      right:0;
+      border-radius:22px;
+      background:linear-gradient(90deg,
+        rgba(255,217,232,0.00) 0%,
+        rgba(255,217,232,0.18) 16%,
+        rgba(255,192,215,0.20) 36%,
+        rgba(255,192,215,0.24) 50%,
+        rgba(255,192,215,0.20) 64%,
+        rgba(255,217,232,0.18) 84%,
+        rgba(255,217,232,0.00) 100%);
+      z-index:-1;
+      pointer-events:none;
+      box-shadow:0 4px 10px rgba(255,192,215,0.05);
+    }
+
+    nav a.current b,
+    nav a:hover b{
+      color:#ff59a5;
+    }
+
+    nav a.current span,
+    nav a:hover span{
+      color:#d88dad;
+    }
+
+    @media (max-width:1180px){
+      .header-box{
+        flex-wrap:wrap;
+        justify-content:center;
+      }
+      .logo{
+        width:100%;
+        flex-basis:100%;
+        min-width:0;
+      }
+      nav{
+        width:100%;
+        grid-template-columns:repeat(4, 1fr);
+        gap:16px;
+        margin:0;
+      }
+    }
+
+    @media (max-width:780px){
+      .top-lang-bar{
+        justify-content:center;
+        margin-top:14px;
+        padding:0 14px;
+      }
+      .header-box{
+        padding:16px 16px;
+      }
+      nav{
+        grid-template-columns:repeat(2, 1fr);
+        gap:12px;
+      }
+      nav a{
+        min-height:62px;
+      }
+      nav a b{
+        font-size:1.12em;
+      }
+      nav a span{
+        font-size:.9em;
+      }
+    }
+
+        /* ===== page ===== */
     main{padding:22px 0 54px}
 
     .info-hero{
@@ -915,9 +985,6 @@
     }
 
     @media (max-width:1180px){
-      nav{grid-template-columns:repeat(4,1fr);gap:14px;margin:0}
-      .header-box{flex-wrap:wrap;justify-content:center}
-      .logo{width:100%;min-width:0}
       .quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
       .price-grid{grid-template-columns:1fr}
     }
@@ -930,10 +997,6 @@
     }
 
     @media (max-width:780px){
-      nav{grid-template-columns:repeat(2,1fr);gap:10px}
-      nav a b{font-size:1.08em}
-      nav a span{font-size:.88em}
-      .top-lang-bar{justify-content:center;margin-top:14px;padding:0 14px}
       .quick-grid{grid-template-columns:1fr}
       .info-card,.contact-card{padding:22px 18px}
       .info-card h3{font-size:24px}
@@ -1079,111 +1142,6 @@
       }
     }
 
-
-    /* ===== 홈 기준 상단/콘텐츠 폭 강제 정렬 패치 ===== */
-    .top-lang-bar,
-    .wrap{
-      width:min(1260px, calc(100% - 28px));
-      max-width:1260px;
-      margin-left:auto;
-      margin-right:auto;
-      box-sizing:border-box;
-    }
-
-    .top-lang-bar{
-      padding:0 34px 0 18px;
-    }
-
-    .header-box{
-      width:100%;
-      max-width:1260px;
-      margin-left:auto;
-      margin-right:auto;
-      box-sizing:border-box;
-      display:flex;
-      align-items:center;
-      gap:24px;
-      padding:18px 24px;
-      overflow:visible !important;
-    }
-
-    .logo{
-      flex:0 0 130px;
-      min-width:130px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-
-    .logo a,
-    .logo picture{
-      display:block;
-      width:130px;
-      line-height:0;
-    }
-
-    .logo img{
-      display:block;
-      width:130px;
-      max-width:100%;
-      height:auto;
-    }
-
-    nav{
-      grid-template-columns:repeat(8, minmax(0, 1fr));
-      gap:18px;
-      margin:0 20px;
-      min-width:0;
-    }
-
-    nav a{
-      min-height:66px;
-      padding:12px 6px;
-      border-radius:22px;
-      overflow:visible !important;
-      transform:none !important;
-      box-shadow:none !important;
-    }
-
-    nav a::before{
-      border-radius:22px;
-      inset:0;
-    }
-
-    nav a b{font-size:1.18em;}
-    nav a span{margin-top:2px;font-size:.9em;}
-
-    .lang-switch a,
-    .lang-switch a:hover,
-    .lang-switch a.active,
-    .lang-switch a:focus,
-    .lang-switch a:active,
-    nav a,
-    nav a:hover,
-    nav a.current,
-    nav a:focus,
-    nav a:focus-visible,
-    nav a:active{
-      transform:none !important;
-      translate:none !important;
-      scale:1 !important;
-      top:auto !important;
-      bottom:auto !important;
-      margin-top:0 !important;
-      margin-bottom:0 !important;
-    }
-
-    main > .wrap{
-      display:block;
-    }
-
-    .info-hero,
-    .tab-panel,
-    .contact-card{
-      width:100%;
-      max-width:100%;
-      box-sizing:border-box;
-    }
 
     /* ===== 유입 가이드 UI 고정 패치 ===== */
     #tab-first .info-grid{
@@ -1354,23 +1312,6 @@
       margin-top:18px;
     }
 
-    @media (max-width:1180px){
-      .header-box{
-        flex-wrap:wrap;
-        justify-content:center;
-      }
-      .logo{
-        width:100%;
-        flex-basis:100%;
-      }
-      nav{
-        width:100%;
-        grid-template-columns:repeat(4, 1fr);
-        gap:16px;
-        margin:0;
-      }
-    }
-
     @media (max-width:860px){
       .guide-title-row{
         display:block;
@@ -1388,22 +1329,6 @@
     }
 
     @media (max-width:780px){
-      .top-lang-bar{
-        justify-content:center;
-        padding:0 14px;
-      }
-      .header-box{
-        padding:16px 16px;
-      }
-      nav{
-        grid-template-columns:repeat(2, 1fr);
-        gap:12px;
-      }
-      nav a{
-        min-height:62px;
-      }
-      nav a b{font-size:1.12em;}
-      nav a span{font-size:.9em;}
       .info-hero{
         padding:38px 24px 32px;
       }
