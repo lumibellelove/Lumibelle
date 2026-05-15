@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lumibelle | Setlist</title>
+  <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -54,7 +55,6 @@ body{
   display:flex;
   flex-direction:column;
   background:
-    radial-gradient(circle at 0% 0%, rgba(255,230,241,.92), transparent 20%),
     radial-gradient(circle at 100% 0%, rgba(255,240,247,.88), transparent 24%),
     linear-gradient(180deg,#fffafd 0%,#fff7fb 100%);
   color:var(--text);
@@ -1419,15 +1419,13 @@ footer{
 @media (max-width:780px){
   .wrap{width:min(100% - 24px,var(--wrap))}
   .header-box{
-    min-height:auto;
-    padding:16px 14px;
+    flex-wrap:wrap;
+    justify-content:center;
     gap:16px;
-    flex-direction:column;
-    align-items:stretch;
   }
   .logo{justify-content:center}
   .logo img{height:88px}
-  nav{grid-template-columns:repeat(2,1fr);gap:12px}
+  nav{grid-template-columns:repeat(2,1fr);gap:12px;width:100%;margin:0}
   nav a b{font-size:1.08em}
   nav a span{font-size:.88em}
   .hero-card{padding:28px 20px;border-radius:24px}
@@ -1868,8 +1866,9 @@ section[aria-label="SETLIST SONGS"]{
 }
 
 
-/* Patch 7-77 + 7-78: hero chip/title position — transform 제거, margin으로 대체 */
-/* transform:translateY는 레이아웃 공간을 남겨서 박스가 커 보이는 부작용 있음 */
+/* Patch 7-77: hero chip/title micro position refine */
+/* 기준: 7_76 / hero 내부 칩과 SETLIST 제목만 살짝 위로 올림 */
+/* 변경 금지: 카드/캐러셀/active 효과/sparkle/sheen/제보 버튼/상세 연동 */
 
 .hero .kicker,
 .hero-kicker,
@@ -1879,7 +1878,7 @@ section[aria-label="SETLIST SONGS"]{
 .live-guide-kicker,
 .hero-badge,
 .hero-chip{
-  margin-bottom:6px !important;
+  transform:translateY(-14px) !important;
 }
 
 .hero h1,
@@ -1887,9 +1886,11 @@ section[aria-label="SETLIST SONGS"]{
 .page-hero h1,
 .hero-title,
 .setlist-title{
-  margin-top:0 !important;
+  transform:translateY(-7px) !important;
 }
 
+/* 제목을 올리면서 아래 문구와 너무 붙지 않게 큰 구조는 유지하고,
+   설명문은 그대로 두되 transform으로 인한 시각 겹침만 방지 */
 .hero .hero-subtitle,
 .hero .hero-desc,
 .setlist-hero .hero-subtitle,
@@ -1897,6 +1898,50 @@ section[aria-label="SETLIST SONGS"]{
 .page-hero .hero-subtitle,
 .page-hero .hero-desc{
   margin-top:0 !important;
+}
+
+/* 모바일에서는 과하게 올라가 보일 수 있어 절반만 적용 */
+@media (max-width: 759px){
+  .hero .kicker,
+  .hero-kicker,
+  .setlist-hero .kicker,
+  .setlist-hero-kicker,
+  .page-hero .kicker,
+  .live-guide-kicker,
+  .hero-badge,
+  .hero-chip{
+    transform:translateY(-8px) !important;
+  }
+
+  .hero h1,
+  .setlist-hero h1,
+  .page-hero h1,
+  .hero-title,
+  .setlist-title{
+    transform:translateY(-4px) !important;
+  }
+}
+
+
+/* Patch 7-78: hero SETLIST title one step more up */
+/* 기준: 7_77 / 칩 위치 유지, SETLIST 큰 제목만 한 칸 더 올림 */
+
+.hero h1,
+.setlist-hero h1,
+.page-hero h1,
+.hero-title,
+.setlist-title{
+  transform:translateY(-14px) !important;
+}
+
+@media (max-width: 759px){
+  .hero h1,
+  .setlist-hero h1,
+  .page-hero h1,
+  .hero-title,
+  .setlist-title{
+    transform:translateY(-8px) !important;
+  }
 }
 
 
