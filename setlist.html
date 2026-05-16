@@ -2050,6 +2050,184 @@ nav a.current span,nav a:hover span{ color:#d88dad !important; }
   }
 }
 
+
+/* ── 상단 리디자인 최종 패치: hero / live guide / setlist songs ──
+   기준: 기존 기능 유지 + 상단 4개 section만 구조 교체
+   유지: 헤더, 슬라이더, 곡 카드, active 효과, guide-panel, JS 로직
+*/
+
+/* 세 박스 모두 현재 wrap 안에서 좌우 끝을 맞춘다.
+   main.wrap 자체 padding은 건드리지 않아 슬라이더/가이드패널 밀림을 막는다. */
+.hero-card--new,
+.live-guide-section--new,
+.setlist-songs-section--new{
+  width:100% !important;
+  max-width:none !important;
+  margin-left:0 !important;
+  margin-right:0 !important;
+}
+
+/* HERO BOX */
+.hero-card--new{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:flex-start !important;
+  min-height:0 !important;
+  height:auto !important;
+  padding:38px 40px 34px !important;
+  margin-bottom:28px !important;
+}
+
+.hero-card--new .hero-kicker,
+.hero-card--new .hero-title,
+.hero-card--new .hero-sub,
+.hero-card--new .hero-desc{
+  max-width:820px;
+}
+
+/* LIVE GUIDE BOX */
+.live-guide-section--new{
+  border:1px solid var(--line) !important;
+  background:linear-gradient(180deg,rgba(255,250,252,.97),rgba(255,247,251,.96)) !important;
+  box-shadow:var(--shadow) !important;
+  border-radius:30px !important;
+  padding:32px 40px 34px !important;
+  margin:0 0 28px !important;
+}
+
+.live-guide-head--new{
+  display:flex;
+  align-items:baseline;
+  gap:12px;
+  margin-bottom:26px;
+  flex-wrap:wrap;
+}
+
+.live-guide-section--new .live-guide-title{
+  margin:0 !important;
+}
+
+.live-guide-hint{
+  color:#c79bb2;
+  font-size:15px;
+  font-weight:850;
+  line-height:1.55;
+}
+
+/* Guide cards with number */
+.hero-guide-box--new{
+  align-items:flex-start !important;
+  justify-content:flex-start !important;
+  text-align:left !important;
+  padding:24px 28px 22px !important;
+  min-height:142px !important;
+}
+
+.guide-num{
+  display:block;
+  margin:0 0 12px;
+  color:var(--pink);
+  font-size:13px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.16em;
+}
+
+.hero-guide-box--new .live-main{
+  margin-bottom:8px;
+}
+
+.hero-guide-box--new .live-sub{
+  margin:0;
+}
+
+/* SETLIST SONGS BOX */
+.setlist-songs-section--new{
+  border:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(255,250,252,.97),rgba(255,247,251,.96));
+  box-shadow:var(--shadow);
+  border-radius:30px;
+  padding:30px 34px 28px;
+  margin:0 0 28px;
+}
+
+.setlist-songs-head--new{
+  text-align:center;
+  margin:0 0 22px !important;
+}
+
+.setlist-songs-head--new h2{
+  margin:0 0 12px !important;
+}
+
+.setlist-songs-head--new p{
+  margin:0 !important;
+}
+
+/* 기존 필터 외곽 박스 느낌은 setlist-songs-section--new가 담당.
+   filter-wrap 자체는 공간만 담당하게 한다. */
+.setlist-filter-wrap--new{
+  margin:0 auto !important;
+  padding:0 !important;
+  background:none !important;
+  border:none !important;
+  box-shadow:none !important;
+}
+
+.setlist-filter-wrap--new > div{
+  width:100% !important;
+}
+
+.setlist-filter-wrap--new .setlist-filter-tabs{
+  width:max-content;
+  max-width:100%;
+  margin:0 auto;
+}
+
+/* 필터 버튼 텍스트가 너무 검게 튀지 않게 기존 톤으로 고정 */
+.setlist-filter-wrap--new .setlist-filter-btn{
+  color:#8a6b7c;
+}
+
+.setlist-filter-wrap--new .setlist-filter-btn.active{
+  color:#fff;
+}
+
+/* 모바일에서는 새 박스들이 과하게 넓거나 빡빡해지지 않게 정리 */
+@media (max-width:780px){
+  .hero-card--new{
+    padding:28px 20px !important;
+    border-radius:24px !important;
+  }
+
+  .live-guide-section--new,
+  .setlist-songs-section--new{
+    border-radius:24px !important;
+    padding:24px 18px !important;
+  }
+
+  .live-guide-head--new{
+    display:block;
+    text-align:center;
+    margin-bottom:22px;
+  }
+
+  .live-guide-hint{
+    margin:10px auto 0;
+    font-size:14px;
+    line-height:1.65;
+  }
+
+  .hero-guide-box--new{
+    min-height:auto !important;
+    padding:20px 18px !important;
+  }
+
+  .setlist-filter-wrap--new .setlist-filter-tabs{
+    width:100%;
+  }
+}
+
 </style>
 
 </head>
@@ -2089,7 +2267,8 @@ nav a.current span,nav a:hover span{ color:#d88dad !important; }
 
   <main class="setlist-page">
     <div class="wrap">
-      <section class="hero-card">
+      <!-- HERO BOX -->
+      <section class="hero-card hero-card--new">
         <div class="hero-kicker">LUMIBELLE LIVE GUIDE</div>
         <h1 class="hero-title">SETLIST</h1>
         <div class="hero-sub">TEAM · SOLO · BEGINNER · ADVANCED</div>
@@ -2098,60 +2277,52 @@ nav a.current span,nav a:hover span{ color:#d88dad !important; }
         </p>
       </section>
 
-      <section class="live-guide-section">
-        <div class="live-guide-head">
+      <!-- LIVE GUIDE BOX -->
+      <section class="live-guide-section live-guide-section--new">
+        <div class="live-guide-head--new">
           <h2 class="live-guide-title">LIVE GUIDE</h2>
-          <h3 class="live-guide-box-title">처음 오는 분들을 위한 간단 안내</h3>
-          <p class="live-guide-sub">공연 전 가볍게 보고 가면 더 재미있어요.</p>
+          <p class="live-guide-hint">처음 오는 분들을 위한 간단 안내 · 공연 전 가볍게 보고 가면 더 재미있어요.</p>
         </div>
 
         <div class="hero-guide-points">
-          <div class="hero-guide-box">
-            <div>
-              <div class="live-main">처음이면 무리하지 않아도 괜찮아요.</div>
-              <div class="live-sub">
-                박수와 짧은 호응만으로도 충분해요.
-              </div>
-            </div>
+          <div class="hero-guide-box hero-guide-box--new">
+            <div class="guide-num">01</div>
+            <div class="live-main">처음이면 무리하지 않아도 괜찮아요.</div>
+            <div class="live-sub">박수와 짧은 호응만으로도 충분해요.</div>
           </div>
 
-          <div class="hero-guide-box">
-            <div>
-              <div class="live-main">모든 곡을 외울 필요 없어요</div>
-              <div class="live-sub">
-                자주 나오는 콜부터 익혀도 충분해요.
-              </div>
-            </div>
+          <div class="hero-guide-box hero-guide-box--new">
+            <div class="guide-num">02</div>
+            <div class="live-main">모든 곡을 외울 필요 없어요</div>
+            <div class="live-sub">자주 나오는 콜부터 익혀도 충분해요.</div>
           </div>
 
-          <div class="hero-guide-box">
-            <div>
-              <div class="live-main">주변 분위기 따라가면 쉬워요</div>
-              <div class="live-sub">
-                즐기는 게 제일 중요!
-              </div>
-            </div>
+          <div class="hero-guide-box hero-guide-box--new">
+            <div class="guide-num">03</div>
+            <div class="live-main">주변 분위기 따라가면 쉬워요</div>
+            <div class="live-sub">즐기는 게 제일 중요!</div>
           </div>
         </div>
       </section>
 
-      <section class="setlist-songs-head" aria-labelledby="setlistSongsTitle">
-        <h2 id="setlistSongsTitle">SETLIST SONGS</h2>
-        <p>
-          곡 카드를 누르면 아래 상세 응원가이드가 해당 곡으로 바뀝니다.<br>
-          <span id="setlistFilterNote">현재 루미벨이 자주 쓰는 셋리 기준으로 보여주고 있어요.</span>
-        </p>
-      </section>
-
-
-
-      <section class="setlist-filter-wrap" aria-label="셋리스트 필터">
-        <div>
-          <div class="setlist-filter-tabs" id="setlistFilterTabs"></div>
+      <!-- SETLIST SONGS BOX -->
+      <section class="setlist-songs-section--new">
+        <div class="setlist-songs-head setlist-songs-head--new">
+          <h2 id="setlistSongsTitle">SETLIST SONGS</h2>
+          <p>
+            곡 카드를 누르면 아래 상세 응원가이드가 해당 곡으로 바뀝니다.<br>
+            <span id="setlistFilterNote">현재 루미벨이 자주 쓰는 셋리 기준으로 보여주고 있어요.</span>
+          </p>
         </div>
+
+        <section class="setlist-filter-wrap setlist-filter-wrap--new" aria-label="셋리스트 필터">
+          <div>
+            <div class="setlist-filter-tabs" id="setlistFilterTabs"></div>
+          </div>
+        </section>
       </section>
 
-      <section class="slider-shell" id="songSliderShell">
+<section class="slider-shell" id="songSliderShell">
         <button class="slider-arrow first" type="button" id="songFirstBtn" aria-label="처음으로">«</button>
         <button class="slider-arrow left" type="button" id="songPrevBtn" aria-label="이전 곡">‹</button>
         <div class="slider-viewport">
