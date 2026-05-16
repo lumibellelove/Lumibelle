@@ -5493,8 +5493,6 @@ function insertNewsImageHtmlToEditor(imageUrl, imageAlt, driveFileId){
   const rawUrl=String(imageUrl||'').trim();
   if(!rawUrl) return false;
 
-  editor.focus();
-
   const img=document.createElement('img');
   img.className='inserted-news-image';
   img.src=rawUrl;
@@ -5511,6 +5509,8 @@ function insertNewsImageHtmlToEditor(imageUrl, imageAlt, driveFileId){
   blankP.innerHTML='<br>';
 
   let inserted=false;
+
+  // 1차: 저장된 커서 위치에 삽입 시도
   try{
     restoreNewsSelection();
     const sel=window.getSelection();
@@ -5531,10 +5531,27 @@ function insertNewsImageHtmlToEditor(imageUrl, imageAlt, driveFileId){
     inserted=false;
   }
 
-  // 커서 삽입이 실패하면 본문 맨 아래에 무조건 직접 붙인다.
+  // 2차 폴백: 에디터 맨 아래에 직접 붙이기 (무조건 동작 보장)
   if(!inserted){
+    editor.focus();
+    // 에디터가 비어 있으면 초기화
+    if(!editor.firstChild){
+      const initP=document.createElement('p');
+      initP.innerHTML='<br>';
+      editor.appendChild(initP);
+    }
     editor.appendChild(imageP);
     editor.appendChild(blankP);
+    // 커서를 blankP로 이동
+    try{
+      const sel=window.getSelection();
+      const range=document.createRange();
+      range.selectNodeContents(blankP);
+      range.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }catch(e){}
+    inserted=true;
   }
 
   if(q('newsBody')) q('newsBody').value=editor.innerHTML;
@@ -5572,15 +5589,20 @@ function setupNewsImageInput(){
         mimeType: optimized.mimeType,
         data: optimized.base64
       });
+      // Apps Script 응답: imageUrl, thumbnailUrl, url 모두 확인
       const imageUrl = uploaded.imageUrl || uploaded.thumbnailUrl || uploaded.url;
-      if(!uploaded || !imageUrl) throw new Error('missing uploaded url');
-      const safeName=file.name||'news image';
-      const ok=insertNewsImageHtmlToEditor(imageUrl, safeName, uploaded.fileId||'');
-      if(!ok) throw new Error('editor image insert failed');
+      if(!imageUrl) throw new Error('Drive에서 URL을 받지 못했습니다: ' + JSON.stringify(uploaded));
+      const safeName = file.name || 'news image';
+      const fileId = uploaded.fileId || '';
+
+      // savedNewsRange 초기화 후 폴백 경로로 에디터 맨 아래에 무조건 삽입
+      savedNewsRange = null;
+      const ok = insertNewsImageHtmlToEditor(imageUrl, safeName, fileId);
+      if(!ok) throw new Error('에디터 이미지 삽입 실패');
       toast('사진을 넣었어요.');
     }catch(err){
-      console.error(err);
-      toast('사진 업로드 실패');
+      console.error('[NEWS 이미지 업로드 오류]', err);
+      toast('사진 업로드 실패: ' + (err && err.message ? err.message : String(err)));
     }finally{
       input.value='';
     }
