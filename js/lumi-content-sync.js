@@ -241,6 +241,10 @@
     return fetchPost('uploadNewsImage', payload || {});
   }
 
+  function listRecentNewsImages(payload){
+    return fetchPost('listRecentNewsImages', payload || {});
+  }
+
   function readState(){
     try{
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
@@ -404,6 +408,7 @@
     adminSaveNewsItem,
     adminArchiveNewsItem,
     uploadNewsImage,
+    listRecentNewsImages,
     sortNews,
     htmlEscape,
     stripHTML,
