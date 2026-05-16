@@ -4429,7 +4429,8 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 .recent-folder-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;}
 .recent-folder-card{min-height:58px;border:1px solid #f0bfd4;border-radius:18px;background:#fff;color:#d77ca7;font-size:15px;font-weight:900;cursor:pointer;}
 .recent-folder-card:hover{background:#fff0f7;color:#ff59a5;}
-.recent-gallery-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0;}
+.recent-gallery-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0 14px;}
+.recent-gallery-tools + .recent-photo-grid{margin-top:0;}
 .recent-gallery-empty{min-height:90px;border:1px dashed #f0bfd4;border-radius:18px;background:#fff8fc;display:flex;align-items:center;justify-content:center;color:#b28ea2;font-size:15px;font-weight:800;}
 @media(max-width:760px){.recent-photo-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.recent-folder-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.recent-photo-card img{height:132px;}}
 
@@ -5567,7 +5568,7 @@ async function loadRecentNewsImages(folderName=''){
     if(!window.LumiContentSync || !LumiContentSync.listRecentNewsImages){
       throw new Error('최근 사진 API 연결이 필요합니다.');
     }
-    const res=await LumiContentSync.listRecentNewsImages({folderName:folderName||'', limit:folderName?40:4});
+    const res=await LumiContentSync.listRecentNewsImages({folderName:folderName||'', limit:folderName?80:8});
     renderRecentNewsImages(res.items||[], folderName||'');
   }catch(err){
     console.error('[최근 사진 불러오기 오류]', err);
@@ -5592,17 +5593,18 @@ function renderRecentNewsImages(items, folderName=''){
   const cards=recentNewsCurrentItems.map((item,index)=>{
     const img=htmlEscape(item.thumbnailUrl||'');
     const name=htmlEscape(item.name||'news image');
-    if(folderName){
-      return `<button type="button" class="recent-photo-card" data-recent-index="${index}" onclick="toggleRecentNewsImageSelection(${index})"><span class="recent-select-pill">선택</span><img src="${img}" alt="${name}"><span>${name}</span></button>`;
-    }
-    return `<button type="button" class="recent-photo-card" onclick="insertRecentNewsImageByIndex(${index})"><img src="${img}" alt="${name}"><span>${name}</span></button>`;
+    return `<button type="button" class="recent-photo-card" data-recent-index="${index}" onclick="toggleRecentNewsImageSelection(${index})"><span class="recent-select-pill">선택</span><img src="${img}" alt="${name}"><span>${name}</span></button>`;
   }).join('');
+  const tools = folderName
+    ? `<div class="recent-gallery-tools"><div class="recent-gallery-actions"><button type="button" class="btn sub" onclick="openRecentNewsImages()">← 뒤로가기</button><button type="button" class="btn sub" id="recentSelectAllBtn" onclick="toggleAllRecentNewsImages()">전체 선택</button><button type="button" class="btn primary" id="recentInsertSelectedBtn" onclick="insertSelectedRecentNewsImages()">선택 삽입</button></div><button type="button" class="btn sub" onclick="closeRecentNewsImages()">닫기</button></div>`
+    : `<div class="recent-gallery-tools"><div class="recent-gallery-actions"><button type="button" class="btn sub" id="recentSelectAllBtn" onclick="toggleAllRecentNewsImages()">전체 선택</button><button type="button" class="btn primary" id="recentInsertSelectedBtn" onclick="insertSelectedRecentNewsImages()">선택 삽입</button></div><button type="button" class="btn sub" onclick="closeRecentNewsImages()">닫기</button></div>`;
   if(!folderName){
     const folderButtons=RECENT_NEWS_IMAGE_FOLDERS.map(name=>`<button type="button" class="recent-folder-card" onclick="openRecentNewsImages('${htmlEscape(name)}')">${htmlEscape(name)}</button>`).join('');
-    body.innerHTML=`<div class="recent-photo-section-title">최근 업로드 사진</div>${cards ? `<div class="recent-photo-grid">${cards}</div>` : '<div class="recent-gallery-empty">최근 업로드된 사진이 없습니다.</div>'}<div class="recent-photo-section-title">폴더</div><div class="recent-folder-grid">${folderButtons}</div><div class="modal-actions"><button type="button" class="btn sub" onclick="closeRecentNewsImages()">닫기</button></div>`;
+    body.innerHTML=`<div class="recent-photo-section-title">최근 업로드 사진</div>${tools}${cards ? `<div class="recent-photo-grid">${cards}</div>` : '<div class="recent-gallery-empty">최근 업로드된 사진이 없습니다.</div>'}<div class="recent-photo-section-title">폴더</div><div class="recent-folder-grid">${folderButtons}</div>`;
+    updateRecentNewsSelectionTools();
     return;
   }
-  body.innerHTML=`<div class="recent-gallery-tools"><div class="recent-gallery-actions"><button type="button" class="btn sub" onclick="openRecentNewsImages()">← 뒤로가기</button><button type="button" class="btn sub" id="recentSelectAllBtn" onclick="toggleAllRecentNewsImages()">전체 선택</button><button type="button" class="btn primary" id="recentInsertSelectedBtn" onclick="insertSelectedRecentNewsImages()">선택 삽입</button></div><button type="button" class="btn sub" onclick="closeRecentNewsImages()">닫기</button></div>${cards ? `<div class="recent-photo-grid">${cards}</div>` : '<div class="recent-gallery-empty">이 폴더에는 아직 사진이 없습니다.</div>'}`;
+  body.innerHTML=`${tools}${cards ? `<div class="recent-photo-grid">${cards}</div>` : '<div class="recent-gallery-empty">이 폴더에는 아직 사진이 없습니다.</div>'}`;
   updateRecentNewsSelectionTools();
 }
 function updateRecentNewsSelectionTools(){
