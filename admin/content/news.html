@@ -5352,11 +5352,11 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 .photo-editor-workarea{min-height:430px;border:1px solid #f5cfe0;border-radius:24px;background:#fff;display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto;}
 .photo-editor-stage{position:relative;display:inline-block;max-width:100%;min-width:280px;min-height:280px;border:1px dashed #f1c4d8;border-radius:20px;background:#fff8fc;overflow:hidden;}
 .photo-editor-stage.is-empty{display:flex;align-items:center;justify-content:center;color:#a98298;font-size:14px;font-weight:900;text-align:center;line-height:1.7;padding:28px;}
-.photo-editor-base{display:block;max-width:100%;max-height:560px;width:auto;height:auto;user-select:none;-webkit-user-drag:none;}
+.photo-editor-base{display:block;max-width:100%;max-height:560px;width:auto;height:auto;user-select:none;-webkit-user-drag:none;transform-origin:center center;}
 .photo-editor-sticker-layer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;}
 .photo-editor-sticker-item{position:absolute;left:40%;top:40%;width:130px;height:auto;cursor:move;pointer-events:auto;user-select:none;touch-action:none;}
 .photo-editor-sticker-item.selected{outline:2px solid #ff59a5;outline-offset:4px;border-radius:10px;}
-.photo-editor-sticker-item img{display:block;width:100%;height:auto;pointer-events:none;user-select:none;-webkit-user-drag:none;}
+.photo-editor-sticker-item img{display:block;width:100%;height:auto;pointer-events:none;user-select:none;-webkit-user-drag:none;transform-origin:center center;}
 .photo-editor-resize-handle{position:absolute;right:-9px;bottom:-9px;width:18px;height:18px;border-radius:50%;background:#ff59a5;border:3px solid #fff;box-shadow:0 4px 10px rgba(255,89,165,.25);cursor:nwse-resize;}
 .photo-editor-side{display:flex;flex-direction:column;gap:12px;}
 .photo-editor-panel{border:1px solid #f5cfe0;border-radius:22px;background:#fff8fc;padding:14px;}
@@ -5377,7 +5377,7 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 
 /* Photo editor recent/sticker UX fix */
 .photo-editor-panel h3{font-size:17px!important;line-height:1.25!important;}
-.photo-editor-pack-tabs button{font-size:15px!important;}
+.photo-editor-pack-tabs button{font-size:14px!important;}
 .photo-editor-status{font-size:15px!important;word-break:keep-all;}
 .photo-editor-recent-grid .sticker-empty,
 .photo-editor-sticker-grid .sticker-empty{grid-column:1/-1;width:100%;min-width:0;font-size:15px;line-height:1.55;text-align:center;word-break:keep-all;white-space:normal;}
@@ -5718,6 +5718,8 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
           <button type="button" class="btn sub" onclick="loadPhotoEditorStickers()">스티커</button>
           <button type="button" class="btn danger" onclick="deleteSelectedPhotoEditorSticker()">선택 삭제</button>
           <button type="button" class="btn sub" onclick="clearPhotoEditorImage()">사진 지우기</button>
+          <button type="button" class="btn sub" onclick="flipPhotoEditorBase()">사진 좌우반전</button>
+          <button type="button" class="btn sub" onclick="flipSelectedPhotoEditorSticker()">스티커 좌우반전</button>
           <button type="button" class="btn" onclick="savePhotoEditorImage()">저장 후 본문 삽입</button>
           <button type="button" class="btn sub" onclick="closeNewsPhotoEditor()">닫기</button>
         </div>
@@ -6990,6 +6992,7 @@ const RECENT_NEWS_IMAGE_FOLDERS=['공지','라이브','이벤트','업데이트'
 
 /* NEWS Photo Editor MVP: photo + sticker + save */
 let photoEditorBase={src:'',name:'',naturalWidth:0,naturalHeight:0};
+let photoEditorBaseFlipX=false;
 let photoEditorStickers=[];
 let photoEditorSelectedId=null;
 let photoEditorStickerPack='mariring';
@@ -7041,6 +7044,7 @@ function setPhotoEditorBaseImage(src,name){
   const img=new Image();
   img.onload=()=>{
     photoEditorBase={src,name:name||'edited image',naturalWidth:img.naturalWidth||img.width,naturalHeight:img.naturalHeight||img.height};
+    photoEditorBaseFlipX=false;
     photoEditorStickers=[];
     photoEditorSelectedId=null;
     renderPhotoEditorStage();
@@ -7059,7 +7063,8 @@ function renderPhotoEditorStage(){
     return;
   }
   stage.className='photo-editor-stage';
-  stage.innerHTML=`<img id="photoEditorBaseImg" class="photo-editor-base" src="${htmlEscape(photoEditorBase.src)}" alt="${htmlEscape(photoEditorBase.name||'edited image')}" draggable="false"><div id="photoEditorStickerLayer" class="photo-editor-sticker-layer"></div>`;
+  const baseTransform=photoEditorBaseFlipX?'scaleX(-1)':'none';
+  stage.innerHTML=`<img id="photoEditorBaseImg" class="photo-editor-base" src="${htmlEscape(photoEditorBase.src)}" alt="${htmlEscape(photoEditorBase.name||'edited image')}" draggable="false" style="transform:${baseTransform};"><div id="photoEditorStickerLayer" class="photo-editor-sticker-layer"></div>`;
   const base=q('photoEditorBaseImg');
   if(base){
     base.onload=()=>{syncPhotoEditorStageSize(); renderPhotoEditorStickerLayer();};
@@ -7081,7 +7086,7 @@ function renderPhotoEditorStickerLayer(){
   if(!layer)return;
   layer.innerHTML=photoEditorStickers.map(st=>`
     <div class="photo-editor-sticker-item ${st.id===photoEditorSelectedId?'selected':''}" data-id="${st.id}" style="left:${st.x}px;top:${st.y}px;width:${st.w}px;" onpointerdown="photoEditorStickerPointerDown(event,'${st.id}','move')">
-      <img src="${htmlEscape(st.src)}" alt="${htmlEscape(st.label||'sticker')}" draggable="false" oncontextmenu="return false" ondragstart="return false">
+      <img src="${htmlEscape(st.src)}" alt="${htmlEscape(st.label||'sticker')}" draggable="false" oncontextmenu="return false" ondragstart="return false" style="transform:${st.flipX?'scaleX(-1)':'none'};">
       <span class="photo-editor-resize-handle" onpointerdown="photoEditorStickerPointerDown(event,'${st.id}','resize')"></span>
     </div>`).join('');
 }
@@ -7121,6 +7126,31 @@ function deleteSelectedPhotoEditorSticker(){
   photoEditorSelectedId=null;
   renderPhotoEditorStickerLayer();
   setPhotoEditorStatus('선택한 스티커를 삭제했어요.');
+}
+
+function flipPhotoEditorBase(){
+  if(!photoEditorBase.src){
+    setPhotoEditorStatus('먼저 사진을 불러와 주세요.');
+    return;
+  }
+  photoEditorBaseFlipX=!photoEditorBaseFlipX;
+  renderPhotoEditorStage();
+  setPhotoEditorStatus(photoEditorBaseFlipX?'사진을 좌우반전했어요.':'사진 좌우반전을 해제했어요.');
+}
+
+function flipSelectedPhotoEditorSticker(){
+  if(!photoEditorSelectedId){
+    setPhotoEditorStatus('좌우반전할 스티커를 먼저 선택해 주세요.');
+    return;
+  }
+  const st=photoEditorStickers.find(item=>item.id===photoEditorSelectedId);
+  if(!st){
+    setPhotoEditorStatus('선택된 스티커를 찾지 못했어요.');
+    return;
+  }
+  st.flipX=!st.flipX;
+  renderPhotoEditorStickerLayer();
+  setPhotoEditorStatus(st.flipX?'스티커를 좌우반전했어요.':'스티커 좌우반전을 해제했어요.');
 }
 async function loadPhotoEditorRecentImages(showToast=true){
   const grid=q('photoEditorRecentGrid');
@@ -7176,7 +7206,7 @@ function addPhotoEditorSticker(index){
   syncPhotoEditorStageSize();
   const rect=photoEditorStageRect();
   const w=Math.max(70,Math.min(160,(rect.width||420)*0.28));
-  const st={id:'sticker-'+Date.now()+'-'+Math.random().toString(16).slice(2),src:item.thumbnailUrl||item.imageUrl||item.url,fileId:item.fileId||'',label:item.label||item.name||'sticker',x:Math.max(10,((rect.width||420)-w)/2),y:Math.max(10,((rect.height||320)-w)/2),w};
+  const st={id:'sticker-'+Date.now()+'-'+Math.random().toString(16).slice(2),src:item.thumbnailUrl||item.imageUrl||item.url,fileId:item.fileId||'',label:item.label||item.name||'sticker',x:Math.max(10,((rect.width||420)-w)/2),y:Math.max(10,((rect.height||320)-w)/2),w,flipX:false};
   photoEditorStickers.push(st);
   photoEditorSelectedId=st.id;
   renderPhotoEditorStickerLayer();
@@ -7209,6 +7239,7 @@ async function setPhotoEditorBaseFromRecent(index){
 }
 function clearPhotoEditorImage(){
   photoEditorBase={src:'',name:'',naturalWidth:0,naturalHeight:0};
+  photoEditorBaseFlipX=false;
   photoEditorStickers=[];
   photoEditorSelectedId=null;
   photoEditorDrag=null;
@@ -7244,7 +7275,15 @@ async function savePhotoEditorImage(){
     canvas.width=naturalW;
     canvas.height=naturalH;
     const ctx=canvas.getContext('2d');
-    ctx.drawImage(baseImg,0,0,naturalW,naturalH);
+    if(photoEditorBaseFlipX){
+      ctx.save();
+      ctx.translate(naturalW,0);
+      ctx.scale(-1,1);
+      ctx.drawImage(baseImg,0,0,naturalW,naturalH);
+      ctx.restore();
+    }else{
+      ctx.drawImage(baseImg,0,0,naturalW,naturalH);
+    }
     const scaleX=naturalW/(stageRect.width||naturalW);
     const scaleY=naturalH/(stageRect.height||naturalH);
     for(const st of photoEditorStickers){
@@ -7252,7 +7291,17 @@ async function savePhotoEditorImage(){
       const dw=st.w*scaleX;
       const ratio=(simg.naturalHeight||simg.height)/(simg.naturalWidth||simg.width||1);
       const dh=dw*ratio;
-      ctx.drawImage(simg,st.x*scaleX,st.y*scaleY,dw,dh);
+      const dx=st.x*scaleX;
+      const dy=st.y*scaleY;
+      if(st.flipX){
+        ctx.save();
+        ctx.translate(dx+dw,dy);
+        ctx.scale(-1,1);
+        ctx.drawImage(simg,0,0,dw,dh);
+        ctx.restore();
+      }else{
+        ctx.drawImage(simg,dx,dy,dw,dh);
+      }
     }
     const blob=await new Promise((resolve)=>canvas.toBlob(resolve,'image/webp',0.88));
     if(!blob)throw new Error('편집 이미지 생성 실패');
