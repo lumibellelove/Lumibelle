@@ -4648,7 +4648,7 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
           </div>
 
 
-          <input type="file" id="newsImageFileInput" accept="image/*" hidden>
+          <input type="file" id="newsImageFileInput" accept="image/*" multiple hidden>
 
           <section class="news-detail-fields-box" id="newsDetailFieldsBox" aria-label="NEWS 상세 양식" hidden>
             <div class="detail-fields-head">
@@ -5779,34 +5779,59 @@ function setupNewsImageInput(){
   if(!input || input.dataset.ready)return;
   input.dataset.ready='1';
   input.addEventListener('change',async ()=>{
-    const file=input.files && input.files[0];
-    if(!file)return;
+    const files=Array.from(input.files || []).filter(file => file && file.type && file.type.indexOf('image/') === 0);
+    if(!files.length)return;
+
+    const MAX_UPLOAD_COUNT = 10;
+    const uploadFiles = files.slice(0, MAX_UPLOAD_COUNT);
+    const skippedCount = Math.max(0, files.length - uploadFiles.length);
+    let successCount = 0;
+    let failCount = 0;
+
     try{
       if(!window.LumiContentSync || !LumiContentSync.uploadNewsImage){
         toast('이미지 업로드 연결이 필요합니다.');
         input.value='';
         return;
       }
-      toast('이미지 준비 중...');
-      const optimized = await optimizeNewsImageFile(file);
-      toast('Drive 업로드 중...');
-      const uploaded = await LumiContentSync.uploadNewsImage({
-        fileName: optimized.fileName,
-        mimeType: optimized.mimeType,
-        data: optimized.base64,
-        folderName: q('newsCategory') ? q('newsCategory').value : ''
-      });
-      // Apps Script 응답: imageUrl, thumbnailUrl, url 모두 확인
-      const imageUrl = uploaded.imageUrl || uploaded.thumbnailUrl || uploaded.url;
-      if(!imageUrl) throw new Error('Drive에서 URL을 받지 못했습니다: ' + JSON.stringify(uploaded));
-      const safeName = file.name || 'news image';
-      const fileId = uploaded.fileId || '';
 
-      // savedNewsRange 초기화 후 폴백 경로로 에디터 맨 아래에 무조건 삽입
-      savedNewsRange = null;
-      const ok = insertNewsImageHtmlToEditor(imageUrl, safeName, fileId);
-      if(!ok) throw new Error('에디터 이미지 삽입 실패');
-      toast('사진을 넣었어요.');
+      for(let i=0;i<uploadFiles.length;i++){
+        const file=uploadFiles[i];
+        try{
+          toast(`이미지 준비 중... ${i+1} / ${uploadFiles.length}`);
+          const optimized = await optimizeNewsImageFile(file);
+          toast(`Drive 업로드 중... ${i+1} / ${uploadFiles.length}`);
+          const uploaded = await LumiContentSync.uploadNewsImage({
+            fileName: optimized.fileName,
+            mimeType: optimized.mimeType,
+            data: optimized.base64,
+            folderName: q('newsCategory') ? q('newsCategory').value : ''
+          });
+          const imageUrl = uploaded.imageUrl || uploaded.thumbnailUrl || uploaded.url;
+          if(!imageUrl) throw new Error('Drive에서 URL을 받지 못했습니다: ' + JSON.stringify(uploaded));
+          const safeName = file.name || `news image ${i+1}`;
+          const fileId = uploaded.fileId || '';
+
+          // 여러 장 선택 시에는 순서대로 본문 맨 아래에 안정적으로 삽입
+          savedNewsRange = null;
+          const ok = insertNewsImageHtmlToEditor(imageUrl, safeName, fileId);
+          if(!ok) throw new Error('에디터 이미지 삽입 실패');
+          successCount++;
+        }catch(eachErr){
+          failCount++;
+          console.error('[NEWS 이미지 개별 업로드 오류]', eachErr);
+        }
+      }
+
+      if(successCount && !failCount && !skippedCount){
+        toast(successCount === 1 ? '사진을 넣었어요.' : `사진 ${successCount}장을 넣었어요.`);
+      }else{
+        const parts=[];
+        if(successCount) parts.push(`${successCount}장 성공`);
+        if(failCount) parts.push(`${failCount}장 실패`);
+        if(skippedCount) parts.push(`${skippedCount}장 제외`);
+        toast(`사진 업로드 완료: ${parts.join(' / ')}`);
+      }
     }catch(err){
       console.error('[NEWS 이미지 업로드 오류]', err);
       toast('사진 업로드 실패: ' + (err && err.message ? err.message : String(err)));
