@@ -3158,14 +3158,14 @@ line-height:1.9 !important;
         }).join('');
         bodyEl.innerHTML = news.body || '<p>공지 본문이 없습니다.</p>';
 
-        const btns = [
-          [news.btn1Text, news.btn1Link, false],
-          [news.btn2Text || 'BACK TO NEWS', news.btn2Link || 'news.html', true]
-        ].filter(function(row){ return row[0] || row[1]; });
+        const btns = [];
+        const ticketHref = news.ticketUrl || news.btn1Link || '';
+        if(ticketHref){
+          btns.push(['TICKET', ticketHref, false]);
+        }
+        btns.push(['BACK TO NEWS', 'news.html', true]);
         buttonsEl.innerHTML = btns.map(function(row){
-          const text = row[0] || row[1];
-          const href = row[1] || '#';
-          return '<a class="news-action-btn ' + (row[2] ? 'sub' : '') + '" href="' + LumiNewsSync.htmlEscape(href) + '">' + LumiNewsSync.htmlEscape(text) + '</a>';
+          return '<a class="news-action-btn ' + (row[2] ? 'sub' : '') + '" href="' + LumiNewsSync.htmlEscape(row[1]) + '">' + LumiNewsSync.htmlEscape(row[0]) + '</a>';
         }).join('');
       }
 

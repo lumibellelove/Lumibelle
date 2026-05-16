@@ -107,10 +107,10 @@
       infoPlace: row.infoPlace || '',
       infoTime: row.infoTime || '',
       infoTicket: row.infoTicket || '',
-      btn1Text: row.btn1Text || '',
-      btn1Link: row.btn1Link || row.ticketUrl || '',
-      btn2Text: row.btn2Text || '',
-      btn2Link: row.btn2Link || '',
+      btn1Text: '',
+      btn1Link: row.ticketUrl || row.btn1Link || '',
+      btn2Text: '',
+      btn2Link: '',
       ticketUrl: row.ticketUrl || row.btn1Link || '',
       sortOrder: row.sortOrder || 0,
       lang: row.lang || 'ko',
@@ -207,7 +207,10 @@
       return cachedPublicNews;
     }).catch(function(err){
       const local = readState().news || [];
-      cachedPublicNews = local.filter(function(n){ return n && n.published !== false && !n.draft; }).sort(sortNews);
+      cachedPublicNews = local.filter(function(n){
+        const status = String(n.status || (n.draft ? 'draft' : (n.published === false ? 'private' : 'public')));
+        return n && status === 'public' && !n.draft && !n.deletedAt;
+      }).sort(sortNews);
       hasLoadedPublicNews = true;
       dispatchNewsUpdated();
       throw err;
@@ -216,8 +219,7 @@
 
   function publicNews(){
     if(hasLoadedPublicNews) return cachedPublicNews.slice();
-    const local = readState().news || [];
-    return local.filter(function(n){ return n && n.published !== false && !n.draft; }).sort(sortNews);
+    return [];
   }
 
   function isNew(date){
