@@ -5332,6 +5332,48 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   }
 }
 
+
+
+/* NEWS Photo Editor MVP */
+.photo-editor-modal{
+  width:min(1040px,calc(100vw - 36px));
+  max-height:calc(100vh - 54px);
+  overflow:auto;
+  border:1px solid #f0bfd4;
+  border-radius:30px;
+  background:#fffafd;
+  box-shadow:0 22px 60px rgba(80,40,65,.22);
+  padding:28px;
+}
+.photo-editor-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0 18px;}
+.photo-editor-toolbar .btn,.photo-editor-panel .btn{min-height:40px;border-radius:999px;font-weight:900;}
+.photo-editor-status{margin:0 0 14px;padding:11px 14px;border:1px solid #f0bfd4;border-radius:18px;background:#fff8fc;color:#9f758d;font-size:13px;font-weight:850;line-height:1.55;}
+.photo-editor-layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:18px;align-items:start;}
+.photo-editor-workarea{min-height:430px;border:1px solid #f5cfe0;border-radius:24px;background:#fff;display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto;}
+.photo-editor-stage{position:relative;display:inline-block;max-width:100%;min-width:280px;min-height:280px;border:1px dashed #f1c4d8;border-radius:20px;background:#fff8fc;overflow:hidden;}
+.photo-editor-stage.is-empty{display:flex;align-items:center;justify-content:center;color:#a98298;font-size:14px;font-weight:900;text-align:center;line-height:1.7;padding:28px;}
+.photo-editor-base{display:block;max-width:100%;max-height:560px;width:auto;height:auto;user-select:none;-webkit-user-drag:none;}
+.photo-editor-sticker-layer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;}
+.photo-editor-sticker-item{position:absolute;left:40%;top:40%;width:130px;height:auto;cursor:move;pointer-events:auto;user-select:none;touch-action:none;}
+.photo-editor-sticker-item.selected{outline:2px solid #ff59a5;outline-offset:4px;border-radius:10px;}
+.photo-editor-sticker-item img{display:block;width:100%;height:auto;pointer-events:none;user-select:none;-webkit-user-drag:none;}
+.photo-editor-resize-handle{position:absolute;right:-9px;bottom:-9px;width:18px;height:18px;border-radius:50%;background:#ff59a5;border:3px solid #fff;box-shadow:0 4px 10px rgba(255,89,165,.25);cursor:nwse-resize;}
+.photo-editor-side{display:flex;flex-direction:column;gap:12px;}
+.photo-editor-panel{border:1px solid #f5cfe0;border-radius:22px;background:#fff8fc;padding:14px;}
+.photo-editor-panel h3{margin:0 0 10px;color:#d77ca7;font-size:15px;font-weight:950;}
+.photo-editor-pack-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+.photo-editor-pack-tabs button{min-height:34px;padding:0 12px;border:1px solid #f0bfd4;border-radius:999px;background:#fff;color:#d77ca7;font-size:12px;font-weight:900;cursor:pointer;}
+.photo-editor-pack-tabs button.active{background:#ff59a5;color:#fff;border-color:transparent;}
+.photo-editor-sticker-grid,.photo-editor-recent-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-height:260px;overflow:auto;padding-right:2px;}
+.photo-editor-sticker-thumb,.photo-editor-recent-thumb{min-height:74px;border:1px solid #f0bfd4;border-radius:15px;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;padding:5px;}
+.photo-editor-sticker-thumb:hover,.photo-editor-recent-thumb:hover{border-color:#ff8fc1;background:#fff4fa;}
+.photo-editor-sticker-thumb img,.photo-editor-recent-thumb img{max-width:100%;max-height:70px;object-fit:contain;user-select:none;-webkit-user-drag:none;}
+.photo-editor-recent-thumb img{width:100%;height:70px;object-fit:cover;border-radius:10px;}
+.photo-editor-delete-row{display:flex;gap:8px;flex-wrap:wrap;}
+.photo-editor-file-input{display:none;}
+@media(max-width:900px){.photo-editor-layout{grid-template-columns:1fr;}.photo-editor-side{order:-1}.photo-editor-sticker-grid,.photo-editor-recent-grid{grid-template-columns:repeat(4,minmax(0,1fr));max-height:180px;}.photo-editor-modal{padding:22px 18px;}}
+@media(max-width:560px){.photo-editor-sticker-grid,.photo-editor-recent-grid{grid-template-columns:repeat(3,minmax(0,1fr));}.photo-editor-sticker-item{width:96px;}.photo-editor-workarea{padding:10px;}}
+
 </style>
 </head>
 <body>
@@ -5647,6 +5689,48 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
           <button type="button" class="modal-close" onclick="closeStickerModal()">×</button>
         </div>
         <div id="stickerModalBody"></div>
+      </section>
+    </div>
+
+
+
+    <div class="modal-backdrop" id="newsPhotoEditorModal" hidden>
+      <section class="photo-editor-modal" role="dialog" aria-modal="true" aria-label="사진 편집기">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow">PHOTO EDITOR</span>
+            <h2>사진 편집기</h2>
+          </div>
+          <button type="button" class="modal-close" onclick="closeNewsPhotoEditor()">×</button>
+        </div>
+        <div class="photo-editor-toolbar">
+          <button type="button" class="btn sub" onclick="triggerPhotoEditorUpload()">사진 불러오기</button>
+          <button type="button" class="btn sub" onclick="loadPhotoEditorRecentImages()">최근사진</button>
+          <button type="button" class="btn sub" onclick="loadPhotoEditorStickers()">스티커</button>
+          <button type="button" class="btn danger" onclick="deleteSelectedPhotoEditorSticker()">선택 삭제</button>
+          <button type="button" class="btn" onclick="savePhotoEditorImage()">저장 후 본문 삽입</button>
+          <button type="button" class="btn sub" onclick="closeNewsPhotoEditor()">닫기</button>
+        </div>
+        <div id="photoEditorStatus" class="photo-editor-status">사진을 1장 불러온 뒤 스티커를 올려 보세요.</div>
+        <div class="photo-editor-layout">
+          <div class="photo-editor-workarea">
+            <div id="photoEditorStage" class="photo-editor-stage is-empty">
+              편집할 사진을 불러와 주세요.<br>1차 기능은 사진 1장 + 스티커 꾸미기입니다.
+            </div>
+          </div>
+          <aside class="photo-editor-side">
+            <section class="photo-editor-panel">
+              <h3>최근 사진</h3>
+              <div id="photoEditorRecentGrid" class="photo-editor-recent-grid"><div class="sticker-empty">최근사진을 누르면 불러와요.</div></div>
+            </section>
+            <section class="photo-editor-panel">
+              <h3>스티커팩</h3>
+              <div id="photoEditorStickerTabs" class="photo-editor-pack-tabs"></div>
+              <div id="photoEditorStickerGrid" class="photo-editor-sticker-grid"><div class="sticker-empty">스티커를 누르면 불러와요.</div></div>
+            </section>
+          </aside>
+        </div>
+        <input id="photoEditorFileInput" class="photo-editor-file-input" type="file" accept="image/*">
       </section>
     </div>
 
@@ -6893,6 +6977,250 @@ function replaceStickerExt(name,mimeType){
 }
 
 const RECENT_NEWS_IMAGE_FOLDERS=['공지','라이브','이벤트','업데이트','기타'];
+
+/* NEWS Photo Editor MVP: photo + sticker + save */
+let photoEditorBase={src:'',name:'',naturalWidth:0,naturalHeight:0};
+let photoEditorStickers=[];
+let photoEditorSelectedId=null;
+let photoEditorStickerPack='mariring';
+let photoEditorRecentLoaded=false;
+let photoEditorStickersLoaded=false;
+let photoEditorDrag=null;
+
+function openNewsPhotoEditor(){
+  const modal=q('newsPhotoEditorModal');
+  if(!modal)return;
+  modal.hidden=false;
+  setPhotoEditorStatus('사진을 1장 불러온 뒤 스티커를 올려 보세요.');
+  renderPhotoEditorPacks();
+  setupPhotoEditorFileInput();
+  if(!photoEditorStickersLoaded) loadPhotoEditorStickers();
+  if(!photoEditorRecentLoaded) loadPhotoEditorRecentImages(false);
+}
+function closeNewsPhotoEditor(){
+  const modal=q('newsPhotoEditorModal');
+  if(modal)modal.hidden=true;
+  photoEditorDrag=null;
+}
+function setPhotoEditorStatus(message){
+  const el=q('photoEditorStatus');
+  if(el)el.textContent=message||'';
+}
+function triggerPhotoEditorUpload(){
+  setupPhotoEditorFileInput();
+  const input=q('photoEditorFileInput');
+  if(input)input.click();
+}
+function setupPhotoEditorFileInput(){
+  const input=q('photoEditorFileInput');
+  if(!input || input.dataset.ready)return;
+  input.dataset.ready='1';
+  input.addEventListener('change',()=>{
+    const file=input.files && input.files[0];
+    input.value='';
+    if(!file || !file.type || !file.type.startsWith('image/'))return;
+    const reader=new FileReader();
+    reader.onload=()=>setPhotoEditorBaseImage(String(reader.result||''),file.name||'edited image');
+    reader.onerror=()=>setPhotoEditorStatus('사진을 읽지 못했어요.');
+    reader.readAsDataURL(file);
+  });
+}
+function setPhotoEditorBaseImage(src,name){
+  if(!src)return;
+  const img=new Image();
+  img.onload=()=>{
+    photoEditorBase={src,name:name||'edited image',naturalWidth:img.naturalWidth||img.width,naturalHeight:img.naturalHeight||img.height};
+    photoEditorStickers=[];
+    photoEditorSelectedId=null;
+    renderPhotoEditorStage();
+    setPhotoEditorStatus('사진을 불러왔어요. 스티커를 선택해 올릴 수 있어요.');
+  };
+  img.onerror=()=>setPhotoEditorStatus('사진을 불러오지 못했어요.');
+  img.crossOrigin='anonymous';
+  img.src=src;
+}
+function renderPhotoEditorStage(){
+  const stage=q('photoEditorStage');
+  if(!stage)return;
+  if(!photoEditorBase.src){
+    stage.className='photo-editor-stage is-empty';
+    stage.innerHTML='편집할 사진을 불러와 주세요.<br>1차 기능은 사진 1장 + 스티커 꾸미기입니다.';
+    return;
+  }
+  stage.className='photo-editor-stage';
+  stage.innerHTML=`<img id="photoEditorBaseImg" class="photo-editor-base" src="${htmlEscape(photoEditorBase.src)}" alt="${htmlEscape(photoEditorBase.name||'edited image')}" draggable="false"><div id="photoEditorStickerLayer" class="photo-editor-sticker-layer"></div>`;
+  const base=q('photoEditorBaseImg');
+  if(base){
+    base.onload=()=>{syncPhotoEditorStageSize(); renderPhotoEditorStickerLayer();};
+    requestAnimationFrame(()=>{syncPhotoEditorStageSize(); renderPhotoEditorStickerLayer();});
+  }
+}
+function syncPhotoEditorStageSize(){
+  const stage=q('photoEditorStage');
+  const base=q('photoEditorBaseImg');
+  if(!stage || !base || !photoEditorBase.src)return;
+  const rect=base.getBoundingClientRect();
+  if(rect.width>0 && rect.height>0){
+    stage.style.width=Math.round(rect.width)+'px';
+    stage.style.height=Math.round(rect.height)+'px';
+  }
+}
+function renderPhotoEditorStickerLayer(){
+  const layer=q('photoEditorStickerLayer');
+  if(!layer)return;
+  layer.innerHTML=photoEditorStickers.map(st=>`
+    <div class="photo-editor-sticker-item ${st.id===photoEditorSelectedId?'selected':''}" data-id="${st.id}" style="left:${st.x}px;top:${st.y}px;width:${st.w}px;" onpointerdown="photoEditorStickerPointerDown(event,'${st.id}','move')">
+      <img src="${htmlEscape(st.src)}" alt="${htmlEscape(st.label||'sticker')}" draggable="false" oncontextmenu="return false" ondragstart="return false">
+      <span class="photo-editor-resize-handle" onpointerdown="photoEditorStickerPointerDown(event,'${st.id}','resize')"></span>
+    </div>`).join('');
+}
+function photoEditorStageRect(){
+  const stage=q('photoEditorStage');
+  return stage ? stage.getBoundingClientRect() : {width:0,height:0,left:0,top:0};
+}
+function photoEditorStickerPointerDown(event,id,mode){
+  event.preventDefault();
+  event.stopPropagation();
+  const st=photoEditorStickers.find(item=>item.id===id);
+  if(!st)return;
+  photoEditorSelectedId=id;
+  photoEditorDrag={id,mode,startX:event.clientX,startY:event.clientY,origX:st.x,origY:st.y,origW:st.w};
+  renderPhotoEditorStickerLayer();
+  try{event.currentTarget.setPointerCapture(event.pointerId);}catch(e){}
+}
+document.addEventListener('pointermove',event=>{
+  if(!photoEditorDrag)return;
+  const st=photoEditorStickers.find(item=>item.id===photoEditorDrag.id);
+  if(!st)return;
+  const rect=photoEditorStageRect();
+  const dx=event.clientX-photoEditorDrag.startX;
+  const dy=event.clientY-photoEditorDrag.startY;
+  if(photoEditorDrag.mode==='resize'){
+    st.w=Math.max(38,Math.min(rect.width||900,photoEditorDrag.origW+dx));
+  }else{
+    st.x=Math.max(-st.w*0.7,Math.min((rect.width||0)-st.w*0.3,photoEditorDrag.origX+dx));
+    st.y=Math.max(-st.w*0.7,Math.min((rect.height||0)-st.w*0.1,photoEditorDrag.origY+dy));
+  }
+  renderPhotoEditorStickerLayer();
+});
+document.addEventListener('pointerup',()=>{photoEditorDrag=null;});
+function deleteSelectedPhotoEditorSticker(){
+  if(!photoEditorSelectedId){setPhotoEditorStatus('삭제할 스티커를 선택해 주세요.');return;}
+  photoEditorStickers=photoEditorStickers.filter(st=>st.id!==photoEditorSelectedId);
+  photoEditorSelectedId=null;
+  renderPhotoEditorStickerLayer();
+  setPhotoEditorStatus('선택한 스티커를 삭제했어요.');
+}
+async function loadPhotoEditorRecentImages(showToast=true){
+  const grid=q('photoEditorRecentGrid');
+  if(grid)grid.innerHTML='<div class="sticker-empty">최근 사진을 불러오는 중...</div>';
+  try{
+    if(!window.LumiContentSync || !LumiContentSync.listRecentNewsImages)throw new Error('최근 사진 API 연결이 필요합니다.');
+    const res=await LumiContentSync.listRecentNewsImages({folderName:'',limit:8});
+    const items=(res.items||[]).map(normalizeRecentNewsImageItem);
+    photoEditorRecentLoaded=true;
+    if(!items.length){if(grid)grid.innerHTML='<div class="sticker-empty">최근 사진이 없어요.</div>';return;}
+    if(grid)grid.innerHTML=items.map((it,idx)=>`<button type="button" class="photo-editor-recent-thumb" title="${htmlEscape(it.name||'image')}" onclick="setPhotoEditorBaseImage('${htmlEscape(it.imageUrl)}','${htmlEscape(it.name||'recent image')}')"><img src="${htmlEscape(it.thumbnailUrl||it.imageUrl)}" alt="${htmlEscape(it.name||'image')}" draggable="false"></button>`).join('');
+    if(showToast)setPhotoEditorStatus('최근 사진을 불러왔어요. 편집할 사진을 선택해 주세요.');
+  }catch(err){
+    console.error('[사진 편집기 최근사진 오류]',err);
+    if(grid)grid.innerHTML='<div class="sticker-empty">최근 사진을 불러오지 못했어요.</div>';
+    setPhotoEditorStatus('최근 사진을 불러오지 못했어요.');
+  }
+}
+function renderPhotoEditorPacks(){
+  const tabs=q('photoEditorStickerTabs');
+  if(!tabs)return;
+  tabs.innerHTML=(NEWS_STICKER_PACKS||[]).map(pack=>`<button type="button" class="${pack.id===photoEditorStickerPack?'active':''}" onclick="setPhotoEditorStickerPack('${htmlEscape(pack.id)}')">${htmlEscape(pack.label)}</button>`).join('');
+}
+function setPhotoEditorStickerPack(packId){
+  photoEditorStickerPack=packId||'mariring';
+  renderPhotoEditorPacks();
+  loadPhotoEditorStickers();
+}
+async function loadPhotoEditorStickers(){
+  const grid=q('photoEditorStickerGrid');
+  if(grid)grid.innerHTML='<div class="sticker-empty">스티커를 불러오는 중...</div>';
+  try{
+    if(!window.LumiContentSync || !LumiContentSync.listNewsStickers)throw new Error('스티커 API 연결이 필요합니다.');
+    const res=await LumiContentSync.listNewsStickers({packId:photoEditorStickerPack||'mariring',limit:80});
+    const items=(res.items||[]).map(normalizeStickerItem);
+    photoEditorStickersLoaded=true;
+    if(!items.length){if(grid)grid.innerHTML='<div class="sticker-empty">이 폴더에는 스티커가 없어요.</div>';return;}
+    if(grid)grid.innerHTML=items.map((it,idx)=>`<button type="button" class="photo-editor-sticker-thumb" title="${htmlEscape(it.label||it.name||'sticker')}" onclick="addPhotoEditorSticker(${idx})"><img src="${htmlEscape(it.thumbnailUrl||it.imageUrl)}" alt="${htmlEscape(it.label||'sticker')}" draggable="false" oncontextmenu="return false" ondragstart="return false"></button>`).join('');
+    window.__photoEditorStickerItems=items;
+    setPhotoEditorStatus('스티커를 불러왔어요. 사진 위에 올릴 스티커를 선택해 주세요.');
+  }catch(err){
+    console.error('[사진 편집기 스티커 오류]',err);
+    if(grid)grid.innerHTML='<div class="sticker-empty">스티커를 불러오지 못했어요.</div>';
+    setPhotoEditorStatus('스티커를 불러오지 못했어요.');
+  }
+}
+function addPhotoEditorSticker(index){
+  if(!photoEditorBase.src){setPhotoEditorStatus('먼저 편집할 사진을 불러와 주세요.');return;}
+  const items=window.__photoEditorStickerItems||[];
+  const item=items[index];
+  if(!item)return;
+  syncPhotoEditorStageSize();
+  const rect=photoEditorStageRect();
+  const w=Math.max(70,Math.min(160,(rect.width||420)*0.28));
+  const st={id:'sticker-'+Date.now()+'-'+Math.random().toString(16).slice(2),src:item.thumbnailUrl||item.imageUrl||item.url,label:item.label||item.name||'sticker',x:Math.max(10,((rect.width||420)-w)/2),y:Math.max(10,((rect.height||320)-w)/2),w};
+  photoEditorStickers.push(st);
+  photoEditorSelectedId=st.id;
+  renderPhotoEditorStickerLayer();
+  setPhotoEditorStatus('스티커를 올렸어요. 드래그로 이동하고 오른쪽 아래 점으로 크기를 조절할 수 있어요.');
+}
+function loadImageForCanvas(src){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.crossOrigin='anonymous';
+    img.onload=()=>resolve(img);
+    img.onerror=()=>reject(new Error('이미지 로드 실패'));
+    img.src=src;
+  });
+}
+async function savePhotoEditorImage(){
+  if(!photoEditorBase.src){setPhotoEditorStatus('저장할 사진이 없어요.');return;}
+  try{
+    setPhotoEditorStatus('편집 이미지를 만드는 중...');
+    syncPhotoEditorStageSize();
+    const stageRect=photoEditorStageRect();
+    const baseImg=await loadImageForCanvas(photoEditorBase.src);
+    const naturalW=photoEditorBase.naturalWidth||baseImg.naturalWidth||baseImg.width;
+    const naturalH=photoEditorBase.naturalHeight||baseImg.naturalHeight||baseImg.height;
+    const canvas=document.createElement('canvas');
+    canvas.width=naturalW;
+    canvas.height=naturalH;
+    const ctx=canvas.getContext('2d');
+    ctx.drawImage(baseImg,0,0,naturalW,naturalH);
+    const scaleX=naturalW/(stageRect.width||naturalW);
+    const scaleY=naturalH/(stageRect.height||naturalH);
+    for(const st of photoEditorStickers){
+      const simg=await loadImageForCanvas(st.src);
+      const dw=st.w*scaleX;
+      const ratio=(simg.naturalHeight||simg.height)/(simg.naturalWidth||simg.width||1);
+      const dh=dw*ratio;
+      ctx.drawImage(simg,st.x*scaleX,st.y*scaleY,dw,dh);
+    }
+    const blob=await new Promise((resolve)=>canvas.toBlob(resolve,'image/webp',0.88));
+    if(!blob)throw new Error('편집 이미지 생성 실패');
+    const base64=await blobToBase64(blob);
+    setPhotoEditorStatus('Drive에 저장하는 중...');
+    if(!window.LumiContentSync || !LumiContentSync.uploadNewsImage)throw new Error('이미지 업로드 API 연결이 필요합니다.');
+    const uploaded=await LumiContentSync.uploadNewsImage({fileName:'edited-'+Date.now()+'.webp',mimeType:'image/webp',data:base64,folderName:q('newsCategory')?q('newsCategory').value:''});
+    const imageUrl=uploaded.imageUrl||uploaded.thumbnailUrl||uploaded.url;
+    if(!imageUrl)throw new Error('Drive URL을 받지 못했어요.');
+    insertNewsImageHtmlToEditor(imageUrl,'edited image',uploaded.fileId||'');
+    setPhotoEditorStatus('편집 이미지를 본문에 넣었어요.');
+    toast('편집 이미지를 넣었어요.');
+    closeNewsPhotoEditor();
+  }catch(err){
+    console.error('[사진 편집기 저장 오류]',err);
+    setPhotoEditorStatus('저장 실패: '+(err&&err.message?err.message:String(err))+' / Drive 이미지 권한 문제면 새 사진 불러오기로 테스트해 주세요.');
+  }
+}
+
+
 let recentNewsImageFolder='';
 let recentNewsImageLoading=false;
 let recentNewsImageDeleting=false;
