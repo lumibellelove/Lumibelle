@@ -356,6 +356,57 @@
       margin: 0 0 14px;
     }
 
+
+    .news-detail-content .news-info-card {
+      display: grid;
+      gap: 12px;
+      margin: 0 0 18px;
+    }
+
+    .news-detail-content .news-info-card .info-row {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      align-items: center;
+      gap: 14px;
+      padding: 15px 18px;
+      border: 1px solid #f2d8e7;
+      border-radius: 18px;
+      background: #fff8fc;
+    }
+
+    .news-detail-content .news-info-card .info-label {
+      color: #d77ca7;
+      font-weight: 900;
+      letter-spacing: .01em;
+    }
+
+    .news-detail-content .news-info-card .info-value {
+      color: #7f6a77;
+      font-weight: 800;
+      line-height: 1.65;
+    }
+
+    .news-detail-content .news-info-card [contenteditable],
+    .news-detail-content .news-info-card [data-placeholder] {
+      outline: none;
+    }
+
+    .news-detail-content img.inserted-news-image,
+    .news-detail-content .inserted-news-image {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 18px auto;
+      border-radius: 18px;
+      border: 1px solid #f3dfe9;
+    }
+
+    .news-detail-content .news-divider {
+      border: 0;
+      border-top: 1px dashed #f0bfd4;
+      margin: 20px 0;
+    }
+
     .news-button-row {
       display: flex;
       gap: 12px;
@@ -401,6 +452,12 @@
 
       .news-info-label {
         min-width: 0;
+      }
+
+      .news-detail-content .news-info-card .info-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        padding: 14px 16px;
       }
     }
   </style>
@@ -3079,7 +3136,7 @@ line-height:1.9 !important;
   <footer>© 2026 Lumibelle All Rights Reserved.</footer>
   <button class="back-to-top" id="backToTop" aria-label="맨 위로 이동"><span class="top-arrow">↑</span><span class="top-label">TOP</span></button>
 
-  <script src="js/lumi-news-sync.js"></script>
+  <script src="js/lumi-content-sync.js"></script>
   <script>
     const backToTop = document.getElementById('backToTop');
     window.addEventListener('scroll', () => {
@@ -3101,7 +3158,6 @@ line-height:1.9 !important;
     (function(){
       const params = new URLSearchParams(location.search);
       const id = params.get('id');
-      const news = LumiNewsSync.publicNews().find(function(n){ return n.id === id; }) || LumiNewsSync.publicNews()[0];
       const dateEl = document.getElementById('newsDetailDate');
       const badgeEl = document.getElementById('newsDetailBadges');
       const titleEl = document.getElementById('newsDetailTitle');
@@ -3109,39 +3165,46 @@ line-height:1.9 !important;
       const bodyEl = document.getElementById('newsDetailBody');
       const buttonsEl = document.getElementById('newsDetailButtons');
 
-      if(!news){
-        titleEl.textContent = '등록된 공지사항이 없습니다.';
-        bodyEl.textContent = '관리자 페이지에서 공개된 NEWS를 등록해 주세요.';
-        return;
+      function renderNewsDetail(){
+        const news = LumiNewsSync.publicNews().find(function(n){ return n.id === id; }) || LumiNewsSync.publicNews()[0];
+
+        if(!news){
+          titleEl.textContent = '등록된 공지사항이 없습니다.';
+          bodyEl.textContent = '관리자 페이지에서 공개된 NEWS를 등록해 주세요.';
+          return;
+        }
+
+        document.title = (news.title || 'NEWS') + ' | Lumibelle';
+        dateEl.textContent = LumiNewsSync.toLongDate(news.date);
+        badgeEl.innerHTML = LumiNewsSync.badgesFor(news).map(function(b){
+          return '<span class="news-badge ' + LumiNewsSync.badgeClass(b) + '">' + LumiNewsSync.htmlEscape(b) + '</span>';
+        }).join('');
+        titleEl.textContent = news.title || '제목 없음';
+
+        const info = [
+          ['DATE', news.infoDate],
+          ['PLACE', news.infoPlace],
+          ['TIME', news.infoTime],
+          ['TICKET', news.infoTicket]
+        ].filter(function(row){ return row[1]; });
+        infoEl.innerHTML = info.map(function(row){
+          return '<div class="news-info-item"><div class="news-info-label">' + LumiNewsSync.htmlEscape(row[0]) + '</div><div>' + LumiNewsSync.htmlEscape(row[1]) + '</div></div>';
+        }).join('');
+        bodyEl.innerHTML = news.body || '<p>공지 본문이 없습니다.</p>';
+
+        const btns = [
+          [news.btn1Text, news.btn1Link, false],
+          [news.btn2Text || 'BACK TO NEWS', news.btn2Link || 'news.html', true]
+        ].filter(function(row){ return row[0] || row[1]; });
+        buttonsEl.innerHTML = btns.map(function(row){
+          const text = row[0] || row[1];
+          const href = row[1] || '#';
+          return '<a class="news-action-btn ' + (row[2] ? 'sub' : '') + '" href="' + LumiNewsSync.htmlEscape(href) + '">' + LumiNewsSync.htmlEscape(text) + '</a>';
+        }).join('');
       }
 
-      document.title = (news.title || 'NEWS') + ' | Lumibelle';
-      dateEl.textContent = LumiNewsSync.toLongDate(news.date);
-      badgeEl.innerHTML = LumiNewsSync.badgesFor(news).map(function(b){
-        return '<span class="news-badge ' + LumiNewsSync.badgeClass(b) + '">' + LumiNewsSync.htmlEscape(b) + '</span>';
-      }).join('');
-      titleEl.textContent = news.title || '제목 없음';
-
-      const info = [
-        ['DATE', news.infoDate],
-        ['PLACE', news.infoPlace],
-        ['TIME', news.infoTime],
-        ['TICKET', news.infoTicket]
-      ].filter(function(row){ return row[1]; });
-      infoEl.innerHTML = info.map(function(row){
-        return '<div class="news-info-item"><div class="news-info-label">' + LumiNewsSync.htmlEscape(row[0]) + '</div><div>' + LumiNewsSync.htmlEscape(row[1]) + '</div></div>';
-      }).join('');
-      bodyEl.innerHTML = news.body || '<p>공지 본문이 없습니다.</p>';
-
-      const btns = [
-        [news.btn1Text, news.btn1Link, false],
-        [news.btn2Text || 'BACK TO NEWS', news.btn2Link || 'news.html', true]
-      ].filter(function(row){ return row[0] || row[1]; });
-      buttonsEl.innerHTML = btns.map(function(row){
-        const text = row[0] || row[1];
-        const href = row[1] || '#';
-        return '<a class="news-action-btn ' + (row[2] ? 'sub' : '') + '" href="' + LumiNewsSync.htmlEscape(href) + '">' + LumiNewsSync.htmlEscape(text) + '</a>';
-      }).join('');
+      window.addEventListener('lumi-news-updated', renderNewsDetail);
+      renderNewsDetail();
     })();
   </script>
 
