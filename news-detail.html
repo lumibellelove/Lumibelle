@@ -343,6 +343,7 @@
       background: #fff;
       border: 1px solid #f3dfe9;
       color: #8e7082;
+      font-size: 15px;
       line-height: 1.6;
     }
 
@@ -3122,6 +3123,19 @@ line-height:1.9 !important;
       const bodyEl = document.getElementById('newsDetailBody');
       const buttonsEl = document.getElementById('newsDetailButtons');
 
+      function splitFirstImageFromBody(html){
+        const box = document.createElement('div');
+        box.innerHTML = html || '';
+        const img = box.querySelector('img');
+        if(!img){
+          return { src:'', alt:'', body:box.innerHTML };
+        }
+        const src = img.getAttribute('src') || '';
+        const alt = img.getAttribute('alt') || '';
+        img.remove();
+        return { src:src, alt:alt, body:box.innerHTML };
+      }
+
       function renderNewsDetail(){
         const news = LumiNewsSync.publicNews().find(function(n){ return n.id === id; }) || LumiNewsSync.publicNews()[0];
 
@@ -3131,6 +3145,8 @@ line-height:1.9 !important;
           return;
         }
 
+        const splitBody = splitFirstImageFromBody(news.body || '');
+
         document.title = (news.title || 'NEWS') + ' | Lumibelle';
         dateEl.textContent = LumiNewsSync.toLongDate(news.date);
         badgeEl.innerHTML = LumiNewsSync.badgesFor(news).map(function(b){
@@ -3138,9 +3154,10 @@ line-height:1.9 !important;
         }).join('');
         titleEl.textContent = news.title || '제목 없음';
 
-        if(news.heroImage || news.heroImageUrl){
-          heroEl.src = news.heroImage || news.heroImageUrl;
-          heroEl.alt = news.heroAlt || news.title || 'NEWS 이미지';
+        const heroSrc = news.heroImage || news.heroImageUrl || splitBody.src;
+        if(heroSrc){
+          heroEl.src = heroSrc;
+          heroEl.alt = news.heroAlt || splitBody.alt || news.title || 'NEWS 이미지';
           heroEl.hidden = false;
         }else{
           heroEl.hidden = true;
@@ -3156,7 +3173,14 @@ line-height:1.9 !important;
         infoEl.innerHTML = info.map(function(row){
           return '<div class="news-info-item"><div class="news-info-label">' + LumiNewsSync.htmlEscape(row[0]) + '</div><div>' + LumiNewsSync.htmlEscape(row[1]) + '</div></div>';
         }).join('');
-        bodyEl.innerHTML = news.body || '<p>공지 본문이 없습니다.</p>';
+        infoEl.hidden = !info.length;
+        if(splitBody.body && splitBody.body.trim()){
+          bodyEl.hidden = false;
+          bodyEl.innerHTML = splitBody.body;
+        }else{
+          bodyEl.hidden = true;
+          bodyEl.innerHTML = '';
+        }
 
         const btns = [];
         const ticketHref = news.ticketUrl || news.btn1Link || '';
