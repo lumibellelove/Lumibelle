@@ -320,12 +320,25 @@
 
     .news-detail-poster {
       width: 100%;
+      height: auto;
       border-radius: 22px;
       display: block;
       margin: 0 0 28px;
       border: 1px solid #f0d8e5;
       box-shadow: 0 10px 30px rgba(255, 170, 210, 0.20);
       background:#fff;
+      object-fit: contain;
+    }
+    .news-detail-poster.layout-auto,
+    .news-detail-poster.layout-wide {
+      width:100%;
+      max-width:100%;
+    }
+    .news-detail-poster.layout-portrait {
+      width:auto;
+      max-width:min(100%,520px);
+      margin-left:auto;
+      margin-right:auto;
     }
     .news-detail-poster[hidden] { display:none; }
 
@@ -3136,25 +3149,49 @@ line-height:1.9 !important;
         return { src:src, alt:alt, body:box.innerHTML };
       }
 
-      function renderNewsDetail(){
-        const news = LumiNewsSync.publicNews().find(function(n){ return n.id === id; }) || LumiNewsSync.publicNews()[0];
+      function showWaiting(){
+        titleEl.textContent = 'NEWS';
+        bodyEl.hidden = false;
+        bodyEl.textContent = '공지사항을 불러오고 있습니다.';
+        heroEl.hidden = true;
+        infoEl.hidden = true;
+        buttonsEl.innerHTML = '<a class="news-action-btn sub" href="news.html">BACK TO NEWS</a>';
+      }
+
+      function showNotFound(){
+        titleEl.textContent = '등록된 공지사항이 없습니다.';
+        bodyEl.hidden = false;
+        bodyEl.textContent = '관리자 페이지에서 공개된 NEWS를 등록해 주세요.';
+        heroEl.hidden = true;
+        heroEl.removeAttribute('src');
+        infoEl.hidden = true;
+        infoEl.innerHTML = '';
+        badgeEl.innerHTML = '';
+        dateEl.textContent = '';
+        buttonsEl.innerHTML = '<a class="news-action-btn sub" href="news.html">BACK TO NEWS</a>';
+      }
+
+      function renderNewsDetail(finalCheck){
+        const rows = LumiNewsSync.publicNews();
+        const news = id ? rows.find(function(n){ return n.id === id; }) : rows[0];
 
         if(!news){
-          titleEl.textContent = '등록된 공지사항이 없습니다.';
-          bodyEl.textContent = '관리자 페이지에서 공개된 NEWS를 등록해 주세요.';
+          if(finalCheck) showNotFound();
+          else showWaiting();
           return;
         }
 
         const splitBody = splitFirstImageFromBody(news.body || '');
+        const heroSrc = splitBody.src || news.heroImageUrl || news.heroImage || '';
+        const layout = ['auto','wide','portrait'].includes(news.imageLayout) ? news.imageLayout : 'auto';
 
-        document.title = (news.title || 'NEWS') + ' | Lumibelle';
         dateEl.textContent = LumiNewsSync.toLongDate(news.date);
         badgeEl.innerHTML = LumiNewsSync.badgesFor(news).map(function(b){
           return '<span class="news-badge ' + LumiNewsSync.badgeClass(b) + '">' + LumiNewsSync.htmlEscape(b) + '</span>';
         }).join('');
-        titleEl.textContent = news.title || '제목 없음';
+        titleEl.textContent = news.title || '(제목 없음)';
 
-        const heroSrc = news.heroImage || news.heroImageUrl || splitBody.src;
+        heroEl.className = 'news-detail-poster layout-' + layout;
         if(heroSrc){
           heroEl.src = heroSrc;
           heroEl.alt = news.heroAlt || splitBody.alt || news.title || 'NEWS 이미지';
@@ -3174,6 +3211,7 @@ line-height:1.9 !important;
           return '<div class="news-info-item"><div class="news-info-label">' + LumiNewsSync.htmlEscape(row[0]) + '</div><div>' + LumiNewsSync.htmlEscape(row[1]) + '</div></div>';
         }).join('');
         infoEl.hidden = !info.length;
+
         if(splitBody.body && splitBody.body.trim()){
           bodyEl.hidden = false;
           bodyEl.innerHTML = splitBody.body;
@@ -3193,8 +3231,8 @@ line-height:1.9 !important;
         }).join('');
       }
 
-      window.addEventListener('lumi-news-updated', renderNewsDetail);
-      renderNewsDetail();
+      window.addEventListener('lumi-news-updated', function(){ renderNewsDetail(true); });
+      renderNewsDetail(false);
     })();
   </script>
 

@@ -745,12 +745,61 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 }
 .preview-hero{
   width:100%;
-  max-height:320px;
-  object-fit:cover;
+  height:auto;
+  max-height:none;
+  object-fit:contain;
   border-radius:24px;
   border:1px solid #f2d8e7;
   margin:0 0 18px;
   background:#fff;
+  display:block;
+}
+.preview-hero.layout-auto,
+.preview-hero.layout-wide{
+  width:100%;
+  max-width:100%;
+}
+.preview-hero.layout-portrait{
+  width:auto;
+  max-width:min(100%,460px);
+  max-height:72vh;
+  margin-left:auto;
+  margin-right:auto;
+}
+.first-image-display-box{
+  margin:14px 0 0;
+  padding:14px 16px;
+  border:1px solid #f2d8e7;
+  border-radius:20px;
+  background:#fffafd;
+}
+.first-image-display-title{
+  color:#d77ca7;
+  font-size:15px;
+  font-weight:900;
+  margin-bottom:10px;
+}
+.first-image-display-options{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.first-image-display-options label{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  min-height:34px;
+  padding:0 14px;
+  border:1px solid #f0bfd4;
+  border-radius:999px;
+  background:#fff;
+  color:#d77ca7;
+  font-size:15px;
+  font-weight:900;
+  cursor:pointer;
+}
+.first-image-display-options input{
+  accent-color:#ff5fa5;
 }
 .preview-info{
   display:grid;
@@ -3894,6 +3943,15 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
             <button type="button" class="btn sub" onclick="insertPlainLine()">구분선 넣기</button>
           </div>
 
+          <div class="first-image-display-box">
+            <div class="first-image-display-title">첫 이미지 표시 방식</div>
+            <div class="first-image-display-options">
+              <label><input type="radio" name="newsImageLayout" value="auto" checked> 자동</label>
+              <label><input type="radio" name="newsImageLayout" value="wide"> 가로형</label>
+              <label><input type="radio" name="newsImageLayout" value="portrait"> 세로형</label>
+            </div>
+          </div>
+
           <input type="file" id="newsImageFileInput" accept="image/*" hidden>
 
           <section class="news-detail-fields-box" id="newsDetailFieldsBox" aria-label="NEWS 상세 양식" hidden>
@@ -4120,6 +4178,14 @@ function setPublishedValue(v){
 function syncBodyToTextarea(){
   q('newsBody').value = q('newsBodyEditor').innerHTML;
 }
+function getNewsImageLayout(){
+  return document.querySelector('input[name="newsImageLayout"]:checked')?.value || 'auto';
+}
+function setNewsImageLayout(value='auto'){
+  const safe = ['auto','wide','portrait'].includes(value) ? value : 'auto';
+  const el = document.querySelector(`input[name="newsImageLayout"][value="${safe}"]`);
+  if(el)el.checked=true;
+}
 function collectNewsForm({draft=false}={}){
   syncBodyToTextarea();
   let id=q('newsId').value.trim();
@@ -4145,6 +4211,7 @@ function collectNewsForm({draft=false}={}){
     infoTime:q('newsInfoTime').value.trim(),
     infoTicket:q('newsInfoTicket').value.trim(),
     ticketUrl:q('newsTicketUrl').value.trim(),
+    imageLayout:getNewsImageLayout(),
     btn1Text:'',
     btn1Link:q('newsTicketUrl').value.trim(),
     btn2Text:'',
@@ -4170,6 +4237,7 @@ function fillNewsForm(n){
   q('newsInfoTime').value=n.infoTime||'';
   q('newsInfoTicket').value=n.infoTicket||'';
   q('newsTicketUrl').value=n.ticketUrl||n.btn1Link||'';
+  setNewsImageLayout(n.imageLayout || 'auto');
   setNewsDetailFieldsVisible(!!(n.infoDate||n.infoPlace||n.infoTime||n.infoTicket||n.ticketUrl||n.btn1Link));
   if(q('newsBodyImage')) q('newsBodyImage').value=n.bodyImage||'';
   if(q('newsBodyAlt')) q('newsBodyAlt').value=n.bodyAlt||'';
@@ -4185,6 +4253,7 @@ function clearNewsForm(){
   q('newsHomeCheck').checked=true;
   q('newsPinnedCheck').checked=false;
   setBadges([defaultBadgeForCategory(baseCat)]);
+  setNewsImageLayout('auto');
   setNewsDetailFieldsVisible(false);
   editingNewsId=null;
   
@@ -4261,7 +4330,6 @@ function toggleNewsDetailFields(){
   const box=q('newsDetailFieldsBox');
   const next=box ? box.hidden : true;
   setNewsDetailFieldsVisible(next);
-  toast(next?'상세 양식을 열었어요':'상세 양식을 접었어요');
 }
 function insertDetailTemplate(){
   setNewsDetailFieldsVisible(true);
@@ -4376,13 +4444,16 @@ function toggleNews(id){
     }
   }
 }
-function splitFirstImageFromPreviewBody(html){
+function splitFirstImageFromPreviewBody(html, layout='auto'){
   const box=document.createElement('div');
   box.innerHTML=html||'';
   const img=box.querySelector('img');
   if(!img)return {image:'', body:box.innerHTML};
   const clone=img.cloneNode(true);
-  clone.classList.add('preview-hero');
+  const safeLayout=['auto','wide','portrait'].includes(layout)?layout:'auto';
+  clone.classList.add('preview-hero','layout-'+safeLayout);
+  clone.removeAttribute('width');
+  clone.removeAttribute('height');
   img.remove();
   return {image:clone.outerHTML, body:box.innerHTML};
 }
@@ -4398,7 +4469,7 @@ function buildPreviewHTML(n){
   const btns=[];
   if(n.ticketUrl || n.btn1Link) btns.push(['TICKET', n.ticketUrl || n.btn1Link, true]);
   btns.push(['BACK TO NEWS','news.html',false]);
-  const splitBody=splitFirstImageFromPreviewBody(n.body||'');
+  const splitBody=splitFirstImageFromPreviewBody(n.body||'', n.imageLayout || 'auto');
   return `
     <article class="preview-article">
       <div class="preview-date">${htmlEscape(toLongDate(n.date))}</div>

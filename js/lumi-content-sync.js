@@ -70,6 +70,7 @@
       btn2Text: String(item.btn2Text || ''),
       btn2Link: String(item.btn2Link || ''),
       ticketUrl: String(item.ticketUrl || item.btn1Link || ''),
+      imageLayout: String(item.imageLayout || 'auto'),
       date,
       badges,
       link: 'news-detail.html?id=' + encodeURIComponent(String(item.id || '')),
@@ -112,6 +113,7 @@
       btn2Text: '',
       btn2Link: '',
       ticketUrl: row.ticketUrl || row.btn1Link || '',
+      imageLayout: row.imageLayout || 'auto',
       sortOrder: row.sortOrder || 0,
       lang: row.lang || 'ko',
       translationGroupId: row.translationGroupId || row.id || '',
@@ -155,6 +157,16 @@
     }catch(e){}
     return {news: DEFAULT_NEWS.slice()};
   }
+
+  function cachedLocalPublicNews(){
+    const local = readState().news || [];
+    return local.filter(function(n){
+      const status = String(n.status || (n.draft ? 'draft' : (n.published === false ? 'private' : 'public')));
+      return n && status === 'public' && !n.draft && !n.deletedAt;
+    }).map(convertApiItem).sort(sortNews);
+  }
+
+  cachedPublicNews = cachedLocalPublicNews();
 
   function saveLocalNews(items){
     try{
@@ -206,11 +218,7 @@
       dispatchNewsUpdated();
       return cachedPublicNews;
     }).catch(function(err){
-      const local = readState().news || [];
-      cachedPublicNews = local.filter(function(n){
-        const status = String(n.status || (n.draft ? 'draft' : (n.published === false ? 'private' : 'public')));
-        return n && status === 'public' && !n.draft && !n.deletedAt;
-      }).sort(sortNews);
+      cachedPublicNews = cachedLocalPublicNews();
       hasLoadedPublicNews = true;
       dispatchNewsUpdated();
       throw err;
@@ -218,8 +226,9 @@
   }
 
   function publicNews(){
-    if(hasLoadedPublicNews) return cachedPublicNews.slice();
-    return [];
+    if(cachedPublicNews.length) return cachedPublicNews.slice();
+    if(hasLoadedPublicNews) return [];
+    return cachedLocalPublicNews();
   }
 
   function isNew(date){
