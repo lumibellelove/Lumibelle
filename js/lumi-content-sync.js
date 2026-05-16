@@ -245,6 +245,10 @@
     return fetchPost('listRecentNewsImages', payload || {});
   }
 
+  function deleteRecentNewsImages(payload){
+    return fetchPost('deleteRecentNewsImages', payload || {});
+  }
+
   function readState(){
     try{
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
@@ -409,6 +413,7 @@
     adminArchiveNewsItem,
     uploadNewsImage,
     listRecentNewsImages,
+    deleteRecentNewsImages,
     sortNews,
     htmlEscape,
     stripHTML,

@@ -4441,6 +4441,8 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 .recent-gallery-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 .recent-gallery-actions .btn{min-height:40px;padding:0 17px;font-size:13px;}
 .recent-gallery-actions .btn.primary{box-shadow:0 10px 18px rgba(255,95,165,.16);}
+.recent-gallery-actions .btn.danger{background:#fff;color:#c8759a;border:1px solid #f0bfd4;box-shadow:0 4px 10px rgba(255,95,165,.08);}
+.recent-gallery-actions .btn.danger:hover{background:#fff0f7;color:#ff59a5;}
 .recent-folder-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;}
 .recent-folder-card{min-height:58px;border:1px solid #f0bfd4;border-radius:18px;background:#fff;color:#d77ca7;font-size:15px;font-weight:900;cursor:pointer;}
 .recent-folder-card:hover{background:#fff0f7;color:#ff59a5;box-shadow:0 8px 16px rgba(255,95,165,.09);}
@@ -5626,8 +5628,8 @@ function renderRecentNewsImages(items, folderName=''){
     return `<button type="button" class="recent-photo-card" data-recent-index="${index}" title="${name}" onclick="toggleRecentNewsImageSelection(${index})"><span class="recent-select-pill">선택</span><img src="${img}" alt="${name}" loading="lazy"><span class="recent-photo-name">${name}</span></button>`;
   }).join('');
   const tools = folderName
-    ? `<div class="recent-gallery-tools compact"><div class="recent-gallery-actions"><button type="button" class="btn sub" onclick="openRecentNewsImages()">← 뒤로가기</button><button type="button" class="btn sub" id="recentSelectAllBtn" onclick="toggleAllRecentNewsImages()">전체 선택</button><button type="button" class="btn primary" id="recentInsertSelectedBtn" onclick="insertSelectedRecentNewsImages()">선택 삽입</button></div></div>`
-    : `<div class="recent-gallery-tools compact"><div class="recent-gallery-actions"><button type="button" class="btn sub" id="recentSelectAllBtn" onclick="toggleAllRecentNewsImages()">전체 선택</button><button type="button" class="btn primary" id="recentInsertSelectedBtn" onclick="insertSelectedRecentNewsImages()">선택 삽입</button></div></div>`;
+    ? `<div class="recent-gallery-tools compact"><div class="recent-gallery-actions"><button type="button" class="btn sub" onclick="openRecentNewsImages()">← 뒤로가기</button><button type="button" class="btn sub" id="recentSelectAllBtn" onclick="toggleAllRecentNewsImages()">전체 선택</button><button type="button" class="btn primary" id="recentInsertSelectedBtn" onclick="insertSelectedRecentNewsImages()">선택 삽입</button><button type="button" class="btn danger" id="recentDeleteSelectedBtn" onclick="deleteSelectedRecentNewsImages()">선택 삭제</button></div></div>`
+    : `<div class="recent-gallery-tools compact"><div class="recent-gallery-actions"><button type="button" class="btn sub" id="recentSelectAllBtn" onclick="toggleAllRecentNewsImages()">전체 선택</button><button type="button" class="btn primary" id="recentInsertSelectedBtn" onclick="insertSelectedRecentNewsImages()">선택 삽입</button><button type="button" class="btn danger" id="recentDeleteSelectedBtn" onclick="deleteSelectedRecentNewsImages()">선택 삭제</button></div></div>`;
   if(!folderName){
     const folderButtons=RECENT_NEWS_IMAGE_FOLDERS.map(name=>`<button type="button" class="recent-folder-card" onclick="openRecentNewsImages('${htmlEscape(name)}')">${htmlEscape(name)}</button>`).join('');
     body.innerHTML=`<div class="recent-photo-section-title">최근 업로드 사진</div>${tools}${cards ? `<div class="recent-photo-grid">${cards}</div>` : '<div class="recent-gallery-empty">최근 업로드된 사진이 없습니다.</div>'}<div class="recent-photo-section-title">폴더</div><div class="recent-folder-grid">${folderButtons}</div>`;
@@ -5643,8 +5645,10 @@ function updateRecentNewsSelectionTools(){
   const allSelected=total>0 && selected===total;
   const selectBtn=q('recentSelectAllBtn');
   const insertBtn=q('recentInsertSelectedBtn');
+  const deleteBtn=q('recentDeleteSelectedBtn');
   if(selectBtn) selectBtn.textContent=allSelected ? '전체 해제' : '전체 선택';
   if(insertBtn) insertBtn.textContent=selected ? `선택 삽입 (${selected})` : '선택 삽입';
+  if(deleteBtn) deleteBtn.textContent=selected ? `선택 삭제 (${selected})` : '선택 삭제';
 }
 function toggleRecentNewsImageSelection(index){
   if(recentNewsSelectedIndexes.has(index)) recentNewsSelectedIndexes.delete(index);
@@ -5680,6 +5684,34 @@ function insertSelectedRecentNewsImages(){
   });
   if(insertedCount){closeRecentNewsImages();toast(`${insertedCount}장의 사진을 넣었어요.`);}
   else{toast('사진 삽입에 실패했어요.');}
+}
+
+async function deleteSelectedRecentNewsImages(){
+  const selected=[...recentNewsSelectedIndexes].sort((a,b)=>a-b);
+  if(!selected.length){toast('선택한 사진이 없어요.');return;}
+  const fileIds=selected.map(index=>recentNewsCurrentItems[index] && recentNewsCurrentItems[index].fileId).filter(Boolean);
+  if(!fileIds.length){toast('삭제할 사진 정보를 찾지 못했어요.');return;}
+  const ok=confirm(`선택한 사진 ${fileIds.length}장을 삭제할까요?\n\n이미 공지에 사용 중인 사진이면 공홈 이미지가 보이지 않을 수 있어요.\n삭제한 파일은 Google Drive 휴지통에서 복구할 수 있습니다.`);
+  if(!ok)return;
+  try{
+    if(!window.LumiContentSync || !LumiContentSync.deleteRecentNewsImages){
+      toast('사진 삭제 API 연결이 필요합니다.');
+      return;
+    }
+    toast('선택한 사진 삭제 중...');
+    const res=await LumiContentSync.deleteRecentNewsImages({fileIds:fileIds});
+    const deletedCount=Number(res.deletedCount || (res.deleted ? res.deleted.length : 0));
+    const failedCount=Number(res.failedCount || (res.failed ? res.failed.length : 0));
+    if(deletedCount){
+      toast(failedCount ? `${deletedCount}장 삭제 / ${failedCount}장 실패` : `${deletedCount}장의 사진을 삭제했어요.`);
+      await loadRecentNewsImages(recentNewsImageFolder || '');
+    }else{
+      toast('삭제된 사진이 없어요.');
+    }
+  }catch(err){
+    console.error('[최근 사진 삭제 오류]', err);
+    toast('사진 삭제 실패: ' + (err && err.message ? err.message : String(err)));
+  }
 }
 function insertRecentNewsImageByIndex(index){
   const item=recentNewsCurrentItems[index];
@@ -6311,6 +6343,106 @@ function clearNewsEditorContent(){
   p.innerHTML='<br>';
   editor.appendChild(p);
 }
+function syncNewsImageHiddenFromEditor(){
+  const editor=q('newsBodyEditor');
+  if(!editor)return;
+  const firstImg=editor.querySelector('img.inserted-news-image, img');
+  if(q('newsBody')) q('newsBody').value=editor.innerHTML;
+  if(q('newsBodyImage')) q('newsBodyImage').value=firstImg ? (firstImg.getAttribute('src')||'') : '';
+  if(q('newsBodyAlt')) q('newsBodyAlt').value=firstImg ? (firstImg.getAttribute('alt')||'') : '';
+}
+function newsEditorDirectChild(node){
+  const editor=q('newsBodyEditor');
+  if(!editor || !node)return null;
+  let el=node.nodeType===1 ? node : node.parentElement;
+  while(el && el.parentElement && el.parentElement!==editor){
+    el=el.parentElement;
+  }
+  return el && el.parentElement===editor ? el : null;
+}
+function isNewsBlankBlock(el){
+  if(!el || el.nodeType!==1)return false;
+  if(el.querySelector('img, table, .news-poll-card, iframe, video'))return false;
+  return String(el.textContent||'').replace(/\u00a0/g,'').trim()==='';
+}
+function isNewsImageBlock(el){
+  if(!el || el.nodeType!==1)return false;
+  const imgs=el.querySelectorAll('img.inserted-news-image, img');
+  if(!imgs.length)return false;
+  const clone=el.cloneNode(true);
+  clone.querySelectorAll('img, br').forEach(n=>n.remove());
+  return String(clone.textContent||'').replace(/\u00a0/g,'').trim()==='';
+}
+function placeNewsCursorInBlock(block){
+  const editor=q('newsBodyEditor');
+  if(!editor)return;
+  const target=block || editor.lastElementChild || editor;
+  try{
+    const sel=window.getSelection();
+    const range=document.createRange();
+    range.selectNodeContents(target);
+    range.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(range);
+    savedNewsRange=range.cloneRange();
+  }catch(err){}
+}
+function removeNewsImageBlockPair(imageBlock, blankBlock){
+  const editor=q('newsBodyEditor');
+  if(!editor || !imageBlock)return false;
+  const cursorTarget=(blankBlock && blankBlock.nextElementSibling) || imageBlock.previousElementSibling || null;
+  if(blankBlock && blankBlock.parentElement===editor) blankBlock.remove();
+  if(imageBlock.parentElement===editor) imageBlock.remove();
+  if(!editor.children.length){
+    const p=document.createElement('p');
+    p.innerHTML='<br>';
+    editor.appendChild(p);
+    placeNewsCursorInBlock(p);
+  }else{
+    placeNewsCursorInBlock(cursorTarget || editor.lastElementChild);
+  }
+  syncNewsImageHiddenFromEditor();
+  editor.dispatchEvent(new Event('input',{bubbles:true}));
+  return true;
+}
+function handleNewsImageOneKeyDelete(e){
+  if(e.key!=='Backspace' && e.key!=='Delete')return false;
+  if(e.ctrlKey || e.metaKey || e.altKey)return false;
+  const editor=q('newsBodyEditor');
+  const sel=window.getSelection();
+  if(!editor || !sel || !sel.rangeCount)return false;
+  const range=sel.getRangeAt(0);
+  if(!range.collapsed)return false;
+  const block=newsEditorDirectChild(range.startContainer);
+  if(!block)return false;
+
+  // 이미지 삽입 뒤 자동으로 생기는 빈 줄에서 Backspace를 누르면
+  // 빈 줄만 지우고 한 번 더 눌러야 하는 문제를 방지한다.
+  if(e.key==='Backspace' && isNewsBlankBlock(block)){
+    const prev=block.previousElementSibling;
+    if(isNewsImageBlock(prev)){
+      e.preventDefault();
+      return removeNewsImageBlockPair(prev, block);
+    }
+  }
+
+  // 이미지 앞의 빈 줄에서 Delete를 눌러도 한 번에 이미지 블록을 지운다.
+  if(e.key==='Delete' && isNewsBlankBlock(block)){
+    const next=block.nextElementSibling;
+    if(isNewsImageBlock(next)){
+      e.preventDefault();
+      return removeNewsImageBlockPair(next, block);
+    }
+  }
+
+  // 이미지 블록 자체에 커서가 들어간 상태에서도 한 번에 삭제되게 한다.
+  if(isNewsImageBlock(block)){
+    const pairBlank=e.key==='Backspace' ? block.nextElementSibling : block.previousElementSibling;
+    e.preventDefault();
+    return removeNewsImageBlockPair(block, isNewsBlankBlock(pairBlank) ? pairBlank : null);
+  }
+  return false;
+}
 function setupEditorDeleteShortcuts(){
   const editor=q('newsBodyEditor');
   if(!editor || editor.dataset.deleteShortcutReady)return;
@@ -6329,8 +6461,9 @@ function setupEditorDeleteShortcuts(){
       clearNewsEditorContent();
       return;
     }
+    if(handleNewsImageOneKeyDelete(e))return;
   });
-  editor.addEventListener('input',()=>{newsEditorAllSelected=false;editor.classList.remove('table-all-selected');});
+  editor.addEventListener('input',()=>{newsEditorAllSelected=false;editor.classList.remove('table-all-selected');syncNewsImageHiddenFromEditor();});
   editor.addEventListener('blur',()=>normalizeNewsFontSizeSpans());
   editor.addEventListener('click',()=>{
     newsEditorAllSelected=false;
