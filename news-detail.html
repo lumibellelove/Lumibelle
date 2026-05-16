@@ -428,7 +428,32 @@
         min-width: 0;
       }
     }
-  </style>
+  
+
+    /* ===== NEWS detail image layout final fix ===== */
+    .news-detail-poster{
+      display:block !important;
+      height:auto !important;
+      object-fit:contain !important;
+      object-position:center center !important;
+      background:#fff6fb !important;
+    }
+    .news-detail-poster.layout-wide{
+      width:100% !important;
+      max-width:100% !important;
+      max-height:none !important;
+      margin-left:0 !important;
+      margin-right:0 !important;
+    }
+    .news-detail-poster.layout-portrait{
+      width:auto !important;
+      max-width:min(100%,520px) !important;
+      max-height:72vh !important;
+      margin-left:auto !important;
+      margin-right:auto !important;
+    }
+
+</style>
 
   <style>
     html, body {
@@ -3043,7 +3068,85 @@ line-height:1.9 !important;
           @keyframes lumiTrailFadeFinal{
             0%{opacity:.92;transform:translate(-50%,-50%) scale(.42) rotate(0deg);}
             100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.22) rotate(42deg);}
-  </style>
+  
+
+    /* ===== NEWS detail image layout final fix ===== */
+    .news-detail-poster{
+      display:block !important;
+      height:auto !important;
+      object-fit:contain !important;
+      object-position:center center !important;
+      background:#fff6fb !important;
+    }
+    .news-detail-poster.layout-wide{
+      width:100% !important;
+      max-width:100% !important;
+      max-height:none !important;
+      margin-left:0 !important;
+      margin-right:0 !important;
+    }
+    .news-detail-poster.layout-portrait{
+      width:auto !important;
+      max-width:min(100%,520px) !important;
+      max-height:72vh !important;
+      margin-left:auto !important;
+      margin-right:auto !important;
+    }
+
+
+
+    /* ===== NEWS 상세 본문 렌더링 동기화 패치 ===== */
+    .news-detail-content{
+      font-weight:500 !important;
+      line-height:1.9 !important;
+      white-space:normal !important;
+      overflow-wrap:anywhere !important;
+    }
+    .news-detail-content b,
+    .news-detail-content strong{
+      font-weight:900 !important;
+    }
+    .news-detail-content p{
+      margin:0 0 14px !important;
+    }
+    .news-detail-content .news-sticker-block{
+      margin:16px 0 !important;
+      padding:0 !important;
+      line-height:1 !important;
+      text-align:inherit !important;
+    }
+    .news-detail-content img.inserted-news-sticker,
+    .news-detail-content img[data-news-sticker="true"]{
+      display:block !important;
+      width:var(--sticker-pc-size,220px) !important;
+      max-width:80% !important;
+      height:auto !important;
+      margin:12px auto !important;
+      border:0 !important;
+      border-radius:0 !important;
+      box-shadow:none !important;
+      background:transparent !important;
+      object-fit:contain !important;
+      -webkit-user-select:none !important;
+      user-select:none !important;
+      -webkit-user-drag:none !important;
+      -webkit-touch-callout:none !important;
+    }
+    .news-detail-content img.inserted-news-sticker.sticker-size-small,
+    .news-detail-content img[data-news-sticker="true"].sticker-size-small{--sticker-pc-size:160px;--sticker-mobile-size:120px;}
+    .news-detail-content img.inserted-news-sticker.sticker-size-medium,
+    .news-detail-content img[data-news-sticker="true"].sticker-size-medium{--sticker-pc-size:220px;--sticker-mobile-size:160px;}
+    .news-detail-content img.inserted-news-sticker.sticker-size-large,
+    .news-detail-content img[data-news-sticker="true"].sticker-size-large{--sticker-pc-size:300px;--sticker-mobile-size:220px;}
+    @media(max-width:760px){
+      .news-detail-content img.inserted-news-sticker,
+      .news-detail-content img[data-news-sticker="true"]{
+        width:var(--sticker-mobile-size,160px) !important;
+        max-width:82% !important;
+      }
+    }
+
+</style>
 </head>
 
 <body>
@@ -3138,7 +3241,7 @@ line-height:1.9 !important;
       function splitFirstImageFromBody(html){
         const box = document.createElement('div');
         box.innerHTML = html || '';
-        const img = box.querySelector('img');
+        const img = box.querySelector('img:not([data-news-sticker="true"]):not(.inserted-news-sticker)');
         if(!img){
           return { src:'', alt:'', body:box.innerHTML };
         }
