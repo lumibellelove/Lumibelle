@@ -4198,6 +4198,140 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   }
 }
 
+
+
+/* ===== NEWS 이미지 표시/미리보기 최종 보정 ===== */
+.font-toolbox .font-top-line{
+  display:grid !important;
+  grid-template-columns:minmax(260px, 320px) auto !important;
+  align-items:end !important;
+  justify-content:start !important;
+  column-gap:86px !important;
+  row-gap:10px !important;
+  margin-bottom:10px !important;
+}
+.font-toolbox .first-image-display-box.first-image-display-inline{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:7px !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+  min-width:0 !important;
+}
+.font-toolbox .first-image-display-inline .first-image-display-title{
+  margin:0 !important;
+  color:#d77ca7 !important;
+  font-size:15px !important;
+  font-weight:900 !important;
+  line-height:1.2 !important;
+  text-align:center !important;
+  white-space:nowrap !important;
+}
+.font-toolbox .first-image-display-inline .first-image-display-options{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:8px !important;
+  flex-wrap:nowrap !important;
+}
+.font-toolbox .first-image-display-inline .image-layout-pill{
+  position:relative !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  min-height:36px !important;
+  height:36px !important;
+  padding:0 18px !important;
+  border-radius:999px !important;
+  border:1px solid #f0bfd4 !important;
+  background:#fff !important;
+  color:#d77ca7 !important;
+  font-size:15px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+  cursor:pointer !important;
+  box-sizing:border-box !important;
+}
+.font-toolbox .first-image-display-inline .image-layout-pill input{
+  position:absolute !important;
+  opacity:0 !important;
+  width:1px !important;
+  height:1px !important;
+  pointer-events:none !important;
+}
+.font-toolbox .first-image-display-inline .image-layout-pill:has(input:checked){
+  background:linear-gradient(180deg,#ff7eb3,#ff5fa5) !important;
+  color:#fff !important;
+  border-color:#ff5fa5 !important;
+  box-shadow:0 8px 18px rgba(255,95,165,.18) !important;
+}
+.preview-hero.layout-wide{
+  width:100% !important;
+  max-width:100% !important;
+  max-height:none !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+}
+.preview-hero.layout-portrait{
+  width:auto !important;
+  max-width:min(100%,520px) !important;
+  max-height:72vh !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+.preview-buttons{
+  display:flex !important;
+  gap:12px !important;
+  flex-wrap:wrap !important;
+  margin-top:24px !important;
+}
+.preview-link-btn{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  min-width:130px !important;
+  min-height:46px !important;
+  padding:12px 18px !important;
+  border-radius:999px !important;
+  text-decoration:none !important;
+  font-size:14px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  border:1px solid transparent !important;
+}
+.preview-link-btn.primary{
+  background:#ffe7f1 !important;
+  color:#df79a8 !important;
+  border-color:#f1bfd4 !important;
+  box-shadow:none !important;
+}
+.preview-link-btn.sub{
+  background:#f4f0ff !important;
+  color:#8d70d5 !important;
+  border-color:#d8cbf8 !important;
+  box-shadow:none !important;
+}
+@media(max-width:760px){
+  .font-toolbox .font-top-line{
+    grid-template-columns:1fr !important;
+    column-gap:0 !important;
+  }
+  .font-toolbox .first-image-display-box.first-image-display-inline{
+    align-items:flex-start !important;
+  }
+  .font-toolbox .first-image-display-inline .first-image-display-options{
+    justify-content:flex-start !important;
+    flex-wrap:wrap !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -4328,8 +4462,7 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
               <div class="first-image-display-box first-image-display-inline">
                 <div class="first-image-display-title">첫 이미지 표시 방식</div>
                 <div class="first-image-display-options" role="radiogroup" aria-label="첫 이미지 표시 방식">
-                  <label class="image-layout-pill"><input type="radio" name="newsImageLayout" value="auto" checked><span>자동</span></label>
-                  <label class="image-layout-pill"><input type="radio" name="newsImageLayout" value="wide"><span>가로형</span></label>
+                  <label class="image-layout-pill"><input type="radio" name="newsImageLayout" value="wide" checked><span>가로형</span></label>
                   <label class="image-layout-pill"><input type="radio" name="newsImageLayout" value="portrait"><span>세로형</span></label>
                 </div>
               </div>
@@ -4614,10 +4747,10 @@ function syncBodyToTextarea(){
   }
 }
 function getNewsImageLayout(){
-  return document.querySelector('input[name="newsImageLayout"]:checked')?.value || 'auto';
+  return document.querySelector('input[name="newsImageLayout"]:checked')?.value || 'wide';
 }
-function setNewsImageLayout(value='auto'){
-  const safe = ['auto','wide','portrait'].includes(value) ? value : 'auto';
+function setNewsImageLayout(value='wide'){
+  const safe = (value === 'portrait') ? 'portrait' : 'wide';
   const el = document.querySelector(`input[name="newsImageLayout"][value="${safe}"]`);
   if(el)el.checked=true;
 }
@@ -4672,7 +4805,7 @@ function fillNewsForm(n){
   q('newsInfoTime').value=n.infoTime||'';
   q('newsInfoTicket').value=n.infoTicket||'';
   q('newsTicketUrl').value=n.ticketUrl||n.btn1Link||'';
-  setNewsImageLayout(n.imageLayout || 'auto');
+  setNewsImageLayout(n.imageLayout || 'wide');
   setNewsDetailFieldsVisible(!!(n.infoDate||n.infoPlace||n.infoTime||n.infoTicket||n.ticketUrl||n.btn1Link));
   if(q('newsBodyImage')) q('newsBodyImage').value=n.bodyImage||'';
   if(q('newsBodyAlt')) q('newsBodyAlt').value=n.bodyAlt||'';
@@ -4904,7 +5037,7 @@ function buildPreviewHTML(n){
   const btns=[];
   if(n.ticketUrl || n.btn1Link) btns.push(['TICKET', n.ticketUrl || n.btn1Link, true]);
   btns.push(['BACK TO NEWS','news.html',false]);
-  const splitBody=splitFirstImageFromPreviewBody(n.body||'', n.imageLayout || 'auto');
+  const splitBody=splitFirstImageFromPreviewBody(n.body||'', (n.imageLayout === 'portrait' ? 'portrait' : 'wide'));
   return `
     <article class="preview-article">
       <div class="preview-date">${htmlEscape(toLongDate(n.date))}</div>
@@ -4913,7 +5046,7 @@ function buildPreviewHTML(n){
       ${splitBody.image}
       ${info.length?`<div class="preview-info">${info.map(([k,v])=>`<div class="preview-info-row"><strong>${htmlEscape(k)}</strong><span>${htmlEscape(v)}</span></div>`).join('')}</div>`:''}
       ${splitBody.body?`<div class="preview-body">${splitBody.body}</div>`:''}
-      ${btns.length?`<div class="preview-buttons">${btns.map(([t,l,primary])=>`<a class="preview-link-btn ${primary?'primary':''}" href="${htmlEscape(l||'#')}" onclick="return false;">${htmlEscape(t||l)}</a>`).join('')}</div>`:''}
+      ${btns.length?`<div class="preview-buttons">${btns.map(([t,l,primary])=>`<a class="preview-link-btn ${primary?'primary':'sub'}" href="${htmlEscape(l||'#')}" onclick="return false;">${htmlEscape(t||l)}</a>`).join('')}</div>`:''}
     </article>`;
 }
 function previewNews(){

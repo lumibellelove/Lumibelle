@@ -329,7 +329,6 @@
       background:#fff;
       object-fit: contain;
     }
-    .news-detail-poster.layout-auto,
     .news-detail-poster.layout-wide {
       width:100%;
       max-width:100%;
@@ -3183,7 +3182,7 @@ line-height:1.9 !important;
 
         const splitBody = splitFirstImageFromBody(news.body || '');
         const heroSrc = splitBody.src || news.heroImageUrl || news.heroImage || '';
-        const layout = ['auto','wide','portrait'].includes(news.imageLayout) ? news.imageLayout : 'auto';
+        const layout = (news.imageLayout === 'portrait') ? 'portrait' : 'wide';
 
         dateEl.textContent = LumiNewsSync.toLongDate(news.date);
         badgeEl.innerHTML = LumiNewsSync.badgesFor(news).map(function(b){
