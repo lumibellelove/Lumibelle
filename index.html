@@ -885,7 +885,7 @@
 
     .news-item {
       display: grid;
-      grid-template-columns: 110px 130px 1fr 20px;
+      grid-template-columns: 110px 72px minmax(0, 1fr) 64px 20px;
       align-items: center;
       gap: 10px;
       padding: 18px 22px;
@@ -987,6 +987,17 @@
       color: #846f81;
       font-weight: 900;
       letter-spacing: -0.01em;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .news-new-slot {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      min-width: 58px;
     }
 
     .news-arrow {
@@ -1361,8 +1372,14 @@
         align-items: flex-start;
       }
 
-      .news-tags {
+      .news-tags,
+      .news-new-slot {
         min-width: 0;
+        justify-content: flex-start;
+      }
+
+      .news-title {
+        white-space: normal;
       }
 
       .news-arrow {
@@ -3643,10 +3660,18 @@ line-height:1.9 !important;
       const list = document.getElementById('homeNewsList');
       if(!list || !window.LumiNewsSync) return;
 
-      function renderBadges(n){
-        return LumiNewsSync.badgesFor(n).map(function(b){
-          return '<span class="news-badge ' + LumiNewsSync.badgeClass(b) + '">' + LumiNewsSync.htmlEscape(b) + '</span>';
-        }).join('');
+      function renderBadge(b){
+        return '<span class="news-badge ' + LumiNewsSync.badgeClass(b) + '">' + LumiNewsSync.htmlEscape(b) + '</span>';
+      }
+
+      function renderCategoryBadge(n){
+        const badges = LumiNewsSync.badgesFor(n).filter(function(b){ return String(b).toUpperCase() !== 'NEW'; });
+        return badges.length ? renderBadge(badges[0]) : '';
+      }
+
+      function renderNewBadge(n){
+        const hasNew = LumiNewsSync.badgesFor(n).some(function(b){ return String(b).toUpperCase() === 'NEW'; });
+        return hasNew ? renderBadge('NEW') : '';
       }
 
       function renderHomeNews(){
@@ -3654,8 +3679,9 @@ line-height:1.9 !important;
         list.innerHTML = rows.map(function(n){
           return '<a href="' + LumiNewsSync.htmlEscape(LumiNewsSync.newsHref(n)) + '" class="news-item">'
             + '<div class="news-date">' + LumiNewsSync.htmlEscape(LumiNewsSync.toLongDate(n.date)) + '</div>'
-            + '<div class="news-tags">' + renderBadges(n) + '</div>'
+            + '<div class="news-tags">' + renderCategoryBadge(n) + '</div>'
             + '<div class="news-title">' + LumiNewsSync.htmlEscape(n.title || '제목 없음') + '</div>'
+            + '<div class="news-new-slot">' + renderNewBadge(n) + '</div>'
             + '<div class="news-arrow">›</div>'
             + '</a>';
         }).join('') || '<div class="news-empty">등록된 공지사항이 없습니다.</div>';

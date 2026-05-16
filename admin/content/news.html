@@ -4150,8 +4150,8 @@ function collectNewsForm({draft=false}={}){
     btn1Link:q('newsTicketUrl').value.trim(),
     btn2Text:'',
     btn2Link:'',
-    bodyImage:q('newsBodyImage').value.trim(),
-    bodyAlt:q('newsBodyAlt').value.trim(),
+    bodyImage:q('newsBodyImage') ? q('newsBodyImage').value.trim() : '',
+    bodyAlt:q('newsBodyAlt') ? q('newsBodyAlt').value.trim() : '',
     updatedAt:new Date().toISOString()
   };
 }
@@ -4172,8 +4172,8 @@ function fillNewsForm(n){
   q('newsInfoTicket').value=n.infoTicket||'';
   q('newsTicketUrl').value=n.ticketUrl||n.btn1Link||'';
   setNewsDetailFieldsVisible(!!(n.infoDate||n.infoPlace||n.infoTime||n.infoTicket||n.ticketUrl||n.btn1Link));
-  q('newsBodyImage').value=n.bodyImage||'';
-  q('newsBodyAlt').value=n.bodyAlt||'';
+  if(q('newsBodyImage')) q('newsBodyImage').value=n.bodyImage||'';
+  if(q('newsBodyAlt')) q('newsBodyAlt').value=n.bodyAlt||'';
 }
 function clearNewsForm(){
   const baseCat=currentNewsFilter==='전체'?'공지':currentNewsFilter;
@@ -4377,6 +4377,16 @@ function toggleNews(id){
     }
   }
 }
+function splitFirstImageFromPreviewBody(html){
+  const box=document.createElement('div');
+  box.innerHTML=html||'';
+  const img=box.querySelector('img');
+  if(!img)return {image:'', body:box.innerHTML};
+  const clone=img.cloneNode(true);
+  clone.classList.add('preview-hero');
+  img.remove();
+  return {image:clone.outerHTML, body:box.innerHTML};
+}
 function buildPreviewHTML(n){
   const info=[
     ['DATE',n.infoDate],
@@ -4389,15 +4399,15 @@ function buildPreviewHTML(n){
   const btns=[];
   if(n.ticketUrl || n.btn1Link) btns.push(['TICKET', n.ticketUrl || n.btn1Link, true]);
   btns.push(['BACK TO NEWS','news.html',false]);
+  const splitBody=splitFirstImageFromPreviewBody(n.body||'');
   return `
     <article class="preview-article">
       <div class="preview-badges">${badges.map(b=>`<span class="news-admin-badge ${htmlEscape(b)}">${htmlEscape(b)}</span>`).join('')}</div>
       <h1 class="preview-title">${htmlEscape(n.title||'(제목 없음)')}</h1>
       <div class="preview-date">${htmlEscape(toLongDate(n.date))}</div>
-      ${n.heroImage?`<img class="preview-hero" src="${htmlEscape(n.heroImage)}" alt="${htmlEscape(n.heroAlt||'')}">`:''}
+      ${splitBody.image}
       ${info.length?`<div class="preview-info">${info.map(([k,v])=>`<div class="preview-info-row"><strong>${htmlEscape(k)}</strong><span>${htmlEscape(v)}</span></div>`).join('')}</div>`:''}
-      <div class="preview-body">${n.body||'공지 본문을 입력하세요.'}</div>
-      ${n.bodyImage?`<img class="preview-hero" src="${htmlEscape(n.bodyImage)}" alt="${htmlEscape(n.bodyAlt||'')}">`:''}
+      <div class="preview-body">${splitBody.body||'공지 본문을 입력하세요.'}</div>
       ${btns.length?`<div class="preview-buttons">${btns.map(([t,l,primary])=>`<a class="preview-link-btn ${primary?'primary':''}" href="${htmlEscape(l||'#')}" onclick="return false;">${htmlEscape(t||l)}</a>`).join('')}</div>`:''}
     </article>`;
 }
