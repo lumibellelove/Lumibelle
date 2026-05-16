@@ -357,54 +357,62 @@
     }
 
 
+    /* NEWS 상세: 관리자 DATE/PLACE/TIME/TICKET 양식 보존 */
     .news-detail-content .news-info-card {
       display: grid;
       gap: 12px;
-      margin: 0 0 18px;
+      margin: 0;
     }
 
-    .news-detail-content .news-info-card .info-row {
+    .news-detail-content .news-info-card + p {
+      margin-top: 18px;
+    }
+
+    .news-detail-content .info-row {
       display: grid;
-      grid-template-columns: 92px 1fr;
+      grid-template-columns: 90px minmax(0, 1fr);
+      gap: 18px;
       align-items: center;
-      gap: 14px;
-      padding: 15px 18px;
-      border: 1px solid #f2d8e7;
+      min-height: 58px;
+      padding: 14px 18px;
       border-radius: 18px;
       background: #fff8fc;
+      border: 1px solid #f3d6e5;
+      box-shadow: 0 4px 12px rgba(232, 191, 211, 0.08);
     }
 
-    .news-detail-content .news-info-card .info-label {
+    .news-detail-content .info-label {
+      display: block;
       color: #d77ca7;
       font-weight: 900;
-      letter-spacing: .01em;
+      letter-spacing: 0.02em;
+      line-height: 1.4;
     }
 
-    .news-detail-content .news-info-card .info-value {
-      color: #7f6a77;
+    .news-detail-content .info-value {
+      display: block;
+      min-width: 0;
+      color: #8e7082;
       font-weight: 800;
-      line-height: 1.65;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
     }
 
-    .news-detail-content .news-info-card [contenteditable],
-    .news-detail-content .news-info-card [data-placeholder] {
+    .news-detail-content .info-value:empty::before {
+      content: attr(data-placeholder);
+      color: #c9aabc;
+      font-weight: 700;
+    }
+
+    .news-detail-content [contenteditable="true"] {
       outline: none;
     }
 
     .news-detail-content img.inserted-news-image,
-    .news-detail-content .inserted-news-image {
-      display: block;
+    .news-detail-content img {
       max-width: 100%;
       height: auto;
-      margin: 18px auto;
       border-radius: 18px;
-      border: 1px solid #f3dfe9;
-    }
-
-    .news-detail-content .news-divider {
-      border: 0;
-      border-top: 1px dashed #f0bfd4;
-      margin: 20px 0;
     }
 
     .news-button-row {
@@ -453,14 +461,25 @@
       .news-info-label {
         min-width: 0;
       }
+    }
+  
 
-      .news-detail-content .news-info-card .info-row {
+    @media (max-width: 640px) {
+      .news-detail-content .info-row {
         grid-template-columns: 1fr;
-        gap: 6px;
+        gap: 4px;
         padding: 14px 16px;
       }
+
+      .news-detail-content .info-label {
+        font-size: 13px;
+      }
+
+      .news-detail-content .info-value {
+        font-size: 14px;
+      }
     }
-  </style>
+</style>
 
   <style>
     html, body {
