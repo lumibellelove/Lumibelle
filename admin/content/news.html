@@ -4764,6 +4764,28 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   font-weight:inherit;
 }
 
+
+/* ===== NEWS 굵기 표시 전용 재보정 ===== */
+.news-body-editor b,
+.news-body-editor strong,
+.news-body-editor [data-lumi-bold="1"],
+.preview-body b,
+.preview-body strong,
+.preview-body [data-lumi-bold="1"],
+.preview-article b,
+.preview-article strong,
+.preview-article [data-lumi-bold="1"],
+.news-detail-content b,
+.news-detail-content strong,
+.news-detail-content [data-lumi-bold="1"]{
+  font-weight:900 !important;
+}
+.preview-body span[style*="font-weight"],
+.preview-article span[style*="font-weight"],
+.news-detail-content span[style*="font-weight"]{
+  font-weight:900 !important;
+}
+
 </style>
 </head>
 <body>
@@ -5204,6 +5226,7 @@ function setPublishedValue(v){
 function syncBodyToTextarea(){
   const editor = q('newsBodyEditor');
   if(editor && typeof normalizeNewsFontSizeSpans === 'function') normalizeNewsFontSizeSpans();
+  if(editor && typeof normalizeNewsBoldMarks === 'function') normalizeNewsBoldMarks();
   q('newsBody').value = editor.innerHTML;
   if(!editor.querySelector('img')){
     if(q('newsBodyImage')) q('newsBodyImage').value='';
@@ -5340,7 +5363,14 @@ function saveNewsRow(row,msg,opt={}){
 function formatNews(command,value=null){
   markNewsUndoPoint();
   restoreNewsSelection();
-  const inlineCommands={bold:'strong',italic:'em',underline:'u'};
+  if(command==='bold'){
+    if(applyNewsBoldStrong()){
+      syncBodyToTextarea();
+      saveNewsSelection();
+      return;
+    }
+  }
+  const inlineCommands={italic:'em',underline:'u'};
   if(inlineCommands[command]){
     if(applyNewsInlineTag(inlineCommands[command])){
       syncBodyToTextarea();
@@ -5349,8 +5379,63 @@ function formatNews(command,value=null){
     }
   }
   document.execCommand(command,false,value);
+  normalizeNewsBoldMarks();
   syncBodyToTextarea();
   saveNewsSelection();
+}
+function applyNewsBoldStrong(){
+  const editor=q('newsBodyEditor');
+  if(!editor)return false;
+  const range=getEditorRangeForFormat ? getEditorRangeForFormat() : null;
+  if(!range || range.collapsed || !nodeInsideNewsEditor(range.commonAncestorContainer))return false;
+  restoreRangeForFormat(range);
+  const sel=window.getSelection();
+  if(!sel || !sel.rangeCount)return false;
+  const liveRange=sel.getRangeAt(0);
+  if(liveRange.collapsed)return false;
+  const strong=document.createElement('strong');
+  strong.setAttribute('data-lumi-bold','1');
+  strong.style.fontWeight='900';
+  try{
+    const frag=liveRange.extractContents();
+    frag.querySelectorAll?.('b,strong,[data-lumi-bold]').forEach(el=>{
+      if(el.nodeType===1){
+        el.style.fontWeight='';
+        el.removeAttribute('data-lumi-bold');
+        if(el.tagName && (el.tagName.toLowerCase()==='b' || el.tagName.toLowerCase()==='strong')){
+          const span=document.createElement('span');
+          span.innerHTML=el.innerHTML;
+          el.replaceWith(span);
+        }
+      }
+    });
+    strong.appendChild(frag);
+    liveRange.insertNode(strong);
+    const nextRange=document.createRange();
+    nextRange.selectNodeContents(strong);
+    sel.removeAllRanges();
+    sel.addRange(nextRange);
+    savedNewsRange=nextRange.cloneRange();
+    return true;
+  }catch(err){
+    console.warn('[NEWS bold fallback]',err);
+    return false;
+  }
+}
+function normalizeNewsBoldMarks(){
+  const editor=q('newsBodyEditor');
+  if(!editor)return;
+  editor.querySelectorAll('b,strong').forEach(el=>{
+    el.setAttribute('data-lumi-bold','1');
+    el.style.fontWeight='900';
+  });
+  editor.querySelectorAll('span[style*="font-weight"]').forEach(el=>{
+    const fw=(el.style.fontWeight||'').toLowerCase();
+    if(fw==='bold' || parseInt(fw,10)>=700){
+      el.setAttribute('data-lumi-bold','1');
+      el.style.fontWeight='900';
+    }
+  });
 }
 function applyNewsInlineTag(tagName){
   const editor=q('newsBodyEditor');
@@ -5935,7 +6020,7 @@ document.addEventListener('click',e=>{
 });
 
 function setupEditorToolbarSelectionGuard(){
-  document.querySelectorAll('.font-control-row button, .color-popover button').forEach(el=>{
+  document.querySelectorAll('.editor-toolbar button, .font-control-row button, .color-popover button').forEach(el=>{
     if(el.dataset.guardReady)return;
     el.dataset.guardReady='1';
     el.addEventListener('mousedown',e=>{
