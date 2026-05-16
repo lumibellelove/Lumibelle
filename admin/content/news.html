@@ -4332,6 +4332,78 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   }
 }
 
+
+
+/* ===== NEWS image position + layout logic final fix ===== */
+/* 첫 이미지 표시 방식: 현재 줄 구조 유지, 블록만 오른쪽으로 미세 이동 */
+.font-toolbox .font-top-line{
+  display:grid !important;
+  grid-template-columns:minmax(260px, 320px) auto !important;
+  align-items:end !important;
+  justify-content:start !important;
+  column-gap:128px !important;
+  row-gap:10px !important;
+  margin-bottom:10px !important;
+}
+.font-toolbox .first-image-display-box.first-image-display-inline{
+  margin-left:18px !important;
+}
+.font-toolbox .first-image-display-inline .first-image-display-title{
+  font-size:15px !important;
+  font-weight:900 !important;
+  white-space:nowrap !important;
+  text-align:center !important;
+}
+.font-toolbox .first-image-display-inline .first-image-display-options{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:8px !important;
+  flex-wrap:nowrap !important;
+}
+.font-toolbox .first-image-display-inline .image-layout-pill{
+  min-height:36px !important;
+  height:36px !important;
+  padding:0 18px !important;
+  border-radius:999px !important;
+  font-size:15px !important;
+  font-weight:900 !important;
+  white-space:nowrap !important;
+}
+/* 가로형/세로형 실제 표시 매핑: 가로형=넓게, 세로형=좁게 중앙 */
+.preview-hero{
+  display:block !important;
+  height:auto !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  border-radius:22px !important;
+  background:#fff6fb !important;
+}
+.preview-hero.layout-wide{
+  width:100% !important;
+  max-width:100% !important;
+  max-height:none !important;
+  margin-left:0 !important;
+  margin-right:0 !important;
+}
+.preview-hero.layout-portrait{
+  width:auto !important;
+  max-width:min(100%,520px) !important;
+  max-height:72vh !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+@media(max-width:760px){
+  .font-toolbox .font-top-line{
+    grid-template-columns:1fr !important;
+    column-gap:0 !important;
+  }
+  .font-toolbox .first-image-display-box.first-image-display-inline{
+    margin-left:0 !important;
+    align-items:flex-start !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -5022,6 +5094,7 @@ function splitFirstImageFromPreviewBody(html, layout='auto'){
   clone.classList.add('preview-hero','layout-'+safeLayout);
   clone.removeAttribute('width');
   clone.removeAttribute('height');
+  clone.removeAttribute('style');
   img.remove();
   return {image:clone.outerHTML, body:box.innerHTML};
 }
