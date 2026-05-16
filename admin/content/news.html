@@ -1165,6 +1165,111 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   border-radius:18px;
   border:1px solid #f2d8e7;
 }
+
+.news-body-editor .news-sticker-block{
+  margin:12px 0;
+  line-height:1;
+}
+.news-body-editor img.inserted-news-sticker{
+  display:inline-block;
+  width:96px;
+  max-width:42%;
+  height:auto;
+  margin:4px 6px 4px 0;
+  border:0;
+  border-radius:0;
+  vertical-align:middle;
+  background:transparent;
+}
+.news-sticker-modal{
+  width:min(820px,calc(100vw - 52px));
+  max-height:min(86vh,820px);
+  overflow:auto;
+  padding:28px 30px 30px;
+  border:1px solid #efb8d0;
+  border-radius:30px;
+  background:linear-gradient(180deg,#fffdfd,#fff7fb);
+  box-shadow:0 24px 55px rgba(90,45,70,.18);
+}
+#stickerModalBody{padding-top:8px;}
+.sticker-pack-tabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:8px 0 18px;
+}
+.sticker-pack-tab{
+  min-height:40px;
+  padding:0 17px;
+  border:1px solid #f0bfd4;
+  border-radius:999px;
+  background:#fff;
+  color:#d77ca7;
+  font-size:13px;
+  font-weight:900;
+}
+.sticker-pack-tab.active{
+  border-color:transparent;
+  background:linear-gradient(180deg,#ff7fba,#ff59a5);
+  color:#fff;
+  box-shadow:0 10px 18px rgba(255,95,165,.16);
+}
+.sticker-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:13px;
+}
+.sticker-card{
+  min-height:138px;
+  padding:12px 10px 10px;
+  border:1px solid #f0bfd4;
+  border-radius:20px;
+  background:#fff;
+  color:#9a7288;
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  transition:.15s ease;
+}
+.sticker-card:hover{
+  transform:translateY(-1px);
+  border-color:#ff8fc1;
+  box-shadow:0 10px 20px rgba(255,95,165,.12);
+  background:#fff8fc;
+}
+.sticker-card img{
+  width:94px;
+  height:94px;
+  object-fit:contain;
+  background:transparent;
+}
+.sticker-card span{
+  max-width:100%;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.sticker-empty{
+  padding:22px;
+  border:1px dashed #efb8d0;
+  border-radius:20px;
+  background:#fff8fc;
+  color:#a98298;
+  font-size:14px;
+  font-weight:850;
+  line-height:1.7;
+}
+@media(max-width:760px){
+  .sticker-modal{width:calc(100vw - 24px);padding:22px 18px;}
+  .sticker-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+  .sticker-card{min-height:122px;}
+  .sticker-card img{width:78px;height:78px;}
+}
 .color-popover{
   width:252px !important;
 }
@@ -4692,6 +4797,7 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
               </div>
               <div class="media-tool-row">
                 <button type="button" class="tool-pill" onclick="insertNewsImage()">사진</button>
+                <button type="button" class="tool-pill" onclick="openStickerModal()">스티커</button>
                 <button type="button" class="tool-pill" onclick="insertNewsLink()">링크</button>
                 <button type="button" class="tool-pill" onclick="insertNewsTable()">표</button>
                 <button type="button" class="tool-pill" onclick="openPollModal()">투표</button>
@@ -4818,6 +4924,20 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
           <button type="button" class="modal-close" onclick="closeRecentNewsImages()">×</button>
         </div>
         <div id="recentImageModalBody"></div>
+      </section>
+    </div>
+
+
+    <div class="modal-backdrop" id="newsStickerModal" hidden>
+      <section class="news-sticker-modal" role="dialog" aria-modal="true" aria-label="스티커 선택">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow">STICKER</span>
+            <h2 id="stickerModalTitle">스티커 선택</h2>
+          </div>
+          <button type="button" class="modal-close" onclick="closeStickerModal()">×</button>
+        </div>
+        <div id="stickerModalBody"></div>
       </section>
     </div>
 
@@ -5273,6 +5393,7 @@ function closeModalOnBackdrop(e,id){
     if(id==='newsDraftModal')closeDraftModal();
     if(id==='newsPollModal')closePollModal();
     if(id==='newsRecentImageModal')closeRecentNewsImages();
+    if(id==='newsStickerModal')closeStickerModal();
   }
 }
 document.addEventListener('keydown',e=>{
@@ -5281,6 +5402,7 @@ document.addEventListener('keydown',e=>{
     if(q('newsDraftModal') && !q('newsDraftModal').hidden)closeDraftModal();
     if(q('newsPollModal') && !q('newsPollModal').hidden)closePollModal();
     if(q('newsRecentImageModal') && !q('newsRecentImageModal').hidden)closeRecentNewsImages();
+    if(q('newsStickerModal') && !q('newsStickerModal').hidden)closeStickerModal();
   }
 });
 document.addEventListener('click',e=>{
@@ -5288,6 +5410,7 @@ document.addEventListener('click',e=>{
   if(e.target?.id==='newsDraftModal')closeDraftModal();
   if(e.target?.id==='newsPollModal')closePollModal();
   if(e.target?.id==='newsRecentImageModal')closeRecentNewsImages();
+  if(e.target?.id==='newsStickerModal')closeStickerModal();
 });
 document.querySelectorAll('.news-filter').forEach(btn=>btn.addEventListener('click',()=>{
   document.querySelectorAll('.news-filter').forEach(b=>b.classList.remove('active'));
@@ -5623,6 +5746,101 @@ function setupEditorToolbarSelectionGuard(){
   }
 }
 
+
+
+const NEWS_STICKER_PACKS=[
+  {
+    id:'mariring',
+    label:'마리링',
+    stickers:[
+      {label:'기본', src:'img/stickers/mariring/mariring_basic.png'},
+      {label:'웃음', src:'img/stickers/mariring/mariring_smile.png'},
+      {label:'시무룩', src:'img/stickers/mariring/mariring_sulk.png'},
+      {label:'울먹', src:'img/stickers/mariring/mariring_cry.png'},
+      {label:'화남', src:'img/stickers/mariring/mariring_angry.png'},
+      {label:'하트', src:'img/stickers/mariring/mariring_love.png'},
+      {label:'반짝', src:'img/stickers/mariring/mariring_sparkle.png'},
+      {label:'부끄', src:'img/stickers/mariring/mariring_shy.png'},
+      {label:'멍', src:'img/stickers/mariring/mariring_blank.png'},
+      {label:'하얀 멍', src:'img/stickers/mariring/mariring_white_blank.png'}
+    ]
+  }
+];
+let activeStickerPackId=NEWS_STICKER_PACKS[0]?.id||'';
+
+function openStickerModal(){
+  saveNewsSelection();
+  const modal=q('newsStickerModal');
+  if(modal) modal.hidden=false;
+  renderStickerModal();
+}
+function closeStickerModal(){
+  const modal=q('newsStickerModal');
+  if(modal) modal.hidden=true;
+}
+function renderStickerModal(){
+  const body=q('stickerModalBody');
+  if(!body)return;
+  const packs=NEWS_STICKER_PACKS||[];
+  if(!packs.length){
+    body.innerHTML='<div class="sticker-empty">등록된 스티커팩이 없어요.</div>';
+    return;
+  }
+  if(!packs.some(pack=>pack.id===activeStickerPackId)) activeStickerPackId=packs[0].id;
+  const activePack=packs.find(pack=>pack.id===activeStickerPackId)||packs[0];
+  const tabs=packs.map(pack=>`<button type="button" class="sticker-pack-tab ${pack.id===activeStickerPackId?'active':''}" onclick="setStickerPack('${htmlEscape(pack.id)}')">${htmlEscape(pack.label)}</button>`).join('');
+  const cards=(activePack.stickers||[]).map(sticker=>`<button type="button" class="sticker-card" onclick="insertNewsSticker('${htmlEscape(sticker.src)}','${htmlEscape(sticker.label||'sticker')}')"><img src="${htmlEscape(sticker.src)}" alt="${htmlEscape(sticker.label||'sticker')}" loading="lazy"><span>${htmlEscape(sticker.label||'스티커')}</span></button>`).join('');
+  body.innerHTML=`<div class="sticker-pack-tabs">${tabs}</div>${cards?`<div class="sticker-grid">${cards}</div>`:'<div class="sticker-empty">이 스티커팩에는 아직 스티커가 없어요.</div>'}`;
+}
+function setStickerPack(packId){
+  activeStickerPackId=packId;
+  renderStickerModal();
+}
+function insertNewsSticker(src,label){
+  const editor=q('newsBodyEditor');
+  if(!editor || !src)return;
+  const img=document.createElement('img');
+  img.className='inserted-news-sticker';
+  img.src=src;
+  img.alt=label||'sticker';
+  img.setAttribute('data-sticker','true');
+  img.removeAttribute('width');
+  img.removeAttribute('height');
+  img.removeAttribute('style');
+  const wrap=document.createElement('p');
+  wrap.className='news-sticker-block';
+  wrap.appendChild(img);
+  const blank=document.createElement('p');
+  blank.innerHTML='<br>';
+  let inserted=false;
+  try{
+    restoreNewsSelection();
+    const sel=window.getSelection();
+    if(sel && sel.rangeCount){
+      const range=sel.getRangeAt(0);
+      if(nodeInsideNewsEditor(range.commonAncestorContainer)){
+        range.deleteContents();
+        range.insertNode(blank);
+        range.insertNode(wrap);
+        range.setStartAfter(blank);
+        range.setEndAfter(blank);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        inserted=true;
+      }
+    }
+  }catch(err){inserted=false;}
+  if(!inserted){
+    editor.focus();
+    editor.appendChild(wrap);
+    editor.appendChild(blank);
+    placeNewsCursorInBlock(blank);
+  }
+  if(q('newsBody')) q('newsBody').value=editor.innerHTML;
+  syncNewsImageHiddenFromEditor();
+  closeStickerModal();
+  toast('스티커를 넣었어요.');
+}
 
 
 const RECENT_NEWS_IMAGE_FOLDERS=['공지','라이브','이벤트','업데이트','기타'];
@@ -6486,7 +6704,7 @@ function clearNewsEditorContent(){
 function syncNewsImageHiddenFromEditor(){
   const editor=q('newsBodyEditor');
   if(!editor)return;
-  const firstImg=editor.querySelector('img.inserted-news-image, img');
+  const firstImg=editor.querySelector('img.inserted-news-image:not(.inserted-news-sticker), img:not(.inserted-news-sticker)');
   if(q('newsBody')) q('newsBody').value=editor.innerHTML;
   if(q('newsBodyImage')) q('newsBodyImage').value=firstImg ? (firstImg.getAttribute('src')||'') : '';
   if(q('newsBodyAlt')) q('newsBodyAlt').value=firstImg ? (firstImg.getAttribute('alt')||'') : '';
