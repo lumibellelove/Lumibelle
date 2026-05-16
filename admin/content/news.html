@@ -4825,6 +4825,56 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 .news-detail-content span[style*="font-weight:500"]{
   font-weight:500 !important;
 }
+
+
+/* ===== NEWS 굵기 역전 방지 최종 보정 ===== */
+.news-body-editor,
+.preview-body,
+.preview-article,
+.news-detail-content{
+  font-weight:500 !important;
+}
+.news-body-editor b,
+.news-body-editor strong,
+.news-body-editor [data-lumi-bold="1"],
+.preview-body b,
+.preview-body strong,
+.preview-body [data-lumi-bold="1"],
+.preview-article b,
+.preview-article strong,
+.preview-article [data-lumi-bold="1"],
+.news-detail-content b,
+.news-detail-content strong,
+.news-detail-content [data-lumi-bold="1"]{
+  font-weight:900 !important;
+}
+.news-body-editor span[style*="font-weight: normal"],
+.news-body-editor span[style*="font-weight:normal"],
+.news-body-editor span[style*="font-weight: 400"],
+.news-body-editor span[style*="font-weight:400"],
+.news-body-editor span[style*="font-weight: 500"],
+.news-body-editor span[style*="font-weight:500"],
+.preview-body span[style*="font-weight: normal"],
+.preview-body span[style*="font-weight:normal"],
+.preview-body span[style*="font-weight: 400"],
+.preview-body span[style*="font-weight:400"],
+.preview-body span[style*="font-weight: 500"],
+.preview-body span[style*="font-weight:500"],
+.preview-article span[style*="font-weight: normal"],
+.preview-article span[style*="font-weight:normal"],
+.preview-article span[style*="font-weight: 400"],
+.preview-article span[style*="font-weight:400"],
+.preview-article span[style*="font-weight: 500"],
+.preview-article span[style*="font-weight:500"],
+.news-detail-content span[style*="font-weight: normal"],
+.news-detail-content span[style*="font-weight:normal"],
+.news-detail-content span[style*="font-weight: 400"],
+.news-detail-content span[style*="font-weight:400"],
+.news-detail-content span[style*="font-weight: 500"],
+.news-detail-content span[style*="font-weight:500"]{
+  font-weight:500 !important;
+}
+
 </style>
 </head>
 <body>
@@ -5403,11 +5453,13 @@ function formatNews(command,value=null){
   markNewsUndoPoint();
   restoreNewsSelection();
   if(command==='bold'){
-    if(applyNewsBoldStrong()){
-      syncBodyToTextarea();
-      saveNewsSelection();
-      return;
-    }
+    // contenteditable 기본 굵기/브라우저 execCommand 상태가 섞이면
+    // B가 반대로 동작하는 문제가 생기므로 bold는 직접 strong 처리만 사용한다.
+    applyNewsBoldStrong();
+    normalizeNewsBoldMarks();
+    syncBodyToTextarea();
+    saveNewsSelection();
+    return;
   }
   const inlineCommands={italic:'em',underline:'u'};
   if(inlineCommands[command]){
@@ -5418,7 +5470,6 @@ function formatNews(command,value=null){
     }
   }
   document.execCommand(command,false,value);
-  normalizeNewsBoldMarks();
   syncBodyToTextarea();
   saveNewsSelection();
 }
