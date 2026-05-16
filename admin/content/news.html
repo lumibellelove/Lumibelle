@@ -4713,6 +4713,57 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   }
 }
 
+
+
+/* ===== NEWS 최종 보정: 스티커 정렬 + 굵기 렌더링 ===== */
+.news-body-editor .news-sticker-block,
+.preview-body .news-sticker-block,
+.preview-article .news-sticker-block{
+  display:block !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+}
+.news-body-editor .news-sticker-block[data-sticker-align="left"],
+.preview-body .news-sticker-block[data-sticker-align="left"],
+.preview-article .news-sticker-block[data-sticker-align="left"]{text-align:left !important;}
+.news-body-editor .news-sticker-block[data-sticker-align="center"],
+.preview-body .news-sticker-block[data-sticker-align="center"],
+.preview-article .news-sticker-block[data-sticker-align="center"]{text-align:center !important;}
+.news-body-editor .news-sticker-block[data-sticker-align="right"],
+.preview-body .news-sticker-block[data-sticker-align="right"],
+.preview-article .news-sticker-block[data-sticker-align="right"]{text-align:right !important;}
+.news-body-editor .news-sticker-block[data-sticker-align="justify"],
+.preview-body .news-sticker-block[data-sticker-align="justify"],
+.preview-article .news-sticker-block[data-sticker-align="justify"]{text-align:justify !important;}
+.news-body-editor .news-sticker-block[style*="text-align: left"],
+.preview-body .news-sticker-block[style*="text-align: left"],
+.preview-article .news-sticker-block[style*="text-align: left"]{text-align:left !important;}
+.news-body-editor .news-sticker-block[style*="text-align: center"],
+.preview-body .news-sticker-block[style*="text-align: center"],
+.preview-article .news-sticker-block[style*="text-align: center"]{text-align:center !important;}
+.news-body-editor .news-sticker-block[style*="text-align: right"],
+.preview-body .news-sticker-block[style*="text-align: right"],
+.preview-article .news-sticker-block[style*="text-align: right"]{text-align:right !important;}
+.news-body-editor .news-sticker-block > img.inserted-news-sticker,
+.news-body-editor .news-sticker-block > img[data-news-sticker="true"],
+.preview-body .news-sticker-block > img.inserted-news-sticker,
+.preview-body .news-sticker-block > img[data-news-sticker="true"],
+.preview-article .news-sticker-block > img.inserted-news-sticker,
+.preview-article .news-sticker-block > img[data-news-sticker="true"]{
+  display:inline-block !important;
+  margin:8px 0 !important;
+}
+.preview-body b,.preview-body strong,
+.preview-article b,.preview-article strong,
+.news-detail-content b,.news-detail-content strong{
+  font-weight:900 !important;
+}
+.preview-body span[style*="font-weight"],
+.preview-article span[style*="font-weight"],
+.news-detail-content span[style*="font-weight"]{
+  font-weight:inherit;
+}
+
 </style>
 </head>
 <body>
@@ -5289,8 +5340,39 @@ function saveNewsRow(row,msg,opt={}){
 function formatNews(command,value=null){
   markNewsUndoPoint();
   restoreNewsSelection();
+  const inlineCommands={bold:'strong',italic:'em',underline:'u'};
+  if(inlineCommands[command]){
+    if(applyNewsInlineTag(inlineCommands[command])){
+      syncBodyToTextarea();
+      saveNewsSelection();
+      return;
+    }
+  }
   document.execCommand(command,false,value);
+  syncBodyToTextarea();
   saveNewsSelection();
+}
+function applyNewsInlineTag(tagName){
+  const editor=q('newsBodyEditor');
+  const sel=window.getSelection();
+  if(!editor || !sel || !sel.rangeCount)return false;
+  const range=sel.getRangeAt(0);
+  if(range.collapsed || !nodeInsideNewsEditor(range.commonAncestorContainer))return false;
+  const wrapper=document.createElement(tagName);
+  if(tagName==='strong') wrapper.style.fontWeight='900';
+  try{
+    const frag=range.extractContents();
+    wrapper.appendChild(frag);
+    range.insertNode(wrapper);
+    const nextRange=document.createRange();
+    nextRange.selectNodeContents(wrapper);
+    sel.removeAllRanges();
+    sel.addRange(nextRange);
+    return true;
+  }catch(err){
+    console.warn('[NEWS inline format fallback]',err);
+    return false;
+  }
 }
 function insertNewsImage(){
   saveNewsSelection();
@@ -5804,11 +5886,39 @@ function toggleAlignPalette(){
   saveNewsSelection();
   q('alignPopover').hidden=!q('alignPopover').hidden;
 }
+function alignCommandToValue(command){
+  return {justifyLeft:'left',justifyCenter:'center',justifyRight:'right',justifyFull:'justify'}[command] || 'left';
+}
 function applyNewsAlign(command){
   restoreNewsSelection();
+  const nextAlign=alignCommandToValue(command);
+  activeNewsTextAlign=nextAlign;
+  markNewsUndoPoint();
   document.execCommand(command,false,null);
+  applyNewsAlignToCurrentStickerBlocks(nextAlign);
   q('alignPopover').hidden=true;
+  syncBodyToTextarea();
   saveNewsSelection();
+}
+function applyNewsAlignToCurrentStickerBlocks(align){
+  const editor=q('newsBodyEditor');
+  const sel=window.getSelection();
+  if(!editor || !sel || !sel.rangeCount)return;
+  const safe={left:'left',center:'center',right:'right',justify:'justify'}[align] || 'left';
+  const touched=new Set();
+  for(let i=0;i<sel.rangeCount;i++){
+    const range=sel.getRangeAt(i);
+    const container=range.commonAncestorContainer.nodeType===1 ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement;
+    if(!container || !editor.contains(container))continue;
+    const direct=container.closest ? container.closest('.news-sticker-block') : null;
+    if(direct && editor.contains(direct))touched.add(direct);
+    editor.querySelectorAll('.news-sticker-block').forEach(block=>{
+      try{
+        if(range.intersectsNode(block))touched.add(block);
+      }catch(e){}
+    });
+  }
+  touched.forEach(block=>applyNewsStickerBlockAlign(block,safe));
 }
 document.addEventListener('click',e=>{
   const pop=q('colorPopover');
@@ -5854,6 +5964,7 @@ let stickerUploading=false;
 let stickerSelectedIndexes=new Set();
 let stickerStatusMessage='';
 let activeStickerSize='medium';
+let activeNewsTextAlign='left';
 
 function openStickerModal(){
   saveNewsSelection();
@@ -5981,12 +6092,13 @@ function getCurrentNewsTextAlign(){
   const el=node ? (node.nodeType===1 ? node : node.parentElement) : null;
   const block=el && el.closest ? el.closest('p,div,h1,h2,h3,h4,h5,h6,li,blockquote') : null;
   if(block && editor.contains(block)){
-    const raw=((block.style && block.style.textAlign) || window.getComputedStyle(block).textAlign || '').toLowerCase();
-    if(raw.includes('right'))return 'right';
-    if(raw.includes('center'))return 'center';
-    if(raw.includes('justify'))return 'justify';
+    const raw=((block.style && block.style.textAlign) || block.getAttribute('data-sticker-align') || window.getComputedStyle(block).textAlign || '').toLowerCase();
+    if(raw.includes('right')){activeNewsTextAlign='right';return 'right';}
+    if(raw.includes('center')){activeNewsTextAlign='center';return 'center';}
+    if(raw.includes('justify')){activeNewsTextAlign='justify';return 'justify';}
+    if(raw.includes('left')){activeNewsTextAlign='left';return 'left';}
   }
-  return 'left';
+  return activeNewsTextAlign || 'left';
 }
 function applyNewsStickerBlockAlign(block,align){
   if(!block)return;
@@ -5998,7 +6110,7 @@ function applyNewsStickerBlockAlign(block,align){
 function insertNewsSticker(src,label,closeAfter=true,originalSrc='',size='medium'){
   const editor=q('newsBodyEditor');
   markNewsUndoPoint();
-  let stickerAlign='left';
+  let stickerAlign=getCurrentNewsTextAlign();
   const stickerSrc=src || originalSrc || '';
   if(!editor || !stickerSrc)return false;
   const img=document.createElement('img');
@@ -6024,7 +6136,7 @@ function insertNewsSticker(src,label,closeAfter=true,originalSrc='',size='medium
   let inserted=false;
   try{
     restoreNewsSelection();
-    stickerAlign=getCurrentNewsTextAlign();
+    stickerAlign=getCurrentNewsTextAlign() || stickerAlign || activeNewsTextAlign || 'left';
     applyNewsStickerBlockAlign(wrap,stickerAlign);
     const sel=window.getSelection();
     if(sel && sel.rangeCount){
@@ -6043,7 +6155,7 @@ function insertNewsSticker(src,label,closeAfter=true,originalSrc='',size='medium
   }catch(err){inserted=false;}
   if(!inserted){
     editor.focus();
-    stickerAlign=getCurrentNewsTextAlign();
+    stickerAlign=getCurrentNewsTextAlign() || stickerAlign || activeNewsTextAlign || 'left';
     applyNewsStickerBlockAlign(wrap,stickerAlign);
     editor.appendChild(wrap);
     editor.appendChild(blank);
