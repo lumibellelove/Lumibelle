@@ -6145,7 +6145,7 @@ function toggleAllStickers(){
 function insertSelectedNewsStickers(){
   const selected=[...stickerSelectedIndexes].sort((a,b)=>a-b).map(idx=>stickerItems[idx]).filter(Boolean);
   if(!selected.length)return;
-  selected.forEach(sticker=>insertNewsSticker(sticker.imageUrl,sticker.label,false));
+  selected.forEach(sticker=>insertNewsSticker((sticker.thumbnailUrl||sticker.imageUrl||sticker.url),sticker.label,false));
   stickerSelectedIndexes.clear();
   closeStickerModal();
   toast(selected.length===1?'스티커를 넣었어요.':`스티커 ${selected.length}개를 넣었어요.`);
