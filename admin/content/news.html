@@ -4420,6 +4420,12 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 .recent-photo-card img{width:100%;height:118px;display:block;object-fit:cover;background:#fff6fb;}
 .recent-photo-card span{display:block;padding:8px 10px;color:#8f7183;font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .recent-photo-card:hover{border-color:#ff8fc1;box-shadow:0 10px 20px rgba(255,95,165,.12);}
+.recent-photo-card.is-selected{border-color:#ff5fa5;box-shadow:0 0 0 3px rgba(255,95,165,.16),0 10px 20px rgba(255,95,165,.12);}
+.recent-photo-card.is-selected::after{content:'✓';position:absolute;right:8px;top:8px;width:22px;height:22px;border-radius:999px;background:#ff5fa5;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:950;box-shadow:0 6px 14px rgba(255,95,165,.20);}
+.recent-photo-card .recent-select-pill{position:absolute;left:8px;top:8px;z-index:2;min-height:28px;padding:0 10px;border:1px solid #f0bfd4;border-radius:999px;background:rgba(255,255,255,.96);color:#d77ca7;font-size:12px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(255,95,165,.08);}
+.recent-photo-card.is-selected .recent-select-pill{background:#ff5fa5;border-color:#ff5fa5;color:#fff;}
+.recent-gallery-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.recent-gallery-actions .btn{min-height:42px;padding:0 17px;font-size:13px;}
 .recent-folder-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;}
 .recent-folder-card{min-height:58px;border:1px solid #f0bfd4;border-radius:18px;background:#fff;color:#d77ca7;font-size:15px;font-weight:900;cursor:pointer;}
 .recent-folder-card:hover{background:#fff0f7;color:#ff59a5;}
@@ -5587,7 +5593,7 @@ function renderRecentNewsImages(items, folderName=''){
     const img=htmlEscape(item.thumbnailUrl||'');
     const name=htmlEscape(item.name||'news image');
     if(folderName){
-      return `<button type="button" class="recent-photo-card" data-recent-index="${index}" onclick="toggleRecentNewsImageSelection(${index})"><img src="${img}" alt="${name}"><span>${name}</span></button>`;
+      return `<button type="button" class="recent-photo-card" data-recent-index="${index}" onclick="toggleRecentNewsImageSelection(${index})"><span class="recent-select-pill">선택</span><img src="${img}" alt="${name}"><span>${name}</span></button>`;
     }
     return `<button type="button" class="recent-photo-card" onclick="insertRecentNewsImageByIndex(${index})"><img src="${img}" alt="${name}"><span>${name}</span></button>`;
   }).join('');
@@ -5596,17 +5602,40 @@ function renderRecentNewsImages(items, folderName=''){
     body.innerHTML=`<div class="recent-photo-section-title">최근 업로드 사진</div>${cards ? `<div class="recent-photo-grid">${cards}</div>` : '<div class="recent-gallery-empty">최근 업로드된 사진이 없습니다.</div>'}<div class="recent-photo-section-title">폴더</div><div class="recent-folder-grid">${folderButtons}</div><div class="modal-actions"><button type="button" class="btn sub" onclick="closeRecentNewsImages()">닫기</button></div>`;
     return;
   }
-  body.innerHTML=`<div class="recent-gallery-tools"><div class="recent-gallery-actions"><button type="button" class="btn sub" onclick="openRecentNewsImages()">← 뒤로가기</button><button type="button" class="btn sub" onclick="selectAllRecentNewsImages()">전체 선택</button><button type="button" class="btn primary" onclick="insertSelectedRecentNewsImages()">선택 삽입</button></div><button type="button" class="btn sub" onclick="closeRecentNewsImages()">닫기</button></div>${cards ? `<div class="recent-photo-grid">${cards}</div>` : '<div class="recent-gallery-empty">이 폴더에는 아직 사진이 없습니다.</div>'}`;
+  body.innerHTML=`<div class="recent-gallery-tools"><div class="recent-gallery-actions"><button type="button" class="btn sub" onclick="openRecentNewsImages()">← 뒤로가기</button><button type="button" class="btn sub" id="recentSelectAllBtn" onclick="toggleAllRecentNewsImages()">전체 선택</button><button type="button" class="btn primary" id="recentInsertSelectedBtn" onclick="insertSelectedRecentNewsImages()">선택 삽입</button></div><button type="button" class="btn sub" onclick="closeRecentNewsImages()">닫기</button></div>${cards ? `<div class="recent-photo-grid">${cards}</div>` : '<div class="recent-gallery-empty">이 폴더에는 아직 사진이 없습니다.</div>'}`;
+  updateRecentNewsSelectionTools();
+}
+function updateRecentNewsSelectionTools(){
+  const total=recentNewsCurrentItems.length;
+  const selected=recentNewsSelectedIndexes.size;
+  const allSelected=total>0 && selected===total;
+  const selectBtn=q('recentSelectAllBtn');
+  const insertBtn=q('recentInsertSelectedBtn');
+  if(selectBtn) selectBtn.textContent=allSelected ? '전체 해제' : '전체 선택';
+  if(insertBtn) insertBtn.textContent=selected ? `선택 삽입 (${selected})` : '선택 삽입';
 }
 function toggleRecentNewsImageSelection(index){
   if(recentNewsSelectedIndexes.has(index)) recentNewsSelectedIndexes.delete(index);
   else recentNewsSelectedIndexes.add(index);
   const card=document.querySelector(`.recent-photo-card[data-recent-index="${index}"]`);
   if(card) card.classList.toggle('is-selected', recentNewsSelectedIndexes.has(index));
+  updateRecentNewsSelectionTools();
+}
+function toggleAllRecentNewsImages(){
+  const total=recentNewsCurrentItems.length;
+  const allSelected=total>0 && recentNewsSelectedIndexes.size===total;
+  recentNewsSelectedIndexes.clear();
+  if(!allSelected){
+    recentNewsCurrentItems.forEach((_,index)=>recentNewsSelectedIndexes.add(index));
+  }
+  document.querySelectorAll('.recent-photo-card[data-recent-index]').forEach(card=>{
+    const idx=Number(card.dataset.recentIndex);
+    card.classList.toggle('is-selected', recentNewsSelectedIndexes.has(idx));
+  });
+  updateRecentNewsSelectionTools();
 }
 function selectAllRecentNewsImages(){
-  recentNewsCurrentItems.forEach((_,index)=>recentNewsSelectedIndexes.add(index));
-  document.querySelectorAll('.recent-photo-card[data-recent-index]').forEach(card=>card.classList.add('is-selected'));
+  toggleAllRecentNewsImages();
 }
 function insertSelectedRecentNewsImages(){
   const selected=[...recentNewsSelectedIndexes].sort((a,b)=>a-b);
