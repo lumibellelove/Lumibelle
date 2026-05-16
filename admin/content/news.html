@@ -4456,6 +4456,61 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 .recent-gallery-loading::before{
   content:'';width:18px;height:18px;border-radius:999px;border:3px solid #ffd5e8;border-top-color:#ff78b2;animation:recentSpin .8s linear infinite;
 }
+.recent-gallery-status{
+  margin:10px 0 14px;
+  padding:12px 15px;
+  border:1px solid #f0bfd4;
+  border-radius:18px;
+  background:#fff8fc;
+  color:#9a7288;
+  font-size:13px;
+  line-height:1.65;
+  font-weight:850;
+}
+.recent-gallery-status.success{background:#fff5fb;color:#d26f9e;border-color:#f0bfd4;}
+.recent-gallery-status.warn{background:#fffaf3;color:#aa7a64;border-color:#f1d5ba;}
+.recent-gallery-status.error{background:#fff4f7;color:#c06288;border-color:#efb8d0;}
+.recent-delete-confirm{
+  margin:10px 0 16px;
+  padding:18px;
+  border:1px solid #f0bfd4;
+  border-radius:22px;
+  background:linear-gradient(180deg,#fffafd,#fff5fb);
+  box-shadow:0 10px 24px rgba(255,95,165,.10);
+}
+.recent-delete-confirm-title{
+  margin:0 0 8px;
+  color:#d26f9e;
+  font-size:17px;
+  line-height:1.35;
+  font-weight:950;
+  letter-spacing:-.025em;
+}
+.recent-delete-confirm-desc{
+  margin:0;
+  color:#8f7183;
+  font-size:13px;
+  line-height:1.75;
+  font-weight:800;
+}
+.recent-delete-confirm-actions{
+  margin-top:14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.recent-gallery-actions .btn:disabled,
+.recent-delete-confirm .btn:disabled{
+  opacity:.48;
+  cursor:not-allowed;
+  box-shadow:none;
+}
+.recent-photo-card:disabled{
+  cursor:wait;
+  opacity:.72;
+  transform:none;
+}
 @keyframes recentSpin{to{transform:rotate(360deg)}}
 @media(max-width:760px){
   .news-recent-image-modal{padding:20px;}
@@ -5573,11 +5628,16 @@ function setupEditorToolbarSelectionGuard(){
 const RECENT_NEWS_IMAGE_FOLDERS=['공지','라이브','이벤트','업데이트','기타'];
 let recentNewsImageFolder='';
 let recentNewsImageLoading=false;
+let recentNewsImageDeleting=false;
+let recentNewsGalleryMessage='';
+let recentNewsGalleryMessageType='';
 let recentNewsCurrentItems=[];
 let recentNewsSelectedIndexes=new Set();
 
 function openRecentNewsImages(folderName=''){
   recentNewsImageFolder=folderName||'';
+  recentNewsGalleryMessage='';
+  recentNewsGalleryMessageType='';
   recentNewsSelectedIndexes.clear();
   const modal=q('newsRecentImageModal');
   if(modal) modal.hidden=false;
@@ -5586,6 +5646,9 @@ function openRecentNewsImages(folderName=''){
 function closeRecentNewsImages(){
   const modal=q('newsRecentImageModal');
   if(modal) modal.hidden=true;
+  recentNewsImageDeleting=false;
+  recentNewsGalleryMessage='';
+  recentNewsGalleryMessageType='';
   recentNewsSelectedIndexes.clear();
 }
 async function loadRecentNewsImages(folderName=''){
@@ -5617,6 +5680,47 @@ function normalizeRecentNewsImageItem(item){
     fileId:item.fileId||''
   };
 }
+function renderRecentGalleryMessage(){
+  if(!recentNewsGalleryMessage)return '<div id="recentGalleryMessage" class="recent-gallery-status" hidden></div>';
+  const type=recentNewsGalleryMessageType ? ` ${htmlEscape(recentNewsGalleryMessageType)}` : '';
+  return `<div id="recentGalleryMessage" class="recent-gallery-status${type}">${htmlEscape(recentNewsGalleryMessage)}</div>`;
+}
+function renderRecentDeleteConfirm(){
+  return `<div id="recentDeleteConfirm" class="recent-delete-confirm" hidden>
+    <p class="recent-delete-confirm-title" id="recentDeleteConfirmTitle">선택한 사진을 삭제할까요?</p>
+    <p class="recent-delete-confirm-desc">이미 공지에 사용 중인 사진이면 공홈 이미지가 보이지 않을 수 있어요.<br>삭제한 파일은 Google Drive 휴지통에서 복구할 수 있습니다.</p>
+    <div class="recent-delete-confirm-actions">
+      <button type="button" class="btn danger" id="recentDeleteConfirmBtn" onclick="confirmRecentNewsImageDelete()">삭제하기</button>
+      <button type="button" class="btn sub" id="recentDeleteCancelBtn" onclick="hideRecentDeleteConfirm()">취소</button>
+    </div>
+  </div>`;
+}
+function setRecentGalleryStatus(message,type=''){
+  recentNewsGalleryMessage=message||'';
+  recentNewsGalleryMessageType=type||'';
+  const el=q('recentGalleryMessage');
+  if(!el)return;
+  if(!recentNewsGalleryMessage){
+    el.hidden=true;
+    el.textContent='';
+    el.className='recent-gallery-status';
+    return;
+  }
+  el.hidden=false;
+  el.className=`recent-gallery-status${type?' '+type:''}`;
+  el.textContent=recentNewsGalleryMessage;
+}
+function hideRecentDeleteConfirm(){
+  const box=q('recentDeleteConfirm');
+  if(box) box.hidden=true;
+}
+function showRecentDeleteConfirm(count){
+  setRecentGalleryStatus('', '');
+  const box=q('recentDeleteConfirm');
+  const title=q('recentDeleteConfirmTitle');
+  if(title) title.textContent=`선택한 사진 ${count}장을 삭제할까요?`;
+  if(box) box.hidden=false;
+}
 function renderRecentNewsImages(items, folderName=''){
   const body=q('recentImageModalBody');
   if(!body)return;
@@ -5625,18 +5729,18 @@ function renderRecentNewsImages(items, folderName=''){
   const cards=recentNewsCurrentItems.map((item,index)=>{
     const img=htmlEscape(item.thumbnailUrl||'');
     const name=htmlEscape(item.name||'news image');
-    return `<button type="button" class="recent-photo-card" data-recent-index="${index}" title="${name}" onclick="toggleRecentNewsImageSelection(${index})"><span class="recent-select-pill">선택</span><img src="${img}" alt="${name}" loading="lazy"><span class="recent-photo-name">${name}</span></button>`;
+    return `<button type="button" class="recent-photo-card" data-recent-index="${index}" title="${name}" onclick="toggleRecentNewsImageSelection(${index})" ${recentNewsImageDeleting?'disabled':''}><span class="recent-select-pill">선택</span><img src="${img}" alt="${name}" loading="lazy"><span class="recent-photo-name">${name}</span></button>`;
   }).join('');
   const tools = folderName
     ? `<div class="recent-gallery-tools compact"><div class="recent-gallery-actions"><button type="button" class="btn sub" onclick="openRecentNewsImages()">← 뒤로가기</button><button type="button" class="btn sub" id="recentSelectAllBtn" onclick="toggleAllRecentNewsImages()">전체 선택</button><button type="button" class="btn primary" id="recentInsertSelectedBtn" onclick="insertSelectedRecentNewsImages()">선택 삽입</button><button type="button" class="btn danger" id="recentDeleteSelectedBtn" onclick="deleteSelectedRecentNewsImages()">선택 삭제</button></div></div>`
     : `<div class="recent-gallery-tools compact"><div class="recent-gallery-actions"><button type="button" class="btn sub" id="recentSelectAllBtn" onclick="toggleAllRecentNewsImages()">전체 선택</button><button type="button" class="btn primary" id="recentInsertSelectedBtn" onclick="insertSelectedRecentNewsImages()">선택 삽입</button><button type="button" class="btn danger" id="recentDeleteSelectedBtn" onclick="deleteSelectedRecentNewsImages()">선택 삭제</button></div></div>`;
   if(!folderName){
     const folderButtons=RECENT_NEWS_IMAGE_FOLDERS.map(name=>`<button type="button" class="recent-folder-card" onclick="openRecentNewsImages('${htmlEscape(name)}')">${htmlEscape(name)}</button>`).join('');
-    body.innerHTML=`<div class="recent-photo-section-title">최근 업로드 사진</div>${tools}${cards ? `<div class="recent-photo-grid">${cards}</div>` : '<div class="recent-gallery-empty">최근 업로드된 사진이 없습니다.</div>'}<div class="recent-photo-section-title">폴더</div><div class="recent-folder-grid">${folderButtons}</div>`;
+    body.innerHTML=`<div class="recent-photo-section-title">최근 업로드 사진</div>${tools}${renderRecentGalleryMessage()}${renderRecentDeleteConfirm()}${cards ? `<div class="recent-photo-grid">${cards}</div>` : '<div class="recent-gallery-empty">최근 업로드된 사진이 없습니다.</div>'}<div class="recent-photo-section-title">폴더</div><div class="recent-folder-grid">${folderButtons}</div>`;
     updateRecentNewsSelectionTools();
     return;
   }
-  body.innerHTML=`${tools}${cards ? `<div class="recent-photo-grid">${cards}</div>` : '<div class="recent-gallery-empty">이 폴더에는 아직 사진이 없습니다.</div>'}`;
+  body.innerHTML=`${tools}${renderRecentGalleryMessage()}${renderRecentDeleteConfirm()}${cards ? `<div class="recent-photo-grid">${cards}</div>` : '<div class="recent-gallery-empty">이 폴더에는 아직 사진이 없습니다.</div>'}`;
   updateRecentNewsSelectionTools();
 }
 function updateRecentNewsSelectionTools(){
@@ -5646,11 +5750,23 @@ function updateRecentNewsSelectionTools(){
   const selectBtn=q('recentSelectAllBtn');
   const insertBtn=q('recentInsertSelectedBtn');
   const deleteBtn=q('recentDeleteSelectedBtn');
-  if(selectBtn) selectBtn.textContent=allSelected ? '전체 해제' : '전체 선택';
-  if(insertBtn) insertBtn.textContent=selected ? `선택 삽입 (${selected})` : '선택 삽입';
-  if(deleteBtn) deleteBtn.textContent=selected ? `선택 삭제 (${selected})` : '선택 삭제';
+  if(selectBtn){
+    selectBtn.textContent=allSelected ? '전체 해제' : '전체 선택';
+    selectBtn.disabled=recentNewsImageDeleting || !total;
+  }
+  if(insertBtn){
+    insertBtn.textContent=selected ? `선택 삽입 (${selected})` : '선택 삽입';
+    insertBtn.disabled=recentNewsImageDeleting || !selected;
+  }
+  if(deleteBtn){
+    deleteBtn.textContent=recentNewsImageDeleting ? '삭제 중...' : (selected ? `선택 삭제 (${selected})` : '선택 삭제');
+    deleteBtn.disabled=recentNewsImageDeleting || !selected;
+  }
 }
 function toggleRecentNewsImageSelection(index){
+  if(recentNewsImageDeleting)return;
+  hideRecentDeleteConfirm();
+  setRecentGalleryStatus('', '');
   if(recentNewsSelectedIndexes.has(index)) recentNewsSelectedIndexes.delete(index);
   else recentNewsSelectedIndexes.add(index);
   const card=document.querySelector(`.recent-photo-card[data-recent-index="${index}"]`);
@@ -5658,6 +5774,9 @@ function toggleRecentNewsImageSelection(index){
   updateRecentNewsSelectionTools();
 }
 function toggleAllRecentNewsImages(){
+  if(recentNewsImageDeleting)return;
+  hideRecentDeleteConfirm();
+  setRecentGalleryStatus('', '');
   const total=recentNewsCurrentItems.length;
   const allSelected=total>0 && recentNewsSelectedIndexes.size===total;
   recentNewsSelectedIndexes.clear();
@@ -5674,6 +5793,7 @@ function selectAllRecentNewsImages(){
   toggleAllRecentNewsImages();
 }
 function insertSelectedRecentNewsImages(){
+  if(recentNewsImageDeleting)return;
   const selected=[...recentNewsSelectedIndexes].sort((a,b)=>a-b);
   if(!selected.length){toast('선택한 사진이 없어요.');return;}
   let insertedCount=0;
@@ -5686,33 +5806,53 @@ function insertSelectedRecentNewsImages(){
   else{toast('사진 삽입에 실패했어요.');}
 }
 
-async function deleteSelectedRecentNewsImages(){
+function deleteSelectedRecentNewsImages(){
+  if(recentNewsImageDeleting)return;
   const selected=[...recentNewsSelectedIndexes].sort((a,b)=>a-b);
-  if(!selected.length){toast('선택한 사진이 없어요.');return;}
+  if(!selected.length){setRecentGalleryStatus('선택한 사진이 없어요.','warn');return;}
   const fileIds=selected.map(index=>recentNewsCurrentItems[index] && recentNewsCurrentItems[index].fileId).filter(Boolean);
-  if(!fileIds.length){toast('삭제할 사진 정보를 찾지 못했어요.');return;}
-  const ok=confirm(`선택한 사진 ${fileIds.length}장을 삭제할까요?\n\n이미 공지에 사용 중인 사진이면 공홈 이미지가 보이지 않을 수 있어요.\n삭제한 파일은 Google Drive 휴지통에서 복구할 수 있습니다.`);
-  if(!ok)return;
+  if(!fileIds.length){setRecentGalleryStatus('삭제할 사진 정보를 찾지 못했어요.','error');return;}
+  showRecentDeleteConfirm(fileIds.length);
+}
+
+async function confirmRecentNewsImageDelete(){
+  if(recentNewsImageDeleting)return;
+  const selected=[...recentNewsSelectedIndexes].sort((a,b)=>a-b);
+  const fileIds=selected.map(index=>recentNewsCurrentItems[index] && recentNewsCurrentItems[index].fileId).filter(Boolean);
+  if(!fileIds.length){setRecentGalleryStatus('삭제할 사진 정보를 찾지 못했어요.','error');return;}
+  recentNewsImageDeleting=true;
+  hideRecentDeleteConfirm();
+  updateRecentNewsSelectionTools();
+  const confirmBtn=q('recentDeleteConfirmBtn');
+  const cancelBtn=q('recentDeleteCancelBtn');
+  if(confirmBtn) confirmBtn.disabled=true;
+  if(cancelBtn) cancelBtn.disabled=true;
+  setRecentGalleryStatus(`선택한 사진 ${fileIds.length}장을 삭제하는 중...`, 'warn');
   try{
     if(!window.LumiContentSync || !LumiContentSync.deleteRecentNewsImages){
-      toast('사진 삭제 API 연결이 필요합니다.');
-      return;
+      throw new Error('사진 삭제 API 연결이 필요합니다.');
     }
-    toast('선택한 사진 삭제 중...');
     const res=await LumiContentSync.deleteRecentNewsImages({fileIds:fileIds});
     const deletedCount=Number(res.deletedCount || (res.deleted ? res.deleted.length : 0));
     const failedCount=Number(res.failedCount || (res.failed ? res.failed.length : 0));
+    recentNewsImageDeleting=false;
+    recentNewsSelectedIndexes.clear();
     if(deletedCount){
-      toast(failedCount ? `${deletedCount}장 삭제 / ${failedCount}장 실패` : `${deletedCount}장의 사진을 삭제했어요.`);
+      recentNewsGalleryMessage=failedCount ? `사진 ${deletedCount}장은 삭제했고, ${failedCount}장은 실패했어요.` : `사진 ${deletedCount}장을 삭제했어요.`;
+      recentNewsGalleryMessageType=failedCount ? 'warn' : 'success';
       await loadRecentNewsImages(recentNewsImageFolder || '');
     }else{
-      toast('삭제된 사진이 없어요.');
+      setRecentGalleryStatus(failedCount ? `삭제된 사진이 없어요. 실패 ${failedCount}장` : '삭제된 사진이 없어요.', 'warn');
+      updateRecentNewsSelectionTools();
     }
   }catch(err){
     console.error('[최근 사진 삭제 오류]', err);
-    toast('사진 삭제 실패: ' + (err && err.message ? err.message : String(err)));
+    recentNewsImageDeleting=false;
+    setRecentGalleryStatus('사진 삭제 실패: ' + (err && err.message ? err.message : String(err)), 'error');
+    updateRecentNewsSelectionTools();
   }
 }
+
 function insertRecentNewsImageByIndex(index){
   const item=recentNewsCurrentItems[index];
   if(!item)return;
