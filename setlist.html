@@ -3098,6 +3098,7 @@ nav a.current span,nav a:hover span{ color:#d88dad !important; }
         status: ['응원가이드 일부', '영상 준비중'],
         lyrics: 'Stardust Magical 가사지 준비중',
         meta: ['팀용 지원', '솔로용 지원', '오리곡 음원 준비중'],
+        performable: ['마리링', '루루'],
         audioPolicy: 'original',
         officialAudio: '',
         officialAudioEmbed: '',
@@ -3142,6 +3143,7 @@ nav a.current span,nav a:hover span{ color:#d88dad !important; }
         status: ['응원가이드 준비중'],
         lyrics: '스토리베리 러브 가사지 준비중',
         meta: ['팀용 예정', '솔로용 예정', '오리곡 음원 준비중'],
+        // 실제 무대 가능 멤버가 확정되면 예: performable: ['마리링', '루루'] 형태로 추가
         audioPolicy: 'original',
         officialAudio: '',
         officialAudioEmbed: '',
@@ -3615,6 +3617,7 @@ We are Sweetie pie! 루미베르 데스~
 같이 
 We are Sweetie pie! 루미베르 데스~`,
         meta: ['팀용 지원', '솔로용 가능', '외부곡 공식 링크'],
+        performable: ['마리링', '루루'],
         audioPolicy: 'external',
         officialAudio: '',
         officialAudioEmbed: '',
@@ -4032,6 +4035,7 @@ We are Sweetie pie! 루미베르 데스~`,
 카나데요-요
 함께 만들어가자`,
         meta: ['팀용 지원', '솔로용 지원', '외부곡 공식 링크'],
+        performable: ['마리링', '루루'],
         audioPolicy: 'external',
         officialAudio: '',
         officialAudioEmbed: '',
@@ -4629,8 +4633,33 @@ We are Sweetie pie! 루미베르 데스~`,
       }
     }
 
+    function getPerformableChip(song){
+      const performable = Array.isArray(song.performable) ? song.performable.filter(Boolean) : [];
+      return performable.length ? performable.join(' · ') : '';
+    }
+
+    function getCompactMetaItems(song){
+      const meta = Array.isArray(song.meta) ? [...song.meta] : [];
+      const teamLabels = ['팀용 지원', '팀용 가능'];
+      const soloLabels = ['솔로용 지원', '솔로용 가능'];
+      const hasTeam = meta.some(item => teamLabels.includes(item));
+      const hasSolo = meta.some(item => soloLabels.includes(item));
+      const compactMeta = meta.filter(item => !teamLabels.includes(item) && !soloLabels.includes(item));
+      if(hasTeam && hasSolo){
+        compactMeta.unshift('팀·솔로 지원');
+      }else{
+        if(hasTeam) compactMeta.unshift('팀용 지원');
+        if(hasSolo) compactMeta.unshift('솔로용 지원');
+      }
+      return compactMeta;
+    }
+
+    function getMetaItems(song){
+      return [song.subtitle, getPerformableChip(song), ...getCompactMetaItems(song)].filter(Boolean);
+    }
+
     function renderMeta(song){
-      guideMeta.innerHTML = [song.subtitle, ...song.meta].map(item => `<span class="chip">${item}</span>`).join('');
+      guideMeta.innerHTML = getMetaItems(song).map(item => `<span class="chip">${item}</span>`).join('');
     }
 
     function renderVideo(song, forceChange){
@@ -4780,7 +4809,7 @@ We are Sweetie pie! 루미베르 데스~`,
         `;
 
       const lyricText = song.lyrics || `${song.title} 가사지 준비중`;
-      const modalMetaItems = [song.subtitle, ...(song.meta || [])].filter(Boolean);
+      const modalMetaItems = getMetaItems(song);
       const modalMetaHtml = modalMetaItems.length
         ? `<div class="audio-modal-meta-row">${modalMetaItems.map(item => `<span class="audio-modal-meta-chip">${item}</span>`).join('')}</div>`
         : '';
