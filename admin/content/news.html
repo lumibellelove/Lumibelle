@@ -3774,6 +3774,95 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   }
 }
 
+
+
+/* ===== NEWS 미리보기/이미지/폰트 보정 패치 ===== */
+.font-top-line{
+  display:flex !important;
+  align-items:flex-end !important;
+  justify-content:space-between !important;
+  gap:18px !important;
+  flex-wrap:wrap !important;
+  margin-bottom:10px !important;
+}
+.font-family-block{
+  min-width:260px !important;
+}
+.first-image-display-box.first-image-display-inline{
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  display:flex !important;
+  align-items:flex-end !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+}
+.first-image-display-inline .first-image-display-title{
+  margin:0 2px 8px 0 !important;
+  font-size:15px !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+}
+.first-image-display-inline .first-image-display-options{
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  flex-wrap:wrap !important;
+}
+.first-image-display-inline .first-image-display-options label{
+  min-height:42px !important;
+  padding:0 16px !important;
+  border:1px solid #f0bfd4 !important;
+  border-radius:999px !important;
+  background:#fff !important;
+  color:#d77ca7 !important;
+  font-size:14px !important;
+  font-weight:900 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:7px !important;
+  cursor:pointer !important;
+}
+.first-image-display-inline .first-image-display-options label:has(input:checked){
+  background:#fff0f7 !important;
+  color:#ff59a5 !important;
+  border-color:#f0bfd4 !important;
+  box-shadow:0 6px 14px rgba(255,95,165,.10) !important;
+}
+.preview-title{
+  margin-bottom:20px !important;
+}
+.preview-hero{
+  margin-top:0 !important;
+  margin-bottom:22px !important;
+}
+.news-row-actions .mini-btn,
+.bulk-actions .btn,
+.news-board-tools .btn{
+  font-size:14px !important;
+  min-height:34px !important;
+  padding-left:13px !important;
+  padding-right:13px !important;
+}
+.news-status-pill{
+  font-size:14px !important;
+  min-height:32px !important;
+  padding-left:12px !important;
+  padding-right:12px !important;
+}
+.news-admin-badge{
+  font-size:12px !important;
+  min-height:28px !important;
+}
+@media(max-width:760px){
+  .font-top-line{align-items:flex-start !important;}
+  .first-image-display-box.first-image-display-inline{align-items:flex-start !important;}
+  .font-family-block{width:100% !important;min-width:0 !important;}
+}
+
 </style>
 </head>
 <body>
@@ -3887,16 +3976,28 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
           </div>
 
           <div class="editor-toolbar font-toolbox" aria-label="본문 편집 도구">
-            <div class="font-panel-title">글꼴</div>
-            <div class="font-family-row">
-              <select id="fontNameSelect" onchange="formatNews('fontName', this.value)" aria-label="글씨체">
-                <option value="">기본서체</option>
-                <option value="SUIT">SUIT</option>
-                <option value="Noto Sans KR">Noto Sans KR</option>
-                <option value="Nanum Gothic">나눔고딕</option>
-                <option value="Nanum Myeongjo">나눔명조</option>
-                <option value="serif">Serif</option>
-              </select>
+            <div class="font-top-line">
+              <div class="font-family-block">
+                <div class="font-panel-title">글꼴</div>
+                <div class="font-family-row">
+                  <select id="fontNameSelect" onchange="formatNews('fontName', this.value)" aria-label="글씨체">
+                    <option value="">기본서체</option>
+                    <option value="SUIT">SUIT</option>
+                    <option value="Noto Sans KR">Noto Sans KR</option>
+                    <option value="Nanum Gothic">나눔고딕</option>
+                    <option value="Nanum Myeongjo">나눔명조</option>
+                    <option value="serif">Serif</option>
+                  </select>
+                </div>
+              </div>
+              <div class="first-image-display-box first-image-display-inline">
+                <div class="first-image-display-title">첫 이미지 표시 방식</div>
+                <div class="first-image-display-options">
+                  <label><input type="radio" name="newsImageLayout" value="auto" checked> 자동</label>
+                  <label><input type="radio" name="newsImageLayout" value="wide"> 가로형</label>
+                  <label><input type="radio" name="newsImageLayout" value="portrait"> 세로형</label>
+                </div>
+              </div>
             </div>
             <div class="font-control-row">
               <div class="font-size-stepper" aria-label="글씨 크기">
@@ -3943,14 +4044,6 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
             <button type="button" class="btn sub" onclick="insertPlainLine()">구분선 넣기</button>
           </div>
 
-          <div class="first-image-display-box">
-            <div class="first-image-display-title">첫 이미지 표시 방식</div>
-            <div class="first-image-display-options">
-              <label><input type="radio" name="newsImageLayout" value="auto" checked> 자동</label>
-              <label><input type="radio" name="newsImageLayout" value="wide"> 가로형</label>
-              <label><input type="radio" name="newsImageLayout" value="portrait"> 세로형</label>
-            </div>
-          </div>
 
           <input type="file" id="newsImageFileInput" accept="image/*" hidden>
 
