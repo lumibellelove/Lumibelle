@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lumibelle | Setlist</title>
+  <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -67,124 +68,7 @@ button{font:inherit}
 .wrap{width:min(var(--wrap),calc(100% - 28px));margin:0 auto}
 .reveal{opacity:1;transform:none}
 
-/* 2. Home Header */
-.top-lang-bar{
-  width:100%;
-  max-width:var(--wrap);
-  margin:16px auto 0;
-  display:flex;
-  justify-content:flex-end;
-  padding:0 34px 0 18px;
-  box-sizing:border-box;
-}
-.lang-switch{display:flex;align-items:center;gap:10px;flex:0 0 auto;padding-right:2px}
-.lang-switch a{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-width:42px;
-  height:36px;
-  padding:0 10px;
-  border-radius:999px;
-  background:#fff;
-  border:1px solid #f0bfd4;
-  color:#d27ca8;
-  font-size:12px;
-  font-weight:900;
-  box-shadow:0 4px 10px rgba(255,95,165,.08);
-}
-.lang-switch a:hover,
-.lang-switch a.active{background:#fff0f7;color:var(--pink-deep)}
-
-header{
-  width:100%;
-  background:transparent;
-  border:0;
-  box-shadow:none;
-}
-.header-box{
-  margin:18px auto 14px;
-  padding:20px 24px;
-  min-height:150px;
-  display:flex;
-  align-items:center;
-  gap:24px;
-  border:1px solid var(--line);
-  border-radius:24px;
-  background:linear-gradient(180deg,rgba(255,252,254,.97),rgba(255,246,251,.95));
-  box-shadow:var(--shadow-soft);
-}
-.logo{flex:0 0 auto;display:flex;align-items:center}
-.logo img{height:120px;width:auto}
-nav{
-  flex:1;
-  display:grid;
-  grid-template-columns:repeat(8,minmax(0,1fr));
-  gap:18px;
-  text-align:center;
-  align-items:center;
-  margin:0 20px;
-}
-nav a{
-  position:relative;
-  width:100%;
-  min-width:0;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  padding:10px 6px;
-  border-radius:22px;
-  overflow:visible;
-  -webkit-tap-highlight-color:transparent;
-}
-nav a::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:18px;
-  opacity:0;
-  background:linear-gradient(90deg,
-    rgba(255,217,232,0) 0%,
-    rgba(255,217,232,.14) 16%,
-    rgba(255,192,215,.16) 36%,
-    rgba(255,192,215,.20) 50%,
-    rgba(255,192,215,.16) 64%,
-    rgba(255,217,232,.14) 84%,
-    rgba(255,217,232,0) 100%);
-  transition:opacity .18s ease;
-  pointer-events:none;
-  z-index:0;
-}
-nav a:hover::before,
-nav a.current::before{opacity:1}
-nav a b,
-nav a span{
-  position:relative;
-  z-index:1;
-  display:block;
-  width:100%;
-  text-align:center;
-  white-space:nowrap;
-}
-nav a b{
-  color:#d97ca9;
-  font-size:1.2em;
-  line-height:1.15;
-  font-weight:800;
-  letter-spacing:-.03em;
-}
-nav a span{
-  margin-top:6px;
-  color:#c697b1;
-  font-size:.94em;
-  line-height:1.2;
-  font-weight:700;
-}
-nav a:hover b,
-nav a.current b{color:var(--pink-deep)}
-nav a:hover span,
-nav a.current span{color:#d88dad}
+/* 2. Home Header — shared header block is placed at the end of this style. */
 
 /* 3. Page Sections */
 .setlist-page{flex:1;padding:10px 0 36px}
@@ -2028,108 +1912,109 @@ section[aria-label="SETLIST SONGS"]{
   box-shadow:none !important;
 }
 
-
-/* Patch: 최종본 기반 헤더 미세조정
-   기준: 응원가이드_최종본_LIVEGUIDE박스제거.html
-   목적: style.css 이식 없이 기존 SETLIST 헤더를 공홈 헤더 감각에 가깝게 안정화
-   변경 범위: header / top-lang-bar / lang-switch / nav 관련만
-   금지: SETLIST hero, LIVE GUIDE 내용, SETLIST SONGS, 필터, 곡 카드, 슬라이더, active 효과 수정 */
-.top-lang-bar,
-.header-box,
-nav,
+/* 2. Home Header — news/member/schedule 기준 통일 */
+.top-lang-bar{
+  width:100%;
+  max-width:1260px;
+  margin:16px auto 0;
+  display:flex;
+  justify-content:flex-end;
+  padding:0 34px 0 18px;
+  box-sizing:border-box;
+}
 .lang-switch{
-  overflow:visible !important;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex:0 0 auto;
+  padding-right:2px;
 }
-
-.lang-switch a,
-.lang-switch a:hover,
-.lang-switch a.active,
-.lang-switch a:focus,
-.lang-switch a:active,
-nav a,
-nav a:hover,
-nav a.current,
-nav a:focus,
-nav a:focus-visible,
-nav a:active{
-  transform:none !important;
-  translate:none !important;
-  scale:1 !important;
-  top:auto !important;
-  bottom:auto !important;
-  margin-top:0 !important;
-  margin-bottom:0 !important;
-  box-shadow:none !important;
-}
-
 .lang-switch a{
-  transition:background .18s ease, color .18s ease !important;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:42px;
+  height:36px;
+  padding:0 10px;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid #f0bfd4;
+  color:#d27ca8;
+  text-decoration:none;
+  font-size:12px;
+  font-weight:900;
+  transition:background .18s ease,color .18s ease,box-shadow .18s ease;
+  box-shadow:0 4px 10px rgba(255,95,165,.08);
 }
-
+.lang-switch a:hover,
+.lang-switch a.active{
+  background:#fff0f7;
+  color:#ff59a5;
+}
+.header-box{
+  display:flex;
+  align-items:center;
+  gap:24px;
+}
+nav{
+  display:grid;
+  grid-template-columns:repeat(8,minmax(0,1fr));
+  gap:18px;
+  text-align:center;
+  align-items:center;
+  flex:1;
+  margin:0 20px;
+}
 nav a{
-  transition:color .18s ease, background .18s ease !important;
-}
-
-nav a::before,
-nav a.current::before,
-nav a:hover::before,
-nav a:focus::before,
-nav a:focus-visible::before{
-  top:0 !important;
-  bottom:0 !important;
-  left:0 !important;
-  right:0 !important;
-  border-radius:18px !important;
-  opacity:0;
-  transition:opacity .18s ease !important;
-  box-shadow:none !important;
+  position:relative;
+  width:100%;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  border-radius:22px;
+  overflow:visible;
   transform:none !important;
+  -webkit-tap-highlight-color:transparent;
 }
-
-nav a.current::before,
-nav a:hover::before,
-nav a:focus::before,
-nav a:focus-visible::before{
-  opacity:1 !important;
-}
-
-nav a:focus::after,
-nav a:active::after{
-  display:none !important;
-  animation:none !important;
-}
-
-nav a b{
-  font-family:"SUIT","Noto Sans KR",sans-serif !important;
-  font-size:1.2em !important;
-  font-weight:700 !important;
-  letter-spacing:-0.03em !important;
-  color:#d97ca9 !important;
-}
-
+nav a b,
 nav a span{
-  font-family:"SUIT","Noto Sans KR",sans-serif !important;
-  margin-top:6px !important;
-  font-size:.94em !important;
-  font-weight:600 !important;
-  letter-spacing:-0.01em !important;
-  color:#c697b1 !important;
+  display:block;
+  width:100%;
+  text-align:center;
+  white-space:nowrap;
+  position:relative;
+  z-index:1;
 }
-
-nav a.current b,
-nav a:hover b{
-  color:#ff59a5 !important;
+nav a b{ font-size:1.2em; font-weight:700; color:#d97ca9; letter-spacing:-0.03em; }
+nav a span{ margin-top:6px; font-size:.94em; color:#c697b1; font-weight:600; }
+nav a.current,nav a:hover,nav a:focus,nav a:focus-visible,nav a:active{
+  background:transparent !important;box-shadow:none !important;outline:none !important;transform:none !important;
 }
-
-nav a.current span,
-nav a:hover span{
-  color:#d88dad !important;
+nav a.current::before,nav a:hover::before,nav a:focus::before,nav a:focus-visible::before{
+  content:"";position:absolute;top:0;bottom:0;left:0;right:0;border-radius:18px;
+  background:linear-gradient(90deg,rgba(255,217,232,0) 0%,rgba(255,217,232,.18) 16%,rgba(255,192,215,.20) 36%,rgba(255,192,215,.24) 50%,rgba(255,192,215,.20) 64%,rgba(255,217,232,.18) 84%,rgba(255,217,232,0) 100%);
+  z-index:0;pointer-events:none;
 }
-
+nav a.current b,nav a:hover b{ color:#ff59a5 !important; }
+nav a.current span,nav a:hover span{ color:#d88dad !important; }
+.top-lang-bar,.header-box,nav,.lang-switch{ overflow:visible !important; }
+.lang-switch a,nav a,nav a:hover,nav a.current,nav a:focus,nav a:focus-visible,nav a:active{
+  transform:none !important;translate:none !important;scale:1 !important;
+}
+@media (max-width:1180px){ nav{ grid-template-columns:repeat(4,1fr); gap:16px; } }
+@media (max-width:980px){
+  .header-box{ flex-wrap:wrap; justify-content:center; }
+  nav{ grid-template-columns:repeat(4,1fr); width:100%; margin:0; }
+  .top-lang-bar{ justify-content:center; margin-top:14px; }
+}
 @media (max-width:780px){
-  nav a b{font-size:1.12em !important;}
-  nav a span{font-size:.9em !important;}
+  nav{ grid-template-columns:repeat(2,1fr); gap:12px; margin:0; }
+  nav a b{ font-size:1.12em !important; }
+  nav a span{ font-size:.9em !important; }
 }
+
 </style>
 
 </head>
