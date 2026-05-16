@@ -4758,11 +4758,6 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 .news-detail-content b,.news-detail-content strong{
   font-weight:900 !important;
 }
-.preview-body span[style*="font-weight"],
-.preview-article span[style*="font-weight"],
-.news-detail-content span[style*="font-weight"]{
-  font-weight:inherit;
-}
 
 
 /* ===== NEWS 굵기 표시 전용 재보정 ===== */
@@ -4780,12 +4775,56 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 .news-detail-content [data-lumi-bold="1"]{
   font-weight:900 !important;
 }
-.preview-body span[style*="font-weight"],
-.preview-article span[style*="font-weight"],
-.news-detail-content span[style*="font-weight"]{
+
+
+
+/* ===== NEWS 굵기 정상화: 기본은 보통, B 적용분만 굵게 ===== */
+.news-body-editor,
+.preview-body,
+.preview-article,
+.news-detail-content{
+  font-weight:500 !important;
+}
+.news-body-editor b,
+.news-body-editor strong,
+.news-body-editor [data-lumi-bold="1"],
+.preview-body b,
+.preview-body strong,
+.preview-body [data-lumi-bold="1"],
+.preview-article b,
+.preview-article strong,
+.preview-article [data-lumi-bold="1"],
+.news-detail-content b,
+.news-detail-content strong,
+.news-detail-content [data-lumi-bold="1"]{
   font-weight:900 !important;
 }
-
+.news-body-editor span[style*="font-weight: normal"],
+.news-body-editor span[style*="font-weight:normal"],
+.news-body-editor span[style*="font-weight: 400"],
+.news-body-editor span[style*="font-weight:400"],
+.news-body-editor span[style*="font-weight: 500"],
+.news-body-editor span[style*="font-weight:500"],
+.preview-body span[style*="font-weight: normal"],
+.preview-body span[style*="font-weight:normal"],
+.preview-body span[style*="font-weight: 400"],
+.preview-body span[style*="font-weight:400"],
+.preview-body span[style*="font-weight: 500"],
+.preview-body span[style*="font-weight:500"],
+.preview-article span[style*="font-weight: normal"],
+.preview-article span[style*="font-weight:normal"],
+.preview-article span[style*="font-weight: 400"],
+.preview-article span[style*="font-weight:400"],
+.preview-article span[style*="font-weight: 500"],
+.preview-article span[style*="font-weight:500"],
+.news-detail-content span[style*="font-weight: normal"],
+.news-detail-content span[style*="font-weight:normal"],
+.news-detail-content span[style*="font-weight: 400"],
+.news-detail-content span[style*="font-weight:400"],
+.news-detail-content span[style*="font-weight: 500"],
+.news-detail-content span[style*="font-weight:500"]{
+  font-weight:500 !important;
+}
 </style>
 </head>
 <body>
@@ -5398,21 +5437,13 @@ function applyNewsBoldStrong(){
   strong.style.fontWeight='900';
   try{
     const frag=liveRange.extractContents();
-    frag.querySelectorAll?.('b,strong,[data-lumi-bold]').forEach(el=>{
-      if(el.nodeType===1){
-        el.style.fontWeight='';
-        el.removeAttribute('data-lumi-bold');
-        if(el.tagName && (el.tagName.toLowerCase()==='b' || el.tagName.toLowerCase()==='strong')){
-          const span=document.createElement('span');
-          span.innerHTML=el.innerHTML;
-          el.replaceWith(span);
-        }
-      }
-    });
     strong.appendChild(frag);
     liveRange.insertNode(strong);
+    const after=document.createTextNode('');
+    strong.parentNode.insertBefore(after,strong.nextSibling);
     const nextRange=document.createRange();
-    nextRange.selectNodeContents(strong);
+    nextRange.setStartAfter(strong);
+    nextRange.collapse(true);
     sel.removeAllRanges();
     sel.addRange(nextRange);
     savedNewsRange=nextRange.cloneRange();
@@ -5429,11 +5460,17 @@ function normalizeNewsBoldMarks(){
     el.setAttribute('data-lumi-bold','1');
     el.style.fontWeight='900';
   });
+  editor.querySelectorAll('[data-lumi-bold="1"]').forEach(el=>{
+    el.style.fontWeight='900';
+  });
   editor.querySelectorAll('span[style*="font-weight"]').forEach(el=>{
-    const fw=(el.style.fontWeight||'').toLowerCase();
-    if(fw==='bold' || parseInt(fw,10)>=700){
+    const fw=(el.style.fontWeight||'').toLowerCase().trim();
+    const num=parseInt(fw,10);
+    if(fw==='bold' || (!Number.isNaN(num) && num>=700)){
       el.setAttribute('data-lumi-bold','1');
       el.style.fontWeight='900';
+    }else if(fw==='normal' || (!Number.isNaN(num) && num<700)){
+      el.removeAttribute('data-lumi-bold');
     }
   });
 }
