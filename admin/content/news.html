@@ -5347,7 +5347,7 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 }
 .photo-editor-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0 18px;}
 .photo-editor-toolbar .btn,.photo-editor-panel .btn{min-height:40px;border-radius:999px;font-weight:900;}
-.photo-editor-status{margin:0 0 14px;padding:11px 14px;border:1px solid #f0bfd4;border-radius:18px;background:#fff8fc;color:#9f758d;font-size:13px;font-weight:850;line-height:1.55;}
+.photo-editor-status{margin:0 0 14px;padding:11px 14px;border:1px solid #f0bfd4;border-radius:18px;background:#fff8fc;color:#9f758d;font-size:15px;font-weight:850;line-height:1.55;word-break:keep-all;}
 .photo-editor-layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:18px;align-items:start;}
 .photo-editor-workarea{min-height:430px;border:1px solid #f5cfe0;border-radius:24px;background:#fff;display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto;}
 .photo-editor-stage{position:relative;display:inline-block;max-width:100%;min-width:280px;min-height:280px;border:1px dashed #f1c4d8;border-radius:20px;background:#fff8fc;overflow:hidden;}
@@ -5360,15 +5360,16 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 .photo-editor-resize-handle{position:absolute;right:-9px;bottom:-9px;width:18px;height:18px;border-radius:50%;background:#ff59a5;border:3px solid #fff;box-shadow:0 4px 10px rgba(255,89,165,.25);cursor:nwse-resize;}
 .photo-editor-side{display:flex;flex-direction:column;gap:12px;}
 .photo-editor-panel{border:1px solid #f5cfe0;border-radius:22px;background:#fff8fc;padding:14px;}
-.photo-editor-panel h3{margin:0 0 10px;color:#d77ca7;font-size:15px;font-weight:950;}
+.photo-editor-panel h3{margin:0 0 10px;color:#d77ca7;font-size:17px;font-weight:950;}
 .photo-editor-pack-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
-.photo-editor-pack-tabs button{min-height:34px;padding:0 12px;border:1px solid #f0bfd4;border-radius:999px;background:#fff;color:#d77ca7;font-size:12px;font-weight:900;cursor:pointer;}
+.photo-editor-pack-tabs button{min-height:36px;padding:0 13px;border:1px solid #f0bfd4;border-radius:999px;background:#fff;color:#d77ca7;font-size:15px;font-weight:900;cursor:pointer;}
 .photo-editor-pack-tabs button.active{background:#ff59a5;color:#fff;border-color:transparent;}
 .photo-editor-sticker-grid,.photo-editor-recent-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-height:260px;overflow:auto;padding-right:2px;}
-.photo-editor-sticker-thumb,.photo-editor-recent-thumb{min-height:74px;border:1px solid #f0bfd4;border-radius:15px;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;padding:5px;}
+.photo-editor-sticker-grid .sticker-empty,.photo-editor-recent-grid .sticker-empty{grid-column:1/-1;min-height:82px;display:flex;align-items:center;justify-content:center;text-align:center;white-space:normal;word-break:keep-all;overflow-wrap:normal;font-size:15px;font-weight:850;color:#9f758d;line-height:1.55;padding:10px;}
+.photo-editor-sticker-thumb,.photo-editor-recent-thumb{min-height:74px;border:1px solid #f0bfd4;border-radius:15px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;padding:5px;gap:4px;}
 .photo-editor-sticker-thumb:hover,.photo-editor-recent-thumb:hover{border-color:#ff8fc1;background:#fff4fa;}
 .photo-editor-sticker-thumb img,.photo-editor-recent-thumb img{max-width:100%;max-height:70px;object-fit:contain;user-select:none;-webkit-user-drag:none;}
-.photo-editor-recent-thumb img{width:100%;height:70px;object-fit:cover;border-radius:10px;}
+.photo-editor-recent-thumb img{width:100%;height:70px;object-fit:cover;border-radius:10px;}.photo-editor-thumb-name{display:block;width:100%;font-size:11px;font-weight:850;color:#9f758d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;text-align:center;}
 .photo-editor-delete-row{display:flex;gap:8px;flex-wrap:wrap;}
 .photo-editor-file-input{display:none;}
 @media(max-width:900px){.photo-editor-layout{grid-template-columns:1fr;}.photo-editor-side{order:-1}.photo-editor-sticker-grid,.photo-editor-recent-grid{grid-template-columns:repeat(4,minmax(0,1fr));max-height:180px;}.photo-editor-modal{padding:22px 18px;}}
@@ -5708,6 +5709,7 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
           <button type="button" class="btn sub" onclick="loadPhotoEditorRecentImages()">최근사진</button>
           <button type="button" class="btn sub" onclick="loadPhotoEditorStickers()">스티커</button>
           <button type="button" class="btn danger" onclick="deleteSelectedPhotoEditorSticker()">선택 삭제</button>
+          <button type="button" class="btn sub" onclick="clearPhotoEditorCanvas()">사진 지우기</button>
           <button type="button" class="btn" onclick="savePhotoEditorImage()">저장 후 본문 삽입</button>
           <button type="button" class="btn sub" onclick="closeNewsPhotoEditor()">닫기</button>
         </div>
@@ -7111,6 +7113,13 @@ function deleteSelectedPhotoEditorSticker(){
   renderPhotoEditorStickerLayer();
   setPhotoEditorStatus('선택한 스티커를 삭제했어요.');
 }
+function clearPhotoEditorCanvas(){
+  photoEditorBase={src:'',name:'',naturalWidth:0,naturalHeight:0};
+  photoEditorStickers=[];
+  photoEditorSelectedId=null;
+  renderPhotoEditorCanvas();
+  setPhotoEditorStatus('편집 중인 사진을 지웠어요. 새 사진을 불러와 주세요.');
+}
 async function loadPhotoEditorRecentImages(showToast=true){
   const grid=q('photoEditorRecentGrid');
   if(grid)grid.innerHTML='<div class="sticker-empty">최근 사진을 불러오는 중...</div>';
@@ -7120,7 +7129,7 @@ async function loadPhotoEditorRecentImages(showToast=true){
     const items=(res.items||[]).map(normalizeRecentNewsImageItem);
     photoEditorRecentLoaded=true;
     if(!items.length){if(grid)grid.innerHTML='<div class="sticker-empty">최근 사진이 없어요.</div>';return;}
-    if(grid)grid.innerHTML=items.map((it,idx)=>`<button type="button" class="photo-editor-recent-thumb" title="${htmlEscape(it.name||'image')}" onclick="setPhotoEditorBaseImage('${htmlEscape(it.imageUrl)}','${htmlEscape(it.name||'recent image')}')"><img src="${htmlEscape(it.thumbnailUrl||it.imageUrl)}" alt="${htmlEscape(it.name||'image')}" draggable="false"></button>`).join('');
+    if(grid)grid.innerHTML=items.map((it,idx)=>`<button type="button" class="photo-editor-recent-thumb" title="${htmlEscape(it.name||'image')}" onclick="setPhotoEditorBaseImage('${htmlEscape(it.imageUrl)}','${htmlEscape(it.name||'recent image')}')"><img src="${htmlEscape(it.thumbnailUrl||it.imageUrl)}" alt="${htmlEscape(it.name||'image')}" draggable="false"><span class="photo-editor-thumb-name">${htmlEscape(it.name||'image')}</span></button>`).join('');
     if(showToast)setPhotoEditorStatus('최근 사진을 불러왔어요. 편집할 사진을 선택해 주세요.');
   }catch(err){
     console.error('[사진 편집기 최근사진 오류]',err);
