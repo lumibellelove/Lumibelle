@@ -5486,28 +5486,64 @@ function setupEditorToolbarSelectionGuard(){
   }
 }
 
-function insertNewsImageHtmlToEditor(imgHtml, imageUrl, imageAlt){
+function insertNewsImageHtmlToEditor(imageUrl, imageAlt, driveFileId){
   const editor=q('newsBodyEditor');
-  if(!editor) return;
+  if(!editor) return false;
+
+  const rawUrl=String(imageUrl||'').trim();
+  if(!rawUrl) return false;
+
   editor.focus();
+
+  const img=document.createElement('img');
+  img.className='inserted-news-image';
+  img.src=rawUrl;
+  img.alt=imageAlt || 'news image';
+  if(driveFileId) img.setAttribute('data-drive-file-id', driveFileId);
+  img.removeAttribute('width');
+  img.removeAttribute('height');
+  img.removeAttribute('style');
+
+  const imageP=document.createElement('p');
+  imageP.appendChild(img);
+
+  const blankP=document.createElement('p');
+  blankP.innerHTML='<br>';
 
   let inserted=false;
   try{
     restoreNewsSelection();
-    inserted = document.execCommand('insertHTML', false, imgHtml);
+    const sel=window.getSelection();
+    if(sel && sel.rangeCount){
+      const range=sel.getRangeAt(0);
+      if(nodeInsideNewsEditor(range.commonAncestorContainer)){
+        range.deleteContents();
+        range.insertNode(blankP);
+        range.insertNode(imageP);
+        range.setStartAfter(blankP);
+        range.setEndAfter(blankP);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        inserted=true;
+      }
+    }
   }catch(err){
     inserted=false;
   }
 
-  // selection이 날아갔거나 execCommand가 실패하면 본문 맨 아래에 직접 삽입
-  if(!inserted || !editor.querySelector('img.inserted-news-image[src="'+cssEscapeForQuery(imageUrl)+'"]')){
-    editor.insertAdjacentHTML('beforeend', imgHtml);
+  // 커서 삽입이 실패하면 본문 맨 아래에 무조건 직접 붙인다.
+  if(!inserted){
+    editor.appendChild(imageP);
+    editor.appendChild(blankP);
   }
 
   if(q('newsBody')) q('newsBody').value=editor.innerHTML;
-  if(q('newsBodyImage')) q('newsBodyImage').value=imageUrl || '';
+  if(q('newsBodyImage')) q('newsBodyImage').value=rawUrl;
   if(q('newsBodyAlt')) q('newsBodyAlt').value=imageAlt || '';
+
+  editor.dispatchEvent(new Event('input',{bubbles:true}));
   saveNewsSelection();
+  return true;
 }
 
 function cssEscapeForQuery(value){
@@ -5538,10 +5574,9 @@ function setupNewsImageInput(){
       });
       const imageUrl = uploaded.imageUrl || uploaded.thumbnailUrl || uploaded.url;
       if(!uploaded || !imageUrl) throw new Error('missing uploaded url');
-      const safeName=htmlEscape(file.name||'news image');
-      const safeUrl=htmlEscape(imageUrl);
-      const imgHtml=`<p><img class="inserted-news-image" src="${safeUrl}" alt="${safeName}" data-drive-file-id="${htmlEscape(uploaded.fileId||'')}"></p><p><br></p>`;
-      insertNewsImageHtmlToEditor(imgHtml, safeUrl, safeName);
+      const safeName=file.name||'news image';
+      const ok=insertNewsImageHtmlToEditor(imageUrl, safeName, uploaded.fileId||'');
+      if(!ok) throw new Error('editor image insert failed');
       toast('사진을 넣었어요.');
     }catch(err){
       console.error(err);
