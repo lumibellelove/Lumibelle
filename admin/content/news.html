@@ -365,6 +365,24 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   border-right:1px solid #f2d8e7;
   background:#fff;
 }
+
+.news-detail-fields-box{
+  margin:0 0 14px;
+  padding:18px;
+  border:1px solid #f3d1e2;
+  border-radius:22px;
+  background:#fff8fc;
+}
+.detail-fields-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:14px;color:#8f7183;}
+.detail-fields-head strong{font-size:16px;color:#d77ca7;font-weight:900;}
+.detail-fields-head span{font-size:12px;font-weight:800;color:#b78aa2;}
+.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;margin-top:10px;}
+.detail-grid.button-grid{margin-top:12px;padding-top:12px;border-top:1px dashed #f0c6dc;}
+.detail-field{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:900;color:#d77ca7;}
+.detail-field.full{margin-top:10px;}
+.detail-field input{width:100%;border:1px solid #f2bfd6;border-radius:14px;background:#fff;padding:12px 14px;color:#8f7183;font-weight:800;outline:none;}
+.detail-field input:focus{border-color:#ff8ac2;box-shadow:0 0 0 3px rgba(255,138,194,.16);}
+@media(max-width:760px){.detail-grid{grid-template-columns:1fr}.news-detail-fields-box{padding:14px}}
 .news-body-editor{
   min-height:430px;
   padding:28px;
@@ -3794,7 +3812,7 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
         <div class="write-top-actions">
           <button type="button" class="btn sub" onclick="saveNewsDraft()">임시등록</button>
           <button type="button" class="btn sub draft-open-btn" onclick="openDraftModal()">임시글 <span id="draftCountBadge">0</span></button>
-          <button type="button" class="btn" onclick="saveNews()">등록</button>
+          <button type="button" class="btn" onclick="saveNews()">글 등록</button>
         </div>
       </div>
 
@@ -3873,12 +3891,38 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
           </div>
 
           <div class="editor-template-toolbar">
-            <button type="button" class="btn sub" onclick="insertDetailTemplate()">DATE/PLACE/TIME/TICKET 양식 넣기</button>
+            <button type="button" class="btn sub" onclick="insertDetailTemplate()">DATE/PLACE/TIME/TICKET 양식 불러오기</button>
             <button type="button" class="btn sub" onclick="insertPlainLine()">구분선 넣기</button>
           </div>
 
           <input type="file" id="newsImageFileInput" accept="image/*" hidden>
-          <div id="newsBodyEditor" class="news-body-editor" contenteditable="true" data-placeholder="내용을 입력하세요."></div>
+
+          <section class="news-detail-fields-box" aria-label="NEWS 상세 양식">
+            <div class="detail-fields-head">
+              <strong>상세 양식</strong>
+              <span>라이브 공지일 때만 필요한 칸을 채워주세요. 비어 있으면 공홈 상세에서 숨겨집니다.</span>
+            </div>
+            <label class="detail-field full">대표 이미지 URL
+              <input id="newsHeroImage" placeholder="예: img/news/debut-live.webp 또는 https://...">
+            </label>
+            <label class="detail-field full">대표 이미지 설명
+              <input id="newsHeroAlt" placeholder="예: 루미벨 데뷔라이브 포스터">
+            </label>
+            <div class="detail-grid">
+              <label class="detail-field">DATE<input id="newsInfoDate" placeholder="2026.07.12 (토)"></label>
+              <label class="detail-field">PLACE<input id="newsInfoPlace" placeholder="KT&G 상상마당 라이브홀 홍대"></label>
+              <label class="detail-field">TIME<input id="newsInfoTime" placeholder="OPEN 13:50 / START 14:20"></label>
+              <label class="detail-field">TICKET<input id="newsInfoTicket" placeholder="구글폼 예약 진행"></label>
+            </div>
+            <div class="detail-grid button-grid">
+              <label class="detail-field">버튼 1 문구<input id="newsBtn1Text" placeholder="TICKET"></label>
+              <label class="detail-field">버튼 1 링크<input id="newsBtn1Link" placeholder="https://... 또는 ticket/"></label>
+              <label class="detail-field">버튼 2 문구<input id="newsBtn2Text" placeholder="BACK TO NEWS"></label>
+              <label class="detail-field">버튼 2 링크<input id="newsBtn2Link" placeholder="news.html"></label>
+            </div>
+          </section>
+
+          <div id="newsBodyEditor" class="news-body-editor" contenteditable="true" data-placeholder="본문을 입력하세요. DATE/PLACE/TIME/TICKET 양식은 위 상세 양식 칸에 따로 입력됩니다."></div>
           <textarea id="newsBody" hidden></textarea>
         </main>
 
@@ -3901,15 +3945,14 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
             <label>작성일<input id="newsDate" type="date"></label>
           </section>
 <section class="side-box side-actions">
-            <button type="button" class="btn sub" onclick="previewNews()">미리보기</button>
             <button type="button" class="btn sub" onclick="backToNewsList()">취소</button>
+            <button type="button" class="btn sub" onclick="previewNews()">미리보기</button>
+            <button type="button" class="btn" onclick="saveNews()">글 등록</button>
           </section>
 
           <div class="hidden-news-fields" hidden>
-            <input id="newsInfoDate"><input id="newsInfoPlace"><input id="newsInfoTime"><input id="newsInfoTicket">
-            <input id="newsBtn1Text"><input id="newsBtn1Link"><input id="newsBtn2Text"><input id="newsBtn2Link">
             <input id="newsBodyImage"><input id="newsBodyAlt">
-          <input id="newsHeroImage"><input id="newsHeroAlt"></div>
+          </div>
         </aside>
       </div>
     </section>
@@ -4065,7 +4108,7 @@ function defaultBadgeForCategory(cat){
   return {라이브:'LIVE',공지:'INFO',이벤트:'EVENT',업데이트:'UPDATE'}[cat] || 'INFO';
 }
 function setupNewsCategorySelect(selected='공지'){
-  const cats = currentNewsFilter==='전체' ? ['라이브','공지','이벤트','업데이트'] : [currentNewsFilter];
+  const cats = currentNewsFilter==='전체' ? ['공지','라이브','이벤트','업데이트'] : [currentNewsFilter];
   q('newsCategory').innerHTML = cats.map(c=>`<option value="${c}">${c}</option>`).join('');
   q('newsCategory').value = cats.includes(selected) ? selected : cats[0];
 }
@@ -4223,18 +4266,14 @@ function insertNewsLink(){
   document.execCommand('insertHTML',false,`<a href="${htmlEscape(url)}" target="_blank" rel="noopener">${htmlEscape(text)}</a>`);
 }
 function insertDetailTemplate(){
-  q('newsBodyEditor').focus();
-  const html=`
-    <div class="news-info-card">
-      <div class="info-row"><span class="info-label">DATE</span><span class="info-value" contenteditable="true" data-placeholder="2026.07.12 (토)">2026.07.12 (토)</span></div>
-      <div class="info-row"><span class="info-label">PLACE</span><span class="info-value" contenteditable="true" data-placeholder="장소 입력">KT&G 상상마당 라이브홀 홍대</span></div>
-      <div class="info-row"><span class="info-label">TIME</span><span class="info-value" contenteditable="true" data-placeholder="OPEN 13:50 / START 14:20">OPEN 13:50 / START 14:20</span></div>
-      <div class="info-row"><span class="info-label">TICKET</span><span class="info-value" contenteditable="true" data-placeholder="티켓 안내">구글폼 예약 진행</span></div>
-    </div>
-    <p><br></p>
-  `;
-  document.execCommand('insertHTML',false,html);
-  saveNewsSelection();
+  if(!q('newsInfoDate').value) q('newsInfoDate').value='2026.07.12 (토)';
+  if(!q('newsInfoPlace').value) q('newsInfoPlace').value='KT&G 상상마당 라이브홀 홍대';
+  if(!q('newsInfoTime').value) q('newsInfoTime').value='OPEN 13:50 / START 14:20';
+  if(!q('newsInfoTicket').value) q('newsInfoTicket').value='구글폼 예약 진행';
+  if(!q('newsBtn1Text').value) q('newsBtn1Text').value='TICKET';
+  if(!q('newsBtn2Text').value) q('newsBtn2Text').value='BACK TO NEWS';
+  if(!q('newsBtn2Link').value) q('newsBtn2Link').value='news.html';
+  toast('상세 양식 칸에 기본값을 넣었어요');
 }
 function insertPlainLine(){
   restoreNewsSelection();
