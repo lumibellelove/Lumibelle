@@ -423,6 +423,7 @@
     uploadNewsImage,
     listRecentNewsImages,
     deleteRecentNewsImages,
+    getDriveImageData,
     listNewsStickers,
     uploadNewsSticker,
     sortNews,
