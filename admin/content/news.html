@@ -5485,6 +5485,36 @@ function setupEditorToolbarSelectionGuard(){
     sizeInput.dataset.sizeReady='1';
   }
 }
+
+function insertNewsImageHtmlToEditor(imgHtml, imageUrl, imageAlt){
+  const editor=q('newsBodyEditor');
+  if(!editor) return;
+  editor.focus();
+
+  let inserted=false;
+  try{
+    restoreNewsSelection();
+    inserted = document.execCommand('insertHTML', false, imgHtml);
+  }catch(err){
+    inserted=false;
+  }
+
+  // selection이 날아갔거나 execCommand가 실패하면 본문 맨 아래에 직접 삽입
+  if(!inserted || !editor.querySelector('img.inserted-news-image[src="'+cssEscapeForQuery(imageUrl)+'"]')){
+    editor.insertAdjacentHTML('beforeend', imgHtml);
+  }
+
+  if(q('newsBody')) q('newsBody').value=editor.innerHTML;
+  if(q('newsBodyImage')) q('newsBodyImage').value=imageUrl || '';
+  if(q('newsBodyAlt')) q('newsBodyAlt').value=imageAlt || '';
+  saveNewsSelection();
+}
+
+function cssEscapeForQuery(value){
+  if(window.CSS && CSS.escape) return CSS.escape(value);
+  return String(value||'').replace(/"/g,'\"');
+}
+
 function setupNewsImageInput(){
   const input=q('newsImageFileInput');
   if(!input || input.dataset.ready)return;
@@ -5506,12 +5536,12 @@ function setupNewsImageInput(){
         mimeType: optimized.mimeType,
         data: optimized.base64
       });
-      if(!uploaded || !uploaded.url) throw new Error('missing uploaded url');
-      restoreNewsSelection();
+      const imageUrl = uploaded.imageUrl || uploaded.thumbnailUrl || uploaded.url;
+      if(!uploaded || !imageUrl) throw new Error('missing uploaded url');
       const safeName=htmlEscape(file.name||'news image');
-      const safeUrl=htmlEscape(uploaded.url);
-      document.execCommand('insertHTML',false,`<p><img class="inserted-news-image" src="${safeUrl}" alt="${safeName}" data-drive-file-id="${htmlEscape(uploaded.fileId||'')}"></p><p><br></p>`);
-      saveNewsSelection();
+      const safeUrl=htmlEscape(imageUrl);
+      const imgHtml=`<p><img class="inserted-news-image" src="${safeUrl}" alt="${safeName}" data-drive-file-id="${htmlEscape(uploaded.fileId||'')}"></p><p><br></p>`;
+      insertNewsImageHtmlToEditor(imgHtml, safeUrl, safeName);
       toast('사진을 넣었어요.');
     }catch(err){
       console.error(err);
