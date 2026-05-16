@@ -359,6 +359,42 @@
       line-height: 1.6;
     }
 
+
+
+    .video-stats {
+      margin-top: 8px;
+      color: #b688a2;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.6;
+    }
+
+    .sparkle-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 170px;
+      padding: 14px 20px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 900;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid #efc6dc;
+      background: #fff;
+      color: #c97ca8;
+      transition: transform 0.15s ease;
+    }
+
+    .sparkle-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .sparkle-btn.done {
+      background: #fff0f7;
+      color: #d77ca7;
+    }
+
     .empty-state {
       display: none;
       text-align: center;
@@ -652,6 +688,8 @@
             <select id="sortSelect" class="sort-select">
               <option value="latest">최신순</option>
               <option value="popular">인기순</option>
+              <option value="views">조회수순</option>
+              <option value="sparkle">반짝응원순</option>
             </select>
 
             <select id="eventSelect" class="event-select">
@@ -705,6 +743,8 @@
             TIKTOK에서 보기
           </a>
 
+          <button class="sparkle-btn" id="sparkleBtn" type="button">✦ 반짝응원</button>
+
           <button class="modal-btn modal-btn-secondary" id="closeModalBtn" type="button">
             닫기
           </button>
@@ -716,7 +756,7 @@
   <button class="scroll-top-btn" id="scrollTopBtn" aria-label="맨 위로 이동">↑</button>
 
   <script>
-    const videoData = [
+    let videoData = [
       {
         id: 1,
         platform: "youtube",
@@ -1019,7 +1059,120 @@
     const youtubeLink = document.getElementById("youtubeLink");
     const tiktokLink = document.getElementById("tiktokLink");
     const closeModalBtn = document.getElementById("closeModalBtn");
+    const sparkleBtn = document.getElementById("sparkleBtn");
     const scrollTopBtn = document.getElementById("scrollTopBtn");
+    const VIDEO_STORAGE_KEY = "lumibelleVideoItemsV1";
+    const VIDEO_METRIC_KEY = "lumibelleVideoMetricsV1";
+    let currentModalItem = null;
+
+    function readVideoStorage(){
+      try{
+        const items = JSON.parse(localStorage.getItem(VIDEO_STORAGE_KEY) || "[]");
+        return Array.isArray(items) ? items : [];
+      }catch(e){
+        return [];
+      }
+    }
+
+    function readMetricStorage(){
+      try{
+        const data = JSON.parse(localStorage.getItem(VIDEO_METRIC_KEY) || "{}");
+        return data && typeof data === "object" ? data : {};
+      }catch(e){
+        return {};
+      }
+    }
+
+    function writeMetricStorage(data){
+      localStorage.setItem(VIDEO_METRIC_KEY, JSON.stringify(data || {}));
+    }
+
+    function toPublicVideoItem(item, index){
+      item = item || {};
+      const platform = String(item.platform || "youtube").toLowerCase();
+      const status = String(item.status || (item.isPublic ? "공개" : "임시등록"));
+      return {
+        id: item.id || ("ADMIN-" + index),
+        platform,
+        member: item.member || "MARIRING",
+        title: item.title || "새 영상 제목",
+        date: String(item.date || "").slice(0,10) || new Date().toISOString().slice(0,10),
+        tag: item.tag || (platform === "tiktok" ? "TIKTOK" : "YOUTUBE"),
+        event: item.event || "SPECIAL",
+        category: item.category || "방송/출연",
+        views: Number(item.views || item.viewCount || 0),
+        sparkleCount: Number(item.sparkleCount || item.sparkles || 0),
+        youtubeId: item.youtubeId || "",
+        youtubeUrl: item.youtubeUrl || "",
+        tiktokUrl: item.tiktokUrl || "",
+        start: item.start ? Number(item.start) : 0,
+        end: item.end ? Number(item.end) : 0,
+        thumb: item.thumb || item.thumbnailUrl || "",
+        desc: item.desc || item.description || "",
+        featured: !!item.featured,
+        isTrending: !!item.isTrending,
+        status,
+        isPublic: status === "공개" || item.isPublic === true
+      };
+    }
+
+    function loadAdminVideosForPublic(){
+      const adminItems = readVideoStorage().filter(item => {
+        const status = String(item.status || (item.isPublic ? "공개" : "임시등록"));
+        return status === "공개" || item.isPublic === true;
+      }).map(toPublicVideoItem);
+      if(adminItems.length){
+        videoData = adminItems;
+      }
+      applyLocalMetrics();
+    }
+
+    function applyLocalMetrics(){
+      const metrics = readMetricStorage();
+      videoData.forEach(item => {
+        const key = String(item.id);
+        if(metrics[key]){
+          item.views = Number(metrics[key].views || item.views || 0);
+          item.sparkleCount = Number(metrics[key].sparkleCount || item.sparkleCount || 0);
+        }else{
+          item.sparkleCount = Number(item.sparkleCount || 0);
+        }
+      });
+    }
+
+    function metricKeyFor(item){
+      return String(item && item.id != null ? item.id : item.title);
+    }
+
+    function hasSparkledToday(item){
+      const key = "lumibelleVideoSparkleDay:" + metricKeyFor(item);
+      return localStorage.getItem(key) === new Date().toISOString().slice(0,10);
+    }
+
+    function setSparkledToday(item){
+      const key = "lumibelleVideoSparkleDay:" + metricKeyFor(item);
+      localStorage.setItem(key, new Date().toISOString().slice(0,10));
+    }
+
+    function updateMetric(item, type){
+      if(!item) return;
+      const key = metricKeyFor(item);
+      const metrics = readMetricStorage();
+      metrics[key] = metrics[key] || {views:Number(item.views||0), sparkleCount:Number(item.sparkleCount||0)};
+      if(type === "view") metrics[key].views = Number(metrics[key].views || 0) + 1;
+      if(type === "sparkle") metrics[key].sparkleCount = Number(metrics[key].sparkleCount || 0) + 1;
+      item.views = Number(metrics[key].views || 0);
+      item.sparkleCount = Number(metrics[key].sparkleCount || 0);
+      writeMetricStorage(metrics);
+    }
+
+    function refreshSparkleButton(){
+      if(!sparkleBtn || !currentModalItem) return;
+      const done = hasSparkledToday(currentModalItem);
+      sparkleBtn.textContent = done ? "✦ 오늘 반짝 완료" : "✦ 반짝응원";
+      sparkleBtn.classList.toggle("done", done);
+    }
+
 
     function buildYoutubeUrl(youtubeId) {
       return `https://www.youtube.com/watch?v=${youtubeId}`;
@@ -1090,15 +1243,18 @@
         }
 
         if (currentSort === "popular") {
-          if ((a.featured || false) !== (b.featured || false)) {
-            return (b.featured || false) - (a.featured || false);
-          }
-
-          if ((a.isTrending || false) !== (b.isTrending || false)) {
-            return (b.isTrending || false) - (a.isTrending || false);
-          }
-
+          const scoreA = Number(a.views || 0) + Number(a.sparkleCount || 0) * 5 + (a.featured ? 50 : 0);
+          const scoreB = Number(b.views || 0) + Number(b.sparkleCount || 0) * 5 + (b.featured ? 50 : 0);
+          if(scoreA !== scoreB) return scoreB - scoreA;
           return new Date(b.date) - new Date(a.date);
+        }
+
+        if (currentSort === "views") {
+          return Number(b.views || 0) - Number(a.views || 0);
+        }
+
+        if (currentSort === "sparkle") {
+          return Number(b.sparkleCount || 0) - Number(a.sparkleCount || 0);
         }
 
         return 0;
@@ -1160,11 +1316,14 @@
           <div class="video-title">${item.title}</div>
           <div class="video-subinfo">${item.member} · ${item.event}</div>
           <div class="video-subinfo">${item.category}</div>
+          <div class="video-stats">조회수 ${Number(item.views || 0)}회 · 반짝응원 ${Number(item.sparkleCount || 0)}개</div>
         </div>
       `;
 
       if (item.platform === "tiktok") {
         article.addEventListener("click", () => {
+          updateMetric(item, "view");
+          renderVideos();
           if (item.tiktokUrl) {
             window.open(item.tiktokUrl, "_blank", "noopener,noreferrer");
           }
@@ -1227,6 +1386,8 @@
 
     function openModal(item) {
       if (!item.youtubeId) return;
+      currentModalItem = item;
+      updateMetric(item, "view");
 
       const youtubeUrl = buildYoutubeUrl(item.youtubeId);
       let embedUrl = buildEmbedUrl(item.youtubeId);
@@ -1236,7 +1397,7 @@
       }
 
       modalTitle.textContent = item.title;
-      modalMeta.textContent = `${formatDate(item.date)} · ${item.tag} · ${item.member} · ${item.category}`;
+      modalMeta.textContent = `${formatDate(item.date)} · ${item.tag} · ${item.member} · ${item.category} · 조회수 ${Number(item.views || 0)}회 · 반짝응원 ${Number(item.sparkleCount || 0)}개`;
       youtubeLink.href = youtubeUrl;
       youtubeLink.style.display = "inline-flex";
 
@@ -1257,8 +1418,10 @@
         </iframe>
       `;
 
+      refreshSparkleButton();
       videoModal.classList.add("show");
       document.body.style.overflow = "hidden";
+      renderVideos();
     }
 
     function closeModal() {
@@ -1322,6 +1485,19 @@
       renderVideos();
     });
 
+    sparkleBtn.addEventListener("click", () => {
+      if(!currentModalItem) return;
+      if(hasSparkledToday(currentModalItem)){
+        refreshSparkleButton();
+        return;
+      }
+      updateMetric(currentModalItem, "sparkle");
+      setSparkledToday(currentModalItem);
+      modalMeta.textContent = `${formatDate(currentModalItem.date)} · ${currentModalItem.tag} · ${currentModalItem.member} · ${currentModalItem.category} · 조회수 ${Number(currentModalItem.views || 0)}회 · 반짝응원 ${Number(currentModalItem.sparkleCount || 0)}개`;
+      refreshSparkleButton();
+      renderVideos();
+    });
+
     closeModalBtn.addEventListener("click", closeModal);
 
     videoModal.addEventListener("click", (e) => {
@@ -1350,8 +1526,16 @@
 
     window.onload = () => {
       window.scrollTo(0, 0);
+      loadAdminVideosForPublic();
       renderVideos();
     };
+
+    window.addEventListener("storage", (e) => {
+      if(e.key === VIDEO_STORAGE_KEY || e.key === VIDEO_METRIC_KEY){
+        loadAdminVideosForPublic();
+        renderVideos();
+      }
+    });
   </script>
 </body>
 </html>
