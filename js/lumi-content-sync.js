@@ -250,6 +250,11 @@
   }
 
 
+  function getDriveImageData(payload){
+    return fetchPost('getDriveImageData', payload || {});
+  }
+
+
   function listNewsStickers(payload){
     return fetchPost('listNewsStickers', payload || {});
   }
