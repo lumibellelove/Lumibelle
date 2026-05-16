@@ -284,6 +284,40 @@
     {name:'샘플 썸네일 03',url:'https://placehold.co/640x360/ffd2e5/ef67a8?text=VIDEO'},
     {name:'틱톡 fallback 썸네일',url:'https://placehold.co/640x360/ffd2e5/ef67a8?text=TIKTOK'}
   ];
+  function clampNum(value,min,max,fallback){
+    const n=Number(value);
+    if(!Number.isFinite(n)) return fallback;
+    return Math.max(min,Math.min(max,n));
+  }
+  function safeThumbCrop(raw){
+    raw=raw||{};
+    return {
+      x:clampNum(raw.x,0,100,50),
+      y:clampNum(raw.y,0,100,50),
+      scale:clampNum(raw.scale,1,2.5,1)
+    };
+  }
+  function thumbStyle(v){
+    const crop=safeThumbCrop({x:v&&v.thumbX,y:v&&v.thumbY,scale:v&&v.thumbScale});
+    return `object-position:${crop.x}% ${crop.y}%;--thumb-x:${crop.x}%;--thumb-y:${crop.y}%;--thumb-scale:${crop.scale};`;
+  }
+  function applyCropToPreview(){
+    const crop=safeThumbCrop(thumbCrop);
+    const style=`object-position:${crop.x}% ${crop.y}%;--thumb-x:${crop.x}%;--thumb-y:${crop.y}%;--thumb-scale:${crop.scale};`;
+    const thumb=$('thumbPreview');
+    const preview=$('previewImage');
+    const range=$('thumbScaleRange');
+    if(thumb) thumb.setAttribute('style',style);
+    if(preview) preview.setAttribute('style',style);
+    if(range) range.value=String(crop.scale);
+  }
+  function setThumbCrop(crop){
+    thumbCrop=safeThumbCrop(crop);
+    applyCropToPreview();
+  }
+  function resetThumbCrop(){
+    setThumbCrop({x:50,y:50,scale:1});
+  }
   function toast(msg='저장 완료'){const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>el.classList.remove('show'),1400)}
   function today(){return new Date().toISOString().slice(0,10)}
   function escapeHTML(v){return String(v==null?'':v).replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]))}
@@ -453,6 +487,171 @@
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindVideoModalFallback);
   else bindVideoModalFallback();
+})();
+</script>
+
+
+<script>
+/* v6 safety patch: thumbnail choose/upload fallback */
+(function(){
+  function $(id){return document.getElementById(id);}
+  function toast(msg){
+    var el=$('toast');
+    if(!el){ alert(msg); return; }
+    el.textContent=msg; el.classList.add('show');
+    clearTimeout(window.__videoToastTimer);
+    window.__videoToastTimer=setTimeout(function(){el.classList.remove('show');},1500);
+  }
+  function applyExternalThumb(url,fileId){
+    url=String(url||'').trim();
+    if(!url){ toast('썸네일 이미지 주소가 없어요'); return; }
+    var thumbInput=$('thumbInput'), fileInput=$('thumbFileId'), thumb=$('thumbPreview'), preview=$('previewImage');
+    if(thumbInput) thumbInput.value=url;
+    if(fileInput) fileInput.value=fileId||'';
+    [thumb,preview].forEach(function(img){
+      if(!img) return;
+      img.src=url;
+      img.style.objectPosition='50% 50%';
+      img.style.setProperty('--thumb-x','50%');
+      img.style.setProperty('--thumb-y','50%');
+      img.style.setProperty('--thumb-scale','1');
+      var wrap=img.closest('.pick-img,.public-thumb');
+      if(wrap) wrap.classList.remove('is-placeholder');
+    });
+    var range=$('thumbScaleRange');
+    if(range) range.value='1';
+  }
+  function normalize(item){
+    item=item||{};
+    return {
+      name:item.name||item.fileName||item.title||'image',
+      imageUrl:item.imageUrl||item.thumbnailUrl||item.fileUrl||item.url||item.webContentLink||'',
+      thumbnailUrl:item.thumbnailUrl||item.imageUrl||item.fileUrl||item.url||item.webContentLink||'',
+      fileId:item.fileId||item.id||''
+    };
+  }
+  function readItems(res){
+    if(Array.isArray(res)) return res;
+    if(res&&Array.isArray(res.items)) return res.items;
+    if(res&&Array.isArray(res.images)) return res.images;
+    if(res&&Array.isArray(res.files)) return res.files;
+    return [];
+  }
+  var current=[], selected=new Set(), folder='';
+  var folders=['공지','라이브','이벤트','업데이트','기타'];
+  function renderRecent(items){
+    current=(items||[]).map(normalize).filter(function(x){return x.imageUrl||x.thumbnailUrl;});
+    selected.clear();
+    var body=$('recentModalBody');
+    if(!body) return;
+    var tool='<div class="recent-gallery-tools"><div class="recent-gallery-actions">'+
+      (folder?'<button type="button" class="btn sub" id="v6RecentBack">← 뒤로가기</button>':'')+
+      '<button type="button" class="btn sub" id="v6RecentAll">전체 선택</button>'+ 
+      '<button type="button" class="btn" id="v6RecentChoose">선택</button>'+ 
+      '<button type="button" class="btn danger" id="v6RecentDelete">선택 삭제</button>'+ 
+      '</div></div>';
+    var cards=current.map(function(item,i){
+      var img=item.thumbnailUrl||item.imageUrl;
+      var name=String(item.name||'image').replace(/[&<>"']/g,function(s){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s];});
+      return '<button type="button" class="recent-photo-card" data-v6-index="'+i+'" title="'+name+'"><span class="recent-select-pill">선택</span><img src="'+img+'" alt="'+name+'" loading="lazy"><span class="recent-photo-name">'+name+'</span></button>';
+    }).join('');
+    var folderHtml='';
+    if(!folder){
+      folderHtml='<div class="recent-photo-section-title">폴더</div><div class="recent-folder-grid">'+folders.map(function(f){return '<button type="button" class="recent-folder-card" data-v6-folder="'+f+'">'+f+'</button>';}).join('')+'</div>';
+    }
+    body.innerHTML='<div class="recent-photo-section-title">'+(folder?folder+' 폴더':'최근 업로드 사진')+'</div>'+tool+(cards?'<div class="recent-photo-grid">'+cards+'</div>':'<div class="recent-gallery-empty">사진이 없습니다.</div>')+folderHtml;
+    body.querySelectorAll('[data-v6-index]').forEach(function(card){
+      card.addEventListener('click',function(){
+        var idx=Number(card.getAttribute('data-v6-index'));
+        if(selected.has(idx)) selected.delete(idx); else selected.add(idx);
+        card.classList.toggle('is-selected',selected.has(idx));
+        updateButtons();
+      });
+    });
+    body.querySelectorAll('[data-v6-folder]').forEach(function(btn){btn.addEventListener('click',function(){openRecent(btn.getAttribute('data-v6-folder')||'');});});
+    var back=$('v6RecentBack'); if(back) back.addEventListener('click',function(){openRecent('');});
+    var all=$('v6RecentAll'); if(all) all.addEventListener('click',function(){
+      var allOn=current.length && selected.size===current.length;
+      selected.clear();
+      if(!allOn) current.forEach(function(_,i){selected.add(i);});
+      body.querySelectorAll('[data-v6-index]').forEach(function(card){var idx=Number(card.getAttribute('data-v6-index'));card.classList.toggle('is-selected',selected.has(idx));});
+      updateButtons();
+    });
+    var choose=$('v6RecentChoose'); if(choose) choose.addEventListener('click',function(){
+      var idx=Array.from(selected)[0];
+      if(idx==null){toast('선택한 사진이 없어요');return;}
+      var item=current[idx];
+      applyExternalThumb(item.imageUrl||item.thumbnailUrl,item.fileId||'');
+      var modal=$('recentModal'); if(modal) modal.classList.remove('show');
+    });
+    var del=$('v6RecentDelete'); if(del) del.addEventListener('click',function(){
+      var ids=Array.from(selected).map(function(i){return current[i]&&current[i].fileId;}).filter(Boolean);
+      if(!ids.length){toast('삭제할 사진을 선택해 주세요');return;}
+      if(!window.LumiContentSync||!LumiContentSync.deleteRecentNewsImages){toast('삭제 API 연결이 필요해요');return;}
+      LumiContentSync.deleteRecentNewsImages({fileIds:ids}).then(function(){toast('선택 사진 삭제 완료');openRecent(folder);}).catch(function(e){console.error(e);toast('사진 삭제 실패');});
+    });
+    updateButtons();
+  }
+  function updateButtons(){
+    var choose=$('v6RecentChoose'), del=$('v6RecentDelete'), all=$('v6RecentAll');
+    if(choose){choose.textContent=selected.size?'선택 ('+selected.size+')':'선택';choose.disabled=!selected.size;}
+    if(del){del.textContent=selected.size?'선택 삭제 ('+selected.size+')':'선택 삭제';del.disabled=!selected.size;}
+    if(all){all.textContent=(current.length&&selected.size===current.length)?'전체 해제':'전체 선택';all.disabled=!current.length;}
+  }
+  function fallback(){return [
+    {name:'LUMIBELLE 썸네일', imageUrl:'https://placehold.co/640x360/fff0f7/ef67a8?text=LUMIBELLE'},
+    {name:'MORE VIDEO 썸네일', imageUrl:'https://placehold.co/640x360/f6edff/d77ca7?text=MORE+VIDEO'}
+  ];}
+  function openRecent(folderName){
+    folder=typeof folderName==='string'?folderName:'';
+    var modal=$('recentModal'), body=$('recentModalBody'), title=$('recentModalTitle');
+    if(title) title.textContent=folder?folder+' 폴더':'최근 사진에서 선택';
+    if(body) body.innerHTML='<div class="recent-gallery-loading">최근 사진 불러오는 중...</div>';
+    if(modal) modal.classList.add('show');
+    if(window.LumiContentSync&&LumiContentSync.listRecentNewsImages){
+      LumiContentSync.listRecentNewsImages({folderName:folder,limit:folder?80:8}).then(function(res){renderRecent(readItems(res));}).catch(function(e){console.error(e);renderRecent(folder?[]:fallback());toast('최근 사진 API 오류');});
+    }else{
+      renderRecent(folder?[]:fallback());
+      toast('최근 사진 API 연결이 없어서 샘플로 표시했어요');
+    }
+  }
+  function openUpload(){
+    var input=$('thumbUploadInput');
+    if(!input){toast('파일 선택 입력창을 찾지 못했어요');return;}
+    input.click();
+  }
+  function onUploadChange(e){
+    var file=e.target.files&&e.target.files[0];
+    if(!file){toast('선택된 파일이 없어요');return;}
+    if(!file.type||!file.type.startsWith('image/')){toast('이미지 파일을 선택해 주세요');return;}
+    var reader=new FileReader();
+    reader.onload=function(){
+      var dataUrl=String(reader.result||'');
+      applyExternalThumb(dataUrl,'');
+      // Drive 업로드 API가 있으면 백그라운드로도 업로드 시도
+      if(window.LumiContentSync&&LumiContentSync.uploadNewsImage){
+        LumiContentSync.uploadNewsImage({fileName:file.name,mimeType:file.type,base64:dataUrl.split(',')[1]||'',folderName:'비디오'}).then(function(res){
+          var item=normalize(res.item||res.file||res);
+          if(item.imageUrl||item.thumbnailUrl) applyExternalThumb(item.imageUrl||item.thumbnailUrl,item.fileId||'');
+          toast('썸네일 업로드 완료');
+        }).catch(function(err){console.error(err);toast('미리보기만 적용했어요');});
+      }else toast('썸네일 미리보기에 적용했어요');
+    };
+    reader.onerror=function(){toast('이미지를 불러오지 못했어요');};
+    reader.readAsDataURL(file);
+    e.target.value='';
+  }
+  function bind(){
+    var recent=$('openRecent');
+    if(recent){recent.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();openRecent('');},true);}
+    var upload=$('uploadThumbBtn');
+    if(upload){upload.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();openUpload();},true);}
+    var input=$('thumbUploadInput');
+    if(input){input.addEventListener('change',onUploadChange,true);}
+    var close=$('closeRecent');
+    if(close){close.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();var m=$('recentModal');if(m)m.classList.remove('show');},true);}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind); else bind();
 })();
 </script>
 
