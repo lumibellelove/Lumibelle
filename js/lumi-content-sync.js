@@ -249,6 +249,15 @@
     return fetchPost('deleteRecentNewsImages', payload || {});
   }
 
+
+  function listNewsStickers(payload){
+    return fetchPost('listNewsStickers', payload || {});
+  }
+
+  function uploadNewsSticker(payload){
+    return fetchPost('uploadNewsSticker', payload || {});
+  }
+
   function readState(){
     try{
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
@@ -414,6 +423,8 @@
     uploadNewsImage,
     listRecentNewsImages,
     deleteRecentNewsImages,
+    listNewsStickers,
+    uploadNewsSticker,
     sortNews,
     htmlEscape,
     stripHTML,

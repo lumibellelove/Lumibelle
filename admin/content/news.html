@@ -1182,6 +1182,300 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   background:transparent;
 }
 .news-sticker-modal{
+  width:min(900px,calc(100vw - 52px));
+  max-height:min(86vh,840px);
+  overflow:auto;
+  padding:28px 30px 30px;
+  border:1px solid #efb8d0;
+  border-radius:30px;
+  background:linear-gradient(180deg,#fffdfd,#fff7fb);
+  box-shadow:0 24px 55px rgba(90,45,70,.18);
+}
+#stickerModalBody{padding-top:8px;}
+.sticker-pack-tabs{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 16px;}
+.sticker-pack-tab,.sticker-action-btn{
+  min-height:40px;padding:0 17px;border:1px solid #f0bfd4;border-radius:999px;background:#fff;color:#d77ca7;font-size:13px;font-weight:900;cursor:pointer;
+}
+.sticker-pack-tab.active,.sticker-action-btn.primary{
+  border-color:transparent;background:linear-gradient(180deg,#ff7fba,#ff59a5);color:#fff;box-shadow:0 10px 18px rgba(255,95,165,.16);
+}
+.sticker-action-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 16px;}
+.sticker-action-btn{min-height:42px;}
+.sticker-action-btn:disabled{opacity:.48;cursor:not-allowed;box-shadow:none;}
+.sticker-status{margin:0 0 14px;padding:12px 14px;border:1px solid #f0bfd4;border-radius:18px;background:#fff8fc;color:#a98298;font-size:13px;font-weight:850;line-height:1.55;}
+.sticker-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;}
+.sticker-card{position:relative;min-height:150px;padding:12px 10px 10px;border:1px solid #f0bfd4;border-radius:20px;background:#fff;color:#9a7288;font-size:12px;font-weight:900;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:8px;transition:.15s ease;}
+.sticker-card:hover{transform:translateY(-1px);border-color:#ff8fc1;box-shadow:0 10px 20px rgba(255,95,165,.12);background:#fff8fc;}
+.sticker-card.selected{border-color:#ff59a5;box-shadow:0 0 0 3px rgba(255,89,165,.14),0 12px 22px rgba(255,95,165,.12);}
+.sticker-select-pill{position:absolute;top:8px;left:8px;z-index:2;min-height:24px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #f0bfd4;border-radius:999px;background:rgba(255,255,255,.94);color:#d77ca7;font-size:10px;font-weight:900;box-shadow:0 6px 12px rgba(255,95,165,.08);}
+.sticker-card.selected .sticker-select-pill{background:#ff59a5;color:#fff;border-color:transparent;}
+.sticker-card.selected::after{content:'✓';position:absolute;top:8px;right:8px;width:23px;height:23px;border-radius:50%;background:#ff59a5;color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;}
+.sticker-card img{width:94px;height:94px;object-fit:contain;background:transparent;}
+.sticker-card span{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sticker-empty{padding:22px;border:1px dashed #efb8d0;border-radius:20px;background:#fff8fc;color:#a98298;font-size:14px;font-weight:850;line-height:1.7;}
+.sticker-upload-input{display:none;}
+@media(max-width:760px){.news-sticker-modal{width:calc(100vw - 24px);padding:22px 18px;}.sticker-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}.sticker-card{min-height:130px;}.sticker-card img{width:78px;height:78px;}}
+.color-popover{
+  position:absolute;
+  left:0;
+  top:46px;
+  width:236px;
+  padding:14px;
+  border:1px solid #f2d8e7;
+  border-radius:18px;
+  background:#fff;
+  box-shadow:0 18px 40px rgba(82,52,73,.18);
+  z-index:6000;
+}
+.color-pop-title{
+  color:#8f7183;
+  font-weight:900;
+  font-size:13px;
+  margin-bottom:10px;
+}
+.color-grid{
+  display:grid;
+  grid-template-columns:repeat(10, 18px);
+  gap:4px;
+}
+.color-swatch{
+  width:18px;
+  height:18px;
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:4px;
+  cursor:pointer;
+}
+.color-swatch.is-none{
+  background:linear-gradient(135deg, transparent 0 45%, #ff4f8e 47% 53%, transparent 55% 100%);
+}
+.color-custom{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+  align-items:center;
+}
+.color-custom input{
+  width:42px;
+  height:32px;
+  padding:0;
+  border:1px solid #f0bfd4;
+  border-radius:8px;
+  background:#fff;
+}
+.color-custom button{
+  flex:1;
+  min-height:32px;
+  border-radius:999px;
+  border:1px solid #f0bfd4;
+  background:#fff8fc;
+  color:#d77ca7;
+  font-weight:900;
+}
+.editor-template-toolbar{
+  padding:14px !important;
+}
+.news-body-editor{
+  min-height:520px !important;
+  padding:30px !important;
+  font-size:17px !important;
+  line-height:1.95 !important;
+}
+.news-info-card{
+  display:grid;
+  gap:12px;
+  margin:18px 0 24px;
+}
+.news-info-card .info-row{
+  display:grid;
+  grid-template-columns:92px 1fr;
+  align-items:center;
+  gap:14px;
+  padding:15px 18px;
+  border:1px solid #f2d8e7;
+  border-radius:18px;
+  background:#fff8fc;
+}
+.news-info-card .info-label{
+  color:#d77ca7;
+  font-weight:900;
+}
+.news-info-card .info-value{
+  color:#7f6a77;
+  font-weight:800;
+  outline:none;
+}
+.news-info-card .info-value:empty:before{
+  content:attr(data-placeholder);
+  color:#c7b3bf;
+}
+.side-box{
+  padding:18px !important;
+}
+.side-top-checks{
+  display:grid;
+  gap:8px;
+}
+.side-check,.side-radio{
+  justify-content:flex-start !important;
+  font-size:15px !important;
+}
+.side-box h3{
+  font-size:18px !important;
+}
+.cafe-write-sidebar{
+  gap:14px !important;
+}
+@media(max-width:1080px){
+  .cafe-write-layout{grid-template-columns:1fr !important}
+}
+
+
+/* ===== NEWS 글쓰기 사용성 2차 보정 ===== */
+.write-page-head h2{
+  font-size:34px !important;
+  letter-spacing:-0.03em;
+}
+.write-page-head .panel-desc{
+  font-size:14px !important;
+  line-height:1.55 !important;
+}
+.write-select-like label{
+  font-size:15px !important;
+  color:#d77ca7 !important;
+}
+.badge-picker.compact .badge-choice{
+  min-height:36px !important;
+  padding:0 14px !important;
+  font-size:14px !important;
+  gap:8px !important;
+}
+.badge-picker.compact .badge-choice input{
+  transform:scale(1.12);
+}
+.side-check,
+.side-radio{
+  justify-content:flex-start !important;
+  text-align:left !important;
+}
+.side-check input,
+.side-radio input{
+  margin:0 8px 0 0 !important;
+}
+.side-box{
+  text-align:left !important;
+}
+.side-box label{
+  text-align:left !important;
+}
+.side-actions{
+  justify-content:flex-start !important;
+}
+.draft-open-btn span{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:22px;
+  min-height:22px;
+  margin-left:6px;
+  border-radius:999px;
+  background:#fff;
+  color:#d77ca7;
+  font-size:12px;
+  font-weight:900;
+}
+.news-draft-modal{
+  width:min(720px,100%);
+  max-height:84vh;
+  overflow:auto;
+  border:1px solid #f2d8e7;
+  border-radius:30px;
+  background:#fffafc;
+  box-shadow:0 24px 60px rgba(82,52,73,.22);
+  padding:26px;
+}
+.draft-tools{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:10px 0 16px;
+  padding:13px 16px;
+  border:1px solid #f2d8e7;
+  border-radius:18px;
+  background:#fff8fc;
+  color:#8f7183;
+  font-weight:900;
+}
+.draft-list{
+  display:grid;
+  gap:10px;
+}
+.draft-item{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:10px;
+  align-items:center;
+  padding:14px 16px;
+  border:1px solid #f2d8e7;
+  border-radius:18px;
+  background:#fff;
+}
+.draft-item-title{
+  min-width:0;
+  color:#7f6a77;
+  font-weight:900;
+}
+.draft-item-meta{
+  display:block;
+  margin-top:4px;
+  color:#b28ea2;
+  font-size:12px;
+  font-weight:800;
+}
+.draft-item button{
+  min-height:32px;
+  padding:0 12px;
+  border-radius:999px;
+  border:1px solid #f0bfd4;
+  background:#fff8fc;
+  color:#d77ca7;
+  font-weight:900;
+  cursor:pointer;
+}
+.news-divider{
+  display:block;
+  border:0;
+  border-top:1px solid #f2d8e7;
+  margin:20px 0;
+}
+.news-body-editor p{
+  min-height:1.35em;
+}
+.news-body-editor img.inserted-news-image{
+  display:block;
+  max-width:100%;
+  height:auto;
+  margin:16px 0;
+  border-radius:18px;
+  border:1px solid #f2d8e7;
+}
+
+.news-body-editor .news-sticker-block{
+  margin:12px 0;
+  line-height:1;
+}
+.news-body-editor img.inserted-news-sticker{
+  display:inline-block;
+  width:96px;
+  max-width:42%;
+  height:auto;
+  margin:4px 6px 4px 0;
+  border:0;
+  border-radius:0;
+  vertical-align:middle;
+  background:transparent;
+}
+.news-sticker-modal{
   width:min(820px,calc(100vw - 52px));
   max-height:min(86vh,820px);
   overflow:auto;
@@ -5749,56 +6043,116 @@ function setupEditorToolbarSelectionGuard(){
 
 
 const NEWS_STICKER_PACKS=[
-  {
-    id:'mariring',
-    label:'마리링',
-    stickers:[
-      {label:'기본', src:'img/stickers/mariring/mariring_basic.png'},
-      {label:'웃음', src:'img/stickers/mariring/mariring_smile.png'},
-      {label:'시무룩', src:'img/stickers/mariring/mariring_sulk.png'},
-      {label:'울먹', src:'img/stickers/mariring/mariring_cry.png'},
-      {label:'화남', src:'img/stickers/mariring/mariring_angry.png'},
-      {label:'하트', src:'img/stickers/mariring/mariring_love.png'},
-      {label:'반짝', src:'img/stickers/mariring/mariring_sparkle.png'},
-      {label:'부끄', src:'img/stickers/mariring/mariring_shy.png'},
-      {label:'멍', src:'img/stickers/mariring/mariring_blank.png'},
-      {label:'하얀 멍', src:'img/stickers/mariring/mariring_white_blank.png'}
-    ]
-  }
+  {id:'mariring', label:'마리링'},
+  {id:'lulu', label:'루루'},
+  {id:'iro', label:'이로'},
+  {id:'lunar', label:'루나'},
+  {id:'common', label:'공통'}
 ];
-let activeStickerPackId=NEWS_STICKER_PACKS[0]?.id||'';
+let activeStickerPackId='mariring';
+let stickerItems=[];
+let stickerLoading=false;
+let stickerUploading=false;
+let stickerSelectedIndexes=new Set();
+let stickerStatusMessage='';
 
 function openStickerModal(){
   saveNewsSelection();
   const modal=q('newsStickerModal');
   if(modal) modal.hidden=false;
-  renderStickerModal();
+  loadNewsStickers(activeStickerPackId||'mariring');
 }
 function closeStickerModal(){
   const modal=q('newsStickerModal');
   if(modal) modal.hidden=true;
+  stickerSelectedIndexes.clear();
+  stickerStatusMessage='';
+}
+function setStickerPack(packId){
+  activeStickerPackId=packId||'mariring';
+  stickerSelectedIndexes.clear();
+  stickerStatusMessage='';
+  loadNewsStickers(activeStickerPackId);
+}
+function currentStickerPack(){
+  return NEWS_STICKER_PACKS.find(pack=>pack.id===activeStickerPackId) || NEWS_STICKER_PACKS[0];
+}
+async function loadNewsStickers(packId){
+  stickerLoading=true;
+  stickerItems=[];
+  renderStickerModal();
+  try{
+    if(!window.LumiContentSync || !LumiContentSync.listNewsStickers){
+      throw new Error('스티커 API 연결이 필요합니다.');
+    }
+    const res=await LumiContentSync.listNewsStickers({packId:packId||activeStickerPackId, limit:80});
+    stickerItems=(res.items||[]).map(normalizeStickerItem);
+    stickerStatusMessage='';
+  }catch(err){
+    console.error('[스티커 불러오기 오류]',err);
+    stickerStatusMessage='스티커를 불러오지 못했어요.';
+  }finally{
+    stickerLoading=false;
+    renderStickerModal();
+  }
+}
+function normalizeStickerItem(item){
+  return {
+    fileId:item.fileId||'',
+    name:item.name||'sticker',
+    label:item.label||formatStickerLabel(item.name||'sticker'),
+    imageUrl:item.imageUrl||item.url||item.thumbnailUrl||'',
+    thumbnailUrl:item.thumbnailUrl||item.imageUrl||item.url||''
+  };
+}
+function formatStickerLabel(name){
+  return String(name||'스티커').replace(/\.[^.]+$/,'').replace(/^mariring[-_]?/i,'').replace(/[-_]+/g,' ').trim() || '스티커';
 }
 function renderStickerModal(){
   const body=q('stickerModalBody');
   if(!body)return;
   const packs=NEWS_STICKER_PACKS||[];
-  if(!packs.length){
-    body.innerHTML='<div class="sticker-empty">등록된 스티커팩이 없어요.</div>';
-    return;
-  }
-  if(!packs.some(pack=>pack.id===activeStickerPackId)) activeStickerPackId=packs[0].id;
-  const activePack=packs.find(pack=>pack.id===activeStickerPackId)||packs[0];
+  const currentPack=currentStickerPack();
+  const allSelected=stickerItems.length>0 && stickerItems.every((_,idx)=>stickerSelectedIndexes.has(idx));
+  const selectedCount=stickerSelectedIndexes.size;
   const tabs=packs.map(pack=>`<button type="button" class="sticker-pack-tab ${pack.id===activeStickerPackId?'active':''}" onclick="setStickerPack('${htmlEscape(pack.id)}')">${htmlEscape(pack.label)}</button>`).join('');
-  const cards=(activePack.stickers||[]).map(sticker=>`<button type="button" class="sticker-card" onclick="insertNewsSticker('${htmlEscape(sticker.src)}','${htmlEscape(sticker.label||'sticker')}')"><img src="${htmlEscape(sticker.src)}" alt="${htmlEscape(sticker.label||'sticker')}" loading="lazy"><span>${htmlEscape(sticker.label||'스티커')}</span></button>`).join('');
-  body.innerHTML=`<div class="sticker-pack-tabs">${tabs}</div>${cards?`<div class="sticker-grid">${cards}</div>`:'<div class="sticker-empty">이 스티커팩에는 아직 스티커가 없어요.</div>'}`;
+  const actions=`<div class="sticker-action-row"><button type="button" class="sticker-action-btn" onclick="triggerStickerUpload()" ${stickerUploading?'disabled':''}>스티커 업로드</button><button type="button" class="sticker-action-btn" onclick="toggleAllStickers()" ${(!stickerItems.length||stickerLoading||stickerUploading)?'disabled':''}>${allSelected?'전체 해제':'전체 선택'}</button><button type="button" class="sticker-action-btn primary" onclick="insertSelectedNewsStickers()" ${(selectedCount && !stickerUploading)?'':'disabled'}>선택 삽입${selectedCount?` (${selectedCount})`:''}</button></div>`;
+  const status=stickerStatusMessage ? `<div class="sticker-status">${htmlEscape(stickerStatusMessage)}</div>` : '';
+  let content='';
+  if(stickerLoading){
+    content='<div class="sticker-empty">스티커를 불러오는 중...</div>';
+  }else if(!stickerItems.length){
+    content=`<div class="sticker-empty">${htmlEscape(currentPack.label)} 스티커가 아직 없어요.<br>스티커 업로드로 PNG를 올리면 자동 WebP로 저장됩니다.</div>`;
+  }else{
+    content=`<div class="sticker-grid">${stickerItems.map((sticker,idx)=>`<button type="button" class="sticker-card ${stickerSelectedIndexes.has(idx)?'selected':''}" onclick="toggleStickerSelect(${idx})"><span class="sticker-select-pill">선택</span><img src="${htmlEscape(sticker.thumbnailUrl||sticker.imageUrl)}" alt="${htmlEscape(sticker.label)}" loading="lazy"><span>${htmlEscape(sticker.label)}</span></button>`).join('')}</div>`;
+  }
+  body.innerHTML=`<div class="sticker-pack-tabs">${tabs}</div>${actions}${status}${content}<input id="stickerUploadInput" class="sticker-upload-input" type="file" accept="image/png,image/webp,image/*" multiple>`;
+  setupStickerUploadInput();
 }
-function setStickerPack(packId){
-  activeStickerPackId=packId;
+function toggleStickerSelect(index){
+  if(stickerUploading)return;
+  if(stickerSelectedIndexes.has(index)) stickerSelectedIndexes.delete(index);
+  else stickerSelectedIndexes.add(index);
   renderStickerModal();
 }
-function insertNewsSticker(src,label){
+function toggleAllStickers(){
+  if(stickerUploading || !stickerItems.length)return;
+  const allSelected=stickerItems.every((_,idx)=>stickerSelectedIndexes.has(idx));
+  if(allSelected) stickerSelectedIndexes.clear();
+  else stickerItems.forEach((_,idx)=>stickerSelectedIndexes.add(idx));
+  renderStickerModal();
+}
+function insertSelectedNewsStickers(){
+  const selected=[...stickerSelectedIndexes].sort((a,b)=>a-b).map(idx=>stickerItems[idx]).filter(Boolean);
+  if(!selected.length)return;
+  selected.forEach(sticker=>insertNewsSticker(sticker.imageUrl,sticker.label,false));
+  stickerSelectedIndexes.clear();
+  closeStickerModal();
+  toast(selected.length===1?'스티커를 넣었어요.':`스티커 ${selected.length}개를 넣었어요.`);
+}
+function insertNewsSticker(src,label,closeAfter=true){
   const editor=q('newsBodyEditor');
-  if(!editor || !src)return;
+  if(!editor || !src)return false;
   const img=document.createElement('img');
   img.className='inserted-news-sticker';
   img.src=src;
@@ -5838,10 +6192,101 @@ function insertNewsSticker(src,label){
   }
   if(q('newsBody')) q('newsBody').value=editor.innerHTML;
   syncNewsImageHiddenFromEditor();
-  closeStickerModal();
-  toast('스티커를 넣었어요.');
+  if(closeAfter){closeStickerModal();toast('스티커를 넣었어요.');}
+  return true;
 }
-
+function triggerStickerUpload(){
+  const input=q('stickerUploadInput');
+  if(input) input.click();
+}
+function setupStickerUploadInput(){
+  const input=q('stickerUploadInput');
+  if(!input || input.dataset.ready)return;
+  input.dataset.ready='1';
+  input.addEventListener('change',async()=>{
+    const files=Array.from(input.files||[]).filter(file=>file && file.type && file.type.indexOf('image/')===0);
+    if(!files.length)return;
+    const MAX_UPLOAD_COUNT=20;
+    const uploadFiles=files.slice(0,MAX_UPLOAD_COUNT);
+    const skippedCount=Math.max(0,files.length-uploadFiles.length);
+    let successCount=0;
+    let failCount=0;
+    stickerUploading=true;
+    stickerStatusMessage=`스티커 업로드 준비 중... 0 / ${uploadFiles.length}`;
+    renderStickerModal();
+    try{
+      if(!window.LumiContentSync || !LumiContentSync.uploadNewsSticker) throw new Error('스티커 업로드 API 연결이 필요합니다.');
+      for(let i=0;i<uploadFiles.length;i++){
+        const file=uploadFiles[i];
+        try{
+          stickerStatusMessage=`스티커 변환 중... ${i+1} / ${uploadFiles.length}`;
+          renderStickerModal();
+          const optimized=await optimizeStickerFile(file);
+          stickerStatusMessage=`Drive 업로드 중... ${i+1} / ${uploadFiles.length}`;
+          renderStickerModal();
+          await LumiContentSync.uploadNewsSticker({packId:activeStickerPackId,fileName:optimized.fileName,mimeType:optimized.mimeType,data:optimized.base64});
+          successCount++;
+        }catch(eachErr){
+          failCount++;
+          console.error('[스티커 개별 업로드 오류]',eachErr);
+        }
+      }
+      const parts=[];
+      if(successCount) parts.push(`${successCount}개 성공`);
+      if(failCount) parts.push(`${failCount}개 실패`);
+      if(skippedCount) parts.push(`${skippedCount}개 제외`);
+      stickerStatusMessage=parts.length ? `스티커 업로드 완료: ${parts.join(' / ')}` : '업로드할 스티커가 없어요.';
+      await loadNewsStickers(activeStickerPackId);
+    }catch(err){
+      console.error('[스티커 업로드 오류]',err);
+      stickerStatusMessage='스티커 업로드에 실패했어요.';
+    }finally{
+      stickerUploading=false;
+      input.value='';
+      renderStickerModal();
+    }
+  });
+}
+function optimizeStickerFile(file){
+  const MAX_SIZE=900;
+  const QUALITY=0.86;
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    const objectUrl=URL.createObjectURL(file);
+    img.onload=()=>{
+      try{
+        let w=img.naturalWidth||img.width;
+        let h=img.naturalHeight||img.height;
+        if(!w||!h) throw new Error('invalid sticker size');
+        const scale=Math.min(1,MAX_SIZE/Math.max(w,h));
+        const cw=Math.max(1,Math.round(w*scale));
+        const ch=Math.max(1,Math.round(h*scale));
+        const canvas=document.createElement('canvas');
+        canvas.width=cw; canvas.height=ch;
+        const ctx=canvas.getContext('2d');
+        ctx.clearRect(0,0,cw,ch);
+        ctx.drawImage(img,0,0,cw,ch);
+        URL.revokeObjectURL(objectUrl);
+        canvas.toBlob(blob=>{
+          if(blob){
+            blobToBase64(blob).then(base64=>resolve({base64,mimeType:blob.type||'image/webp',fileName:replaceStickerExt(file.name||'sticker',blob.type||'image/webp')})).catch(reject);
+            return;
+          }
+          canvas.toBlob(pngBlob=>{
+            if(!pngBlob){reject(new Error('sticker convert failed'));return;}
+            blobToBase64(pngBlob).then(base64=>resolve({base64,mimeType:pngBlob.type||'image/png',fileName:replaceStickerExt(file.name||'sticker',pngBlob.type||'image/png')})).catch(reject);
+          },'image/png');
+        },'image/webp',QUALITY);
+      }catch(err){URL.revokeObjectURL(objectUrl);reject(err);}
+    };
+    img.onerror=()=>{URL.revokeObjectURL(objectUrl);reject(new Error('sticker load failed'));};
+    img.src=objectUrl;
+  });
+}
+function replaceStickerExt(name,mimeType){
+  const ext=String(mimeType||'').includes('webp')?'webp':(String(mimeType||'').includes('png')?'png':'webp');
+  return String(name||'sticker').replace(/\.[^.]+$/,'')+'.'+ext;
+}
 
 const RECENT_NEWS_IMAGE_FOLDERS=['공지','라이브','이벤트','업데이트','기타'];
 let recentNewsImageFolder='';
