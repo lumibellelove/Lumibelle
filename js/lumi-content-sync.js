@@ -150,6 +150,66 @@
     });
   }
 
+
+  function iframePost(action, payload){
+    payload = payload || {};
+    return new Promise(function(resolve, reject){
+      const uploadId = 'lumiUpload_' + Date.now() + '_' + Math.floor(Math.random() * 1000000);
+      const iframeName = uploadId + '_frame';
+      const iframe = document.createElement('iframe');
+      iframe.name = iframeName;
+      iframe.style.display = 'none';
+
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = API_URL;
+      form.target = iframeName;
+      form.style.display = 'none';
+
+      function addField(name, value){
+        const input = document.createElement('textarea');
+        input.name = name;
+        input.value = value == null ? '' : String(value);
+        form.appendChild(input);
+      }
+
+      addField('action', action);
+      addField('responseMode', 'iframe');
+      addField('uploadId', uploadId);
+      addField('payload', JSON.stringify(payload));
+
+      let timeoutId;
+      function cleanup(){
+        window.removeEventListener('message', onMessage);
+        clearTimeout(timeoutId);
+        setTimeout(function(){
+          if(form.parentNode) form.parentNode.removeChild(form);
+          if(iframe.parentNode) iframe.parentNode.removeChild(iframe);
+        }, 0);
+      }
+      function onMessage(event){
+        const data = event && event.data;
+        if(!data || data.uploadId !== uploadId) return;
+        cleanup();
+        if(data.ok === false){ reject(data); return; }
+        resolve(data || {});
+      }
+      window.addEventListener('message', onMessage);
+      timeoutId = setTimeout(function(){
+        cleanup();
+        reject({ok:false,error:'uploadTimeout'});
+      }, 90000);
+
+      document.body.appendChild(iframe);
+      document.body.appendChild(form);
+      form.submit();
+    });
+  }
+
+  function uploadNewsImage(payload){
+    return iframePost('uploadNewsImage', payload || {});
+  }
+
   function readState(){
     try{
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
@@ -312,6 +372,7 @@
     adminUpdateNewsItem,
     adminSaveNewsItem,
     adminArchiveNewsItem,
+    uploadNewsImage,
     sortNews,
     htmlEscape,
     stripHTML,
