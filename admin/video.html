@@ -199,7 +199,7 @@
           <h1>MORE VIDEO 관리</h1>
           <p>영상 목록과 등록 상태를 관리합니다.</p>
         </div>
-        <button class="btn js-open-modal">영상 등록</button>
+        <button class="btn js-open-modal" onclick="openVideoModalFallback(event)">영상 등록</button>
       </div>
       <div class="filter-row" id="statusFilters">
         <button class="chip active" data-filter="all">전체</button>
@@ -226,7 +226,7 @@
       </div>
       <div class="video-table" id="videoTable">
         <div class="table-head"><div></div><div>영상</div><div>유형</div><div>게시 상태</div><div>멤버</div><div>카테고리</div><div>날짜</div><div>조회수</div><div>반짝응원</div><div>관리</div></div>
-        <div class="empty" id="emptyState"><div class="icon">▶</div><h2>등록된 영상이 아직 없습니다</h2><p>첫 영상을 등록하면 목록에 표시됩니다.</p><button class="btn js-open-modal">첫 영상 등록</button></div>
+        <div class="empty" id="emptyState"><div class="icon">▶</div><h2>등록된 영상이 아직 없습니다</h2><p>첫 영상을 등록하면 목록에 표시됩니다.</p><button class="btn js-open-modal" onclick="openVideoModalFallback(event)">첫 영상 등록</button></div>
       </div>
       <div class="pager"><span class="circle">‹</span><span id="pagerText">0 / 0</span><span class="circle">›</span></div>
     </section>
@@ -404,5 +404,55 @@
   document.querySelectorAll('.js-open-modal').forEach(b=>b.addEventListener('click',()=>openModal('')));$('closeModal').addEventListener('click',closeModal);$('videoModal').addEventListener('click',e=>{if(e.target===$('videoModal'))closeModal()});$('openRecent').addEventListener('click',openRecent);$('closeRecent').addEventListener('click',()=>$('recentModal').classList.remove('show'));$('recentModal').addEventListener('click',e=>{if(e.target===$('recentModal'))$('recentModal').classList.remove('show')});$('youtubeThumb').addEventListener('click',useYoutubeThumb);$('uploadThumbBtn').addEventListener('click',()=>$('thumbUploadInput').click());$('thumbUploadInput').addEventListener('change',e=>{const file=e.target.files&&e.target.files[0];if(file)uploadLocalImage(file);e.target.value=''});$('saveVideo').addEventListener('click',()=>save(''));$('draftSave').addEventListener('click',()=>save('draft'));['titleInput','dateInput','platformInput','memberInput','categoryInput','pickInput'].forEach(id=>{$(id).addEventListener('input',syncPreview);$(id).addEventListener('change',syncPreview)});$('urlInput').addEventListener('change',()=>{if($('platformInput').value==='youtube')useYoutubeThumb()});['searchInput','memberFilter','platformFilter','statusFilter','sortSelect'].forEach(id=>{$(id).addEventListener('input',render);$(id).addEventListener('change',render)});document.querySelectorAll('#statusFilters .chip').forEach(chip=>chip.addEventListener('click',()=>{document.querySelectorAll('#statusFilters .chip').forEach(c=>c.classList.remove('active'));chip.classList.add('active');activeFilter=chip.dataset.filter||'all';render()}));$('selectAll').addEventListener('change',()=>document.querySelectorAll('.row-check').forEach(c=>c.checked=$('selectAll').checked));$('bulkPublic').addEventListener('click',()=>bulkSet('public'));$('bulkPrivate').addEventListener('click',()=>bulkSet('private'));$('bulkDelete').addEventListener('click',bulkDelete);document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('recentModal').classList.contains('show'))$('recentModal').classList.remove('show');else if($('videoModal').classList.contains('show'))closeModal()}});load();
 })();
 </script>
+
+<script>
+/* v4 safety patch: ensure 영상 등록 모달 opens even if previous binding is interrupted */
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function today(){ return new Date().toISOString().slice(0,10); }
+  function openVideoModalFallback(event){
+    if(event){ event.preventDefault(); event.stopPropagation(); }
+    var modal = $('videoModal');
+    if(!modal) return;
+    var modalTitle = $('modalTitle');
+    if(modalTitle) modalTitle.textContent = '영상 등록';
+    var dateInput = $('dateInput');
+    if(dateInput && !dateInput.value) dateInput.value = today();
+    var statusInput = $('statusInput');
+    if(statusInput && !statusInput.value) statusInput.value = 'public';
+    var pickInput = $('pickInput');
+    if(pickInput && !pickInput.value) pickInput.value = 'off';
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeVideoModalFallback(event){
+    if(event){ event.preventDefault(); event.stopPropagation(); }
+    var modal = $('videoModal');
+    if(!modal) return;
+    modal.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+  window.openVideoModalFallback = openVideoModalFallback;
+  window.closeVideoModalFallback = closeVideoModalFallback;
+  function bindVideoModalFallback(){
+    document.querySelectorAll('.js-open-modal').forEach(function(btn){
+      btn.addEventListener('click', openVideoModalFallback, true);
+      if(!btn.getAttribute('onclick')) btn.setAttribute('onclick','openVideoModalFallback(event)');
+    });
+    var closeBtn = $('closeModal');
+    if(closeBtn){
+      closeBtn.addEventListener('click', closeVideoModalFallback, true);
+      if(!closeBtn.getAttribute('onclick')) closeBtn.setAttribute('onclick','closeVideoModalFallback(event)');
+    }
+    var modal = $('videoModal');
+    if(modal){
+      modal.addEventListener('click', function(e){ if(e.target === modal) closeVideoModalFallback(e); }, true);
+    }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindVideoModalFallback);
+  else bindVideoModalFallback();
+})();
+</script>
+
 </body>
 </html>
