@@ -4414,11 +4414,12 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 }
 .font-toolbox .first-image-display-inline .recent-image-btn:hover{background:#fff0f7 !important;color:#ff59a5 !important;}
 .news-recent-image-modal{
-  width:min(960px,100%);max-height:88vh;overflow:auto;border:1px solid #f2d8e7;border-radius:30px;
+  width:min(940px,100%);max-height:88vh;overflow:auto;border:1px solid #f2d8e7;border-radius:30px;
   background:#fffafc;box-shadow:0 24px 60px rgba(82,52,73,.22);padding:26px;
 }
 #recentImageModalBody{padding-top:2px;}
 .recent-photo-section-title{margin:18px 0 12px;color:#d77ca7;font-size:18px;font-weight:900;letter-spacing:-.025em;}
+.recent-photo-section-title:first-child{margin-top:8px;}
 .recent-photo-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;}
 .recent-photo-card{
   min-height:156px;border:1px solid #f2d8e7;border-radius:20px;background:#fff;overflow:hidden;cursor:pointer;padding:0;position:relative;
@@ -4437,12 +4438,14 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   background:rgba(255,255,255,.96);color:#d77ca7;font-size:11px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(255,95,165,.07);
 }
 .recent-photo-card.is-selected .recent-select-pill{background:#ff5fa5;border-color:#ff5fa5;color:#fff;}
-.recent-gallery-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.recent-gallery-actions .btn{min-height:40px;padding:0 16px;font-size:13px;}
+.recent-gallery-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.recent-gallery-actions .btn{min-height:40px;padding:0 17px;font-size:13px;}
+.recent-gallery-actions .btn.primary{box-shadow:0 10px 18px rgba(255,95,165,.16);}
 .recent-folder-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;}
 .recent-folder-card{min-height:58px;border:1px solid #f0bfd4;border-radius:18px;background:#fff;color:#d77ca7;font-size:15px;font-weight:900;cursor:pointer;}
 .recent-folder-card:hover{background:#fff0f7;color:#ff59a5;box-shadow:0 8px 16px rgba(255,95,165,.09);}
-.recent-gallery-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0 16px;}
+.recent-gallery-tools{display:flex;align-items:center;justify-content:flex-start;gap:12px;margin:10px 0 16px;}
+.recent-gallery-tools.compact{margin-bottom:14px;}
 .recent-gallery-tools + .recent-photo-grid{margin-top:0;}
 .recent-gallery-empty,
 .recent-gallery-loading{
@@ -5623,8 +5626,8 @@ function renderRecentNewsImages(items, folderName=''){
     return `<button type="button" class="recent-photo-card" data-recent-index="${index}" title="${name}" onclick="toggleRecentNewsImageSelection(${index})"><span class="recent-select-pill">선택</span><img src="${img}" alt="${name}" loading="lazy"><span class="recent-photo-name">${name}</span></button>`;
   }).join('');
   const tools = folderName
-    ? `<div class="recent-gallery-tools"><div class="recent-gallery-actions"><button type="button" class="btn sub" onclick="openRecentNewsImages()">← 뒤로가기</button><button type="button" class="btn sub" id="recentSelectAllBtn" onclick="toggleAllRecentNewsImages()">전체 선택</button><button type="button" class="btn primary" id="recentInsertSelectedBtn" onclick="insertSelectedRecentNewsImages()">선택 삽입</button></div><button type="button" class="btn sub" onclick="closeRecentNewsImages()">닫기</button></div>`
-    : `<div class="recent-gallery-tools"><div class="recent-gallery-actions"><button type="button" class="btn sub" id="recentSelectAllBtn" onclick="toggleAllRecentNewsImages()">전체 선택</button><button type="button" class="btn primary" id="recentInsertSelectedBtn" onclick="insertSelectedRecentNewsImages()">선택 삽입</button></div><button type="button" class="btn sub" onclick="closeRecentNewsImages()">닫기</button></div>`;
+    ? `<div class="recent-gallery-tools compact"><div class="recent-gallery-actions"><button type="button" class="btn sub" onclick="openRecentNewsImages()">← 뒤로가기</button><button type="button" class="btn sub" id="recentSelectAllBtn" onclick="toggleAllRecentNewsImages()">전체 선택</button><button type="button" class="btn primary" id="recentInsertSelectedBtn" onclick="insertSelectedRecentNewsImages()">선택 삽입</button></div></div>`
+    : `<div class="recent-gallery-tools compact"><div class="recent-gallery-actions"><button type="button" class="btn sub" id="recentSelectAllBtn" onclick="toggleAllRecentNewsImages()">전체 선택</button><button type="button" class="btn primary" id="recentInsertSelectedBtn" onclick="insertSelectedRecentNewsImages()">선택 삽입</button></div></div>`;
   if(!folderName){
     const folderButtons=RECENT_NEWS_IMAGE_FOLDERS.map(name=>`<button type="button" class="recent-folder-card" onclick="openRecentNewsImages('${htmlEscape(name)}')">${htmlEscape(name)}</button>`).join('');
     body.innerHTML=`<div class="recent-photo-section-title">최근 업로드 사진</div>${tools}${cards ? `<div class="recent-photo-grid">${cards}</div>` : '<div class="recent-gallery-empty">최근 업로드된 사진이 없습니다.</div>'}<div class="recent-photo-section-title">폴더</div><div class="recent-folder-grid">${folderButtons}</div>`;
