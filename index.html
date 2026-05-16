@@ -948,6 +948,28 @@
       border-color: #c7def8;
     }
 
+
+    .badge-event {
+      background: #fff1e8;
+      color: #d98a5f;
+      border-color: #f4cdb9;
+    }
+
+    .badge-update {
+      background: #eef7ff;
+      color: #6b9bd8;
+      border-color: #c9e0f8;
+    }
+
+    .news-empty {
+      padding: 24px 22px;
+      color: #b18ba2;
+      font-weight: 800;
+      text-align: center;
+      background: #fff5fb;
+      border-bottom: 1px solid #f2d8e7;
+    }
+
     .news-title {
       font-size: 18px;
       line-height: 1.5;
@@ -3378,34 +3400,7 @@ line-height:1.9 !important;
             <p>공지사항</p>
           </div>
 
-          <div class="news-list">
-            <a href="news-debut.html" class="news-item">
-              <div class="news-date">2026.07.12</div>
-              <div class="news-tags">
-                <span class="news-badge badge-new">NEW</span>
-              </div>
-              <div class="news-title">루미벨 데뷔라이브 안내</div>
-              <div class="news-arrow">›</div>
-            </a>
-
-            <a href="news-big-event.html" class="news-item">
-              <div class="news-date">2026.10.18</div>
-              <div class="news-tags">
-                <span class="news-badge badge-live">LIVE</span>
-              </div>
-              <div class="news-title">빅 이벤트 라이브 예정 안내</div>
-              <div class="news-arrow">›</div>
-            </a>
-
-            <a href="#" class="news-item">
-              <div class="news-date">2026.05.01</div>
-              <div class="news-tags">
-                <span class="news-badge badge-info">INFO</span>
-              </div>
-              <div class="news-title">굿즈 관련 안내 예정</div>
-              <div class="news-arrow">›</div>
-            </a>
-          </div>
+          <div class="news-list" id="homeNewsList"></div>
 
           <div class="home-card-foot">
             <a href="news.html" class="more-btn">공지사항 더보기</a>
@@ -3583,6 +3578,8 @@ line-height:1.9 !important;
 
   <button class="back-to-top" id="backToTop" aria-label="맨 위로 이동"><span class="top-arrow">↑</span><span class="top-label">TOP</span></button>
 
+  <script src="js/lumi-news-sync.js"></script>
+
   <script>
     const backToTop = document.getElementById('backToTop');
     window.addEventListener('scroll', () => {
@@ -3623,6 +3620,38 @@ line-height:1.9 !important;
     });
 
     revealItems.forEach((el) => revealObserver.observe(el));
+  </script>
+
+
+  <script>
+    (function(){
+      const list = document.getElementById('homeNewsList');
+      if(!list || !window.LumiNewsSync) return;
+
+      function renderBadges(n){
+        return LumiNewsSync.badgesFor(n).map(function(b){
+          return '<span class="news-badge ' + LumiNewsSync.badgeClass(b) + '">' + LumiNewsSync.htmlEscape(b) + '</span>';
+        }).join('');
+      }
+
+      function renderHomeNews(){
+        const rows = LumiNewsSync.publicNews().filter(function(n){ return n.home !== false; }).slice(0, 3);
+        list.innerHTML = rows.map(function(n){
+          return '<a href="' + LumiNewsSync.htmlEscape(LumiNewsSync.newsHref(n)) + '" class="news-item">'
+            + '<div class="news-date">' + LumiNewsSync.htmlEscape(LumiNewsSync.toLongDate(n.date)) + '</div>'
+            + '<div class="news-tags">' + renderBadges(n) + '</div>'
+            + '<div class="news-title">' + LumiNewsSync.htmlEscape(n.title || '제목 없음') + '</div>'
+            + '<div class="news-arrow">›</div>'
+            + '</a>';
+        }).join('') || '<div class="news-empty">등록된 공지사항이 없습니다.</div>';
+      }
+
+      window.addEventListener('storage', function(e){
+        if(e.key === LumiNewsSync.STORAGE_KEY) renderHomeNews();
+      });
+
+      renderHomeNews();
+    })();
   </script>
 
   <script>
