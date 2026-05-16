@@ -5375,42 +5375,13 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 @media(max-width:560px){.photo-editor-sticker-grid,.photo-editor-recent-grid{grid-template-columns:repeat(3,minmax(0,1fr));}.photo-editor-sticker-item{width:96px;}.photo-editor-workarea{padding:10px;}}
 
 
-/* Photo editor 1.1B: loading/empty text and filename ellipsis */
+/* Photo editor recent/sticker UX fix */
+.photo-editor-panel h3{font-size:17px!important;line-height:1.25!important;}
+.photo-editor-pack-tabs button{font-size:15px!important;}
+.photo-editor-status{font-size:15px!important;word-break:keep-all;}
 .photo-editor-recent-grid .sticker-empty,
-.photo-editor-sticker-grid .sticker-empty{
-  grid-column:1 / -1;
-  width:100%;
-  min-height:44px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  color:#b9829d;
-  font-size:15px;
-  font-weight:850;
-  line-height:1.45;
-  word-break:keep-all;
-}
-.photo-editor-panel h3{
-  font-size:17px;
-}
-.photo-editor-pack-tabs button{
-  font-size:15px;
-}
-.photo-editor-status{
-  font-size:15px;
-}
-.photo-editor-recent-thumb,
-.photo-editor-sticker-thumb{
-  min-width:0;
-}
-.photo-editor-recent-thumb .photo-editor-thumb-name{
-  display:block;
-  width:100%;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
+.photo-editor-sticker-grid .sticker-empty{grid-column:1/-1;width:100%;min-width:0;font-size:15px;line-height:1.55;text-align:center;word-break:keep-all;white-space:normal;}
+.photo-editor-recent-thumb span{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;line-height:1.2;margin-top:4px;color:#8f7080;font-weight:800;}
 
 </style>
 </head>
@@ -5744,9 +5715,9 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
         <div class="photo-editor-toolbar">
           <button type="button" class="btn sub" onclick="triggerPhotoEditorUpload()">사진 불러오기</button>
           <button type="button" class="btn sub" onclick="loadPhotoEditorRecentImages()">최근사진</button>
-          <button type="button" class="btn sub" onclick="clearPhotoEditorImage()">사진 지우기</button>
           <button type="button" class="btn sub" onclick="loadPhotoEditorStickers()">스티커</button>
           <button type="button" class="btn danger" onclick="deleteSelectedPhotoEditorSticker()">선택 삭제</button>
+          <button type="button" class="btn sub" onclick="clearPhotoEditorImage()">사진 지우기</button>
           <button type="button" class="btn" onclick="savePhotoEditorImage()">저장 후 본문 삽입</button>
           <button type="button" class="btn sub" onclick="closeNewsPhotoEditor()">닫기</button>
         </div>
@@ -7025,6 +6996,7 @@ let photoEditorStickerPack='mariring';
 let photoEditorRecentLoaded=false;
 let photoEditorStickersLoaded=false;
 let photoEditorDrag=null;
+const photoEditorImageDataCache={};
 
 function openNewsPhotoEditor(){
   const modal=q('newsPhotoEditorModal');
@@ -7040,21 +7012,6 @@ function closeNewsPhotoEditor(){
   const modal=q('newsPhotoEditorModal');
   if(modal)modal.hidden=true;
   photoEditorDrag=null;
-}
-function clearPhotoEditorImage(){
-  photoEditorBase={src:'',name:'',naturalWidth:0,naturalHeight:0};
-  photoEditorStickers=[];
-  photoEditorSelectedId=null;
-  photoEditorDrag=null;
-  const stage=q('photoEditorStage');
-  if(stage){
-    stage.removeAttribute('style');
-    stage.className='photo-editor-stage is-empty';
-    stage.innerHTML='편집할 사진을 불러와 주세요.<br>1차 기능은 사진 1장 + 스티커 꾸미기입니다.';
-  }else{
-    renderPhotoEditorStage();
-  }
-  setPhotoEditorStatus('사진을 지웠어요. 새 사진을 불러와 주세요.');
 }
 function setPhotoEditorStatus(message){
   const el=q('photoEditorStatus');
@@ -7165,7 +7122,7 @@ function deleteSelectedPhotoEditorSticker(){
   renderPhotoEditorStickerLayer();
   setPhotoEditorStatus('선택한 스티커를 삭제했어요.');
 }
-async async function loadPhotoEditorRecentImages(showToast=true){
+async function loadPhotoEditorRecentImages(showToast=true){
   const grid=q('photoEditorRecentGrid');
   if(grid)grid.innerHTML='<div class="sticker-empty">최근 사진을 불러오는 중...</div>';
   try{
@@ -7174,7 +7131,8 @@ async async function loadPhotoEditorRecentImages(showToast=true){
     const items=(res.items||[]).map(normalizeRecentNewsImageItem);
     photoEditorRecentLoaded=true;
     if(!items.length){if(grid)grid.innerHTML='<div class="sticker-empty">최근 사진이 없어요.</div>';return;}
-    if(grid)grid.innerHTML=items.map((it,idx)=>`<button type="button" class="photo-editor-recent-thumb" title="${htmlEscape(it.name||'image')}" onclick="setPhotoEditorBaseImage('${htmlEscape(it.imageUrl)}','${htmlEscape(it.name||'recent image')}')"><img src="${htmlEscape(it.thumbnailUrl||it.imageUrl)}" alt="${htmlEscape(it.name||'image')}" draggable="false"></button>`).join('');
+    window.__photoEditorRecentItems=items;
+    if(grid)grid.innerHTML=items.map((it,idx)=>`<button type="button" class="photo-editor-recent-thumb" title="${htmlEscape(it.name||'image')}" onclick="setPhotoEditorBaseFromRecent(${idx})"><img src="${htmlEscape(it.thumbnailUrl||it.imageUrl)}" alt="${htmlEscape(it.name||'image')}" draggable="false"><span>${htmlEscape(it.name||'image')}</span></button>`).join('');
     if(showToast)setPhotoEditorStatus('최근 사진을 불러왔어요. 편집할 사진을 선택해 주세요.');
   }catch(err){
     console.error('[사진 편집기 최근사진 오류]',err);
@@ -7192,7 +7150,7 @@ function setPhotoEditorStickerPack(packId){
   renderPhotoEditorPacks();
   loadPhotoEditorStickers();
 }
-async async function loadPhotoEditorStickers(){
+async function loadPhotoEditorStickers(){
   const grid=q('photoEditorStickerGrid');
   if(grid)grid.innerHTML='<div class="sticker-empty">스티커를 불러오는 중...</div>';
   try{
@@ -7218,12 +7176,52 @@ function addPhotoEditorSticker(index){
   syncPhotoEditorStageSize();
   const rect=photoEditorStageRect();
   const w=Math.max(70,Math.min(160,(rect.width||420)*0.28));
-  const st={id:'sticker-'+Date.now()+'-'+Math.random().toString(16).slice(2),src:item.thumbnailUrl||item.imageUrl||item.url,label:item.label||item.name||'sticker',x:Math.max(10,((rect.width||420)-w)/2),y:Math.max(10,((rect.height||320)-w)/2),w};
+  const st={id:'sticker-'+Date.now()+'-'+Math.random().toString(16).slice(2),src:item.thumbnailUrl||item.imageUrl||item.url,fileId:item.fileId||'',label:item.label||item.name||'sticker',x:Math.max(10,((rect.width||420)-w)/2),y:Math.max(10,((rect.height||320)-w)/2),w};
   photoEditorStickers.push(st);
   photoEditorSelectedId=st.id;
   renderPhotoEditorStickerLayer();
   setPhotoEditorStatus('스티커를 올렸어요. 드래그로 이동하고 오른쪽 아래 점으로 크기를 조절할 수 있어요.');
 }
+
+async function getPhotoEditorDriveDataUrl(fileId){
+  fileId=String(fileId||'').trim();
+  if(!fileId)throw new Error('fileId 없음');
+  if(photoEditorImageDataCache[fileId])return photoEditorImageDataCache[fileId];
+  if(!window.LumiContentSync || !LumiContentSync.getDriveImageData)throw new Error('Drive 이미지 변환 API 연결이 필요합니다.');
+  const res=await LumiContentSync.getDriveImageData({fileId:fileId});
+  const dataUrl=res && (res.dataUrl || res.data);
+  if(!dataUrl)throw new Error('Drive 이미지 데이터를 받지 못했어요.');
+  photoEditorImageDataCache[fileId]=dataUrl;
+  return dataUrl;
+}
+async function setPhotoEditorBaseFromRecent(index){
+  const items=window.__photoEditorRecentItems||[];
+  const item=items[index];
+  if(!item)return;
+  try{
+    setPhotoEditorStatus('최근 사진을 편집기에 불러오는 중...');
+    const dataUrl=await getPhotoEditorDriveDataUrl(item.fileId);
+    setPhotoEditorBaseImage(dataUrl,item.name||'recent image');
+  }catch(err){
+    console.error('[사진 편집기 최근사진 불러오기 오류]',err);
+    setPhotoEditorStatus('최근 사진을 편집기에 불러오지 못했어요. Drive 권한/API 연결을 확인해 주세요.');
+  }
+}
+function clearPhotoEditorImage(){
+  photoEditorBase={src:'',name:'',naturalWidth:0,naturalHeight:0};
+  photoEditorStickers=[];
+  photoEditorSelectedId=null;
+  photoEditorDrag=null;
+  renderPhotoEditorStage();
+  setPhotoEditorStatus('사진을 지웠어요. 다시 사진을 불러와 주세요.');
+}
+async function getPhotoEditorCanvasSrc(item){
+  if(item && item.fileId){
+    try{return await getPhotoEditorDriveDataUrl(item.fileId);}catch(err){console.warn('[사진 편집기 Drive data 변환 실패]',err);}
+  }
+  return item && item.src ? item.src : '';
+}
+
 function loadImageForCanvas(src){
   return new Promise((resolve,reject)=>{
     const img=new Image();
@@ -7250,7 +7248,7 @@ async function savePhotoEditorImage(){
     const scaleX=naturalW/(stageRect.width||naturalW);
     const scaleY=naturalH/(stageRect.height||naturalH);
     for(const st of photoEditorStickers){
-      const simg=await loadImageForCanvas(st.src);
+      const simg=await loadImageForCanvas(await getPhotoEditorCanvasSrc(st));
       const dw=st.w*scaleX;
       const ratio=(simg.naturalHeight||simg.height)/(simg.naturalWidth||simg.width||1);
       const dh=dw*ratio;
