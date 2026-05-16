@@ -4087,6 +4087,117 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   }
 }
 
+
+
+/* ===== NEWS 첫 이미지 표시 방식 위치 최종 보정: 툴바 흐름 유지 ===== */
+.font-toolbox .font-top-line{
+  display:grid !important;
+  grid-template-columns:minmax(260px, 320px) auto !important;
+  align-items:end !important;
+  justify-content:start !important;
+  gap:28px !important;
+  margin-bottom:10px !important;
+}
+.font-toolbox .font-family-block{
+  width:100% !important;
+  min-width:0 !important;
+}
+.font-toolbox .first-image-display-box.first-image-display-inline{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:7px !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+  min-width:0 !important;
+}
+.font-toolbox .first-image-display-inline .first-image-display-title{
+  margin:0 !important;
+  color:#d77ca7 !important;
+  font-size:15px !important;
+  font-weight:900 !important;
+  line-height:1.2 !important;
+  text-align:center !important;
+  white-space:nowrap !important;
+}
+.font-toolbox .first-image-display-inline .first-image-display-options{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:8px !important;
+  flex-wrap:nowrap !important;
+}
+.font-toolbox .first-image-display-inline .image-layout-pill{
+  position:relative !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  min-height:36px !important;
+  height:36px !important;
+  padding:0 16px !important;
+  border-radius:999px !important;
+  border:1px solid #f0bfd4 !important;
+  background:#fff !important;
+  color:#d77ca7 !important;
+  font-size:15px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+  cursor:pointer !important;
+  box-sizing:border-box !important;
+}
+.font-toolbox .first-image-display-inline .image-layout-pill input{
+  position:absolute !important;
+  opacity:0 !important;
+  width:1px !important;
+  height:1px !important;
+  pointer-events:none !important;
+}
+.font-toolbox .first-image-display-inline .image-layout-pill span{
+  display:block !important;
+  white-space:nowrap !important;
+}
+.font-toolbox .first-image-display-inline .image-layout-pill:has(input:checked){
+  background:linear-gradient(180deg,#ff7eb3,#ff5fa5) !important;
+  color:#fff !important;
+  border-color:#ff5fa5 !important;
+  box-shadow:0 8px 18px rgba(255,95,165,.18) !important;
+}
+.font-toolbox .font-control-row{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+}
+.font-toolbox .media-tool-row{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:8px !important;
+  flex-wrap:wrap !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+.font-toolbox .media-tool-row .tool-pill{
+  font-size:15px !important;
+}
+@media(max-width:760px){
+  .font-toolbox .font-top-line{
+    grid-template-columns:1fr !important;
+    gap:12px !important;
+  }
+  .font-toolbox .first-image-display-box.first-image-display-inline{
+    align-items:flex-start !important;
+  }
+  .font-toolbox .first-image-display-inline .first-image-display-options{
+    flex-wrap:wrap !important;
+    justify-content:flex-start !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -4214,6 +4325,14 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
                   </select>
                 </div>
               </div>
+              <div class="first-image-display-box first-image-display-inline">
+                <div class="first-image-display-title">첫 이미지 표시 방식</div>
+                <div class="first-image-display-options" role="radiogroup" aria-label="첫 이미지 표시 방식">
+                  <label class="image-layout-pill"><input type="radio" name="newsImageLayout" value="auto" checked><span>자동</span></label>
+                  <label class="image-layout-pill"><input type="radio" name="newsImageLayout" value="wide"><span>가로형</span></label>
+                  <label class="image-layout-pill"><input type="radio" name="newsImageLayout" value="portrait"><span>세로형</span></label>
+                </div>
+              </div>
             </div>
             <div class="font-control-row">
               <div class="font-size-stepper" aria-label="글씨 크기">
@@ -4246,16 +4365,6 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
                     <input type="color" id="newsColorCustom" value="#d77ca7" aria-label="직접 색상 선택">
                     <button type="button" onclick="applyCustomColor()">적용</button>
                   </div>
-                </div>
-              </div>
-            </div>
-            <div class="image-media-block" aria-label="첫 이미지와 미디어 도구">
-              <div class="first-image-display-box first-image-display-inline">
-                <div class="first-image-display-title">첫 이미지 표시 방식</div>
-                <div class="first-image-display-options" role="radiogroup" aria-label="첫 이미지 표시 방식">
-                  <label class="image-layout-pill"><input type="radio" name="newsImageLayout" value="auto" checked><span>자동</span></label>
-                  <label class="image-layout-pill"><input type="radio" name="newsImageLayout" value="wide"><span>가로형</span></label>
-                  <label class="image-layout-pill"><input type="radio" name="newsImageLayout" value="portrait"><span>세로형</span></label>
                 </div>
               </div>
               <div class="media-tool-row">
