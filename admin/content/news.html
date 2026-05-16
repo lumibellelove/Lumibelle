@@ -3949,6 +3949,144 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   }
 }
 
+
+
+/* ===== NEWS 이미지 표시 방식 최종 위치/버튼 보정 ===== */
+.font-top-line{
+  display:block !important;
+}
+.font-family-block{
+  width:min(320px,100%) !important;
+}
+.font-control-row{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+}
+.image-media-block{
+  width:100% !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:8px !important;
+  margin:14px 0 0 !important;
+  padding:0 !important;
+}
+.image-media-block .first-image-display-box{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:8px !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+}
+.image-media-block .first-image-display-title{
+  margin:0 !important;
+  color:#d77ca7 !important;
+  font-size:15px !important;
+  font-weight:900 !important;
+  line-height:1.25 !important;
+  text-align:center !important;
+  white-space:nowrap !important;
+}
+.image-media-block .first-image-display-options,
+.media-tool-row{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:8px !important;
+  flex-wrap:wrap !important;
+}
+.image-media-block .image-layout-pill{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  min-height:38px !important;
+  padding:0 18px !important;
+  border-radius:999px !important;
+  border:1px solid #f0bfd4 !important;
+  background:#fff !important;
+  color:#d77ca7 !important;
+  font-size:15px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  cursor:pointer !important;
+  box-sizing:border-box !important;
+}
+.image-media-block .image-layout-pill input{
+  position:absolute !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+  width:1px !important;
+  height:1px !important;
+}
+.image-media-block .image-layout-pill span{
+  display:block !important;
+  white-space:nowrap !important;
+}
+.image-media-block .image-layout-pill:has(input:checked){
+  background:linear-gradient(180deg,#ff7eb3,#ff5fa5) !important;
+  color:#fff !important;
+  border-color:transparent !important;
+  box-shadow:0 8px 18px rgba(255,95,165,.20) !important;
+}
+.image-media-block .tool-pill{
+  font-size:15px !important;
+}
+.preview-title{
+  margin-bottom:20px !important;
+}
+.preview-hero{
+  margin-top:0 !important;
+  margin-bottom:24px !important;
+  object-fit:contain !important;
+}
+.preview-hero.layout-wide{
+  width:100% !important;
+  max-width:100% !important;
+}
+.preview-hero.layout-portrait{
+  width:auto !important;
+  max-width:min(100%,460px) !important;
+  max-height:72vh !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+.side-actions{
+  display:flex !important;
+  justify-content:flex-end !important;
+  align-items:center !important;
+  gap:12px !important;
+  flex-wrap:wrap !important;
+}
+.side-actions .btn.sub{
+  background:#fff !important;
+  color:#d77ca7 !important;
+  border:1px solid #f0bfd4 !important;
+  box-shadow:none !important;
+}
+.side-actions .btn:not(.sub){
+  background:linear-gradient(180deg,#ff7eb3,#ff5fa5) !important;
+  color:#fff !important;
+  border-color:transparent !important;
+  box-shadow:0 10px 22px rgba(255,95,165,.22) !important;
+}
+@media(max-width:760px){
+  .image-media-block{
+    align-items:flex-start !important;
+  }
+  .image-media-block .first-image-display-box,
+  .image-media-block .first-image-display-options,
+  .media-tool-row{
+    justify-content:flex-start !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -4076,14 +4214,6 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
                   </select>
                 </div>
               </div>
-              <div class="first-image-display-box first-image-display-inline">
-                <div class="first-image-display-title">첫 이미지 표시 방식</div>
-                <div class="first-image-display-options" role="radiogroup" aria-label="첫 이미지 표시 방식">
-                  <label class="image-layout-pill"><input type="radio" name="newsImageLayout" value="auto" checked><span>자동</span></label>
-                  <label class="image-layout-pill"><input type="radio" name="newsImageLayout" value="wide"><span>가로형</span></label>
-                  <label class="image-layout-pill"><input type="radio" name="newsImageLayout" value="portrait"><span>세로형</span></label>
-                </div>
-              </div>
             </div>
             <div class="font-control-row">
               <div class="font-size-stepper" aria-label="글씨 크기">
@@ -4118,10 +4248,22 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
                   </div>
                 </div>
               </div>
-              <button type="button" class="tool-pill" onclick="insertNewsImage()">사진</button>
-              <button type="button" class="tool-pill" onclick="insertNewsLink()">링크</button>
-              <button type="button" class="tool-pill" onclick="insertNewsTable()">표</button>
-              <button type="button" class="tool-pill" onclick="openPollModal()">투표</button>
+            </div>
+            <div class="image-media-block" aria-label="첫 이미지와 미디어 도구">
+              <div class="first-image-display-box first-image-display-inline">
+                <div class="first-image-display-title">첫 이미지 표시 방식</div>
+                <div class="first-image-display-options" role="radiogroup" aria-label="첫 이미지 표시 방식">
+                  <label class="image-layout-pill"><input type="radio" name="newsImageLayout" value="auto" checked><span>자동</span></label>
+                  <label class="image-layout-pill"><input type="radio" name="newsImageLayout" value="wide"><span>가로형</span></label>
+                  <label class="image-layout-pill"><input type="radio" name="newsImageLayout" value="portrait"><span>세로형</span></label>
+                </div>
+              </div>
+              <div class="media-tool-row">
+                <button type="button" class="tool-pill" onclick="insertNewsImage()">사진</button>
+                <button type="button" class="tool-pill" onclick="insertNewsLink()">링크</button>
+                <button type="button" class="tool-pill" onclick="insertNewsTable()">표</button>
+                <button type="button" class="tool-pill" onclick="openPollModal()">투표</button>
+              </div>
             </div>
           </div>
 
@@ -4355,7 +4497,12 @@ function setPublishedValue(v){
   if(el)el.checked=true;
 }
 function syncBodyToTextarea(){
-  q('newsBody').value = q('newsBodyEditor').innerHTML;
+  const editor = q('newsBodyEditor');
+  q('newsBody').value = editor.innerHTML;
+  if(!editor.querySelector('img')){
+    if(q('newsBodyImage')) q('newsBodyImage').value='';
+    if(q('newsBodyAlt')) q('newsBodyAlt').value='';
+  }
 }
 function getNewsImageLayout(){
   return document.querySelector('input[name="newsImageLayout"]:checked')?.value || 'auto';
