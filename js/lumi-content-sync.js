@@ -206,8 +206,39 @@
     });
   }
 
+  function fetchPost(action, payload){
+    payload = payload || {};
+    const form = new URLSearchParams();
+    form.set('action', action);
+    form.set('payload', JSON.stringify(payload));
+    form.set('responseMode', 'json');
+
+    return fetch(API_URL, {
+      method: 'POST',
+      mode: 'cors',
+      redirect: 'follow',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+      },
+      body: form.toString()
+    }).then(function(res){
+      if(!res.ok){
+        throw {ok:false,error:'httpError',status:res.status,statusText:res.statusText};
+      }
+      return res.text();
+    }).then(function(text){
+      let data;
+      try{ data = JSON.parse(text || '{}'); }
+      catch(err){
+        throw {ok:false,error:'invalidJsonResponse',message:String(err && err.message ? err.message : err),raw:text};
+      }
+      if(data && data.ok === false) throw data;
+      return data || {};
+    });
+  }
+
   function uploadNewsImage(payload){
-    return iframePost('uploadNewsImage', payload || {});
+    return fetchPost('uploadNewsImage', payload || {});
   }
 
   function readState(){
