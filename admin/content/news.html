@@ -654,6 +654,10 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
   align-items:center;
   justify-content:center;
   padding:24px;
+  /* [5] 실제 페이지 통합 시 overflow/transform 충돌 방지 */
+  overflow:hidden;
+  transform:none !important;
+  contain:layout style;
 }
 .modal-backdrop[hidden]{display:none!important}
 .news-editor-modal,
@@ -6536,7 +6540,7 @@ function restoreNewsSelection(){
   const editor=q('newsBodyEditor');
   if(!editor) return;
   // 이미 에디터가 포커스 상태면 focus() 호출 안 함 (undo 스택 보존)
-  if(document.activeElement !== editor) editor.focus();
+  if(document.activeElement !== editor) editor.focus({preventScroll:true});
   if(savedNewsRange){
     const sel=window.getSelection();
     sel.removeAllRanges();
@@ -6686,7 +6690,7 @@ function getEditorRangeForFormat(){
 function restoreRangeForFormat(range){
   const editor=q('newsBodyEditor');
   if(!editor || !range)return false;
-  editor.focus();
+  editor.focus({preventScroll:true});
   const sel=window.getSelection();
   sel.removeAllRanges();
   sel.addRange(range);
@@ -6759,7 +6763,7 @@ function applyNewsFontSize(px){
   }
 
   // 선택 영역이 없을 때: 앞으로 입력할 크기 저장
-  editor.focus();
+  editor.focus({preventScroll:true});
   try{
     document.execCommand('fontSize',false,'7');
   }catch(e){}
@@ -7047,7 +7051,7 @@ function insertNewsSticker(src,label,closeAfter=true,originalSrc='',size='medium
     }
   }catch(err){inserted=false;}
   if(!inserted){
-    editor.focus();
+    editor.focus({preventScroll:true});
     stickerAlign=getCurrentNewsTextAlign() || stickerAlign || activeNewsTextAlign || 'left';
     applyNewsStickerBlockAlign(wrap,stickerAlign);
     editor.appendChild(wrap);
@@ -7417,11 +7421,17 @@ async function getPhotoEditorCanvasSrc(item){
   return item && item.src ? item.src : '';
 }
 
+/* 이미지 캐시 - 동일 src 반복 decode 방지 (저장 속도 개선) */
+const _imgCanvasCache=new Map();
 function loadImageForCanvas(src){
+  if(_imgCanvasCache.has(src))return Promise.resolve(_imgCanvasCache.get(src));
   return new Promise((resolve,reject)=>{
     const img=new Image();
     img.crossOrigin='anonymous';
-    img.onload=()=>resolve(img);
+    img.onload=()=>{
+      if(_imgCanvasCache.size<50)_imgCanvasCache.set(src,img);
+      resolve(img);
+    };
     img.onerror=()=>reject(new Error('이미지 로드 실패'));
     img.src=src;
   });
@@ -7503,10 +7513,11 @@ const NEWS_FIXED_COLLAGE_FRAME={
   name:'루미벨 기본 사진네컷',
   meta:{width:900,height:1200,displayWidth:520,slots:[
     /* 고정 프레임은 검은 손그림 선 안쪽으로 여유를 둔 수동 좌표를 사용합니다. */
-    {x:153,y:142,w:260,h:392},
-    {x:476,y:142,w:260,h:392},
-    {x:153,y:598,w:260,h:392},
-    {x:476,y:598,w:260,h:392}
+    /* [4] 프레임 오버 방지: 각 슬롯을 사방 10px씩 안으로 줄임 */
+    {x:163,y:152,w:240,h:372},
+    {x:486,y:152,w:240,h:372},
+    {x:163,y:608,w:240,h:372},
+    {x:486,y:608,w:240,h:372}
   ]}
 };
 let newsCollageTemplate='grid6';
@@ -7524,10 +7535,14 @@ let lumiLightboxItems=[];
 let lumiLightboxIndex=0;
 
 function newsToolSetStatus(id,msg){const el=q(id);if(el)el.textContent=msg;}
-function openNewsCollageModal(){const m=q('newsCollageModal');if(m){m.hidden=false;renderNewsCollage();renderNewsCollagePhotoBin();}}
-function closeNewsCollageModal(){const m=q('newsCollageModal');if(m)m.hidden=true;}
-function openNewsSliderModal(){const m=q('newsSliderModal');if(m){m.hidden=false;renderNewsSlider();renderNewsSliderBin();}}
-function closeNewsSliderModal(){const m=q('newsSliderModal');if(m)m.hidden=true;}
+/* [2] 스크롤 점프 방지: 모달 열기/닫기 시 window 스크롤 위치 보존 */
+let _lumiSavedScrollY=0;
+function _lumiSaveScroll(){_lumiSavedScrollY=window.scrollY||document.documentElement.scrollTop||0;}
+function _lumiRestoreScroll(){requestAnimationFrame(()=>window.scrollTo({top:_lumiSavedScrollY,behavior:'instant'}));}
+function openNewsCollageModal(){_lumiSaveScroll();const m=q('newsCollageModal');if(m){m.hidden=false;renderNewsCollage();renderNewsCollagePhotoBin();}}
+function closeNewsCollageModal(){const m=q('newsCollageModal');if(m)m.hidden=true;_lumiRestoreScroll();}
+function openNewsSliderModal(){_lumiSaveScroll();const m=q('newsSliderModal');if(m){m.hidden=false;renderNewsSlider();renderNewsSliderBin();}}
+function closeNewsSliderModal(){const m=q('newsSliderModal');if(m)m.hidden=true;_lumiRestoreScroll();}
 function triggerNewsCollageUpload(){q('newsCollagePhotoInput')?.click();}
 function triggerNewsCollageFrameUpload(){q('newsCollageFrameInput')?.click();}
 function triggerNewsSliderUpload(){q('newsSliderPhotoInput')?.click();}
@@ -7647,24 +7662,139 @@ function loadNewsCollageRecentImages(){
 }
 async function drawNewsCollageCanvas(){
   ensureNewsCollageSlots();
-  let outW=1200,outH=900,slotRects=[];
+  let outW=1200,outH=900;
   const custom=frameSlots();
-  if(custom&&newsCollageFrameMeta){outW=newsCollageFrameMeta.width;outH=newsCollageFrameMeta.height;slotRects=custom;}
-  else{
+
+  /* ── export 슬롯 좌표 계산 (renderNewsCollage와 동일 공식) ── */
+  let exportSlotRects=[];
+  if(custom&&newsCollageFrameMeta){
+    outW=newsCollageFrameMeta.width;
+    outH=newsCollageFrameMeta.height;
+    exportSlotRects=custom; // 원본 좌표 그대로 사용
+  }else{
     const padX=outW*.06,padY=outH*.06,bottom=outH*.16,gap=outW*.03;
-    if(newsCollageTemplate==='grid6'){const w=(outW-padX*2-gap*2)/3,h=(outH-padY-bottom-gap)/2;slotRects=[0,1,2,3,4,5].map(i=>({x:padX+(i%3)*(w+gap),y:padY+Math.floor(i/3)*(h+gap),w,h}));}
-    if(newsCollageTemplate==='grid4'||newsCollageTemplate==='life4v'){const left=newsCollageTemplate==='life4v'?outW*.17:padX,right=left,w=(outW-left-right-gap)/2,h=(outH-padY-bottom-gap)/2;slotRects=[0,1,2,3].map(i=>({x:left+(i%2)*(w+gap),y:padY+Math.floor(i/2)*(h+gap),w,h}));}
-    if(newsCollageTemplate==='life4h'){const y=outH*.22,h=outH*.52,w=(outW-padX*2-gap*3)/4;slotRects=[0,1,2,3].map(i=>({x:padX+i*(w+gap),y,w,h}));}
-    if(newsCollageTemplate==='main2'){const mainW=(outW-padX*2-gap)*.58,subW=(outW-padX*2-gap)-mainW,halfH=(outH-padY-bottom-gap)/2;slotRects=[{x:padX,y:padY,w:mainW,h:halfH*2+gap},{x:padX+mainW+gap,y:padY,w:subW,h:halfH},{x:padX+mainW+gap,y:padY+halfH+gap,w:subW,h:halfH}];}
+    if(newsCollageTemplate==='grid6'){
+      const w=(outW-padX*2-gap*2)/3,h=(outH-padY-bottom-gap)/2;
+      exportSlotRects=[0,1,2,3,4,5].map(i=>({x:padX+(i%3)*(w+gap),y:padY+Math.floor(i/3)*(h+gap),w,h}));
+    }
+    if(newsCollageTemplate==='grid4'||newsCollageTemplate==='life4v'){
+      const left=newsCollageTemplate==='life4v'?outW*.17:padX,right=left;
+      const w=(outW-left-right-gap)/2,h=(outH-padY-bottom-gap)/2;
+      exportSlotRects=[0,1,2,3].map(i=>({x:left+(i%2)*(w+gap),y:padY+Math.floor(i/2)*(h+gap),w,h}));
+    }
+    if(newsCollageTemplate==='life4h'){
+      const y=outH*.22,h=outH*.52,w=(outW-padX*2-gap*3)/4;
+      exportSlotRects=[0,1,2,3].map(i=>({x:padX+i*(w+gap),y,w,h}));
+    }
+    if(newsCollageTemplate==='main2'){
+      const mainW=(outW-padX*2-gap)*.58,subW=(outW-padX*2-gap)-mainW,halfH=(outH-padY-bottom-gap)/2;
+      exportSlotRects=[
+        {x:padX,y:padY,w:mainW,h:halfH*2+gap},
+        {x:padX+mainW+gap,y:padY,w:subW,h:halfH},
+        {x:padX+mainW+gap,y:padY+halfH+gap,w:subW,h:halfH}
+      ];
+    }
   }
-  const canvas=document.createElement('canvas');canvas.width=outW;canvas.height=outH;const ctx=canvas.getContext('2d');ctx.fillStyle='#fff8fc';ctx.fillRect(0,0,outW,outH);
-  for(let i=0;i<slotRects.length;i++){const r=slotRects[i],s=newsCollageSlots[i];ctx.save();ctx.beginPath();ctx.rect(r.x,r.y,r.w,r.h);ctx.clip();ctx.fillStyle='#fff';ctx.fillRect(r.x,r.y,r.w,r.h);if(s&&s.src){const img=await loadImageForCanvas(s.src);const iw=s.naturalWidth||img.naturalWidth||img.width,ih=s.naturalHeight||img.naturalHeight||img.height;const base=Math.min(r.w/iw,r.h/ih);const dw=iw*base*(s.scale||1),dh=ih*base*(s.scale||1);ctx.drawImage(img,r.x+r.w/2-dw/2+(s.offsetX||0),r.y+r.h/2-dh/2+(s.offsetY||0),dw,dh);}ctx.restore();ctx.strokeStyle='#ffacd2';ctx.lineWidth=2;ctx.strokeRect(r.x,r.y,r.w,r.h);}
-  if(!newsCollageFrameSrc){ctx.fillStyle='#d86fa5';ctx.font='900 54px system-ui,sans-serif';ctx.textAlign='center';ctx.fillText(NEWS_COLLAGE_TEMPLATES[newsCollageTemplate].caption,outW/2,outH*.92);}
-  if(newsCollageFrameSrc){const fr=await loadImageForCanvas(newsCollageFrameSrc);ctx.drawImage(fr,0,0,outW,outH);}
+
+  /* ── preview 슬롯 DOM에서 실제 렌더 크기 읽기 ──
+     각 슬롯의 clientWidth/clientHeight와 export 크기 비율로
+     offsetX/Y를 보정한다. DOM을 못 읽으면 기하학적 추정치 사용. */
+  const frameEl=q('newsCollageFrame');
+  const previewSlotEls=frameEl ? frameEl.querySelectorAll('.news-collage-slot') : [];
+
+  const canvas=document.createElement('canvas');
+  canvas.width=outW;canvas.height=outH;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#fff8fc';
+  ctx.fillRect(0,0,outW,outH);
+
+  for(let i=0;i<exportSlotRects.length;i++){
+    const r=exportSlotRects[i];
+    const s=newsCollageSlots[i];
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(r.x,r.y,r.w,r.h);
+    ctx.clip();
+    ctx.fillStyle='#fff';
+    ctx.fillRect(r.x,r.y,r.w,r.h);
+
+    if(s&&s.src){
+      const img=await loadImageForCanvas(s.src);
+      const iw=s.naturalWidth||img.naturalWidth||img.width;
+      const ih=s.naturalHeight||img.naturalHeight||img.height;
+
+      /* preview 슬롯의 실제 픽셀 크기를 읽어 export 배율 계산 */
+      let exportScale=1;
+      const previewEl=previewSlotEls[i];
+      if(previewEl){
+        const pw=previewEl.clientWidth||previewEl.offsetWidth;
+        const ph=previewEl.clientHeight||previewEl.offsetHeight;
+        if(pw>0&&ph>0){
+          /* 가로/세로 비율 중 슬롯 비율에 맞는 쪽 선택 */
+          exportScale=(r.w/pw+r.h/ph)/2;
+        }
+      } else if(custom&&newsCollageFrameMeta){
+        /* DOM 없을 때: frame preview scale 역산 */
+        const preferredW=newsCollageFrameFixed&&newsCollageFrameMeta.displayWidth
+          ?newsCollageFrameMeta.displayWidth:(newsCollageFrameMeta.width||820);
+        const maxW=Math.min(820,Math.max(320,preferredW));
+        const pScale=maxW/(newsCollageFrameMeta.width||maxW);
+        exportScale=1/pScale;
+      } else {
+        /* grid 모드 DOM 없을 때: frame 폭 비율 추정 */
+        if(frameEl){const fw=frameEl.offsetWidth||820;exportScale=outW/fw;}
+      }
+
+      const ox=(s.offsetX||0)*exportScale;
+      const oy=(s.offsetY||0)*exportScale;
+      const base=Math.min(r.w/iw,r.h/ih);
+      const dw=iw*base*(s.scale||1);
+      const dh=ih*base*(s.scale||1);
+      ctx.drawImage(img,r.x+r.w/2-dw/2+ox,r.y+r.h/2-dh/2+oy,dw,dh);
+    }
+    ctx.restore();
+    ctx.strokeStyle='#ffacd2';
+    ctx.lineWidth=2;
+    ctx.strokeRect(r.x,r.y,r.w,r.h);
+  }
+
+  if(!newsCollageFrameSrc){
+    ctx.fillStyle='#d86fa5';
+    ctx.font='900 54px system-ui,sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(NEWS_COLLAGE_TEMPLATES[newsCollageTemplate].caption,outW/2,outH*.92);
+  }
+  if(newsCollageFrameSrc){
+    const fr=await loadImageForCanvas(newsCollageFrameSrc);
+    ctx.drawImage(fr,0,0,outW,outH);
+  }
   return await new Promise(resolve=>canvas.toBlob(resolve,'image/webp',.88));
 }
 async function saveNewsCollageToBody(){
-  try{newsToolSetStatus('newsCollageStatus','콜라주 저장 중...');const blob=await drawNewsCollageCanvas();if(!blob)throw new Error('콜라주 생성 실패');const base64=await blobToBase64(blob);if(!window.LumiContentSync||!LumiContentSync.uploadNewsImage)throw new Error('이미지 업로드 API 연결 필요');const uploaded=await LumiContentSync.uploadNewsImage({fileName:'collage-'+Date.now()+'.webp',mimeType:'image/webp',data:base64,folderName:q('newsCategory')?q('newsCategory').value:''});const imageUrl=uploaded.imageUrl||uploaded.thumbnailUrl||uploaded.url;if(!imageUrl)throw new Error('Drive URL 없음');insertNewsImageHtmlToEditor(imageUrl,'Lumibelle collage',uploaded.fileId||'');closeNewsCollageModal();toast('콜라주를 본문에 넣었어요.');}catch(err){console.error(err);newsToolSetStatus('newsCollageStatus','콜라주 저장 실패: '+(err.message||err));}
+  /* [3] 버튼 즉시 비활성화 + 상태 표시로 체감 속도 개선 */
+  const saveBtn=document.querySelector('[onclick="saveNewsCollageToBody()"]');
+  if(saveBtn){saveBtn.disabled=true;saveBtn.textContent='저장 중…';}
+  try{
+    newsToolSetStatus('newsCollageStatus','콜라주 이미지 생성 중...');
+    /* yield 한 프레임: UI 상태 갱신 후 무거운 작업 시작 */
+    await new Promise(r=>requestAnimationFrame(r));
+    const blob=await drawNewsCollageCanvas();
+    if(!blob)throw new Error('콜라주 생성 실패');
+    newsToolSetStatus('newsCollageStatus','Drive에 업로드 중...');
+    const base64=await blobToBase64(blob);
+    if(!window.LumiContentSync||!LumiContentSync.uploadNewsImage)throw new Error('이미지 업로드 API 연결 필요');
+    const uploaded=await LumiContentSync.uploadNewsImage({fileName:'collage-'+Date.now()+'.webp',mimeType:'image/webp',data:base64,folderName:q('newsCategory')?q('newsCategory').value:''});
+    const imageUrl=uploaded.imageUrl||uploaded.thumbnailUrl||uploaded.url;
+    if(!imageUrl)throw new Error('Drive URL 없음');
+    insertNewsImageHtmlToEditor(imageUrl,'Lumibelle collage',uploaded.fileId||'');
+    closeNewsCollageModal();
+    toast('콜라주를 본문에 넣었어요.');
+  }catch(err){
+    console.error(err);
+    newsToolSetStatus('newsCollageStatus','콜라주 저장 실패: '+(err.message||err));
+  }finally{
+    if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='저장 후 본문 삽입';}
+  }
 }
 
 function newsBinEmptyState(text='사진을 불러와 주세요.') {
@@ -7674,10 +7804,28 @@ function newsSliderEmptyState(text='사진을 여러 장 불러와 주세요.') 
   return newsBinEmptyState(text);
 }
 function withNewsSliderScrollLock(fn){
+  /* [2] 슬라이더 렌더 전후로 모든 스크롤 컨테이너 보존 */
   const modal=q('newsSliderModal');
-  const top=modal?modal.scrollTop:0;
+  const snap={
+    winY   : window.scrollY,
+    docTop : document.documentElement.scrollTop,
+    bodyTop: document.body.scrollTop,
+    modal  : modal ? modal.scrollTop : 0,
+  };
   const result=fn();
-  requestAnimationFrame(()=>{ if(modal) modal.scrollTop=top; });
+  requestAnimationFrame(()=>{
+    window.scrollTo({top:snap.winY,behavior:'instant'});
+    document.documentElement.scrollTop=snap.docTop;
+    document.body.scrollTop=snap.bodyTop;
+    if(modal) modal.scrollTop=snap.modal;
+    /* 한 프레임 더: 이미지 로드 후 layout shift 방어 */
+    requestAnimationFrame(()=>{
+      window.scrollTo({top:snap.winY,behavior:'instant'});
+      document.documentElement.scrollTop=snap.docTop;
+      document.body.scrollTop=snap.bodyTop;
+      if(modal) modal.scrollTop=snap.modal;
+    });
+  });
   return result;
 }
 function renderNewsSlider(){
@@ -7744,7 +7892,29 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowLeft'){e.preventDefault();live._lumiGo?.(Number(live.dataset.index||0)-1);}if(e.key==='ArrowRight'){e.preventDefault();live._lumiGo?.(Number(live.dataset.index||0)+1);}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(q('newsCollageModal')&&!q('newsCollageModal').hidden)closeNewsCollageModal();if(q('newsSliderModal')&&!q('newsSliderModal').hidden)closeNewsSliderModal();closeLumiLightbox();}});
-function lockNewsSliderModalScrollOnce(){const modal=q('newsSliderModal');if(!modal||modal.hidden)return;const top=modal.scrollTop;requestAnimationFrame(()=>{modal.scrollTop=top;requestAnimationFrame(()=>{modal.scrollTop=top;});});}
+function lockNewsSliderModalScrollOnce(){
+  /* [2] 모달 내 클릭 시 모든 스크롤 컨테이너 즉시 스냅샷 → 복원 */
+  const modal=q('newsSliderModal');
+  if(!modal||modal.hidden)return;
+  const snap={
+    winY   : window.scrollY,
+    docTop : document.documentElement.scrollTop,
+    bodyTop: document.body.scrollTop,
+    modal  : modal.scrollTop,
+  };
+  requestAnimationFrame(()=>{
+    window.scrollTo({top:snap.winY,behavior:'instant'});
+    document.documentElement.scrollTop=snap.docTop;
+    document.body.scrollTop=snap.bodyTop;
+    modal.scrollTop=snap.modal;
+    requestAnimationFrame(()=>{
+      window.scrollTo({top:snap.winY,behavior:'instant'});
+      document.documentElement.scrollTop=snap.docTop;
+      document.body.scrollTop=snap.bodyTop;
+      modal.scrollTop=snap.modal;
+    });
+  });
+}
 q('newsSliderModal')?.addEventListener('mousedown',lockNewsSliderModalScrollOnce,true);
 q('newsSliderModal')?.addEventListener('click',lockNewsSliderModalScrollOnce,true);
 q('newsCollageModal')?.addEventListener('click',e=>{if(!e.target.closest('.news-collage-modal'))closeNewsCollageModal();});
@@ -7787,6 +7957,7 @@ function closeRecentNewsImages(){
   recentNewsGalleryMessageType='';
   recentNewsSelectedIndexes.clear();
   recentNewsPickerTarget='editor';
+  _lumiRestoreScroll();
 }
 async function loadRecentNewsImages(folderName=''){
   const body=q('recentImageModalBody');
@@ -7939,18 +8110,28 @@ async function insertSelectedRecentNewsImages(){
   const items=selected.map(index=>recentNewsCurrentItems[index]).filter(Boolean);
 
   if(recentNewsPickerTarget==='collage'){
+    /* [1] 즉시 삽입: Drive dataUrl 변환 없이 imageUrl/thumbnailUrl 바로 사용
+       원본 dataUrl이 필요한 경우(저장 단계)엔 fileId를 보관해 뒀다가 그때 처리 */
     let added=0;
-    newsToolSetStatus('newsCollageStatus','선택한 최근사진을 콜라주에 불러오는 중...');
-    for(const item of items){
+    const promises=items.map(async item=>{
       try{
-        let src=item.imageUrl||item.thumbnailUrl||'';
-        if(item.fileId) src=await getPhotoEditorDriveDataUrl(item.fileId);
-        if(!src) continue;
+        const src=item.imageUrl||item.thumbnailUrl||'';
+        if(!src)return;
         const size=await newsImageSize(src);
-        newsCollagePhotos.push({src,name:item.name||'recent image',kind:'recent',imageUrl:item.imageUrl||'',fileId:item.fileId||'',naturalWidth:size.w,naturalHeight:size.h,scale:1,offsetX:0,offsetY:0});
+        newsCollagePhotos.push({
+          src,
+          name:item.name||'recent image',
+          kind:'recent',
+          imageUrl:item.imageUrl||src,
+          fileId:item.fileId||'',
+          naturalWidth:size.w,
+          naturalHeight:size.h,
+          scale:1,offsetX:0,offsetY:0
+        });
         added++;
       }catch(err){console.warn('[콜라주 최근사진 추가 실패]',err);}
-    }
+    });
+    await Promise.all(promises);
     renderNewsCollagePhotoBin();
     newsToolSetStatus('newsCollageStatus', added ? `최근사진 ${added}장을 사진 보관함에 추가했어요.` : '최근사진을 추가하지 못했어요.');
     closeRecentNewsImages();
@@ -8086,7 +8267,7 @@ function insertNewsImageHtmlToEditor(imageUrl, imageAlt, driveFileId){
 
   // 2차 폴백: 에디터 맨 아래에 직접 붙이기 (무조건 동작 보장)
   if(!inserted){
-    editor.focus();
+    editor.focus({preventScroll:true});
     // 에디터가 비어 있으면 초기화
     if(!editor.firstChild){
       const initP=document.createElement('p');
@@ -8968,6 +9149,31 @@ function ctxDeleteTable(){
 load();
 (function(){setupTableContextMenu();})();
 (function(){setupTableContextMenu();})();
+
+/* =========================================================
+   [5] 실제 페이지 통합 시 position:fixed 깨짐 방지
+   modal-backdrop 요소들을 <body> 직하위로 이동시켜
+   부모의 transform/filter 영향을 차단합니다.
+   ========================================================= */
+(function hoistModalsToBody(){
+  const IDS=['newsRecentImageModal','newsStickerModal','newsPhotoEditorModal',
+             'newsCollageModal','newsSliderModal','newsPreviewModal',
+             'newsDraftModal','newsPollModal','lumiLightboxBackdrop'];
+  function doHoist(){
+    IDS.forEach(id=>{
+      const el=document.getElementById(id);
+      if(el && el.parentNode !== document.body){
+        document.body.appendChild(el);
+      }
+    });
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', doHoist);
+  } else {
+    doHoist();
+  }
+})();
+
 </script>
 </body>
 </html>
