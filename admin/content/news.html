@@ -7512,12 +7512,11 @@ const NEWS_FIXED_COLLAGE_FRAME={
   src:'../../assets/collage/luminecut_frame_4cut.png',
   name:'루미벨 기본 사진네컷',
   meta:{width:900,height:1200,displayWidth:520,slots:[
-    /* 고정 프레임은 검은 손그림 선 안쪽으로 여유를 둔 수동 좌표를 사용합니다. */
-    /* [4] 프레임 오버 방지: 각 슬롯을 사방 10px씩 안으로 줄임 */
-    {x:163,y:152,w:240,h:372},
-    {x:486,y:152,w:240,h:372},
-    {x:163,y:608,w:240,h:372},
-    {x:486,y:608,w:240,h:372}
+    /* 고정 프레임: 검은 손그림 선 안쪽으로 4px 여유를 둔 좌표 (프레임 오버 방지 + 꽉찬 느낌 유지) */
+    {x:157,y:146,w:252,h:384},
+    {x:480,y:146,w:252,h:384},
+    {x:157,y:602,w:252,h:384},
+    {x:480,y:602,w:252,h:384}
   ]}
 };
 let newsCollageTemplate='grid6';
@@ -7665,12 +7664,11 @@ async function drawNewsCollageCanvas(){
   let outW=1200,outH=900;
   const custom=frameSlots();
 
-  /* ── export 슬롯 좌표 계산 (renderNewsCollage와 동일 공식) ── */
+  /* ── export 슬롯 좌표 (renderNewsCollage와 동일 공식) ── */
   let exportSlotRects=[];
   if(custom&&newsCollageFrameMeta){
-    outW=newsCollageFrameMeta.width;
-    outH=newsCollageFrameMeta.height;
-    exportSlotRects=custom; // 원본 좌표 그대로 사용
+    outW=newsCollageFrameMeta.width; outH=newsCollageFrameMeta.height;
+    exportSlotRects=custom;
   }else{
     const padX=outW*.06,padY=outH*.06,bottom=outH*.16,gap=outW*.03;
     if(newsCollageTemplate==='grid6'){
@@ -7696,14 +7694,39 @@ async function drawNewsCollageCanvas(){
     }
   }
 
-  /* ── preview 슬롯 DOM에서 실제 렌더 크기 읽기 ──
-     각 슬롯의 clientWidth/clientHeight와 export 크기 비율로
-     offsetX/Y를 보정한다. DOM을 못 읽으면 기하학적 추정치 사용. */
+  /* ── 저장 전: 슬롯에 실제 사용 중인 recent 사진만 dataUrl 확보 ──
+     선택 삽입 단계에서는 imageUrl만 저장했으므로,
+     CORS-safe dataUrl이 필요한 경우 fileId로 Drive 변환.
+     캐시(photoEditorImageDataCache)를 공유하므로 중복 변환 없음. */
+  const failedNames=[];
+  for(let i=0;i<exportSlotRects.length;i++){
+    const s=newsCollageSlots[i];
+    if(!s||!s.src) continue;
+    if(s.kind==='recent'&&s.fileId){
+      try{
+        const dataUrl=await getPhotoEditorDriveDataUrl(s.fileId);
+        s.src=dataUrl; // slot src를 dataUrl로 교체 (캔버스 그리기용)
+        if(s.naturalWidth<2||s.naturalHeight<2){
+          const sz=await newsImageSize(dataUrl);
+          s.naturalWidth=sz.w; s.naturalHeight=sz.h;
+        }
+      }catch(err){
+        console.warn('[콜라주 저장] dataUrl 변환 실패:',s.name,err);
+        failedNames.push(s.name||`슬롯 ${i+1}`);
+      }
+    }
+  }
+  if(failedNames.length){
+    newsToolSetStatus('newsCollageStatus',`⚠ 이미지 변환 실패: ${failedNames.join(', ')} - Drive 연결을 확인해 주세요.`);
+    return null;
+  }
+
+  /* ── preview 슬롯 DOM에서 실제 렌더 크기 읽어 offsetX/Y 보정 ── */
   const frameEl=q('newsCollageFrame');
   const previewSlotEls=frameEl ? frameEl.querySelectorAll('.news-collage-slot') : [];
 
   const canvas=document.createElement('canvas');
-  canvas.width=outW;canvas.height=outH;
+  canvas.width=outW; canvas.height=outH;
   const ctx=canvas.getContext('2d');
   ctx.fillStyle='#fff8fc';
   ctx.fillRect(0,0,outW,outH);
@@ -7723,25 +7746,19 @@ async function drawNewsCollageCanvas(){
       const iw=s.naturalWidth||img.naturalWidth||img.width;
       const ih=s.naturalHeight||img.naturalHeight||img.height;
 
-      /* preview 슬롯의 실제 픽셀 크기를 읽어 export 배율 계산 */
+      /* 슬롯별 exportScale: preview DOM 크기 vs export 크기 */
       let exportScale=1;
       const previewEl=previewSlotEls[i];
       if(previewEl){
         const pw=previewEl.clientWidth||previewEl.offsetWidth;
         const ph=previewEl.clientHeight||previewEl.offsetHeight;
-        if(pw>0&&ph>0){
-          /* 가로/세로 비율 중 슬롯 비율에 맞는 쪽 선택 */
-          exportScale=(r.w/pw+r.h/ph)/2;
-        }
+        if(pw>0&&ph>0) exportScale=(r.w/pw+r.h/ph)/2;
       } else if(custom&&newsCollageFrameMeta){
-        /* DOM 없을 때: frame preview scale 역산 */
         const preferredW=newsCollageFrameFixed&&newsCollageFrameMeta.displayWidth
           ?newsCollageFrameMeta.displayWidth:(newsCollageFrameMeta.width||820);
         const maxW=Math.min(820,Math.max(320,preferredW));
-        const pScale=maxW/(newsCollageFrameMeta.width||maxW);
-        exportScale=1/pScale;
+        exportScale=1/(maxW/(newsCollageFrameMeta.width||maxW));
       } else {
-        /* grid 모드 DOM 없을 때: frame 폭 비율 추정 */
         if(frameEl){const fw=frameEl.offsetWidth||820;exportScale=outW/fw;}
       }
 
@@ -7779,7 +7796,11 @@ async function saveNewsCollageToBody(){
     /* yield 한 프레임: UI 상태 갱신 후 무거운 작업 시작 */
     await new Promise(r=>requestAnimationFrame(r));
     const blob=await drawNewsCollageCanvas();
-    if(!blob)throw new Error('콜라주 생성 실패');
+    if(!blob){
+      /* drawNewsCollageCanvas가 null을 반환한 경우 이미 상태 메시지 설정됨 */
+      if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='저장 후 본문 삽입';}
+      return;
+    }
     newsToolSetStatus('newsCollageStatus','Drive에 업로드 중...');
     const base64=await blobToBase64(blob);
     if(!window.LumiContentSync||!LumiContentSync.uploadNewsImage)throw new Error('이미지 업로드 API 연결 필요');
@@ -7803,28 +7824,41 @@ function newsBinEmptyState(text='사진을 불러와 주세요.') {
 function newsSliderEmptyState(text='사진을 여러 장 불러와 주세요.') {
   return newsBinEmptyState(text);
 }
-function withNewsSliderScrollLock(fn){
-  /* [2] 슬라이더 렌더 전후로 모든 스크롤 컨테이너 보존 */
-  const modal=q('newsSliderModal');
-  const snap={
-    winY   : window.scrollY,
-    docTop : document.documentElement.scrollTop,
-    bodyTop: document.body.scrollTop,
-    modal  : modal ? modal.scrollTop : 0,
+function getNewsSliderScrollContainers(){
+  const backdrop = q('newsSliderModal');
+  const panel    = backdrop ? backdrop.querySelector('.news-slider-modal') : null;
+  const stage    = q('newsSliderStage');
+  const bin      = q('newsSliderBin');
+  return {backdrop, panel, stage, bin};
+}
+function snapNewsSliderScroll(){
+  const c = getNewsSliderScrollContainers();
+  return {
+    winY    : window.scrollY,
+    docTop  : document.documentElement.scrollTop,
+    bodyTop : document.body.scrollTop,
+    backdrop: c.backdrop ? c.backdrop.scrollTop : 0,
+    panel   : c.panel    ? c.panel.scrollTop    : 0,
+    stage   : c.stage    ? c.stage.scrollTop    : 0,
+    bin     : c.bin      ? c.bin.scrollTop      : 0,
   };
-  const result=fn();
+}
+function restoreNewsSliderScroll(snap){
+  const c = getNewsSliderScrollContainers();
+  window.scrollTo({top: snap.winY, behavior: 'instant'});
+  document.documentElement.scrollTop = snap.docTop;
+  document.body.scrollTop            = snap.bodyTop;
+  if(c.backdrop) c.backdrop.scrollTop = snap.backdrop;
+  if(c.panel)    c.panel.scrollTop    = snap.panel;
+  if(c.stage)    c.stage.scrollTop    = snap.stage;
+  if(c.bin)      c.bin.scrollTop      = snap.bin;
+}
+function withNewsSliderScrollLock(fn){
+  const snap = snapNewsSliderScroll();
+  const result = fn();
   requestAnimationFrame(()=>{
-    window.scrollTo({top:snap.winY,behavior:'instant'});
-    document.documentElement.scrollTop=snap.docTop;
-    document.body.scrollTop=snap.bodyTop;
-    if(modal) modal.scrollTop=snap.modal;
-    /* 한 프레임 더: 이미지 로드 후 layout shift 방어 */
-    requestAnimationFrame(()=>{
-      window.scrollTo({top:snap.winY,behavior:'instant'});
-      document.documentElement.scrollTop=snap.docTop;
-      document.body.scrollTop=snap.bodyTop;
-      if(modal) modal.scrollTop=snap.modal;
-    });
+    restoreNewsSliderScroll(snap);
+    requestAnimationFrame(()=>restoreNewsSliderScroll(snap));
   });
   return result;
 }
@@ -7836,8 +7870,14 @@ function renderNewsSlider(){
   stage.innerHTML=`<div class="news-slider-main" style="--news-slider-bg:url('${htmlEscape(p.src)}')"><button type="button" class="news-slider-nav news-slider-prev" onmousedown="event.preventDefault()" onclick="event.preventDefault();moveNewsSlider(-1)">‹</button><img src="${htmlEscape(p.src)}" alt="${htmlEscape(p.name||'slide')}"><button type="button" class="news-slider-nav news-slider-next" onmousedown="event.preventDefault()" onclick="event.preventDefault();moveNewsSlider(1)">›</button><div class="news-slider-count">${newsSliderIndex+1} / ${newsSliderPhotos.length}</div></div><div class="news-slider-thumb-row">${newsSliderPhotos.map((it,i)=>`<button type="button" class="news-slider-thumb ${i===newsSliderIndex?'active':''}" onmousedown="event.preventDefault()" onclick="event.preventDefault();goNewsSlider(${i})"><img src="${htmlEscape(it.src)}" alt="${htmlEscape(it.name||'slide')}"></button>`).join('')}</div>`;
 }
 function renderNewsSliderBin(){const bin=q('newsSliderBin');if(!bin)return;if(!newsSliderPhotos.length){bin.classList.add('is-empty');bin.innerHTML=newsSliderEmptyState('슬라이더 사진을 선택해 주세요.');return;}bin.classList.remove('is-empty');bin.innerHTML=newsSliderPhotos.map((p,i)=>`<button type="button" class="news-bin-card ${i===newsSliderIndex?'active':''}" onmousedown="event.preventDefault()" onclick="event.preventDefault();goNewsSlider(${i})"><img src="${htmlEscape(p.src)}" alt="${htmlEscape(p.name||'image')}"><span>${htmlEscape(p.name||'image')}</span></button>`).join('');}
-function moveNewsSlider(delta){withNewsSliderScrollLock(()=>{if(!newsSliderPhotos.length)return;newsSliderIndex=(newsSliderIndex+delta+newsSliderPhotos.length)%newsSliderPhotos.length;renderNewsSlider();renderNewsSliderBin();});}
-function goNewsSlider(i){withNewsSliderScrollLock(()=>{newsSliderIndex=i;renderNewsSlider();renderNewsSliderBin();});}
+function moveNewsSlider(delta){
+  if(document.activeElement&&document.activeElement!==document.body)document.activeElement.blur();
+  withNewsSliderScrollLock(()=>{if(!newsSliderPhotos.length)return;newsSliderIndex=(newsSliderIndex+delta+newsSliderPhotos.length)%newsSliderPhotos.length;renderNewsSlider();renderNewsSliderBin();});
+}
+function goNewsSlider(i){
+  if(document.activeElement&&document.activeElement!==document.body)document.activeElement.blur();
+  withNewsSliderScrollLock(()=>{newsSliderIndex=i;renderNewsSlider();renderNewsSliderBin();});
+}
 function clearNewsSliderCurrent(){withNewsSliderScrollLock(()=>{if(!newsSliderPhotos.length)return;newsSliderPhotos.splice(newsSliderIndex,1);if(newsSliderIndex>=newsSliderPhotos.length)newsSliderIndex=Math.max(0,newsSliderPhotos.length-1);renderNewsSlider();renderNewsSliderBin();});}
 function resetNewsSlider(){withNewsSliderScrollLock(()=>{newsSliderPhotos=[];newsSliderIndex=0;renderNewsSlider();renderNewsSliderBin();newsToolSetStatus('newsSliderStatus','슬라이더를 초기화했어요.');});}
 q('newsSliderPhotoInput')?.addEventListener('change',async e=>{const photos=await newsFilesToPhotos(e.target.files,'local');newsSliderPhotos.push(...photos);e.target.value='';renderNewsSlider();renderNewsSliderBin();newsToolSetStatus('newsSliderStatus',`${photos.length}장의 사진을 불러왔어요.`);});
@@ -7892,27 +7932,19 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowLeft'){e.preventDefault();live._lumiGo?.(Number(live.dataset.index||0)-1);}if(e.key==='ArrowRight'){e.preventDefault();live._lumiGo?.(Number(live.dataset.index||0)+1);}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(q('newsCollageModal')&&!q('newsCollageModal').hidden)closeNewsCollageModal();if(q('newsSliderModal')&&!q('newsSliderModal').hidden)closeNewsSliderModal();closeLumiLightbox();}});
-function lockNewsSliderModalScrollOnce(){
-  /* [2] 모달 내 클릭 시 모든 스크롤 컨테이너 즉시 스냅샷 → 복원 */
-  const modal=q('newsSliderModal');
-  if(!modal||modal.hidden)return;
-  const snap={
-    winY   : window.scrollY,
-    docTop : document.documentElement.scrollTop,
-    bodyTop: document.body.scrollTop,
-    modal  : modal.scrollTop,
-  };
+function lockNewsSliderModalScrollOnce(e){
+  /* [2] 클릭/mousedown 시 모든 스크롤 컨테이너 즉시 보존
+     activeElement blur → 포커스 이동으로 인한 scroll 방지 */
+  const backdrop=q('newsSliderModal');
+  if(!backdrop||backdrop.hidden)return;
+  /* 포커스 이동으로 인한 scrollIntoView 차단 */
+  if(document.activeElement && document.activeElement !== document.body){
+    document.activeElement.blur();
+  }
+  const snap=snapNewsSliderScroll();
   requestAnimationFrame(()=>{
-    window.scrollTo({top:snap.winY,behavior:'instant'});
-    document.documentElement.scrollTop=snap.docTop;
-    document.body.scrollTop=snap.bodyTop;
-    modal.scrollTop=snap.modal;
-    requestAnimationFrame(()=>{
-      window.scrollTo({top:snap.winY,behavior:'instant'});
-      document.documentElement.scrollTop=snap.docTop;
-      document.body.scrollTop=snap.bodyTop;
-      modal.scrollTop=snap.modal;
-    });
+    restoreNewsSliderScroll(snap);
+    requestAnimationFrame(()=>restoreNewsSliderScroll(snap));
   });
 }
 q('newsSliderModal')?.addEventListener('mousedown',lockNewsSliderModalScrollOnce,true);
