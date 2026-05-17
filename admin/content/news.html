@@ -5388,6 +5388,18 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 .news-tool-panel h3{margin:0 0 10px;color:#d77ca7;font-size:16px;font-weight:950;}
 .news-template-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
 .news-template-card{border:1px solid #f0bfd4;background:#fff;border-radius:15px;padding:10px 8px;color:#b77498;font-size:14px;font-weight:950;cursor:pointer;}
+#newsRecentImageModal{z-index:5200;}
+.news-photo-bin .sticker-empty,.news-slider-bin .sticker-empty{display:flex;min-height:112px;align-items:center;justify-content:center;text-align:center;background:linear-gradient(135deg,#fff8fc,#fff1f8);}
+.news-tool-empty{min-height:112px;border:1px dashed #f6bdd7;border-radius:18px;background:linear-gradient(135deg,#fff8fc,#fff1f8);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:5px;color:#b9819d;font-weight:900;padding:14px;box-sizing:border-box;}
+.news-tool-empty-plus{width:34px;height:34px;border-radius:999px;background:#fff;color:#ee5aa3;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 6px 14px rgba(213,110,165,.10);}
+.news-tool-empty strong{font-size:14px;color:#b77498;}
+.news-tool-empty span{font-size:12px;line-height:1.45;color:#a77a92;}
+.news-collage-frame.custom-frame{max-width:100%;}
+
+.news-photo-bin,.news-slider-bin{grid-template-columns:repeat(3,minmax(0,1fr));}
+.news-bin-card{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;}
+.news-bin-card img{width:100%;height:100%;object-fit:cover;}
+
 .news-template-card.active{background:#ff59a5;color:#fff;border-color:#ff59a5;}
 .news-photo-bin,.news-slider-bin{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:260px;overflow:auto;}
 .news-bin-card{border:1px solid #f0bfd4;background:#fff;border-radius:14px;padding:6px;cursor:pointer;overflow:hidden;color:#9f758d;font-size:11px;font-weight:850;text-align:center;}
@@ -7482,11 +7494,12 @@ const NEWS_FIXED_COLLAGE_FRAME={
   template:'lumiframe4',
   src:'../../assets/collage/luminecut_frame_4cut.png',
   name:'루미벨 기본 사진네컷',
-  meta:{width:900,height:1200,slots:[
-    {x:133,y:121,w:294,h:433},
-    {x:455,y:121,w:295,h:434},
-    {x:132,y:576,w:295,h:434},
-    {x:455,y:576,w:295,h:434}
+  meta:{width:900,height:1200,displayWidth:620,slots:[
+    /* 고정 프레임은 자동 인식 대신 검은 프레임 안쪽으로 살짝 줄인 수동 좌표를 사용합니다. */
+    {x:140,y:131,w:280,h:414},
+    {x:462,y:131,w:281,h:414},
+    {x:139,y:585,w:281,h:414},
+    {x:462,y:585,w:281,h:414}
   ]}
 };
 let newsCollageTemplate='grid6';
@@ -7554,7 +7567,8 @@ function renderNewsCollage(){
   frame.innerHTML='';
   frame.className='news-collage-frame'+(custom?' custom-frame':'');
   if(custom&&newsCollageFrameMeta){
-    const maxW=Math.min(820,Math.max(320,newsCollageFrameMeta.width||820));
+    const preferredW = newsCollageFrameFixed && newsCollageFrameMeta.displayWidth ? newsCollageFrameMeta.displayWidth : (newsCollageFrameMeta.width || 820);
+    const maxW=Math.min(820,Math.max(320,preferredW));
     const scale=maxW/(newsCollageFrameMeta.width||maxW);
     frame.style.width=maxW+'px';
     frame.style.height=Math.round((newsCollageFrameMeta.height||maxW)*scale)+'px';
@@ -7605,9 +7619,8 @@ function clearNewsCollageFrame(){newsCollageFrameSrc='';newsCollageFrameName='';
 function resetNewsCollage(){newsCollageSlots=[];newsCollageActiveSlot=0;renderNewsCollage();newsToolSetStatus('newsCollageStatus','콜라주를 초기화했어요.');}
 function clearNewsCollageSlot(){ensureNewsCollageSlots();newsCollageSlots[newsCollageActiveSlot]=null;renderNewsCollage();}
 function clearNewsCollageAllSlots(){newsCollageSlots=[];renderNewsCollage();}
-async function loadNewsCollageRecentImages(){
-  newsToolSetStatus('newsCollageStatus','최근사진을 불러오는 중...');
-  try{if(!window.LumiContentSync||!LumiContentSync.listRecentNewsImages)throw new Error('최근사진 API 필요');const res=await LumiContentSync.listRecentNewsImages({limit:20});const items=res.items||[];for(const it of items){const item=normalizeRecentNewsImageItem(it);let src=item.imageUrl;try{if(item.fileId)src=await getPhotoEditorDriveDataUrl(item.fileId);}catch(e){}const size=await newsImageSize(src);newsCollagePhotos.push({src,name:item.name,kind:'recent',imageUrl:item.imageUrl,fileId:item.fileId,naturalWidth:size.w,naturalHeight:size.h,scale:1,offsetX:0,offsetY:0});}renderNewsCollagePhotoBin();newsToolSetStatus('newsCollageStatus',`최근사진 ${items.length}장을 불러왔어요.`);}catch(err){console.error(err);newsToolSetStatus('newsCollageStatus','최근사진을 불러오지 못했어요.');}
+function loadNewsCollageRecentImages(){
+  openRecentNewsImages('', 'collage');
 }
 async function drawNewsCollageCanvas(){
   ensureNewsCollageSlots();
@@ -7622,7 +7635,7 @@ async function drawNewsCollageCanvas(){
     if(newsCollageTemplate==='main2'){const mainW=(outW-padX*2-gap)*.58,subW=(outW-padX*2-gap)-mainW,halfH=(outH-padY-bottom-gap)/2;slotRects=[{x:padX,y:padY,w:mainW,h:halfH*2+gap},{x:padX+mainW+gap,y:padY,w:subW,h:halfH},{x:padX+mainW+gap,y:padY+halfH+gap,w:subW,h:halfH}];}
   }
   const canvas=document.createElement('canvas');canvas.width=outW;canvas.height=outH;const ctx=canvas.getContext('2d');ctx.fillStyle='#fff8fc';ctx.fillRect(0,0,outW,outH);
-  for(let i=0;i<slotRects.length;i++){const r=slotRects[i],s=newsCollageSlots[i];ctx.save();ctx.beginPath();ctx.rect(r.x,r.y,r.w,r.h);ctx.clip();ctx.fillStyle='#fff';ctx.fillRect(r.x,r.y,r.w,r.h);if(s&&s.src){const img=await loadImageForCanvas(s.src);const iw=s.naturalWidth||img.naturalWidth||img.width,ih=s.naturalHeight||img.naturalHeight||img.height;base=Math.min(r.w/iw,r.h/ih);const dw=iw*base*(s.scale||1),dh=ih*base*(s.scale||1);ctx.drawImage(img,r.x+r.w/2-dw/2+(s.offsetX||0),r.y+r.h/2-dh/2+(s.offsetY||0),dw,dh);}ctx.restore();ctx.strokeStyle='#ffacd2';ctx.lineWidth=2;ctx.strokeRect(r.x,r.y,r.w,r.h);}
+  for(let i=0;i<slotRects.length;i++){const r=slotRects[i],s=newsCollageSlots[i];ctx.save();ctx.beginPath();ctx.rect(r.x,r.y,r.w,r.h);ctx.clip();ctx.fillStyle='#fff';ctx.fillRect(r.x,r.y,r.w,r.h);if(s&&s.src){const img=await loadImageForCanvas(s.src);const iw=s.naturalWidth||img.naturalWidth||img.width,ih=s.naturalHeight||img.naturalHeight||img.height;const base=Math.min(r.w/iw,r.h/ih);const dw=iw*base*(s.scale||1),dh=ih*base*(s.scale||1);ctx.drawImage(img,r.x+r.w/2-dw/2+(s.offsetX||0),r.y+r.h/2-dh/2+(s.offsetY||0),dw,dh);}ctx.restore();ctx.strokeStyle='#ffacd2';ctx.lineWidth=2;ctx.strokeRect(r.x,r.y,r.w,r.h);}
   if(!newsCollageFrameSrc){ctx.fillStyle='#d86fa5';ctx.font='900 54px system-ui,sans-serif';ctx.textAlign='center';ctx.fillText(NEWS_COLLAGE_TEMPLATES[newsCollageTemplate].caption,outW/2,outH*.92);}
   if(newsCollageFrameSrc){const fr=await loadImageForCanvas(newsCollageFrameSrc);ctx.drawImage(fr,0,0,outW,outH);}
   return await new Promise(resolve=>canvas.toBlob(resolve,'image/webp',.88));
@@ -7631,22 +7644,31 @@ async function saveNewsCollageToBody(){
   try{newsToolSetStatus('newsCollageStatus','콜라주 저장 중...');const blob=await drawNewsCollageCanvas();if(!blob)throw new Error('콜라주 생성 실패');const base64=await blobToBase64(blob);if(!window.LumiContentSync||!LumiContentSync.uploadNewsImage)throw new Error('이미지 업로드 API 연결 필요');const uploaded=await LumiContentSync.uploadNewsImage({fileName:'collage-'+Date.now()+'.webp',mimeType:'image/webp',data:base64,folderName:q('newsCategory')?q('newsCategory').value:''});const imageUrl=uploaded.imageUrl||uploaded.thumbnailUrl||uploaded.url;if(!imageUrl)throw new Error('Drive URL 없음');insertNewsImageHtmlToEditor(imageUrl,'Lumibelle collage',uploaded.fileId||'');closeNewsCollageModal();toast('콜라주를 본문에 넣었어요.');}catch(err){console.error(err);newsToolSetStatus('newsCollageStatus','콜라주 저장 실패: '+(err.message||err));}
 }
 
+function newsSliderEmptyState(text='사진을 여러 장 불러와 주세요.') {
+  return `<div class="news-tool-empty"><div class="news-tool-empty-plus">＋</div><strong>${htmlEscape(text)}</strong><span>최근사진 또는 파일 불러오기로 사진을 추가할 수 있어요.</span></div>`;
+}
+function withNewsSliderScrollLock(fn){
+  const modal=q('newsSliderModal');
+  const top=modal?modal.scrollTop:0;
+  const result=fn();
+  requestAnimationFrame(()=>{ if(modal) modal.scrollTop=top; });
+  return result;
+}
 function renderNewsSlider(){
   const stage=q('newsSliderStage');if(!stage)return;
-  if(!newsSliderPhotos.length){stage.innerHTML='<div class="sticker-empty">사진을 여러 장 불러와 주세요.</div>';return;}
+  if(!newsSliderPhotos.length){stage.innerHTML=newsSliderEmptyState('사진을 여러 장 불러와 주세요.');return;}
   if(newsSliderIndex>=newsSliderPhotos.length)newsSliderIndex=0;
   const p=newsSliderPhotos[newsSliderIndex];
-  stage.innerHTML=`<div class="news-slider-main" style="--news-slider-bg:url('${htmlEscape(p.src)}')"><button type="button" class="news-slider-nav news-slider-prev" onclick="moveNewsSlider(-1)">‹</button><img src="${htmlEscape(p.src)}" alt="${htmlEscape(p.name||'slide')}"><button type="button" class="news-slider-nav news-slider-next" onclick="moveNewsSlider(1)">›</button><div class="news-slider-count">${newsSliderIndex+1} / ${newsSliderPhotos.length}</div></div><div class="news-slider-thumb-row">${newsSliderPhotos.map((it,i)=>`<button type="button" class="news-slider-thumb ${i===newsSliderIndex?'active':''}" onclick="goNewsSlider(${i})"><img src="${htmlEscape(it.src)}" alt="${htmlEscape(it.name||'slide')}"></button>`).join('')}</div>`;
+  stage.innerHTML=`<div class="news-slider-main" style="--news-slider-bg:url('${htmlEscape(p.src)}')"><button type="button" class="news-slider-nav news-slider-prev" onmousedown="event.preventDefault()" onclick="event.preventDefault();moveNewsSlider(-1)">‹</button><img src="${htmlEscape(p.src)}" alt="${htmlEscape(p.name||'slide')}"><button type="button" class="news-slider-nav news-slider-next" onmousedown="event.preventDefault()" onclick="event.preventDefault();moveNewsSlider(1)">›</button><div class="news-slider-count">${newsSliderIndex+1} / ${newsSliderPhotos.length}</div></div><div class="news-slider-thumb-row">${newsSliderPhotos.map((it,i)=>`<button type="button" class="news-slider-thumb ${i===newsSliderIndex?'active':''}" onmousedown="event.preventDefault()" onclick="event.preventDefault();goNewsSlider(${i})"><img src="${htmlEscape(it.src)}" alt="${htmlEscape(it.name||'slide')}"></button>`).join('')}</div>`;
 }
-function renderNewsSliderBin(){const bin=q('newsSliderBin');if(!bin)return;if(!newsSliderPhotos.length){bin.innerHTML='<div class="sticker-empty">사진을 불러와 주세요.</div>';return;}bin.innerHTML=newsSliderPhotos.map((p,i)=>`<button type="button" class="news-bin-card ${i===newsSliderIndex?'active':''}" onclick="goNewsSlider(${i})"><img src="${htmlEscape(p.src)}" alt="${htmlEscape(p.name||'image')}"><span>${htmlEscape(p.name||'image')}</span></button>`).join('');}
-function moveNewsSlider(delta){if(!newsSliderPhotos.length)return;newsSliderIndex=(newsSliderIndex+delta+newsSliderPhotos.length)%newsSliderPhotos.length;renderNewsSlider();renderNewsSliderBin();}
-function goNewsSlider(i){newsSliderIndex=i;renderNewsSlider();renderNewsSliderBin();}
-function clearNewsSliderCurrent(){if(!newsSliderPhotos.length)return;newsSliderPhotos.splice(newsSliderIndex,1);if(newsSliderIndex>=newsSliderPhotos.length)newsSliderIndex=Math.max(0,newsSliderPhotos.length-1);renderNewsSlider();renderNewsSliderBin();}
-function resetNewsSlider(){newsSliderPhotos=[];newsSliderIndex=0;renderNewsSlider();renderNewsSliderBin();newsToolSetStatus('newsSliderStatus','슬라이더를 초기화했어요.');}
+function renderNewsSliderBin(){const bin=q('newsSliderBin');if(!bin)return;if(!newsSliderPhotos.length){bin.innerHTML=newsSliderEmptyState('슬라이더 사진을 선택해 주세요.');return;}bin.innerHTML=newsSliderPhotos.map((p,i)=>`<button type="button" class="news-bin-card ${i===newsSliderIndex?'active':''}" onmousedown="event.preventDefault()" onclick="event.preventDefault();goNewsSlider(${i})"><img src="${htmlEscape(p.src)}" alt="${htmlEscape(p.name||'image')}"><span>${htmlEscape(p.name||'image')}</span></button>`).join('');}
+function moveNewsSlider(delta){withNewsSliderScrollLock(()=>{if(!newsSliderPhotos.length)return;newsSliderIndex=(newsSliderIndex+delta+newsSliderPhotos.length)%newsSliderPhotos.length;renderNewsSlider();renderNewsSliderBin();});}
+function goNewsSlider(i){withNewsSliderScrollLock(()=>{newsSliderIndex=i;renderNewsSlider();renderNewsSliderBin();});}
+function clearNewsSliderCurrent(){withNewsSliderScrollLock(()=>{if(!newsSliderPhotos.length)return;newsSliderPhotos.splice(newsSliderIndex,1);if(newsSliderIndex>=newsSliderPhotos.length)newsSliderIndex=Math.max(0,newsSliderPhotos.length-1);renderNewsSlider();renderNewsSliderBin();});}
+function resetNewsSlider(){withNewsSliderScrollLock(()=>{newsSliderPhotos=[];newsSliderIndex=0;renderNewsSlider();renderNewsSliderBin();newsToolSetStatus('newsSliderStatus','슬라이더를 초기화했어요.');});}
 q('newsSliderPhotoInput')?.addEventListener('change',async e=>{const photos=await newsFilesToPhotos(e.target.files,'local');newsSliderPhotos.push(...photos);e.target.value='';renderNewsSlider();renderNewsSliderBin();newsToolSetStatus('newsSliderStatus',`${photos.length}장의 사진을 불러왔어요.`);});
 async function loadNewsSliderRecentImages(){
-  newsToolSetStatus('newsSliderStatus','최근사진을 불러오는 중...');
-  try{if(!window.LumiContentSync||!LumiContentSync.listRecentNewsImages)throw new Error('최근사진 API 필요');const res=await LumiContentSync.listRecentNewsImages({limit:20});const items=(res.items||[]).map(normalizeRecentNewsImageItem);items.forEach(item=>newsSliderPhotos.push({src:item.imageUrl||item.thumbnailUrl,name:item.name,kind:'recent',imageUrl:item.imageUrl,fileId:item.fileId}));renderNewsSlider();renderNewsSliderBin();newsToolSetStatus('newsSliderStatus',`최근사진 ${items.length}장을 불러왔어요.`);}catch(err){console.error(err);newsToolSetStatus('newsSliderStatus','최근사진을 불러오지 못했어요.');}
+  openRecentNewsImages('', 'slider');
 }
 async function ensureNewsSliderPublicPhotos(){
   const out=[];
@@ -7715,8 +7737,11 @@ let recentNewsGalleryMessage='';
 let recentNewsGalleryMessageType='';
 let recentNewsCurrentItems=[];
 let recentNewsSelectedIndexes=new Set();
+let recentNewsPickerTarget='editor';
 
-function openRecentNewsImages(folderName=''){
+function openRecentNewsImages(folderName='', target){
+  if(typeof target === 'string' && target) recentNewsPickerTarget=target;
+  else if(arguments.length===0) recentNewsPickerTarget='editor';
   recentNewsImageFolder=folderName||'';
   recentNewsGalleryMessage='';
   recentNewsGalleryMessageType='';
@@ -7732,6 +7757,7 @@ function closeRecentNewsImages(){
   recentNewsGalleryMessage='';
   recentNewsGalleryMessageType='';
   recentNewsSelectedIndexes.clear();
+  recentNewsPickerTarget='editor';
 }
 async function loadRecentNewsImages(folderName=''){
   const body=q('recentImageModalBody');
@@ -7739,7 +7765,10 @@ async function loadRecentNewsImages(folderName=''){
   if(!body)return;
   recentNewsImageLoading=true;
   recentNewsSelectedIndexes.clear();
-  if(title) title.textContent=folderName ? `${folderName} 폴더` : '최근 사진 선택';
+  if(title){
+    const targetLabel = recentNewsPickerTarget==='collage' ? '콜라주에 넣을 최근 사진 선택' : recentNewsPickerTarget==='slider' ? '슬라이더에 넣을 최근 사진 선택' : '최근 사진 선택';
+    title.textContent=folderName ? `${folderName} 폴더` : targetLabel;
+  }
   body.innerHTML='<div class="recent-gallery-loading">최근 사진 불러오는 중...</div>';
   try{
     if(!window.LumiContentSync || !LumiContentSync.listRecentNewsImages){
@@ -7874,13 +7903,48 @@ function toggleAllRecentNewsImages(){
 function selectAllRecentNewsImages(){
   toggleAllRecentNewsImages();
 }
-function insertSelectedRecentNewsImages(){
+async function insertSelectedRecentNewsImages(){
   if(recentNewsImageDeleting)return;
   const selected=[...recentNewsSelectedIndexes].sort((a,b)=>a-b);
   if(!selected.length){toast('선택한 사진이 없어요.');return;}
+  const items=selected.map(index=>recentNewsCurrentItems[index]).filter(Boolean);
+
+  if(recentNewsPickerTarget==='collage'){
+    let added=0;
+    newsToolSetStatus('newsCollageStatus','선택한 최근사진을 콜라주에 불러오는 중...');
+    for(const item of items){
+      try{
+        let src=item.imageUrl||item.thumbnailUrl||'';
+        if(item.fileId) src=await getPhotoEditorDriveDataUrl(item.fileId);
+        if(!src) continue;
+        const size=await newsImageSize(src);
+        newsCollagePhotos.push({src,name:item.name||'recent image',kind:'recent',imageUrl:item.imageUrl||'',fileId:item.fileId||'',naturalWidth:size.w,naturalHeight:size.h,scale:1,offsetX:0,offsetY:0});
+        added++;
+      }catch(err){console.warn('[콜라주 최근사진 추가 실패]',err);}
+    }
+    renderNewsCollagePhotoBin();
+    newsToolSetStatus('newsCollageStatus', added ? `최근사진 ${added}장을 사진 보관함에 추가했어요.` : '최근사진을 추가하지 못했어요.');
+    closeRecentNewsImages();
+    return;
+  }
+
+  if(recentNewsPickerTarget==='slider'){
+    let added=0;
+    items.forEach(item=>{
+      const src=item.imageUrl||item.thumbnailUrl||'';
+      if(!src)return;
+      newsSliderPhotos.push({src,name:item.name||'recent image',kind:'recent',imageUrl:item.imageUrl||src,fileId:item.fileId||''});
+      added++;
+    });
+    renderNewsSlider();
+    renderNewsSliderBin();
+    newsToolSetStatus('newsSliderStatus', added ? `최근사진 ${added}장을 슬라이더에 추가했어요.` : '최근사진을 추가하지 못했어요.');
+    closeRecentNewsImages();
+    return;
+  }
+
   let insertedCount=0;
-  selected.forEach(index=>{
-    const item=recentNewsCurrentItems[index];
+  items.forEach(item=>{
     if(!item || !item.imageUrl)return;
     if(insertNewsImageHtmlToEditor(item.imageUrl, item.name||'news image', item.fileId||'')) insertedCount++;
   });
@@ -8857,6 +8921,19 @@ function ctxDeleteTable(){
   hideTableContextMenu();
   saveNewsSelection();
 }
+
+
+(function(){
+  ['newsSliderStage','newsSliderBin'].forEach(id=>{
+    const el=q(id);
+    if(el){
+      el.addEventListener('mousedown', e=>{
+        if(e.target.closest('button')) return;
+        e.preventDefault();
+      });
+    }
+  });
+})();
 
 // load 에 setupTableContextMenu 추가
 load();
