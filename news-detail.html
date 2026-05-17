@@ -453,7 +453,30 @@
       margin-right:auto !important;
     }
 
-</style>
+
+
+    /* NEWS 본문 슬라이더 */
+    .lumi-live-slider{position:relative;width:min(900px,100%);margin:24px auto;padding:0 42px;box-sizing:border-box;outline:none!important;}
+    .lumi-live-slider-viewport{position:relative;overflow:hidden;border:1px solid #f2cadd;border-radius:24px;background:#fff;box-shadow:0 12px 32px rgba(213,110,165,.12);}
+    .lumi-live-slider-track{display:flex;transition:transform .28s ease;will-change:transform;}
+    .lumi-live-slide{position:relative;flex:0 0 100%;height:620px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fff8fc;}
+    .lumi-live-slide-bg{position:absolute;inset:-24px;background-image:var(--slide-bg);background-size:cover;background-position:center;filter:blur(24px);opacity:.40;transform:scale(1.08);}
+    .lumi-live-slide img{position:relative;z-index:2;display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;cursor:zoom-in;user-select:none;-webkit-user-drag:none;}
+    .lumi-slide-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:34px;height:34px;border-radius:999px;border:1px solid rgba(255,180,215,.72);background:rgba(255,255,255,.86);color:#ee5aa3;font-size:26px;font-weight:300;line-height:1;padding:0 0 4px;cursor:pointer;box-shadow:0 8px 18px rgba(120,60,90,.10);opacity:0;transition:opacity .18s ease, transform .18s ease;}
+    .lumi-slide-prev{left:8px}.lumi-slide-next{right:8px}
+    .lumi-live-slider:hover .lumi-slide-nav{opacity:1;}
+    .lumi-lightbox-backdrop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:34px;background:rgba(42,20,34,.62);backdrop-filter:blur(8px);z-index:99999;box-sizing:border-box;}
+    .lumi-lightbox-backdrop.open{display:flex;}
+    .lumi-lightbox-panel{position:relative;width:min(1100px,100%);max-height:92vh;display:flex;align-items:center;justify-content:center;}
+    .lumi-lightbox-img{max-width:100%;max-height:88vh;width:auto;height:auto;object-fit:contain;border-radius:18px;box-shadow:0 24px 80px rgba(24,10,18,.32);background:#fff;}
+    .lumi-lightbox-close,.lumi-lightbox-nav{position:absolute;border:1px solid rgba(255,210,230,.76);background:rgba(255,255,255,.88);color:#ee5aa3;border-radius:999px;cursor:pointer;box-shadow:0 8px 18px rgba(40,18,30,.12);font-family:Arial,sans-serif;font-weight:300;}
+    .lumi-lightbox-close{top:-18px;right:-18px;width:42px;height:42px;font-size:28px;line-height:1;padding:0 0 3px;}
+    .lumi-lightbox-nav{top:50%;transform:translateY(-50%);width:38px;height:38px;font-size:28px;line-height:1;padding:0 0 4px;}
+    .lumi-lightbox-prev{left:-54px}.lumi-lightbox-next{right:-54px}
+    @media(max-width:900px){.lumi-live-slide{height:68vw;max-height:560px;min-height:320px}.lumi-slide-nav{opacity:1}.lumi-live-slider{padding:0 34px}}
+    @media(max-width:560px){.lumi-live-slide{height:82vw;min-height:280px}.lumi-lightbox-nav{display:none}.lumi-lightbox-backdrop{padding:20px}.lumi-lightbox-img{border-radius:14px}}
+
+  </style>
 
   <style>
     html, body {
@@ -3097,6 +3120,16 @@ line-height:1.9 !important;
 </head>
 
 <body>
+
+<div class="lumi-lightbox-backdrop" id="lumiLightboxBackdrop" aria-hidden="true">
+  <div class="lumi-lightbox-panel" role="dialog" aria-modal="true" aria-label="슬라이더 사진 확대 보기">
+    <button type="button" class="lumi-lightbox-close" id="lumiLightboxClose" aria-label="닫기">×</button>
+    <button type="button" class="lumi-lightbox-nav lumi-lightbox-prev" id="lumiLightboxPrev" aria-label="이전 사진">‹</button>
+    <img class="lumi-lightbox-img" id="lumiLightboxImg" alt="확대된 사진">
+    <button type="button" class="lumi-lightbox-nav lumi-lightbox-next" id="lumiLightboxNext" aria-label="다음 사진">›</button>
+  </div>
+</div>
+
 <div class="top-lang-bar">
     <div class="lang-switch">
       <a href="index.html" class="active">KR</a>
@@ -3185,10 +3218,114 @@ line-height:1.9 !important;
       const bodyEl = document.getElementById('newsDetailBody');
       const buttonsEl = document.getElementById('newsDetailButtons');
 
+      let lumiLightboxItems = [];
+      let lumiLightboxIndex = 0;
+      function bindLumiLiveSliders(root){
+        (root || document).querySelectorAll('[data-lumi-slider]').forEach(function(slider){
+          if(slider.dataset.bound === '1') return;
+          slider.dataset.bound = '1';
+          const track = slider.querySelector('.lumi-live-slider-track');
+          const slides = Array.prototype.slice.call(slider.querySelectorAll('.lumi-live-slide'));
+          let index = Number(slider.dataset.index || 0);
+          function go(n){
+            if(!slides.length) return;
+            index = (n + slides.length) % slides.length;
+            slider.dataset.index = String(index);
+            if(track) track.style.transform = 'translateX(' + (-index * 100) + '%)';
+          }
+          slider.querySelectorAll('[data-dir]').forEach(function(btn){
+            btn.addEventListener('click', function(e){
+              e.preventDefault();
+              e.stopPropagation();
+              go(index + (btn.dataset.dir === 'next' ? 1 : -1));
+            });
+          });
+          slides.forEach(function(slide,i){
+            const img = slide.querySelector('img');
+            if(!img) return;
+            img.addEventListener('click', function(e){
+              e.stopPropagation();
+              openLumiLightbox(slides.map(function(s){
+                const im = s.querySelector('img');
+                return {src:im ? im.src : '', name:im ? im.alt : ''};
+              }), i);
+            });
+          });
+          let sx = null;
+          slider.addEventListener('touchstart', function(e){ sx = e.touches && e.touches[0] ? e.touches[0].clientX : null; }, {passive:true});
+          slider.addEventListener('touchend', function(e){
+            if(sx == null) return;
+            const ex = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientX : sx;
+            const diff = ex - sx;
+            if(Math.abs(diff) > 38) go(index + (diff < 0 ? 1 : -1));
+            sx = null;
+          }, {passive:true});
+          slider._lumiGo = go;
+          go(index);
+        });
+      }
+      function openLumiLightbox(items,index){
+        lumiLightboxItems = (items || []).filter(function(it){ return it && it.src; });
+        if(!lumiLightboxItems.length) return;
+        lumiLightboxIndex = index || 0;
+        renderLumiLightbox();
+        const backdrop = document.getElementById('lumiLightboxBackdrop');
+        if(backdrop){ backdrop.classList.add('open'); backdrop.setAttribute('aria-hidden','false'); }
+      }
+      function renderLumiLightbox(){
+        const img = document.getElementById('lumiLightboxImg');
+        if(img && lumiLightboxItems[lumiLightboxIndex]){
+          img.src = lumiLightboxItems[lumiLightboxIndex].src;
+          img.alt = lumiLightboxItems[lumiLightboxIndex].name || '확대 사진';
+        }
+      }
+      function moveLumiLightbox(delta){
+        if(!lumiLightboxItems.length) return;
+        lumiLightboxIndex = (lumiLightboxIndex + delta + lumiLightboxItems.length) % lumiLightboxItems.length;
+        renderLumiLightbox();
+      }
+      function closeLumiLightbox(){
+        const backdrop = document.getElementById('lumiLightboxBackdrop');
+        if(backdrop){ backdrop.classList.remove('open'); backdrop.setAttribute('aria-hidden','true'); }
+      }
+      document.addEventListener('click', function(e){
+        const btn = e.target.closest && e.target.closest('.lumi-slide-nav');
+        if(!btn) return;
+        const slider = btn.closest('[data-lumi-slider]');
+        if(!slider) return;
+        e.preventDefault();
+        e.stopPropagation();
+        if(typeof slider._lumiGo === 'function'){
+          const current = Number(slider.dataset.index || 0);
+          slider._lumiGo(current + (btn.dataset.dir === 'next' ? 1 : -1));
+        }
+      }, true);
+      document.addEventListener('keydown', function(e){
+        const lightbox = document.getElementById('lumiLightboxBackdrop');
+        if(lightbox && lightbox.classList.contains('open')){
+          if(e.key === 'Escape') closeLumiLightbox();
+          if(e.key === 'ArrowLeft'){ e.preventDefault(); moveLumiLightbox(-1); }
+          if(e.key === 'ArrowRight'){ e.preventDefault(); moveLumiLightbox(1); }
+          return;
+        }
+        const tag = document.activeElement && document.activeElement.tagName;
+        if(['INPUT','TEXTAREA','SELECT'].includes(tag)) return;
+        const live = bodyEl && bodyEl.querySelector('[data-lumi-slider]');
+        if(!live || typeof live._lumiGo !== 'function') return;
+        if(e.key === 'ArrowLeft'){ e.preventDefault(); live._lumiGo(Number(live.dataset.index || 0)-1); }
+        if(e.key === 'ArrowRight'){ e.preventDefault(); live._lumiGo(Number(live.dataset.index || 0)+1); }
+      });
+      document.getElementById('lumiLightboxClose')?.addEventListener('click', closeLumiLightbox);
+      document.getElementById('lumiLightboxPrev')?.addEventListener('click', function(){ moveLumiLightbox(-1); });
+      document.getElementById('lumiLightboxNext')?.addEventListener('click', function(){ moveLumiLightbox(1); });
+      document.getElementById('lumiLightboxBackdrop')?.addEventListener('click', function(e){ if(e.target === this) closeLumiLightbox(); });
+
       function splitFirstImageFromBody(html){
         const box = document.createElement('div');
         box.innerHTML = html || '';
-        const img = box.querySelector('img');
+        const img = Array.prototype.slice.call(box.querySelectorAll('img')).find(function(image){
+          return !image.closest('[data-lumi-slider]');
+        });
         if(!img){
           return { src:'', alt:'', body:box.innerHTML };
         }
@@ -3264,6 +3401,7 @@ line-height:1.9 !important;
         if(splitBody.body && splitBody.body.trim()){
           bodyEl.hidden = false;
           bodyEl.innerHTML = splitBody.body;
+          bindLumiLiveSliders(bodyEl);
         }else{
           bodyEl.hidden = true;
           bodyEl.innerHTML = '';
