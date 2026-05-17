@@ -5391,6 +5391,14 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 #newsRecentImageModal{z-index:5200;}
 .news-photo-bin .sticker-empty,.news-slider-bin .sticker-empty{display:flex;min-height:112px;align-items:center;justify-content:center;text-align:center;background:linear-gradient(135deg,#fff8fc,#fff1f8);}
 .news-tool-empty{min-height:112px;border:1px dashed #f6bdd7;border-radius:18px;background:linear-gradient(135deg,#fff8fc,#fff1f8);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:5px;color:#b9819d;font-weight:900;padding:14px;box-sizing:border-box;}
+.news-photo-bin.is-empty,.news-slider-bin.is-empty{display:block;}
+.news-photo-bin.is-empty .news-tool-empty,.news-slider-bin.is-empty .news-tool-empty{width:100%;min-height:150px;}
+.news-slider-stage .news-tool-empty{width:100%;min-height:260px;}
+.news-bin-tools{display:flex;justify-content:center;margin-top:10px;}
+.news-bin-card{position:relative;}
+.news-bin-remove{position:absolute;right:5px;top:5px;width:22px;height:22px;border-radius:999px;border:1px solid rgba(255,172,210,.86);background:rgba(255,255,255,.92);color:#ee5aa3;font-size:15px;font-weight:950;line-height:18px;padding:0;cursor:pointer;opacity:0;transition:opacity .15s ease,transform .15s ease;z-index:3;}
+.news-bin-card:hover .news-bin-remove{opacity:1;}
+.news-bin-remove:hover{transform:scale(1.06);background:#fff0f7;}
 .news-tool-empty-plus{width:34px;height:34px;border-radius:999px;background:#fff;color:#ee5aa3;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 6px 14px rgba(213,110,165,.10);}
 .news-tool-empty strong{font-size:14px;color:#b77498;}
 .news-tool-empty span{font-size:12px;line-height:1.45;color:#a77a92;}
@@ -5844,7 +5852,6 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
           <button type="button" class="btn sub" onclick="triggerNewsCollageFrameUpload()">프레임 불러오기</button>
           <button type="button" class="btn sub" onclick="clearNewsCollageFrame()">프레임 해제</button>
           <button type="button" class="btn sub" onclick="resetNewsCollage()">초기화</button>
-          <button type="button" class="btn" onclick="saveNewsCollageToBody()">저장 후 본문 삽입</button>
         </div>
         <div id="newsCollageStatus" class="news-tool-status">사진 여러 장을 불러온 뒤 슬롯을 선택하고 사진을 넣어 주세요.</div>
         <div class="news-collage-layout">
@@ -5858,8 +5865,8 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
               <button type="button" class="news-template-card" data-template="main2">메인 1 + 서브 2</button>
               <button type="button" class="news-template-card" data-template="lumiframe4">루미벨 사진네컷</button>
             </div></section>
-            <section class="news-tool-panel"><h3>사진 보관함</h3><div id="newsCollagePhotoBin" class="news-photo-bin"><div class="sticker-empty">사진을 불러와 주세요.</div></div></section>
-            <section class="news-tool-panel"><div class="photo-editor-delete-row" style="justify-content:center;"><button type="button" class="btn sub" onclick="clearNewsCollageSlot()">선택 칸 비우기</button><button type="button" class="btn danger" onclick="clearNewsCollageAllSlots()">전체 비우기</button></div></section>
+            <section class="news-tool-panel"><h3>사진 보관함</h3><div id="newsCollagePhotoBin" class="news-photo-bin"><div class="news-tool-empty"><div class="news-tool-empty-plus">＋</div><strong>사진을 불러와 주세요.</strong><span>최근사진 또는 파일 불러오기로 추가할 수 있어요.</span></div></div><div class="news-bin-tools"><button type="button" class="btn sub" onclick="clearNewsCollagePhotoBin()">보관함 비우기</button></div></section>
+            <section class="news-tool-panel"><div class="photo-editor-delete-row" style="justify-content:center;"><button type="button" class="btn sub" onclick="clearNewsCollageSlot()">선택 칸 비우기</button><button type="button" class="btn danger" onclick="clearNewsCollageAllSlots()">전체 비우기</button></div><div class="photo-editor-delete-row" style="justify-content:center;margin-top:10px;"><button type="button" class="btn" onclick="saveNewsCollageToBody()">저장 후 본문 삽입</button></div></section>
           </aside>
         </div>
         <input id="newsCollagePhotoInput" class="news-collage-file-input" type="file" accept="image/*" multiple>
@@ -5884,7 +5891,7 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
         <div class="news-slider-layout">
           <div class="news-slider-preview"><div id="newsSliderStage" class="news-slider-stage"></div></div>
           <aside class="news-slider-side">
-            <section class="news-tool-panel"><h3>사진 보관함</h3><div id="newsSliderBin" class="news-slider-bin"><div class="sticker-empty">사진을 불러와 주세요.</div></div></section>
+            <section class="news-tool-panel"><h3>사진 보관함</h3><div id="newsSliderBin" class="news-slider-bin"><div class="news-tool-empty"><div class="news-tool-empty-plus">＋</div><strong>슬라이더 사진을 선택해 주세요.</strong><span>최근사진 또는 파일 불러오기로 추가할 수 있어요.</span></div></div></section>
           </aside>
         </div>
         <input id="newsSliderPhotoInput" class="news-slider-file-input" type="file" accept="image/*" multiple>
@@ -7494,12 +7501,12 @@ const NEWS_FIXED_COLLAGE_FRAME={
   template:'lumiframe4',
   src:'../../assets/collage/luminecut_frame_4cut.png',
   name:'루미벨 기본 사진네컷',
-  meta:{width:900,height:1200,displayWidth:620,slots:[
-    /* 고정 프레임은 자동 인식 대신 검은 프레임 안쪽으로 살짝 줄인 수동 좌표를 사용합니다. */
-    {x:140,y:131,w:280,h:414},
-    {x:462,y:131,w:281,h:414},
-    {x:139,y:585,w:281,h:414},
-    {x:462,y:585,w:281,h:414}
+  meta:{width:900,height:1200,displayWidth:520,slots:[
+    /* 고정 프레임은 검은 손그림 선 안쪽으로 여유를 둔 수동 좌표를 사용합니다. */
+    {x:153,y:142,w:260,h:392},
+    {x:476,y:142,w:260,h:392},
+    {x:153,y:598,w:260,h:392},
+    {x:476,y:598,w:260,h:392}
   ]}
 };
 let newsCollageTemplate='grid6';
@@ -7544,8 +7551,24 @@ function ensureNewsCollageSlots(){
 function cloneNewsPhotoForSlot(photo){return {...photo,offsetX:0,offsetY:0,scale:1};}
 function renderNewsCollagePhotoBin(){
   const bin=q('newsCollagePhotoBin');if(!bin)return;
-  if(!newsCollagePhotos.length){bin.innerHTML='<div class="sticker-empty">사진을 불러와 주세요.</div>';return;}
-  bin.innerHTML=newsCollagePhotos.map((p,i)=>`<button type="button" class="news-bin-card" onclick="putNewsPhotoInCollageSlot(${i})"><img src="${htmlEscape(p.src)}" alt="${htmlEscape(p.name||'image')}"><span>${htmlEscape(p.name||'image')}</span></button>`).join('');
+  if(!newsCollagePhotos.length){
+    bin.classList.add('is-empty');
+    bin.innerHTML=newsBinEmptyState('사진을 불러와 주세요.');
+    return;
+  }
+  bin.classList.remove('is-empty');
+  bin.innerHTML=newsCollagePhotos.map((p,i)=>`<div class="news-bin-card" role="button" tabindex="0" onclick="putNewsPhotoInCollageSlot(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();putNewsPhotoInCollageSlot(${i});}"><button type="button" class="news-bin-remove" aria-label="보관함 사진 삭제" onclick="event.preventDefault();event.stopPropagation();removeNewsCollagePhoto(${i})">×</button><img src="${htmlEscape(p.src)}" alt="${htmlEscape(p.name||'image')}"><span>${htmlEscape(p.name||'image')}</span></div>`).join('');
+}
+function removeNewsCollagePhoto(index){
+  if(index<0||index>=newsCollagePhotos.length)return;
+  newsCollagePhotos.splice(index,1);
+  renderNewsCollagePhotoBin();
+  newsToolSetStatus('newsCollageStatus','사진 보관함에서 1장을 지웠어요. 슬롯에 넣은 사진은 유지됩니다.');
+}
+function clearNewsCollagePhotoBin(){
+  newsCollagePhotos=[];
+  renderNewsCollagePhotoBin();
+  newsToolSetStatus('newsCollageStatus','사진 보관함을 비웠어요. 슬롯에 넣은 사진은 유지됩니다.');
 }
 function putNewsPhotoInCollageSlot(index){
   ensureNewsCollageSlots();
@@ -7644,8 +7667,11 @@ async function saveNewsCollageToBody(){
   try{newsToolSetStatus('newsCollageStatus','콜라주 저장 중...');const blob=await drawNewsCollageCanvas();if(!blob)throw new Error('콜라주 생성 실패');const base64=await blobToBase64(blob);if(!window.LumiContentSync||!LumiContentSync.uploadNewsImage)throw new Error('이미지 업로드 API 연결 필요');const uploaded=await LumiContentSync.uploadNewsImage({fileName:'collage-'+Date.now()+'.webp',mimeType:'image/webp',data:base64,folderName:q('newsCategory')?q('newsCategory').value:''});const imageUrl=uploaded.imageUrl||uploaded.thumbnailUrl||uploaded.url;if(!imageUrl)throw new Error('Drive URL 없음');insertNewsImageHtmlToEditor(imageUrl,'Lumibelle collage',uploaded.fileId||'');closeNewsCollageModal();toast('콜라주를 본문에 넣었어요.');}catch(err){console.error(err);newsToolSetStatus('newsCollageStatus','콜라주 저장 실패: '+(err.message||err));}
 }
 
-function newsSliderEmptyState(text='사진을 여러 장 불러와 주세요.') {
+function newsBinEmptyState(text='사진을 불러와 주세요.') {
   return `<div class="news-tool-empty"><div class="news-tool-empty-plus">＋</div><strong>${htmlEscape(text)}</strong><span>최근사진 또는 파일 불러오기로 사진을 추가할 수 있어요.</span></div>`;
+}
+function newsSliderEmptyState(text='사진을 여러 장 불러와 주세요.') {
+  return newsBinEmptyState(text);
 }
 function withNewsSliderScrollLock(fn){
   const modal=q('newsSliderModal');
@@ -7661,7 +7687,7 @@ function renderNewsSlider(){
   const p=newsSliderPhotos[newsSliderIndex];
   stage.innerHTML=`<div class="news-slider-main" style="--news-slider-bg:url('${htmlEscape(p.src)}')"><button type="button" class="news-slider-nav news-slider-prev" onmousedown="event.preventDefault()" onclick="event.preventDefault();moveNewsSlider(-1)">‹</button><img src="${htmlEscape(p.src)}" alt="${htmlEscape(p.name||'slide')}"><button type="button" class="news-slider-nav news-slider-next" onmousedown="event.preventDefault()" onclick="event.preventDefault();moveNewsSlider(1)">›</button><div class="news-slider-count">${newsSliderIndex+1} / ${newsSliderPhotos.length}</div></div><div class="news-slider-thumb-row">${newsSliderPhotos.map((it,i)=>`<button type="button" class="news-slider-thumb ${i===newsSliderIndex?'active':''}" onmousedown="event.preventDefault()" onclick="event.preventDefault();goNewsSlider(${i})"><img src="${htmlEscape(it.src)}" alt="${htmlEscape(it.name||'slide')}"></button>`).join('')}</div>`;
 }
-function renderNewsSliderBin(){const bin=q('newsSliderBin');if(!bin)return;if(!newsSliderPhotos.length){bin.innerHTML=newsSliderEmptyState('슬라이더 사진을 선택해 주세요.');return;}bin.innerHTML=newsSliderPhotos.map((p,i)=>`<button type="button" class="news-bin-card ${i===newsSliderIndex?'active':''}" onmousedown="event.preventDefault()" onclick="event.preventDefault();goNewsSlider(${i})"><img src="${htmlEscape(p.src)}" alt="${htmlEscape(p.name||'image')}"><span>${htmlEscape(p.name||'image')}</span></button>`).join('');}
+function renderNewsSliderBin(){const bin=q('newsSliderBin');if(!bin)return;if(!newsSliderPhotos.length){bin.classList.add('is-empty');bin.innerHTML=newsSliderEmptyState('슬라이더 사진을 선택해 주세요.');return;}bin.classList.remove('is-empty');bin.innerHTML=newsSliderPhotos.map((p,i)=>`<button type="button" class="news-bin-card ${i===newsSliderIndex?'active':''}" onmousedown="event.preventDefault()" onclick="event.preventDefault();goNewsSlider(${i})"><img src="${htmlEscape(p.src)}" alt="${htmlEscape(p.name||'image')}"><span>${htmlEscape(p.name||'image')}</span></button>`).join('');}
 function moveNewsSlider(delta){withNewsSliderScrollLock(()=>{if(!newsSliderPhotos.length)return;newsSliderIndex=(newsSliderIndex+delta+newsSliderPhotos.length)%newsSliderPhotos.length;renderNewsSlider();renderNewsSliderBin();});}
 function goNewsSlider(i){withNewsSliderScrollLock(()=>{newsSliderIndex=i;renderNewsSlider();renderNewsSliderBin();});}
 function clearNewsSliderCurrent(){withNewsSliderScrollLock(()=>{if(!newsSliderPhotos.length)return;newsSliderPhotos.splice(newsSliderIndex,1);if(newsSliderIndex>=newsSliderPhotos.length)newsSliderIndex=Math.max(0,newsSliderPhotos.length-1);renderNewsSlider();renderNewsSliderBin();});}
@@ -7718,6 +7744,9 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowLeft'){e.preventDefault();live._lumiGo?.(Number(live.dataset.index||0)-1);}if(e.key==='ArrowRight'){e.preventDefault();live._lumiGo?.(Number(live.dataset.index||0)+1);}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(q('newsCollageModal')&&!q('newsCollageModal').hidden)closeNewsCollageModal();if(q('newsSliderModal')&&!q('newsSliderModal').hidden)closeNewsSliderModal();closeLumiLightbox();}});
+function lockNewsSliderModalScrollOnce(){const modal=q('newsSliderModal');if(!modal||modal.hidden)return;const top=modal.scrollTop;requestAnimationFrame(()=>{modal.scrollTop=top;requestAnimationFrame(()=>{modal.scrollTop=top;});});}
+q('newsSliderModal')?.addEventListener('mousedown',lockNewsSliderModalScrollOnce,true);
+q('newsSliderModal')?.addEventListener('click',lockNewsSliderModalScrollOnce,true);
 q('newsCollageModal')?.addEventListener('click',e=>{if(!e.target.closest('.news-collage-modal'))closeNewsCollageModal();});
 q('newsSliderModal')?.addEventListener('click',e=>{if(!e.target.closest('.news-slider-modal'))closeNewsSliderModal();});
 function openLumiLightbox(items,index=0){lumiLightboxItems=(items||[]).filter(it=>it&&it.src);if(!lumiLightboxItems.length)return;lumiLightboxIndex=index;renderLumiLightbox();const b=q('lumiLightboxBackdrop');if(b){b.classList.add('open');b.setAttribute('aria-hidden','false');}}
