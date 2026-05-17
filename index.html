@@ -4304,8 +4304,7 @@ line-height:1.9 !important;
       .member-btn::after,
       .more-btn::after,
       .info-link-btn::after,
-      .ticket-btn::after,
-      .member-card::after{
+      .ticket-btn::after{
         display:none !important;
         content:none !important;
         animation:none !important;
@@ -5390,7 +5389,49 @@ line-height:1.9 !important;
     }
 
 
-  </style>
+  
+
+    /* =========================================================
+       GALAXY PATCH 2 : member card shine line restore only
+       - iPhone 통과값 보존
+       - Android/Galaxy에서 멤버 카드 광택선이 꺼지지 않게 최종 우선순위로 복구
+       ========================================================= */
+    html.is-android .member-card{
+      position:relative !important;
+      overflow:hidden !important;
+      isolation:isolate !important;
+    }
+
+    html.is-android .member-card::after{
+      content:"" !important;
+      display:block !important;
+      position:absolute !important;
+      top:-20% !important;
+      left:-38% !important;
+      width:24% !important;
+      height:140% !important;
+      background:linear-gradient(
+        90deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.18) 35%,
+        rgba(255,255,255,0.46) 50%,
+        rgba(255,255,255,0.18) 65%,
+        rgba(255,255,255,0) 100%
+      ) !important;
+      transform:skewX(-24deg) translateX(0) !important;
+      opacity:0;
+      pointer-events:none !important;
+      z-index:4 !important;
+      will-change:transform, opacity !important;
+    }
+
+    html.is-android .member-card.shine-once::after,
+    html.is-android .member-card.mobile-shine::after{
+      display:block !important;
+      content:"" !important;
+      animation:memberShine .95s ease forwards !important;
+    }
+</style>
 </head>
 
 <body>
