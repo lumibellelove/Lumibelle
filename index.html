@@ -6045,17 +6045,15 @@ document.addEventListener("click", function(e){
   <!-- ===== GALAXY COMBINED FIX : 스케줄 레이아웃 + 갤럭시 멤버 카드 shine ===== -->
   <style>
   @media (max-width: 430px){
-    /* SCHEDULE: 기본 한 줄, 텍스트 길면 말줄임, 티켓버튼만 아래로 */
+    /* SCHEDULE: 갤럭시 Z플립6 - 날짜|장소·공연명|티켓 한 줄 */
     .schedule-item{
       display:grid !important;
       grid-template-columns:auto minmax(0,1fr) auto !important;
-      grid-template-rows:auto !important;
-      grid-template-areas:"date texts ticket" !important;
+      grid-template-areas:"date place ticket" !important;
       align-items:center !important;
       gap:0 10px !important;
       padding:14px 14px !important;
       min-width:0 !important;
-      flex-wrap:nowrap !important;
     }
     .schedule-date{
       grid-area:date !important;
@@ -6065,9 +6063,10 @@ document.addEventListener("click", function(e){
       letter-spacing:-0.04em !important;
       white-space:nowrap !important;
       align-self:center !important;
+      padding-right:2px !important;
     }
     .schedule-place{
-      grid-area:texts !important;
+      grid-area:place !important;
       font-size:13px !important;
       font-weight:900 !important;
       color:#6f5d68 !important;
@@ -6076,9 +6075,13 @@ document.addEventListener("click", function(e){
       text-overflow:ellipsis !important;
       min-width:0 !important;
       line-height:1.2 !important;
+      align-self:center !important;
     }
     .schedule-title{
       display:none !important;
+      grid-area:unset !important;
+      position:absolute !important;
+      visibility:hidden !important;
     }
     .schedule-item .ticket-btn{
       grid-area:ticket !important;
@@ -6139,13 +6142,13 @@ document.addEventListener("click", function(e){
 
   @media (max-width: 374px){
     .schedule-item{
-      grid-template-columns:68px minmax(72px,.9fr) minmax(78px,1fr) 58px !important;
-      gap:5px !important;
+      grid-template-columns:auto minmax(0,1fr) auto !important;
+      gap:0 8px !important;
       padding:12px 12px !important;
     }
     .schedule-date{font-size:15px !important;}
-    .schedule-place,
-    .schedule-title{font-size:11.2px !important;}
+    .schedule-place{font-size:11.2px !important;}
+    .schedule-title{display:none !important; visibility:hidden !important;}
     .schedule-item .ticket-btn{
       min-width:54px !important;
       height:28px !important;
