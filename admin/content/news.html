@@ -7862,25 +7862,98 @@ function withNewsSliderScrollLock(fn){
   });
   return result;
 }
+/* ── 슬라이더 렌더 ──────────────────────────────────────────────
+   fullRender : 사진 추가/삭제/초기화처럼 DOM 구조 자체가 바뀔 때
+   updateNewsSliderView : 단순 슬라이드 이동(goNewsSlider/move)
+                          → innerHTML 재생성 없이 src/class만 교체
+                          → layout shift 없음 → 스크롤 튐 없음
+─────────────────────────────────────────────────────────────── */
 function renderNewsSlider(){
-  const stage=q('newsSliderStage');if(!stage)return;
-  if(!newsSliderPhotos.length){stage.innerHTML=newsSliderEmptyState('사진을 여러 장 불러와 주세요.');return;}
+  const stage=q('newsSliderStage');
+  if(!stage)return;
+  if(!newsSliderPhotos.length){
+    stage.innerHTML=newsSliderEmptyState('사진을 여러 장 불러와 주세요.');
+    return;
+  }
   if(newsSliderIndex>=newsSliderPhotos.length)newsSliderIndex=0;
   const p=newsSliderPhotos[newsSliderIndex];
-  stage.innerHTML=`<div class="news-slider-main" style="--news-slider-bg:url('${htmlEscape(p.src)}')"><button type="button" class="news-slider-nav news-slider-prev" onmousedown="event.preventDefault()" onclick="event.preventDefault();moveNewsSlider(-1)">‹</button><img src="${htmlEscape(p.src)}" alt="${htmlEscape(p.name||'slide')}"><button type="button" class="news-slider-nav news-slider-next" onmousedown="event.preventDefault()" onclick="event.preventDefault();moveNewsSlider(1)">›</button><div class="news-slider-count">${newsSliderIndex+1} / ${newsSliderPhotos.length}</div></div><div class="news-slider-thumb-row">${newsSliderPhotos.map((it,i)=>`<button type="button" class="news-slider-thumb ${i===newsSliderIndex?'active':''}" onmousedown="event.preventDefault()" onclick="event.preventDefault();goNewsSlider(${i})"><img src="${htmlEscape(it.src)}" alt="${htmlEscape(it.name||'slide')}"></button>`).join('')}</div>`;
+  /* 전체 DOM 재생성 (사진 목록 구조 변경 시에만 호출) */
+  stage.innerHTML=`<div class="news-slider-main" style="--news-slider-bg:url('${htmlEscape(p.src)}')"><button type="button" class="news-slider-nav news-slider-prev" onmousedown="event.preventDefault()" onclick="event.preventDefault();moveNewsSlider(-1)">‹</button><img id="newsSliderMainImg" src="${htmlEscape(p.src)}" alt="${htmlEscape(p.name||'slide')}"><button type="button" class="news-slider-nav news-slider-next" onmousedown="event.preventDefault()" onclick="event.preventDefault();moveNewsSlider(1)">›</button><div class="news-slider-count" id="newsSliderCount">${newsSliderIndex+1} / ${newsSliderPhotos.length}</div></div><div class="news-slider-thumb-row" id="newsSliderThumbRow">${newsSliderPhotos.map((it,i)=>`<button type="button" class="news-slider-thumb${i===newsSliderIndex?' active':''}" data-slider-thumb="${i}" onmousedown="event.preventDefault()" onclick="event.preventDefault();goNewsSlider(${i})"><img src="${htmlEscape(it.src)}" alt="${htmlEscape(it.name||'slide')}"></button>`).join('')}</div>`;
 }
-function renderNewsSliderBin(){const bin=q('newsSliderBin');if(!bin)return;if(!newsSliderPhotos.length){bin.classList.add('is-empty');bin.innerHTML=newsSliderEmptyState('슬라이더 사진을 선택해 주세요.');return;}bin.classList.remove('is-empty');bin.innerHTML=newsSliderPhotos.map((p,i)=>`<button type="button" class="news-bin-card ${i===newsSliderIndex?'active':''}" onmousedown="event.preventDefault()" onclick="event.preventDefault();goNewsSlider(${i})"><img src="${htmlEscape(p.src)}" alt="${htmlEscape(p.name||'image')}"><span>${htmlEscape(p.name||'image')}</span></button>`).join('');}
+function renderNewsSliderBin(){
+  const bin=q('newsSliderBin');
+  if(!bin)return;
+  if(!newsSliderPhotos.length){
+    bin.classList.add('is-empty');
+    bin.innerHTML=newsSliderEmptyState('슬라이더 사진을 선택해 주세요.');
+    return;
+  }
+  bin.classList.remove('is-empty');
+  /* 전체 DOM 재생성 (사진 목록 구조 변경 시에만 호출) */
+  bin.innerHTML=newsSliderPhotos.map((p,i)=>`<button type="button" class="news-bin-card${i===newsSliderIndex?' active':''}" data-slider-bin="${i}" onmousedown="event.preventDefault()" onclick="event.preventDefault();goNewsSlider(${i})"><img src="${htmlEscape(p.src)}" alt="${htmlEscape(p.name||'image')}"><span>${htmlEscape(p.name||'image')}</span></button>`).join('');
+}
+
+/* 단순 슬라이드 이동: DOM 재생성 없이 필요한 속성만 패치 */
+function updateNewsSliderView(){
+  if(!newsSliderPhotos.length)return;
+  const p=newsSliderPhotos[newsSliderIndex];
+
+  /* ① main img src + 배경 CSS 변수 */
+  const mainImg=document.getElementById('newsSliderMainImg');
+  const mainDiv=mainImg&&mainImg.closest('.news-slider-main');
+  if(mainImg&&mainImg.src!==p.src){
+    mainImg.src=htmlEscape(p.src);
+    mainImg.alt=htmlEscape(p.name||'slide');
+  }
+  if(mainDiv) mainDiv.style.setProperty('--news-slider-bg',`url('${p.src}')`);
+
+  /* ② count */
+  const countEl=document.getElementById('newsSliderCount');
+  if(countEl) countEl.textContent=`${newsSliderIndex+1} / ${newsSliderPhotos.length}`;
+
+  /* ③ thumb active class (innerHTML 재생성 없이 class 토글만) */
+  document.querySelectorAll('[data-slider-thumb]').forEach(btn=>{
+    const i=Number(btn.dataset.sliderThumb);
+    btn.classList.toggle('active', i===newsSliderIndex);
+  });
+
+  /* ④ bin active class */
+  document.querySelectorAll('[data-slider-bin]').forEach(btn=>{
+    const i=Number(btn.dataset.sliderBin);
+    btn.classList.toggle('active', i===newsSliderIndex);
+  });
+}
+
 function moveNewsSlider(delta){
+  if(!newsSliderPhotos.length)return;
   if(document.activeElement&&document.activeElement!==document.body)document.activeElement.blur();
-  withNewsSliderScrollLock(()=>{if(!newsSliderPhotos.length)return;newsSliderIndex=(newsSliderIndex+delta+newsSliderPhotos.length)%newsSliderPhotos.length;renderNewsSlider();renderNewsSliderBin();});
+  newsSliderIndex=(newsSliderIndex+delta+newsSliderPhotos.length)%newsSliderPhotos.length;
+  updateNewsSliderView();
 }
 function goNewsSlider(i){
   if(document.activeElement&&document.activeElement!==document.body)document.activeElement.blur();
-  withNewsSliderScrollLock(()=>{newsSliderIndex=i;renderNewsSlider();renderNewsSliderBin();});
+  newsSliderIndex=i;
+  updateNewsSliderView();
 }
-function clearNewsSliderCurrent(){withNewsSliderScrollLock(()=>{if(!newsSliderPhotos.length)return;newsSliderPhotos.splice(newsSliderIndex,1);if(newsSliderIndex>=newsSliderPhotos.length)newsSliderIndex=Math.max(0,newsSliderPhotos.length-1);renderNewsSlider();renderNewsSliderBin();});}
-function resetNewsSlider(){withNewsSliderScrollLock(()=>{newsSliderPhotos=[];newsSliderIndex=0;renderNewsSlider();renderNewsSliderBin();newsToolSetStatus('newsSliderStatus','슬라이더를 초기화했어요.');});}
-q('newsSliderPhotoInput')?.addEventListener('change',async e=>{const photos=await newsFilesToPhotos(e.target.files,'local');newsSliderPhotos.push(...photos);e.target.value='';renderNewsSlider();renderNewsSliderBin();newsToolSetStatus('newsSliderStatus',`${photos.length}장의 사진을 불러왔어요.`);});
+function clearNewsSliderCurrent(){
+  if(!newsSliderPhotos.length)return;
+  newsSliderPhotos.splice(newsSliderIndex,1);
+  if(newsSliderIndex>=newsSliderPhotos.length)newsSliderIndex=Math.max(0,newsSliderPhotos.length-1);
+  renderNewsSlider();
+  renderNewsSliderBin();
+}
+function resetNewsSlider(){
+  newsSliderPhotos=[];newsSliderIndex=0;
+  renderNewsSlider();renderNewsSliderBin();
+  newsToolSetStatus('newsSliderStatus','슬라이더를 초기화했어요.');
+}
+q('newsSliderPhotoInput')?.addEventListener('change',async e=>{
+  const photos=await newsFilesToPhotos(e.target.files,'local');
+  newsSliderPhotos.push(...photos);
+  e.target.value='';
+  renderNewsSlider();renderNewsSliderBin();
+  newsToolSetStatus('newsSliderStatus',`${photos.length}장의 사진을 불러왔어요.`);
+});
 async function loadNewsSliderRecentImages(){
   openRecentNewsImages('', 'slider');
 }
