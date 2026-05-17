@@ -182,6 +182,78 @@
 }
 @media(max-width:1180px){.main-menu{grid-template-columns:repeat(4,minmax(0,1fr))}.control-row{grid-template-columns:1fr 1fr}.table-head{display:none}.video-row{grid-template-columns:34px minmax(0,1fr) auto}.video-row>div:nth-child(n+3):not(.row-actions){display:none}.modal-body{grid-template-columns:1fr}}@media(max-width:760px){.wrap{width:min(100% - 22px,1320px)}.main-menu,.control-row,.status-row,.form-grid,.thumb-actions{grid-template-columns:1fr}.video-panel{padding:18px}.page-head{display:block}.recent-grid{grid-template-columns:repeat(2,1fr)}}
 .recent-photo-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* ===== MORE VIDEO v11: wheel zoom + drag pan + flip final UX ===== */
+.pick-img,
+.public-thumb,
+.video-thumb{
+  --thumb-pan-x:0px;
+  --thumb-pan-y:0px;
+  --thumb-zoom:1;
+  --thumb-flip:1;
+}
+.pick-img{
+  touch-action:none;
+  cursor:grab;
+}
+.pick-img:active{cursor:grabbing}
+.pick-img img,
+.public-thumb img,
+.video-thumb img{
+  max-width:none !important;
+  max-height:none !important;
+  object-fit:initial !important;
+  object-position:center center !important;
+  transform:
+    translate(var(--thumb-pan-x,0px), var(--thumb-pan-y,0px))
+    scale(calc(var(--thumb-zoom,1) * var(--thumb-flip,1)), var(--thumb-zoom,1)) !important;
+  transform-origin:center center !important;
+  user-select:none;
+  pointer-events:none;
+}
+.pick-img img,
+.public-thumb img,
+.video-thumb img{
+  width:100% !important;
+  height:auto !important;
+  min-height:100%;
+}
+.thumb-crop-tools{
+  width:min(340px,100%);
+  margin:0 auto 14px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.thumb-crop-reset,
+.thumb-crop-flip{
+  min-height:34px;
+  padding:0 14px;
+  border:1px solid #f0bfd4;
+  border-radius:999px;
+  background:#fff;
+  color:#d77ca7;
+  font-size:13px;
+  font-weight:900;
+  cursor:pointer;
+}
+.thumb-crop-flip.is-active{
+  background:linear-gradient(180deg,#ff7eb3,#ff5fa5);
+  border-color:#ff5fa5;
+  color:#fff;
+  box-shadow:0 8px 18px rgba(255,95,165,.18);
+}
+.thumb-crop-note{
+  width:100%;
+  color:#a98298;
+  font-size:13px;
+  font-weight:850;
+  line-height:1.5;
+  text-align:center;
+}
+
 </style>
 </head>
 <body>
@@ -268,7 +340,12 @@
       </section>
       <aside class="preview-col">
         <section class="card"><h3 class="preview-title">공홈 카드 미리보기</h3><article class="public-card"><div class="public-thumb is-placeholder"><img id="previewImage" alt=""><span id="pickBadge" class="badge-pick">PICK</span><span class="badge-new">NEW</span></div><div class="public-body"><div class="meta-top"><div id="previewDate" class="public-date">2026.05.16</div><div id="previewPlatform" class="badge-tag">YOUTUBE</div></div><div id="previewTitle" class="public-name">새 영상 제목</div><div id="previewMember" class="public-sub">MARIRING · SPECIAL</div><div id="previewCategory" class="public-sub">방송/출연</div><div id="previewStats" class="public-sub">조회수 0회 · 반짝응원 0개</div></div></article></section>
-        <section class="card thumb-picker"><h3 class="preview-title">썸네일</h3><div class="pick-img is-placeholder" id="thumbCropStage"><img id="thumbPreview" alt=""></div><div class="thumb-crop-tools"><div class="thumb-zoom-row"><span>−</span><input id="thumbScaleRange" type="range" min="1" max="2.5" step="0.01" value="1"><span>＋</span></div><div class="thumb-crop-tool-row"><button class="thumb-crop-reset" type="button" id="thumbCropReset">위치 초기화</button><button class="thumb-crop-reset" type="button" id="thumbFlipX">좌우반전</button></div></div><div class="thumb-actions"><button class="btn sub" type="button" id="openRecent">최근 사진에서 선택</button><button class="btn sub" type="button" id="uploadThumbBtn">새 썸네일 업로드</button><button class="btn sub wide" type="button" id="youtubeThumb">YouTube 자동 썸네일</button></div><input id="thumbInput" type="hidden" value=""><input id="thumbFileId" type="hidden" value=""><input class="upload-input" id="thumbUploadInput" type="file" accept="image/*"></section>
+        <section class="card thumb-picker"><h3 class="preview-title">썸네일</h3><div class="pick-img is-placeholder" id="thumbCropStage"><img id="thumbPreview" alt=""></div><div class="thumb-crop-tools">
+  <button class="thumb-crop-flip" id="thumbFlipBtn" type="button">좌우반전</button>
+  <button class="thumb-crop-reset" id="thumbResetBtn" type="button">위치 초기화</button>
+  <div class="thumb-crop-note">마우스로 이미지를 잡고 움직여 위치 조정 · 휠로 확대/축소</div>
+</div>
+<div class="thumb-actions"><button class="btn sub" type="button" id="openRecent">최근 사진에서 선택</button><button class="btn sub" type="button" id="uploadThumbBtn">새 썸네일 업로드</button><button class="btn sub wide" type="button" id="youtubeThumb">YouTube 자동 썸네일</button></div><input id="thumbInput" type="hidden" value=""><input id="thumbFileId" type="hidden" value=""><input class="upload-input" id="thumbUploadInput" type="file" accept="image/*"></section>
       </aside>
     </div>
   </div>
@@ -549,5 +626,174 @@
   else bindVideoModalFallback();
 })();
 </script>
+
+<script>
+/* ===== MORE VIDEO v11 crop UX final override ===== */
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function clamp(n,min,max){ return Math.max(min, Math.min(max, Number(n)||0)); }
+
+  var crop = window.__lumiVideoCropV11 || { panX:0, panY:0, zoom:1, flip:1 };
+  window.__lumiVideoCropV11 = crop;
+
+  function cropTargets(){
+    return [
+      $('thumbStage'), $('previewStage'),
+      document.querySelector('.pick-img'),
+      document.querySelector('.public-thumb')
+    ].filter(Boolean);
+  }
+
+  function applyCropV11(){
+    crop.zoom = clamp(crop.zoom || 1, 0.65, 3);
+    crop.panX = clamp(crop.panX || 0, -420, 420);
+    crop.panY = clamp(crop.panY || 0, -420, 420);
+    crop.flip = crop.flip === -1 ? -1 : 1;
+    cropTargets().forEach(function(el){
+      el.style.setProperty('--thumb-pan-x', crop.panX + 'px');
+      el.style.setProperty('--thumb-pan-y', crop.panY + 'px');
+      el.style.setProperty('--thumb-zoom', crop.zoom);
+      el.style.setProperty('--thumb-flip', crop.flip);
+      el.style.setProperty('--thumb-x', '50%');
+      el.style.setProperty('--thumb-y', '50%');
+      el.style.setProperty('--thumb-scale', crop.zoom);
+    });
+    var flipBtn = $('thumbFlipBtn');
+    if(flipBtn) flipBtn.classList.toggle('is-active', crop.flip === -1);
+  }
+  window.applyVideoThumbCrop = applyCropV11;
+
+  function resetCropV11(){
+    crop.panX = 0; crop.panY = 0; crop.zoom = 1;
+    applyCropV11();
+    if(typeof window.toast === 'function') window.toast('위치 초기화');
+  }
+
+  function flipCropV11(){
+    crop.flip = crop.flip === -1 ? 1 : -1;
+    applyCropV11();
+    if(typeof window.toast === 'function') window.toast(crop.flip === -1 ? '좌우반전 적용' : '좌우반전 해제');
+  }
+
+  function bindCropMouse(){
+    var stage = $('thumbStage') || document.querySelector('.pick-img');
+    if(!stage || stage.dataset.v11CropBound === '1') return;
+    stage.dataset.v11CropBound = '1';
+
+    var drag = null;
+    stage.addEventListener('pointerdown', function(e){
+      var input = $('thumbUrlInput');
+      if(input && !input.value) return;
+      drag = { sx:e.clientX, sy:e.clientY, x:crop.panX || 0, y:crop.panY || 0 };
+      try{ stage.setPointerCapture(e.pointerId); }catch(err){}
+      e.preventDefault();
+    });
+
+    stage.addEventListener('pointermove', function(e){
+      if(!drag) return;
+      crop.panX = drag.x + (e.clientX - drag.sx);
+      crop.panY = drag.y + (e.clientY - drag.sy);
+      applyCropV11();
+      e.preventDefault();
+    });
+
+    ['pointerup','pointercancel','pointerleave'].forEach(function(type){
+      stage.addEventListener(type, function(){ drag = null; });
+    });
+
+    stage.addEventListener('wheel', function(e){
+      var input = $('thumbUrlInput');
+      if(input && !input.value) return;
+      e.preventDefault();
+      crop.zoom += e.deltaY < 0 ? 0.08 : -0.08;
+      applyCropV11();
+    }, { passive:false });
+  }
+
+  function patchSetThumb(){
+    if(window.__v11SetThumbPatched) return;
+    window.__v11SetThumbPatched = true;
+
+    var oldSetThumb = window.setThumb;
+    if(typeof oldSetThumb === 'function'){
+      window.setThumb = function(url, fileId, source, reset){
+        oldSetThumb.apply(this, arguments);
+        if(reset !== false){
+          crop.panX = 0; crop.panY = 0; crop.zoom = 1; crop.flip = 1;
+        }
+        setTimeout(applyCropV11, 0);
+      };
+    }
+  }
+
+  function patchModalAndSave(){
+    var oldOpenVideoModal = window.openVideoModal;
+    if(typeof oldOpenVideoModal === 'function' && oldOpenVideoModal.__v11Patched !== true){
+      var patchedOpen = function(id){
+        oldOpenVideoModal.apply(this, arguments);
+        try{
+          var key = window.STORE_KEY || 'lumibelle_more_video_admin_v1';
+          var list = JSON.parse(localStorage.getItem(key) || '[]');
+          var v = list.find(function(item){ return item.videoId === id; });
+          crop.panX = Number(v && v.thumbX) || 0;
+          crop.panY = Number(v && v.thumbY) || 0;
+          crop.zoom = Number(v && v.thumbScale) || 1;
+          crop.flip = Number(v && v.thumbFlip) === -1 ? -1 : 1;
+        }catch(e){}
+        setTimeout(applyCropV11, 0);
+      };
+      patchedOpen.__v11Patched = true;
+      window.openVideoModal = patchedOpen;
+    }
+
+    var oldSaveVideo = window.saveVideo;
+    if(typeof oldSaveVideo === 'function' && oldSaveVideo.__v11Patched !== true){
+      var patchedSave = function(asDraft){
+        var result = oldSaveVideo.apply(this, arguments);
+        try{
+          var key = window.STORE_KEY || 'lumibelle_more_video_admin_v1';
+          var list = JSON.parse(localStorage.getItem(key) || '[]');
+          if(list && list.length){
+            var latest = list[list.length - 1];
+            latest.thumbX = crop.panX || 0;
+            latest.thumbY = crop.panY || 0;
+            latest.thumbScale = crop.zoom || 1;
+            latest.thumbFlip = crop.flip === -1 ? -1 : 1;
+            localStorage.setItem(key, JSON.stringify(list));
+          }
+        }catch(e){}
+        return result;
+      };
+      patchedSave.__v11Patched = true;
+      window.saveVideo = patchedSave;
+    }
+  }
+
+  function bindButtons(){
+    var flipBtn = $('thumbFlipBtn');
+    var resetBtn = $('thumbResetBtn');
+    if(flipBtn && flipBtn.dataset.v11Bound !== '1'){
+      flipBtn.dataset.v11Bound = '1';
+      flipBtn.addEventListener('click', function(e){ e.preventDefault(); flipCropV11(); });
+    }
+    if(resetBtn && resetBtn.dataset.v11Bound !== '1'){
+      resetBtn.dataset.v11Bound = '1';
+      resetBtn.addEventListener('click', function(e){ e.preventDefault(); resetCropV11(); });
+    }
+  }
+
+  function init(){
+    bindCropMouse();
+    bindButtons();
+    patchSetThumb();
+    patchModalAndSave();
+    applyCropV11();
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+
 </body>
 </html>
