@@ -5387,12 +5387,13 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 .news-tool-panel{border:1px solid #f5cfe0;border-radius:22px;background:#fff8fc;padding:14px;}
 .news-tool-panel h3{margin:0 0 10px;color:#d77ca7;font-size:16px;font-weight:950;}
 .news-template-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
-.news-template-card{border:1px solid #f0bfd4;background:#fff;border-radius:15px;padding:10px 8px;color:#b77498;font-size:12px;font-weight:950;cursor:pointer;}
+.news-template-card{border:1px solid #f0bfd4;background:#fff;border-radius:15px;padding:10px 8px;color:#b77498;font-size:14px;font-weight:950;cursor:pointer;}
 .news-template-card.active{background:#ff59a5;color:#fff;border-color:#ff59a5;}
 .news-photo-bin,.news-slider-bin{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:260px;overflow:auto;}
 .news-bin-card{border:1px solid #f0bfd4;background:#fff;border-radius:14px;padding:6px;cursor:pointer;overflow:hidden;color:#9f758d;font-size:11px;font-weight:850;text-align:center;}
 .news-bin-card:hover,.news-bin-card.active{border-color:#ff59a5;background:#fff1f8;}
-.news-bin-card img{display:block;width:100%;height:74px;object-fit:cover;border-radius:10px;margin-bottom:5px;}
+.news-bin-card img{display:block;width:100%;height:84px;object-fit:cover;border-radius:10px;margin:0;}
+.news-bin-card span{display:none;}
 .news-collage-frame{position:relative;width:min(820px,100%);aspect-ratio:4/3;background:#fff;border:1px solid #f2cadd;border-radius:22px;overflow:hidden;box-shadow:0 14px 30px rgba(213,110,165,.10);}
 .news-collage-frame.custom-frame{aspect-ratio:auto;border-radius:0;border:0;background:transparent;box-shadow:none;}
 .news-collage-grid{position:absolute;inset:6%;display:grid;gap:3%;z-index:1;}
@@ -5843,9 +5844,10 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
               <button type="button" class="news-template-card" data-template="life4h">가로 루미네컷</button>
               <button type="button" class="news-template-card" data-template="grid4">4컷 정사각</button>
               <button type="button" class="news-template-card" data-template="main2">메인 1 + 서브 2</button>
+              <button type="button" class="news-template-card" data-template="lumiframe4">루미벨 사진네컷</button>
             </div></section>
             <section class="news-tool-panel"><h3>사진 보관함</h3><div id="newsCollagePhotoBin" class="news-photo-bin"><div class="sticker-empty">사진을 불러와 주세요.</div></div></section>
-            <section class="news-tool-panel"><h3>칸 관리</h3><div class="photo-editor-delete-row"><button type="button" class="btn sub" onclick="clearNewsCollageSlot()">선택 칸 비우기</button><button type="button" class="btn danger" onclick="clearNewsCollageAllSlots()">전체 비우기</button></div></section>
+            <section class="news-tool-panel"><div class="photo-editor-delete-row" style="justify-content:center;"><button type="button" class="btn sub" onclick="clearNewsCollageSlot()">선택 칸 비우기</button><button type="button" class="btn danger" onclick="clearNewsCollageAllSlots()">전체 비우기</button></div></section>
           </aside>
         </div>
         <input id="newsCollagePhotoInput" class="news-collage-file-input" type="file" accept="image/*" multiple>
@@ -7473,7 +7475,19 @@ const NEWS_COLLAGE_TEMPLATES={
   life4v:{count:4,caption:'루미네컷',cls:'life4v'},
   life4h:{count:4,caption:'루미네컷',cls:'life4h'},
   grid4:{count:4,caption:'루미네컷',cls:'grid4'},
-  main2:{count:3,caption:'루미콜라주',cls:'main2'}
+  main2:{count:3,caption:'루미콜라주',cls:'main2'},
+  lumiframe4:{count:4,caption:'루미벨 사진네컷',cls:'lumiframe4'}
+};
+const NEWS_FIXED_COLLAGE_FRAME={
+  template:'lumiframe4',
+  src:'../../assets/collage/luminecut_frame_4cut.png',
+  name:'루미벨 기본 사진네컷',
+  meta:{width:900,height:1200,slots:[
+    {x:133,y:121,w:294,h:433},
+    {x:455,y:121,w:295,h:434},
+    {x:132,y:576,w:295,h:434},
+    {x:455,y:576,w:295,h:434}
+  ]}
 };
 let newsCollageTemplate='grid6';
 let newsCollageActiveSlot=0;
@@ -7483,6 +7497,7 @@ let newsCollageDrag=null;
 let newsCollageFrameSrc='';
 let newsCollageFrameName='';
 let newsCollageFrameMeta=null;
+let newsCollageFrameFixed=false;
 let newsSliderPhotos=[];
 let newsSliderIndex=0;
 let lumiLightboxItems=[];
@@ -7584,9 +7599,9 @@ async function analyzeNewsTransparentFrame(src){
   slots.sort((a,b)=>Math.abs(a.y-b.y)>25?a.y-b.y:a.x-b.x);return {width:w,height:h,slots:slots.slice(0,8)};
 }
 q('newsCollagePhotoInput')?.addEventListener('change',async e=>{const photos=await newsFilesToPhotos(e.target.files,'local');newsCollagePhotos.push(...photos);e.target.value='';renderNewsCollagePhotoBin();newsToolSetStatus('newsCollageStatus',`${photos.length}장의 사진을 불러왔어요.`);});
-q('newsCollageFrameInput')?.addEventListener('change',async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;if(file.type&&file.type!=='image/png'){newsToolSetStatus('newsCollageStatus','프레임은 투명 PNG만 사용할 수 있어요.');e.target.value='';return;}const src=await newsReadFileAsDataUrl(file);newsCollageFrameSrc=src;newsCollageFrameName=file.name;newsCollageFrameMeta=await analyzeNewsTransparentFrame(src).catch(()=>null);e.target.value='';renderNewsCollage();newsToolSetStatus('newsCollageStatus',newsCollageFrameMeta?`프레임 적용 · 슬롯 ${newsCollageFrameMeta.slots.length}개 자동 인식`:'프레임 적용');});
-q('newsCollageTemplates')?.addEventListener('click',e=>{const btn=e.target.closest('.news-template-card');if(!btn)return;document.querySelectorAll('#newsCollageTemplates .news-template-card').forEach(b=>b.classList.remove('active'));btn.classList.add('active');newsCollageTemplate=btn.dataset.template||'grid6';newsCollageActiveSlot=0;newsCollageSlots=[];renderNewsCollage();});
-function clearNewsCollageFrame(){newsCollageFrameSrc='';newsCollageFrameName='';newsCollageFrameMeta=null;newsCollageSlots=[];renderNewsCollage();}
+q('newsCollageFrameInput')?.addEventListener('change',async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;if(file.type&&file.type!=='image/png'){newsToolSetStatus('newsCollageStatus','프레임은 투명 PNG만 사용할 수 있어요.');e.target.value='';return;}const src=await newsReadFileAsDataUrl(file);newsCollageFrameSrc=src;newsCollageFrameName=file.name;newsCollageFrameFixed=false;newsCollageFrameMeta=await analyzeNewsTransparentFrame(src).catch(()=>null);e.target.value='';renderNewsCollage();newsToolSetStatus('newsCollageStatus',newsCollageFrameMeta?`프레임 적용 · 슬롯 ${newsCollageFrameMeta.slots.length}개 자동 인식`:'프레임 적용');});
+q('newsCollageTemplates')?.addEventListener('click',e=>{const btn=e.target.closest('.news-template-card');if(!btn)return;document.querySelectorAll('#newsCollageTemplates .news-template-card').forEach(b=>b.classList.remove('active'));btn.classList.add('active');newsCollageTemplate=btn.dataset.template||'grid6';newsCollageActiveSlot=0;newsCollageSlots=[];if(newsCollageTemplate===NEWS_FIXED_COLLAGE_FRAME.template){newsCollageFrameSrc=NEWS_FIXED_COLLAGE_FRAME.src;newsCollageFrameName=NEWS_FIXED_COLLAGE_FRAME.name;newsCollageFrameMeta=JSON.parse(JSON.stringify(NEWS_FIXED_COLLAGE_FRAME.meta));newsCollageFrameFixed=true;newsToolSetStatus('newsCollageStatus','루미벨 사진네컷 기본 프레임을 적용했어요.');}else if(newsCollageFrameFixed){newsCollageFrameSrc='';newsCollageFrameName='';newsCollageFrameMeta=null;newsCollageFrameFixed=false;}renderNewsCollage();});
+function clearNewsCollageFrame(){newsCollageFrameSrc='';newsCollageFrameName='';newsCollageFrameMeta=null;newsCollageFrameFixed=false;newsCollageSlots=[];renderNewsCollage();}
 function resetNewsCollage(){newsCollageSlots=[];newsCollageActiveSlot=0;renderNewsCollage();newsToolSetStatus('newsCollageStatus','콜라주를 초기화했어요.');}
 function clearNewsCollageSlot(){ensureNewsCollageSlots();newsCollageSlots[newsCollageActiveSlot]=null;renderNewsCollage();}
 function clearNewsCollageAllSlots(){newsCollageSlots=[];renderNewsCollage();}
