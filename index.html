@@ -4294,8 +4294,7 @@ line-height:1.9 !important;
       .member-btn::after,
       .more-btn::after,
       .info-link-btn::after,
-      .ticket-btn::after,
-      .member-card::after{
+      .ticket-btn::after{
         display:none !important;
         content:none !important;
         animation:none !important;
@@ -5134,7 +5133,45 @@ line-height:1.9 !important;
     }
 
   
-  </style>
+  
+
+    /* ===== GALAXY ONLY: index(64) 멤버 카드 광택선 원형 복구 =====
+       새 효과 추가가 아니라, Android에서 모바일 잔상 제거 패치가 member-card shine을 죽이지 않도록 원래값만 고정한다. */
+    @media (max-width: 780px){
+      .member-card{
+        position:relative !important;
+        overflow:hidden !important;
+        isolation:isolate !important;
+      }
+
+      .member-card::after{
+        content:"" !important;
+        display:block !important;
+        position:absolute !important;
+        top:-20% !important;
+        left:-38% !important;
+        width:24% !important;
+        height:140% !important;
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,0) 0%,
+          rgba(255,255,255,0.16) 35%,
+          rgba(255,255,255,0.40) 50%,
+          rgba(255,255,255,0.16) 65%,
+          rgba(255,255,255,0) 100%
+        ) !important;
+        transform:skewX(-24deg) translateX(0) !important;
+        opacity:0 !important;
+        pointer-events:none !important;
+        z-index:2 !important;
+        will-change:transform, opacity !important;
+      }
+
+      .member-card.shine-once::after{
+        animation:memberShine .95s ease forwards !important;
+      }
+    }
+</style>
 </head>
 
 <body>
@@ -6157,8 +6194,11 @@ document.addEventListener("click", function(e){
 </script>
 
 <script>
-  /* CLEAN REBASE: mobile member card shine trigger */
+  /* CLEAN REBASE: mobile member card shine trigger
+     Galaxy/Android에서는 index(64)의 기존 mouseenter 방식만 사용한다. */
   (function(){
+    if (/Android/i.test(navigator.userAgent || "")) return;
+
     function shine(card){
       if(!card) return;
       card.classList.remove('shine-once');
