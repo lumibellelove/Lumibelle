@@ -4803,6 +4803,197 @@ line-height:1.9 !important;
         align-items:center !important;
       }
     }
+
+    /* ===== GALAXY FIRST FIX v4 : Z Flip 6 상단~중단 안정화 ===== */
+    @media (max-width: 780px){
+      .hero-inner,
+      .hero-logo,
+      .hero-desc,
+      .hero-desc::before{
+        background:transparent !important;
+        box-shadow:none !important;
+        backdrop-filter:none !important;
+        -webkit-backdrop-filter:none !important;
+        border:0 !important;
+      }
+
+      .hero-desc{
+        color:#fff !important;
+        text-shadow:0 2px 10px rgba(0,0,0,.42), 0 0 18px rgba(255,150,200,.38) !important;
+      }
+
+      .member-card{
+        position:relative !important;
+        overflow:hidden !important;
+        isolation:isolate !important;
+      }
+
+      .member-card::after{
+        content:"" !important;
+        display:block !important;
+        position:absolute !important;
+        top:-20% !important;
+        left:-38% !important;
+        width:24% !important;
+        height:140% !important;
+        background:linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.16) 35%, rgba(255,255,255,.42) 50%, rgba(255,255,255,.16) 65%, rgba(255,255,255,0) 100%) !important;
+        transform:skewX(-24deg) translateX(0) !important;
+        opacity:0;
+        pointer-events:none !important;
+        z-index:2 !important;
+      }
+
+      .member-card.shine-once::after,
+      .member-card.mobile-shine::after{
+        animation:memberShine .95s ease forwards !important;
+      }
+    }
+
+    @media (max-width: 430px){
+      .hero-inner{
+        padding:112px 20px 42px !important;
+        max-width:100% !important;
+      }
+
+      .hero-logo{
+        font-size:48px !important;
+        line-height:.92 !important;
+        margin:6px 0 10px !important;
+      }
+
+      .hero-desc{
+        max-width:250px !important;
+        margin-top:8px !important;
+        font-size:12px !important;
+        line-height:1.58 !important;
+        font-weight:800 !important;
+        -webkit-line-clamp:3 !important;
+      }
+
+      .member-card{
+        width:calc(100% - 18px) !important;
+        padding:10px 10px 18px !important;
+        border-radius:25px !important;
+      }
+
+      .member-name-bar{
+        padding:14px 10px !important;
+        margin-bottom:12px !important;
+        font-size:18px !important;
+      }
+
+      .member-photo{
+        height:334px !important;
+        border-radius:21px !important;
+        margin-bottom:16px !important;
+      }
+
+      .member-color-text{
+        margin-bottom:14px !important;
+      }
+
+      .member-meta{
+        margin-bottom:16px !important;
+      }
+
+      .news-item{
+        grid-template-columns:78px 46px minmax(0,1fr) 42px 10px !important;
+        padding:12px 14px !important;
+      }
+
+      .news-date{
+        font-size:12.5px !important;
+        font-weight:900 !important;
+        color:#8f7183 !important;
+      }
+
+      .news-title{
+        font-size:14px !important;
+        font-weight:900 !important;
+        color:#6f5d68 !important;
+      }
+
+      .schedule-item{
+        grid-template-columns:auto minmax(72px,.9fr) minmax(94px,1.1fr) auto !important;
+        grid-template-areas:"date place title ticket" !important;
+        gap:6px !important;
+        padding:12px 12px !important;
+      }
+
+      .schedule-date{
+        grid-area:date !important;
+        font-size:16px !important;
+        white-space:nowrap !important;
+      }
+
+      .schedule-place{
+        grid-area:place !important;
+        justify-self:start !important;
+        text-align:left !important;
+        font-size:11.5px !important;
+        white-space:nowrap !important;
+        overflow:hidden !important;
+        text-overflow:ellipsis !important;
+      }
+
+      .schedule-title{
+        grid-area:title !important;
+        min-width:0 !important;
+        font-size:11.5px !important;
+        white-space:nowrap !important;
+        overflow:hidden !important;
+        text-overflow:ellipsis !important;
+      }
+
+      .schedule-item .ticket-btn{
+        grid-area:ticket !important;
+        justify-self:end !important;
+        min-width:54px !important;
+        height:28px !important;
+        padding:0 8px !important;
+        font-size:9.5px !important;
+      }
+    }
+
+    @media (max-width: 374px){
+      .hero-inner{
+        padding:100px 18px 38px !important;
+      }
+
+      .member-photo{
+        height:312px !important;
+      }
+
+      .schedule-item{
+        grid-template-columns:auto minmax(0,1fr) !important;
+        grid-template-areas:
+          "date place"
+          "title title"
+          "ticket ticket" !important;
+        gap:8px 8px !important;
+        padding:13px 14px !important;
+      }
+
+      .schedule-place{
+        justify-self:end !important;
+        text-align:right !important;
+        font-size:12px !important;
+      }
+
+      .schedule-title{
+        font-size:13px !important;
+        white-space:normal !important;
+        overflow:visible !important;
+      }
+
+      .schedule-item .ticket-btn{
+        width:100% !important;
+        min-width:0 !important;
+        height:34px !important;
+        font-size:10px !important;
+      }
+    }
+
   </style>
 </head>
 
@@ -4991,7 +5182,7 @@ line-height:1.9 !important;
         <a href="setlist.html" class="live-guide-card">
           <div class="live-guide-text">
             <strong>SETLIST</strong>
-            <span data-i18n="shortcut.setlist">공연 세트리스트 · 응원가이드 · 믹스콜 보기</span>
+            <span data-i18n="shortcut.setlist">세트리스트 · 응원 가이드 · 믹스콜 보기</span>
           </div>
           <div class="live-guide-arrow">→</div>
         </a>
@@ -5209,7 +5400,7 @@ line-height:1.9 !important;
           "member.lulu.color":"멤버컬러<br />밀키핑크♥", "member.lulu.keyword":"<strong>키워드</strong> 포근함, 작은 용기, 아기토끼공주", "member.lulu.line":"<strong>한마디</strong> 루루만의 길로 한발씩, 포근하게!",
           "member.iro.color":"멤버컬러<br />엔젤블루♥", "member.iro.keyword":"<strong>키워드</strong> 4차원, 맑눈광, 천사 같은 악마", "member.iro.line":"<strong>한마디</strong> 네 세상의 색(色)을 완전히 바꿔줄게!",
           "member.lunar.color":"멤버컬러<br />달빛퍼플♥", "member.lunar.keyword":"<strong>키워드</strong> 내강외유, 신비로움, 말랑고양이", "member.lunar.line":"<strong>한마디</strong> 언제나 너만을 비추는 달이 될게.",
-          "shortcut.setlist":"공연 세트리스트 · 응원가이드 · 믹스콜 보기", "shortcut.log":"공연 기록 · 멤버 코멘트 · 루미나 후기",
+          "shortcut.setlist":"세트리스트 · 응원 가이드 · 믹스콜 보기", "shortcut.log":"공연 기록 · 멤버 코멘트 · 루미나 후기",
           "more.news":"공지사항 더보기", "more.schedule":"스케줄 더보기",
           "schedule.place1":"상상마당@홍대", "schedule.title1":"루미벨 데뷔라이브", "schedule.place2":"빅 이벤트", "schedule.title2":"라이브 예정",
           "video.archive":"루미벨 영상 아카이브", "video.today":"오늘의 영상 아카이브", "video.desc":"공연 직캠 · 방송 클립 · 다시보기까지<br>한 번에 모아보는 아카이브", "video.go":"영상 보러가기", "video.click":"클릭하면 MORE VIDEO로 이동합니다",
@@ -5325,7 +5516,7 @@ line-height:1.9 !important;
     })();
   </script>
 
-  <script src="js/lumi-content-sync.js?v=20260517-pc-multilang-v2"></script>
+  <script src="js/lumi-content-sync.js?v=20260517-galaxy-first-fix-v4"></script>
 
   <script>
     const backToTop = document.getElementById('backToTop');
@@ -5373,53 +5564,82 @@ line-height:1.9 !important;
   <script>
     (function(){
       const list = document.getElementById('homeNewsList');
-      if(!list || !window.LumiNewsSync) return;
+      if(!list) return;
+
+      let bound = false;
+      let retryCount = 0;
+      const MAX_RETRY = 20;
+      const RETRY_DELAY = 120;
+
+      function sync(){ return window.LumiNewsSync; }
 
       function renderBadge(b){
-        return '<span class="news-badge ' + LumiNewsSync.badgeClass(b) + '">' + LumiNewsSync.htmlEscape(b) + '</span>';
+        const api = sync();
+        return '<span class="news-badge ' + api.badgeClass(b) + '">' + api.htmlEscape(b) + '</span>';
       }
 
       function renderCategoryBadge(n){
-        const badges = LumiNewsSync.badgesFor(n).filter(function(b){ return String(b).toUpperCase() !== 'NEW'; });
+        const api = sync();
+        const badges = api.badgesFor(n).filter(function(b){ return String(b).toUpperCase() !== 'NEW'; });
         return badges.length ? renderBadge(badges[0]) : '';
       }
 
       function renderNewBadge(n){
-        const hasNew = LumiNewsSync.badgesFor(n).some(function(b){ return String(b).toUpperCase() === 'NEW'; });
+        const api = sync();
+        const hasNew = api.badgesFor(n).some(function(b){ return String(b).toUpperCase() === 'NEW'; });
         return hasNew ? renderBadge('NEW') : '';
       }
 
       function renderHomeNews(){
-        const allRows = LumiNewsSync.publicNews();
+        const api = sync();
+        if(!api) return false;
+        const allRows = api.publicNews();
         let rows = allRows.filter(function(n){ return n.home !== false || n.isHome === true; });
         if(!rows.length) rows = allRows;
         rows = rows.slice(0, 3);
         list.innerHTML = rows.map(function(n){
-          return '<a href="' + LumiNewsSync.htmlEscape(LumiNewsSync.newsHref(n)) + '" class="news-item">'
-            + '<div class="news-date">' + LumiNewsSync.htmlEscape(LumiNewsSync.toLongDate(n.date)) + '</div>'
+          return '<a href="' + api.htmlEscape(api.newsHref(n)) + '" class="news-item">'
+            + '<div class="news-date">' + api.htmlEscape(api.toLongDate(n.date)) + '</div>'
             + '<div class="news-tags">' + renderCategoryBadge(n) + '</div>'
-            + '<div class="news-title">' + LumiNewsSync.htmlEscape(n.title || '제목 없음') + '</div>'
+            + '<div class="news-title">' + api.htmlEscape(n.title || '제목 없음') + '</div>'
             + '<div class="news-new-slot">' + renderNewBadge(n) + '</div>'
             + '<div class="news-arrow">›</div>'
             + '</a>';
         }).join('') || '<div class="news-empty">' + (window.LumibelleHomeI18n ? LumibelleHomeI18n.t('news.empty') : '등록된 공지사항이 없습니다.') + '</div>';
+        return true;
       }
 
-      window.addEventListener('storage', function(e){
-        if(e.key === LumiNewsSync.STORAGE_KEY) renderHomeNews();
-      });
-      window.addEventListener('lumi-news-updated', renderHomeNews);
-      window.addEventListener('lumibelle-home-lang-changed', renderHomeNews);
-
-      renderHomeNews();
-      if(LumiNewsSync.loadPublicNews){
-        LumiNewsSync.loadPublicNews('ko').then(function(){
-          renderHomeNews();
-          setTimeout(renderHomeNews, 250);
-        }).catch(function(){
-          renderHomeNews();
+      function bindEventsOnce(){
+        const api = sync();
+        if(!api || bound) return;
+        bound = true;
+        window.addEventListener('storage', function(e){
+          if(e.key === api.STORAGE_KEY) renderHomeNews();
         });
+        window.addEventListener('lumi-news-updated', renderHomeNews);
+        window.addEventListener('lumibelle-home-lang-changed', renderHomeNews);
       }
+
+      function tryRender(){
+        const api = sync();
+        if(!api){
+          retryCount += 1;
+          if(retryCount <= MAX_RETRY) setTimeout(tryRender, RETRY_DELAY);
+          return;
+        }
+        bindEventsOnce();
+        renderHomeNews();
+        if(api.loadPublicNews){
+          api.loadPublicNews('ko').then(function(){
+            renderHomeNews();
+            setTimeout(renderHomeNews, 250);
+          }).catch(function(){
+            renderHomeNews();
+          });
+        }
+      }
+
+      tryRender();
     })();
   </script>
 
