@@ -5431,6 +5431,49 @@ line-height:1.9 !important;
       content:"" !important;
       animation:memberShine .95s ease forwards !important;
     }
+
+
+    /* =========================================================
+       GALAXY PATCH 3 : Android member shine static restore
+       - Galaxy에서 광택선이 위쪽에서만 깜빡이고 사라지는 현상 방지
+       - Android에서만 sweep animation을 끄고, 카드 위에 고정 광택선을 표시
+       - iPhone 통과본 영향 없음
+       ========================================================= */
+    html.is-android .member-card::after{
+      content:"" !important;
+      display:block !important;
+      position:absolute !important;
+      top:-26% !important;
+      left:60% !important;
+      width:18% !important;
+      height:160% !important;
+      background:linear-gradient(
+        90deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.16) 31%,
+        rgba(255,255,255,0.52) 50%,
+        rgba(255,255,255,0.16) 69%,
+        rgba(255,255,255,0) 100%
+      ) !important;
+      transform:skewX(-18deg) rotate(0.001deg) !important;
+      opacity:.58 !important;
+      pointer-events:none !important;
+      z-index:8 !important;
+      animation:none !important;
+      will-change:auto !important;
+      -webkit-transform:skewX(-18deg) rotate(0.001deg) !important;
+      -webkit-backface-visibility:hidden !important;
+      backface-visibility:hidden !important;
+    }
+
+    html.is-android .member-card.shine-once::after,
+    html.is-android .member-card.mobile-shine::after{
+      animation:none !important;
+      opacity:.58 !important;
+      transform:skewX(-18deg) rotate(0.001deg) !important;
+      -webkit-transform:skewX(-18deg) rotate(0.001deg) !important;
+    }
+
 </style>
 </head>
 
