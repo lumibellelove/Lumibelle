@@ -5681,7 +5681,7 @@ line-height:1.9 !important;
       }catch(e){}
     })();
   </script>
-  <script src="js/lumi-content-sync.js?v=20260517-galaxy-combined-v8"></script>
+  <script src="js/lumi-content-sync.js?v=20260517-galaxy-claude-v9"></script>
 
   <script>
     const backToTop = document.getElementById('backToTop');
@@ -5755,10 +5755,19 @@ line-height:1.9 !important;
         return hasNew ? renderBadge('NEW') : '';
       }
 
-      function renderHomeNews(){
+      function renderHomeNews(showEmpty){
         const api = sync();
         if(!api) return false;
         const allRows = api.publicNews();
+
+        // Galaxy Chrome 방어: publicNews()가 아직 빈 배열이면 empty를 먼저 그리지 않고 로딩을 기다린다.
+        if(!allRows || !allRows.length){
+          if(showEmpty){
+            list.innerHTML = '<div class="news-empty">' + (window.LumibelleHomeI18n ? LumibelleHomeI18n.t('news.empty') : '등록된 공지사항이 없습니다.') + '</div>';
+          }
+          return false;
+        }
+
         let rows = allRows.filter(function(n){ return n.home !== false || n.isHome === true; });
         if(!rows.length) rows = allRows;
         rows = rows.slice(0, 3);
@@ -5770,7 +5779,7 @@ line-height:1.9 !important;
             + '<div class="news-new-slot">' + renderNewBadge(n) + '</div>'
             + '<div class="news-arrow">›</div>'
             + '</a>';
-        }).join('') || '<div class="news-empty">' + (window.LumibelleHomeI18n ? LumibelleHomeI18n.t('news.empty') : '등록된 공지사항이 없습니다.') + '</div>';
+        }).join('');
         return true;
       }
 
@@ -5779,10 +5788,10 @@ line-height:1.9 !important;
         if(!api || bound) return;
         bound = true;
         window.addEventListener('storage', function(e){
-          if(e.key === api.STORAGE_KEY) renderHomeNews();
+          if(e.key === api.STORAGE_KEY) renderHomeNews(true);
         });
-        window.addEventListener('lumi-news-updated', renderHomeNews);
-        window.addEventListener('lumibelle-home-lang-changed', renderHomeNews);
+        window.addEventListener('lumi-news-updated', function(){ renderHomeNews(true); });
+        window.addEventListener('lumibelle-home-lang-changed', function(){ renderHomeNews(true); });
       }
 
       let reloadedSyncScript = false;
@@ -5791,7 +5800,7 @@ line-height:1.9 !important;
         reloadedSyncScript = true;
         try{
           const script = document.createElement('script');
-          script.src = 'js/lumi-content-sync.js?v=20260517-galaxy-combined-v8-force-' + Date.now();
+          script.src = 'js/lumi-content-sync.js?v=20260517-galaxy-claude-v9-force-' + Date.now();
           script.onload = function(){ setTimeout(tryRender, 80); };
           document.head.appendChild(script);
         }catch(e){}
@@ -5809,14 +5818,14 @@ line-height:1.9 !important;
           return;
         }
         bindEventsOnce();
-        renderHomeNews();
+        renderHomeNews(false);
         if(api.loadPublicNews){
           api.loadPublicNews('ko').then(function(){
-            renderHomeNews();
-            setTimeout(renderHomeNews, 250);
-            setTimeout(renderHomeNews, 800);
+            renderHomeNews(true);
+            setTimeout(function(){ renderHomeNews(true); }, 250);
+            setTimeout(function(){ renderHomeNews(true); }, 800);
           }).catch(function(){
-            renderHomeNews();
+            renderHomeNews(true);
           });
         }
       }
@@ -6442,252 +6451,3 @@ document.addEventListener("click", function(e){
   })();
 </script>
 
-
-
-<!-- GALAXY COMBINED FIX v8 : schedule one-line + member shine + cache-bust polish -->
-<style>
-  @media (max-width: 430px){
-    /* SCHEDULE: 갤럭시도 아이폰 통과본처럼 한 줄 우선 배치 */
-    .schedule-item{
-      display:grid !important;
-      grid-template-columns:72px minmax(78px,.95fr) minmax(92px,1.1fr) 62px !important;
-      grid-template-areas:"date place title ticket" !important;
-      align-items:center !important;
-      gap:6px !important;
-      padding:13px 13px !important;
-      min-width:0 !important;
-    }
-    .schedule-date{
-      grid-area:date !important;
-      font-size:16px !important;
-      line-height:1.15 !important;
-      font-weight:900 !important;
-      letter-spacing:-0.055em !important;
-      white-space:nowrap !important;
-      min-width:0 !important;
-    }
-    .schedule-place,
-    .schedule-title{
-      font-size:12px !important;
-      line-height:1.25 !important;
-      font-weight:900 !important;
-      color:#6f5d68 !important;
-      white-space:nowrap !important;
-      overflow:hidden !important;
-      text-overflow:clip !important;
-      min-width:0 !important;
-      max-width:100% !important;
-    }
-    .schedule-place{grid-area:place !important; justify-self:start !important; text-align:left !important;}
-    .schedule-title{grid-area:title !important; justify-self:start !important; text-align:left !important;}
-    .schedule-item .ticket-btn{
-      grid-area:ticket !important;
-      justify-self:end !important;
-      width:auto !important;
-      min-width:58px !important;
-      height:30px !important;
-      padding:0 8px !important;
-      font-size:10px !important;
-      line-height:1 !important;
-      font-weight:900 !important;
-      white-space:nowrap !important;
-    }
-    .schedule-item .ticket-btn.coming-soon{
-      min-width:72px !important;
-      padding:0 7px !important;
-      font-size:9.5px !important;
-      letter-spacing:-0.03em !important;
-    }
-
-    /* MEMBER: PC식 하얀선 효과를 갤럭시에서도 hover 없이 보이게 */
-    .member-card{
-      position:relative !important;
-      overflow:hidden !important;
-      isolation:isolate !important;
-      padding:14px 12px 26px !important;
-      border-radius:27px !important;
-      box-shadow:0 10px 28px rgba(232,191,211,.18) !important;
-    }
-    .member-card::before{
-      content:"" !important;
-      display:block !important;
-      position:absolute !important;
-      top:-26% !important;
-      left:-48% !important;
-      width:34% !important;
-      height:158% !important;
-      background:linear-gradient(90deg,
-        rgba(255,255,255,0) 0%,
-        rgba(255,255,255,.10) 30%,
-        rgba(255,255,255,.68) 50%,
-        rgba(255,255,255,.18) 70%,
-        rgba(255,255,255,0) 100%) !important;
-      transform:skewX(-24deg) translateX(0) !important;
-      opacity:0 !important;
-      pointer-events:none !important;
-      z-index:30 !important;
-      mix-blend-mode:screen !important;
-      animation:lumiMemberGalaxyShine 3.8s ease-in-out infinite !important;
-    }
-    .member-card > *{position:relative; z-index:1;}
-    .member-photo{
-      height:372px !important;
-      margin-bottom:20px !important;
-    }
-    .member-name-bar{
-      padding:16px 10px !important;
-      margin-bottom:15px !important;
-    }
-    .member-color-text{margin-bottom:18px !important;}
-    .member-meta{margin-bottom:22px !important;}
-    .member-btn{padding:15px 18px !important;}
-  }
-
-  @media (max-width: 374px){
-    .schedule-item{
-      grid-template-columns:68px minmax(72px,.9fr) minmax(78px,1fr) 58px !important;
-      gap:5px !important;
-      padding:12px 12px !important;
-    }
-    .schedule-date{font-size:15px !important;}
-    .schedule-place,
-    .schedule-title{font-size:11.2px !important;}
-    .schedule-item .ticket-btn{
-      min-width:54px !important;
-      height:28px !important;
-      padding:0 6px !important;
-      font-size:9px !important;
-    }
-    .schedule-item .ticket-btn.coming-soon{
-      min-width:66px !important;
-      font-size:8.6px !important;
-    }
-    .member-photo{height:352px !important;}
-  }
-
-  @keyframes lumiMemberGalaxyShine{
-    0%, 58%{opacity:0; transform:skewX(-24deg) translateX(0);}
-    66%{opacity:1;}
-    100%{opacity:0; transform:skewX(-24deg) translateX(620%);}
-  }
-</style>
-<script>
-  /* GALAXY COMBINED FIX v8: Android Chrome에서 최신 NEWS 동기화 파일을 강제 재시도 */
-  (function(){
-    try{
-      var isAndroid = /Android/i.test(navigator.userAgent || '');
-      if(!isAndroid) return;
-      window.addEventListener('load', function(){
-        setTimeout(function(){
-          if(!window.LumiNewsSync){
-            var s = document.createElement('script');
-            s.src = 'js/lumi-content-sync.js?v=20260517-galaxy-combined-v8-retry-' + Date.now();
-            document.head.appendChild(s);
-          }
-        }, 350);
-      });
-    }catch(e){}
-  })();
-</script>
-
-</body>
-</html>
-
-<!-- GALAXY SCHEDULE LINE FIX v7 : keep schedule in one row on Z Flip 6 -->
-<style>
-  @media (max-width: 430px){
-    .schedule-list{
-      overflow: visible !important;
-    }
-
-    .schedule-item{
-      display:grid !important;
-      grid-template-columns:72px minmax(78px,.95fr) minmax(88px,1.05fr) 62px !important;
-      grid-template-areas:"date place title ticket" !important;
-      align-items:center !important;
-      gap:6px !important;
-      padding:13px 13px !important;
-      min-width:0 !important;
-    }
-
-    .schedule-date{
-      grid-area:date !important;
-      font-size:16px !important;
-      line-height:1.15 !important;
-      font-weight:900 !important;
-      letter-spacing:-0.05em !important;
-      white-space:nowrap !important;
-      min-width:0 !important;
-    }
-
-    .schedule-place,
-    .schedule-title{
-      font-size:12px !important;
-      line-height:1.25 !important;
-      font-weight:900 !important;
-      color:#6f5d68 !important;
-      white-space:nowrap !important;
-      overflow:hidden !important;
-      text-overflow:clip !important;
-      min-width:0 !important;
-      max-width:100% !important;
-    }
-
-    .schedule-place{
-      grid-area:place !important;
-      justify-self:start !important;
-      text-align:left !important;
-    }
-
-    .schedule-title{
-      grid-area:title !important;
-      justify-self:start !important;
-      text-align:left !important;
-    }
-
-    .schedule-item .ticket-btn{
-      grid-area:ticket !important;
-      justify-self:end !important;
-      width:auto !important;
-      min-width:58px !important;
-      height:30px !important;
-      padding:0 8px !important;
-      font-size:10px !important;
-      line-height:1 !important;
-      font-weight:900 !important;
-      white-space:nowrap !important;
-    }
-
-    .schedule-item .ticket-btn.coming-soon{
-      min-width:72px !important;
-      padding:0 7px !important;
-      font-size:9.5px !important;
-      letter-spacing:-0.03em !important;
-    }
-  }
-
-  @media (max-width: 374px){
-    .schedule-item{
-      grid-template-columns:68px minmax(72px,.9fr) minmax(78px,1fr) 58px !important;
-      grid-template-areas:"date place title ticket" !important;
-      gap:5px !important;
-      padding:12px 12px !important;
-    }
-
-    .schedule-date{font-size:15px !important;}
-    .schedule-place,
-    .schedule-title{font-size:11.2px !important;}
-
-    .schedule-item .ticket-btn{
-      min-width:54px !important;
-      height:28px !important;
-      padding:0 6px !important;
-      font-size:9px !important;
-    }
-
-    .schedule-item .ticket-btn.coming-soon{
-      min-width:66px !important;
-      font-size:8.6px !important;
-    }
-  }
-</style>
