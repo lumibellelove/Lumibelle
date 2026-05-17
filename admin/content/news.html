@@ -5434,9 +5434,9 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 .news-collage-caption{position:absolute;left:50%;bottom:5%;transform:translateX(-50%);color:#d86fa5;font-size:28px;font-weight:950;z-index:3;letter-spacing:-.04em;}
 .news-collage-overlay{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:4;pointer-events:none;}
 /* 프레임 맞추기 모드 */
-.news-collage-frame.adjust-mode .news-collage-slot{border:2px dashed #ff59a5;background:rgba(255,89,165,.10);cursor:move;z-index:5;}
+.news-collage-frame.adjust-mode .news-collage-slot{border:2px solid #e0006e;background:rgba(255,89,165,.12);cursor:move;z-index:5;}
 .news-collage-frame.adjust-mode .news-collage-slot.active{outline:3px solid #ff59a5;outline-offset:-2px;}
-.news-collage-slot-resize{position:absolute;width:14px;height:14px;background:#ff59a5;border-radius:3px;z-index:10;touch-action:none;display:none;}
+.news-collage-slot-resize{position:absolute;width:16px;height:16px;background:#e0006e;border:2px solid #fff;border-radius:4px;z-index:10;touch-action:none;display:none;box-shadow:0 1px 4px rgba(0,0,0,.25);}
 .news-collage-frame.adjust-mode .news-collage-slot-resize{display:block;}
 .news-collage-slot-resize.nw{top:-7px;left:-7px;cursor:nw-resize;}
 .news-collage-slot-resize.ne{top:-7px;right:-7px;cursor:ne-resize;}
@@ -7538,6 +7538,7 @@ const NEWS_FIXED_COLLAGE_FRAME={
 };
 let newsCollageTemplate='grid6';
 let newsCollageActiveSlot=0;
+let newsCollageBinSelectedIndex=-1; /* 보관함에서 선택된 사진 인덱스 (-1=미선택) */
 let newsCollageSlots=[];
 let newsCollagePhotos=[];
 let newsCollageDrag=null;
@@ -7588,7 +7589,7 @@ function renderNewsCollagePhotoBin(){
     return;
   }
   bin.classList.remove('is-empty');
-  bin.innerHTML=newsCollagePhotos.map((p,i)=>`<div class="news-bin-card" role="button" tabindex="0" onclick="putNewsPhotoInCollageSlot(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();putNewsPhotoInCollageSlot(${i});}"><button type="button" class="news-bin-remove" aria-label="보관함 사진 삭제" onclick="event.preventDefault();event.stopPropagation();removeNewsCollagePhoto(${i})">×</button><img src="${htmlEscape(p.src)}" alt="${htmlEscape(p.name||'image')}"><span>${htmlEscape(p.name||'image')}</span></div>`).join('');
+  bin.innerHTML=newsCollagePhotos.map((p,i)=>`<div class="news-bin-card${i===newsCollageBinSelectedIndex?' is-selected':''}" role="button" tabindex="0" onclick="selectOrInsertNewsCollagePhoto(${i})" ondblclick="event.preventDefault();selectOrInsertNewsCollagePhoto(${i},true)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectOrInsertNewsCollagePhoto(${i},true);}"><button type="button" class="news-bin-remove" aria-label="보관함 사진 삭제" onclick="event.preventDefault();event.stopPropagation();removeNewsCollagePhoto(${i})">×</button><img src="${htmlEscape(p.src)}" alt="${htmlEscape(p.name||'image')}"><span>${htmlEscape(p.name||'image')}</span></div>`).join('');
 }
 function removeNewsCollagePhoto(index){
   if(index<0||index>=newsCollagePhotos.length)return;
@@ -7606,6 +7607,39 @@ function putNewsPhotoInCollageSlot(index){
   const p=newsCollagePhotos[index];if(!p)return;
   newsCollageSlots[newsCollageActiveSlot]=cloneNewsPhotoForSlot(p);
   renderNewsCollage();
+}
+/* 보관함 사진 클릭: 한 번 → 선택, 재클릭/더블클릭 → 슬롯 삽입
+   adjust mode 중에는 삽입 금지 */
+function selectOrInsertNewsCollagePhoto(index, force=false){
+  if(newsFrameAdjustMode){
+    newsToolSetStatus('newsCollageStatus','프레임 맞추기 모드에서는 사진을 넣을 수 없어요. 먼저 [맞추기 완료]를 눌러 주세요.');
+    return;
+  }
+  if(!force && newsCollageBinSelectedIndex !== index){
+    /* 첫 클릭: 선택만 */
+    newsCollageBinSelectedIndex=index;
+    renderNewsCollagePhotoBin();
+    return;
+  }
+  /* 재클릭 또는 force(더블클릭/엔터): 슬롯에 삽입 */
+  ensureNewsCollageSlots();
+  const slots=frameSlots()||[];
+  const slotCount=slots.length||NEWS_COLLAGE_TEMPLATES[newsCollageTemplate]?.count||6;
+  if(newsCollageActiveSlot<0||newsCollageActiveSlot>=slotCount){
+    newsToolSetStatus('newsCollageStatus','먼저 넣을 칸을 선택해 주세요.');
+    return;
+  }
+  const p=newsCollagePhotos[index];if(!p)return;
+  newsCollageSlots[newsCollageActiveSlot]=cloneNewsPhotoForSlot(p);
+  /* 다음 빈 슬롯으로 자동 이동 */
+  let next=newsCollageActiveSlot;
+  for(let t=1;t<=slotCount;t++){
+    const n=(newsCollageActiveSlot+t)%slotCount;
+    if(!newsCollageSlots[n]){next=n;break;}
+  }
+  newsCollageActiveSlot=next;
+  renderNewsCollage();
+  newsToolSetStatus('newsCollageStatus',`${newsCollageActiveSlot+1}번 칸에 넣었어요.`);
 }
 function frameSlots(){return newsCollageFrameMeta&&Array.isArray(newsCollageFrameMeta.slots)&&newsCollageFrameMeta.slots.length?newsCollageFrameMeta.slots:null;}
 function fitNewsSlotImage(slot,boxW,boxH){
@@ -7731,8 +7765,11 @@ function toggleNewsFrameAdjustMode(){
 function _enterAdjustMode(frameEl,btn,tip){
   if(frameEl)frameEl.classList.add('adjust-mode');
   if(btn){btn.textContent='맞추기 완료 ✓';btn.style.background='#ff59a5';btn.style.color='#fff';}
-  if(tip)tip.classList.add('visible');
-  newsToolSetStatus('newsCollageStatus','슬롯을 드래그해 위치 조절 · 모서리 핸들로 크기 조절');
+  if(tip){
+    tip.textContent='사진칸을 프레임 안쪽 흰 영역에 맞춰 주세요. 드래그로 이동 · 모서리 ●로 크기 조절 · 완료 후 [맞추기 완료] 클릭';
+    tip.classList.add('visible');
+  }
+  newsToolSetStatus('newsCollageStatus','✦ 프레임 맞추기 모드 — 사진칸을 드래그해 프레임 안쪽에 맞추고 [맞추기 완료]를 눌러 주세요.');
   _renderAdjustSlots();
 }
 
@@ -7836,8 +7873,15 @@ function _saveAdjustSlotsToMeta(){
     });
   });
   if(newSlots.length) newsCollageFrameMeta.slots=newSlots;
-  /* 슬롯 수 변경에 맞게 newsCollageSlots 초기화 */
-  newsCollageSlots=[];
+  /* 슬롯 수 변경 시 길이만 조정, 기존 사진 유지 */
+  const prevLen=newsCollageSlots.length;
+  const newLen=newSlots.length;
+  if(newLen>prevLen){
+    for(let i=prevLen;i<newLen;i++) newsCollageSlots.push(null);
+  } else if(newLen<prevLen){
+    newsCollageSlots.length=newLen;
+  }
+  /* 사진이 있는 경우 유지 알림 */
 }
 
 function clearNewsCollageSlot(){ensureNewsCollageSlots();newsCollageSlots[newsCollageActiveSlot]=null;renderNewsCollage();}
@@ -8096,7 +8140,7 @@ function renderNewsSliderBin(){
   }
   bin.classList.remove('is-empty');
   /* 전체 DOM 재생성 (사진 목록 구조 변경 시에만 호출) */
-  bin.innerHTML=newsSliderPhotos.map((p,i)=>`<button type="button" class="news-bin-card${i===newsSliderIndex?' active':''}" data-slider-bin="${i}" onmousedown="event.preventDefault()" onclick="event.preventDefault();goNewsSlider(${i})"><img src="${htmlEscape(p.thumbSrc||p.src)}" alt="${htmlEscape(p.name||'image')}"><span>${htmlEscape(p.name||'image')}</span></button>`).join('');
+  bin.innerHTML=newsSliderPhotos.map((p,i)=>`<button type="button" class="news-bin-card${i===newsSliderIndex?' active':''}" data-slider-bin="${i}" onmousedown="event.preventDefault()" onclick="event.preventDefault();goNewsSlider(${i})" ondblclick="event.preventDefault();quickAddNewsSliderFromBin(${i})"><img src="${htmlEscape(p.thumbSrc||p.src)}" alt="${htmlEscape(p.name||'image')}"><span>${htmlEscape(p.name||'image')}</span></button>`).join('');
 }
 
 /* 단순 슬라이드 이동: DOM 재생성 없이 필요한 속성만 패치 */
@@ -8142,6 +8186,13 @@ function goNewsSlider(i){
   if(document.activeElement&&document.activeElement!==document.body)document.activeElement.blur();
   newsSliderIndex=i;
   updateNewsSliderView();
+}
+/* 슬라이더 보관함 더블클릭: 사진 복제 추가 (빠른 삽입) */
+function quickAddNewsSliderFromBin(index){
+  const p=newsSliderPhotos[index];if(!p)return;
+  newsSliderPhotos.push({...p, name:(p.name||'image')+' (복사)'});
+  renderNewsSlider();renderNewsSliderBin();
+  newsToolSetStatus('newsSliderStatus','슬라이더에 사진을 추가했어요.');
 }
 function clearNewsSliderCurrent(){
   if(!newsSliderPhotos.length)return;
@@ -8467,7 +8518,7 @@ function renderRecentNewsImages(items, folderName=''){
   const cards=recentNewsCurrentItems.map((item,index)=>{
     const img=htmlEscape(item.thumbnailUrl||'');
     const name=htmlEscape(item.name||'news image');
-    return `<button type="button" class="recent-photo-card" data-recent-index="${index}" title="${name}" onclick="toggleRecentNewsImageSelection(${index})" ${recentNewsImageDeleting?'disabled':''}><span class="recent-select-pill">선택</span><img src="${img}" alt="${name}" loading="lazy"><span class="recent-photo-name">${name}</span></button>`;
+    return `<button type="button" class="recent-photo-card" data-recent-index="${index}" title="${name}" onclick="toggleRecentNewsImageSelection(${index})" ondblclick="event.preventDefault();toggleRecentNewsImageSelection(${index},true)" ${recentNewsImageDeleting?'disabled':''}><span class="recent-select-pill">선택</span><img src="${img}" alt="${name}" loading="lazy"><span class="recent-photo-name">${name}</span></button>`;
   }).join('');
   const tools = folderName
     ? `<div class="recent-gallery-tools compact"><div class="recent-gallery-actions"><button type="button" class="btn sub" onclick="openRecentNewsImages()">← 뒤로가기</button><button type="button" class="btn sub" id="recentSelectAllBtn" onclick="toggleAllRecentNewsImages()">전체 선택</button><button type="button" class="btn primary" id="recentInsertSelectedBtn" onclick="insertSelectedRecentNewsImages()">선택 삽입</button><button type="button" class="btn danger" id="recentDeleteSelectedBtn" onclick="deleteSelectedRecentNewsImages()">선택 삭제</button></div></div>`
@@ -8501,14 +8552,26 @@ function updateRecentNewsSelectionTools(){
     deleteBtn.disabled=recentNewsImageDeleting || !selected;
   }
 }
-function toggleRecentNewsImageSelection(index){
+function toggleRecentNewsImageSelection(index, force=false){
   if(recentNewsImageDeleting)return;
   hideRecentDeleteConfirm();
   setRecentGalleryStatus('', '');
-  if(recentNewsSelectedIndexes.has(index)) recentNewsSelectedIndexes.delete(index);
-  else recentNewsSelectedIndexes.add(index);
+  const alreadySelected=recentNewsSelectedIndexes.has(index);
+  /* 재클릭(이미 선택된 항목) 또는 force(더블클릭): 빠른 삽입 */
+  if(force || alreadySelected){
+    /* 단일 선택 상태로 맞추고 즉시 삽입 */
+    recentNewsSelectedIndexes.clear();
+    recentNewsSelectedIndexes.add(index);
+    document.querySelectorAll('.recent-photo-card[data-recent-index]').forEach(c=>{
+      c.classList.toggle('is-selected', Number(c.dataset.recentIndex)===index);
+    });
+    updateRecentNewsSelectionTools();
+    insertSelectedRecentNewsImages();
+    return;
+  }
+  recentNewsSelectedIndexes.add(index);
   const card=document.querySelector(`.recent-photo-card[data-recent-index="${index}"]`);
-  if(card) card.classList.toggle('is-selected', recentNewsSelectedIndexes.has(index));
+  if(card) card.classList.toggle('is-selected', true);
   updateRecentNewsSelectionTools();
 }
 function toggleAllRecentNewsImages(){
