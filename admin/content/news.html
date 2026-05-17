@@ -5493,6 +5493,19 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 .photo-editor-sticker-grid .sticker-empty{grid-column:1/-1;width:100%;min-width:0;font-size:15px;line-height:1.55;text-align:center;word-break:keep-all;white-space:normal;}
 .photo-editor-recent-thumb span{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;line-height:1.2;margin-top:4px;color:#8f7080;font-weight:800;}
 
+
+/* ===== NEWS 콜라주 일반 모드 가이드선 완화 ===== */
+.news-collage-frame:not(.adjust-mode) .news-collage-slot{
+  border:1px dashed rgba(255,95,165,.22) !important;
+  background:rgba(255,248,252,.72) !important;
+}
+.news-collage-frame:not(.adjust-mode) .news-collage-slot.active{
+  border-color:rgba(255,95,165,.62) !important;
+  outline:2px dashed rgba(255,95,165,.32) !important;
+  outline-offset:-2px !important;
+}
+.news-collage-frame:not(.adjust-mode) .news-collage-slot-resize{display:none !important;}
+
 </style>
 </head>
 <body>
@@ -7589,7 +7602,7 @@ function renderNewsCollagePhotoBin(){
     return;
   }
   bin.classList.remove('is-empty');
-  bin.innerHTML=newsCollagePhotos.map((p,i)=>`<div class="news-bin-card${i===newsCollageBinSelectedIndex?' is-selected':''}" role="button" tabindex="0" onclick="selectOrInsertNewsCollagePhoto(${i})" ondblclick="event.preventDefault();selectOrInsertNewsCollagePhoto(${i},true)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectOrInsertNewsCollagePhoto(${i},true);}"><button type="button" class="news-bin-remove" aria-label="보관함 사진 삭제" onclick="event.preventDefault();event.stopPropagation();removeNewsCollagePhoto(${i})">×</button><img src="${htmlEscape(p.src)}" alt="${htmlEscape(p.name||'image')}"><span>${htmlEscape(p.name||'image')}</span></div>`).join('');
+  bin.innerHTML=newsCollagePhotos.map((p,i)=>`<div class="news-bin-card${i===newsCollageBinSelectedIndex?' is-selected':''}" role="button" tabindex="0" onclick="event.preventDefault();event.stopPropagation();selectOrInsertNewsCollagePhoto(${i})" ondblclick="event.preventDefault();event.stopPropagation();selectOrInsertNewsCollagePhoto(${i},true)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectOrInsertNewsCollagePhoto(${i},true);}"><button type="button" class="news-bin-remove" aria-label="보관함 사진 삭제" onclick="event.preventDefault();event.stopPropagation();removeNewsCollagePhoto(${i})">×</button><img src="${htmlEscape(p.src)}" alt="${htmlEscape(p.name||'image')}"><span>${htmlEscape(p.name||'image')}</span></div>`).join('');
 }
 function removeNewsCollagePhoto(index){
   if(index<0||index>=newsCollagePhotos.length)return;
@@ -8395,8 +8408,20 @@ function lockNewsSliderModalScrollOnce(e){
 }
 q('newsSliderModal')?.addEventListener('mousedown',lockNewsSliderModalScrollOnce,true);
 q('newsSliderModal')?.addEventListener('click',lockNewsSliderModalScrollOnce,true);
-q('newsCollageModal')?.addEventListener('click',e=>{if(!e.target.closest('.news-collage-modal'))closeNewsCollageModal();});
-q('newsSliderModal')?.addEventListener('click',e=>{if(!e.target.closest('.news-slider-modal'))closeNewsSliderModal();});
+q('newsCollageModal')?.addEventListener('click',e=>{if(e.target===e.currentTarget)closeNewsCollageModal();});
+q('newsSliderModal')?.addEventListener('click',e=>{if(e.target===e.currentTarget)closeNewsSliderModal();});
+/* 모달 내부 클릭이 바깥 클릭 닫기로 전달되지 않도록 차단 */
+function stopNewsToolModalEvent(e){
+  const panel=e.target&&e.target.closest&&e.target.closest('.news-collage-modal,.news-slider-modal,.news-recent-image-modal');
+  if(panel){e.stopPropagation();}
+}
+['newsCollageModal','newsSliderModal','newsRecentImageModal'].forEach(id=>{
+  const modal=q(id);
+  if(!modal)return;
+  ['pointerdown','mousedown','click','dblclick'].forEach(type=>{
+    modal.addEventListener(type, stopNewsToolModalEvent, false);
+  });
+});
 function openLumiLightbox(items,index=0){lumiLightboxItems=(items||[]).filter(it=>it&&it.src);if(!lumiLightboxItems.length)return;lumiLightboxIndex=index;renderLumiLightbox();const b=q('lumiLightboxBackdrop');if(b){b.classList.add('open');b.setAttribute('aria-hidden','false');}}
 function renderLumiLightbox(){const img=q('lumiLightboxImg');if(img&&lumiLightboxItems[lumiLightboxIndex]){img.src=lumiLightboxItems[lumiLightboxIndex].src;img.alt=lumiLightboxItems[lumiLightboxIndex].name||'확대 사진';}}
 function moveLumiLightbox(delta){if(!lumiLightboxItems.length)return;lumiLightboxIndex=(lumiLightboxIndex+delta+lumiLightboxItems.length)%lumiLightboxItems.length;renderLumiLightbox();}
@@ -8518,7 +8543,7 @@ function renderRecentNewsImages(items, folderName=''){
   const cards=recentNewsCurrentItems.map((item,index)=>{
     const img=htmlEscape(item.thumbnailUrl||'');
     const name=htmlEscape(item.name||'news image');
-    return `<button type="button" class="recent-photo-card" data-recent-index="${index}" title="${name}" onclick="toggleRecentNewsImageSelection(${index})" ondblclick="event.preventDefault();toggleRecentNewsImageSelection(${index},true)" ${recentNewsImageDeleting?'disabled':''}><span class="recent-select-pill">선택</span><img src="${img}" alt="${name}" loading="lazy"><span class="recent-photo-name">${name}</span></button>`;
+    return `<button type="button" class="recent-photo-card" data-recent-index="${index}" title="${name}" onclick="event.preventDefault();event.stopPropagation();toggleRecentNewsImageSelection(${index})" ondblclick="event.preventDefault();event.stopPropagation();toggleRecentNewsImageSelection(${index},true)" ${recentNewsImageDeleting?'disabled':''}><span class="recent-select-pill">선택</span><img src="${img}" alt="${name}" loading="lazy"><span class="recent-photo-name">${name}</span></button>`;
   }).join('');
   const tools = folderName
     ? `<div class="recent-gallery-tools compact"><div class="recent-gallery-actions"><button type="button" class="btn sub" onclick="openRecentNewsImages()">← 뒤로가기</button><button type="button" class="btn sub" id="recentSelectAllBtn" onclick="toggleAllRecentNewsImages()">전체 선택</button><button type="button" class="btn primary" id="recentInsertSelectedBtn" onclick="insertSelectedRecentNewsImages()">선택 삽입</button><button type="button" class="btn danger" id="recentDeleteSelectedBtn" onclick="deleteSelectedRecentNewsImages()">선택 삭제</button></div></div>`
