@@ -5433,6 +5433,17 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
 .news-collage-slot.filled .news-collage-slot-label{display:none;}
 .news-collage-caption{position:absolute;left:50%;bottom:5%;transform:translateX(-50%);color:#d86fa5;font-size:28px;font-weight:950;z-index:3;letter-spacing:-.04em;}
 .news-collage-overlay{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:4;pointer-events:none;}
+/* 프레임 맞추기 모드 */
+.news-collage-frame.adjust-mode .news-collage-slot{border:2px dashed #ff59a5;background:rgba(255,89,165,.10);cursor:move;z-index:5;}
+.news-collage-frame.adjust-mode .news-collage-slot.active{outline:3px solid #ff59a5;outline-offset:-2px;}
+.news-collage-slot-resize{position:absolute;width:14px;height:14px;background:#ff59a5;border-radius:3px;z-index:10;touch-action:none;display:none;}
+.news-collage-frame.adjust-mode .news-collage-slot-resize{display:block;}
+.news-collage-slot-resize.nw{top:-7px;left:-7px;cursor:nw-resize;}
+.news-collage-slot-resize.ne{top:-7px;right:-7px;cursor:ne-resize;}
+.news-collage-slot-resize.sw{bottom:-7px;left:-7px;cursor:sw-resize;}
+.news-collage-slot-resize.se{bottom:-7px;right:-7px;cursor:se-resize;}
+.news-frame-adjust-tip{font-size:12px;color:#d86fa5;text-align:center;margin:4px 0 0;display:none;}
+.news-collage-frame.adjust-mode~.news-frame-adjust-tip,.news-frame-adjust-tip.visible{display:block;}
 .news-collage-file-input,.news-slider-file-input{display:none;}
 .news-slider-stage{width:100%;max-width:860px;position:relative;border:1px solid #f2cadd;border-radius:24px;background:#fff;overflow:hidden;padding:18px;box-sizing:border-box;}
 .news-slider-main{position:relative;width:100%;aspect-ratio:16/10;border-radius:20px;overflow:hidden;background:#fff8fc;display:flex;align-items:center;justify-content:center;}
@@ -5859,12 +5870,13 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
           <button type="button" class="btn sub" onclick="triggerNewsCollageUpload()">여러 장 불러오기</button>
           <button type="button" class="btn sub" onclick="loadNewsCollageRecentImages()">최근사진</button>
           <button type="button" class="btn sub" onclick="triggerNewsCollageFrameUpload()">프레임 불러오기</button>
+          <button type="button" class="btn sub" id="newsFrameAdjustBtn" onclick="toggleNewsFrameAdjustMode()" style="display:none">프레임 맞추기</button>
           <button type="button" class="btn sub" onclick="clearNewsCollageFrame()">프레임 해제</button>
           <button type="button" class="btn sub" onclick="resetNewsCollage()">초기화</button>
         </div>
         <div id="newsCollageStatus" class="news-tool-status">사진 여러 장을 불러온 뒤 슬롯을 선택하고 사진을 넣어 주세요.</div>
         <div class="news-collage-layout">
-          <div class="news-collage-preview"><div id="newsCollageFrame" class="news-collage-frame"></div></div>
+          <div class="news-collage-preview"><div id="newsCollageFrame" class="news-collage-frame"></div><div class="news-frame-adjust-tip" id="newsFrameAdjustTip">✦ 프레임 맞추기 모드 — 슬롯 드래그로 이동 · 모서리 핸들로 크기 조절 · 완료 후 [프레임 맞추기] 다시 클릭</div></div>
           <aside class="news-collage-side">
             <section class="news-tool-panel"><h3>템플릿</h3><div class="news-template-grid" id="newsCollageTemplates">
               <button type="button" class="news-template-card active" data-template="grid6">6컷 루미네컷</button>
@@ -7655,10 +7667,179 @@ async function analyzeNewsTransparentFrame(src){
   slots.sort((a,b)=>Math.abs(a.y-b.y)>25?a.y-b.y:a.x-b.x);return {width:w,height:h,slots:slots.slice(0,8)};
 }
 q('newsCollagePhotoInput')?.addEventListener('change',async e=>{const photos=await newsFilesToPhotos(e.target.files,'local');newsCollagePhotos.push(...photos);e.target.value='';renderNewsCollagePhotoBin();newsToolSetStatus('newsCollageStatus',`${photos.length}장의 사진을 불러왔어요.`);});
-q('newsCollageFrameInput')?.addEventListener('change',async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;if(file.type&&file.type!=='image/png'){newsToolSetStatus('newsCollageStatus','프레임은 투명 PNG만 사용할 수 있어요.');e.target.value='';return;}const src=await newsReadFileAsDataUrl(file);newsCollageFrameSrc=src;newsCollageFrameName=file.name;newsCollageFrameFixed=false;newsCollageFrameMeta=await analyzeNewsTransparentFrame(src).catch(()=>null);e.target.value='';renderNewsCollage();newsToolSetStatus('newsCollageStatus',newsCollageFrameMeta?`프레임 적용 · 슬롯 ${newsCollageFrameMeta.slots.length}개 자동 인식`:'프레임 적용');});
+q('newsCollageFrameInput')?.addEventListener('change',async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;if(file.type&&file.type!=='image/png'){newsToolSetStatus('newsCollageStatus','프레임은 투명 PNG만 사용할 수 있어요.');e.target.value='';return;}const src=await newsReadFileAsDataUrl(file);newsCollageFrameSrc=src;newsCollageFrameName=file.name;newsCollageFrameFixed=false;newsCollageFrameMeta=await analyzeNewsTransparentFrame(src).catch(()=>null);e.target.value='';renderNewsCollage();  const adjBtn=q('newsFrameAdjustBtn');
+  if(adjBtn)adjBtn.style.display='';
+  newsToolSetStatus('newsCollageStatus',newsCollageFrameMeta?`프레임 적용 · 슬롯 ${newsCollageFrameMeta.slots.length}개 자동 인식 — [프레임 맞추기]로 수동 보정 가능`:'프레임 적용 — [프레임 맞추기]로 슬롯 직접 배치 가능');
+});
 q('newsCollageTemplates')?.addEventListener('click',e=>{const btn=e.target.closest('.news-template-card');if(!btn)return;document.querySelectorAll('#newsCollageTemplates .news-template-card').forEach(b=>b.classList.remove('active'));btn.classList.add('active');newsCollageTemplate=btn.dataset.template||'grid6';newsCollageActiveSlot=0;newsCollageSlots=[];if(newsCollageTemplate===NEWS_FIXED_COLLAGE_FRAME.template){newsCollageFrameSrc=NEWS_FIXED_COLLAGE_FRAME.src;newsCollageFrameName=NEWS_FIXED_COLLAGE_FRAME.name;newsCollageFrameMeta=JSON.parse(JSON.stringify(NEWS_FIXED_COLLAGE_FRAME.meta));newsCollageFrameFixed=true;newsToolSetStatus('newsCollageStatus','루미벨 사진네컷 기본 프레임을 적용했어요.');}else if(newsCollageFrameFixed){newsCollageFrameSrc='';newsCollageFrameName='';newsCollageFrameMeta=null;newsCollageFrameFixed=false;}renderNewsCollage();});
-function clearNewsCollageFrame(){newsCollageFrameSrc='';newsCollageFrameName='';newsCollageFrameMeta=null;newsCollageFrameFixed=false;newsCollageSlots=[];renderNewsCollage();}
+function clearNewsCollageFrame(){
+  newsCollageFrameSrc='';newsCollageFrameName='';newsCollageFrameMeta=null;
+  newsCollageFrameFixed=false;newsCollageSlots=[];
+  newsFrameAdjustMode=false;
+  const frameEl=q('newsCollageFrame');if(frameEl)frameEl.classList.remove('adjust-mode');
+  const btn=q('newsFrameAdjustBtn');if(btn){btn.style.display='none';btn.textContent='프레임 맞추기';}
+  const tip=q('newsFrameAdjustTip');if(tip)tip.classList.remove('visible');
+  renderNewsCollage();
+}
 function resetNewsCollage(){newsCollageSlots=[];newsCollageActiveSlot=0;renderNewsCollage();newsToolSetStatus('newsCollageStatus','콜라주를 초기화했어요.');}
+/* ── 프레임 맞추기 모드 ────────────────────────────────────────
+   커스텀 프레임 전용 슬롯 수동 보정.
+   슬롯 드래그 → 이동, 모서리 핸들 드래그 → 리사이즈.
+   보정 좌표는 newsCollageFrameMeta.slots (원본 해상도 기준) 에 저장.
+   preview(renderNewsCollage)와 export(drawNewsCollageCanvas) 모두
+   동일한 newsCollageFrameMeta.slots 를 참조하므로 자동 일치.
+   고정 프레임(newsCollageFrameFixed) 일 때는 진입 불가.
+────────────────────────────────────────────────────────────── */
+let newsFrameAdjustMode=false;
+let _adjustDrag=null; /* {type:'move'|'resize', dir, slotIdx, startX,startY, origRect} */
+
+function toggleNewsFrameAdjustMode(){
+  if(newsCollageFrameFixed){newsToolSetStatus('newsCollageStatus','고정 프레임은 맞추기 모드를 지원하지 않아요.');return;}
+  if(!newsCollageFrameSrc){newsToolSetStatus('newsCollageStatus','먼저 프레임을 불러와 주세요.');return;}
+
+  newsFrameAdjustMode=!newsFrameAdjustMode;
+  const frameEl=q('newsCollageFrame');
+  const btn=q('newsFrameAdjustBtn');
+  const tip=q('newsFrameAdjustTip');
+
+  if(newsFrameAdjustMode){
+    /* 슬롯 메타가 없으면 기본 4슬롯 생성 (프레임 크기 기준) */
+    if(!newsCollageFrameMeta||!newsCollageFrameMeta.slots||!newsCollageFrameMeta.slots.length){
+      const img=new Image();
+      img.onload=()=>{
+        const fw=img.naturalWidth||800,fh=img.naturalHeight||1200;
+        const pw=fw*.12,ph=fh*.12,gap=fw*.02;
+        const sw=(fw-pw*2-gap)/2,sh=(fh-ph*2-ph*.3-gap)/2;
+        newsCollageFrameMeta={width:fw,height:fh,slots:[
+          {x:pw,y:ph,w:sw,h:sh},
+          {x:pw+sw+gap,y:ph,w:sw,h:sh},
+          {x:pw,y:ph+sh+gap,w:sw,h:sh},
+          {x:pw+sw+gap,y:ph+sh+gap,w:sw,h:sh}
+        ]};
+        newsCollageSlots=[];
+        _enterAdjustMode(frameEl,btn,tip);
+      };
+      img.src=newsCollageFrameSrc;
+    } else {
+      _enterAdjustMode(frameEl,btn,tip);
+    }
+  } else {
+    _exitAdjustMode(frameEl,btn,tip);
+  }
+}
+
+function _enterAdjustMode(frameEl,btn,tip){
+  if(frameEl)frameEl.classList.add('adjust-mode');
+  if(btn){btn.textContent='맞추기 완료 ✓';btn.style.background='#ff59a5';btn.style.color='#fff';}
+  if(tip)tip.classList.add('visible');
+  newsToolSetStatus('newsCollageStatus','슬롯을 드래그해 위치 조절 · 모서리 핸들로 크기 조절');
+  _renderAdjustSlots();
+}
+
+function _exitAdjustMode(frameEl,btn,tip){
+  newsFrameAdjustMode=false;
+  if(frameEl)frameEl.classList.remove('adjust-mode');
+  if(btn){btn.textContent='프레임 맞추기';btn.style.background='';btn.style.color='';}
+  if(tip)tip.classList.remove('visible');
+  /* 보정 완료: 현재 preview 픽셀 좌표 → 원본 해상도로 역변환 저장 */
+  _saveAdjustSlotsToMeta();
+  renderNewsCollage();
+  newsToolSetStatus('newsCollageStatus','슬롯 좌표를 저장했어요. 이제 사진을 넣어주세요.');
+}
+
+function _getPreviewScale(){
+  if(!newsCollageFrameMeta)return 1;
+  const preferredW=newsCollageFrameMeta.displayWidth||newsCollageFrameMeta.width||820;
+  const maxW=Math.min(820,Math.max(320,preferredW));
+  return maxW/(newsCollageFrameMeta.width||maxW);
+}
+
+function _renderAdjustSlots(){
+  const frameEl=q('newsCollageFrame');if(!frameEl||!newsCollageFrameMeta)return;
+  /* 기존 슬롯 제거 후 조정용 슬롯 재생성 */
+  frameEl.querySelectorAll('.news-collage-slot').forEach(el=>el.remove());
+  const scale=_getPreviewScale();
+  const slots=newsCollageFrameMeta.slots||[];
+  slots.forEach((r,i)=>{
+    const el=document.createElement('div');
+    el.className='news-collage-slot'+(i===0?' active':'');
+    el.dataset.adjustSlot=String(i);
+    el.style.position='absolute';
+    el.style.left=(r.x*scale)+'px';
+    el.style.top=(r.y*scale)+'px';
+    el.style.width=(r.w*scale)+'px';
+    el.style.height=(r.h*scale)+'px';
+    /* 번호 라벨 */
+    const lab=document.createElement('div');
+    lab.className='news-collage-slot-label';
+    lab.textContent=(i+1)+'번';
+    el.appendChild(lab);
+    /* 리사이즈 핸들 4개 */
+    ['nw','ne','sw','se'].forEach(dir=>{
+      const h=document.createElement('div');
+      h.className='news-collage-slot-resize '+dir;
+      h.dataset.resizeDir=dir;
+      h.addEventListener('pointerdown',ev=>{
+        ev.stopPropagation();ev.preventDefault();
+        const rect={
+          x:parseFloat(el.style.left),y:parseFloat(el.style.top),
+          w:parseFloat(el.style.width),h:parseFloat(el.style.height)
+        };
+        _adjustDrag={type:'resize',dir,slotIdx:i,startX:ev.clientX,startY:ev.clientY,origRect:{...rect}};
+        h.setPointerCapture(ev.pointerId);
+      });
+      h.addEventListener('pointermove',ev=>{
+        if(!_adjustDrag||_adjustDrag.type!=='resize'||_adjustDrag.slotIdx!==i)return;
+        const dx=ev.clientX-_adjustDrag.startX,dy=ev.clientY-_adjustDrag.startY;
+        const or=_adjustDrag.origRect;
+        let nx=or.x,ny=or.y,nw=or.w,nh=or.h;
+        if(_adjustDrag.dir.includes('w')){nx=or.x+dx;nw=Math.max(40,or.w-dx);}
+        if(_adjustDrag.dir.includes('e')){nw=Math.max(40,or.w+dx);}
+        if(_adjustDrag.dir.includes('n')){ny=or.y+dy;nh=Math.max(40,or.h-dy);}
+        if(_adjustDrag.dir.includes('s')){nh=Math.max(40,or.h+dy);}
+        el.style.left=nx+'px';el.style.top=ny+'px';el.style.width=nw+'px';el.style.height=nh+'px';
+      });
+      h.addEventListener('pointerup',()=>{_adjustDrag=null;});
+      el.appendChild(h);
+    });
+    /* 슬롯 드래그 이동 */
+    el.addEventListener('pointerdown',ev=>{
+      if(ev.target.dataset.resizeDir)return;
+      ev.preventDefault();
+      frameEl.querySelectorAll('.news-collage-slot').forEach(s=>s.classList.remove('active'));
+      el.classList.add('active');
+      _adjustDrag={type:'move',slotIdx:i,startX:ev.clientX,startY:ev.clientY,
+        origX:parseFloat(el.style.left),origY:parseFloat(el.style.top)};
+      el.setPointerCapture(ev.pointerId);
+    });
+    el.addEventListener('pointermove',ev=>{
+      if(!_adjustDrag||_adjustDrag.type!=='move'||_adjustDrag.slotIdx!==i)return;
+      el.style.left=(_adjustDrag.origX+ev.clientX-_adjustDrag.startX)+'px';
+      el.style.top=(_adjustDrag.origY+ev.clientY-_adjustDrag.startY)+'px';
+    });
+    el.addEventListener('pointerup',()=>{_adjustDrag=null;});
+    frameEl.appendChild(el);
+  });
+}
+
+function _saveAdjustSlotsToMeta(){
+  const frameEl=q('newsCollageFrame');if(!frameEl||!newsCollageFrameMeta)return;
+  const scale=_getPreviewScale();if(scale<=0)return;
+  const els=frameEl.querySelectorAll('[data-adjust-slot]');
+  const newSlots=[];
+  els.forEach(el=>{
+    newSlots.push({
+      x:Math.round(parseFloat(el.style.left)/scale),
+      y:Math.round(parseFloat(el.style.top)/scale),
+      w:Math.round(parseFloat(el.style.width)/scale),
+      h:Math.round(parseFloat(el.style.height)/scale)
+    });
+  });
+  if(newSlots.length) newsCollageFrameMeta.slots=newSlots;
+  /* 슬롯 수 변경에 맞게 newsCollageSlots 초기화 */
+  newsCollageSlots=[];
+}
+
 function clearNewsCollageSlot(){ensureNewsCollageSlots();newsCollageSlots[newsCollageActiveSlot]=null;renderNewsCollage();}
 function clearNewsCollageAllSlots(){newsCollageSlots=[];renderNewsCollage();}
 function loadNewsCollageRecentImages(){
@@ -8096,7 +8277,7 @@ function deleteSelectedLumiSlider(){
     editor.dispatchEvent(new Event('input',{bubbles:true}));
     saveNewsSelection();
   }
-  toast('슬라이더를 본문에서 삭제했어요. (Ctrl+Z 복구 가능)');
+  toast('슬라이더를 본문에서 삭제했어요. 필요하면 다시 삽입해 주세요.');
 }
 q('newsBodyEditor')?.addEventListener('click',e=>{
   const slider=e.target.closest('[data-lumi-slider]');
