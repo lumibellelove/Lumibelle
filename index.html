@@ -4,16 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lumibelle</title>
-  <script>
-    /* Galaxy / Android only gate: iPhone pass CSS 보호용 */
-    (function(){
-      var ua = navigator.userAgent || "";
-      var root = document.documentElement;
-      if (/Android/i.test(ua)) {
-        root.classList.add("is-android");
-      }
-    })();
-  </script>
   <link rel="stylesheet" href="style.css" />
 
   <style>
@@ -4297,38 +4287,19 @@ line-height:1.9 !important;
         font-size:13px !important;
       }
 
-      /* 모바일 터치 후 하얀선/shine 잔상 제거 (nav 메뉴만) */
+      /* 모바일 터치 후 하얀선/shine 잔상 제거 */
       nav a::after,
       .subnav-card::after,
-      .live-guide-card::before{
+      .live-guide-card::before,
+      .member-btn::after,
+      .more-btn::after,
+      .info-link-btn::after,
+      .ticket-btn::after,
+      .member-card::after{
         display:none !important;
         content:none !important;
         animation:none !important;
         opacity:0 !important;
-      }
-
-      /* GALAXY PATCH 5: 버튼 sweepShine - Android 터치 클릭 시 활성화 */
-      html.is-android .member-btn::after,
-      html.is-android .more-btn::after,
-      html.is-android .info-link-btn::after,
-      html.is-android .ticket-btn::after{
-        display:block !important;
-        content:"" !important;
-        opacity:0;
-        position:absolute !important;
-        top:-35% !important;
-        left:-42% !important;
-        width:22% !important;
-        height:170% !important;
-        pointer-events:none !important;
-        z-index:2 !important;
-      }
-
-      html.is-android .member-btn.click-shine::after,
-      html.is-android .more-btn.click-shine::after,
-      html.is-android .info-link-btn.click-shine::after,
-      html.is-android .ticket-btn.click-shine::after{
-        animation:sweepShine .9s ease forwards !important;
       }
 
       /* LUMI LOG/SETLIST 카드 문장 과밀 방지 */
@@ -5163,416 +5134,7 @@ line-height:1.9 !important;
     }
 
   
-  
-    /* =========================================================
-       GALAXY PATCH 1 : Galaxy Z Flip 6 / Android Chrome only
-       기준: iPhone 통과본 보존. 360px Android에서만 초협폭 fallback 해제.
-       ========================================================= */
-    @media (max-width: 374px){
-      html.is-android,
-      html.is-android body{
-        -webkit-text-size-adjust:100% !important;
-        text-size-adjust:100% !important;
-        overflow-x:hidden !important;
-      }
-
-      html.is-android .wrap,
-      html.is-android .top-lang-bar,
-      html.is-android .subnav-wrap,
-      html.is-android .music-bar-wrap,
-      html.is-android .header-box,
-      html.is-android .hero-banner{
-        width:min(100% - 24px, 430px) !important;
-        max-width:430px !important;
-      }
-
-      html.is-android .top-lang-bar{
-        margin:12px auto 0 !important;
-        padding:0 !important;
-        justify-content:center !important;
-      }
-
-      html.is-android .lang-switch a{
-        min-width:34px !important;
-        height:32px !important;
-        padding:0 8px !important;
-        font-size:11px !important;
-      }
-
-      html.is-android .header-box{
-        padding:16px 14px 18px !important;
-        border-radius:24px !important;
-      }
-
-      html.is-android .logo img{
-        height:76px !important;
-      }
-
-      html.is-android .logo a::after{
-        left:calc(50% + 62px) !important;
-        font-size:12px !important;
-      }
-
-      html.is-android nav{
-        grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
-        gap:7px 8px !important;
-      }
-
-      html.is-android nav a{
-        min-height:48px !important;
-        padding:8px 4px !important;
-        border-radius:16px !important;
-      }
-
-      html.is-android nav a b{
-        font-size:14px !important;
-        line-height:1.05 !important;
-      }
-
-      html.is-android nav a span{
-        font-size:11.5px !important;
-        line-height:1.15 !important;
-      }
-
-      html.is-android .subnav-wrap{
-        grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
-        gap:10px !important;
-      }
-
-      html.is-android .subnav-card{
-        min-height:72px !important;
-        padding:14px 10px !important;
-        border-radius:22px !important;
-      }
-
-      html.is-android .subnav-card h3{
-        font-size:18px !important;
-      }
-
-      html.is-android .subnav-card p{
-        font-size:12px !important;
-      }
-
-      html.is-android .music-bar-main{
-        gap:10px !important;
-      }
-
-      html.is-android .music-bar-word{
-        font-size:18px !important;
-      }
-
-      html.is-android .music-bar-text strong{
-        font-size:20px !important;
-      }
-
-      html.is-android .music-bar-text span{
-        font-size:13px !important;
-        line-height:1.55 !important;
-      }
-
-      html.is-android .hero-banner{
-        min-height:400px !important;
-        margin-top:-2px !important;
-      }
-
-      html.is-android .hero-banner .slide{
-        background-position:40% center !important;
-      }
-
-      html.is-android .hero-inner{
-        padding:68px 18px 42px !important;
-      }
-
-      html.is-android .hero-logo{
-        font-size:46px !important;
-        line-height:.9 !important;
-        margin:0 0 14px !important;
-      }
-
-      html.is-android .hero-desc{
-        max-width:280px !important;
-      }
-
-      html.is-android .hero-desc::before{
-        font-size:12.5px !important;
-        line-height:1.68 !important;
-        font-weight:800 !important;
-      }
-
-      html.is-android .live-guide-shortcut .live-guide-card{
-        min-height:96px !important;
-        padding:20px 20px !important;
-        border-radius:24px !important;
-      }
-
-      html.is-android .live-guide-text strong{
-        font-size:28px !important;
-      }
-
-      html.is-android .live-guide-text span{
-        font-size:14.5px !important;
-      }
-
-      html.is-android .member-card{
-        width:calc(100% - 14px) !important;
-        padding:10px 10px 16px !important;
-      }
-
-      html.is-android .member-photo{
-        height:322px !important;
-        margin-bottom:16px !important;
-      }
-
-      html.is-android .news-item{
-        grid-template-columns:72px 42px minmax(0,1fr) 38px 8px !important;
-        gap:5px !important;
-        padding:11px 12px !important;
-      }
-
-      html.is-android .news-date{
-        font-size:12.8px !important;
-        font-weight:850 !important;
-      }
-
-      html.is-android .news-title{
-        font-size:14px !important;
-        font-weight:850 !important;
-        min-width:0 !important;
-        white-space:nowrap !important;
-        overflow:hidden !important;
-        text-overflow:ellipsis !important;
-      }
-
-      html.is-android .news-badge{
-        font-size:9px !important;
-        padding:4px 7px !important;
-      }
-
-      html.is-android .news-new-slot{
-        min-width:0 !important;
-      }
-
-      html.is-android .schedule-item{
-        display:grid !important;
-        grid-template-columns:auto minmax(64px,.9fr) minmax(86px,1.1fr) auto !important;
-        grid-template-areas:"date place title ticket" !important;
-        align-items:center !important;
-        gap:6px !important;
-        padding:12px 12px !important;
-      }
-
-      html.is-android .schedule-date{
-        grid-area:date !important;
-        font-size:17px !important;
-        line-height:1.15 !important;
-        white-space:nowrap !important;
-      }
-
-      html.is-android .schedule-place{
-        grid-area:place !important;
-        justify-self:start !important;
-        text-align:left !important;
-        font-size:12.3px !important;
-        line-height:1.3 !important;
-        white-space:nowrap !important;
-        overflow:hidden !important;
-        text-overflow:ellipsis !important;
-        max-width:none !important;
-      }
-
-      html.is-android .schedule-title{
-        grid-area:title !important;
-        min-width:0 !important;
-        font-size:12.3px !important;
-        line-height:1.3 !important;
-        white-space:nowrap !important;
-        overflow:hidden !important;
-        text-overflow:ellipsis !important;
-      }
-
-      html.is-android .schedule-item .ticket-btn{
-        grid-area:ticket !important;
-        justify-self:end !important;
-        width:auto !important;
-        min-width:54px !important;
-        height:27px !important;
-        padding:0 8px !important;
-        font-size:9px !important;
-      }
-
-      html.is-android .back-to-top{
-        width:54px !important;
-        height:54px !important;
-        right:14px !important;
-        bottom:16px !important;
-      }
-    }
-
-
-  
-
-    /* =========================================================
-       GALAXY PATCH 2 : member card shine line restore only
-       - iPhone 통과값 보존
-       - Android/Galaxy에서 멤버 카드 광택선이 꺼지지 않게 최종 우선순위로 복구
-       ========================================================= */
-    html.is-android .member-card{
-      position:relative !important;
-      overflow:hidden !important;
-      isolation:isolate !important;
-    }
-
-    html.is-android .member-card::after{
-      content:"" !important;
-      display:block !important;
-      position:absolute !important;
-      top:-20% !important;
-      left:-38% !important;
-      width:24% !important;
-      height:140% !important;
-      background:linear-gradient(
-        90deg,
-        rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0.18) 35%,
-        rgba(255,255,255,0.46) 50%,
-        rgba(255,255,255,0.18) 65%,
-        rgba(255,255,255,0) 100%
-      ) !important;
-      transform:skewX(-24deg) translateX(0) !important;
-      opacity:0;
-      pointer-events:none !important;
-      z-index:4 !important;
-      will-change:transform, opacity !important;
-    }
-
-    html.is-android .member-card.shine-once::after,
-    html.is-android .member-card.mobile-shine::after{
-      display:block !important;
-      content:"" !important;
-      animation:memberShine .95s ease forwards !important;
-    }
-
-    /* =========================================================
-       GALAXY PATCH 4 : Android member shine sweep restore, no static beam
-       - Patch 3의 고정 세로 빛기둥 금지
-       - Android에서만 클릭/스크롤 시 카드 전체를 대각선으로 지나가는 광택선 복구
-       - iPhone 통과본 영향 없음
-       ========================================================= */
-    html.is-android .member-card::after{
-      content:"" !important;
-      display:block !important;
-      position:absolute !important;
-      top:-30% !important;
-      left:-46% !important;
-      width:30% !important;
-      height:170% !important;
-      background:linear-gradient(
-        90deg,
-        rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0.14) 32%,
-        rgba(255,255,255,0.44) 50%,
-        rgba(255,255,255,0.14) 68%,
-        rgba(255,255,255,0) 100%
-      ) !important;
-      opacity:0 !important;
-      pointer-events:none !important;
-      z-index:8 !important;
-      transform:translate3d(0,0,0) skewX(-22deg) !important;
-      -webkit-transform:translate3d(0,0,0) skewX(-22deg) !important;
-      will-change:transform, opacity !important;
-      backface-visibility:hidden !important;
-      -webkit-backface-visibility:hidden !important;
-    }
-
-    html.is-android .member-card.shine-once::after,
-    html.is-android .member-card.mobile-shine::after{
-      animation:memberShineAndroid 1.05s ease-out forwards !important;
-      -webkit-animation:memberShineAndroid 1.05s ease-out forwards !important;
-    }
-
-    @keyframes memberShineAndroid{
-      0%{
-        opacity:0;
-        transform:translate3d(0,0,0) skewX(-22deg);
-      }
-      12%{
-        opacity:.9;
-      }
-      78%{
-        opacity:.72;
-      }
-      100%{
-        opacity:0;
-        transform:translate3d(520%,0,0) skewX(-22deg);
-      }
-    }
-
-    @-webkit-keyframes memberShineAndroid{
-      0%{
-        opacity:0;
-        -webkit-transform:translate3d(0,0,0) skewX(-22deg);
-      }
-      12%{
-        opacity:.9;
-      }
-      78%{
-        opacity:.72;
-      }
-      100%{
-        opacity:0;
-        -webkit-transform:translate3d(520%,0,0) skewX(-22deg);
-      }
-    }
-
-    /* =========================================================
-       GALAXY PATCH 5 : sweepShine 버튼 효과 Android 터치 복구
-       - member-btn, more-btn, info-link-btn, ticket-btn 터치 시
-         click-shine 클래스 기반 sweepShine 발동
-       - iPhone 통과본 영향 없음
-       ========================================================= */
-    html.is-android .member-btn,
-    html.is-android .more-btn,
-    html.is-android .info-link-btn,
-    html.is-android .ticket-btn{
-      position:relative !important;
-      overflow:hidden !important;
-      isolation:isolate !important;
-    }
-
-    html.is-android .member-btn::after,
-    html.is-android .more-btn::after,
-    html.is-android .info-link-btn::after,
-    html.is-android .ticket-btn::after{
-      content:"" !important;
-      display:block !important;
-      position:absolute !important;
-      top:-35% !important;
-      left:-42% !important;
-      width:22% !important;
-      height:170% !important;
-      background:linear-gradient(
-        90deg,
-        rgba(255,255,255,0) 0%,
-        rgba(255,255,255,.12) 35%,
-        rgba(255,255,255,.28) 50%,
-        rgba(255,255,255,.12) 65%,
-        rgba(255,255,255,0) 100%
-      ) !important;
-      transform:skewX(-22deg) translateX(0) !important;
-      opacity:0 !important;
-      pointer-events:none !important;
-      z-index:2 !important;
-    }
-
-    html.is-android .member-btn.click-shine::after,
-    html.is-android .more-btn.click-shine::after,
-    html.is-android .info-link-btn.click-shine::after,
-    html.is-android .ticket-btn.click-shine::after{
-      animation:sweepShine .9s ease forwards !important;
-      -webkit-animation:sweepShine .9s ease forwards !important;
-    }
-
-</style>
+  </style>
 </head>
 
 <body>
@@ -6061,9 +5623,8 @@ line-height:1.9 !important;
   </script>
 
   <script>
-    // 멤버 카드 shine - PC hover + 모바일 touch 통합
+    // 멤버 카드 shine 1회 실행
     document.querySelectorAll('.member-card').forEach((card) => {
-      // PC hover
       let armed = true;
       card.addEventListener('mouseenter', () => {
         if (!armed) return;
@@ -6080,9 +5641,9 @@ line-height:1.9 !important;
   </script>
 
   <script>
-    // 버튼 ripple - pointerdown으로 교체 (갤럭시 터치 좌표 안정화)
+    // 버튼 ripple
     document.querySelectorAll('.member-btn, .more-btn, .info-link-btn, .ticket-btn').forEach((btn) => {
-      btn.addEventListener('pointerdown', function(e){
+      btn.addEventListener('click', function(e){
         const old = this.querySelector('.ripple-effect');
         if (old) old.remove();
 
@@ -6091,28 +5652,25 @@ line-height:1.9 !important;
 
         const rect = this.getBoundingClientRect();
         const size = Math.max(rect.width, rect.height) * 0.7;
-        const cx = (e.clientX != null && e.clientX !== 0) ? e.clientX : rect.left + rect.width / 2;
-        const cy = (e.clientY != null && e.clientY !== 0) ? e.clientY : rect.top + rect.height / 2;
         ripple.style.width = ripple.style.height = `${size}px`;
-        ripple.style.left = `${cx - rect.left - size / 2}px`;
-        ripple.style.top = `${cy - rect.top - size / 2}px`;
+        ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+        ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
 
         this.appendChild(ripple);
         ripple.addEventListener('animationend', () => ripple.remove());
-      }, {passive: true});
+      });
     });
   </script>
 
 
   <script>
-    // click-shine - pointerdown으로 교체 (갤럭시 터치 즉시 반응)
     document.querySelectorAll('nav a, .member-btn, .more-btn, .info-link-btn, .ticket-btn').forEach((el) => {
-      el.addEventListener('pointerdown', function(){
+      el.addEventListener('click', function(){
         this.classList.remove('click-shine');
         void this.offsetWidth;
         this.classList.add('click-shine');
         setTimeout(() => this.classList.remove('click-shine'), 900);
-      }, {passive: true});
+      });
     });
   </script>
 
@@ -6153,11 +5711,8 @@ line-height:1.9 !important;
     const target = e.target.closest("nav a, button, .member-card, .subnav-card, .live-guide-card, .info-link-btn, .ticket-btn, .member-btn, .more-btn");
     if(!target) return;
 
-    const cx = (e.clientX != null && e.clientX !== 0) ? e.clientX : (function(){ const r = target.getBoundingClientRect(); return r.left + r.width/2; })();
-    const cy = (e.clientY != null && e.clientY !== 0) ? e.clientY : (function(){ const r = target.getBoundingClientRect(); return r.top + r.height/2; })();
-
     const level = target.closest("nav") ? "normal" : (target.classList.contains("subnav-card") ? "big" : "normal");
-    makeBurstAt(cx, cy, level);
+    makeBurstAt(e.clientX, e.clientY, level);
   });
 
   document.addEventListener("click", function(e){
@@ -6181,14 +5736,11 @@ line-height:1.9 !important;
 
 
 <script>
-/* glitter + star burst - pointerdown으로 교체 (갤럭시 터치 좌표 안정화) */
-document.addEventListener("pointerdown", function(e){
+document.addEventListener("click", function(e){
   const target = e.target.closest(".member-btn, .more-btn, .info-link-btn, .ticket-btn");
   if(!target) return;
 
   const rect = target.getBoundingClientRect();
-  const cx = (e.clientX != null && e.clientX !== 0) ? e.clientX : rect.left + rect.width / 2;
-  const cy = (e.clientY != null && e.clientY !== 0) ? e.clientY : rect.top + rect.height / 2;
 
   // glitter
   for(let i=0;i<12;i++){
@@ -6201,8 +5753,8 @@ document.addEventListener("pointerdown", function(e){
     dot.style.setProperty("--x", Math.cos(angle)*distance + "px");
     dot.style.setProperty("--y", Math.sin(angle)*distance + "px");
 
-    dot.style.left = (cx - rect.left) + "px";
-    dot.style.top = (cy - rect.top) + "px";
+    dot.style.left = (e.clientX - rect.left) + "px";
+    dot.style.top = (e.clientY - rect.top) + "px";
 
     target.appendChild(dot);
     setTimeout(()=>dot.remove(), 900);
@@ -6219,13 +5771,13 @@ document.addEventListener("pointerdown", function(e){
     star.style.setProperty("--x", Math.cos(angle)*distance + "px");
     star.style.setProperty("--y", Math.sin(angle)*distance + "px");
 
-    star.style.left = (cx - rect.left) + "px";
-    star.style.top = (cy - rect.top) + "px";
+    star.style.left = (e.clientX - rect.left) + "px";
+    star.style.top = (e.clientY - rect.top) + "px";
 
     target.appendChild(star);
     setTimeout(()=>star.remove(), 900);
   }
-}, {passive: true});
+});
 </script>
 
 
