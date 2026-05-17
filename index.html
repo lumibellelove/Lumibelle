@@ -5126,6 +5126,128 @@ line-height:1.9 !important;
     }
 
 
+  
+
+    /* ===== GALAXY v10 : schedule font rollback + old member shine restore ===== */
+    @media (max-width: 780px){
+      /* member shine: restore old single ::after structure, remove newer ::before/mix-blend layer */
+      .member-card{
+        position:relative !important;
+        overflow:hidden !important;
+        isolation:auto !important;
+      }
+
+      .member-card::before{
+        content:none !important;
+        display:none !important;
+        animation:none !important;
+      }
+
+      .member-card::after{
+        content:"" !important;
+        display:block !important;
+        position:absolute !important;
+        top:-20% !important;
+        left:-38% !important;
+        width:24% !important;
+        height:140% !important;
+        background:linear-gradient(
+          90deg,
+          rgba(255,255,255,0) 0%,
+          rgba(255,255,255,0.16) 35%,
+          rgba(255,255,255,0.42) 50%,
+          rgba(255,255,255,0.16) 65%,
+          rgba(255,255,255,0) 100%
+        ) !important;
+        transform:skewX(-24deg) translateX(0) !important;
+        opacity:0 !important;
+        pointer-events:none !important;
+        z-index:12 !important;
+        mix-blend-mode:normal !important;
+        will-change:transform, opacity !important;
+      }
+
+      .member-card.shine-once::after,
+      .member-card.mobile-shine::after{
+        animation:memberShine .95s ease forwards !important;
+      }
+    }
+
+    @media (max-width: 430px){
+      /* schedule: rollback enlarged font; keep one-line Galaxy layout */
+      .schedule-item{
+        display:grid !important;
+        grid-template-columns:auto minmax(62px,.85fr) minmax(82px,1fr) auto !important;
+        grid-template-areas:"date place title ticket" !important;
+        align-items:center !important;
+        gap:5px !important;
+        padding:12px 10px !important;
+        overflow:hidden !important;
+      }
+
+      .schedule-date{
+        grid-area:date !important;
+        font-size:16px !important;
+        line-height:1.12 !important;
+        white-space:nowrap !important;
+        min-width:0 !important;
+      }
+
+      .schedule-place,
+      .schedule-title{
+        min-width:0 !important;
+        white-space:nowrap !important;
+        overflow:hidden !important;
+        text-overflow:ellipsis !important;
+        font-size:11px !important;
+        line-height:1.25 !important;
+        font-weight:800 !important;
+        max-width:none !important;
+      }
+
+      .schedule-place{
+        grid-area:place !important;
+        justify-self:start !important;
+        text-align:left !important;
+      }
+
+      .schedule-title{
+        grid-area:title !important;
+        justify-self:start !important;
+        text-align:left !important;
+      }
+
+      .schedule-item .ticket-btn{
+        grid-area:ticket !important;
+        justify-self:end !important;
+        width:auto !important;
+        min-width:50px !important;
+        height:27px !important;
+        padding:0 7px !important;
+        font-size:9px !important;
+        font-weight:900 !important;
+        white-space:nowrap !important;
+      }
+    }
+
+    @media (max-width: 374px){
+      .schedule-item{
+        grid-template-columns:auto minmax(55px,.8fr) minmax(74px,1fr) auto !important;
+        grid-template-areas:"date place title ticket" !important;
+        gap:4px !important;
+        padding:11px 9px !important;
+      }
+      .schedule-date{font-size:15px !important;}
+      .schedule-place,
+      .schedule-title{font-size:10.4px !important;}
+      .schedule-item .ticket-btn{
+        min-width:48px !important;
+        height:26px !important;
+        padding:0 6px !important;
+        font-size:8.5px !important;
+      }
+    }
+
   </style>
 </head>
 
@@ -5649,31 +5771,35 @@ line-height:1.9 !important;
   </script>
 
   <script>
-    /* GALAXY NEWS HARD FIX v6
-       Android Chrome sometimes keeps an old LumiNewsSync/localStorage/cache state even after normal cache clear.
-       This runs before lumi-content-sync.js so the public HOME news can rebuild from the latest file. */
+    /* GALAXY NEWS HARD FIX v9
+       - Android Chrome은 일반탭에서 localStorage가 꼬인 채로 남아있어
+         publicNews()가 빈 배열을 반환하는 게 핵심 원인.
+       - STORAGE_KEY 패턴 대신 lumibelle 관련 key 전체를 클리어.
+       - ServiceWorker 해제 + Cache API 클리어 병행. */
     (function(){
       var isAndroid = /Android/i.test(navigator.userAgent || "");
       if(!isAndroid) return;
-      window.__LUMI_NEWS_HARD_FIX_VERSION = "20260517-galaxy-news-hardfix-v6";
+      window.__LUMI_NEWS_HARD_FIX_VERSION = "20260517-galaxy-news-v11";
+      // localStorage: lumibelle 관련 key 전부 삭제 (key 이름 불문)
       try{
-        Object.keys(localStorage).forEach(function(key){
-          if(/lumi.*news|news.*lumi|LumiNews|lumibelle.*news/i.test(key)){
-            localStorage.removeItem(key);
-          }
-        });
+        var keysToRemove = [];
+        for(var i = 0; i < localStorage.length; i++){
+          var k = localStorage.key(i) || "";
+          if(/lumi|news|sync|content|notice|공지/i.test(k)) keysToRemove.push(k);
+        }
+        keysToRemove.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
       }catch(e){}
+      // Cache API 클리어
       try{
         if("caches" in window){
           caches.keys().then(function(keys){
-            keys.forEach(function(key){
-              if(/lumi|lumibelle|news|content/i.test(key)) caches.delete(key);
-            });
+            keys.forEach(function(k){ caches.delete(k); });
           });
         }
       }catch(e){}
+      // ServiceWorker 전체 해제 (도메인 무관하게)
       try{
-        if("serviceWorker" in navigator && /lumibellelove\.com$/i.test(location.hostname)){
+        if("serviceWorker" in navigator){
           navigator.serviceWorker.getRegistrations().then(function(regs){
             regs.forEach(function(reg){ reg.unregister(); });
           });
@@ -5681,7 +5807,7 @@ line-height:1.9 !important;
       }catch(e){}
     })();
   </script>
-  <script src="js/lumi-content-sync.js?v=20260517-galaxy-claude-v9"></script>
+  <script src="js/lumi-content-sync.js?v=20260517-galaxy-news-v11"></script>
 
   <script>
     const backToTop = document.getElementById('backToTop');
@@ -5727,14 +5853,21 @@ line-height:1.9 !important;
 
 
   <script>
+    /* NEWS RENDER v9
+       핵심 수정:
+       1. publicNews()가 빈 배열이면 empty를 쓰지 않고 서버 응답 대기
+       2. loadPublicNews 완료 후에만 최종 empty 판정
+       3. 서버 응답 전 스피너 표시로 UX 보완
+       4. 재시도 횟수/간격 늘리고 script force-reload도 유지 */
     (function(){
       const list = document.getElementById('homeNewsList');
       if(!list) return;
 
       let bound = false;
       let retryCount = 0;
-      const MAX_RETRY = 20;
-      const RETRY_DELAY = 120;
+      const MAX_RETRY = 30;        // 늘림
+      const RETRY_DELAY = 150;
+      let serverFetchDone = false; // 서버 응답 완료 여부 플래그
 
       function sync(){ return window.LumiNewsSync; }
 
@@ -5755,22 +5888,25 @@ line-height:1.9 !important;
         return hasNew ? renderBadge('NEW') : '';
       }
 
-      function renderHomeNews(showEmpty){
+      // allowEmpty: true일 때만 "등록된 공지사항이 없습니다" 출력
+      // 서버 fetch 완료 전까지는 빈 배열이어도 empty 메시지 안 씀
+      function renderHomeNews(allowEmpty){
         const api = sync();
         if(!api) return false;
         const allRows = api.publicNews();
-
-        // Galaxy Chrome 방어: publicNews()가 아직 빈 배열이면 empty를 먼저 그리지 않고 로딩을 기다린다.
-        if(!allRows || !allRows.length){
-          if(showEmpty){
-            list.innerHTML = '<div class="news-empty">' + (window.LumibelleHomeI18n ? LumibelleHomeI18n.t('news.empty') : '등록된 공지사항이 없습니다.') + '</div>';
-          }
-          return false;
-        }
-
         let rows = allRows.filter(function(n){ return n.home !== false || n.isHome === true; });
         if(!rows.length) rows = allRows;
         rows = rows.slice(0, 3);
+
+        if(!rows.length){
+          // 서버 응답 오기 전이면 스피너 유지, 아니면 empty 메시지
+          if(!allowEmpty && !serverFetchDone) return false;
+          list.innerHTML = '<div class="news-empty">'
+            + (window.LumibelleHomeI18n ? LumibelleHomeI18n.t('news.empty') : '등록된 공지사항이 없습니다.')
+            + '</div>';
+          return true;
+        }
+
         list.innerHTML = rows.map(function(n){
           return '<a href="' + api.htmlEscape(api.newsHref(n)) + '" class="news-item">'
             + '<div class="news-date">' + api.htmlEscape(api.toLongDate(n.date)) + '</div>'
@@ -5794,45 +5930,69 @@ line-height:1.9 !important;
         window.addEventListener('lumibelle-home-lang-changed', function(){ renderHomeNews(true); });
       }
 
+      // 로딩 중 표시 (서버 응답 전)
+      function showLoading(){
+        if(!list.innerHTML || list.innerHTML === ''){
+          list.innerHTML = '<div class="news-empty" style="opacity:0.45">로딩 중...</div>';
+        }
+      }
+
       let reloadedSyncScript = false;
       function reloadSyncScriptOnce(){
         if(reloadedSyncScript) return;
         reloadedSyncScript = true;
         try{
           const script = document.createElement('script');
-          script.src = 'js/lumi-content-sync.js?v=20260517-galaxy-claude-v9-force-' + Date.now();
-          script.onload = function(){ setTimeout(tryRender, 80); };
+          script.src = 'js/lumi-content-sync.js?v=20260517-galaxy-news-v11-force-' + Date.now();
+          script.onload = function(){ setTimeout(function(){ tryRender(true); }, 80); };
           document.head.appendChild(script);
         }catch(e){}
       }
 
-      function tryRender(){
+      function tryRender(fromForceReload){
         const api = sync();
         if(!api){
           retryCount += 1;
+          if(retryCount === 3) showLoading(); // 3번 실패하면 로딩 표시
           if(retryCount <= MAX_RETRY){
             setTimeout(tryRender, RETRY_DELAY);
-          }else{
+          }else if(!fromForceReload){
             reloadSyncScriptOnce();
+          }else{
+            // force reload 후에도 api 없으면 포기하고 empty
+            serverFetchDone = true;
+            renderHomeNews(true);
           }
           return;
         }
+
         bindEventsOnce();
+
+        // 1차: localStorage 데이터로 즉시 렌더 시도 (빈 배열이면 스킵)
         renderHomeNews(false);
+
+        // 2차: 서버에서 최신 데이터 fetch
         if(api.loadPublicNews){
+          showLoading();
           api.loadPublicNews('ko').then(function(){
-            renderHomeNews(true);
-            setTimeout(function(){ renderHomeNews(true); }, 250);
-            setTimeout(function(){ renderHomeNews(true); }, 800);
+            serverFetchDone = true;
+            renderHomeNews(true); // fetch 완료 후엔 empty도 확정 출력
+            setTimeout(function(){ renderHomeNews(true); }, 300);
           }).catch(function(){
+            serverFetchDone = true;
             renderHomeNews(true);
           });
+        }else{
+          // loadPublicNews 없으면 바로 확정
+          serverFetchDone = true;
+          renderHomeNews(true);
         }
       }
 
-      window.addEventListener('load', function(){ setTimeout(tryRender, 120); });
+      showLoading();
+      window.addEventListener('load', function(){ setTimeout(tryRender, 100); });
       document.addEventListener('visibilitychange', function(){
-        if(!document.hidden) setTimeout(tryRender, 80);
+        if(!document.hidden) setTimeout(function(){ renderHomeNews(true); }, 80);
       });
       tryRender();
     })();
