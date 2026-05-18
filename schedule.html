@@ -2968,10 +2968,10 @@ line-height:1.9 !important;
 <body>
 <div class="top-lang-bar">
     <div class="lang-switch">
-      <a href="index.html" class="active">KR</a>
-      <a href="en/index.html">EN</a>
-      <a href="jp/index.html">JP</a>
-      <a href="cn/index.html">CN</a>
+      <a href="schedule.html?lang=ko" data-lang="ko">KR</a>
+      <a href="schedule.html?lang=en" data-lang="en">EN</a>
+      <a href="schedule.html?lang=ja" data-lang="ja">JP</a>
+      <a href="schedule.html?lang=zh" data-lang="zh">CN</a>
     </div>
   </div>
 
@@ -3002,7 +3002,7 @@ line-height:1.9 !important;
 
   <main class="page-shell"><div class="wrap">
     <div class="page-title reveal"><h2>SCHEDULE</h2><p>스케줄</p></div>
-    <div class="box schedule-list-page reveal"><div class="row schedule-row"><div>2026.07.12(일)</div><div>KT&amp;G 상상마당 라이브홀</div><div>루미벨 데뷔라이브</div><a class="ticket" href="ticket/current.html">TICKET</a></div></div>
+    <div id="scheduleList" class="box schedule-list-page reveal" aria-live="polite"></div>
     <div class="schedule-extra-wrap reveal"><button id="toggleCalendar" class="more-schedule-btn" type="button">MORE SCHEDULE</button></div>
     <div id="calendarSection" class="calendar-section hidden"><div class="calendar-header"><button id="prevMonth" class="calendar-nav-btn" type="button" aria-label="이전 달">‹</button><h3 id="calendarMonth" class="calendar-month"></h3><button id="nextMonth" class="calendar-nav-btn" type="button" aria-label="다음 달">›</button></div><div class="calendar-weekdays"><div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div></div><div id="calendarGrid" class="calendar-grid"></div><div id="scheduleDetail" class="schedule-detail"><p class="detail-empty">날짜를 선택하면 상세 일정이 보여집니다.</p></div></div>
   </div></main>
@@ -3010,25 +3010,224 @@ line-height:1.9 !important;
   <button class="back-to-top" id="backToTop" aria-label="맨 위로 이동"><span class="top-arrow">↑</span><span class="top-label">TOP</span></button>
 
   <script>
-    const events={"2026-07-12":[{type:"DEBUT",place:"KT&G 상상마당 라이브홀",event:"루미벨 데뷔라이브",ticket:"ticket/current.html",detail:"ticket/current.html",isNew:false}],"2026-10-18":[{type:"LIVE",place:"미정",event:"라이브 예정",ticket:"",detail:"",isNew:false}]};
+    const LUMI_SCHEDULE_API_URL = 'https://lumi-news-api.lumibelle-love.workers.dev';
+    const SCHEDULE_CACHE_PREFIX = 'lumibelleSchedulePublic_';
 
-    // NEW 뱃지: 지난 날짜면 자동 소멸 (isNew:true로 설정해도 당일 이후 자동 꺼짐)
-    (function expireNewBadges(){
-      const today = new Date(); today.setHours(0,0,0,0);
-      Object.keys(events).forEach(dateKey => {
-        const [y,m,d] = dateKey.split('-').map(Number);
-        const eventDate = new Date(y,m-1,d); eventDate.setHours(0,0,0,0);
-        if(today > eventDate) events[dateKey].forEach(e => e.isNew = false);
-      });
-    })();
+    const UI_TEXT = {
+      ko:{sub:'스케줄', nav:{home:'홈',news:'공지사항',member:'멤버 소개',schedule:'스케줄',ticket:'예매',goods:'굿즈',setlist:'응원 가이드',info:'안내'}, weekdays:['SUN','MON','TUE','WED','THU','FRI','SAT'], more:'MORE SCHEDULE', close:'CLOSE', empty:'날짜를 선택하면 상세 일정이 보여집니다.', none:'해당 날짜에는 등록된 일정이 없습니다.', noItems:'등록된 스케줄이 없습니다.', coming:'추후 안내', ticket:'TICKET', detail:'DETAIL'},
+      ja:{sub:'スケジュール', nav:{home:'ホーム',news:'お知らせ',member:'メンバー紹介',schedule:'スケジュール',ticket:'チケット',goods:'グッズ',setlist:'応援ガイド',info:'ご案内'}, weekdays:['日','月','火','水','木','金','土'], more:'MORE SCHEDULE', close:'CLOSE', empty:'日付を選択すると詳細スケジュールが表示されます。', none:'この日付には登録されたスケジュールがありません。', noItems:'登録されたスケジュールがありません。', coming:'後日案内', ticket:'TICKET', detail:'DETAIL'},
+      en:{sub:'Schedule', nav:{home:'Home',news:'Notice',member:'Member',schedule:'Schedule',ticket:'Ticket',goods:'Goods',setlist:'Fan Guide',info:'Info'}, weekdays:['SUN','MON','TUE','WED','THU','FRI','SAT'], more:'MORE SCHEDULE', close:'CLOSE', empty:'Select a date to view schedule details.', none:'No schedule is registered for this date.', noItems:'No schedules found.', coming:'Coming Soon', ticket:'TICKET', detail:'DETAIL'},
+      zh:{sub:'日程', nav:{home:'首页',news:'公告',member:'成员介绍',schedule:'日程',ticket:'购票',goods:'周边',setlist:'应援指南',info:'指南'}, weekdays:['日','一','二','三','四','五','六'], more:'MORE SCHEDULE', close:'CLOSE', empty:'选择日期后将显示详细日程。', none:'该日期没有已登记的日程。', noItems:'暂无日程。', coming:'稍后公告', ticket:'TICKET', detail:'DETAIL'}
+    };
+
+    function normalizeLang(lang){
+      lang = String(lang || 'ko').toLowerCase();
+      if(lang === 'jp') return 'ja';
+      if(lang === 'cn' || lang === 'zh-cn' || lang === 'zh_hans') return 'zh';
+      return ['ko','ja','en','zh'].includes(lang) ? lang : 'ko';
+    }
+    function currentLangFromUrl(){
+      return normalizeLang(new URLSearchParams(location.search).get('lang') || localStorage.getItem('lumibelleHomeLang') || 'ko');
+    }
+    let currentLang = currentLangFromUrl();
+    let requestSeq = 0;
+    let scheduleItems = [];
+    let events = {};
+
+    const scheduleListEl = document.getElementById('scheduleList');
     const toggleBtn=document.getElementById("toggleCalendar"),calendarSection=document.getElementById("calendarSection"),calendarGrid=document.getElementById("calendarGrid"),calendarMonth=document.getElementById("calendarMonth"),scheduleDetail=document.getElementById("scheduleDetail"),prevMonthBtn=document.getElementById("prevMonth"),nextMonthBtn=document.getElementById("nextMonth");
     let currentDate=new Date(2026,6,1);
-    toggleBtn.addEventListener("click",()=>{calendarSection.classList.toggle("hidden");if(!calendarSection.classList.contains("hidden")){toggleBtn.textContent="CLOSE";renderCalendar();}else{toggleBtn.textContent="MORE SCHEDULE";scheduleDetail.innerHTML='<p class="detail-empty">날짜를 선택하면 상세 일정이 보여집니다.</p>';}});
+
+    function escapeHtml(value){
+      return String(value == null ? '' : value).replace(/[&<>"]/g, function(ch){
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch];
+      });
+    }
+    function text(key){ return (UI_TEXT[currentLang] || UI_TEXT.ko)[key]; }
+    function formatDateDot(dateKey){
+      if(!dateKey) return '';
+      const d = new Date(dateKey + 'T00:00:00');
+      const yyyy = dateKey.slice(0,4), mm = dateKey.slice(5,7), dd = dateKey.slice(8,10);
+      const koDays = ['일','월','화','수','목','금','토'];
+      const enDays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const jaDays = ['日','月','火','水','木','金','土'];
+      const zhDays = ['日','一','二','三','四','五','六'];
+      const day = isNaN(d.getTime()) ? '' : d.getDay();
+      if(currentLang === 'ko') return `${yyyy}.${mm}.${dd}(${koDays[day] || ''})`;
+      if(currentLang === 'ja') return `${yyyy}.${mm}.${dd}(${jaDays[day] || ''})`;
+      if(currentLang === 'zh') return `${yyyy}.${mm}.${dd}(${zhDays[day] || ''})`;
+      return `${yyyy}.${mm}.${dd}${day !== '' ? ' (' + enDays[day] + ')' : ''}`;
+    }
+    function normalizeScheduleItem(item){
+      item = item || {};
+      return {
+        id:String(item.id || ''),
+        date:String(item.date || ''),
+        time:String(item.time || ''),
+        title:String(item.title || ''),
+        venue:String(item.venue || ''),
+        badge:String(item.badge || 'LIVE'),
+        ticketUrl:String(item.ticketUrl || ''),
+        detailUrl:String(item.detailUrl || ''),
+        status:String(item.status || ''),
+        isHome:item.isHome === true || String(item.isHome).toLowerCase() === 'true',
+        isPinned:item.isPinned === true || String(item.isPinned).toLowerCase() === 'true',
+        showInCalendar:item.showInCalendar === true || String(item.showInCalendar).toLowerCase() === 'true',
+        sortOrder:Number(item.sortOrder || 0),
+        lang:normalizeLang(item.lang || currentLang),
+        translationGroupId:String(item.translationGroupId || item.id || '')
+      };
+    }
+    function getCache(lang){
+      try{
+        const raw = localStorage.getItem(SCHEDULE_CACHE_PREFIX + normalizeLang(lang));
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed.map(normalizeScheduleItem).filter(item => item.lang === normalizeLang(lang)) : [];
+      }catch(e){ return []; }
+    }
+    function setCache(lang, items){
+      try{ localStorage.setItem(SCHEDULE_CACHE_PREFIX + normalizeLang(lang), JSON.stringify(items || [])); }catch(e){}
+    }
+    async function fetchSchedule(lang){
+      lang = normalizeLang(lang);
+      const payload = encodeURIComponent(JSON.stringify({lang}));
+      const res = await fetch(`${LUMI_SCHEDULE_API_URL}?action=publicListScheduleItems&payload=${payload}`, {cache:'no-store'});
+      const json = await res.json();
+      if(!json || !json.ok) throw new Error((json && (json.message || json.error)) || 'scheduleLoadFailed');
+      return (json.items || []).map(normalizeScheduleItem).filter(item => item.lang === lang && item.status === 'public');
+    }
+    function buildEvents(items){
+      const map = {};
+      (items || []).forEach(item => {
+        if(!item.date) return;
+        if(!item.showInCalendar) return;
+        if(!map[item.date]) map[item.date] = [];
+        map[item.date].push({
+          type:item.badge || 'LIVE',
+          place:item.venue || '',
+          event:item.title || '',
+          ticket:item.ticketUrl || '',
+          detail:item.detailUrl || '',
+          time:item.time || '',
+          isNew:false
+        });
+      });
+      Object.keys(map).forEach(date => {
+        map[date].sort((a,b) => String(a.time || '').localeCompare(String(b.time || '')));
+      });
+      return map;
+    }
+    function applyUiText(){
+      const t = UI_TEXT[currentLang] || UI_TEXT.ko;
+      localStorage.setItem('lumibelleHomeLang', currentLang);
+      document.querySelectorAll('.lang-switch a').forEach(a => {
+        const lang = normalizeLang(a.dataset.lang || a.textContent.trim().toLowerCase());
+        a.href = `schedule.html?lang=${lang}`;
+        a.classList.toggle('active', lang === currentLang);
+      });
+      const navMap = [ ['index.html','home'], ['news.html','news'], ['member.html','member'], ['schedule.html','schedule'], ['ticket/','ticket'], ['goods/','goods'], ['setlist.html','setlist'], ['info.html','info'] ];
+      navMap.forEach(([href,key]) => {
+        const el = document.querySelector(`nav a[href="${href}"] span`);
+        if(el && t.nav[key]) el.textContent = t.nav[key];
+      });
+      const sub = document.querySelector('.page-title p');
+      if(sub) sub.textContent = t.sub;
+      document.querySelectorAll('.calendar-weekdays div').forEach((el, idx) => { el.textContent = t.weekdays[idx] || el.textContent; });
+      if(toggleBtn) toggleBtn.textContent = calendarSection && !calendarSection.classList.contains('hidden') ? t.close : t.more;
+    }
+    function getBadgeInfo(type){switch(String(type || '').toUpperCase()){case"ONEMAN":return{label:"ONEMAN",className:"badge-oneman",important:true};case"DEBUT":return{label:"DEBUT",className:"badge-debut",important:true};case"EVENT":return{label:"EVENT",className:"badge-event",important:false};default:return{label:"LIVE",className:"badge-live",important:false};}}
+    function renderScheduleList(){
+      const items = (scheduleItems || []).filter(item => item.status === 'public').sort((a,b) => {
+        if(a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
+        if(a.date !== b.date) return a.date.localeCompare(b.date);
+        if(String(a.time||'') !== String(b.time||'')) return String(a.time||'').localeCompare(String(b.time||''));
+        return Number(a.sortOrder||0) - Number(b.sortOrder||0);
+      });
+      if(!scheduleListEl) return;
+      if(!items.length){
+        scheduleListEl.innerHTML = `<div class="row schedule-row"><div></div><div></div><div>${escapeHtml(text('noItems'))}</div><span class="ticket" aria-hidden="true">-</span></div>`;
+        return;
+      }
+      scheduleListEl.innerHTML = items.map(item => {
+        const url = item.ticketUrl || item.detailUrl || '';
+        const button = url ? `<a class="ticket" href="${escapeHtml(url)}">${escapeHtml(text('ticket'))}</a>` : `<span class="ticket" aria-hidden="true">-</span>`;
+        return `<div class="row schedule-row"><div>${escapeHtml(formatDateDot(item.date))}</div><div>${escapeHtml(item.venue)}</div><div>${escapeHtml(item.title)}</div>${button}</div>`;
+      }).join('');
+    }
+    function renderCalendar(){
+      calendarGrid.innerHTML="";
+      scheduleDetail.innerHTML=`<p class="detail-empty">${escapeHtml(text('empty'))}</p>`;
+      const year=currentDate.getFullYear(),month=currentDate.getMonth();
+      calendarMonth.textContent=`${year}.${String(month+1).padStart(2,"0")}`;
+      const firstDay=new Date(year,month,1).getDay(),lastDate=new Date(year,month+1,0).getDate(),today=new Date();
+      for(let i=0;i<firstDay;i++){const emptyCell=document.createElement("div");emptyCell.className="calendar-day empty";calendarGrid.appendChild(emptyCell);}
+      for(let day=1;day<=lastDate;day++){
+        const dateKey=`${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`,dayCell=document.createElement("div");
+        dayCell.className="calendar-day";
+        if(year===today.getFullYear()&&month===today.getMonth()&&day===today.getDate())dayCell.style.border="2px solid #ff4fa3";
+        const eventList=events[dateKey];let previewHTML="";
+        if(eventList&&eventList.length>0){
+          dayCell.classList.add("has-event");
+          const firstEvent=eventList[0],badgeInfo=getBadgeInfo(firstEvent.type);
+          if(badgeInfo.important)dayCell.classList.add("is-important");
+          previewHTML=`<div class="calendar-preview"><div class="calendar-day-head"><span class="calendar-day-number">${day}</span><div class="calendar-preview-top"><span class="calendar-badge ${badgeInfo.className}">${escapeHtml(badgeInfo.label)}</span>${firstEvent.isNew?`<span class="calendar-badge badge-new">NEW</span>`:``}</div></div><div class="calendar-preview-title ${badgeInfo.important?"is-important-title":""}">${escapeHtml(firstEvent.event)}</div></div>`;
+        }
+        dayCell.innerHTML=eventList&&eventList.length>0?previewHTML:`<div class="calendar-day-number">${day}</div>`;
+        dayCell.addEventListener("click",()=>{document.querySelectorAll(".calendar-day").forEach(cell=>cell.classList.remove("selected"));dayCell.classList.add("selected");renderDetail(dateKey);});
+        calendarGrid.appendChild(dayCell);
+      }
+    }
+    function renderDetail(dateKey){
+      const eventList=events[dateKey];
+      if(!eventList){scheduleDetail.innerHTML=`<p class="detail-empty">${escapeHtml(text('none'))}</p>`;return;}
+      const [year,month,day]=dateKey.split("-"),formattedDate=`${year}.${month}.${day}`;
+      scheduleDetail.innerHTML=`<div class="detail-date">${escapeHtml(formattedDate)}</div>${eventList.map(item=>{const badgeInfo=getBadgeInfo(item.type);return`<div class="detail-item"><div class="detail-left"><div class="detail-topline"><span class="calendar-badge ${badgeInfo.className}">${escapeHtml(badgeInfo.label)}</span>${item.isNew?`<span class="calendar-badge badge-new">NEW</span>`:``}<span class="detail-place">${escapeHtml(item.place)}</span></div><span class="detail-event">${escapeHtml(item.event)}</span></div><div class="detail-buttons">${item.ticket?`<a href="${escapeHtml(item.ticket)}" class="detail-ticket">${escapeHtml(text('ticket'))}</a>`:`<span class="detail-ticket detail-button-muted">${escapeHtml(text('coming'))}</span>`}${item.detail?`<a href="${escapeHtml(item.detail)}" class="detail-ticket detail-button-detail">${escapeHtml(text('detail'))}</a>`:``}</div></div>`;}).join("")}`;
+    }
+    function renderAll(){
+      events = buildEvents(scheduleItems);
+      renderScheduleList();
+      if(calendarSection && !calendarSection.classList.contains('hidden')) renderCalendar();
+    }
+    async function loadSchedule(lang){
+      const requestLang = normalizeLang(lang);
+      const seq = ++requestSeq;
+      const cached = getCache(requestLang);
+      if(cached.length){
+        scheduleItems = cached;
+        renderAll();
+      }
+      try{
+        const items = await fetchSchedule(requestLang);
+        if(seq !== requestSeq || requestLang !== currentLang) return;
+        scheduleItems = items;
+        setCache(requestLang, items);
+        if(items.length){
+          const first = items[0].date ? new Date(items[0].date + 'T00:00:00') : null;
+          if(first && !isNaN(first.getTime())) currentDate = new Date(first.getFullYear(), first.getMonth(), 1);
+        }
+        renderAll();
+      }catch(err){
+        if(!cached.length){
+          scheduleItems = [];
+          renderAll();
+        }
+        console.warn('[Lumibelle Schedule] load failed', err);
+      }
+    }
+
+    applyUiText();
+    scheduleItems = getCache(currentLang);
+    if(scheduleItems.length){
+      const first = scheduleItems[0].date ? new Date(scheduleItems[0].date + 'T00:00:00') : null;
+      if(first && !isNaN(first.getTime())) currentDate = new Date(first.getFullYear(), first.getMonth(), 1);
+    }
+    renderAll();
+    loadSchedule(currentLang);
+
+    toggleBtn.addEventListener("click",()=>{calendarSection.classList.toggle("hidden");if(!calendarSection.classList.contains("hidden")){toggleBtn.textContent=text('close');renderCalendar();}else{toggleBtn.textContent=text('more');scheduleDetail.innerHTML=`<p class="detail-empty">${escapeHtml(text('empty'))}</p>`;}});
     prevMonthBtn.addEventListener("click",()=>{currentDate=new Date(currentDate.getFullYear(),currentDate.getMonth()-1,1);renderCalendar();});
     nextMonthBtn.addEventListener("click",()=>{currentDate=new Date(currentDate.getFullYear(),currentDate.getMonth()+1,1);renderCalendar();});
-    function getBadgeInfo(type){switch(type){case"ONEMAN":return{label:"ONEMAN",className:"badge-oneman",important:true};case"DEBUT":return{label:"DEBUT",className:"badge-debut",important:true};case"EVENT":return{label:"EVENT",className:"badge-event",important:false};default:return{label:"LIVE",className:"badge-live",important:false};}}
-    function renderCalendar(){calendarGrid.innerHTML="";scheduleDetail.innerHTML='<p class="detail-empty">날짜를 선택하면 상세 일정이 보여집니다.</p>';const year=currentDate.getFullYear(),month=currentDate.getMonth();calendarMonth.textContent=`${year}.${String(month+1).padStart(2,"0")}`;const firstDay=new Date(year,month,1).getDay(),lastDate=new Date(year,month+1,0).getDate(),today=new Date();for(let i=0;i<firstDay;i++){const emptyCell=document.createElement("div");emptyCell.className="calendar-day empty";calendarGrid.appendChild(emptyCell);}for(let day=1;day<=lastDate;day++){const dateKey=`${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`,dayCell=document.createElement("div");dayCell.className="calendar-day";if(year===today.getFullYear()&&month===today.getMonth()&&day===today.getDate())dayCell.style.border="2px solid #ff4fa3";const eventList=events[dateKey];let previewHTML="";if(eventList&&eventList.length>0){dayCell.classList.add("has-event");const firstEvent=eventList[0],badgeInfo=getBadgeInfo(firstEvent.type);if(badgeInfo.important)dayCell.classList.add("is-important");previewHTML=`<div class="calendar-preview"><div class="calendar-day-head"><span class="calendar-day-number">${day}</span><div class="calendar-preview-top"><span class="calendar-badge ${badgeInfo.className}">${badgeInfo.label}</span>${firstEvent.isNew?`<span class="calendar-badge badge-new">NEW</span>`:``}</div></div><div class="calendar-preview-title ${badgeInfo.important?"is-important-title":""}">${firstEvent.event}</div></div>`;}dayCell.innerHTML=eventList&&eventList.length>0?previewHTML:`<div class="calendar-day-number">${day}</div>`;dayCell.addEventListener("click",()=>{document.querySelectorAll(".calendar-day").forEach(cell=>cell.classList.remove("selected"));dayCell.classList.add("selected");renderDetail(dateKey);});calendarGrid.appendChild(dayCell);}}
-    function renderDetail(dateKey){const eventList=events[dateKey];if(!eventList){scheduleDetail.innerHTML='<p class="detail-empty">해당 날짜에는 등록된 일정이 없습니다.</p>';return;}const [year,month,day]=dateKey.split("-"),formattedDate=`${year}.${month}.${day}`;scheduleDetail.innerHTML=`<div class="detail-date">${formattedDate}</div>${eventList.map(item=>{const badgeInfo=getBadgeInfo(item.type);return`<div class="detail-item"><div class="detail-left"><div class="detail-topline"><span class="calendar-badge ${badgeInfo.className}">${badgeInfo.label}</span>${item.isNew?`<span class="calendar-badge badge-new">NEW</span>`:``}<span class="detail-place">${item.place}</span></div><span class="detail-event">${item.event}</span></div><div class="detail-buttons">${item.ticket?`<a href="${item.ticket}" class="detail-ticket">TICKET</a>`:`<span class="detail-ticket detail-button-muted">추후 안내</span>`}${item.detail?`<a href="${item.detail}" class="detail-ticket detail-button-detail">DETAIL</a>`:``}</div></div>`;}).join("")}`;}
+
     const revealEls=document.querySelectorAll('.reveal');if('IntersectionObserver'in window){const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('show');observer.unobserve(entry.target);}});},{threshold:.12});revealEls.forEach(el=>observer.observe(el));}else{revealEls.forEach(el=>el.classList.add('show'));}
   </script>
 
