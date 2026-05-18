@@ -3250,8 +3250,13 @@ line-height:1.9 !important;
     if(scheduleItems.length){
       const first = scheduleItems[0].date ? new Date(scheduleItems[0].date + 'T00:00:00') : null;
       if(first && !isNaN(first.getTime())) currentDate = new Date(first.getFullYear(), first.getMonth(), 1);
+      renderAll();
+    }else{
+      // 같은 언어 캐시가 아직 없을 때는 "등록된 스케줄 없음"을 먼저 띄우지 않고
+      // 조용히 빈 영역을 유지한 뒤 API 응답이 오면 렌더합니다.
+      if(scheduleListEl) scheduleListEl.innerHTML = '';
+      if(scheduleDetail) scheduleDetail.innerHTML = `<p class="detail-empty">${escapeHtml(text('empty'))}</p>`;
     }
-    renderAll();
     loadSchedule(currentLang);
 
     toggleBtn.addEventListener("click",()=>{calendarSection.classList.toggle("hidden");if(!calendarSection.classList.contains("hidden")){toggleBtn.textContent=text('close');renderCalendar();}else{toggleBtn.textContent=text('more');scheduleDetail.innerHTML=`<p class="detail-empty">${escapeHtml(text('empty'))}</p>`;}});
