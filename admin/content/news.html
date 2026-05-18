@@ -1400,6 +1400,8 @@ function openNewsEditor(id=null){
   showOnlyPanel('newsWrite');
   history.replaceState(null,'','#news-write');
   window.scrollTo({top:0,behavior:'smooth'});
+  // [3차 패치] 에디터가 열릴 때 이전 번역 결과 초기화 (오염 방지)
+  window._newsTranslations = null;
   // 컨텍스트 메뉴 셋업 (패널이 열릴 때마다 보장)
   setTimeout(setupTableContextMenu, 0);
 }
@@ -1407,12 +1409,16 @@ function backToNewsList(){openPanel('news');}
 function saveNewsDraft(){
   const row=collectNewsForm({draft:true});
   if(!row.title) row.title='제목 없는 임시글';
+  // [3차 패치] 번역 결과가 있으면 payload에 포함 (없으면 기존과 동일)
+  if(window._newsTranslations) row.translations = window._newsTranslations;
   saveNewsRow(row,'임시등록이 완료되었습니다.', {stay:true});
   updateDraftCount();
 }
 function saveNews(){
   const row=collectNewsForm();
   if(!row.title){toast('제목을 입력해 주세요');return}
+  // [3차 패치] 번역 결과가 있으면 payload에 포함 (없으면 기존과 동일)
+  if(window._newsTranslations) row.translations = window._newsTranslations;
   saveNewsRow(row,'NEWS 등록 완료');
 }
 function saveNewsRow(row,msg,opt={}){
