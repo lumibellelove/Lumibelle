@@ -688,6 +688,48 @@
       border-style:solid;
       background:#fff;
     }
+    .admin-practice-actions{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .admin-practice-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:42px;
+      padding:10px 18px;
+      border-radius:999px;
+      border:0;
+      background:linear-gradient(180deg,#ff8bbe,#ff59a5);
+      color:#fff;
+      font-size:13px;
+      font-weight:900;
+      box-shadow:0 10px 18px rgba(255,89,165,.15);
+    }
+    .admin-call-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:42px;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff8fc;
+      color:var(--pink-deep);
+      font-size:13px;
+      font-weight:900;
+    }
+    .admin-practice-note{
+      margin-top:10px;
+      color:#b0879c;
+      font-size:12px;
+      line-height:1.65;
+      font-weight:850;
+    }
     .link-row{max-width:620px;margin:0 auto 24px;display:flex;flex-wrap:wrap;justify-content:center;gap:16px}
     .link-btn{min-width:132px;min-height:42px;padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#9f6f88;font-size:14px;font-weight:900;
       letter-spacing:-.01em;
@@ -2046,9 +2088,19 @@
     }
 
     function renderAudioBox(song){
-      const audio = mediaUrl(song.audio);
-      if(!audio) return `<div class="audio-box">외부 곡은 공식 음원으로 재생해 주세요.<br>MIX PRACTICE와 함께 응원 포인트를 연습할 수 있어요.</div>`;
-      return `<div class="audio-box has-link"><div>외부 곡은 공식 음원으로 재생해 주세요.<br>MIX PRACTICE와 함께 응원 포인트를 연습할 수 있어요.</div><a class="media-open-btn" href="${esc(audio)}" target="_blank" rel="noopener noreferrer">공식 음원 열기</a></div>`;
+      const hasInlineAudio = !!mediaUrl(song.audio || song.officialAudioEmbed);
+      const hasCallReference = !!mediaUrl(song.callReferenceEmbed || song.callReferenceUrl);
+      const status = hasInlineAudio
+        ? '홈페이지 안에서 재생 가능한 공식 음원이 연결되어 있어요.'
+        : '홈페이지 안에서 재생 가능한 공식 음원이 아직 없어요.';
+      return `<div class="audio-box has-link">
+        <div>외부 이동 없이 LUMI PRACTICE 안에서 연습하는 구조입니다.<br>${status}</div>
+        <div class="admin-practice-actions">
+          <button class="admin-practice-btn" type="button" onclick="openMediaModal()">LUMI PRACTICE 설정</button>
+          ${hasCallReference ? '<span class="admin-call-badge">콜 영상 참고 있음</span>' : ''}
+        </div>
+        <div class="admin-practice-note">공식 음원/콜 영상은 홈페이지 안 재생 가능한 임베드만 사용하고, 외부 플랫폼 이동 버튼은 노출하지 않습니다.</div>
+      </div>`;
     }
 
     function renderDetail(){
@@ -2659,6 +2711,9 @@
           point:'',
           video:'',
           audio:'',
+          officialAudioEmbed:'',
+          callReferenceEmbed:'',
+          callReferenceNote:'',
           lyrics:'',
           guide:[]
         };
@@ -2673,14 +2728,22 @@
 
     function openMediaModal(){
       const s = selectedSong();
-      openModal('영상 / 음원 링크 수정', `
+      openModal('LUMI PRACTICE / 영상 설정', `
         <div class="form-grid">
-          <div class="field full"><label>유튜브 링크</label><input class="input" id="mediaVideo" value="${esc(s.video||'')}" placeholder="https://youtube.com/..."></div>
-          <div class="field full"><label>음원 / 오디오 링크</label><input class="input" id="mediaAudio" value="${esc(s.audio||'')}" placeholder="오디오 파일 또는 외부 음원 링크"></div>
-        </div>${modalActions()}
+          <div class="field full"><label>대표 유튜브 영상 · NOW PLAYING</label><input class="input" id="mediaVideo" value="${esc(s.video||'')}" placeholder="https://youtube.com/... / 공홈 큰 대표 영상"></div>
+          <div class="field full"><label>오리곡 자체 음원 파일 · 선택</label><input class="input" id="mediaAudio" value="${esc(s.audio||'')}" placeholder="루미벨 오리지널곡 mp3/m4a 파일 경로가 있을 때만 입력"></div>
+          <div class="field full"><label>공식 음원 임베드 · 홈페이지 안 재생용</label><input class="input" id="mediaOfficialEmbed" value="${esc(s.officialAudioEmbed||'')}" placeholder="YouTube/Spotify 임베드 또는 링크 · 외부 이동 버튼은 노출하지 않음"></div>
+          <div class="field full"><label>콜 영상 참고 · 홈페이지 안 재생용</label><input class="input" id="mediaCallReferenceEmbed" value="${esc(s.callReferenceEmbed||s.callReferenceUrl||'')}" placeholder="곡별 콜/믹스 타이밍 참고 YouTube 임베드 또는 링크"></div>
+          <div class="field full"><label>콜 영상 참고 안내문</label><input class="input" id="mediaCallReferenceNote" value="${esc(s.callReferenceNote||'')}" placeholder="비워두면 기본 안내문 사용"></div>
+        </div>
+        <div class="admin-practice-note" style="text-align:center;margin-top:14px;">LUMI PRACTICE에는 홈페이지 안에서 재생 가능한 자료만 표시합니다. 멜론/지니/스포티파이 외부 이동 버튼은 만들지 않습니다.</div>
+        ${modalActions()}
       `, ()=>{
         s.video = val('mediaVideo');
         s.audio = val('mediaAudio');
+        s.officialAudioEmbed = val('mediaOfficialEmbed');
+        s.callReferenceEmbed = val('mediaCallReferenceEmbed');
+        s.callReferenceNote = val('mediaCallReferenceNote');
       });
     }
 
