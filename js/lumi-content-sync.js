@@ -11,7 +11,13 @@
   let cachedPublicNews = [];
   let hasLoadedPublicNews = false;
 
-  let _currentLang = normalizeLang(new URLSearchParams(location.search).get('lang') || localStorage.getItem('lumibelleCurrentLang') || 'ko');
+  let _currentLang = normalizeLang(
+    new URLSearchParams(location.search).get('lang') ||
+    localStorage.getItem('lumibelle.home.lang') ||
+    localStorage.getItem('lumibelleCurrentLang') ||
+    localStorage.getItem('lumibelleHomeLang') ||
+    'ko'
+  );
 
   function normalizeLang(lang){
     lang = String(lang || 'ko').toLowerCase().trim();
@@ -28,7 +34,11 @@
 
   function setCurrentLang(lang){
     _currentLang = normalizeLang(lang);
-    try{ localStorage.setItem('lumibelleCurrentLang', _currentLang); }catch(e){}
+    try{
+      localStorage.setItem('lumibelle.home.lang', _currentLang);
+      localStorage.setItem('lumibelleCurrentLang', _currentLang);
+      localStorage.setItem('lumibelleHomeLang', _currentLang);
+    }catch(e){}
     return _currentLang;
   }
 

@@ -3294,14 +3294,14 @@ line-height:1.9 !important;
 
       /* nav 메뉴 선택자 → UI_TEXT 키 매핑 */
       const NAV_MAP = [
-        ['nav a[href="index.html"] span',    'navHome'],
-        ['nav a[href="news.html"] span',     'navNews'],
-        ['nav a[href="member.html"] span',   'navMember'],
-        ['nav a[href="schedule.html"] span', 'navSchedule'],
-        ['nav a[href="ticket/"] span',       'navTicket'],
-        ['nav a[href="goods/"] span',        'navGoods'],
-        ['nav a[href="setlist.html"] span',  'navSetlist'],
-        ['nav a[href="info.html"] span',     'navInfo']
+        ['nav a[href="index.html"] span, nav a[href^="index.html?"] span',    'navHome'],
+        ['nav a[href="news.html"] span, nav a[href^="news.html?"] span',     'navNews'],
+        ['nav a[href="member.html"] span, nav a[href^="member.html?"] span',   'navMember'],
+        ['nav a[href="schedule.html"] span, nav a[href^="schedule.html?"] span', 'navSchedule'],
+        ['nav a[href="ticket/"] span, nav a[href^="ticket/?"] span',       'navTicket'],
+        ['nav a[href="goods/"] span, nav a[href^="goods/?"] span',        'navGoods'],
+        ['nav a[href="setlist.html"] span, nav a[href^="setlist.html?"] span',  'navSetlist'],
+        ['nav a[href="info.html"] span, nav a[href^="info.html?"] span',     'navInfo']
       ];
 
       /* ── 고정 UI 문구 적용 ── */
@@ -3548,6 +3548,42 @@ line-height:1.9 !important;
         }catch(e){}
       }
 
+      function setCommonLangStorage(lang){
+        lang = LumiNewsSync.normalizeLang ? LumiNewsSync.normalizeLang(lang || currentLang || 'ko') : (lang || currentLang || 'ko');
+        try{
+          localStorage.setItem('lumibelle.home.lang', lang);
+          localStorage.setItem('lumibelleCurrentLang', lang);
+          localStorage.setItem('lumibelleHomeLang', lang);
+        }catch(e){}
+      }
+
+      function withLangParam(href, lang){
+        lang = LumiNewsSync.normalizeLang ? LumiNewsSync.normalizeLang(lang || currentLang || 'ko') : (lang || currentLang || 'ko');
+        if(!href || href.indexOf('javascript:') === 0 || href.indexOf('mailto:') === 0 || href.indexOf('tel:') === 0 || href.charAt(0) === '#') return href;
+        try{
+          const url = new URL(href, location.href);
+          if(url.origin !== location.origin) return href;
+          url.searchParams.set('lang', lang);
+          return url.pathname.replace(/^\//,'') + url.search + url.hash;
+        }catch(e){
+          const parts = href.split('#');
+          const base = parts[0];
+          const hash = parts[1] ? '#' + parts[1] : '';
+          const sep = base.indexOf('?') === -1 ? '?' : '&';
+          return base + sep + 'lang=' + encodeURIComponent(lang) + hash;
+        }
+      }
+
+      function updatePageLinks(lang){
+        lang = LumiNewsSync.normalizeLang ? LumiNewsSync.normalizeLang(lang || currentLang || 'ko') : (lang || currentLang || 'ko');
+        ['index.html','news.html','member.html','schedule.html','setlist.html','info.html','ticket/','goods/'].forEach(function(href){
+          document.querySelectorAll('a[href="' + href + '"], a[href^="' + href + '?"]').forEach(function(a){
+            if(a.closest('.lang-switch')) return;
+            a.setAttribute('href', withLangParam(href, lang));
+          });
+        });
+      }
+
       function updateDetailLangButtons(){
         document.querySelectorAll('.lang-switch [data-lang-btn]').forEach(function(btn){
           const lang = LumiNewsSync.normalizeLang ? LumiNewsSync.normalizeLang(btn.getAttribute('data-lang-btn') || 'ko') : (btn.getAttribute('data-lang-btn') || 'ko');
@@ -3559,11 +3595,13 @@ line-height:1.9 !important;
           btn.href = 'news-detail.html?' + qs.toString();
           btn.classList.toggle('active', lang === currentLang);
         });
+        updatePageLinks(currentLang);
       }
 
       function loadDetailLang(lang){
         currentLang = LumiNewsSync.normalizeLang ? LumiNewsSync.normalizeLang(lang) : (lang || 'ko');
         if(LumiNewsSync.setCurrentLang) LumiNewsSync.setCurrentLang(currentLang);
+        setCommonLangStorage(currentLang);
         setDetailUrlLang(currentLang);
         updateDetailLangButtons();
         applyUiText(currentLang);
@@ -3602,6 +3640,7 @@ line-height:1.9 !important;
         if(snapLang === currentLang) renderNewsDetail(true);
       });
       if(LumiNewsSync.setCurrentLang) LumiNewsSync.setCurrentLang(currentLang);
+      setCommonLangStorage(currentLang);
       applyUiText(currentLang);
       updateDetailLangButtons();
       renderNewsDetail(false);

@@ -3029,7 +3029,7 @@ line-height:1.9 !important;
     function currentLangFromUrl(){
       let saved = '';
       try{
-        saved = localStorage.getItem('lumibelle.home.lang') || localStorage.getItem('lumibelleHomeLang') || '';
+        saved = localStorage.getItem('lumibelle.home.lang') || localStorage.getItem('lumibelleCurrentLang') || localStorage.getItem('lumibelleHomeLang') || '';
       }catch(e){}
       return normalizeLang(new URLSearchParams(location.search).get('lang') || saved || 'ko');
     }
@@ -3191,6 +3191,7 @@ line-height:1.9 !important;
       const t = UI_TEXT[currentLang] || UI_TEXT.ko;
       try{
         localStorage.setItem('lumibelle.home.lang', currentLang);
+        localStorage.setItem('lumibelleCurrentLang', currentLang);
         localStorage.setItem('lumibelleHomeLang', currentLang);
       }catch(e){}
       document.querySelectorAll('.lang-switch a').forEach(a => {
