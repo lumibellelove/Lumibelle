@@ -1184,6 +1184,7 @@ input:focus,select:focus,textarea:focus{border-color:#f4a4ca;box-shadow:0 0 0 4p
 </main>
 <script src="../../js/lumi-content-sync.js"></script>
 <script>
+window.LUMI_NEWS_API_URL = 'https://lumi-news-api.lumibelle-love.workers.dev';
 const STORAGE_KEY='lumibelleContentAdminV2';
 const isOpen=sessionStorage.getItem('lumiOfficeOpen')==='1';
 document.getElementById(isOpen?'main':'locked').hidden=false;
@@ -4666,6 +4667,7 @@ async function runNewsAutoTranslate(){
   // LumiContentSync 객체에서 API 주소를 자동으로 탐색
   const lcs = window.LumiContentSync;
   const scriptUrl = (
+    window.LUMI_NEWS_API_URL ||
     (lcs && (lcs._url || lcs.scriptUrl || lcs.endpoint || lcs._endpoint ||
              (lcs.config && (lcs.config.url || lcs.config.scriptUrl || lcs.config.endpoint)))) ||
     window.LUMI_SCRIPT_URL || window.SCRIPT_URL || ''
