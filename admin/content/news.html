@@ -719,6 +719,14 @@ input:focus,select:focus,textarea:focus{border-color:#f4a4ca;box-shadow:0 0 0 4p
 .photo-editor-pack-tabs{display:flex !important;flex-wrap:wrap !important;gap:8px !important;align-items:center !important;}
 .photo-editor-pack-tabs button{white-space:nowrap !important;}
 
+
+
+/* ===== v5 minimal: slider empty + modal stacking only ===== */
+#newsRecentImageModal{z-index:9000 !important;}
+#newsRecentImageModal .news-recent-image-modal{position:relative;z-index:9001;}
+.news-slider-stage > .news-tool-empty.news-slider-empty{width:100%;min-height:360px;border-radius:20px;}
+.news-slider-stage:has(.news-slider-empty){min-height:400px;display:flex;align-items:center;justify-content:center;}
+
 </style>
 </head>
 <body>
@@ -2776,7 +2784,7 @@ async function savePhotoEditorImage(){
     const blob=await new Promise((resolve)=>canvas.toBlob(resolve,'image/webp',0.88));
     if(!blob)throw new Error('편집 이미지 생성 실패');
     const base64=await blobToBase64(blob);
-    setPhotoEditorStatus('Drive에 저장하는 중...');
+    setPhotoEditorStatus('이미지 업로드 중...');
     if(!window.LumiContentSync || !LumiContentSync.uploadNewsImage)throw new Error('이미지 업로드 API 연결이 필요합니다.');
     const uploaded=await LumiContentSync.uploadNewsImage({fileName:'edited-'+Date.now()+'.webp',mimeType:'image/webp',data:base64,folderName:q('newsCategory')?q('newsCategory').value:''});
     const imageUrl=uploaded.imageUrl||uploaded.thumbnailUrl||uploaded.url;
@@ -3138,7 +3146,7 @@ function newsBinEmptyState(text='사진을 불러와 주세요.') {
   return `<div class="news-tool-empty"><div class="news-tool-empty-plus">＋</div><strong>${htmlEscape(text)}</strong><span>최근사진 또는 파일 불러오기로 사진을 추가할 수 있어요.</span></div>`;
 }
 function newsSliderEmptyState(text='사진을 여러 장 불러와 주세요.') {
-  return newsBinEmptyState(text);
+  return `<div class="news-tool-empty news-slider-empty"><div class="news-tool-empty-plus">＋</div><strong>${htmlEscape(text)}</strong><span>최근사진 또는 파일 불러오기로 사진을 추가할 수 있어요.</span></div>`;
 }
 function getNewsSliderScrollContainers(){
   const backdrop = q('newsSliderModal');
@@ -3387,7 +3395,7 @@ function deleteSelectedLumiSlider(){
     editor.dispatchEvent(new Event('input',{bubbles:true}));
     saveNewsSelection();
   }
-  toast('슬라이더를 본문에서 삭제했어요. (Ctrl+Z 복구 가능)');
+  toast('슬라이더를 본문에서 삭제했어요. 필요하면 다시 삽입해 주세요.');
 }
 q('newsBodyEditor')?.addEventListener('click',e=>{
   const slider=e.target.closest('[data-lumi-slider]');
@@ -3401,9 +3409,14 @@ q('newsBodyEditor')?.addEventListener('keydown',e=>{
 });
 document.addEventListener('click',e=>{const btn=e.target.closest?.('.lumi-slide-nav');if(!btn)return;const slider=btn.closest('[data-lumi-slider]');if(!slider)return;e.preventDefault();e.stopPropagation();if(typeof slider._lumiGo==='function'){const current=Number(slider.dataset.index||0);slider._lumiGo(current+(btn.dataset.dir==='next'?1:-1));}} ,true);
 document.addEventListener('keydown',e=>{
-  const tag=document.activeElement?.tagName||'';if(['INPUT','TEXTAREA','SELECT'].includes(tag)||document.activeElement?.isContentEditable)return;
-  const live=q('newsBodyEditor')?.querySelector('[data-lumi-slider]');if(!live||q('newsSliderModal')?.hidden===false||q('newsCollageModal')?.hidden===false)return;
-  if(e.key==='ArrowLeft'){e.preventDefault();live._lumiGo?.(Number(live.dataset.index||0)-1);}if(e.key==='ArrowRight'){e.preventDefault();live._lumiGo?.(Number(live.dataset.index||0)+1);}
+  const tag=document.activeElement?.tagName||'';
+  if(['INPUT','TEXTAREA','SELECT'].includes(tag))return;
+  if(q('newsSliderModal')?.hidden===false||q('newsCollageModal')?.hidden===false)return;
+  const live=_selectedLumiSlider || q('newsBodyEditor')?.querySelector('[data-lumi-slider]');
+  if(!live)return;
+  if(document.activeElement?.isContentEditable && !_selectedLumiSlider)return;
+  if(e.key==='ArrowLeft'){e.preventDefault();live._lumiGo?.(Number(live.dataset.index||0)-1);}
+  if(e.key==='ArrowRight'){e.preventDefault();live._lumiGo?.(Number(live.dataset.index||0)+1);}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(q('newsCollageModal')&&!q('newsCollageModal').hidden)closeNewsCollageModal();if(q('newsSliderModal')&&!q('newsSliderModal').hidden)closeNewsSliderModal();closeLumiLightbox();}});
 /* ── [2] 슬라이더 제작 모달 키보드 좌우 이동 ────────────────────
