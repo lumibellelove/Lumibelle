@@ -737,6 +737,19 @@ button{font:inherit}
   background:linear-gradient(180deg,#ff8bbe,#ff59a5);
   box-shadow:0 12px 20px rgba(255,89,165,.16);
 }
+.audio-practice-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  padding:10px 14px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:#fff8fc;
+  color:var(--pink-deep);
+  font-size:13px;
+  font-weight:900;
+}
 .link-row{
   max-width:620px;
   margin:0 auto 24px;
@@ -1024,6 +1037,85 @@ button{font:inherit}
   font-size:14px;
   line-height:1.75;
   font-weight:800;
+}
+.audio-modal-media-frame{
+  width:100%;
+  flex:1 1 auto;
+  min-height:300px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.audio-modal-media-frame iframe{
+  width:100%;
+  min-height:300px;
+  border:0;
+  border-radius:18px;
+  background:#1f1f1f;
+}
+.audio-modal-media-frame iframe[src*="youtube"]{
+  aspect-ratio:16/9;
+}
+.audio-modal-inpage-empty{
+  width:100%;
+  min-height:240px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:28px 22px;
+  border:1px dashed var(--line);
+  border-radius:20px;
+  background:#fff8fc;
+  color:#9b7489;
+  font-size:15px;
+  line-height:1.8;
+  font-weight:850;
+  text-align:center;
+}
+.audio-modal-media-switch{
+  margin-top:14px;
+  padding:14px 16px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:#fffafd;
+  text-align:center;
+}
+.audio-modal-media-tabs{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.audio-modal-media-tab{
+  min-height:42px;
+  padding:10px 18px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:#aa7a93;
+  font-size:13px;
+  font-weight:900;
+  cursor:pointer;
+}
+.audio-modal-media-tab.active{
+  border-color:transparent;
+  color:#fff;
+  background:linear-gradient(180deg,#ff8bbe,#ff59a5);
+  box-shadow:0 10px 18px rgba(255,89,165,.16);
+}
+.audio-modal-media-note{
+  width:min(100%,460px);
+  margin:0 auto;
+  padding:11px 13px;
+  border:1px dashed var(--line);
+  border-radius:14px;
+  background:#fff;
+  color:#a77a92;
+  font-size:12.5px;
+  line-height:1.55;
+  font-weight:800;
+  text-align:center;
 }
 .audio-modal-side{
   display:flex;
@@ -2970,9 +3062,9 @@ nav a.current span,nav a:hover span{ color:#d88dad !important; }
                 오디오가 준비되면 바로 재생 가능하게 바뀝니다.
               </div>
               <div class="audio-practice-card" id="audioPracticeCard">
-                <div class="audio-practice-kicker">AUDIO PRACTICE</div>
-                <div class="audio-practice-title">공식 음원으로 연습하기</div>
-                <p class="audio-practice-desc">외부 곡은 공식 음원으로 재생해 주세요.<br>MIX PRACTICE와 함께 응원 포인트를 연습할 수 있어요.</p>
+                <div class="audio-practice-kicker">LUMI PRACTICE</div>
+                <div class="audio-practice-title">연습 모드 열기</div>
+                <p class="audio-practice-desc">홈페이지 안에서 재생 가능한 공식 음원과 콜 영상 참고를 함께 확인해요.<br>MIX PRACTICE와 응원 포인트를 한 번에 연습할 수 있어요.</p>
                 <div class="audio-practice-actions" id="audioPracticeActions"></div>
               </div>
             </div>
@@ -3103,6 +3195,8 @@ nav a.current span,nav a:hover span{ color:#d88dad !important; }
         officialAudio: '',
         officialAudioEmbed: '',
         officialAudioLinks: [],
+        callReferenceEmbed: '',
+        callReferenceNote: '',
         audio: '',
         video: '',
         support: {
@@ -3148,6 +3242,8 @@ nav a.current span,nav a:hover span{ color:#d88dad !important; }
         officialAudio: '',
         officialAudioEmbed: '',
         officialAudioLinks: [],
+        callReferenceEmbed: '',
+        callReferenceNote: '',
         audio: '',
         video: '',
         support: {
@@ -3622,6 +3718,8 @@ We are Sweetie pie! 루미베르 데스~`,
         officialAudio: '',
         officialAudioEmbed: '',
         officialAudioLinks: [],
+        callReferenceEmbed: '',
+        callReferenceNote: '',
         audio: '',
         video: 'https://youtu.be/az9mkI9C2f4',
         support: {
@@ -4040,6 +4138,8 @@ We are Sweetie pie! 루미베르 데스~`,
         officialAudio: '',
         officialAudioEmbed: '',
         officialAudioLinks: [],
+        callReferenceEmbed: '',
+        callReferenceNote: '',
         audio: '',
         video: 'https://youtu.be/bAxU3DizH90',
         support: {
@@ -4294,6 +4394,40 @@ We are Sweetie pie! 루미베르 데스~`,
       }catch(e){
         return '';
       }
+    }
+
+    function getSpotifyEmbedUrl(url){
+      if(!url) return '';
+      try{
+        const parsed = new URL(url);
+        if(!parsed.hostname.includes('open.spotify.com')) return '';
+        if(parsed.pathname.includes('/embed/')) return parsed.href;
+        const parts = parsed.pathname.split('/').filter(Boolean);
+        if(parts.length >= 2){
+          return `https://open.spotify.com/embed/${parts[0]}/${parts[1]}`;
+        }
+        return '';
+      }catch(e){
+        return '';
+      }
+    }
+
+    function getInlineMediaHtml(raw, fallbackTitle){
+      const source = String(raw || '').trim();
+      if(!source) return '';
+      if(/^<iframe[\s\S]*<\/iframe>$/i.test(source)) return source;
+      const youtube = getYoutubeEmbedUrl(source);
+      if(youtube){
+        return `<iframe src="${youtube}" title="${fallbackTitle || 'LUMI PRACTICE'}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+      }
+      const spotify = getSpotifyEmbedUrl(source);
+      if(spotify){
+        return `<iframe src="${spotify}" title="${fallbackTitle || 'Spotify player'}" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+      }
+      if(/\.(mp3|m4a|wav|ogg)(\?.*)?$/i.test(source)){
+        return `<audio controls src="${source}"></audio>`;
+      }
+      return '';
     }
 
     function restartReveal(){
@@ -4595,8 +4729,10 @@ We are Sweetie pie! 루미베르 데스~`,
       if(isExternalAudio(song)){
         if(audioPracticeCard) audioPracticeCard.style.display = 'block';
         if(audioPracticeActions){
-          const officialAudioBtn = '<button class="audio-practice-btn primary" type="button" id="openAudioModalBtn">공식 음원 선택</button>';
-          audioPracticeActions.innerHTML = officialAudioBtn;
+          const hasCallReference = !!String(song.callReferenceEmbed || song.callReferenceUrl || '').trim();
+          const practiceBtn = '<button class="audio-practice-btn primary" type="button" id="openAudioModalBtn">LUMI PRACTICE</button>';
+          const callBadge = hasCallReference ? '<span class="audio-practice-badge">콜 영상 참고 있음</span>' : '';
+          audioPracticeActions.innerHTML = practiceBtn + callBadge;
           const openAudioModalBtn = document.getElementById('openAudioModalBtn');
           if(openAudioModalBtn){
             openAudioModalBtn.addEventListener('click', () => openAudioModal(song));
@@ -4787,26 +4923,26 @@ We are Sweetie pie! 루미베르 데스~`,
         }).join('')}</div>`;
       }
 
-      const platformLinks = Array.isArray(song.officialAudioLinks) ? [...song.officialAudioLinks] : [];
-      if(song.officialAudio && !platformLinks.length){
-        platformLinks.push({ label: '공식 음원', url: song.officialAudio });
+      const officialSource = song.officialAudioEmbed || song.officialAudio || song.audio || '';
+      const callSource = song.callReferenceEmbed || song.callReferenceUrl || '';
+      const officialHtml = getInlineMediaHtml(officialSource, `${song.title} 공식 음원`);
+      const callReferenceHtml = getInlineMediaHtml(callSource, `${song.title} 콜 영상 참고`);
+      const callNote = song.callReferenceNote || '외부에서 공개된 곡별 콜/믹스 타이밍 참고 영상입니다. 현장에서는 루미벨 가이드와 분위기를 함께 봐주세요.';
+
+      function mediaFrameHtml(kind){
+        if(kind === 'call'){
+          return callReferenceHtml
+            ? callReferenceHtml
+            : '<div class="audio-modal-inpage-empty">이 곡은 아직 홈페이지 안에서 재생 가능한 콜 영상 참고가 없어요.<br>아래 응원가이드로 먼저 연습해 주세요.</div>';
+        }
+        return officialHtml
+          ? officialHtml
+          : '<div class="audio-modal-inpage-empty">홈페이지 안에서 재생 가능한 공식 음원이 아직 없어요.<br>아래 응원가이드와 콜 영상 참고로 연습해 주세요.</div>';
       }
 
-      const platformButtons = platformLinks.length
-        ? `<div class="audio-platform-grid">${platformLinks.map(link => `<a class="audio-platform-btn" href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label}</a>`).join('')}</div>`
-        : '<div class="audio-platform-empty">공식 음원 링크가 준비되기 전에도<br>가사지와 연습 안내는 확인할 수 있습니다.</div>';
-
-      const embedHtml = song.officialAudioEmbed
-        ? song.officialAudioEmbed
-        : `
-          <div class="audio-platform-intro">
-            공식 음원은 각 플랫폼에서 재생됩니다.<br>원하는 플랫폼에서 곡을 재생한 뒤, 이 창에서 MIX PRACTICE와 <span class="keep-word">연습 가이드</span>를 함께 확인해주세요.
-          </div>
-          ${platformButtons}
-          <div class="audio-modal-notice">
-            플랫폼별 로그인·앱 설치·지역 제한이 적용될 수 있어요.
-          </div>
-        `;
+      const mediaTabsHtml = callReferenceHtml
+        ? `<button class="audio-modal-media-tab active" type="button" data-practice-media="official">공식 음원</button><button class="audio-modal-media-tab" type="button" data-practice-media="call">콜 영상 참고</button>`
+        : `<button class="audio-modal-media-tab active" type="button" data-practice-media="official">공식 음원</button>`;
 
       const lyricText = song.lyrics || `${song.title} 가사지 준비중`;
       const modalMetaItems = getMetaItems(song);
@@ -4829,7 +4965,17 @@ We are Sweetie pie! 루미베르 데스~`,
       audioEmbedBox.innerHTML = `
         <div class="audio-modal-layout">
           <div class="audio-modal-player">
-            ${embedHtml}
+            <div class="audio-modal-media-frame" id="audioModalMediaFrame">
+              ${mediaFrameHtml('official')}
+            </div>
+            <div class="audio-modal-media-switch">
+              <div class="audio-modal-media-tabs">
+                ${mediaTabsHtml}
+              </div>
+              <div class="audio-modal-media-note" id="audioModalMediaNote">
+                ${officialHtml ? '홈페이지 안에서 재생 가능한 공식 음원만 표시됩니다.' : '외부 이동 없이 연습할 수 있도록, 홈페이지 안 재생 가능 음원만 표시해요.'}
+              </div>
+            </div>
           </div>
 
           <div class="audio-modal-side">
@@ -4863,11 +5009,27 @@ We are Sweetie pie! 루미베르 데스~`,
         </section>
       `;
 
+      const mediaFrame = audioEmbedBox.querySelector('#audioModalMediaFrame');
+      const mediaNote = audioEmbedBox.querySelector('#audioModalMediaNote');
+      audioEmbedBox.querySelectorAll('[data-practice-media]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const kind = btn.dataset.practiceMedia;
+          audioEmbedBox.querySelectorAll('[data-practice-media]').forEach(item => item.classList.toggle('active', item === btn));
+          if(mediaFrame) mediaFrame.innerHTML = mediaFrameHtml(kind);
+          if(mediaNote){
+            mediaNote.textContent = kind === 'call'
+              ? callNote
+              : (officialHtml ? '홈페이지 안에서 재생 가능한 공식 음원만 표시됩니다.' : '외부 이동 없이 연습할 수 있도록, 홈페이지 안 재생 가능 음원만 표시해요.');
+          }
+        });
+      });
+
       const audioTabButtons = audioEmbedBox.querySelectorAll('.audio-tab-btn');
       const audioTabPanels = audioEmbedBox.querySelectorAll('.audio-tab-panel');
       audioTabButtons.forEach(btn => {
         btn.addEventListener('click', () => {
           const target = btn.dataset.audioTab;
+          if(!target) return;
           audioTabButtons.forEach(item => item.classList.toggle('active', item === btn));
           audioTabPanels.forEach(panel => panel.classList.toggle('active', panel.dataset.audioPanel === target));
         });
@@ -4905,9 +5067,7 @@ We are Sweetie pie! 루미베르 데스~`,
         });
       });
 
-      audioModalActions.innerHTML = platformLinks.length
-        ? '<span class="audio-rights-note">공식 음원은 각 플랫폼 정책에 따라 재생됩니다. 루미벨은 음원 파일을 직접 제공하지 않습니다.</span>'
-        : '';
+      if(audioModalActions) audioModalActions.innerHTML = '';
 
       audioModal.classList.add('open');
       document.body.style.overflow = 'hidden';
