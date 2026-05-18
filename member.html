@@ -223,9 +223,8 @@
     @media (max-width:520px){.member-photo{height:360px;}}
   </style>
 
-
   <style>
-    /* ===== INDEX HEADER TRANSPLANT v1 : index.html 기준 그대로 가져오기 ===== */
+    /* ===== INDEX HEADER EXACT PORT : index.html에서 헤더/모바일 메뉴 기준 이식 ===== */
     .top-lang-bar{
       width:100%;
       max-width:1260px;
@@ -236,6 +235,7 @@
       box-sizing:border-box;
     }
 
+    /* ===== 상단 1차 메뉴 ===== */
     nav{
       display:grid;
       grid-template-columns:repeat(8, minmax(0, 1fr));
@@ -263,8 +263,13 @@
       white-space:nowrap;
     }
 
-    nav a b{font-size:1.18em;}
-    nav a span{margin-top:2px;}
+    nav a b{
+      font-size:1.18em;
+    }
+
+    nav a span{
+      margin-top:2px;
+    }
 
     .header-box{
       display:flex;
@@ -272,6 +277,7 @@
       gap:24px;
     }
 
+    /* ===== 언어 버튼 ===== */
     .lang-switch{
       display:flex;
       align-items:center;
@@ -310,7 +316,6 @@
       border-radius:22px;
       overflow:visible;
       transform:none !important;
-      -webkit-tap-highlight-color:transparent;
     }
 
     nav a.current,
@@ -352,33 +357,155 @@
     nav a.current b,
     nav a:hover b,
     nav a:focus b,
-    nav a:focus-visible b{color:#ff59a5 !important;}
+    nav a:focus-visible b{
+      color:#ff59a5 !important;
+    }
 
     nav a.current span,
     nav a:hover span,
     nav a:focus span,
-    nav a:focus-visible span{color:#d88dad !important;}
+    nav a:focus-visible span{
+      color:#d88dad !important;
+    }
 
-    .top-lang-bar,.header-box,nav,.lang-switch{overflow:visible !important;}
-    .lang-switch a,nav a,nav a:hover,nav a.current,nav a:focus,nav a:focus-visible,nav a:active{
+    /* ===== 상단바 클릭/호버 튐 방지 최종 고정 ===== */
+    .top-lang-bar,
+    .header-box,
+    nav,
+    .lang-switch{
+      overflow:visible !important;
+    }
+
+    .lang-switch a,
+    .lang-switch a:hover,
+    .lang-switch a.active,
+    .lang-switch a:focus,
+    .lang-switch a:active,
+    nav a,
+    nav a:hover,
+    nav a.current,
+    nav a:focus,
+    nav a:focus-visible,
+    nav a:active{
       transform:none !important;
       translate:none !important;
       scale:1 !important;
+      top:auto !important;
+      bottom:auto !important;
+      margin-top:0 !important;
+      margin-bottom:0 !important;
+      box-shadow:none !important;
     }
 
-    @media (max-width:1180px){nav{grid-template-columns:repeat(4,1fr);gap:16px;}}
-    @media (max-width:980px){
-      .header-box{flex-wrap:wrap;justify-content:center;}
-      nav{grid-template-columns:repeat(4,1fr);width:100%;margin:0;}
-      .top-lang-bar{justify-content:center;margin-top:14px;}
+    nav a{
+      transition:color .18s ease, background .18s ease !important;
     }
 
-    /* ===== INDEX MOBILE SIZE : iPhone 17 Pro / Galaxy Z Flip 6 기준 ===== */
-    @media (max-width:780px){
-      body{overflow-x:hidden;}
+    nav a::before,
+    nav a.current::before,
+    nav a:hover::before,
+    nav a:focus::before,
+    nav a:focus-visible::before{
+      top:0 !important;
+      bottom:0 !important;
+      left:0 !important;
+      right:0 !important;
+      border-radius:18px !important;
+      opacity:0;
+      transition:opacity .18s ease !important;
+      box-shadow:none !important;
+    }
+
+    nav a.current::before,
+    nav a:hover::before,
+    nav a:focus::before,
+    nav a:focus-visible::before{
+      opacity:1 !important;
+    }
+
+    nav a:focus::after,
+    nav a:active::after{
+      display:none !important;
+      animation:none !important;
+    }
+
+
+
+    /* ===== 상단 메뉴 안정화 정리본 ===== */
+    .lang-switch a,
+    nav a,
+    .subnav-card{
+      transform:none !important;
+      transition:background-color .18s ease, color .18s ease, box-shadow .18s ease, opacity .18s ease !important;
+    }
+
+    .lang-switch a:hover,
+    .lang-switch a.active,
+    .lang-switch a:focus,
+    .lang-switch a:focus-visible,
+    .lang-switch a:active,
+    nav a:hover,
+    nav a:focus,
+    nav a:focus-visible,
+    nav a:active,
+    .subnav-card:hover,
+    .subnav-card:focus,
+    .subnav-card:focus-visible,
+    .subnav-card:active{
+      transform:none !important;
+    }
+
+    .subnav-card::after{
+      content:none !important;
+      animation:none !important;
+      display:none !important;
+    }
+
+    nav a::before,
+    nav a.current::before,
+    nav a:hover::before,
+    nav a:focus::before,
+    nav a:focus-visible::before{
+      top:0 !important;
+      bottom:0 !important;
+      left:0 !important;
+      right:0 !important;
+      transform:none !important;
+      transition:none !important;
+    }
+
+    nav a,
+    nav a.current,
+    nav a:hover,
+    nav a:focus,
+    nav a:focus-visible,
+    nav a:active{
+      top:auto !important;
+      bottom:auto !important;
+      margin-top:0 !important;
+      margin-bottom:0 !important;
+      translate:none !important;
+      scale:none !important;
+    }
+
+    .header-box,
+    nav,
+    .top-lang-bar,
+    .subnav-wrap{
+      transform:none !important;
+    }
+
+
+    /* ===== MOBILE HOME OPTIMIZATION v1 : iPhone 17 Pro / Galaxy Z Flip 6 기준 ===== */
+    @media (max-width: 780px){
+      body{
+        overflow-x:hidden;
+      }
 
       .wrap,
-      .top-lang-bar{
+      .top-lang-bar,
+      .subnav-wrap,
+      .music-bar-wrap{
         width:min(100% - 24px, 430px) !important;
         max-width:430px !important;
       }
@@ -402,7 +529,9 @@
         box-shadow:0 3px 8px rgba(255,95,165,0.06) !important;
       }
 
-      header{padding-top:0 !important;}
+      header{
+        padding-top:0 !important;
+      }
 
       .header-box{
         width:min(100% - 24px, 430px) !important;
@@ -414,7 +543,6 @@
         flex-direction:column !important;
         align-items:center !important;
         border-radius:24px !important;
-        flex-wrap:nowrap !important;
       }
 
       .logo{
@@ -453,10 +581,13 @@
       }
     }
 
-    @media (max-width:430px){
+    @media (max-width: 430px){
       .wrap,
       .top-lang-bar,
-      .header-box{
+      .subnav-wrap,
+      .music-bar-wrap,
+      .header-box,
+      .hero-banner{
         width:calc(100% - 22px) !important;
         max-width:none !important;
       }
@@ -466,15 +597,28 @@
         padding:14px 12px !important;
       }
 
-      .logo img{height:72px !important;}
-      nav{gap:6px !important;}
-      nav a{min-height:46px !important;}
+      .logo img{
+        height:72px !important;
+      }
+
+      nav{
+        gap:6px !important;
+      }
+
+      nav a{
+        min-height:46px !important;
+      }
     }
 
-    @media (max-width:374px){
+    @media (max-width: 374px){
       .wrap,
       .top-lang-bar,
-      .header-box{width:calc(100% - 18px) !important;}
+      .subnav-wrap,
+      .music-bar-wrap,
+      .header-box,
+      .hero-banner{
+        width:calc(100% - 18px) !important;
+      }
 
       .lang-switch a{
         min-width:31px !important;
@@ -482,21 +626,66 @@
         font-size:10px !important;
       }
 
-      .logo img{height:66px !important;}
-      nav a b{font-size:13px !important;}
-      nav a span{font-size:10.5px !important;}
+      .logo img{
+        height:66px !important;
+      }
+
+      nav a b{
+        font-size:13px !important;
+      }
+
+      nav a span{
+        font-size:10.5px !important;
+      }
     }
 
-    /* ===== INDEX MOBILE LOGO MENU TOGGLE : index.html 동작 이식 ===== */
-    @media (max-width:780px){
-      header nav{display:none !important;}
-      header.mobile-nav-open nav{display:grid !important;}
+    /* ===== MOBILE HOME PATCH v3 : logo toggle menu + centered music + compact lower cards ===== */
+    @media (max-width: 780px){
+      /* 로고 클릭 메뉴: 기본은 접힘 */
+      header nav{
+        display:none !important;
+      }
+
+      header.mobile-nav-open nav{
+        display:grid !important;
+      }
 
       .logo a{
         display:inline-flex !important;
         align-items:center !important;
         justify-content:center !important;
         -webkit-tap-highlight-color:transparent !important;
+      }
+
+      .logo a::after{
+        content:"MENU";
+        display:block;
+        margin-top:6px;
+        color:#d77ca7;
+        font-size:10px;
+        font-weight:900;
+        letter-spacing:.08em;
+        text-align:center;
+        opacity:.78;
+      }
+
+      header.mobile-nav-open .logo a::after{
+        content:"CLOSE";
+      }
+
+      .header-box{
+        padding-bottom:18px !important;
+      }
+
+      header:not(.mobile-nav-open) .header-box{
+        padding:16px 14px 18px !important;
+      }
+    }
+
+    /* ===== MOBILE HOME PATCH v4 : final first-pass refinements ===== */
+    @media (max-width: 780px){
+      /* MENU / CLOSE: 로고 오른쪽에 독립 액션처럼 보이게 */
+      .logo a{
         position:relative !important;
         width:100% !important;
         max-width:260px !important;
@@ -504,150 +693,64 @@
       }
 
       .logo a::after{
-        content:"MENU";
-        display:block;
         position:absolute !important;
         left:calc(50% + 70px) !important;
         top:50% !important;
         transform:translateY(-50%) !important;
         margin-top:0 !important;
-        color:#c989a9 !important;
         font-size:13px !important;
-        font-weight:900;
         line-height:1 !important;
         letter-spacing:.13em !important;
-        text-align:center;
         opacity:.82 !important;
+        color:#c989a9 !important;
         white-space:nowrap !important;
       }
 
-      header.mobile-nav-open .logo a::after{content:"CLOSE";}
-      .logo img{height:76px !important;}
-      .header-box{padding-bottom:18px !important;}
-      header:not(.mobile-nav-open) .header-box{padding:16px 14px 18px !important;}
-    }
-
-    @media (max-width:430px){
-      .logo a::after{
-        left:calc(50% + 64px) !important;
-        font-size:12.5px !important;
+      .logo img{
+        height:76px !important;
       }
     }
 
-    @media (max-width:374px){
-      .logo a::after{
-        left:calc(50% + 58px) !important;
-        font-size:12px !important;
-      }
-    }
-
-    /* ===== MEMBER MOBILE BODY : index 폭 기준에 맞춘 최소 보정 ===== */
+    /* ===== MEMBER PAGE MOBILE CONTENT : 헤더 통과 후 본문만 최소 보정 ===== */
     @media (max-width:780px){
-      .page-title{
-        margin:28px 0 18px !important;
-      }
-
-      .page-title h2{
-        font-size:44px !important;
-        line-height:.95 !important;
-      }
-
-      .page-title p{
-        font-size:14px !important;
-        margin-top:8px !important;
-      }
-
-      .member-grid{
-        grid-template-columns:1fr !important;
-        gap:16px !important;
-        margin-top:16px !important;
-        margin-bottom:40px !important;
-      }
-
-      .member-card,
-      .new-member-card{
-        border-radius:26px !important;
-      }
-
-      .member-card{
-        padding:9px 9px 15px !important;
-      }
-
-      .member-name-bar{
-        font-size:17px !important;
-        padding:12px 10px !important;
-        margin-bottom:10px !important;
-      }
-
-      .member-photo{
-        height:390px !important;
-        border-radius:22px !important;
-      }
-
-      .member-color-text{
-        font-size:13px !important;
-        line-height:1.45 !important;
-        margin:12px 4px 9px !important;
-      }
-
-      .member-meta{
-        gap:7px !important;
-        margin:0 4px 13px !important;
-      }
-
-      .member-meta div{
-        font-size:12.5px !important;
-        line-height:1.55 !important;
-        padding:9px 10px !important;
-        border-radius:15px !important;
-      }
-
-      .member-btn{
-        height:42px !important;
-        font-size:13px !important;
-        border-radius:999px !important;
-      }
-
-      .new-member-card{
-        min-height:250px !important;
-        padding:22px 18px !important;
-      }
-
-      .new-member-title{
-        font-size:31px !important;
-      }
-
-      .new-member-sub{
-        font-size:14px !important;
-        line-height:1.65 !important;
-      }
-
-      .new-member-note{
-        font-size:12.5px !important;
-        line-height:1.55 !important;
-      }
+      .page-title{margin:30px 0 18px !important;}
+      .page-title h2{font-size:42px !important;}
+      .page-title p{font-size:14px !important;}
+      .member-grid{grid-template-columns:1fr !important;gap:14px !important;margin-top:16px !important;margin-bottom:44px !important;}
+      .member-card,.new-member-card{border-radius:24px !important;}
+      .member-card{padding:9px 9px 15px !important;}
+      .member-name-bar{font-size:18px !important;padding:13px 10px !important;margin-bottom:11px !important;}
+      .member-photo{height:360px !important;border-radius:20px !important;}
+      .member-color-text{font-size:15px !important;line-height:1.65 !important;margin-bottom:14px !important;}
+      .member-meta{font-size:13.5px !important;line-height:1.7 !important;padding:0 13px !important;}
+      .member-btn{font-size:15px !important;padding:13px 16px !important;}
+      .new-member-card{min-height:280px !important;padding:28px 20px !important;}
+      .new-member-title{font-size:30px !important;}
+      .new-member-sub{font-size:14px !important;line-height:1.7 !important;}
+      .new-member-note{font-size:12.5px !important;}
     }
 
     @media (max-width:430px){
-      .member-photo{height:360px !important;}
-      .page-title h2{font-size:42px !important;}
+      .page-title h2{font-size:39px !important;}
+      .member-photo{height:342px !important;}
+      .member-meta{font-size:13px !important;}
     }
 
     @media (max-width:374px){
-      .member-photo{height:322px !important;}
-      .page-title h2{font-size:38px !important;}
-      .member-meta div{font-size:12px !important;}
+      .page-title h2{font-size:36px !important;}
+      .member-photo{height:315px !important;}
     }
+
   </style>
 </head>
 
 <body>
   <div class="top-lang-bar">
-    <div class="lang-switch">
-      <a href="index.html" class="active">KR</a>
-      <a href="en/index.html">EN</a>
-      <a href="jp/index.html">JP</a>
-      <a href="cn/index.html">CN</a>
+    <div class="lang-switch" aria-label="Language switcher">
+      <a href="index.html" class="active" data-lang-btn="ko">KR</a>
+      <a href="en/index.html" data-lang-btn="en">EN</a>
+      <a href="jp/index.html" data-lang-btn="ja">JP</a>
+      <a href="cn/index.html" data-lang-btn="zh">CN</a>
     </div>
   </div>
 
@@ -663,14 +766,14 @@
       </div>
 
       <nav>
-        <a href="index.html"><b>HOME</b><span>홈</span></a>
-        <a href="news.html"><b>NEWS</b><span>공지사항</span></a>
-        <a href="member.html" class="current"><b>MEMBER</b><span>멤버 소개</span></a>
-        <a href="schedule.html"><b>SCHEDULE</b><span>스케줄</span></a>
-        <a href="ticket/"><b>TICKET</b><span>예매</span></a>
-        <a href="goods/"><b>GOODS</b><span>굿즈</span></a>
-        <a href="setlist.html"><b>SETLIST</b><span>응원 가이드</span></a>
-        <a href="info.html"><b>INFO</b><span>안내</span></a>
+        <a href="index.html"><b>HOME</b><span data-i18n="nav.home">홈</span></a>
+        <a href="news.html"><b>NEWS</b><span data-i18n="nav.news">공지사항</span></a>
+        <a href="member.html" class="current"><b>MEMBER</b><span data-i18n="nav.member">멤버 소개</span></a>
+        <a href="schedule.html"><b>SCHEDULE</b><span data-i18n="nav.schedule">스케줄</span></a>
+        <a href="ticket/"><b>TICKET</b><span data-i18n="nav.ticket">예매</span></a>
+        <a href="goods/"><b>GOODS</b><span data-i18n="nav.goods">굿즈</span></a>
+        <a href="setlist.html"><b>SETLIST</b><span data-i18n="nav.setlist">응원 가이드</span></a>
+        <a href="info.html"><b>INFO</b><span data-i18n="nav.info">안내</span></a>
       </nav>
     </div>
   </header>
@@ -824,40 +927,6 @@
   </script>
 
 
-
-<script>
-  /* INDEX MOBILE LOGO MENU TOGGLE SCRIPT */
-  (function(){
-    const header = document.querySelector("header");
-    const logoLink = document.querySelector(".logo a");
-    const nav = document.querySelector("header nav");
-    if(!header || !logoLink || !nav) return;
-
-    if(!nav.id) nav.id = "mobileMainNav";
-    logoLink.setAttribute("aria-controls", nav.id);
-    logoLink.setAttribute("aria-expanded", "false");
-
-    function isMobile(){
-      return window.matchMedia("(max-width: 780px)").matches;
-    }
-
-    logoLink.addEventListener("click", function(event){
-      if(!isMobile()) return;
-      event.preventDefault();
-      const willOpen = !header.classList.contains("mobile-nav-open");
-      header.classList.toggle("mobile-nav-open", willOpen);
-      logoLink.setAttribute("aria-expanded", willOpen ? "true" : "false");
-    });
-
-    window.addEventListener("resize", function(){
-      if(!isMobile()){
-        header.classList.remove("mobile-nav-open");
-        logoLink.setAttribute("aria-expanded", "false");
-      }
-    });
-  })();
-</script>
-
 <script>
   window.LUMIBELLE_PAGE_I18N = {
     ko: {
@@ -993,6 +1062,40 @@
       });
     });
     window.applyLumibelleLanguage(getSavedLang());
+  })();
+</script>
+
+
+<script>
+  /* MOBILE LOGO MENU TOGGLE v3 */
+  (function(){
+    const header = document.querySelector("header");
+    const logoLink = document.querySelector(".logo a");
+    const nav = document.querySelector("header nav");
+    if(!header || !logoLink || !nav) return;
+
+    if(!nav.id) nav.id = "mobileMainNav";
+    logoLink.setAttribute("aria-controls", nav.id);
+    logoLink.setAttribute("aria-expanded", "false");
+
+    function isMobile(){
+      return window.matchMedia("(max-width: 780px)").matches;
+    }
+
+    logoLink.addEventListener("click", function(event){
+      if(!isMobile()) return;
+      event.preventDefault();
+      const willOpen = !header.classList.contains("mobile-nav-open");
+      header.classList.toggle("mobile-nav-open", willOpen);
+      logoLink.setAttribute("aria-expanded", willOpen ? "true" : "false");
+    });
+
+    window.addEventListener("resize", function(){
+      if(!isMobile()){
+        header.classList.remove("mobile-nav-open");
+        logoLink.setAttribute("aria-expanded", "false");
+      }
+    });
   })();
 </script>
 
