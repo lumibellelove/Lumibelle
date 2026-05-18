@@ -3015,9 +3015,9 @@ line-height:1.9 !important;
 
     const UI_TEXT = {
       ko:{sub:'스케줄', nav:{home:'홈',news:'공지사항',member:'멤버 소개',schedule:'스케줄',ticket:'예매',goods:'굿즈',setlist:'응원 가이드',info:'안내'}, weekdays:['SUN','MON','TUE','WED','THU','FRI','SAT'], more:'MORE SCHEDULE', close:'CLOSE', empty:'날짜를 선택하면 상세 일정이 보여집니다.', none:'해당 날짜에는 등록된 일정이 없습니다.', noItems:'등록된 스케줄이 없습니다.', coming:'추후 안내', ticket:'TICKET', detail:'DETAIL'},
-      ja:{sub:'スケジュール', nav:{home:'ホーム',news:'お知らせ',member:'メンバー紹介',schedule:'スケジュール',ticket:'チケット',goods:'グッズ',setlist:'応援ガイド',info:'ご案内'}, weekdays:['日','月','火','水','木','金','土'], more:'MORE SCHEDULE', close:'CLOSE', empty:'日付を選択すると詳細スケジュールが表示されます。', none:'この日付には登録されたスケジュールがありません。', noItems:'登録されたスケジュールがありません。', coming:'後日案内', ticket:'TICKET', detail:'DETAIL'},
-      en:{sub:'Schedule', nav:{home:'Home',news:'Notice',member:'Member',schedule:'Schedule',ticket:'Ticket',goods:'Goods',setlist:'Fan Guide',info:'Info'}, weekdays:['SUN','MON','TUE','WED','THU','FRI','SAT'], more:'MORE SCHEDULE', close:'CLOSE', empty:'Select a date to view schedule details.', none:'No schedule is registered for this date.', noItems:'No schedules found.', coming:'Coming Soon', ticket:'TICKET', detail:'DETAIL'},
-      zh:{sub:'日程', nav:{home:'首页',news:'公告',member:'成员介绍',schedule:'日程',ticket:'购票',goods:'周边',setlist:'应援指南',info:'指南'}, weekdays:['日','一','二','三','四','五','六'], more:'MORE SCHEDULE', close:'CLOSE', empty:'选择日期后将显示详细日程。', none:'该日期没有已登记的日程。', noItems:'暂无日程。', coming:'稍后公告', ticket:'TICKET', detail:'DETAIL'}
+      ja:{sub:'スケジュール', nav:{home:'ホーム',news:'お知らせ',member:'メンバー',schedule:'スケジュール',ticket:'チケット',goods:'グッズ',setlist:'応援ガイド',info:'案内'}, weekdays:['日','月','火','水','木','金','土'], more:'MORE SCHEDULE', close:'CLOSE', empty:'日付を選択すると詳細スケジュールが表示されます。', none:'この日付には登録されたスケジュールがありません。', noItems:'登録されたスケジュールがありません。', coming:'後日案内', ticket:'TICKET', detail:'DETAIL'},
+      en:{sub:'Schedule', nav:{home:'Home',news:'News',member:'Members',schedule:'Schedule',ticket:'Tickets',goods:'Goods',setlist:'Fan Guide',info:'Info'}, weekdays:['SUN','MON','TUE','WED','THU','FRI','SAT'], more:'MORE SCHEDULE', close:'CLOSE', empty:'Select a date to view schedule details.', none:'No schedule is registered for this date.', noItems:'No schedules found.', coming:'Coming Soon', ticket:'TICKET', detail:'DETAIL'},
+      zh:{sub:'日程', nav:{home:'首页',news:'公告',member:'成员介绍',schedule:'日程',ticket:'预约',goods:'周边',setlist:'应援指南',info:'说明'}, weekdays:['日','一','二','三','四','五','六'], more:'MORE SCHEDULE', close:'CLOSE', empty:'选择日期后将显示详细日程。', none:'该日期没有已登记的日程。', noItems:'暂无日程。', coming:'稍后公告', ticket:'TICKET', detail:'DETAIL'}
     };
 
     function normalizeLang(lang){
@@ -3029,7 +3029,7 @@ line-height:1.9 !important;
     function currentLangFromUrl(){
       let saved = '';
       try{
-        saved = localStorage.getItem('lumibelle.home.lang') || localStorage.getItem('lumibelleCurrentLang') || localStorage.getItem('lumibelleHomeLang') || '';
+        saved = localStorage.getItem('lumibelle.home.lang') || localStorage.getItem('lumibelleHomeLang') || '';
       }catch(e){}
       return normalizeLang(new URLSearchParams(location.search).get('lang') || saved || 'ko');
     }
@@ -3191,7 +3191,6 @@ line-height:1.9 !important;
       const t = UI_TEXT[currentLang] || UI_TEXT.ko;
       try{
         localStorage.setItem('lumibelle.home.lang', currentLang);
-        localStorage.setItem('lumibelleCurrentLang', currentLang);
         localStorage.setItem('lumibelleHomeLang', currentLang);
       }catch(e){}
       document.querySelectorAll('.lang-switch a').forEach(a => {
