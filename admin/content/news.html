@@ -956,10 +956,8 @@ input:focus,select:focus,textarea:focus{border-color:#f4a4ca;box-shadow:0 0 0 4p
           </section>
           <section class="side-box" id="newsTranslateBox">
             <h3>자동번역</h3>
-            <label style="font-size:12px;color:#b28ea2;font-weight:900;display:block;margin:0 0 6px;">Apps Script URL
-              <input id="newsTranslateScriptUrl" type="text" placeholder="https://script.google.com/macros/s/.../exec" style="font-size:11px;font-weight:700;">
-            </label>
-            <button type="button" class="btn sub" style="width:100%;margin-top:4px;" onclick="runNewsAutoTranslate()">번역 실행 (日·EN·中)</button>
+            <p style="font-size:13px;color:#b28ea2;margin:0 0 12px;line-height:1.6;">제목과 본문을 日本語 / English / 中文으로 번역합니다.</p>
+            <button type="button" class="btn sub" style="width:100%;" onclick="runNewsAutoTranslate()">번역 실행 (日·EN·中)</button>
             <div id="newsTranslateStatus" style="margin-top:10px;font-size:13px;color:#b28ea2;min-height:18px;"></div>
             <div id="newsTranslatePreview" hidden style="margin-top:12px;border-top:1px solid #f2d8e7;padding-top:10px;display:flex;flex-direction:column;gap:8px;"></div>
           </section>
@@ -4660,15 +4658,20 @@ window._newsTranslations = null;
 async function runNewsAutoTranslate(){
   const titleEl = document.getElementById('newsTitle');
   const editorEl = document.getElementById('newsBodyEditor');
-  const urlEl = document.getElementById('newsTranslateScriptUrl');
 
   if(!titleEl || !titleEl.value.trim()){
     setTranslateStatus('⚠ 제목을 먼저 입력해 주세요.', '#e07070'); return;
   }
-  const scriptUrl = (urlEl?.value||'').trim() ||
-    (window.LumiContentSync?._url) || '';
+
+  // LumiContentSync 객체에서 API 주소를 자동으로 탐색
+  const lcs = window.LumiContentSync;
+  const scriptUrl = (
+    (lcs && (lcs._url || lcs.scriptUrl || lcs.endpoint || lcs._endpoint ||
+             (lcs.config && (lcs.config.url || lcs.config.scriptUrl || lcs.config.endpoint)))) ||
+    window.LUMI_SCRIPT_URL || window.SCRIPT_URL || ''
+  );
   if(!scriptUrl){
-    setTranslateStatus('⚠ Apps Script URL을 입력해 주세요.', '#e07070'); return;
+    setTranslateStatus('✗ API 주소를 찾을 수 없습니다.', '#e07070'); return;
   }
 
   const title = titleEl.value.trim();
