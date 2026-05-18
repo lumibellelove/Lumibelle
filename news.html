@@ -3225,7 +3225,14 @@ line-height:1.9 !important;
     var UI_TEXT = {
       ko: {
         subtitle:   '공지사항',
+        navHome:    '홈',
         navNews:    '공지사항',
+        navMember:  '멤버 소개',
+        navSchedule:'스케줄',
+        navTicket:  '예매',
+        navGoods:   '굿즈',
+        navSetlist: '응원 가이드',
+        navInfo:    '안내',
         filterAll:  '전체',
         filterLive: '라이브',
         filterInfo: '공지',
@@ -3238,7 +3245,14 @@ line-height:1.9 !important;
       },
       ja: {
         subtitle:   'お知らせ',
+        navHome:    'ホーム',
         navNews:    'お知らせ',
+        navMember:  'メンバー紹介',
+        navSchedule:'スケジュール',
+        navTicket:  'チケット',
+        navGoods:   'グッズ',
+        navSetlist: '応援ガイド',
+        navInfo:    'ご案内',
         filterAll:  'すべて',
         filterLive: 'ライブ',
         filterInfo: '公告',
@@ -3251,7 +3265,14 @@ line-height:1.9 !important;
       },
       en: {
         subtitle:   'Notice',
+        navHome:    'Home',
         navNews:    'Notice',
+        navMember:  'Member',
+        navSchedule:'Schedule',
+        navTicket:  'Ticket',
+        navGoods:   'Goods',
+        navSetlist: 'Fan Guide',
+        navInfo:    'Info',
         filterAll:  'All',
         filterLive: 'Live',
         filterInfo: 'Notice',
@@ -3264,7 +3285,14 @@ line-height:1.9 !important;
       },
       zh: {
         subtitle:   '公告',
+        navHome:    '首页',
         navNews:    '公告',
+        navMember:  '成员介绍',
+        navSchedule:'日程',
+        navTicket:  '购票',
+        navGoods:   '周边',
+        navSetlist: '应援指南',
+        navInfo:    '指南',
         filterAll:  '全部',
         filterLive: '直播',
         filterInfo: '通知',
@@ -3282,15 +3310,29 @@ line-height:1.9 !important;
       return l[key] !== undefined ? l[key] : (UI_TEXT.ko[key] || '');
     }
 
+    /* nav 메뉴 선택자 → UI_TEXT 키 매핑 */
+    var NAV_MAP = [
+      ['nav a[href="index.html"] span',    'navHome'],
+      ['nav a[href="news.html"] span',     'navNews'],
+      ['nav a[href="member.html"] span',   'navMember'],
+      ['nav a[href="schedule.html"] span', 'navSchedule'],
+      ['nav a[href="ticket/"] span',       'navTicket'],
+      ['nav a[href="goods/"] span',        'navGoods'],
+      ['nav a[href="setlist.html"] span',  'navSetlist'],
+      ['nav a[href="info.html"] span',     'navInfo']
+    ];
+
     /* ── 고정 UI 문구 일괄 적용 ── */
     function applyUiText(lang){
       /* subtitle */
       var sub = document.getElementById('newsSubtitle');
       if(sub) sub.textContent = t(lang, 'subtitle');
 
-      /* nav NEWS 보조문구 */
-      var navNews = document.querySelector('nav a[href="news.html"] span');
-      if(navNews) navNews.textContent = t(lang, 'navNews');
+      /* nav 보조문구 전체 */
+      NAV_MAP.forEach(function(entry){
+        var el = document.querySelector(entry[0]);
+        if(el) el.textContent = t(lang, entry[1]);
+      });
 
       /* 필터 버튼 */
       var filterMap = {
@@ -3352,6 +3394,12 @@ line-height:1.9 !important;
     /* ── 목록 필터링 ── */
     function filteredItems(){
       var rows = allItems.slice();
+      /* ja/en/zh에서는 API가 ko fallback을 섞어 반환하므로 해당 lang 행만 표시 */
+      if(currentLang !== 'ko'){
+        rows = rows.filter(function(n){
+          return LumiNewsSync.normalizeLang(n.lang || 'ko') === currentLang;
+        });
+      }
       if(currentFilter !== '전체'){
         rows = rows.filter(function(n){ return n.category === currentFilter; });
       }

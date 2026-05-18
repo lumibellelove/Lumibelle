@@ -479,7 +479,11 @@
     if(n && n.id === 'NEWS-20260712-001'){
       href = n.link || 'news-debut.html';
     }else{
-      href = (n && n.link) ? n.link : ('news-detail.html?id=' + encodeURIComponent(n && n.id || ''));
+      /* group(=translationGroupId) 기준 링크를 생성해야 언어 전환이 정상 동작함.
+         번역 행의 id는 NEWS-YYYYMMDD-NNN-JA 처럼 lang suffix가 붙으므로
+         ?id=를 그대로 쓰면 다른 lang으로 전환 시 글을 찾지 못함. */
+      const groupId = (n && n.translationGroupId) || (n && n.id) || '';
+      href = 'news-detail.html?group=' + encodeURIComponent(groupId);
     }
     return addLangToUrl(href, lang);
   }
