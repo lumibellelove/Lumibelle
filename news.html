@@ -3366,15 +3366,6 @@ line-height:1.9 !important;
     var searchEl  = document.getElementById('newsSearchInput');
     var filterBtns = document.querySelectorAll('#newsCategoryFilters [data-filter]');
 
-    function setQuietEmpty(){
-      listEl.innerHTML = '';
-      pagerEl.hidden = true;
-    }
-
-    function getSameLangCache(){
-      return LumiNewsSync.publicNews(currentLang) || [];
-    }
-
     /* ── 언어 버튼 href / active 동기화 ── */
     function updateLangButtons(){
       document.querySelectorAll('.lang-switch [data-lang-btn]').forEach(function(btn){
@@ -3495,23 +3486,24 @@ line-height:1.9 !important;
       updateLangButtons();
       applyUiText(currentLang);
       currentPage = 1;
-
-      allItems = getSameLangCache();
-      if(allItems.length){
+      /* stale-while-revalidate:
+         전환 대상 lang의 캐시가 있으면 즉시 보여주고 백그라운드 갱신.
+         캐시 없으면 이전 목록을 지우지 않고 API 응답 오면 교체. */
+      var cached = LumiNewsSync.publicNewsByLang(currentLang);
+      if(cached.length){
+        allItems = cached;
         renderList();
-      }else{
-        setQuietEmpty();
       }
-
       LumiNewsSync.loadPublicNews(currentLang)
         .then(function(items){
           allItems = items || [];
           renderList();
         })
         .catch(function(){
-          allItems = getSameLangCache();
-          if(allItems.length) renderList();
-          else renderList();
+          if(!cached.length){
+            allItems = LumiNewsSync.publicNews(currentLang) || [];
+            renderList();
+          }
         });
     }
 
@@ -3544,7 +3536,7 @@ line-height:1.9 !important;
 
     /* ── lumi-news-updated (lumi-content-sync.js가 fetch 완료 후 발행) ── */
     window.addEventListener('lumi-news-updated', function(){
-      allItems = getSameLangCache();
+      allItems = LumiNewsSync.publicNews(currentLang) || [];
       renderList();
     });
 
@@ -3554,25 +3546,36 @@ line-height:1.9 !important;
     updateLangButtons();
     updateFilterButtons();
 
-    /* 현재 언어와 같은 캐시만 먼저 표시한다.
-       다른 언어 캐시(특히 ko)를 먼저 보여주지 않는다. */
-    allItems = getSameLangCache();
-    if(allItems.length){
+    /*
+     * stale-while-revalidate 초기화 전략:
+     * 1) currentLang 캐시가 localStorage에 있으면 즉시 렌더 (깜박임 없음)
+     * 2) 동시에 또는 이후에 lumi-content-sync.js가 API를 호출
+     * 3) 'lumi-news-updated' 이벤트 수신 시 새 데이터로 조용히 교체
+     *
+     * 외국어 lang 진입 시 ko 캐시를 보여주는 현상 방지:
+     * publicNewsByLang(currentLang) 으로 해당 lang 캐시만 읽음.
+     * 해당 lang 캐시가 없으면 빈 상태로 두고 API 응답을 기다림.
+     */
+    var initCached = LumiNewsSync.publicNewsByLang(currentLang);
+    if(initCached.length){
+      allItems = initCached;
       renderList();
-    }else{
-      setQuietEmpty();
+      /* 캐시가 있어도 백그라운드에서 최신 데이터 갱신
+         (lumi-news-updated 이벤트로 자동 처리되므로 별도 호출 불필요) */
     }
-
-    LumiNewsSync.loadPublicNews(currentLang)
-      .then(function(items){
-        allItems = items || [];
-        renderList();
-      })
-      .catch(function(){
-        allItems = getSameLangCache();
-        if(allItems.length) renderList();
-        else renderList();
-      });
+    /* lang 불일치(URL lang ≠ sync initLang)이면 해당 lang API 호출 */
+    var syncLang = LumiNewsSync.getCurrentLang();
+    if(syncLang !== currentLang){
+      LumiNewsSync.loadPublicNews(currentLang)
+        .then(function(items){
+          allItems = items || [];
+          renderList();
+        })
+        .catch(function(){
+          allItems = LumiNewsSync.publicNews(currentLang) || [];
+          if(allItems.length) renderList();
+        });
+    }
   })();
   </script>
 

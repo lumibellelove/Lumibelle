@@ -3236,7 +3236,7 @@ line-height:1.9 !important;
           navSetlist:     '응원 가이드',
           navInfo:        '안내',
           backToNews:     'BACK TO NEWS',
-          loading:        '',
+          loading:        '공지사항을 불러오고 있습니다.',
           notFound:       '등록된 공지사항이 없습니다.',
           notFoundBody:   '관리자 페이지에서 공개된 NEWS를 등록해 주세요.'
         },
@@ -3251,7 +3251,7 @@ line-height:1.9 !important;
           navSetlist:     '応援ガイド',
           navInfo:        'ご案内',
           backToNews:     'ニュース一覧へ',
-          loading:        '',
+          loading:        '読み込み中です…',
           notFound:       'お知らせが登録されていません。',
           notFoundBody:   '管理者ページで公開済みのNEWSを登録してください。'
         },
@@ -3266,7 +3266,7 @@ line-height:1.9 !important;
           navSetlist:     'Fan Guide',
           navInfo:        'Info',
           backToNews:     'BACK TO NEWS',
-          loading:        '',
+          loading:        'Loading…',
           notFound:       'No news found.',
           notFoundBody:   'Please register public NEWS from the admin page.'
         },
@@ -3281,7 +3281,7 @@ line-height:1.9 !important;
           navSetlist:     '应援指南',
           navInfo:        '指南',
           backToNews:     '返回新闻',
-          loading:        '',
+          loading:        '正在加载中…',
           notFound:       '暂无公告。',
           notFoundBody:   '请在管理页面发布公开的NEWS。'
         }
@@ -3432,15 +3432,12 @@ line-height:1.9 !important;
       }
 
       function showWaiting(){
-        /* stale-while-revalidate: 기존 화면을 비우지 않고 대표 이미지만 안전하게 숨김 */
-        if(!titleEl.textContent || titleEl.textContent === 'NEWS') titleEl.textContent = 'NEWS';
+        titleEl.textContent = 'NEWS';
+        bodyEl.hidden = false;
+        bodyEl.textContent = t(currentLang, 'loading');
         heroEl.hidden = true;
-        heroEl.removeAttribute('src');
-        heroEl.alt = '';
         infoEl.hidden = true;
-        if(!buttonsEl.innerHTML){
-          buttonsEl.innerHTML = '<a class="news-action-btn sub" href="news.html?lang=' + encodeURIComponent(currentLang) + '">' + t(currentLang, 'backToNews') + '</a>';
-        }
+        buttonsEl.innerHTML = '<a class="news-action-btn sub" href="news.html?lang=' + encodeURIComponent(currentLang) + '">' + t(currentLang, 'backToNews') + '</a>';
       }
 
       function showNotFound(){
@@ -3462,17 +3459,22 @@ line-height:1.9 !important;
         const rows = LumiNewsSync.publicNews();
         /* 우선순위:
            1) currentGroupId + currentLang 정확 매칭
-           2) group이 없는 구형 진입일 때만 id 직접 매칭
-           3) group/id 모두 없으면 첫 번째 글
-           ※ 다른 언어 fallback을 섞지 않아야 JP/EN/CN 전환 시 잘못된 행이 표시되지 않음 */
+           2) currentGroupId만 매칭 (lang 무관 fallback)
+           3) id 직접 매칭 (구형 ?id= 링크 호환)
+           4) group 없고 id 없으면 첫 번째 글 */
         let news;
         if(currentGroupId){
           news = rows.find(function(n){
             return (n.translationGroupId || n.id) === currentGroupId
               && LumiNewsSync.normalizeLang(n.lang || 'ko') === currentLang;
           });
+          if(!news){
+            news = rows.find(function(n){
+              return (n.translationGroupId || n.id) === currentGroupId;
+            });
+          }
         }
-        if(!news && !currentGroupId && id){
+        if(!news && id){
           news = rows.find(function(n){ return n.id === id; });
         }
         if(!news && !currentGroupId && !id){
@@ -3567,8 +3569,18 @@ line-height:1.9 !important;
         setDetailUrlLang(currentLang);
         updateDetailLangButtons();
         applyUiText(currentLang);
-        /* stale-while-revalidate: 화면을 먼저 비우지 않고 백그라운드에서 갱신 */
-        LumiNewsSync.loadPublicNews(currentLang).then(function(){ renderNewsDetail(true); }).catch(function(){ renderNewsDetail(true); });
+        /* stale-while-revalidate:
+           해당 lang 캐시가 있으면 즉시 렌더. 없으면 showWaiting으로 대기.
+           어느 경우든 API를 호출해 최신 데이터로 갱신. */
+        var cached = LumiNewsSync.publicNewsByLang(currentLang);
+        if(cached.length){
+          renderNewsDetail(true);   /* 캐시 기반 즉시 렌더 */
+        } else {
+          showWaiting();            /* 캐시 없을 때만 대기 화면 */
+        }
+        LumiNewsSync.loadPublicNews(currentLang)
+          .then(function(){ renderNewsDetail(true); })
+          .catch(function(){ renderNewsDetail(true); });
       }
 
       document.querySelectorAll('.lang-switch [data-lang-btn]').forEach(function(btn){
