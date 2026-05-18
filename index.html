@@ -5232,27 +5232,10 @@ line-height:1.9 !important;
             <p data-i18n="section.schedule">스케줄</p>
           </div>
 
-          <div class="schedule-list">
-            <div class="schedule-item">
-              <div class="schedule-date">07.12(土)</div>
-              <div class="schedule-place" data-i18n="schedule.place1">상상마당@홍대</div>
-              <div class="schedule-title" data-i18n="schedule.title1">루미벨 데뷔라이브</div>
-              <a class="ticket-btn"
-   href="ticket/">
-   TICKET
-</a>
-            </div>
-
-            <div class="schedule-item">
-              <div class="schedule-date">10.18(日)</div>
-              <div class="schedule-place" data-i18n="schedule.place2">빅 이벤트</div>
-              <div class="schedule-title" data-i18n="schedule.title2">라이브 예정</div>
-              <div class="ticket-btn coming-soon">COMING SOON</div>
-            </div>
-          </div>
+          <div class="schedule-list" id="homeScheduleList"></div>
 
           <div class="home-card-foot">
-            <a href="schedule.html" class="more-btn" data-i18n="more.schedule">스케줄 더보기</a>
+            <a href="schedule.html" class="more-btn" id="homeScheduleMore" data-i18n="more.schedule">스케줄 더보기</a>
           </div>
         </div>
       </section>
@@ -5658,6 +5641,211 @@ line-height:1.9 !important;
           renderHomeNews(initHomeLang);
         });
       }
+    })();
+  </script>
+
+  <script>
+    (function(){
+      const list = document.getElementById('homeScheduleList');
+      const moreLink = document.getElementById('homeScheduleMore');
+      if(!list) return;
+
+      const API_URL = 'https://lumi-news-api.lumibelle-love.workers.dev';
+      const CACHE_KEY_PREFIX = 'lumibelle_home_schedule_';
+      const validLangs = ['ko','ja','en','zh'];
+      const loadedByLang = {ko:false, ja:false, en:false, zh:false};
+      let activeRequestSeq = 0;
+
+      function normalizeLang(lang){
+        lang = String(lang || 'ko').toLowerCase();
+        if(lang === 'jp') return 'ja';
+        if(lang === 'cn' || lang === 'zh-cn' || lang === 'zh_hans') return 'zh';
+        return validLangs.indexOf(lang) !== -1 ? lang : 'ko';
+      }
+
+      function currentLang(){
+        return normalizeLang((window.LumibelleHomeI18n ? LumibelleHomeI18n.current() : null) || window.LUMI_HOME_LANG || 'ko');
+      }
+
+      function htmlEscape(value){
+        return String(value == null ? '' : value).replace(/[&<>"]/g, function(ch){
+          return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch];
+        });
+      }
+
+      function normalizeDate(value){
+        const text = String(value || '').trim();
+        if(/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
+        const parsed = Date.parse(text);
+        if(!isNaN(parsed)){
+          const d = new Date(parsed);
+          const y = d.getFullYear();
+          const m = String(d.getMonth()+1).padStart(2,'0');
+          const day = String(d.getDate()).padStart(2,'0');
+          return y + '-' + m + '-' + day;
+        }
+        return text;
+      }
+
+      function toBool(value){
+        if(value === true) return true;
+        if(value === false) return false;
+        const text = String(value || '').toLowerCase();
+        return text === 'true' || text === '1' || text === 'yes' || text === 'y';
+      }
+
+      function weekdayLabel(dateText, lang){
+        const d = new Date(dateText + 'T00:00:00');
+        if(isNaN(d.getTime())) return '';
+        const idx = d.getDay();
+        const labels = {
+          ko:['일','월','화','수','목','금','토'],
+          ja:['日','月','火','水','木','金','土'],
+          en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+          zh:['日','一','二','三','四','五','六']
+        };
+        return (labels[lang] || labels.ko)[idx] || '';
+      }
+
+      function formatDateCompact(dateText, lang){
+        dateText = normalizeDate(dateText);
+        const m = dateText.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if(!m) return dateText;
+        return m[2] + '.' + m[3] + '(' + weekdayLabel(dateText, lang) + ')';
+      }
+
+      function normalizeItem(item){
+        item = item || {};
+        const lang = normalizeLang(item.lang || 'ko');
+        return {
+          id:String(item.id || ''),
+          date:normalizeDate(item.date),
+          time:String(item.time || ''),
+          title:String(item.title || ''),
+          venue:String(item.venue || ''),
+          badge:String(item.badge || ''),
+          ticketUrl:String(item.ticketUrl || ''),
+          detailUrl:String(item.detailUrl || ''),
+          status:String(item.status || ''),
+          isHome:toBool(item.isHome),
+          isPinned:toBool(item.isPinned),
+          showInCalendar:toBool(item.showInCalendar),
+          sortOrder:Number(item.sortOrder || 0),
+          lang:lang
+        };
+      }
+
+      function readCache(lang){
+        lang = normalizeLang(lang);
+        try{
+          const raw = localStorage.getItem(CACHE_KEY_PREFIX + lang);
+          if(!raw) return [];
+          const rows = JSON.parse(raw);
+          if(!Array.isArray(rows)) return [];
+          return rows.map(normalizeItem).filter(function(item){ return item.lang === lang; });
+        }catch(e){ return []; }
+      }
+
+      function writeCache(lang, rows){
+        lang = normalizeLang(lang);
+        const clean = (Array.isArray(rows) ? rows : []).map(normalizeItem).filter(function(item){ return item.lang === lang; });
+        try{ localStorage.setItem(CACHE_KEY_PREFIX + lang, JSON.stringify(clean)); }catch(e){}
+        return clean;
+      }
+
+      function sortRows(rows){
+        return rows.slice().sort(function(a,b){
+          if(a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
+          const da = a.date || '';
+          const db = b.date || '';
+          if(da !== db) return da < db ? -1 : 1;
+          const ta = a.time || '';
+          const tb = b.time || '';
+          if(ta !== tb) return ta < tb ? -1 : 1;
+          return Number(a.sortOrder || 0) - Number(b.sortOrder || 0);
+        });
+      }
+
+      function renderHomeSchedule(rows, snapLang, options){
+        const lang = currentLang();
+        if(snapLang && normalizeLang(snapLang) !== lang) return;
+        options = options || {};
+        rows = sortRows((Array.isArray(rows) ? rows : []).map(normalizeItem).filter(function(item){
+          return item.lang === lang && item.status === 'public' && item.isHome !== false;
+        })).slice(0, 2);
+
+        if(moreLink){
+          moreLink.href = 'schedule.html?lang=' + encodeURIComponent(lang);
+        }
+
+        if(!rows.length){
+          if(options.silent){
+            list.innerHTML = '';
+            return;
+          }
+          const emptyText = window.LumibelleHomeI18n
+            ? LumibelleHomeI18n.t('section.schedule')
+            : '스케줄';
+          list.innerHTML = '<div class="news-empty">' + htmlEscape(emptyText) + '</div>';
+          return;
+        }
+
+        list.innerHTML = rows.map(function(item){
+          const ticketUrl = item.ticketUrl || '';
+          const button = ticketUrl
+            ? '<a class="ticket-btn" href="' + htmlEscape(ticketUrl) + '">TICKET</a>'
+            : '<div class="ticket-btn coming-soon">COMING SOON</div>';
+          return '<div class="schedule-item">'
+            + '<div class="schedule-date">' + htmlEscape(formatDateCompact(item.date, lang)) + '</div>'
+            + '<div class="schedule-place">' + htmlEscape(item.venue || '-') + '</div>'
+            + '<div class="schedule-title">' + htmlEscape(item.title || '-') + '</div>'
+            + button
+            + '</div>';
+        }).join('');
+      }
+
+      function fetchSchedule(lang){
+        lang = normalizeLang(lang);
+        const requestLang = lang;
+        const seq = ++activeRequestSeq;
+        const url = API_URL
+          + '?action=publicListScheduleItems&payload='
+          + encodeURIComponent(JSON.stringify({lang: requestLang}));
+        return fetch(url, {cache:'no-store'})
+          .then(function(res){ return res.json(); })
+          .then(function(json){
+            if(seq !== activeRequestSeq) return [];
+            if(currentLang() !== requestLang) return [];
+            const rows = writeCache(requestLang, json && json.ok ? (json.items || []) : []);
+            loadedByLang[requestLang] = true;
+            renderHomeSchedule(rows, requestLang, {silent:false});
+            return rows;
+          })
+          .catch(function(){
+            if(currentLang() === requestLang){
+              renderHomeSchedule(readCache(requestLang), requestLang, {silent:false});
+            }
+            return [];
+          });
+      }
+
+      function loadForLang(lang){
+        lang = normalizeLang(lang);
+        const cached = readCache(lang);
+        if(cached.length){
+          renderHomeSchedule(cached, lang, {silent:false});
+        }else{
+          renderHomeSchedule([], lang, {silent:true});
+        }
+        fetchSchedule(lang);
+      }
+
+      window.addEventListener('lumibelle-home-lang-changed', function(e){
+        const lang = normalizeLang((e.detail && e.detail.lang) || currentLang());
+        loadForLang(lang);
+      });
+
+      loadForLang(currentLang());
     })();
   </script>
 
