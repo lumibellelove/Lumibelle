@@ -82,6 +82,8 @@
       sortOrder: Number(item.sortOrder || 0),
       lang: String(item.lang || 'ko'),
       translationGroupId: String(item.translationGroupId || item.id || ''),
+      translations: item.translations || {},
+      translationStatus: item.translationStatus || {},
       deletedAt: String(item.deletedAt || '')
     };
   }
@@ -117,6 +119,8 @@
       sortOrder: row.sortOrder || 0,
       lang: row.lang || 'ko',
       translationGroupId: row.translationGroupId || row.id || '',
+      translations: row.translations || {},
+      translationStatus: row.translationStatus || {},
       createdBy: row.createdBy || 'admin',
       updatedBy: row.updatedBy || 'admin'
     };
