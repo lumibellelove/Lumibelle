@@ -125,16 +125,19 @@
 
 
 
-/* ===== MOBILE PAGE OPTIMIZATION v1 : iPhone 17 Pro / Galaxy Z Flip 6 기준 ===== */
+/* ===== MOBILE PUBLIC PAGE REBASE v2 : use index.html mobile header/width baseline ===== */
 @media (max-width: 780px){
-  body{ overflow-x:hidden; }
+  html, body{ overflow-x:hidden !important; }
 
+  .wrap,
   .top-lang-bar,
+  .subnav-wrap,
+  .music-bar-wrap,
   header .wrap.header-box,
-  main.page-shell > .wrap,
-  .page-shell > .wrap{
-    width:min(100% - 24px, 430px) !important;
-    max-width:430px !important;
+  .header-box{
+    width:calc(100% - 22px) !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
   }
 
   .top-lang-bar{
@@ -144,288 +147,301 @@
   }
 
   .lang-switch{
-    gap:7px !important;
-    padding-right:0 !important;
+    gap:6px !important;
+    flex-wrap:wrap !important;
+    justify-content:center !important;
   }
 
   .lang-switch a{
-    min-width:34px !important;
-    height:32px !important;
-    padding:0 8px !important;
+    min-width:42px !important;
+    height:30px !important;
+    padding:0 10px !important;
     font-size:11px !important;
-    transform:none !important;
-  }
-
-  header{
-    padding-top:0 !important;
+    line-height:30px !important;
   }
 
   header .wrap.header-box,
   .header-box{
-    margin:12px auto 12px !important;
-    padding:14px 12px !important;
-    min-height:0 !important;
-    gap:12px !important;
+    margin:10px auto 0 !important;
+    padding:16px 14px 18px !important;
+    min-height:auto !important;
     flex-direction:column !important;
     align-items:center !important;
-    border-radius:24px !important;
+    justify-content:center !important;
+    gap:0 !important;
+    border-radius:28px !important;
   }
 
   .logo{
     width:100% !important;
+    min-width:0 !important;
     justify-content:center !important;
+    text-align:center !important;
+  }
+
+  .logo a{
+    position:relative !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:100% !important;
+    max-width:260px !important;
+    margin:0 auto !important;
+    -webkit-tap-highlight-color:transparent !important;
+  }
+
+  .logo a::after{
+    content:"MENU";
+    position:absolute !important;
+    left:calc(50% + 70px) !important;
+    top:50% !important;
+    transform:translateY(-50%) !important;
+    color:#c989a9 !important;
+    font-size:13px !important;
+    line-height:1 !important;
+    font-weight:900 !important;
+    letter-spacing:.13em !important;
+    text-align:center !important;
+    opacity:.82 !important;
+    white-space:nowrap !important;
+  }
+
+  header.mobile-nav-open .logo a::after{
+    content:"CLOSE";
   }
 
   .logo img{
-    height:72px !important;
+    height:76px !important;
     width:auto !important;
-    max-width:190px !important;
-    margin:0 auto !important;
-    object-fit:contain !important;
+    max-width:100% !important;
+    display:block !important;
   }
 
-  nav{
+  header nav{
+    display:none !important;
+  }
+
+  header.mobile-nav-open nav{
+    display:grid !important;
     width:100% !important;
-    grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
-    gap:6px !important;
-    margin:0 !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:8px !important;
+    margin-top:14px !important;
   }
 
   nav a{
     min-height:46px !important;
-    padding:8px 4px !important;
+    padding:9px 8px !important;
     border-radius:16px !important;
   }
 
   nav a b{
-    font-size:14px !important;
+    font-size:15px !important;
     line-height:1.05 !important;
   }
 
   nav a span{
     margin-top:4px !important;
     font-size:11.5px !important;
-    line-height:1.15 !important;
+    line-height:1.2 !important;
   }
 
-  main.page-shell,
   .page-shell{
-    padding:18px 0 44px !important;
+    padding:22px 0 44px !important;
   }
 
-  .page-title{
-    margin:26px 0 16px !important;
+  .page-title,
+  .page-title.reveal{
+    margin:32px 0 18px !important;
+    text-align:center !important;
   }
 
   .page-title h2{
     font-size:42px !important;
     line-height:.95 !important;
-    letter-spacing:-.04em !important;
+    letter-spacing:.02em !important;
   }
 
   .page-title p{
     margin-top:8px !important;
-    font-size:13px !important;
-    line-height:1.55 !important;
+    font-size:14px !important;
+    line-height:1.5 !important;
     word-break:keep-all !important;
   }
+
+  .back-to-top{
+    width:60px !important;
+    height:60px !important;
+    right:14px !important;
+    bottom:18px !important;
+  }
+
+  .back-to-top .top-arrow,
+  .top-arrow{ font-size:24px !important; }
+  .back-to-top .top-label,
+  .top-label{ font-size:9px !important; }
 }
 
 @media (max-width: 430px){
+  .wrap,
   .top-lang-bar,
+  .subnav-wrap,
+  .music-bar-wrap,
   header .wrap.header-box,
-  main.page-shell > .wrap,
-  .page-shell > .wrap{
+  .header-box{
     width:calc(100% - 22px) !important;
-    max-width:none !important;
   }
+
+  .logo a::after{
+    left:calc(50% + 64px) !important;
+    font-size:12.5px !important;
+  }
+
+  .page-title h2{ font-size:40px !important; }
 }
 
 @media (max-width: 374px){
+  .wrap,
   .top-lang-bar,
+  .subnav-wrap,
+  .music-bar-wrap,
   header .wrap.header-box,
-  main.page-shell > .wrap,
-  .page-shell > .wrap{
+  .header-box{
     width:calc(100% - 18px) !important;
   }
 
-  .lang-switch a{
-    min-width:31px !important;
-    height:30px !important;
-    font-size:10px !important;
-  }
-
-  .logo img{ height:66px !important; }
-  nav a b{ font-size:13px !important; }
-  nav a span{ font-size:10.5px !important; }
-  .page-title h2{ font-size:38px !important; }
-}
-
-
-/* ===== SCHEDULE MOBILE CONTENT v1 ===== */
-@media (max-width: 780px){
-  .schedule-list-page{
-    width:100% !important;
-    border-radius:24px !important;
-    overflow:hidden !important;
-  }
-
-  .schedule-row{
-    grid-template-columns:1fr !important;
-    gap:8px !important;
-    padding:16px 14px !important;
-    align-items:flex-start !important;
-  }
-
-  .schedule-row > div:first-child{
-    font-size:18px !important;
-    line-height:1.25 !important;
-  }
-
-  .schedule-row > div:nth-child(2),
-  .schedule-row > div:nth-child(3){
-    font-size:14.5px !important;
-    line-height:1.45 !important;
-    word-break:keep-all !important;
-  }
-
-  .schedule-row .ticket,
-  .schedule-row .ticket-btn{
-    width:100% !important;
-    min-height:38px !important;
-    margin-top:4px !important;
+  .logo img{ height:70px !important; }
+  .logo a::after{
+    left:calc(50% + 58px) !important;
     font-size:12px !important;
   }
 
-  .schedule-extra-wrap{
-    margin-top:16px !important;
+  nav a b{ font-size:14px !important; }
+  nav a span{ font-size:11px !important; }
+  .page-title h2{ font-size:36px !important; }
+}
+
+
+/* ===== SCHEDULE mobile layout: index.html mobile schedule rhythm ===== */
+@media (max-width: 780px){
+  .schedule-list-page,
+  .box.schedule-list-page{
+    width:100% !important;
+    max-width:none !important;
+    border-radius:24px !important;
+    overflow:hidden !important;
+  }
+  .schedule-row{
+    display:grid !important;
+    grid-template-columns:auto minmax(0,.9fr) minmax(0,1.1fr) auto !important;
+    grid-template-areas:"date place title ticket" !important;
+    align-items:center !important;
+    gap:8px !important;
+    padding:13px 14px !important;
+    min-width:0 !important;
+  }
+  .schedule-row > div:nth-child(1){
+    grid-area:date !important;
+    font-size:18px !important;
+    line-height:1.15 !important;
+    font-weight:900 !important;
+    letter-spacing:-.04em !important;
+    white-space:nowrap !important;
+    color:#ff5fa5 !important;
+  }
+  .schedule-row > div:nth-child(2){
+    grid-area:place !important;
+    min-width:0 !important;
+    font-size:12.8px !important;
+    line-height:1.3 !important;
+    font-weight:850 !important;
+    color:#6f626d !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+  .schedule-row > div:nth-child(3){
+    grid-area:title !important;
+    min-width:0 !important;
+    font-size:12.8px !important;
+    line-height:1.3 !important;
+    font-weight:850 !important;
+    color:#6f626d !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+  .schedule-row .ticket,
+  .schedule-row .ticket-btn{
+    grid-area:ticket !important;
+    justify-self:end !important;
+    width:auto !important;
+    min-width:56px !important;
+    height:28px !important;
+    margin-top:0 !important;
+    padding:0 9px !important;
+    font-size:10px !important;
+    line-height:1 !important;
+    font-weight:900 !important;
   }
 
+  .schedule-extra-wrap{ margin-top:18px !important; }
   .more-schedule-btn{
-    width:100% !important;
+    width:min(100%, 240px) !important;
     min-height:42px !important;
     padding:0 18px !important;
     font-size:14px !important;
   }
-
   .calendar-section{
-    margin-top:16px !important;
-    padding:14px 10px 16px !important;
+    width:100% !important;
+    margin-top:18px !important;
+    padding:16px 12px !important;
     border-radius:24px !important;
-    overflow:visible !important;
+    overflow-x:auto !important;
+    -webkit-overflow-scrolling:touch !important;
   }
-
-  .calendar-header{
-    gap:10px !important;
-    margin-bottom:14px !important;
-  }
-
-  .calendar-nav-btn{
-    width:36px !important;
-    height:36px !important;
-    font-size:21px !important;
-    flex:0 0 auto !important;
-  }
-
-  .calendar-month{
-    min-width:0 !important;
-    flex:1 !important;
-    font-size:18px !important;
-  }
-
+  .calendar-header{ gap:10px !important; margin-bottom:16px !important; }
+  .calendar-month{ min-width:112px !important; font-size:20px !important; }
+  .calendar-nav-btn{ width:36px !important; height:36px !important; }
   .calendar-weekdays,
-  .calendar-grid{
-    min-width:0 !important;
-    width:100% !important;
-    gap:4px !important;
-  }
+  .calendar-grid{ min-width:650px !important; }
+  .schedule-detail{ min-width:650px !important; }
+  .detail-event{ font-size:15px !important; }
+}
 
-  .calendar-weekdays div{
-    padding:4px 0 !important;
-    font-size:10px !important;
+@media (max-width: 430px){
+  .schedule-row{
+    grid-template-columns:auto minmax(0,.9fr) minmax(0,1.1fr) auto !important;
+    gap:6px !important;
+    padding:12px 12px !important;
   }
-
-  .calendar-day{
-    min-height:62px !important;
-    padding:6px 4px 7px !important;
-    border-radius:13px !important;
-  }
-
-  .calendar-day.is-important{
-    min-height:68px !important;
-  }
-
-  .calendar-day .calendar-day-number{
-    font-size:13px !important;
-  }
-
-  .calendar-day-head{
-    gap:3px !important;
-    margin-bottom:4px !important;
-  }
-
-  .calendar-day-head .calendar-badge,
-  .calendar-preview-top .calendar-badge{
-    min-height:18px !important;
-    max-width:100% !important;
-    padding:0 5px !important;
-    font-size:8.5px !important;
-    letter-spacing:-.02em !important;
-  }
-
-  .calendar-preview-title{
-    margin-top:2px !important;
+  .schedule-row > div:nth-child(1){ font-size:17px !important; }
+  .schedule-row > div:nth-child(2),
+  .schedule-row > div:nth-child(3){ font-size:12px !important; }
+  .schedule-row .ticket,
+  .schedule-row .ticket-btn{
+    min-width:52px !important;
+    height:27px !important;
+    padding:0 8px !important;
     font-size:9.5px !important;
-    line-height:1.25 !important;
-    -webkit-line-clamp:2 !important;
-    word-break:keep-all !important;
-  }
-
-  .schedule-detail{
-    margin-top:14px !important;
-    padding:16px 14px !important;
-    border-radius:20px !important;
-  }
-
-  .detail-date{
-    margin-bottom:12px !important;
-    font-size:17px !important;
-  }
-
-  .detail-item{
-    flex-direction:column !important;
-    align-items:stretch !important;
-    gap:12px !important;
-    padding:12px 0 !important;
-  }
-
-  .detail-place{
-    font-size:13px !important;
-  }
-
-  .detail-event{
-    font-size:15.5px !important;
-    line-height:1.45 !important;
-  }
-
-  .detail-buttons{
-    display:grid !important;
-    grid-template-columns:1fr !important;
-    gap:8px !important;
-  }
-
-  .detail-ticket{
-    width:100% !important;
-    min-height:38px !important;
-    padding:0 12px !important;
-    font-size:12px !important;
   }
 }
 
 @media (max-width: 374px){
-  .calendar-section{ padding:12px 8px 14px !important; }
-  .calendar-day{ min-height:58px !important; }
-  .calendar-preview-title{ font-size:9px !important; }
+  .schedule-row{
+    gap:5px !important;
+    padding:12px 10px !important;
+  }
+  .schedule-row > div:nth-child(1){ font-size:15px !important; }
+  .schedule-row > div:nth-child(2),
+  .schedule-row > div:nth-child(3){ font-size:11px !important; }
+  .schedule-row .ticket,
+  .schedule-row .ticket-btn{
+    min-width:48px !important;
+    height:26px !important;
+    padding:0 6px !important;
+    font-size:8.8px !important;
+  }
 }
 
   </style>
@@ -3153,6 +3169,40 @@ line-height:1.9 !important;
       });
     })();
   </script>
+
+
+<script>
+  /* MOBILE LOGO MENU TOGGLE - synced with index.html mobile behavior */
+  (function(){
+    const header = document.querySelector("header");
+    const logoLink = document.querySelector(".logo a");
+    const nav = document.querySelector("header nav");
+    if(!header || !logoLink || !nav) return;
+
+    if(!nav.id) nav.id = "mobileMainNav";
+    logoLink.setAttribute("aria-controls", nav.id);
+    logoLink.setAttribute("aria-expanded", "false");
+
+    function isMobile(){
+      return window.matchMedia("(max-width: 780px)").matches;
+    }
+
+    logoLink.addEventListener("click", function(event){
+      if(!isMobile()) return;
+      event.preventDefault();
+      const willOpen = !header.classList.contains("mobile-nav-open");
+      header.classList.toggle("mobile-nav-open", willOpen);
+      logoLink.setAttribute("aria-expanded", willOpen ? "true" : "false");
+    });
+
+    window.addEventListener("resize", function(){
+      if(!isMobile()){
+        header.classList.remove("mobile-nav-open");
+        logoLink.setAttribute("aria-expanded", "false");
+      }
+    });
+  })();
+</script>
 
 </body>
 </html>
