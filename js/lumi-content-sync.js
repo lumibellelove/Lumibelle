@@ -267,6 +267,13 @@
     return fetchPost('uploadNewsSticker', payload || {});
   }
 
+  function translateNewsContent(payload){
+    payload = payload || {};
+    return request('translateNewsContent', payload).then(function(res){
+      return res || {};
+    });
+  }
+
   function readState(){
     try{
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
@@ -435,6 +442,7 @@
     getDriveImageData,
     listNewsStickers,
     uploadNewsSticker,
+    translateNewsContent,
     sortNews,
     htmlEscape,
     stripHTML,

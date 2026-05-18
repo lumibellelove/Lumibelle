@@ -865,7 +865,7 @@ input:focus,select:focus,textarea:focus{border-color:#f4a4ca;box-shadow:0 0 0 4p
                 <p>한국어 원문을 기준으로 일본어 / 영어 / 중국어 번역 필드를 준비합니다. 기존 본문 에디터 내용은 변경하지 않습니다.</p>
               </div>
               <div class="news-translation-actions">
-                <button type="button" class="btn sub" onclick="generateNewsAutoTranslation()">번역 필드 준비</button>
+                <button type="button" class="btn sub" onclick="generateNewsAutoTranslation()">자동번역 생성</button>
                 <button type="button" class="btn sub" id="newsTranslationToggleBtn" onclick="toggleNewsTranslationArea()">번역 영역 열기</button>
               </div>
             </div>
@@ -1411,15 +1411,40 @@ function updateNewsTranslationSourcePreview(){
   if(q('newsTitleKoPreview')) q('newsTitleKoPreview').value=source.title;
   if(q('newsBodyKoPreview')) q('newsBodyKoPreview').value=source.bodyText;
 }
-function requestNewsAutoTranslation(source){
-  // 실제 Apps Script / 외부 번역 API는 다음 단계에서 이 함수 내부만 교체한다.
+function buildNewsTranslationFallback(source){
   const title=source.title || '';
   const body=source.bodyText || '';
-  return Promise.resolve({
+  return {
     ja:{title,body,status:'prepared'},
     en:{title,body,status:'prepared'},
     zh:{title,body,status:'prepared'}
+  };
+}
+function normalizeNewsTranslationResult(result, source){
+  const raw=(result && result.translations) ? result.translations : (result || {});
+  const fallback=buildNewsTranslationFallback(source);
+  const normalized={};
+  NEWS_TRANSLATION_LANGS.forEach(lang=>{
+    const item=raw[lang] || {};
+    normalized[lang]={
+      title: item.title || fallback[lang].title || '',
+      body: item.body || fallback[lang].body || '',
+      status: item.status || ((item.title || item.body) ? 'translated' : fallback[lang].status)
+    };
   });
+  return normalized;
+}
+function requestNewsAutoTranslation(source){
+  const api=window.LumiContentSync || window.LumiNewsSync;
+  if(!api || typeof api.translateNewsContent !== 'function'){
+    return Promise.resolve(buildNewsTranslationFallback(source));
+  }
+  return api.translateNewsContent({
+    sourceLang:'ko',
+    targetLangs:NEWS_TRANSLATION_LANGS.slice(),
+    title:source.title || '',
+    bodyText:source.bodyText || ''
+  }).then(result=>normalizeNewsTranslationResult(result, source));
 }
 function applyNewsTranslations(result={}){
   NEWS_TRANSLATION_LANGS.forEach(lang=>{
@@ -1439,10 +1464,10 @@ function generateNewsAutoTranslation(){
   requestNewsAutoTranslation(source).then(result=>{
     applyNewsTranslations(result);
     if(q('newsTranslationArea')?.hidden) toggleNewsTranslationArea(true);
-    toast('번역 필드를 준비했어요');
+    toast('자동번역을 생성했어요');
   }).catch(err=>{
     console.warn('NEWS 자동번역 준비 실패',err);
-    toast('자동번역 준비 실패');
+    toast('자동번역 생성 실패');
   });
 }
 function getNewsTranslationStatusForSave(){
