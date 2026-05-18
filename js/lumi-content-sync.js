@@ -1,11 +1,32 @@
 (function(){
-  const API_URL = 'https://script.google.com/macros/s/AKfycbzmZHCLvg_Nd8f6qnat3RisYoMPnGARaLWPqeCnt2zHI8wl0-QuXkMmnGtcP_BoSFEH/exec';
+  const API_URL = 'https://lumi-news-api.lumibelle-love.workers.dev';
   const STORAGE_KEY = 'lumibelleContentAdminV2';
   const NEWS_UPDATED_EVENT = 'lumi-news-updated';
 
   const DEFAULT_NEWS = [];
   let cachedPublicNews = [];
   let hasLoadedPublicNews = false;
+
+  let _currentLang = normalizeLang(new URLSearchParams(location.search).get('lang') || localStorage.getItem('lumibelleCurrentLang') || 'ko');
+
+  function normalizeLang(lang){
+    lang = String(lang || 'ko').toLowerCase().trim();
+    if(lang === 'kr') return 'ko';
+    if(lang === 'jp') return 'ja';
+    if(lang === 'cn' || lang === 'zh-cn' || lang === 'zh_hans' || lang === 'zh-hans') return 'zh';
+    if(['ko','ja','en','zh'].indexOf(lang) !== -1) return lang;
+    return 'ko';
+  }
+
+  function getCurrentLang(){
+    return _currentLang || 'ko';
+  }
+
+  function setCurrentLang(lang){
+    _currentLang = normalizeLang(lang);
+    try{ localStorage.setItem('lumibelleCurrentLang', _currentLang); }catch(e){}
+    return _currentLang;
+  }
 
   function htmlEscape(v){
     return String(v == null ? '' : v).replace(/[&<>"']/g, function(s){
@@ -151,6 +172,33 @@
       };
       script.src = url;
       document.head.appendChild(script);
+    });
+  }
+
+
+  function workerGet(action, payload){
+    payload = payload || {};
+    const qs = '?action=' + encodeURIComponent(action)
+      + '&payload=' + encodeURIComponent(JSON.stringify(payload))
+      + '&_nocache=' + Date.now();
+    return fetch(API_URL + qs, {
+      method: 'GET',
+      mode: 'cors',
+      redirect: 'follow',
+      headers: { 'Accept': 'application/json, text/plain, */*' }
+    }).then(function(res){
+      if(!res.ok){
+        throw {ok:false,error:'httpError',status:res.status,statusText:res.statusText};
+      }
+      return res.text();
+    }).then(function(text){
+      let data;
+      try{ data = JSON.parse(text || '{}'); }
+      catch(err){
+        throw {ok:false,error:'invalidJsonResponse',message:String(err && err.message ? err.message : err),raw:text};
+      }
+      if(data && data.ok === false) throw data;
+      return data || {};
     });
   }
 
@@ -306,7 +354,7 @@
   }
 
   function adminListNewsItems(){
-    return request('adminListNewsItems', {}).then(function(res){
+    return workerGet('adminListNewsItems', {}).then(function(res){
       const items = (res.items || []).map(convertApiItem).sort(sortNews);
       saveLocalNews(items);
       return items;
@@ -332,13 +380,14 @@
   }
 
   function adminArchiveNewsItem(id){
-    return request('adminArchiveNewsItem', {id:id, updatedBy:'admin'}).then(function(res){
+    return workerGet('adminArchiveNewsItem', {id:id, updatedBy:'admin'}).then(function(res){
       return convertApiItem(res.item || {});
     });
   }
 
   function loadPublicNews(lang){
-    return request('publicListNewsItems', {lang: lang || 'ko'}).then(function(res){
+    lang = setCurrentLang(lang || getCurrentLang());
+    return workerGet('publicListNewsItems', {lang: lang}).then(function(res){
       cachedPublicNews = (res.items || []).map(convertApiItem).sort(sortNews);
       hasLoadedPublicNews = true;
       saveLocalNews(cachedPublicNews);
@@ -413,9 +462,26 @@
     return badges;
   }
 
+  function addLangToUrl(href, lang){
+    href = String(href || '');
+    lang = normalizeLang(lang || getCurrentLang());
+    if(!href || lang === 'ko') return href;
+    const hashIndex = href.indexOf('#');
+    const hash = hashIndex >= 0 ? href.slice(hashIndex) : '';
+    const base = hashIndex >= 0 ? href.slice(0, hashIndex) : href;
+    const sep = base.indexOf('?') >= 0 ? '&' : '?';
+    return base + sep + 'lang=' + encodeURIComponent(lang) + hash;
+  }
+
   function newsHref(n){
-    if(n && n.id === 'NEWS-20260712-001') return n.link || 'news-debut.html';
-    return (n && n.link) ? n.link : ('news-detail.html?id=' + encodeURIComponent(n && n.id || ''));
+    const lang = getCurrentLang();
+    let href = '';
+    if(n && n.id === 'NEWS-20260712-001'){
+      href = n.link || 'news-debut.html';
+    }else{
+      href = (n && n.link) ? n.link : ('news-detail.html?id=' + encodeURIComponent(n && n.id || ''));
+    }
+    return addLangToUrl(href, lang);
   }
 
   function searchHaystack(n){
@@ -431,6 +497,9 @@
     STORAGE_KEY,
     NEWS_UPDATED_EVENT,
     DEFAULT_NEWS,
+    getCurrentLang,
+    setCurrentLang,
+    normalizeLang,
     readState,
     publicNews,
     loadPublicNews,
@@ -456,6 +525,7 @@
     badgeClass,
     badgesFor,
     newsHref,
+    addLangToUrl,
     searchHaystack,
     convertApiItem,
     toApiPayload
@@ -464,9 +534,15 @@
   window.LumiContentSync = api;
   window.LumiNewsSync = api;
 
+  function initPublicNewsLoad(){
+    const initLang = normalizeLang(new URLSearchParams(location.search).get('lang') || getCurrentLang());
+    setCurrentLang(initLang);
+    loadPublicNews(initLang).catch(function(){});
+  }
+
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', function(){ loadPublicNews('ko').catch(function(){}); });
+    document.addEventListener('DOMContentLoaded', initPublicNewsLoad);
   }else{
-    loadPublicNews('ko').catch(function(){});
+    initPublicNewsLoad();
   }
 })();
