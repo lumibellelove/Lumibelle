@@ -229,7 +229,7 @@ input:focus,select:focus,textarea:focus{border-color:#f4a4ca;box-shadow:0 0 0 4p
 .side-box input:not([type="checkbox"]):not([type="radio"]){width:100%;min-height:38px;margin-top:5px;border:1px solid #f0bfd4;border-radius:14px;background:#fff;color:#7f6a77;font-weight:800;padding:0 11px;outline:none}
 
 /* ── NEWS 자동번역 관리 ── */
-.news-translation-box{margin:18px 0 0;padding:18px;border:1px solid #f3d1e2;border-radius:22px;background:#fff8fc;box-shadow:0 8px 18px rgba(232,191,211,.08)}
+.news-translation-box{margin:18px 0 20px;padding:18px;border:1px solid #f3d1e2;border-radius:22px;background:#fff8fc;box-shadow:0 8px 18px rgba(232,191,211,.08)}
 .news-translation-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
 .news-translation-head h3{margin:0;color:#d77ca7;font-size:18px;font-weight:900}
 .news-translation-head p{margin:5px 0 0;color:#9a7187;font-size:13px;font-weight:800;line-height:1.5}
@@ -858,6 +858,62 @@ input:focus,select:focus,textarea:focus{border-color:#f4a4ca;box-shadow:0 0 0 4p
             <input id="newsTitle" class="write-title-input" placeholder="제목을 입력해 주세요.">
           </div>
 
+          <section class="news-translation-box" id="newsTranslationBox" aria-label="NEWS 번역 관리">
+            <div class="news-translation-head">
+              <div>
+                <h3>번역 관리</h3>
+                <p>한국어 원문을 기준으로 일본어 / 영어 / 중국어 번역 필드를 준비합니다. 기존 본문 에디터 내용은 변경하지 않습니다.</p>
+              </div>
+              <div class="news-translation-actions">
+                <button type="button" class="btn sub" onclick="generateNewsAutoTranslation()">번역 필드 준비</button>
+                <button type="button" class="btn sub" id="newsTranslationToggleBtn" onclick="toggleNewsTranslationArea()">번역 영역 열기</button>
+              </div>
+            </div>
+            <div class="news-translation-status" id="newsTranslationStatus">
+              <span>日本語: 비어 있음</span><span>English: 비어 있음</span><span>中文: 비어 있음</span>
+            </div>
+            <div id="newsTranslationArea" hidden>
+              <div class="news-translation-tabs" role="tablist" aria-label="번역 언어 선택">
+                <button type="button" class="news-translation-tab active" data-news-translation-tab="ko" onclick="switchNewsTranslationTab('ko')">한국어</button>
+                <button type="button" class="news-translation-tab" data-news-translation-tab="ja" onclick="switchNewsTranslationTab('ja')">日本語</button>
+                <button type="button" class="news-translation-tab" data-news-translation-tab="en" onclick="switchNewsTranslationTab('en')">English</button>
+                <button type="button" class="news-translation-tab" data-news-translation-tab="zh" onclick="switchNewsTranslationTab('zh')">中文</button>
+              </div>
+
+              <div class="news-translation-panel active" data-news-translation-panel="ko">
+                <div class="news-translation-grid">
+                  <label class="news-translation-field">한국어 제목<input id="newsTitleKoPreview" readonly placeholder="기존 제목을 기준으로 자동 표시"></label>
+                  <label class="news-translation-field">한국어 본문<textarea id="newsBodyKoPreview" readonly placeholder="기존 본문 텍스트를 기준으로 자동 표시"></textarea></label>
+                </div>
+                <div class="news-translation-note">한국어 원문은 위의 제목 입력칸과 본문 에디터가 원본입니다. 이 영역은 확인용 미리보기만 합니다.</div>
+              </div>
+
+              <div class="news-translation-panel" data-news-translation-panel="ja">
+                <div class="news-translation-grid">
+                  <label class="news-translation-field">日本語 제목<input id="newsTitleJa" oninput="markNewsTranslationEdited('ja')" placeholder="일본어 제목"></label>
+                  <label class="news-translation-field">日本語 본문<textarea id="newsBodyJa" oninput="markNewsTranslationEdited('ja')" placeholder="일본어 본문"></textarea></label>
+                </div>
+              </div>
+
+              <div class="news-translation-panel" data-news-translation-panel="en">
+                <div class="news-translation-grid">
+                  <label class="news-translation-field">English title<input id="newsTitleEn" oninput="markNewsTranslationEdited('en')" placeholder="English title"></label>
+                  <label class="news-translation-field">English body<textarea id="newsBodyEn" oninput="markNewsTranslationEdited('en')" placeholder="English body"></textarea></label>
+                </div>
+              </div>
+
+              <div class="news-translation-panel" data-news-translation-panel="zh">
+                <div class="news-translation-grid">
+                  <label class="news-translation-field">中文标题<input id="newsTitleZh" oninput="markNewsTranslationEdited('zh')" placeholder="中文标题"></label>
+                  <label class="news-translation-field">中文正文<textarea id="newsBodyZh" oninput="markNewsTranslationEdited('zh')" placeholder="中文正文"></textarea></label>
+                </div>
+              </div>
+
+              <div class="news-translation-note">현재는 자동번역 API 연결 전 단계입니다. 버튼을 누르면 한국어 원문을 각 번역 필드에 복사해 두고, 이후 API 연결 시 이 함수만 교체합니다.</div>
+            </div>
+          </section>
+
+
           <div class="editor-toolbar font-toolbox toolbar-b-open" aria-label="본문 편집 도구">
             <div class="font-top-line toolbar-b-font-line">
               <div class="font-family-block">
@@ -955,60 +1011,6 @@ input:focus,select:focus,textarea:focus{border-color:#f4a4ca;box-shadow:0 0 0 4p
           <textarea id="newsBody" hidden></textarea>
 
 
-          <section class="news-translation-box" id="newsTranslationBox" aria-label="NEWS 번역 관리">
-            <div class="news-translation-head">
-              <div>
-                <h3>번역 관리</h3>
-                <p>한국어 원문을 기준으로 일본어 / 영어 / 중국어 번역문을 준비합니다. 기존 본문 에디터 내용은 변경하지 않습니다.</p>
-              </div>
-              <div class="news-translation-actions">
-                <button type="button" class="btn sub" onclick="generateNewsAutoTranslation()">자동번역 생성</button>
-                <button type="button" class="btn sub" id="newsTranslationToggleBtn" onclick="toggleNewsTranslationArea()">번역 영역 열기</button>
-              </div>
-            </div>
-            <div class="news-translation-status" id="newsTranslationStatus">
-              <span>日本語: 비어 있음</span><span>English: 비어 있음</span><span>中文: 비어 있음</span>
-            </div>
-            <div id="newsTranslationArea" hidden>
-              <div class="news-translation-tabs" role="tablist" aria-label="번역 언어 선택">
-                <button type="button" class="news-translation-tab active" data-news-translation-tab="ko" onclick="switchNewsTranslationTab('ko')">한국어</button>
-                <button type="button" class="news-translation-tab" data-news-translation-tab="ja" onclick="switchNewsTranslationTab('ja')">日本語</button>
-                <button type="button" class="news-translation-tab" data-news-translation-tab="en" onclick="switchNewsTranslationTab('en')">English</button>
-                <button type="button" class="news-translation-tab" data-news-translation-tab="zh" onclick="switchNewsTranslationTab('zh')">中文</button>
-              </div>
-
-              <div class="news-translation-panel active" data-news-translation-panel="ko">
-                <div class="news-translation-grid">
-                  <label class="news-translation-field">한국어 제목<input id="newsTitleKoPreview" readonly placeholder="기존 제목을 기준으로 자동 표시"></label>
-                  <label class="news-translation-field">한국어 본문<textarea id="newsBodyKoPreview" readonly placeholder="기존 본문 텍스트를 기준으로 자동 표시"></textarea></label>
-                </div>
-                <div class="news-translation-note">한국어 원문은 위의 제목 입력칸과 본문 에디터가 원본입니다. 이 영역은 확인용 미리보기만 합니다.</div>
-              </div>
-
-              <div class="news-translation-panel" data-news-translation-panel="ja">
-                <div class="news-translation-grid">
-                  <label class="news-translation-field">日本語 제목<input id="newsTitleJa" oninput="markNewsTranslationEdited('ja')" placeholder="일본어 제목"></label>
-                  <label class="news-translation-field">日本語 본문<textarea id="newsBodyJa" oninput="markNewsTranslationEdited('ja')" placeholder="일본어 본문"></textarea></label>
-                </div>
-              </div>
-
-              <div class="news-translation-panel" data-news-translation-panel="en">
-                <div class="news-translation-grid">
-                  <label class="news-translation-field">English title<input id="newsTitleEn" oninput="markNewsTranslationEdited('en')" placeholder="English title"></label>
-                  <label class="news-translation-field">English body<textarea id="newsBodyEn" oninput="markNewsTranslationEdited('en')" placeholder="English body"></textarea></label>
-                </div>
-              </div>
-
-              <div class="news-translation-panel" data-news-translation-panel="zh">
-                <div class="news-translation-grid">
-                  <label class="news-translation-field">中文标题<input id="newsTitleZh" oninput="markNewsTranslationEdited('zh')" placeholder="中文标题"></label>
-                  <label class="news-translation-field">中文正文<textarea id="newsBodyZh" oninput="markNewsTranslationEdited('zh')" placeholder="中文正文"></textarea></label>
-                </div>
-              </div>
-
-              <div class="news-translation-note">현재 자동번역 API는 연결 대기 상태입니다. 버튼을 누르면 원문을 번역 필드에 복사해 두고, 이후 API 연결 함수만 교체할 수 있게 준비합니다.</div>
-            </div>
-          </section>
         </main>
 
         <aside class="cafe-write-sidebar">
@@ -1390,7 +1392,11 @@ function setupNewsTranslationBox(){
 function htmlToPlainText(html=''){
   const box=document.createElement('div');
   box.innerHTML=String(html||'');
-  return (box.textContent||box.innerText||'').trim();
+  box.querySelectorAll('br').forEach(br=>br.replaceWith('\n'));
+  box.querySelectorAll('p,div,li,h1,h2,h3,h4,h5,h6,blockquote').forEach(el=>{
+    if(el.textContent && !el.textContent.endsWith('\n')) el.appendChild(document.createTextNode('\n'));
+  });
+  return (box.textContent||box.innerText||'').replace(/\n{3,}/g,'\n\n').trim();
 }
 function collectNewsTranslationSource(){
   syncBodyToTextarea();
@@ -1410,9 +1416,9 @@ function requestNewsAutoTranslation(source){
   const title=source.title || '';
   const body=source.bodyText || '';
   return Promise.resolve({
-    ja:{title,body,status:'draft'},
-    en:{title,body,status:'draft'},
-    zh:{title,body,status:'draft'}
+    ja:{title,body,status:'prepared'},
+    en:{title,body,status:'prepared'},
+    zh:{title,body,status:'prepared'}
   });
 }
 function applyNewsTranslations(result={}){
@@ -1497,6 +1503,7 @@ function markNewsTranslationEdited(lang){
 function translationStatusText(status){
   if(status==='edited')return '수정됨';
   if(status==='translated')return '자동번역 완료';
+  if(status==='prepared')return '원문 복사됨';
   return '비어 있음';
 }
 function updateNewsTranslationStatusView(){
