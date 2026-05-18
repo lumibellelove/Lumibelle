@@ -3198,6 +3198,17 @@ line-height:1.9 !important;
         a.classList.toggle('active', lang === currentLang);
       });
       updateLanguageLinks(currentLang);
+
+      const navLabels = {
+        ko: ['홈','공지사항','멤버 소개','스케줄','예매','굿즈','응원 가이드','안내'],
+        en: ['Home','Notice','Member','Schedule','Ticket','Goods','Fan Guide','Info'],
+        ja: ['ホーム','お知らせ','メンバー紹介','スケジュール','チケット','グッズ','応援ガイド','ご案内'],
+        zh: ['首页','公告','成员介绍','日程','购票','周边','应援指南','指南']
+      };
+      document.querySelectorAll('nav a span').forEach(function(span, index){
+        const labels = navLabels[currentLang] || navLabels.ko;
+        if(labels[index]) span.textContent = labels[index];
+      });
       const navMap = [ ['index.html','home'], ['news.html','news'], ['member.html','member'], ['schedule.html','schedule'], ['ticket/','ticket'], ['goods/','goods'], ['setlist.html','setlist'], ['info.html','info'] ];
       navMap.forEach(([href,key]) => {
         const el = document.querySelector(`nav a[href="${href}"] span`);
