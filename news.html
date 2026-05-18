@@ -3486,15 +3486,19 @@ line-height:1.9 !important;
       updateLangButtons();
       applyUiText(currentLang);
       currentPage = 1;
-      showLoading();
+
+      /* stale-while-revalidate: 화면을 비우지 않고 뒤에서 최신 목록만 갱신 */
       LumiNewsSync.loadPublicNews(currentLang)
         .then(function(items){
           allItems = items || [];
           renderList();
         })
         .catch(function(){
-          allItems = LumiNewsSync.publicNews() || [];
-          renderList();
+          var cached = LumiNewsSync.publicNews() || [];
+          if(cached.length){
+            allItems = cached;
+            renderList();
+          }
         });
     }
 
@@ -3544,27 +3548,29 @@ line-height:1.9 !important;
      * 해당 lang으로 별도 호출이 필요함.
      */
     var syncLang = LumiNewsSync.getCurrentLang();
-    if(syncLang === currentLang){
-      /* lang 일치: 이미 캐시된 목록이 있으면 즉시 렌더, 없으면 lumi-news-updated 대기 */
-      allItems = LumiNewsSync.publicNews() || [];
-      if(allItems.length){
-        renderList();
-      }else{
-        showLoading();
-      }
+    allItems = LumiNewsSync.publicNews() || [];
+    if(allItems.length){
+      renderList();
     }else{
-      /* lang 불일치: URL lang으로 재로드 */
-      showLoading();
-      LumiNewsSync.loadPublicNews(currentLang)
-        .then(function(items){
-          allItems = items || [];
-          renderList();
-        })
-        .catch(function(){
-          allItems = LumiNewsSync.publicNews() || [];
-          renderList();
-        });
+      pagerEl.hidden = true;
     }
+
+    /* stale-while-revalidate: 캐시를 먼저 보여주고 최신 데이터는 조용히 갱신 */
+    if(syncLang !== currentLang){
+      LumiNewsSync.setCurrentLang(currentLang);
+    }
+    LumiNewsSync.loadPublicNews(currentLang)
+      .then(function(items){
+        allItems = items || [];
+        renderList();
+      })
+      .catch(function(){
+        var cached = LumiNewsSync.publicNews() || [];
+        if(cached.length){
+          allItems = cached;
+          renderList();
+        }
+      });
   })();
   </script>
 

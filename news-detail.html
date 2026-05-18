@@ -3432,12 +3432,15 @@ line-height:1.9 !important;
       }
 
       function showWaiting(){
-        titleEl.textContent = 'NEWS';
-        bodyEl.hidden = false;
-        bodyEl.textContent = t(currentLang, 'loading');
+        /* stale-while-revalidate: 기존 화면을 비우지 않고 대표 이미지만 안전하게 숨김 */
+        if(!titleEl.textContent || titleEl.textContent === 'NEWS') titleEl.textContent = 'NEWS';
         heroEl.hidden = true;
+        heroEl.removeAttribute('src');
+        heroEl.alt = '';
         infoEl.hidden = true;
-        buttonsEl.innerHTML = '<a class="news-action-btn sub" href="news.html?lang=' + encodeURIComponent(currentLang) + '">' + t(currentLang, 'backToNews') + '</a>';
+        if(!buttonsEl.innerHTML){
+          buttonsEl.innerHTML = '<a class="news-action-btn sub" href="news.html?lang=' + encodeURIComponent(currentLang) + '">' + t(currentLang, 'backToNews') + '</a>';
+        }
       }
 
       function showNotFound(){
@@ -3459,22 +3462,17 @@ line-height:1.9 !important;
         const rows = LumiNewsSync.publicNews();
         /* 우선순위:
            1) currentGroupId + currentLang 정확 매칭
-           2) currentGroupId만 매칭 (lang 무관 fallback)
-           3) id 직접 매칭 (구형 ?id= 링크 호환)
-           4) group 없고 id 없으면 첫 번째 글 */
+           2) group이 없는 구형 진입일 때만 id 직접 매칭
+           3) group/id 모두 없으면 첫 번째 글
+           ※ 다른 언어 fallback을 섞지 않아야 JP/EN/CN 전환 시 잘못된 행이 표시되지 않음 */
         let news;
         if(currentGroupId){
           news = rows.find(function(n){
             return (n.translationGroupId || n.id) === currentGroupId
               && LumiNewsSync.normalizeLang(n.lang || 'ko') === currentLang;
           });
-          if(!news){
-            news = rows.find(function(n){
-              return (n.translationGroupId || n.id) === currentGroupId;
-            });
-          }
         }
-        if(!news && id){
+        if(!news && !currentGroupId && id){
           news = rows.find(function(n){ return n.id === id; });
         }
         if(!news && !currentGroupId && !id){
@@ -3569,7 +3567,7 @@ line-height:1.9 !important;
         setDetailUrlLang(currentLang);
         updateDetailLangButtons();
         applyUiText(currentLang);
-        showWaiting();
+        /* stale-while-revalidate: 화면을 먼저 비우지 않고 백그라운드에서 갱신 */
         LumiNewsSync.loadPublicNews(currentLang).then(function(){ renderNewsDetail(true); }).catch(function(){ renderNewsDetail(true); });
       }
 

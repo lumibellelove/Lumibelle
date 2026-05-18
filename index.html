@@ -5596,10 +5596,35 @@ line-height:1.9 !important;
         return hasNew ? renderBadge('NEW') : '';
       }
 
+      function currentHomeLang(){
+        var lang = window.LumibelleHomeI18n ? LumibelleHomeI18n.current() : (window.LUMI_HOME_LANG || 'ko');
+        return LumiNewsSync.normalizeLang ? LumiNewsSync.normalizeLang(lang) : (lang || 'ko');
+      }
+
+      function updateHomeNewsLinks(lang){
+        var href = lang && lang !== 'ko' ? 'news.html?lang=' + encodeURIComponent(lang) : 'news.html';
+        document.querySelectorAll('a[href="news.html"], a[href^="news.html?lang="]').forEach(function(a){
+          if(a.classList.contains('news-item')) return;
+          a.href = href;
+        });
+      }
+
       function renderHomeNews(){
+        const lang = currentHomeLang();
+        if(LumiNewsSync.setCurrentLang) LumiNewsSync.setCurrentLang(lang);
+        updateHomeNewsLinks(lang);
+
         const allRows = LumiNewsSync.publicNews();
-        let rows = allRows.filter(function(n){ return n.home !== false || n.isHome === true; });
-        if(!rows.length) rows = allRows;
+        let rows = allRows.slice();
+        if(lang !== 'ko'){
+          rows = rows.filter(function(n){ return LumiNewsSync.normalizeLang(n.lang || 'ko') === lang; });
+        }
+        rows = rows.filter(function(n){ return n.home !== false || n.isHome === true; });
+        if(!rows.length){
+          rows = allRows.filter(function(n){
+            return lang === 'ko' || LumiNewsSync.normalizeLang(n.lang || 'ko') === lang;
+          });
+        }
         rows = rows.slice(0, 3);
         list.innerHTML = rows.map(function(n){
           return '<a href="' + LumiNewsSync.htmlEscape(LumiNewsSync.newsHref(n)) + '" class="news-item">'
@@ -5612,21 +5637,27 @@ line-height:1.9 !important;
         }).join('') || '<div class="news-empty">' + (window.LumibelleHomeI18n ? LumibelleHomeI18n.t('news.empty') : '등록된 공지사항이 없습니다.') + '</div>';
       }
 
+      function refreshHomeNews(){
+        const lang = currentHomeLang();
+        if(LumiNewsSync.setCurrentLang) LumiNewsSync.setCurrentLang(lang);
+        renderHomeNews();
+        if(LumiNewsSync.loadPublicNews){
+          LumiNewsSync.loadPublicNews(lang).then(function(){
+            renderHomeNews();
+            setTimeout(renderHomeNews, 250);
+          }).catch(function(){
+            renderHomeNews();
+          });
+        }
+      }
+
       window.addEventListener('storage', function(e){
         if(e.key === LumiNewsSync.STORAGE_KEY) renderHomeNews();
       });
       window.addEventListener('lumi-news-updated', renderHomeNews);
-      window.addEventListener('lumibelle-home-lang-changed', renderHomeNews);
+      window.addEventListener('lumibelle-home-lang-changed', refreshHomeNews);
 
-      renderHomeNews();
-      if(LumiNewsSync.loadPublicNews){
-        LumiNewsSync.loadPublicNews('ko').then(function(){
-          renderHomeNews();
-          setTimeout(renderHomeNews, 250);
-        }).catch(function(){
-          renderHomeNews();
-        });
-      }
+      refreshHomeNews();
     })();
   </script>
 
