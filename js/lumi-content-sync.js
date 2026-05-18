@@ -269,7 +269,8 @@
 
   function translateNewsContent(payload){
     payload = payload || {};
-    return request('translateNewsContent', payload).then(function(res){
+    // HTML 본문/이미지 태그가 포함되면 JSONP GET URL이 길어져 실패할 수 있어서 POST로 호출한다.
+    return fetchPost('translateNewsContent', payload).then(function(res){
       return res || {};
     });
   }
@@ -313,13 +314,15 @@
   }
 
   function adminCreateNewsItem(row){
-    return request('adminCreateNewsItem', toApiPayload(row)).then(function(res){
+    // 번역 HTML/이미지가 함께 저장될 때 payload가 커지므로 JSONP GET 대신 POST를 사용한다.
+    return fetchPost('adminCreateNewsItem', toApiPayload(row)).then(function(res){
       return convertApiItem(res.item || {});
     });
   }
 
   function adminUpdateNewsItem(row){
-    return request('adminUpdateNewsItem', toApiPayload(row)).then(function(res){
+    // 번역 HTML/이미지가 함께 저장될 때 payload가 커지므로 JSONP GET 대신 POST를 사용한다.
+    return fetchPost('adminUpdateNewsItem', toApiPayload(row)).then(function(res){
       return convertApiItem(res.item || {});
     });
   }
