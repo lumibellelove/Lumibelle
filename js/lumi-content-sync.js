@@ -4,8 +4,8 @@
   const NEWS_UPDATED_EVENT = 'lumi-news-updated';
 
   const DEFAULT_NEWS = [];
-  let cachedPublicNews = [];
-  let hasLoadedPublicNews = false;
+  let cachedPublicNewsByLang = {};
+  let hasLoadedPublicNewsByLang = {};
 
   let _currentLang = normalizeLang(new URLSearchParams(location.search).get('lang') || localStorage.getItem('lumibelleCurrentLang') || 'ko');
 
@@ -331,15 +331,43 @@
     return {news: DEFAULT_NEWS.slice()};
   }
 
-  function cachedLocalPublicNews(){
-    const local = readState().news || [];
-    return local.filter(function(n){
-      const status = String(n.status || (n.draft ? 'draft' : (n.published === false ? 'private' : 'public')));
-      return n && status === 'public' && !n.draft && !n.deletedAt;
-    }).map(convertApiItem).sort(sortNews);
+  function publicCacheKey(lang){
+    return STORAGE_KEY + ':public:' + normalizeLang(lang || getCurrentLang());
   }
 
-  cachedPublicNews = cachedLocalPublicNews();
+  function keepOnlyLang(items, lang){
+    lang = normalizeLang(lang || getCurrentLang());
+    items = (items || []).map(convertApiItem).sort(sortNews);
+    return items.filter(function(n){
+      return normalizeLang(n.lang || 'ko') === lang;
+    });
+  }
+
+  function cachedLocalPublicNews(lang){
+    lang = normalizeLang(lang || getCurrentLang());
+    try{
+      const parsed = JSON.parse(localStorage.getItem(publicCacheKey(lang)) || '[]');
+      if(Array.isArray(parsed)) return keepOnlyLang(parsed, lang);
+    }catch(e){}
+
+    /* 기존 단일 캐시는 ko 화면에서만 fallback으로 사용한다.
+       ja/en/zh 화면에서는 ko 캐시가 잠깐 보이지 않도록 절대 사용하지 않는다. */
+    if(lang === 'ko'){
+      const local = readState().news || [];
+      return keepOnlyLang(local.filter(function(n){
+        const status = String(n.status || (n.draft ? 'draft' : (n.published === false ? 'private' : 'public')));
+        return n && status === 'public' && !n.draft && !n.deletedAt;
+      }), lang);
+    }
+    return [];
+  }
+
+  function savePublicNewsCache(items, lang){
+    lang = normalizeLang(lang || getCurrentLang());
+    try{
+      localStorage.setItem(publicCacheKey(lang), JSON.stringify(keepOnlyLang(items || [], lang)));
+    }catch(e){}
+  }
 
   function saveLocalNews(items){
     try{
@@ -388,23 +416,28 @@
   function loadPublicNews(lang){
     lang = setCurrentLang(lang || getCurrentLang());
     return workerGet('publicListNewsItems', {lang: lang}).then(function(res){
-      cachedPublicNews = (res.items || []).map(convertApiItem).sort(sortNews);
-      hasLoadedPublicNews = true;
-      saveLocalNews(cachedPublicNews);
+      const items = keepOnlyLang(res.items || [], lang);
+      cachedPublicNewsByLang[lang] = items;
+      hasLoadedPublicNewsByLang[lang] = true;
+      savePublicNewsCache(items, lang);
       dispatchNewsUpdated();
-      return cachedPublicNews;
+      return items.slice();
     }).catch(function(err){
-      cachedPublicNews = cachedLocalPublicNews();
-      hasLoadedPublicNews = true;
+      cachedPublicNewsByLang[lang] = cachedLocalPublicNews(lang);
+      hasLoadedPublicNewsByLang[lang] = true;
       dispatchNewsUpdated();
       throw err;
     });
   }
 
-  function publicNews(){
-    if(cachedPublicNews.length) return cachedPublicNews.slice();
-    if(hasLoadedPublicNews) return [];
-    return cachedLocalPublicNews();
+  function publicNews(lang){
+    lang = normalizeLang(lang || getCurrentLang());
+    if(cachedPublicNewsByLang[lang] && cachedPublicNewsByLang[lang].length){
+      return cachedPublicNewsByLang[lang].slice();
+    }
+    if(hasLoadedPublicNewsByLang[lang]) return [];
+    cachedPublicNewsByLang[lang] = cachedLocalPublicNews(lang);
+    return cachedPublicNewsByLang[lang].slice();
   }
 
   function isNew(date){
