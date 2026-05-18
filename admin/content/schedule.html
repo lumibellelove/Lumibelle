@@ -3914,6 +3914,85 @@ const state={news:[],schedules:[],scheduleDrafts:[],inner:{}};
 function q(id){return document.getElementById(id)}
 function toast(msg='저장 완료'){const el=q('toast');el.textContent=msg;el.classList.add('show');clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>el.classList.remove('show'),1400)}
 function persist(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
+const SCHEDULE_API_URL='https://lumi-news-api.lumibelle-love.workers.dev';
+async function scheduleApiRequest(action,payload={}){
+  const body=new URLSearchParams();
+  body.set('action',action);
+  body.set('payload',JSON.stringify(payload||{}));
+  const res=await fetch(SCHEDULE_API_URL,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body:body.toString()});
+  const data=await res.json().catch(()=>({ok:false,error:'invalidJson'}));
+  if(!res.ok||!data.ok)throw new Error(data.message||data.error||('API 오류 '+res.status));
+  return data;
+}
+function scheduleStatusFromPublished(v){
+  if(v==='draft')return 'draft';
+  if(v===false||v==='false')return 'private';
+  return 'public';
+}
+function schedulePublishedFromStatus(status){
+  status=String(status||'public');
+  if(status==='draft')return 'draft';
+  if(status==='private')return 'false';
+  return 'true';
+}
+function scheduleApiItemToState(item={}){
+  return {
+    id:String(item.id||''),
+    date:String(item.date||''),
+    time:String(item.time||''),
+    title:String(item.title||''),
+    venue:String(item.venue||''),
+    badge:String(item.badge||'LIVE'),
+    ticket:String(item.ticketUrl||item.ticket||''),
+    detail:String(item.detailUrl||item.detail||''),
+    published:schedulePublishedFromStatus(item.status),
+    topLine:!!item.isHome,
+    pinned:!!item.isPinned,
+    calendar:item.showInCalendar!==false,
+    sortOrder:Number(item.sortOrder||0),
+    lang:String(item.lang||'ko'),
+    translationGroupId:String(item.translationGroupId||item.id||''),
+    createdAt:String(item.createdAt||''),
+    updatedAt:String(item.updatedAt||''),
+    publishedAt:String(item.publishedAt||''),
+    memo:String(item.memo||'')
+  };
+}
+function scheduleStateToApiPayload(row={}){
+  return {
+    id:row.id||'',
+    date:row.date||'',
+    time:row.time||'',
+    title:row.title||'',
+    venue:row.venue||'',
+    badge:row.badge||'LIVE',
+    ticketUrl:row.ticket||'',
+    detailUrl:row.detail||'',
+    status:scheduleStatusFromPublished(row.published),
+    isHome:row.topLine!==false,
+    isPinned:!!row.pinned,
+    showInCalendar:row.calendar!==false,
+    sortOrder:Number(row.sortOrder||0),
+    lang:'ko',
+    translationGroupId:row.translationGroupId||row.id||'',
+    memo:row.memo||'',
+    createdBy:'admin',
+    updatedBy:'admin'
+  };
+}
+async function loadSchedulesFromApi(){
+  try{
+    const data=await scheduleApiRequest('adminListScheduleItems',{});
+    if(Array.isArray(data.items)){
+      state.schedules=data.items.map(scheduleApiItemToState);
+      persist();
+      renderSchedules();
+      renderScheduleAdminCalendar();
+    }
+  }catch(err){
+    console.warn('[schedule] adminListScheduleItems failed',err);
+  }
+}
 function htmlEscape(v=''){return String(v).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]))}
 function openPanel(id){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));const panel=q(id)||q('schedule');panel.classList.add('active');if(id==='schedule')document.querySelector('.menu-tab.active')?.classList.add('active')}
 let currentScheduleFilter='전체';
@@ -3946,7 +4025,31 @@ function openScheduleEditor(id=null,date=''){
 function backToScheduleList(){openPanel('schedule');renderSchedules();renderScheduleAdminCalendar()}
 function loadScheduleToForm(id){const s=(state.schedules||[]).find(x=>x.id===id);if(!s)return;q('scheduleId').value=s.id||'';q('scheduleDate').value=s.date||'';q('scheduleTitle').value=s.title||'';q('scheduleVenue').value=s.venue||'';q('scheduleBadge').value=s.badge||s.type||'LIVE';q('scheduleTicket').value=s.ticket||'';q('scheduleDetail').value=s.detail||'';q('scheduleTopLineCheck').checked=s.topLine!==false;q('scheduleCalendarCheck').checked=s.calendar!==false;setSchedulePublishValue(s.published===false?'false':(s.published==='draft'?'draft':'true'));q('scheduleCreatedAt').value=s.createdAt||new Date().toISOString().slice(0,10)}
 function clearScheduleForm(open=true){['scheduleId','scheduleDate','scheduleTitle','scheduleVenue','scheduleTicket','scheduleDetail'].forEach(id=>{if(q(id))q(id).value=''});if(q('scheduleBadge'))q('scheduleBadge').value='LIVE';if(q('scheduleTopLineCheck'))q('scheduleTopLineCheck').checked=true;if(q('scheduleCalendarCheck'))q('scheduleCalendarCheck').checked=true;setSchedulePublishValue('true');if(q('scheduleCreatedAt'))q('scheduleCreatedAt').value=new Date().toISOString().slice(0,10);renderSchedulePreview();if(open)openScheduleEditor()}
-function saveSchedule(){const id=q('scheduleId').value.trim()||`SCH-${Date.now()}`;const row={...buildSchedulePreviewData(),id,updatedAt:new Date().toISOString()};const idx=state.schedules.findIndex(x=>x.id===id);if(idx>=0)state.schedules[idx]=row;else state.schedules.unshift(row);persist();q('scheduleId').value=id;renderSchedules();renderScheduleAdminCalendar();updateScheduleDraftCount();toast('SCHEDULE 저장 완료');openPanel('schedule')}
+async function saveSchedule(){
+  const currentId=q('scheduleId').value.trim();
+  const row={...buildSchedulePreviewData(),id:currentId,updatedAt:new Date().toISOString()};
+  if(!row.date){toast('날짜를 입력해 주세요');return}
+  if(!row.title){toast('공연명을 입력해 주세요');return}
+  try{
+    toast('SCHEDULE 저장 중...');
+    const data=await scheduleApiRequest('adminSaveScheduleItem',scheduleStateToApiPayload(row));
+    const saved=scheduleApiItemToState(data.item||{});
+    if(saved.id){
+      const idx=state.schedules.findIndex(x=>x.id===saved.id);
+      if(idx>=0)state.schedules[idx]=saved;else state.schedules.unshift(saved);
+      q('scheduleId').value=saved.id;
+    }
+    persist();
+    renderSchedules();
+    renderScheduleAdminCalendar();
+    updateScheduleDraftCount();
+    toast('SCHEDULE 저장 완료');
+    openPanel('schedule');
+  }catch(err){
+    console.error('[schedule] save failed',err);
+    toast('저장 실패: '+(err.message||err));
+  }
+}
 function saveScheduleDraft(){ensureScheduleDrafts();const row={...buildSchedulePreviewData(),id:q('scheduleId').value||`DRAFT-SCH-${Date.now()}`,savedAt:new Date().toISOString()};state.scheduleDrafts.unshift(row);persist();updateScheduleDraftCount();toast('SCHEDULE 임시등록 완료')}
 function openScheduleDraftModal(){ensureScheduleDrafts();renderScheduleDrafts();q('scheduleDraftModal').hidden=false}
 function closeScheduleDraftModal(){q('scheduleDraftModal').hidden=true}
@@ -4081,7 +4184,7 @@ function setupScheduleLivePreview(){['scheduleDate','scheduleTitle','scheduleVen
 
 function setupAdminSearchInputs(){q('scheduleSearchInput')?.addEventListener('input',()=>{schedulePage=1;renderSchedules();})}
 function renderAll(){renderSchedules()}
-function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};setupScheduleLivePreview();renderSchedulePreview();renderScheduleAdminCalendar();renderScheduleWriteCalendar();setupAdminSearchInputs();renderSchedules();updateScheduleDraftCount();openPanel(location.hash?.replace('#','')||'schedule')}
+function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};setupScheduleLivePreview();renderSchedulePreview();renderScheduleAdminCalendar();renderScheduleWriteCalendar();setupAdminSearchInputs();renderSchedules();updateScheduleDraftCount();openPanel(location.hash?.replace('#','')||'schedule');loadSchedulesFromApi()}
 load();
 </script>
 </body>
