@@ -3027,7 +3027,11 @@ line-height:1.9 !important;
       return ['ko','ja','en','zh'].includes(lang) ? lang : 'ko';
     }
     function currentLangFromUrl(){
-      return normalizeLang(new URLSearchParams(location.search).get('lang') || localStorage.getItem('lumibelleHomeLang') || 'ko');
+      let saved = '';
+      try{
+        saved = localStorage.getItem('lumibelle.home.lang') || localStorage.getItem('lumibelleHomeLang') || '';
+      }catch(e){}
+      return normalizeLang(new URLSearchParams(location.search).get('lang') || saved || 'ko');
     }
     let currentLang = currentLangFromUrl();
     let requestSeq = 0;
@@ -3147,14 +3151,53 @@ line-height:1.9 !important;
       });
       return map;
     }
+    function withLangParam(href, lang){
+      lang = normalizeLang(lang);
+      if(!href || href.indexOf('javascript:') === 0 || href.indexOf('mailto:') === 0 || href.indexOf('tel:') === 0 || href.charAt(0) === '#') return href;
+      try{
+        const url = new URL(href, location.href);
+        if(url.origin !== location.origin) return href;
+        url.searchParams.set('lang', lang);
+        return url.pathname.replace(/^\//,'') + url.search + url.hash;
+      }catch(e){
+        const parts = href.split('#');
+        const base = parts[0];
+        const hash = parts[1] ? '#' + parts[1] : '';
+        const sep = base.indexOf('?') === -1 ? '?' : '&';
+        return base + sep + 'lang=' + encodeURIComponent(lang) + hash;
+      }
+    }
+
+    function updateLanguageLinks(lang){
+      lang = normalizeLang(lang);
+      [
+        'index.html',
+        'news.html',
+        'member.html',
+        'schedule.html',
+        'setlist.html',
+        'info.html',
+        'ticket/',
+        'goods/'
+      ].forEach(function(href){
+        document.querySelectorAll('a[href="' + href + '"], a[href^="' + href + '?"]').forEach(function(a){
+          a.setAttribute('href', withLangParam(href, lang));
+        });
+      });
+    }
+
     function applyUiText(){
       const t = UI_TEXT[currentLang] || UI_TEXT.ko;
-      localStorage.setItem('lumibelleHomeLang', currentLang);
+      try{
+        localStorage.setItem('lumibelle.home.lang', currentLang);
+        localStorage.setItem('lumibelleHomeLang', currentLang);
+      }catch(e){}
       document.querySelectorAll('.lang-switch a').forEach(a => {
         const lang = normalizeLang(a.dataset.lang || a.textContent.trim().toLowerCase());
         a.href = `schedule.html?lang=${lang}`;
         a.classList.toggle('active', lang === currentLang);
       });
+      updateLanguageLinks(currentLang);
       const navMap = [ ['index.html','home'], ['news.html','news'], ['member.html','member'], ['schedule.html','schedule'], ['ticket/','ticket'], ['goods/','goods'], ['setlist.html','setlist'], ['info.html','info'] ];
       navMap.forEach(([href,key]) => {
         const el = document.querySelector(`nav a[href="${href}"] span`);

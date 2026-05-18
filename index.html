@@ -5496,10 +5496,54 @@ line-height:1.9 !important;
         document.querySelectorAll(".lang-switch [data-lang-btn]").forEach(function(btn){
           btn.classList.toggle("active", btn.getAttribute("data-lang-btn") === lang);
         });
+        updateLanguageLinks(lang);
         window.dispatchEvent(new CustomEvent("lumibelle-home-lang-changed", { detail:{ lang: lang } }));
       }
 
       window.LumibelleHomeI18n = { t:t, apply:applyLang, current:function(){ return window.LUMI_HOME_LANG || DEFAULT_LANG; } };
+
+      function withLangParam(href, lang){
+        lang = normalizeLang(lang);
+        if(!href || href.indexOf('javascript:') === 0 || href.indexOf('mailto:') === 0 || href.indexOf('tel:') === 0 || href.charAt(0) === '#') return href;
+        try{
+          const url = new URL(href, location.href);
+          if(url.origin !== location.origin) return href;
+          url.searchParams.set('lang', lang);
+          return url.pathname.replace(/^\//,'') + url.search + url.hash;
+        }catch(e){
+          const parts = href.split('#');
+          const base = parts[0];
+          const hash = parts[1] ? '#' + parts[1] : '';
+          const sep = base.indexOf('?') === -1 ? '?' : '&';
+          return base + sep + 'lang=' + encodeURIComponent(lang) + hash;
+        }
+      }
+
+      function updateLanguageLinks(lang){
+        lang = normalizeLang(lang);
+        document.querySelectorAll('.lang-switch [data-lang-btn]').forEach(function(btn){
+          btn.setAttribute('href', withLangParam('index.html', btn.getAttribute('data-lang-btn') || lang));
+        });
+
+        [
+          'index.html',
+          'news.html',
+          'member.html',
+          'schedule.html',
+          'setlist.html',
+          'info.html',
+          'ticket/',
+          'goods/'
+        ].forEach(function(href){
+          document.querySelectorAll('a[href="' + href + '"]').forEach(function(a){
+            a.setAttribute('href', withLangParam(href, lang));
+          });
+        });
+
+        document.querySelectorAll('a[data-keep-lang="true"]').forEach(function(a){
+          a.setAttribute('href', withLangParam(a.getAttribute('href') || '', lang));
+        });
+      }
 
       document.addEventListener("click", function(e){
         const btn = e.target.closest(".lang-switch [data-lang-btn]");
@@ -5509,7 +5553,10 @@ line-height:1.9 !important;
       });
 
       let saved = DEFAULT_LANG;
-      try{ saved = localStorage.getItem(STORAGE_KEY) || DEFAULT_LANG; }catch(e){}
+      try{
+        const urlLang = new URLSearchParams(location.search).get('lang');
+        saved = urlLang ? normalizeLang(urlLang) : (localStorage.getItem(STORAGE_KEY) || DEFAULT_LANG);
+      }catch(e){}
       applyLang(saved);
     })();
   </script>
