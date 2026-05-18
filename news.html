@@ -3375,6 +3375,42 @@ line-height:1.9 !important;
       });
     }
 
+
+    function withLangParamForPage(href, lang){
+      lang = LumiNewsSync.normalizeLang ? LumiNewsSync.normalizeLang(lang || currentLang) : (lang || currentLang || 'ko');
+      if(!href || href.indexOf('javascript:') === 0 || href.indexOf('mailto:') === 0 || href.indexOf('tel:') === 0 || href.charAt(0) === '#') return href;
+      try{
+        var url = new URL(href, location.href);
+        if(url.origin !== location.origin) return href;
+        url.searchParams.set('lang', lang);
+        return url.pathname.replace(/^\//,'') + url.search + url.hash;
+      }catch(e){
+        var parts = href.split('#');
+        var base = parts[0];
+        var hash = parts[1] ? '#' + parts[1] : '';
+        var sep = base.indexOf('?') === -1 ? '?' : '&';
+        return base + sep + 'lang=' + encodeURIComponent(lang) + hash;
+      }
+    }
+
+    function updatePageLanguageLinks(lang){
+      lang = LumiNewsSync.normalizeLang ? LumiNewsSync.normalizeLang(lang || currentLang) : (lang || currentLang || 'ko');
+      [
+        'index.html',
+        'news.html',
+        'member.html',
+        'schedule.html',
+        'setlist.html',
+        'info.html',
+        'ticket/',
+        'goods/'
+      ].forEach(function(href){
+        document.querySelectorAll('a[href="' + href + '"], a[href^="' + href + '?"]').forEach(function(a){
+          if(a.closest('.lang-switch')) return;
+          a.setAttribute('href', withLangParamForPage(href, lang));
+        });
+      });
+    }
     /* ── URL에 lang 반영 ── */
     function setUrlLang(lang){
       try{
@@ -3483,6 +3519,7 @@ line-height:1.9 !important;
       LumiNewsSync.setCurrentLang(currentLang);
       setUrlLang(currentLang);
       updateLangButtons();
+      updatePageLanguageLinks(currentLang);
       applyUiText(currentLang);
       currentPage = 1;
 
@@ -3551,6 +3588,7 @@ line-height:1.9 !important;
     LumiNewsSync.setCurrentLang(currentLang);
     applyUiText(currentLang);
     updateLangButtons();
+    updatePageLanguageLinks(currentLang);
     updateFilterButtons();
 
     /*

@@ -5512,7 +5512,11 @@ line-height:1.9 !important;
         lang = normalizeLang(lang);
         window.LUMI_HOME_LANG = lang;
         document.documentElement.lang = LANG_MAP[lang] || lang;
-        try{ localStorage.setItem(STORAGE_KEY, lang); }catch(e){}
+        try{
+          localStorage.setItem('lumibelle.home.lang', lang);
+          localStorage.setItem('lumibelleCurrentLang', lang);
+          localStorage.setItem('lumibelleHomeLang', lang);
+        }catch(e){}
 
         document.querySelectorAll("[data-i18n]").forEach(function(el){
           el.textContent = t(el.getAttribute("data-i18n"), lang);
@@ -5565,7 +5569,8 @@ line-height:1.9 !important;
           'ticket/',
           'goods/'
         ].forEach(function(href){
-          document.querySelectorAll('a[href="' + href + '"]').forEach(function(a){
+          document.querySelectorAll('a[href="' + href + '"], a[href^="' + href + '?"]').forEach(function(a){
+            if(a.closest('.lang-switch')) return;
             a.setAttribute('href', withLangParam(href, lang));
           });
         });
