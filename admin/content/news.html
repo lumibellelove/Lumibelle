@@ -956,9 +956,12 @@ input:focus,select:focus,textarea:focus{border-color:#f4a4ca;box-shadow:0 0 0 4p
           </section>
           <section class="side-box" id="newsTranslateBox">
             <h3>자동번역</h3>
-            <p style="font-size:13px;color:#b28ea2;margin:0 0 12px;line-height:1.6;">저장 전 번역 필드를 준비합니다.<br>번역 API는 2차 패치에서 연결됩니다.</p>
-            <button type="button" class="btn sub" style="width:100%;" onclick="prepareNewsTranslateFields()">번역 필드 준비</button>
+            <label style="font-size:12px;color:#b28ea2;font-weight:900;display:block;margin:0 0 6px;">Apps Script URL
+              <input id="newsTranslateScriptUrl" type="text" placeholder="https://script.google.com/macros/s/.../exec" style="font-size:11px;font-weight:700;">
+            </label>
+            <button type="button" class="btn sub" style="width:100%;margin-top:4px;" onclick="runNewsAutoTranslate()">번역 실행 (日·EN·中)</button>
             <div id="newsTranslateStatus" style="margin-top:10px;font-size:13px;color:#b28ea2;min-height:18px;"></div>
+            <div id="newsTranslatePreview" hidden style="margin-top:12px;border-top:1px solid #f2d8e7;padding-top:10px;display:flex;flex-direction:column;gap:8px;"></div>
           </section>
 
 <section class="side-box side-actions">
@@ -4618,22 +4621,92 @@ function saveInnerFromFields(){}
 function restoreInner(){}
 function renderAll(){renderNews();updateDraftCount();}
 
-/* ===== 자동번역 준비 (1차: UI 위치 확보 / API 연결은 2차 패치) ===== */
+/* ===== 자동번역 (2차: Apps Script translateNewsContent 호출) ===== */
 function setTranslateStatus(msg, color){
   const el = document.getElementById('newsTranslateStatus');
   if(!el) return;
   el.textContent = msg;
   el.style.color = color || '#b28ea2';
 }
-function prepareNewsTranslateFields(){
-  const title = document.getElementById('newsTitle');
-  if(!title || !title.value.trim()){
-    setTranslateStatus('⚠ 제목을 먼저 입력해 주세요.', '#e07070');
-    return;
-  }
-  setTranslateStatus('✓ 번역 필드 준비 완료. (API 연결은 2차 패치)', '#d77ca7');
+
+function renderTranslatePreview(translations){
+  const box = document.getElementById('newsTranslatePreview');
+  if(!box) return;
+  const LANG_LABEL = { ja:'🇯🇵 日本語', en:'🇺🇸 English', zh:'🇨🇳 中文' };
+  box.innerHTML = '';
+  Object.entries(translations).forEach(([lang, data])=>{
+    const wrap = document.createElement('details');
+    wrap.style.cssText = 'background:#fff;border:1px solid #f2d8e7;border-radius:12px;padding:8px 12px;font-size:12px;';
+    const summary = document.createElement('summary');
+    summary.style.cssText = 'font-weight:900;color:#d77ca7;cursor:pointer;list-style:none;';
+    summary.textContent = (LANG_LABEL[lang]||lang) + ' — ' + (data.title||'').slice(0,20) + (data.title?.length>20?'…':'');
+    const titleP = document.createElement('p');
+    titleP.style.cssText = 'margin:6px 0 4px;color:#7f6a77;font-weight:800;';
+    titleP.textContent = data.title || '';
+    const bodyP = document.createElement('p');
+    bodyP.style.cssText = 'margin:0;color:#b28ea2;line-height:1.5;white-space:pre-wrap;max-height:80px;overflow-y:auto;';
+    bodyP.textContent = (data.body||'').slice(0,200) + (data.body?.length>200?'…':'');
+    wrap.appendChild(summary);
+    wrap.appendChild(titleP);
+    wrap.appendChild(bodyP);
+    box.appendChild(wrap);
+  });
+  box.hidden = false;
 }
-/* ===== 자동번역 준비 끝 ===== */
+
+// 번역 결과를 메모리에만 보관 (저장은 3차 패치에서)
+window._newsTranslations = null;
+
+async function runNewsAutoTranslate(){
+  const titleEl = document.getElementById('newsTitle');
+  const editorEl = document.getElementById('newsBodyEditor');
+  const urlEl = document.getElementById('newsTranslateScriptUrl');
+
+  if(!titleEl || !titleEl.value.trim()){
+    setTranslateStatus('⚠ 제목을 먼저 입력해 주세요.', '#e07070'); return;
+  }
+  const scriptUrl = (urlEl?.value||'').trim() ||
+    (window.LumiContentSync?._url) || '';
+  if(!scriptUrl){
+    setTranslateStatus('⚠ Apps Script URL을 입력해 주세요.', '#e07070'); return;
+  }
+
+  const title = titleEl.value.trim();
+  // innerHTML 절대 수정 안 함 — textContent 읽기 전용
+  const bodyText = (editorEl ? editorEl.innerText || editorEl.textContent : '').trim();
+
+  setTranslateStatus('⏳ 번역 중…', '#d77ca7');
+  document.getElementById('newsTranslatePreview').hidden = true;
+  window._newsTranslations = null;
+
+  try {
+    const formData = new URLSearchParams();
+    formData.append('action', 'translateNewsContent');
+    formData.append('payload', JSON.stringify({
+      title: title,
+      bodyText: bodyText,
+      targetLangs: ['ja','en','zh']
+    }));
+    const res = await fetch(scriptUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData.toString()
+    });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if(!json.ok || !json.translations){
+      throw new Error(json.message || json.error || '번역 응답 오류');
+    }
+    window._newsTranslations = json.translations;
+    setTranslateStatus('✓ 번역 완료 (저장은 3차 패치)', '#31a963');
+    renderTranslatePreview(json.translations);
+  } catch(err){
+    console.error('[번역 오류]', err);
+    setTranslateStatus('✗ 번역 실패: ' + err.message, '#e07070');
+    // 에디터/기존 기능 일절 건드리지 않음
+  }
+}
+/* ===== 자동번역 끝 ===== */
 
 /* ===== 표 우클릭 컨텍스트 메뉴 ===== */
 let ctxTargetWrap=null;
