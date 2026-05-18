@@ -6,44 +6,6 @@
   const DEFAULT_NEWS = [];
   let cachedPublicNews = [];
   let hasLoadedPublicNews = false;
-  let currentPublicLang = 'ko';
-
-  function normalizeLang(lang){
-    lang = String(lang || '').toLowerCase();
-    if(lang === 'jp') return 'ja';
-    if(lang === 'cn' || lang === 'zh-cn' || lang === 'zh_hans') return 'zh';
-    if(['ko','en','ja','zh'].indexOf(lang) !== -1) return lang;
-    return 'ko';
-  }
-
-  function getCurrentLang(){
-    try{
-      const params = new URLSearchParams(window.location.search || '');
-      const queryLang = params.get('lang');
-      if(queryLang) return normalizeLang(queryLang);
-    }catch(e){}
-
-    const path = String(window.location.pathname || '').toLowerCase();
-    if(path.indexOf('/en/') !== -1) return 'en';
-    if(path.indexOf('/jp/') !== -1) return 'ja';
-    if(path.indexOf('/cn/') !== -1) return 'zh';
-
-    try{
-      const saved = localStorage.getItem('lumibelle.home.lang');
-      if(saved) return normalizeLang(saved);
-    }catch(e){}
-    return currentPublicLang || 'ko';
-  }
-
-  function setCurrentLang(lang){
-    currentPublicLang = normalizeLang(lang);
-    try{ localStorage.setItem('lumibelle.home.lang', currentPublicLang); }catch(e){}
-    document.documentElement.lang = currentPublicLang === 'zh' ? 'zh-CN' : currentPublicLang;
-    document.querySelectorAll('.lang-switch [data-lang-btn]').forEach(function(btn){
-      btn.classList.toggle('active', normalizeLang(btn.getAttribute('data-lang-btn')) === currentPublicLang);
-    });
-    return currentPublicLang;
-  }
 
   function htmlEscape(v){
     return String(v == null ? '' : v).replace(/[&<>"']/g, function(s){
@@ -120,6 +82,8 @@
       sortOrder: Number(item.sortOrder || 0),
       lang: String(item.lang || 'ko'),
       translationGroupId: String(item.translationGroupId || item.id || ''),
+      translations: item.translations || {},
+      translationStatus: item.translationStatus || {},
       deletedAt: String(item.deletedAt || '')
     };
   }
@@ -155,6 +119,8 @@
       sortOrder: row.sortOrder || 0,
       lang: row.lang || 'ko',
       translationGroupId: row.translationGroupId || row.id || '',
+      translations: row.translations || {},
+      translationStatus: row.translationStatus || {},
       createdBy: row.createdBy || 'admin',
       updatedBy: row.updatedBy || 'admin'
     };
@@ -301,6 +267,13 @@
     return fetchPost('uploadNewsSticker', payload || {});
   }
 
+  function translateNewsContent(payload){
+    payload = payload || {};
+    return request('translateNewsContent', payload).then(function(res){
+      return res || {};
+    });
+  }
+
   function readState(){
     try{
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
@@ -362,8 +335,7 @@
   }
 
   function loadPublicNews(lang){
-    lang = setCurrentLang(lang || getCurrentLang());
-    return request('publicListNewsItems', {lang: lang}).then(function(res){
+    return request('publicListNewsItems', {lang: lang || 'ko'}).then(function(res){
       cachedPublicNews = (res.items || []).map(convertApiItem).sort(sortNews);
       hasLoadedPublicNews = true;
       saveLocalNews(cachedPublicNews);
@@ -438,15 +410,9 @@
     return badges;
   }
 
-  function newsHref(n, lang){
-    lang = normalizeLang(lang || currentPublicLang || getCurrentLang());
+  function newsHref(n){
     if(n && n.id === 'NEWS-20260712-001') return n.link || 'news-debut.html';
-    if(n && n.link && n.link !== ('news-detail.html?id=' + encodeURIComponent(String(n.id || '')))) return n.link;
-    const params = [];
-    params.push('id=' + encodeURIComponent(n && n.id || ''));
-    if(n && n.translationGroupId) params.push('group=' + encodeURIComponent(n.translationGroupId));
-    params.push('lang=' + encodeURIComponent(lang));
-    return 'news-detail.html?' + params.join('&');
+    return (n && n.link) ? n.link : ('news-detail.html?id=' + encodeURIComponent(n && n.id || ''));
   }
 
   function searchHaystack(n){
@@ -465,9 +431,6 @@
     readState,
     publicNews,
     loadPublicNews,
-    getCurrentLang,
-    setCurrentLang,
-    normalizeLang,
     adminListNewsItems,
     adminCreateNewsItem,
     adminUpdateNewsItem,
@@ -479,6 +442,7 @@
     getDriveImageData,
     listNewsStickers,
     uploadNewsSticker,
+    translateNewsContent,
     sortNews,
     htmlEscape,
     stripHTML,
@@ -498,8 +462,8 @@
   window.LumiNewsSync = api;
 
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', function(){ loadPublicNews(getCurrentLang()).catch(function(){}); });
+    document.addEventListener('DOMContentLoaded', function(){ loadPublicNews('ko').catch(function(){}); });
   }else{
-    loadPublicNews(getCurrentLang()).catch(function(){});
+    loadPublicNews('ko').catch(function(){});
   }
 })();
