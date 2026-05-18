@@ -3044,7 +3044,36 @@ line-height:1.9 !important;
       });
     }
     function text(key){ return (UI_TEXT[currentLang] || UI_TEXT.ko)[key]; }
+    function normalizeScheduleDate(value){
+      if(!value) return '';
+      const raw = String(value || '').trim();
+
+      // 이미 정상 형식이면 그대로 사용
+      const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if(iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+
+      // Apps Script/Google Sheets Date 문자열 대응: Wed Jul 15 2026 ...
+      const parsed = Date.parse(raw);
+      if(!isNaN(parsed)){
+        const d = new Date(parsed);
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      }
+
+      return raw;
+    }
+
+    function toScheduleBool(value, defaultValue){
+      if(value === true) return true;
+      if(value === false) return false;
+      const textValue = String(value == null ? '' : value).trim().toLowerCase();
+      if(!textValue) return !!defaultValue;
+      if(['true','1','yes','y','on'].includes(textValue)) return true;
+      if(['false','0','no','n','off'].includes(textValue)) return false;
+      return !!defaultValue;
+    }
+
     function formatDateDot(dateKey){
+      dateKey = normalizeScheduleDate(dateKey);
       if(!dateKey) return '';
       const d = new Date(dateKey + 'T00:00:00');
       const yyyy = dateKey.slice(0,4), mm = dateKey.slice(5,7), dd = dateKey.slice(8,10);
@@ -3062,7 +3091,7 @@ line-height:1.9 !important;
       item = item || {};
       return {
         id:String(item.id || ''),
-        date:String(item.date || ''),
+        date:normalizeScheduleDate(item.date),
         time:String(item.time || ''),
         title:String(item.title || ''),
         venue:String(item.venue || ''),
@@ -3070,9 +3099,9 @@ line-height:1.9 !important;
         ticketUrl:String(item.ticketUrl || ''),
         detailUrl:String(item.detailUrl || ''),
         status:String(item.status || ''),
-        isHome:item.isHome === true || String(item.isHome).toLowerCase() === 'true',
-        isPinned:item.isPinned === true || String(item.isPinned).toLowerCase() === 'true',
-        showInCalendar:item.showInCalendar === true || String(item.showInCalendar).toLowerCase() === 'true',
+        isHome:toScheduleBool(item.isHome, false),
+        isPinned:toScheduleBool(item.isPinned, false),
+        showInCalendar:toScheduleBool(item.showInCalendar, true),
         sortOrder:Number(item.sortOrder || 0),
         lang:normalizeLang(item.lang || currentLang),
         translationGroupId:String(item.translationGroupId || item.id || '')
@@ -3099,10 +3128,11 @@ line-height:1.9 !important;
     function buildEvents(items){
       const map = {};
       (items || []).forEach(item => {
-        if(!item.date) return;
-        if(!item.showInCalendar) return;
-        if(!map[item.date]) map[item.date] = [];
-        map[item.date].push({
+        const dateKey = normalizeScheduleDate(item.date);
+        if(!dateKey) return;
+        if(!toScheduleBool(item.showInCalendar, true)) return;
+        if(!map[dateKey]) map[dateKey] = [];
+        map[dateKey].push({
           type:item.badge || 'LIVE',
           place:item.venue || '',
           event:item.title || '',
