@@ -5530,6 +5530,20 @@ line-height:1.9 !important;
   <script src="js/lumi-content-sync.js?v=20260517-mobile-v5"></script>
 
   <script>
+    /* ===== 다국어 재적용 안전장치: 외부 동기화 스크립트 뒤에 HERO 포함 고정 문구 재반영 ===== */
+    (function(){
+      function reapplyHomeLangAfterSync(){
+        if(window.LumibelleHomeI18n && typeof window.LumibelleHomeI18n.apply === "function"){
+          window.LumibelleHomeI18n.apply(window.LumibelleHomeI18n.current());
+        }
+      }
+      reapplyHomeLangAfterSync();
+      window.addEventListener("load", reapplyHomeLangAfterSync);
+    })();
+  </script>
+
+
+  <script>
     const backToTop = document.getElementById('backToTop');
     window.addEventListener('scroll', () => {
       if (window.scrollY > 280) {
