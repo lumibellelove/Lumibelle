@@ -3131,11 +3131,11 @@ line-height:1.9 !important;
 </div>
 
 <div class="top-lang-bar">
-    <div class="lang-switch">
-      <a href="index.html" class="active">KR</a>
-      <a href="en/index.html">EN</a>
-      <a href="jp/index.html">JP</a>
-      <a href="cn/index.html">CN</a>
+    <div class="lang-switch" aria-label="Language switcher">
+      <a href="news-detail.html?lang=ko" class="active" data-lang-btn="ko">KR</a>
+      <a href="news-detail.html?lang=en" data-lang-btn="en">EN</a>
+      <a href="news-detail.html?lang=ja" data-lang-btn="ja">JP</a>
+      <a href="news-detail.html?lang=zh" data-lang-btn="zh">CN</a>
     </div>
   </div>
 
@@ -3210,6 +3210,9 @@ line-height:1.9 !important;
     (function(){
       const params = new URLSearchParams(location.search);
       const id = params.get('id');
+      const group = params.get('group') || '';
+      let currentLang = params.get('lang') || (LumiNewsSync.getCurrentLang ? LumiNewsSync.getCurrentLang() : 'ko');
+      currentLang = LumiNewsSync.normalizeLang ? LumiNewsSync.normalizeLang(currentLang) : currentLang;
       const dateEl = document.getElementById('newsDetailDate');
       const badgeEl = document.getElementById('newsDetailBadges');
       const titleEl = document.getElementById('newsDetailTitle');
@@ -3341,7 +3344,7 @@ line-height:1.9 !important;
         bodyEl.textContent = '공지사항을 불러오고 있습니다.';
         heroEl.hidden = true;
         infoEl.hidden = true;
-        buttonsEl.innerHTML = '<a class="news-action-btn sub" href="news.html">BACK TO NEWS</a>';
+        buttonsEl.innerHTML = '<a class="news-action-btn sub" href="news.html?lang=' + encodeURIComponent(currentLang) + '">BACK TO NEWS</a>';
       }
 
       function showNotFound(){
@@ -3354,12 +3357,14 @@ line-height:1.9 !important;
         infoEl.innerHTML = '';
         badgeEl.innerHTML = '';
         dateEl.textContent = '';
-        buttonsEl.innerHTML = '<a class="news-action-btn sub" href="news.html">BACK TO NEWS</a>';
+        buttonsEl.innerHTML = '<a class="news-action-btn sub" href="news.html?lang=' + encodeURIComponent(currentLang) + '">BACK TO NEWS</a>';
       }
 
       function renderNewsDetail(finalCheck){
         const rows = LumiNewsSync.publicNews();
-        const news = id ? rows.find(function(n){ return n.id === id; }) : rows[0];
+        const news = id
+          ? (rows.find(function(n){ return n.id === id; }) || rows.find(function(n){ return group && n.translationGroupId === group; }))
+          : (group ? rows.find(function(n){ return n.translationGroupId === group; }) : rows[0]);
 
         if(!news){
           if(finalCheck) showNotFound();
@@ -3412,13 +3417,38 @@ line-height:1.9 !important;
         if(ticketHref){
           btns.push(['TICKET', ticketHref, false]);
         }
-        btns.push(['BACK TO NEWS', 'news.html', true]);
+        btns.push(['BACK TO NEWS', 'news.html?lang=' + encodeURIComponent(currentLang), true]);
         buttonsEl.innerHTML = btns.map(function(row){
           return '<a class="news-action-btn ' + (row[2] ? 'sub' : '') + '" href="' + LumiNewsSync.htmlEscape(row[1]) + '">' + LumiNewsSync.htmlEscape(row[0]) + '</a>';
         }).join('');
       }
 
+      function setDetailUrlLang(lang){
+        try{
+          const url = new URL(window.location.href);
+          url.searchParams.set('lang', lang);
+          if(group) url.searchParams.set('group', group);
+          window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+        }catch(e){}
+      }
+
+      function loadDetailLang(lang){
+        currentLang = LumiNewsSync.normalizeLang ? LumiNewsSync.normalizeLang(lang) : (lang || 'ko');
+        if(LumiNewsSync.setCurrentLang) LumiNewsSync.setCurrentLang(currentLang);
+        setDetailUrlLang(currentLang);
+        showWaiting();
+        LumiNewsSync.loadPublicNews(currentLang).then(function(){ renderNewsDetail(true); }).catch(function(){ renderNewsDetail(true); });
+      }
+
+      document.querySelectorAll('.lang-switch [data-lang-btn]').forEach(function(btn){
+        btn.addEventListener('click', function(e){
+          e.preventDefault();
+          loadDetailLang(btn.getAttribute('data-lang-btn') || 'ko');
+        });
+      });
+
       window.addEventListener('lumi-news-updated', function(){ renderNewsDetail(true); });
+      if(LumiNewsSync.setCurrentLang) LumiNewsSync.setCurrentLang(currentLang);
       renderNewsDetail(false);
     })();
   </script>

@@ -2924,11 +2924,11 @@ line-height:1.9 !important;
 
 <body>
 <div class="top-lang-bar">
-    <div class="lang-switch">
-      <a href="index.html" class="active">KR</a>
-      <a href="en/index.html">EN</a>
-      <a href="jp/index.html">JP</a>
-      <a href="cn/index.html">CN</a>
+    <div class="lang-switch" aria-label="Language switcher">
+      <a href="news.html?lang=ko" class="active" data-lang-btn="ko">KR</a>
+      <a href="news.html?lang=en" data-lang-btn="en">EN</a>
+      <a href="news.html?lang=ja" data-lang-btn="ja">JP</a>
+      <a href="news.html?lang=zh" data-lang-btn="zh">CN</a>
     </div>
   </div>
 
@@ -3006,6 +3006,7 @@ line-height:1.9 !important;
       const PAGE_SIZE = 5;
       let currentCategory = '전체';
       let currentPage = 1;
+      let currentLang = LumiNewsSync.getCurrentLang ? LumiNewsSync.getCurrentLang() : 'ko';
       const list = document.getElementById('publicNewsList');
       const pager = document.getElementById('publicNewsPager');
       const search = document.getElementById('publicNewsSearch');
@@ -3041,7 +3042,7 @@ line-height:1.9 !important;
             html += '<div class="year-label">' + LumiNewsSync.htmlEscape(year) + '</div>';
             lastYear = year;
           }
-          html += '<a href="' + LumiNewsSync.htmlEscape(LumiNewsSync.newsHref(n)) + '" class="news-row ' + (n.pinned ? 'latest' : '') + '">'
+          html += '<a href="' + LumiNewsSync.htmlEscape(LumiNewsSync.newsHref(n, currentLang)) + '" class="news-row ' + (n.pinned ? 'latest' : '') + '">'
             + '<div class="news-date">' + LumiNewsSync.htmlEscape(LumiNewsSync.toShortDate(n.date)) + '</div>'
             + '<div class="news-badge-wrap">' + renderBadges(n) + '</div>'
             + '<div class="news-title">' + LumiNewsSync.htmlEscape(n.title || '제목 없음') + '</div>'
@@ -3080,11 +3081,37 @@ line-height:1.9 !important;
         render();
       });
 
+      function setLangInUrl(lang){
+        try{
+          const url = new URL(window.location.href);
+          url.searchParams.set('lang', lang);
+          window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+        }catch(e){}
+      }
+
+      function loadLang(lang){
+        currentLang = LumiNewsSync.normalizeLang ? LumiNewsSync.normalizeLang(lang) : (lang || 'ko');
+        setLangInUrl(currentLang);
+        if(LumiNewsSync.setCurrentLang) LumiNewsSync.setCurrentLang(currentLang);
+        currentPage = 1;
+        if(list) list.innerHTML = '<div class="public-news-empty">공지사항을 불러오고 있습니다.</div>';
+        LumiNewsSync.loadPublicNews(currentLang).then(render).catch(function(){ render(); });
+      }
+
+      document.querySelectorAll('.lang-switch [data-lang-btn]').forEach(function(btn){
+        btn.addEventListener('click', function(e){
+          e.preventDefault();
+          loadLang(btn.getAttribute('data-lang-btn') || 'ko');
+        });
+      });
+
       window.addEventListener('storage', function(e){
         if(e.key === LumiNewsSync.STORAGE_KEY) render();
+        if(e.key === 'lumibelle.home.lang') loadLang(e.newValue || 'ko');
       });
       window.addEventListener('lumi-news-updated', render);
 
+      if(LumiNewsSync.setCurrentLang) LumiNewsSync.setCurrentLang(currentLang);
       render();
     })();
   </script>
