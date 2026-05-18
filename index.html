@@ -4622,6 +4622,33 @@ line-height:1.9 !important;
       .home-grid-top .news-badge{
         box-shadow:none !important;
       }
+
+      /* ── SCHEDULE 텍스트 넘칠 때: 티켓 버튼 아래 줄로 ── */
+      .schedule-item.ticket-wrap{
+        grid-template-columns: auto minmax(0,1fr) minmax(0,1fr) !important;
+        grid-template-areas:
+          "date place title"
+          "ticket ticket ticket" !important;
+        row-gap: 8px !important;
+      }
+
+      .schedule-item.ticket-wrap .schedule-place,
+      .schedule-item.ticket-wrap .schedule-title{
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+      }
+
+      .schedule-item.ticket-wrap .ticket-btn{
+        grid-area: ticket !important;
+        justify-self: stretch !important;
+        width: 100% !important;
+        min-width: unset !important;
+        box-sizing: border-box !important;
+        text-align: center !important;
+        height: 34px !important;
+        font-size: 11px !important;
+      }
     }
 
     @media (max-width: 430px){
@@ -4978,29 +5005,7 @@ line-height:1.9 !important;
         padding-top:62px !important;
       }
     }
-  
-
-    /* ===== MOBILE SCHEDULE: 글자 넘칠 때 티켓 버튼만 2번째 줄로 이동 ===== */
-    @media (max-width: 780px){
-      .schedule-item.schedule-ticket-row{
-        grid-template-columns:auto minmax(0,.9fr) minmax(0,1.1fr) !important;
-        grid-template-areas:
-          "date place title"
-          "ticket ticket ticket" !important;
-        align-items:center !important;
-        gap:10px 8px !important;
-      }
-
-      .schedule-item.schedule-ticket-row .ticket-btn{
-        grid-area:ticket !important;
-        justify-self:stretch !important;
-        width:100% !important;
-        max-width:none !important;
-        min-width:0 !important;
-        height:38px !important;
-      }
-    }
-</style>
+  </style>
 </head>
 
 <body>
@@ -5485,37 +5490,6 @@ line-height:1.9 !important;
         return (I18N[lang] && I18N[lang][key]) || I18N[DEFAULT_LANG][key] || key;
       }
 
-      let scheduleOverflowTimer = null;
-
-      function checkScheduleTicketOverflow(){
-        const isMobile = window.matchMedia && window.matchMedia("(max-width: 780px)").matches;
-        document.querySelectorAll(".schedule-item").forEach(function(item){
-          item.classList.remove("schedule-ticket-row");
-          if(!isMobile) return;
-
-          const date = item.querySelector(".schedule-date");
-          const place = item.querySelector(".schedule-place");
-          const title = item.querySelector(".schedule-title");
-          const ticket = item.querySelector(".ticket-btn");
-          if(!date || !place || !title || !ticket) return;
-
-          const style = window.getComputedStyle(item);
-          const paddingX = (parseFloat(style.paddingLeft) || 0) + (parseFloat(style.paddingRight) || 0);
-          const columnGap = parseFloat(style.columnGap || style.gap) || 8;
-          const available = item.clientWidth - paddingX;
-          const needed = date.scrollWidth + place.scrollWidth + title.scrollWidth + ticket.scrollWidth + (columnGap * 3) + 8;
-
-          if(needed > available){
-            item.classList.add("schedule-ticket-row");
-          }
-        });
-      }
-
-      function scheduleTicketOverflowCheck(){
-        if(scheduleOverflowTimer) window.clearTimeout(scheduleOverflowTimer);
-        scheduleOverflowTimer = window.setTimeout(checkScheduleTicketOverflow, 60);
-      }
-
       function applyLang(lang){
         lang = normalizeLang(lang);
         window.LUMI_HOME_LANG = lang;
@@ -5534,7 +5508,6 @@ line-height:1.9 !important;
         document.querySelectorAll(".lang-switch [data-lang-btn]").forEach(function(btn){
           btn.classList.toggle("active", btn.getAttribute("data-lang-btn") === lang);
         });
-        scheduleTicketOverflowCheck();
         window.dispatchEvent(new CustomEvent("lumibelle-home-lang-changed", { detail:{ lang: lang } }));
       }
 
@@ -5550,12 +5523,6 @@ line-height:1.9 !important;
       let saved = DEFAULT_LANG;
       try{ saved = localStorage.getItem(STORAGE_KEY) || DEFAULT_LANG; }catch(e){}
       applyLang(saved);
-      window.addEventListener("resize", scheduleTicketOverflowCheck);
-      window.addEventListener("orientationchange", scheduleTicketOverflowCheck);
-      window.addEventListener("load", scheduleTicketOverflowCheck);
-      if(document.fonts && document.fonts.ready){
-        document.fonts.ready.then(scheduleTicketOverflowCheck).catch(function(){});
-      }
     })();
   </script>
 
@@ -6371,6 +6338,64 @@ document.addEventListener("click", function(e){
     100%{opacity:0; transform:skewX(-24deg) translateX(620%);}
   }
   </style>
+
+  <script>
+  /* SCHEDULE WRAP FIX: 날짜+장소+공연명이 넘칠 때만 티켓 버튼을 아래 줄로 */
+  (function(){
+    function checkScheduleWrap(){
+      var isMobile = window.innerWidth <= 780;
+      document.querySelectorAll('.schedule-item').forEach(function(item){
+        if(!isMobile){
+          item.classList.remove('ticket-wrap');
+          return;
+        }
+        // 티켓 버튼 제외한 텍스트 셀들의 실제 렌더 너비 합산
+        var date  = item.querySelector('.schedule-date');
+        var place = item.querySelector('.schedule-place');
+        var title = item.querySelector('.schedule-title');
+        var btn   = item.querySelector('.ticket-btn');
+        if(!date || !place || !title || !btn) return;
+
+        // wrap 클래스 잠깐 제거해서 실제 1줄 상태로 측정
+        item.classList.remove('ticket-wrap');
+
+        // scrollWidth > clientWidth 이면 텍스트가 넘치는 것
+        var overflowing =
+          place.scrollWidth > place.clientWidth ||
+          title.scrollWidth > title.clientWidth;
+
+        item.classList.toggle('ticket-wrap', overflowing);
+      });
+    }
+
+    // i18n 번역 완료 후에도 다시 체크 (언어 바뀌면 길이 달라짐)
+    function hookI18n(){
+      var orig = window.applyI18n || window.setLang || null;
+      // MutationObserver로 텍스트 변경 감지
+      var mo = new MutationObserver(function(){ checkScheduleWrap(); });
+      document.querySelectorAll('.schedule-place,.schedule-title').forEach(function(el){
+        mo.observe(el, {childList:true, subtree:true, characterData:true});
+      });
+    }
+
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', function(){
+        checkScheduleWrap();
+        hookI18n();
+      });
+    } else {
+      checkScheduleWrap();
+      hookI18n();
+    }
+    window.addEventListener('resize', checkScheduleWrap);
+    // 언어 전환 버튼 클릭 후 약간 딜레이 줘서 재측정
+    document.addEventListener('click', function(e){
+      if(e.target.closest('.lang-switch')){
+        setTimeout(checkScheduleWrap, 120);
+      }
+    });
+  })();
+  </script>
 
   <script>
   /* GALAXY COMBINED FIX v8: Android Chrome에서 최신 NEWS 동기화 파일을 강제 재시도 */
