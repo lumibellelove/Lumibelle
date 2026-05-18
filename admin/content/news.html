@@ -1493,8 +1493,29 @@ function applyNewsInlineTag(tagName){
   if(!editor || !sel || !sel.rangeCount)return false;
   const range=sel.getRangeAt(0);
   if(range.collapsed || !nodeInsideNewsEditor(range.commonAncestorContainer))return false;
+  const upper=String(tagName||'').toUpperCase();
+  const selectedNode=range.commonAncestorContainer.nodeType===1 ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement;
+  const activeInline=selectedNode && selectedNode.closest ? selectedNode.closest(tagName) : null;
+  if(activeInline && editor.contains(activeInline)){
+    try{
+      const parent=activeInline.parentNode;
+      const before=document.createTextNode('');
+      parent.insertBefore(before, activeInline);
+      while(activeInline.firstChild) parent.insertBefore(activeInline.firstChild, activeInline);
+      parent.removeChild(activeInline);
+      const nextRange=document.createRange();
+      nextRange.setStartAfter(before);
+      nextRange.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(nextRange);
+      savedNewsRange=nextRange.cloneRange();
+      return true;
+    }catch(err){
+      console.warn('[NEWS inline unwrap fallback]',err);
+    }
+  }
   const wrapper=document.createElement(tagName);
-  if(tagName==='strong') wrapper.style.fontWeight='900';
+  if(upper==='STRONG') wrapper.style.fontWeight='900';
   try{
     const frag=range.extractContents();
     wrapper.appendChild(frag);
@@ -1503,6 +1524,7 @@ function applyNewsInlineTag(tagName){
     nextRange.selectNodeContents(wrapper);
     sel.removeAllRanges();
     sel.addRange(nextRange);
+    savedNewsRange=nextRange.cloneRange();
     return true;
   }catch(err){
     console.warn('[NEWS inline format fallback]',err);
@@ -3555,7 +3577,7 @@ function renderRecentNewsImages(items, folderName=''){
   const cards=recentNewsCurrentItems.map((item,index)=>{
     const img=htmlEscape(item.thumbnailUrl||'');
     const name=htmlEscape(item.name||'news image');
-    return `<button type="button" class="recent-photo-card" data-recent-index="${index}" title="${name}" onclick="toggleRecentNewsImageSelection(${index})" ${recentNewsImageDeleting?'disabled':''}><span class="recent-select-pill">선택</span><img src="${img}" alt="${name}" loading="lazy"><span class="recent-photo-name">${name}</span></button>`;
+    return `<button type="button" class="recent-photo-card" data-recent-index="${index}" title="${name}" onclick="toggleRecentNewsImageSelection(${index},event)" ondblclick="quickInsertRecentNewsImage(${index},event)" ${recentNewsImageDeleting?'disabled':''}><span class="recent-select-pill">선택</span><img src="${img}" alt="${name}" loading="lazy"><span class="recent-photo-name">${name}</span></button>`;
   }).join('');
   const tools = folderName
     ? `<div class="recent-gallery-tools compact"><div class="recent-gallery-actions"><button type="button" class="btn sub" onclick="openRecentNewsImages()">← 뒤로가기</button><button type="button" class="btn sub" id="recentSelectAllBtn" onclick="toggleAllRecentNewsImages()">전체 선택</button><button type="button" class="btn primary" id="recentInsertSelectedBtn" onclick="insertSelectedRecentNewsImages()">선택 삽입</button><button type="button" class="btn danger" id="recentDeleteSelectedBtn" onclick="deleteSelectedRecentNewsImages()">선택 삭제</button></div></div>`
@@ -3589,7 +3611,8 @@ function updateRecentNewsSelectionTools(){
     deleteBtn.disabled=recentNewsImageDeleting || !selected;
   }
 }
-function toggleRecentNewsImageSelection(index){
+function toggleRecentNewsImageSelection(index,event){
+  if(event){event.preventDefault();event.stopPropagation();}
   if(recentNewsImageDeleting)return;
   hideRecentDeleteConfirm();
   setRecentGalleryStatus('', '');
@@ -3598,6 +3621,22 @@ function toggleRecentNewsImageSelection(index){
   const card=document.querySelector(`.recent-photo-card[data-recent-index="${index}"]`);
   if(card) card.classList.toggle('is-selected', recentNewsSelectedIndexes.has(index));
   updateRecentNewsSelectionTools();
+}
+async function quickInsertRecentNewsImage(index,event){
+  if(event){event.preventDefault();event.stopPropagation();}
+  if(recentNewsImageDeleting)return;
+  const item=recentNewsCurrentItems[index];
+  if(!item)return;
+  hideRecentDeleteConfirm();
+  setRecentGalleryStatus('', '');
+  recentNewsSelectedIndexes.clear();
+  recentNewsSelectedIndexes.add(index);
+  document.querySelectorAll('.recent-photo-card[data-recent-index]').forEach(card=>{
+    const idx=Number(card.dataset.recentIndex);
+    card.classList.toggle('is-selected', idx===index);
+  });
+  updateRecentNewsSelectionTools();
+  await insertSelectedRecentNewsImages();
 }
 function toggleAllRecentNewsImages(){
   if(recentNewsImageDeleting)return;
