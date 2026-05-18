@@ -208,6 +208,10 @@ input:focus,select:focus,textarea:focus{border-color:#f4a4ca;box-shadow:0 0 0 4p
 .preview-body b,.preview-body strong,.preview-body [data-lumi-bold="1"],
 .preview-article b,.preview-article strong,.preview-article [data-lumi-bold="1"],
 .news-detail-content b,.news-detail-content strong,.news-detail-content [data-lumi-bold="1"]{font-weight:900 !important}
+.news-body-editor i,.news-body-editor em,
+.preview-body i,.preview-body em,.preview-article i,.preview-article em{font-style:italic !important}
+.news-body-editor u,
+.preview-body u,.preview-article u{text-decoration:underline !important;text-decoration-thickness:1.5px;text-underline-offset:3px}
 
 /* ── DATE/PLACE 양식 ── */
 .news-detail-fields-box{margin:0 0 14px;padding:18px;border:1px solid #f3d1e2;border-radius:22px;background:#fff8fc}
@@ -1422,57 +1426,25 @@ function saveNewsRow(row,msg,opt={}){
 function formatNews(command,value=null){
   markNewsUndoPoint();
   restoreNewsSelection();
-  if(command==='bold'){
-    // contenteditable 기본 굵기/브라우저 execCommand 상태가 섞이면
-    // B가 반대로 동작하는 문제가 생기므로 bold는 직접 strong 처리만 사용한다.
-    applyNewsBoldStrong();
-    normalizeNewsBoldMarks();
-    syncBodyToTextarea();
-    saveNewsSelection();
-    return;
-  }
-  const inlineCommands={italic:'em',underline:'u'};
+  const inlineCommands={bold:'strong',italic:'em',underline:'u'};
   if(inlineCommands[command]){
     if(applyNewsInlineTag(inlineCommands[command])){
+      if(command==='bold') normalizeNewsBoldMarks();
       syncBodyToTextarea();
       saveNewsSelection();
       return;
     }
+    /* collapsed selection에서는 브라우저 execCommand 토글이 다음 입력까지 남아
+       자동 굵기/밑줄이 이어질 수 있어서 의도적으로 no-op 처리한다. */
+    saveNewsSelection();
+    return;
   }
   document.execCommand(command,false,value);
   syncBodyToTextarea();
   saveNewsSelection();
 }
 function applyNewsBoldStrong(){
-  const editor=q('newsBodyEditor');
-  if(!editor)return false;
-  const range=getEditorRangeForFormat ? getEditorRangeForFormat() : null;
-  if(!range || range.collapsed || !nodeInsideNewsEditor(range.commonAncestorContainer))return false;
-  restoreRangeForFormat(range);
-  const sel=window.getSelection();
-  if(!sel || !sel.rangeCount)return false;
-  const liveRange=sel.getRangeAt(0);
-  if(liveRange.collapsed)return false;
-  const strong=document.createElement('strong');
-  strong.setAttribute('data-lumi-bold','1');
-  strong.style.fontWeight='900';
-  try{
-    const frag=liveRange.extractContents();
-    strong.appendChild(frag);
-    liveRange.insertNode(strong);
-    const after=document.createTextNode('');
-    strong.parentNode.insertBefore(after,strong.nextSibling);
-    const nextRange=document.createRange();
-    nextRange.setStartAfter(strong);
-    nextRange.collapse(true);
-    sel.removeAllRanges();
-    sel.addRange(nextRange);
-    savedNewsRange=nextRange.cloneRange();
-    return true;
-  }catch(err){
-    console.warn('[NEWS bold fallback]',err);
-    return false;
-  }
+  return applyNewsInlineTag('strong');
 }
 function normalizeNewsBoldMarks(){
   const editor=q('newsBodyEditor');
@@ -1497,42 +1469,64 @@ function normalizeNewsBoldMarks(){
 }
 function applyNewsInlineTag(tagName){
   const editor=q('newsBodyEditor');
+  if(!editor)return false;
+  const range=getEditorRangeForFormat ? getEditorRangeForFormat() : null;
+  if(!range || !nodeInsideNewsEditor(range.commonAncestorContainer))return false;
+  restoreRangeForFormat(range);
   const sel=window.getSelection();
-  if(!editor || !sel || !sel.rangeCount)return false;
-  const range=sel.getRangeAt(0);
-  if(range.collapsed || !nodeInsideNewsEditor(range.commonAncestorContainer))return false;
+  if(!sel || !sel.rangeCount)return false;
+  const liveRange=sel.getRangeAt(0);
+  if(!nodeInsideNewsEditor(liveRange.commonAncestorContainer))return false;
   const upper=String(tagName||'').toUpperCase();
-  const selectedNode=range.commonAncestorContainer.nodeType===1 ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement;
-  const activeInline=selectedNode && selectedNode.closest ? selectedNode.closest(tagName) : null;
+  const baseNode=liveRange.commonAncestorContainer.nodeType===1 ? liveRange.commonAncestorContainer : liveRange.commonAncestorContainer.parentElement;
+  const activeInline=baseNode && baseNode.closest ? baseNode.closest(tagName) : null;
+
+  /* 이미 적용된 inline 안에서 다시 누르면 해제한다. */
   if(activeInline && editor.contains(activeInline)){
     try{
       const parent=activeInline.parentNode;
-      const before=document.createTextNode('');
-      parent.insertBefore(before, activeInline);
-      while(activeInline.firstChild) parent.insertBefore(activeInline.firstChild, activeInline);
+      const moved=[];
+      while(activeInline.firstChild){
+        const child=activeInline.firstChild;
+        moved.push(child);
+        parent.insertBefore(child, activeInline);
+      }
+      const marker=document.createTextNode('');
+      parent.insertBefore(marker, activeInline);
       parent.removeChild(activeInline);
       const nextRange=document.createRange();
-      nextRange.setStartAfter(before);
+      nextRange.setStartAfter(marker);
       nextRange.collapse(true);
       sel.removeAllRanges();
       sel.addRange(nextRange);
       savedNewsRange=nextRange.cloneRange();
+      syncBodyToTextarea();
       return true;
     }catch(err){
       console.warn('[NEWS inline unwrap fallback]',err);
+      return false;
     }
   }
+
+  /* 선택 영역이 없을 때 execCommand 토글을 켜지 않는다. */
+  if(liveRange.collapsed)return false;
+
   const wrapper=document.createElement(tagName);
-  if(upper==='STRONG') wrapper.style.fontWeight='900';
+  if(upper==='STRONG'){
+    wrapper.setAttribute('data-lumi-bold','1');
+    wrapper.style.fontWeight='900';
+  }
   try{
-    const frag=range.extractContents();
+    const frag=liveRange.extractContents();
     wrapper.appendChild(frag);
-    range.insertNode(wrapper);
+    liveRange.insertNode(wrapper);
     const nextRange=document.createRange();
-    nextRange.selectNodeContents(wrapper);
+    nextRange.setStartAfter(wrapper);
+    nextRange.collapse(true);
     sel.removeAllRanges();
     sel.addRange(nextRange);
     savedNewsRange=nextRange.cloneRange();
+    syncBodyToTextarea();
     return true;
   }catch(err){
     console.warn('[NEWS inline format fallback]',err);
