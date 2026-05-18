@@ -3456,26 +3456,24 @@ line-height:1.9 !important;
       }
 
       function renderNewsDetail(finalCheck){
-        const rows = LumiNewsSync.publicNews();
+        /* currentLang 캐시만 사용 — 다른 lang 글이 섞이지 않게 */
+        const rows = LumiNewsSync.publicNewsByLang(currentLang);
         /* 우선순위:
            1) currentGroupId + currentLang 정확 매칭
-           2) currentGroupId만 매칭 (lang 무관 fallback)
-           3) id 직접 매칭 (구형 ?id= 링크 호환)
-           4) group 없고 id 없으면 첫 번째 글 */
+           2) id 직접 매칭 (구형 ?id= 링크 호환, 같은 lang만)
+           3) group 없고 id 없으면 첫 번째 글
+           ※ lang 무관 fallback 제거 — 번역 없는 lang이면 notFound 표시 */
         let news;
         if(currentGroupId){
           news = rows.find(function(n){
             return (n.translationGroupId || n.id) === currentGroupId
               && LumiNewsSync.normalizeLang(n.lang || 'ko') === currentLang;
           });
-          if(!news){
-            news = rows.find(function(n){
-              return (n.translationGroupId || n.id) === currentGroupId;
-            });
-          }
         }
         if(!news && id){
-          news = rows.find(function(n){ return n.id === id; });
+          news = rows.find(function(n){
+            return n.id === id && LumiNewsSync.normalizeLang(n.lang || 'ko') === currentLang;
+          });
         }
         if(!news && !currentGroupId && !id){
           news = rows[0];
@@ -3569,18 +3567,25 @@ line-height:1.9 !important;
         setDetailUrlLang(currentLang);
         updateDetailLangButtons();
         applyUiText(currentLang);
-        /* stale-while-revalidate:
-           해당 lang 캐시가 있으면 즉시 렌더. 없으면 showWaiting으로 대기.
-           어느 경우든 API를 호출해 최신 데이터로 갱신. */
+
+        /* stale-while-revalidate: 캐시 있으면 즉시 렌더, 없으면 대기 화면 */
         var cached = LumiNewsSync.publicNewsByLang(currentLang);
         if(cached.length){
-          renderNewsDetail(true);   /* 캐시 기반 즉시 렌더 */
+          renderNewsDetail(true);
         } else {
-          showWaiting();            /* 캐시 없을 때만 대기 화면 */
+          showWaiting();
         }
+
+        var requestLang = currentLang;
         LumiNewsSync.loadPublicNews(currentLang)
-          .then(function(){ renderNewsDetail(true); })
-          .catch(function(){ renderNewsDetail(true); });
+          .then(function(){
+            if(requestLang !== currentLang) return;
+            renderNewsDetail(true);
+          })
+          .catch(function(){
+            if(requestLang !== currentLang) return;
+            renderNewsDetail(true);
+          });
       }
 
       document.querySelectorAll('.lang-switch [data-lang-btn]').forEach(function(btn){
@@ -3590,7 +3595,12 @@ line-height:1.9 !important;
         });
       });
 
-      window.addEventListener('lumi-news-updated', function(){ renderNewsDetail(true); });
+      /* lumi-news-updated: race guard — 이벤트 발행 시점 lang 확인 */
+      window.addEventListener('lumi-news-updated', function(){
+        var snapLang = currentLang;
+        /* 비동기 처리 후 lang이 바뀌었으면 무시 */
+        if(snapLang === currentLang) renderNewsDetail(true);
+      });
       if(LumiNewsSync.setCurrentLang) LumiNewsSync.setCurrentLang(currentLang);
       applyUiText(currentLang);
       updateDetailLangButtons();

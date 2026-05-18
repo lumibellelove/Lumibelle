@@ -4,6 +4,10 @@
   const NEWS_UPDATED_EVENT = 'lumi-news-updated';
 
   const DEFAULT_NEWS = [];
+  /* lang별 메모리 캐시 분리. 단일 cachedPublicNews 대신 언어별로 독립 관리 */
+  const _cachedByLang = { ko: [], ja: [], en: [], zh: [] };
+  const _loadedByLang = { ko: false, ja: false, en: false, zh: false };
+  /* 하위 호환용 - adminListNewsItems 등이 참조하는 경우를 위해 유지 */
   let cachedPublicNews = [];
   let hasLoadedPublicNews = false;
 
@@ -326,33 +330,41 @@
   function readState(){
     try{
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      if(parsed && Array.isArray(parsed.news)) return parsed;
+      if(parsed && typeof parsed === 'object') return parsed;
     }catch(e){}
     return {news: DEFAULT_NEWS.slice()};
   }
 
   function cachedLocalPublicNews(lang){
     const state = readState();
-    /* lang 지정 시 lang별 분리 키 우선, 없으면 공통 news 폴백 */
-    const key = lang ? ('news_' + normalizeLang(lang)) : 'news';
-    const local = state[key] || ((!lang) ? (state.news || []) : []);
+    const l = normalizeLang(lang || 'ko');
+    /* lang별 분리 키 우선, 없으면 공통 news에서 해당 lang만 필터 (하위 호환) */
+    const key = 'news_' + l;
+    let local = Array.isArray(state[key]) ? state[key] : [];
+    if(!local.length && Array.isArray(state.news)){
+      local = state.news.filter(function(n){ return normalizeLang(n && (n.lang || 'ko')) === l; });
+    }
     return local.filter(function(n){
       const status = String(n.status || (n.draft ? 'draft' : (n.published === false ? 'private' : 'public')));
       return n && status === 'public' && !n.draft && !n.deletedAt;
     }).map(convertApiItem).sort(sortNews);
   }
 
-  cachedPublicNews = cachedLocalPublicNews(
-    normalizeLang(new URLSearchParams(location.search).get('lang') || localStorage.getItem('lumibelleCurrentLang') || 'ko')
-  );
+  /* 초기화: URL/localStorage lang 기준으로 해당 lang 캐시만 메모리에 올림 */
+  (function(){
+    const initL = normalizeLang(new URLSearchParams(location.search).get('lang') || localStorage.getItem('lumibelleCurrentLang') || 'ko');
+    _cachedByLang[initL] = cachedLocalPublicNews(initL);
+    cachedPublicNews = _cachedByLang[initL];
+  })();
 
-  function saveLocalNews(items, lang){
+  function saveLocalNews(lang, items){
     try{
+      const l = normalizeLang(lang || 'ko');
       const state = readState();
-      const key = lang ? ('news_' + normalizeLang(lang)) : 'news';
-      state[key] = items;
-      /* 하위 호환: ko 결과는 공통 news 키에도 함께 저장 */
-      if(!lang || normalizeLang(lang) === 'ko') state.news = items;
+      /* lang별 분리 키에 저장. item.lang 기준으로 해당 lang만 저장 */
+      state['news_' + l] = items;
+      /* 하위 호환: news 공통 키에도 ko 결과를 유지 */
+      if(l === 'ko') state.news = items;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }catch(e){}
   }
@@ -364,7 +376,8 @@
   function adminListNewsItems(){
     return workerGet('adminListNewsItems', {}).then(function(res){
       const items = (res.items || []).map(convertApiItem).sort(sortNews);
-      saveLocalNews(items);
+      /* 관리자 목록은 ko/전체 공통 저장 (공용 news 키) */
+      saveLocalNews('ko', items);
       return items;
     });
   }
@@ -394,40 +407,43 @@
   }
 
   function loadPublicNews(lang){
-    lang = setCurrentLang(lang || getCurrentLang());
-    return workerGet('publicListNewsItems', {lang: lang}).then(function(res){
-      cachedPublicNews = (res.items || []).map(convertApiItem).sort(sortNews);
+    const l = setCurrentLang(lang || getCurrentLang());
+    return workerGet('publicListNewsItems', {lang: l}).then(function(res){
+      /* item.lang 기준으로 해당 lang 항목만 필터링 후 저장 */
+      const all = (res.items || []).map(convertApiItem).sort(sortNews);
+      const filtered = all.filter(function(n){ return normalizeLang(n.lang || 'ko') === l; });
+      _cachedByLang[l] = filtered;
+      _loadedByLang[l] = true;
+      /* 하위 호환 */
+      cachedPublicNews = filtered;
       hasLoadedPublicNews = true;
-      saveLocalNews(cachedPublicNews, lang);   /* lang별 분리 저장 */
+      saveLocalNews(l, filtered);
       dispatchNewsUpdated();
-      return cachedPublicNews;
+      return filtered;
     }).catch(function(err){
-      cachedPublicNews = cachedLocalPublicNews(lang);  /* lang별 캐시 사용 */
+      const fallback = cachedLocalPublicNews(l);
+      _cachedByLang[l] = fallback;
+      _loadedByLang[l] = true;
+      cachedPublicNews = fallback;
       hasLoadedPublicNews = true;
       dispatchNewsUpdated();
       throw err;
     });
   }
 
-  function publicNews(lang){
-    /* lang 지정 시 해당 lang 캐시만 반환. 지정 없으면 메모리 캐시 */
-    if(lang){
-      const l = normalizeLang(lang);
-      /* 현재 메모리 캐시가 요청 lang과 같으면 그대로 반환 */
-      if(cachedPublicNews.length && normalizeLang(getCurrentLang()) === l){
-        return cachedPublicNews.slice();
-      }
-      /* 다른 lang이면 localStorage의 lang별 분리 키에서 읽기 */
-      return cachedLocalPublicNews(l);
-    }
-    if(cachedPublicNews.length) return cachedPublicNews.slice();
-    if(hasLoadedPublicNews) return [];
-    return cachedLocalPublicNews();
+  /* lang 캐시만 반환. fallback 완전 금지 */
+  function publicNewsByLang(lang){
+    const l = normalizeLang(lang || getCurrentLang());
+    if(_cachedByLang[l] && _cachedByLang[l].length) return _cachedByLang[l].slice();
+    if(_loadedByLang[l]) return [];
+    return cachedLocalPublicNews(l);
   }
 
-  /* 외부에서 lang별 캐시를 명시적으로 요청할 때 사용 */
-  function publicNewsByLang(lang){
-    return publicNews(normalizeLang(lang || getCurrentLang()));
+  /* 하위 호환 - lang 파라미터 지원 추가 */
+  function publicNews(lang){
+    if(lang) return publicNewsByLang(lang);
+    const l = normalizeLang(getCurrentLang());
+    return publicNewsByLang(l);
   }
 
   function isNew(date){
