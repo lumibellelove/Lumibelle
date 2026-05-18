@@ -3859,6 +3859,14 @@ a{text-decoration:none;color:inherit}button,input,select,textarea{font-family:in
             <label>작성일<input id="scheduleCreatedAt" type="date"></label>
           </section>
 
+          <section class="side-box schedule-translate-box">
+            <h3>자동번역</h3>
+            <p class="small">제목과 장소를 日本語 / English / 中文으로 번역합니다.</p>
+            <button type="button" class="btn sub" onclick="runScheduleAutoTranslate()">번역 실행 (日·EN·中)</button>
+            <div id="scheduleTranslationStatus" class="small" style="margin-top:10px;"></div>
+            <div id="scheduleTranslationPreview" class="small" style="margin-top:10px;display:grid;gap:8px;"></div>
+          </section>
+
           <section class="side-box schedule-side-preview">
             <h3>미리보기</h3>
             <div id="schedulePreview" class="schedule-preview-inner">날짜와 공연명을 입력하면 미리보기가 표시됩니다.</div>
@@ -3924,6 +3932,55 @@ async function scheduleApiRequest(action,payload={}){
   if(!res.ok||!data.ok)throw new Error(data.message||data.error||('API 오류 '+res.status));
   return data;
 }
+let scheduleTranslations=null;
+function resetScheduleTranslations(){
+  scheduleTranslations=null;
+  if(q('scheduleTranslationStatus'))q('scheduleTranslationStatus').textContent='';
+  if(q('scheduleTranslationPreview'))q('scheduleTranslationPreview').innerHTML='';
+}
+function setScheduleTranslationStatus(msg=''){
+  if(q('scheduleTranslationStatus'))q('scheduleTranslationStatus').textContent=msg;
+}
+function renderScheduleTranslationPreview(translations){
+  const el=q('scheduleTranslationPreview');
+  if(!el)return;
+  translations=translations||{};
+  const labels={ja:'JP 日本語',en:'US English',zh:'CN 中文'};
+  el.innerHTML=['ja','en','zh'].map(function(lang){
+    const item=translations[lang]||{};
+    const title=htmlEscape(item.title||'');
+    const venue=htmlEscape(item.venue||'');
+    return '<div style="border:1px solid rgba(236,127,174,.28);border-radius:14px;padding:8px 10px;background:rgba(255,255,255,.66);">'
+      + '<b style="color:#e36b9d;">'+labels[lang]+'</b>'
+      + '<div>'+ (title||'<span style="opacity:.55;">제목 없음</span>') +'</div>'
+      + '<div style="opacity:.75;">'+ (venue||'<span style="opacity:.55;">장소 없음</span>') +'</div>'
+      + '</div>';
+  }).join('');
+}
+async function runScheduleAutoTranslate(){
+  const row=buildSchedulePreviewData();
+  if(!row.title&&!row.venue){toast('번역할 공연명 또는 장소를 입력해 주세요');return}
+  try{
+    setScheduleTranslationStatus('번역 중...');
+    toast('SCHEDULE 자동번역 중...');
+    const data=await scheduleApiRequest('translateScheduleContent',{
+      sourceLang:'ko',
+      targetLangs:['ja','en','zh'],
+      title:row.title||'',
+      venue:row.venue||'',
+      badge:row.badge||'LIVE',
+      memo:row.memo||''
+    });
+    scheduleTranslations=data.translations||{};
+    renderScheduleTranslationPreview(scheduleTranslations);
+    setScheduleTranslationStatus('번역 완료 (저장하면 다국어 행이 함께 생성됩니다)');
+    toast('SCHEDULE 번역 완료');
+  }catch(err){
+    console.error('[schedule] translate failed',err);
+    setScheduleTranslationStatus('번역 실패: '+(err.message||err));
+    toast('번역 실패');
+  }
+}
 function scheduleStatusFromPublished(v){
   if(v==='draft')return 'draft';
   if(v===false||v==='false')return 'private';
@@ -3959,7 +4016,7 @@ function scheduleApiItemToState(item={}){
   };
 }
 function scheduleStateToApiPayload(row={}){
-  return {
+  const payload={
     id:row.id||'',
     date:row.date||'',
     time:row.time||'',
@@ -3979,6 +4036,8 @@ function scheduleStateToApiPayload(row={}){
     createdBy:'admin',
     updatedBy:'admin'
   };
+  if(scheduleTranslations)payload.translations=scheduleTranslations;
+  return payload;
 }
 async function loadSchedulesFromApi(){
   try{
@@ -4023,8 +4082,8 @@ function openScheduleEditor(id=null,date=''){
   renderSchedulePreview(); renderScheduleWriteCalendar(); openPanel('scheduleWrite');
 }
 function backToScheduleList(){openPanel('schedule');renderSchedules();renderScheduleAdminCalendar()}
-function loadScheduleToForm(id){const s=(state.schedules||[]).find(x=>x.id===id);if(!s)return;q('scheduleId').value=s.id||'';q('scheduleDate').value=s.date||'';q('scheduleTitle').value=s.title||'';q('scheduleVenue').value=s.venue||'';q('scheduleBadge').value=s.badge||s.type||'LIVE';q('scheduleTicket').value=s.ticket||'';q('scheduleDetail').value=s.detail||'';q('scheduleTopLineCheck').checked=s.topLine!==false;q('scheduleCalendarCheck').checked=s.calendar!==false;setSchedulePublishValue(s.published===false?'false':(s.published==='draft'?'draft':'true'));q('scheduleCreatedAt').value=s.createdAt||new Date().toISOString().slice(0,10)}
-function clearScheduleForm(open=true){['scheduleId','scheduleDate','scheduleTitle','scheduleVenue','scheduleTicket','scheduleDetail'].forEach(id=>{if(q(id))q(id).value=''});if(q('scheduleBadge'))q('scheduleBadge').value='LIVE';if(q('scheduleTopLineCheck'))q('scheduleTopLineCheck').checked=true;if(q('scheduleCalendarCheck'))q('scheduleCalendarCheck').checked=true;setSchedulePublishValue('true');if(q('scheduleCreatedAt'))q('scheduleCreatedAt').value=new Date().toISOString().slice(0,10);renderSchedulePreview();if(open)openScheduleEditor()}
+function loadScheduleToForm(id){resetScheduleTranslations();const s=(state.schedules||[]).find(x=>x.id===id);if(!s)return;q('scheduleId').value=s.id||'';q('scheduleDate').value=s.date||'';q('scheduleTitle').value=s.title||'';q('scheduleVenue').value=s.venue||'';q('scheduleBadge').value=s.badge||s.type||'LIVE';q('scheduleTicket').value=s.ticket||'';q('scheduleDetail').value=s.detail||'';q('scheduleTopLineCheck').checked=s.topLine!==false;q('scheduleCalendarCheck').checked=s.calendar!==false;setSchedulePublishValue(s.published===false?'false':(s.published==='draft'?'draft':'true'));q('scheduleCreatedAt').value=s.createdAt||new Date().toISOString().slice(0,10)}
+function clearScheduleForm(open=true){resetScheduleTranslations();['scheduleId','scheduleDate','scheduleTitle','scheduleVenue','scheduleTicket','scheduleDetail'].forEach(id=>{if(q(id))q(id).value=''});if(q('scheduleBadge'))q('scheduleBadge').value='LIVE';if(q('scheduleTopLineCheck'))q('scheduleTopLineCheck').checked=true;if(q('scheduleCalendarCheck'))q('scheduleCalendarCheck').checked=true;setSchedulePublishValue('true');if(q('scheduleCreatedAt'))q('scheduleCreatedAt').value=new Date().toISOString().slice(0,10);renderSchedulePreview();if(open)openScheduleEditor()}
 async function saveSchedule(){
   const currentId=q('scheduleId').value.trim();
   const row={...buildSchedulePreviewData(),id:currentId,updatedAt:new Date().toISOString()};
@@ -4043,6 +4102,7 @@ async function saveSchedule(){
     renderSchedules();
     renderScheduleAdminCalendar();
     updateScheduleDraftCount();
+    resetScheduleTranslations();
     toast('SCHEDULE 저장 완료');
     openPanel('schedule');
   }catch(err){
