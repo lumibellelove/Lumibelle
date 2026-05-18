@@ -227,25 +227,6 @@ input:focus,select:focus,textarea:focus{border-color:#f4a4ca;box-shadow:0 0 0 4p
 .side-box h3{margin:0 0 12px;color:#d77ca7;font-size:18px !important;font-weight:900}
 .side-box label:not(.side-check):not(.side-radio){display:block;margin:0 0 10px;color:#b28ea2;font-size:15px !important;font-weight:900 !important}
 .side-box input:not([type="checkbox"]):not([type="radio"]){width:100%;min-height:38px;margin-top:5px;border:1px solid #f0bfd4;border-radius:14px;background:#fff;color:#7f6a77;font-weight:800;padding:0 11px;outline:none}
-
-/* ── NEWS 자동번역 관리 ── */
-.news-translation-box{margin:18px 0 20px;padding:18px;border:1px solid #f3d1e2;border-radius:22px;background:#fff8fc;box-shadow:0 8px 18px rgba(232,191,211,.08)}
-.news-translation-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
-.news-translation-head h3{margin:0;color:#d77ca7;font-size:18px;font-weight:900}
-.news-translation-head p{margin:5px 0 0;color:#9a7187;font-size:13px;font-weight:800;line-height:1.5}
-.news-translation-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
-.news-translation-status{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 12px}
-.news-translation-status span{display:inline-flex;align-items:center;min-height:28px;padding:0 10px;border-radius:999px;background:#fff;border:1px solid #f0bfd4;color:#b28ea2;font-size:12px;font-weight:900}
-.news-translation-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
-.news-translation-tab{min-height:34px;border:1px solid #f0bfd4;border-radius:999px;background:#fff;color:#d77ca7;font-size:13px;font-weight:900;padding:0 12px;cursor:pointer}
-.news-translation-tab.active{background:linear-gradient(180deg,#ff7eb3,#ff5fa5);border-color:transparent;color:#fff}
-.news-translation-panel{display:none;padding:14px;border:1px solid #f2d8e7;border-radius:18px;background:#fff}
-.news-translation-panel.active{display:block}
-.news-translation-grid{display:grid;gap:10px}
-.news-translation-field{display:grid;gap:6px;color:#b28ea2;font-size:13px;font-weight:900}
-.news-translation-field input,.news-translation-field textarea{width:100%;border:1px solid #f0bfd4;border-radius:14px;background:#fff;color:#7f6a77;font-size:14px;font-weight:800;padding:11px 12px;outline:none}
-.news-translation-field textarea{min-height:148px;resize:vertical;line-height:1.65}
-.news-translation-note{margin-top:10px;color:#a98da0;font-size:12px;font-weight:800;line-height:1.55}
 .side-top-checks{display:grid;gap:8px}
 
 /* side-check / side-radio: grid 2열로 안정 정렬 */
@@ -858,62 +839,6 @@ input:focus,select:focus,textarea:focus{border-color:#f4a4ca;box-shadow:0 0 0 4p
             <input id="newsTitle" class="write-title-input" placeholder="제목을 입력해 주세요.">
           </div>
 
-          <section class="news-translation-box" id="newsTranslationBox" aria-label="NEWS 번역 관리">
-            <div class="news-translation-head">
-              <div>
-                <h3>번역 관리</h3>
-                <p>한국어 원문을 기준으로 일본어 / 영어 / 중국어 번역 필드를 준비합니다. 기존 본문 에디터 내용은 변경하지 않습니다.</p>
-              </div>
-              <div class="news-translation-actions">
-                <button type="button" class="btn sub" onclick="generateNewsAutoTranslation()">자동번역 생성</button>
-                <button type="button" class="btn sub" id="newsTranslationToggleBtn" onclick="toggleNewsTranslationArea()">번역 영역 열기</button>
-              </div>
-            </div>
-            <div class="news-translation-status" id="newsTranslationStatus">
-              <span>日本語: 비어 있음</span><span>English: 비어 있음</span><span>中文: 비어 있음</span>
-            </div>
-            <div id="newsTranslationArea" hidden>
-              <div class="news-translation-tabs" role="tablist" aria-label="번역 언어 선택">
-                <button type="button" class="news-translation-tab active" data-news-translation-tab="ko" onclick="switchNewsTranslationTab('ko')">한국어</button>
-                <button type="button" class="news-translation-tab" data-news-translation-tab="ja" onclick="switchNewsTranslationTab('ja')">日本語</button>
-                <button type="button" class="news-translation-tab" data-news-translation-tab="en" onclick="switchNewsTranslationTab('en')">English</button>
-                <button type="button" class="news-translation-tab" data-news-translation-tab="zh" onclick="switchNewsTranslationTab('zh')">中文</button>
-              </div>
-
-              <div class="news-translation-panel active" data-news-translation-panel="ko">
-                <div class="news-translation-grid">
-                  <label class="news-translation-field">한국어 제목<input id="newsTitleKoPreview" readonly placeholder="기존 제목을 기준으로 자동 표시"></label>
-                  <label class="news-translation-field">한국어 본문<textarea id="newsBodyKoPreview" readonly placeholder="기존 본문 텍스트를 기준으로 자동 표시"></textarea></label>
-                </div>
-                <div class="news-translation-note">한국어 원문은 위의 제목 입력칸과 본문 에디터가 원본입니다. 이 영역은 확인용 미리보기만 합니다.</div>
-              </div>
-
-              <div class="news-translation-panel" data-news-translation-panel="ja">
-                <div class="news-translation-grid">
-                  <label class="news-translation-field">日本語 제목<input id="newsTitleJa" oninput="markNewsTranslationEdited('ja')" placeholder="일본어 제목"></label>
-                  <label class="news-translation-field">日本語 본문<textarea id="newsBodyJa" oninput="markNewsTranslationEdited('ja')" placeholder="일본어 본문"></textarea></label>
-                </div>
-              </div>
-
-              <div class="news-translation-panel" data-news-translation-panel="en">
-                <div class="news-translation-grid">
-                  <label class="news-translation-field">English title<input id="newsTitleEn" oninput="markNewsTranslationEdited('en')" placeholder="English title"></label>
-                  <label class="news-translation-field">English body<textarea id="newsBodyEn" oninput="markNewsTranslationEdited('en')" placeholder="English body"></textarea></label>
-                </div>
-              </div>
-
-              <div class="news-translation-panel" data-news-translation-panel="zh">
-                <div class="news-translation-grid">
-                  <label class="news-translation-field">中文标题<input id="newsTitleZh" oninput="markNewsTranslationEdited('zh')" placeholder="中文标题"></label>
-                  <label class="news-translation-field">中文正文<textarea id="newsBodyZh" oninput="markNewsTranslationEdited('zh')" placeholder="中文正文"></textarea></label>
-                </div>
-              </div>
-
-              <div class="news-translation-note">현재는 자동번역 API 연결 전 단계입니다. 버튼을 누르면 한국어 원문을 각 번역 필드에 복사해 두고, 이후 API 연결 시 이 함수만 교체합니다.</div>
-            </div>
-          </section>
-
-
           <div class="editor-toolbar font-toolbox toolbar-b-open" aria-label="본문 편집 도구">
             <div class="font-top-line toolbar-b-font-line">
               <div class="font-family-block">
@@ -1009,8 +934,6 @@ input:focus,select:focus,textarea:focus{border-color:#f4a4ca;box-shadow:0 0 0 4p
 
           <div id="newsBodyEditor" class="news-body-editor" contenteditable="true" data-placeholder="본문을 입력하세요."></div>
           <textarea id="newsBody" hidden></textarea>
-
-
         </main>
 
         <aside class="cafe-write-sidebar">
@@ -1031,6 +954,13 @@ input:focus,select:focus,textarea:focus{border-color:#f4a4ca;box-shadow:0 0 0 4p
             <label>글 ID<input id="newsId" readonly placeholder="저장 시 자동 생성"></label>
             <label>작성일<input id="newsDate" type="date"></label>
           </section>
+          <section class="side-box" id="newsTranslateBox">
+            <h3>자동번역</h3>
+            <p style="font-size:13px;color:#b28ea2;margin:0 0 12px;line-height:1.6;">저장 전 번역 필드를 준비합니다.<br>번역 API는 2차 패치에서 연결됩니다.</p>
+            <button type="button" class="btn sub" style="width:100%;" onclick="prepareNewsTranslateFields()">번역 필드 준비</button>
+            <div id="newsTranslateStatus" style="margin-top:10px;font-size:13px;color:#b28ea2;min-height:18px;"></div>
+          </section>
+
 <section class="side-box side-actions">
             <button type="button" class="btn sub" onclick="previewNews()">미리보기</button>
             <button type="button" class="btn" onclick="saveNews()">글 등록</button>
@@ -1259,7 +1189,7 @@ document.getElementById(isOpen?'main':'locked').hidden=false;
 const state={news:[],schedules:[],inner:{}};
 function q(id){return document.getElementById(id)}
 function toast(msg='저장 완료'){const el=q('toast');el.textContent=msg;el.classList.add('show');clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>el.classList.remove('show'),1400)}
-function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};seedNewsIfEmpty();renderAll();setupScheduleLivePreview();renderSchedulePreview();renderScheduleAdminCalendar();renderScheduleWriteCalendar();initColorGrid();setupNewsImageInput();setupEditorToolbarSelectionGuard();setupNewsSelectionMemory();setupFontSizeSelectionGuard();setupNewsTableDelegation();setupTableDeleteKey();setupEditorDeleteShortcuts();setupNewsTranslationBox();updateDraftCount();openPanel(location.hash?.replace('#','')||'news');loadNewsFromApi()}
+function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};seedNewsIfEmpty();renderAll();setupScheduleLivePreview();renderSchedulePreview();renderScheduleAdminCalendar();renderScheduleWriteCalendar();initColorGrid();setupNewsImageInput();setupEditorToolbarSelectionGuard();setupNewsSelectionMemory();setupFontSizeSelectionGuard();setupNewsTableDelegation();setupTableDeleteKey();setupEditorDeleteShortcuts();updateDraftCount();openPanel(location.hash?.replace('#','')||'news');loadNewsFromApi()}
 function persist(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
 function saveAll(show=false){saveInnerFromFields();persist();if(show)toast('전체 저장 완료')}
 function loadNewsFromApi(){
@@ -1289,10 +1219,7 @@ function syncNewsRowToApi(row,isExisting,msg,opt={}){
     return;
   }
   LumiContentSync.adminSaveNewsItem(row,isExisting).then(saved=>{
-    const savedRow=Object.assign({}, row, saved || {});
-    if(!savedRow.translations && row.translations) savedRow.translations=row.translations;
-    if(!savedRow.translationStatus && row.translationStatus) savedRow.translationStatus=row.translationStatus;
-    replaceNewsItemLocal(savedRow);
+    replaceNewsItemLocal(saved);
     if(msg)toast(msg);
     if(!opt.stay) backToNewsList();
   }).catch(err=>{
@@ -1379,178 +1306,6 @@ function setNewsImageLayout(value='wide'){
   const el = document.querySelector(`input[name="newsImageLayout"][value="${safe}"]`);
   if(el)el.checked=true;
 }
-
-const NEWS_TRANSLATION_LANGS=['ja','en','zh'];
-const NEWS_TRANSLATION_LABELS={ja:'日本語',en:'English',zh:'中文'};
-let newsTranslationStatus={ja:'draft',en:'draft',zh:'draft'};
-function setupNewsTranslationBox(){
-  updateNewsTranslationSourcePreview();
-  updateNewsTranslationStatusView();
-  q('newsTitle')?.addEventListener('input', updateNewsTranslationSourcePreview);
-  q('newsBodyEditor')?.addEventListener('input', updateNewsTranslationSourcePreview);
-}
-function htmlToPlainText(html=''){
-  const box=document.createElement('div');
-  box.innerHTML=String(html||'');
-  box.querySelectorAll('br').forEach(br=>br.replaceWith('\n'));
-  box.querySelectorAll('p,div,li,h1,h2,h3,h4,h5,h6,blockquote').forEach(el=>{
-    if(el.textContent && !el.textContent.endsWith('\n')) el.appendChild(document.createTextNode('\n'));
-  });
-  return (box.textContent||box.innerText||'').replace(/\n{3,}/g,'\n\n').trim();
-}
-function collectNewsTranslationSource(){
-  syncBodyToTextarea();
-  return {
-    title:q('newsTitle')?.value.trim() || '',
-    bodyHtml:q('newsBody')?.value || '',
-    bodyText:htmlToPlainText(q('newsBody')?.value || '')
-  };
-}
-function updateNewsTranslationSourcePreview(){
-  const source=collectNewsTranslationSource();
-  if(q('newsTitleKoPreview')) q('newsTitleKoPreview').value=source.title;
-  if(q('newsBodyKoPreview')) q('newsBodyKoPreview').value=source.bodyText;
-}
-function buildNewsTranslationFallback(source){
-  const title=source.title || '';
-  const body=source.bodyText || '';
-  return {
-    ja:{title,body,status:'prepared'},
-    en:{title,body,status:'prepared'},
-    zh:{title,body,status:'prepared'}
-  };
-}
-function normalizeNewsTranslationResult(result, source){
-  const raw=(result && result.translations) ? result.translations : (result || {});
-  const fallback=buildNewsTranslationFallback(source);
-  const normalized={};
-  NEWS_TRANSLATION_LANGS.forEach(lang=>{
-    const item=raw[lang] || {};
-    normalized[lang]={
-      title: item.title || fallback[lang].title || '',
-      body: item.body || fallback[lang].body || '',
-      status: item.status || ((item.title || item.body) ? 'translated' : fallback[lang].status)
-    };
-  });
-  return normalized;
-}
-function requestNewsAutoTranslation(source){
-  const api=window.LumiContentSync || window.LumiNewsSync;
-  if(!api || typeof api.translateNewsContent !== 'function'){
-    return Promise.resolve(buildNewsTranslationFallback(source));
-  }
-  return api.translateNewsContent({
-    sourceLang:'ko',
-    targetLangs:NEWS_TRANSLATION_LANGS.slice(),
-    title:source.title || '',
-    bodyText:source.bodyText || '',
-    bodyHtml:source.bodyHtml || ''
-  }).then(result=>normalizeNewsTranslationResult(result, source));
-}
-function applyNewsTranslations(result={}){
-  NEWS_TRANSLATION_LANGS.forEach(lang=>{
-    const data=result[lang] || {};
-    const cap=lang.charAt(0).toUpperCase()+lang.slice(1);
-    const titleEl=q('newsTitle'+cap);
-    const bodyEl=q('newsBody'+cap);
-    if(titleEl) titleEl.value=data.title || '';
-    if(bodyEl) bodyEl.value=data.body || '';
-    newsTranslationStatus[lang]=data.status || ((data.title||data.body)?'translated':'draft');
-  });
-  updateNewsTranslationStatusView();
-}
-function generateNewsAutoTranslation(){
-  const source=collectNewsTranslationSource();
-  if(!source.title && !source.bodyText){toast('번역할 한국어 원문을 입력해 주세요');return;}
-  requestNewsAutoTranslation(source).then(result=>{
-    applyNewsTranslations(result);
-    if(q('newsTranslationArea')?.hidden) toggleNewsTranslationArea(true);
-    toast('자동번역을 생성했어요');
-  }).catch(err=>{
-    console.warn('NEWS 자동번역 준비 실패',err);
-    toast('자동번역 생성 실패');
-  });
-}
-function getNewsTranslationStatusForSave(){
-  const status={};
-  NEWS_TRANSLATION_LANGS.forEach(lang=>{
-    const cap=lang.charAt(0).toUpperCase()+lang.slice(1);
-    const title=q('newsTitle'+cap)?.value.trim() || '';
-    const body=q('newsBody'+cap)?.value.trim() || '';
-    status[lang]=(title||body) ? (newsTranslationStatus[lang] || 'edited') : 'draft';
-  });
-  return status;
-}
-function getNewsTranslationsForSave(){
-  const source=collectNewsTranslationSource();
-  const translations={
-    ko:{title:source.title,body:source.bodyHtml}
-  };
-  NEWS_TRANSLATION_LANGS.forEach(lang=>{
-    const cap=lang.charAt(0).toUpperCase()+lang.slice(1);
-    translations[lang]={
-      title:q('newsTitle'+cap)?.value.trim() || '',
-      body:q('newsBody'+cap)?.value.trim() || ''
-    };
-  });
-  return translations;
-}
-function fillNewsTranslationsFromRow(n={}){
-  const translations=n.translations || {};
-  const status=n.translationStatus || {};
-  NEWS_TRANSLATION_LANGS.forEach(lang=>{
-    const cap=lang.charAt(0).toUpperCase()+lang.slice(1);
-    const data=translations[lang] || {};
-    if(q('newsTitle'+cap)) q('newsTitle'+cap).value=data.title || '';
-    if(q('newsBody'+cap)) q('newsBody'+cap).value=data.body || '';
-    newsTranslationStatus[lang]=status[lang] || ((data.title||data.body)?'translated':'draft');
-  });
-  updateNewsTranslationSourcePreview();
-  updateNewsTranslationStatusView();
-}
-function clearNewsTranslations(){
-  NEWS_TRANSLATION_LANGS.forEach(lang=>{
-    const cap=lang.charAt(0).toUpperCase()+lang.slice(1);
-    if(q('newsTitle'+cap)) q('newsTitle'+cap).value='';
-    if(q('newsBody'+cap)) q('newsBody'+cap).value='';
-    newsTranslationStatus[lang]='draft';
-  });
-  updateNewsTranslationSourcePreview();
-  updateNewsTranslationStatusView();
-}
-function markNewsTranslationEdited(lang){
-  if(!NEWS_TRANSLATION_LANGS.includes(lang))return;
-  const cap=lang.charAt(0).toUpperCase()+lang.slice(1);
-  const title=q('newsTitle'+cap)?.value.trim() || '';
-  const body=q('newsBody'+cap)?.value.trim() || '';
-  newsTranslationStatus[lang]=(title||body)?'edited':'draft';
-  updateNewsTranslationStatusView();
-}
-function translationStatusText(status){
-  if(status==='edited')return '수정됨';
-  if(status==='translated')return '자동번역 완료';
-  if(status==='prepared')return '원문 복사됨';
-  return '비어 있음';
-}
-function updateNewsTranslationStatusView(){
-  const box=q('newsTranslationStatus');
-  if(!box)return;
-  box.innerHTML=NEWS_TRANSLATION_LANGS.map(lang=>`<span>${NEWS_TRANSLATION_LABELS[lang]}: ${translationStatusText(newsTranslationStatus[lang])}</span>`).join('');
-}
-function toggleNewsTranslationArea(forceOpen){
-  const area=q('newsTranslationArea');
-  const btn=q('newsTranslationToggleBtn');
-  if(!area)return;
-  const open=typeof forceOpen==='boolean' ? forceOpen : area.hidden;
-  area.hidden=!open;
-  if(btn)btn.textContent=open?'번역 영역 닫기':'번역 영역 열기';
-  if(open)updateNewsTranslationSourcePreview();
-}
-function switchNewsTranslationTab(lang){
-  document.querySelectorAll('[data-news-translation-tab]').forEach(btn=>btn.classList.toggle('active',btn.dataset.newsTranslationTab===lang));
-  document.querySelectorAll('[data-news-translation-panel]').forEach(panel=>panel.classList.toggle('active',panel.dataset.newsTranslationPanel===lang));
-  if(lang==='ko')updateNewsTranslationSourcePreview();
-}
 function collectNewsForm({draft=false}={}){
   syncBodyToTextarea();
   let id=q('newsId').value.trim();
@@ -1583,8 +1338,6 @@ function collectNewsForm({draft=false}={}){
     btn2Link:'',
     bodyImage:q('newsBodyImage') ? q('newsBodyImage').value.trim() : '',
     bodyAlt:q('newsBodyAlt') ? q('newsBodyAlt').value.trim() : '',
-    translations:getNewsTranslationsForSave(),
-    translationStatus:getNewsTranslationStatusForSave(),
     updatedAt:new Date().toISOString()
   };
 }
@@ -1610,7 +1363,6 @@ function fillNewsForm(n){
   setNewsDetailFieldsVisible(!!(n.infoDate||n.infoPlace||n.infoTime||n.infoTicket||n.ticketUrl||n.btn1Link));
   if(q('newsBodyImage')) q('newsBodyImage').value=n.bodyImage||'';
   if(q('newsBodyAlt')) q('newsBodyAlt').value=n.bodyAlt||'';
-  fillNewsTranslationsFromRow(n);
 }
 function clearNewsForm(){
   const baseCat=currentNewsFilter==='전체'?'공지':currentNewsFilter;
@@ -1626,7 +1378,6 @@ function clearNewsForm(){
   setBadges([defaultBadgeForCategory(baseCat)]);
   setNewsImageLayout('wide');
   setNewsDetailFieldsVisible(false);
-  clearNewsTranslations();
   editingNewsId=null;
   
 }
@@ -1709,38 +1460,6 @@ function applyNewsBoldStrong(){
   if(!sel || !sel.rangeCount)return false;
   const liveRange=sel.getRangeAt(0);
   if(liveRange.collapsed)return false;
-
-  // [v7-mini] 이미 bold 안에서 선택된 상태라면 다시 감싸지 말고 해제한다.
-  const selectedNode=liveRange.commonAncestorContainer.nodeType===1
-    ? liveRange.commonAncestorContainer
-    : liveRange.commonAncestorContainer.parentElement;
-  let activeBold=selectedNode && selectedNode.closest ? selectedNode.closest('strong,b,[data-lumi-bold="1"]') : null;
-  if(!activeBold){
-    const startEl=liveRange.startContainer.nodeType===1 ? liveRange.startContainer : liveRange.startContainer.parentElement;
-    const endEl=liveRange.endContainer.nodeType===1 ? liveRange.endContainer : liveRange.endContainer.parentElement;
-    activeBold=(startEl && startEl.closest ? startEl.closest('strong,b,[data-lumi-bold="1"]') : null)
-      || (endEl && endEl.closest ? endEl.closest('strong,b,[data-lumi-bold="1"]') : null);
-  }
-  if(activeBold && editor.contains(activeBold)){
-    try{
-      const parent=activeBold.parentNode;
-      const before=document.createTextNode('');
-      parent.insertBefore(before, activeBold);
-      while(activeBold.firstChild) parent.insertBefore(activeBold.firstChild, activeBold);
-      parent.removeChild(activeBold);
-      const nextRange=document.createRange();
-      nextRange.setStartAfter(before);
-      nextRange.collapse(true);
-      sel.removeAllRanges();
-      sel.addRange(nextRange);
-      savedNewsRange=nextRange.cloneRange();
-      normalizeNewsBoldMarks();
-      return true;
-    }catch(err){
-      console.warn('[NEWS bold unwrap fallback]',err);
-    }
-  }
-
   const strong=document.createElement('strong');
   strong.setAttribute('data-lumi-bold','1');
   strong.style.fontWeight='900';
@@ -2279,17 +1998,6 @@ function normalizeNewsFontSizeSpans(){
     font.replaceWith(span);
   });
 }
-function cleanupEmptyNewsFontSizeSpans(){
-  const editor=q('newsBodyEditor');
-  if(!editor)return;
-  editor.querySelectorAll('span[data-lumi-font-size="1"]').forEach(span=>{
-    if(span.querySelector('img,table,.lumi-live-slider,.news-sticker-block'))return;
-    if(span.textContent.replace(/\u00a0/g,'').trim()==='' && span.children.length===0){
-      span.remove();
-    }
-  });
-}
-
 function applyNewsFontSize(px){
   markNewsUndoPoint();
   const size=parseInt(px,10);
@@ -2300,27 +2008,14 @@ function applyNewsFontSize(px){
   const editor=q('newsBodyEditor');
   if(!editor)return;
 
-  const range=getFontSizeTargetRange();
-
-  // [v7-mini] 이전 글자 크기 span이 남아 있어도 새 selection이 다른 곳이면 새 선택을 우선한다.
-  if(activeFontSizeTargetEl && editor.contains(activeFontSizeTargetEl)){
-    let keepActiveTarget=true;
-    if(range && !range.collapsed){
-      const common=range.commonAncestorContainer.nodeType===1 ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement;
-      keepActiveTarget=!!(common && (activeFontSizeTargetEl===common || activeFontSizeTargetEl.contains(common)));
-    }
-    if(!keepActiveTarget){
-      setActiveFontSizeTarget(null);
-    }
-  }
-
-  // 이미 글씨 크기 조정 대상으로 만든 span이 있으면, 같은 대상에서는 재감싸기하지 않고 크기만 바꾼다.
+  // 이미 글씨 크기 조정 대상으로 만든 span이 있으면, 두 번째부터는 재감싸기하지 않고 크기만 바꾼다.
   if(activeFontSizeTargetEl && editor.contains(activeFontSizeTargetEl)){
     activeFontSizeTargetEl.style.fontSize=size+'px';
-    cleanupEmptyNewsFontSizeSpans();
     reselectActiveFontTarget();
     return;
   }
+
+  const range=getFontSizeTargetRange();
 
   // 드래그 선택이 있으면: input으로 포커스가 넘어가도 기억해 둔 range에 적용
   if(range && !range.collapsed){
@@ -2340,17 +2035,18 @@ function applyNewsFontSize(px){
     liveRange.insertNode(span);
 
     setActiveFontSizeTarget(span);
-    cleanupEmptyNewsFontSizeSpans();
     reselectActiveFontTarget();
     return;
   }
 
-  // 선택 영역이 없을 때: 앞으로 입력할 크기만 저장한다.
-  // execCommand('fontSize', false, '7')는 bold/underline 상태 오염을 만들 수 있어 사용하지 않는다.
+  // 선택 영역이 없을 때: 앞으로 입력할 크기 저장
+  editor.focus({preventScroll:true});
+  try{
+    document.execCommand('fontSize',false,'7');
+  }catch(e){}
   savedNewsRange=null;
   fontSizeTargetRange=null;
   setActiveFontSizeTarget(null);
-  cleanupEmptyNewsFontSizeSpans();
 }
 function stepNewsFontSize(delta){
   rememberFontSizeTargetRange();
@@ -4921,6 +4617,23 @@ function renderScheduleWriteCalendar(){}
 function saveInnerFromFields(){}
 function restoreInner(){}
 function renderAll(){renderNews();updateDraftCount();}
+
+/* ===== 자동번역 준비 (1차: UI 위치 확보 / API 연결은 2차 패치) ===== */
+function setTranslateStatus(msg, color){
+  const el = document.getElementById('newsTranslateStatus');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.color = color || '#b28ea2';
+}
+function prepareNewsTranslateFields(){
+  const title = document.getElementById('newsTitle');
+  if(!title || !title.value.trim()){
+    setTranslateStatus('⚠ 제목을 먼저 입력해 주세요.', '#e07070');
+    return;
+  }
+  setTranslateStatus('✓ 번역 필드 준비 완료. (API 연결은 2차 패치)', '#d77ca7');
+}
+/* ===== 자동번역 준비 끝 ===== */
 
 /* ===== 표 우클릭 컨텍스트 메뉴 ===== */
 let ctxTargetWrap=null;
