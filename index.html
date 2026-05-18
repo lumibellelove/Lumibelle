@@ -4924,7 +4924,7 @@ line-height:1.9 !important;
       }
 
       .hero-desc::before{
-        content:"한국 왕도 라이브 아이돌 Lumibelle.\A하나의 점에서 시작된 빛이\A선이 되어 이어집니다." !important;
+        content:var(--lumi-mobile-hero-copy, "한국 왕도 라이브 아이돌 Lumibelle.\A하나의 점에서 시작된 빛이\A선이 되어 이어집니다.") !important;
         display:block !important;
         white-space:pre-line !important;
         color:#ffffff !important;
@@ -4940,6 +4940,11 @@ line-height:1.9 !important;
   
 
     /* ===== MOBILE HOME PATCH v9 : iPhone final polish ===== */
+    html[lang="ko"]{ --lumi-mobile-hero-copy:"한국 왕도 라이브 아이돌 Lumibelle.\A하나의 점에서 시작된 빛이\A선이 되어 이어집니다."; }
+    html[lang="en"]{ --lumi-mobile-hero-copy:"Classic live idol Lumibelle.\AA light from one point becomes\Aa line that connects us."; }
+    html[lang="ja"]{ --lumi-mobile-hero-copy:"韓国の王道ライブアイドル Lumibelle。\Aひとつの点から始まった光が\A線になってつながります。"; }
+    html[lang="zh-CN"]{ --lumi-mobile-hero-copy:"韩国王道现场偶像 Lumibelle。\A从一个点开始的光\A连成一条线。"; }
+
     @media (max-width: 780px){
       /* HERO: title/description slightly lower inside the visual */
       .hero-inner{
@@ -5528,20 +5533,6 @@ line-height:1.9 !important;
 
 
   <script src="js/lumi-content-sync.js?v=20260517-mobile-v5"></script>
-
-  <script>
-    /* ===== 다국어 재적용 안전장치: 외부 동기화 스크립트 뒤에 HERO 포함 고정 문구 재반영 ===== */
-    (function(){
-      function reapplyHomeLangAfterSync(){
-        if(window.LumibelleHomeI18n && typeof window.LumibelleHomeI18n.apply === "function"){
-          window.LumibelleHomeI18n.apply(window.LumibelleHomeI18n.current());
-        }
-      }
-      reapplyHomeLangAfterSync();
-      window.addEventListener("load", reapplyHomeLangAfterSync);
-    })();
-  </script>
-
 
   <script>
     const backToTop = document.getElementById('backToTop');
