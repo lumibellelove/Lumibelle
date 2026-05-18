@@ -3168,7 +3168,7 @@ line-height:1.9 !important;
     <div class="wrap">
       <div class="page-title">
         <h2>NEWS</h2>
-        <p>공지사항</p>
+        <p id="newsSubtitle">공지사항</p>
       </div>
 
       <div class="news-list-wrap">
@@ -3176,11 +3176,11 @@ line-height:1.9 !important;
           <!-- 필터 / 검색 도구 -->
           <div class="public-news-tools">
             <div class="public-news-filters" id="newsCategoryFilters">
-              <button type="button" class="public-news-filter active" data-filter="전체">전체</button>
-              <button type="button" class="public-news-filter" data-filter="라이브">라이브</button>
-              <button type="button" class="public-news-filter" data-filter="공지">공지</button>
-              <button type="button" class="public-news-filter" data-filter="이벤트">이벤트</button>
-              <button type="button" class="public-news-filter" data-filter="업데이트">업데이트</button>
+              <button type="button" class="public-news-filter active" data-filter="전체" data-i18n-filter="전체">전체</button>
+              <button type="button" class="public-news-filter" data-filter="라이브" data-i18n-filter="라이브">라이브</button>
+              <button type="button" class="public-news-filter" data-filter="공지" data-i18n-filter="공지">공지</button>
+              <button type="button" class="public-news-filter" data-filter="이벤트" data-i18n-filter="이벤트">이벤트</button>
+              <button type="button" class="public-news-filter" data-filter="업데이트" data-i18n-filter="업데이트">업데이트</button>
             </div>
             <input
               type="search"
@@ -3220,6 +3220,95 @@ line-height:1.9 !important;
   /* ── 공홈 NEWS 목록 + 언어 전환 ── */
   (function(){
     var PAGE_SIZE = 15;
+
+    /* ── 고정 UI 문구 번역 테이블 ── */
+    var UI_TEXT = {
+      ko: {
+        subtitle:   '공지사항',
+        navNews:    '공지사항',
+        filterAll:  '전체',
+        filterLive: '라이브',
+        filterInfo: '공지',
+        filterEvent:'이벤트',
+        filterUpd:  '업데이트',
+        searchPlaceholder: '검색',
+        backToNews: 'BACK TO NEWS',
+        empty:      '공지사항이 없습니다.',
+        loading:    '공지사항을 불러오는 중입니다…'
+      },
+      ja: {
+        subtitle:   'お知らせ',
+        navNews:    'お知らせ',
+        filterAll:  'すべて',
+        filterLive: 'ライブ',
+        filterInfo: '公告',
+        filterEvent:'イベント',
+        filterUpd:  'アップデート',
+        searchPlaceholder: '検索',
+        backToNews: 'ニュース一覧へ',
+        empty:      'お知らせがありません。',
+        loading:    '読み込み中です…'
+      },
+      en: {
+        subtitle:   'Notice',
+        navNews:    'Notice',
+        filterAll:  'All',
+        filterLive: 'Live',
+        filterInfo: 'Notice',
+        filterEvent:'Event',
+        filterUpd:  'Update',
+        searchPlaceholder: 'Search',
+        backToNews: 'BACK TO NEWS',
+        empty:      'No news found.',
+        loading:    'Loading…'
+      },
+      zh: {
+        subtitle:   '公告',
+        navNews:    '公告',
+        filterAll:  '全部',
+        filterLive: '直播',
+        filterInfo: '通知',
+        filterEvent:'活动',
+        filterUpd:  '更新',
+        searchPlaceholder: '搜索',
+        backToNews: '返回新闻',
+        empty:      '暂无公告。',
+        loading:    '正在加载中…'
+      }
+    };
+
+    function t(lang, key){
+      var l = UI_TEXT[lang] || UI_TEXT.ko;
+      return l[key] !== undefined ? l[key] : (UI_TEXT.ko[key] || '');
+    }
+
+    /* ── 고정 UI 문구 일괄 적용 ── */
+    function applyUiText(lang){
+      /* subtitle */
+      var sub = document.getElementById('newsSubtitle');
+      if(sub) sub.textContent = t(lang, 'subtitle');
+
+      /* nav NEWS 보조문구 */
+      var navNews = document.querySelector('nav a[href="news.html"] span');
+      if(navNews) navNews.textContent = t(lang, 'navNews');
+
+      /* 필터 버튼 */
+      var filterMap = {
+        '전체':   'filterAll',
+        '라이브': 'filterLive',
+        '공지':   'filterInfo',
+        '이벤트': 'filterEvent',
+        '업데이트':'filterUpd'
+      };
+      document.querySelectorAll('[data-i18n-filter]').forEach(function(btn){
+        var key = filterMap[btn.getAttribute('data-i18n-filter')];
+        if(key) btn.textContent = t(lang, key);
+      });
+
+      /* 검색 placeholder */
+      var search = document.getElementById('newsSearchInput');
+      if(search) search.placeholder = t(lang, 'searchPlaceholder');
+    }
 
     /* 현재 상태 */
     var params        = new URLSearchParams(location.search);
@@ -3284,7 +3373,7 @@ line-height:1.9 !important;
       var pageRows = rows.slice(start, start + PAGE_SIZE);
 
       if(!pageRows.length){
-        listEl.innerHTML = '<div class="public-news-empty">공지사항이 없습니다.</div>';
+        listEl.innerHTML = '<div class="public-news-empty">' + LumiNewsSync.htmlEscape(t(currentLang, 'empty')) + '</div>';
         pagerEl.hidden = true;
         return;
       }
@@ -3337,7 +3426,7 @@ line-height:1.9 !important;
 
     /* ── 로딩 표시 ── */
     function showLoading(){
-      listEl.innerHTML = '<div class="public-news-empty">공지사항을 불러오는 중입니다…</div>';
+      listEl.innerHTML = '<div class="public-news-empty">' + LumiNewsSync.htmlEscape(t(currentLang, 'loading')) + '</div>';
       pagerEl.hidden = true;
     }
 
@@ -3347,6 +3436,7 @@ line-height:1.9 !important;
       LumiNewsSync.setCurrentLang(currentLang);
       setUrlLang(currentLang);
       updateLangButtons();
+      applyUiText(currentLang);
       currentPage = 1;
       showLoading();
       LumiNewsSync.loadPublicNews(currentLang)
@@ -3395,6 +3485,7 @@ line-height:1.9 !important;
 
     /* ── 초기 실행 ── */
     LumiNewsSync.setCurrentLang(currentLang);
+    applyUiText(currentLang);
     updateLangButtons();
     updateFilterButtons();
 
