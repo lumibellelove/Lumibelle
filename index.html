@@ -4924,7 +4924,7 @@ line-height:1.9 !important;
       }
 
       .hero-desc::before{
-        content:var(--lumi-mobile-hero-copy, "한국 왕도 라이브 아이돌 Lumibelle.\A하나의 점에서 시작된 빛이\A선이 되어 이어집니다.") !important;
+        content:"한국 왕도 라이브 아이돌 Lumibelle.\A하나의 점에서 시작된 빛이\A선이 되어 이어집니다." !important;
         display:block !important;
         white-space:pre-line !important;
         color:#ffffff !important;
@@ -4940,11 +4940,6 @@ line-height:1.9 !important;
   
 
     /* ===== MOBILE HOME PATCH v9 : iPhone final polish ===== */
-    html[lang="ko"]{ --lumi-mobile-hero-copy:"한국 왕도 라이브 아이돌 Lumibelle.\A하나의 점에서 시작된 빛이\A선이 되어 이어집니다."; }
-    html[lang="en"]{ --lumi-mobile-hero-copy:"Classic live idol Lumibelle.\AA light from one point becomes\Aa line that connects us."; }
-    html[lang="ja"]{ --lumi-mobile-hero-copy:"韓国の王道ライブアイドル Lumibelle。\Aひとつの点から始まった光が\A線になってつながります。"; }
-    html[lang="zh-CN"]{ --lumi-mobile-hero-copy:"韩国王道现场偶像 Lumibelle。\A从一个点开始的光\A连成一条线。"; }
-
     @media (max-width: 780px){
       /* HERO: title/description slightly lower inside the visual */
       .hero-inner{
@@ -5596,25 +5591,10 @@ line-height:1.9 !important;
         return hasNew ? renderBadge('NEW') : '';
       }
 
-      function renderHomeNews(snapLang){
-        /* snapLang: 호출 시점 lang (race guard용). 없으면 현재 homeLang 사용 */
-        const homeLang = (window.LumibelleHomeI18n ? LumibelleHomeI18n.current() : null) || 'ko';
-        if(snapLang && snapLang !== homeLang) return;  /* 다른 lang 응답 렌더 차단 */
-
-        /* lang별 분리 캐시에서 읽기 */
-        const allRows = LumiNewsSync.publicNewsByLang
-          ? LumiNewsSync.publicNewsByLang(homeLang)
-          : LumiNewsSync.publicNews();
-
-        /* isHome 필터, 없으면 전체 */
+      function renderHomeNews(){
+        const allRows = LumiNewsSync.publicNews();
         let rows = allRows.filter(function(n){ return n.home !== false || n.isHome === true; });
         if(!rows.length) rows = allRows;
-
-        /* 방어 필터: homeLang 글만 표시 (race로 다른 lang이 섞여도 차단) */
-        rows = rows.filter(function(n){
-          return LumiNewsSync.normalizeLang(n.lang || 'ko') === homeLang;
-        });
-
         rows = rows.slice(0, 3);
         list.innerHTML = rows.map(function(n){
           return '<a href="' + LumiNewsSync.htmlEscape(LumiNewsSync.newsHref(n)) + '" class="news-item">'
@@ -5630,32 +5610,16 @@ line-height:1.9 !important;
       window.addEventListener('storage', function(e){
         if(e.key === LumiNewsSync.STORAGE_KEY) renderHomeNews();
       });
-      /* lumi-news-updated: race guard — 이벤트 발행 시점의 homeLang 스냅샷 전달 */
-      window.addEventListener('lumi-news-updated', function(){
-        const snap = (window.LumibelleHomeI18n ? LumibelleHomeI18n.current() : null) || 'ko';
-        renderHomeNews(snap);
-      });
-      /* 언어 전환 시: 해당 lang API 호출 + 완료 후 렌더 */
-      window.addEventListener('lumibelle-home-lang-changed', function(e){
-        const newLang = (e.detail && e.detail.lang) || 'ko';
-        renderHomeNews();   /* 캐시 기반 즉시 렌더 */
-        if(LumiNewsSync.loadPublicNews){
-          LumiNewsSync.loadPublicNews(newLang).then(function(){
-            renderHomeNews(newLang);
-          }).catch(function(){
-            renderHomeNews(newLang);
-          });
-        }
-      });
+      window.addEventListener('lumi-news-updated', renderHomeNews);
+      window.addEventListener('lumibelle-home-lang-changed', renderHomeNews);
 
       renderHomeNews();
-      /* 초기 로드: 현재 homeLang 기준 API 호출 (ko 하드코딩 제거) */
       if(LumiNewsSync.loadPublicNews){
-        const initHomeLang = (window.LumibelleHomeI18n ? LumibelleHomeI18n.current() : null) || 'ko';
-        LumiNewsSync.loadPublicNews(initHomeLang).then(function(){
-          renderHomeNews(initHomeLang);
+        LumiNewsSync.loadPublicNews('ko').then(function(){
+          renderHomeNews();
+          setTimeout(renderHomeNews, 250);
         }).catch(function(){
-          renderHomeNews(initHomeLang);
+          renderHomeNews();
         });
       }
     })();
