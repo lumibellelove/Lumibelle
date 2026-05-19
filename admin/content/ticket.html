@@ -1186,6 +1186,7 @@ input[type="checkbox"]{
       <button class="back-btn" onclick="backToList()">← 목록으로 돌아가기</button>
       <div class="action-buttons">
         <button class="btn" onclick="saveDraft()">임시저장</button>
+        <button class="btn" onclick="runTicketAutoTranslate()">자동번역</button>
         <button class="btn" onclick="openPreview()">미리보기</button>
         <button class="btn" onclick="cancelWrite()">취소</button>
         <button class="btn primary" onclick="saveTicket()">등록</button>
@@ -1443,15 +1444,184 @@ let state={
 const filters=[
   ['all','전체'],['sale','예매중'],['soon','예정'],['closed','마감'],['archive','지난공연'],['private','비공개'],['draft','임시글']
 ];
+
+const TICKET_API_URL='https://lumi-news-api.lumibelle-love.workers.dev';
+let ticketTranslations=null;
+
+async function ticketApiRequest(action,payload={}){
+  const body=new URLSearchParams();
+  body.set('action',action);
+  body.set('payload',JSON.stringify(payload||{}));
+  const res=await fetch(TICKET_API_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
+    body:body.toString()
+  });
+  const data=await res.json().catch(()=>({ok:false,error:'invalidJson'}));
+  if(!res.ok||!data.ok)throw new Error(data.message||data.error||('API 오류 '+res.status));
+  return data;
+}
+
+function resetTicketTranslations(){ticketTranslations=null}
+function notifyTicket(msg){alert(msg)}
 const $=id=>document.getElementById(id);
 const esc=s=>(s??'').toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 function saveLocal(){localStorage.setItem(STORAGE_KEY,JSON.stringify({...state,selected:[]}))}
 function loadLocal(){try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'); if(saved.tickets) state={...state,...saved,selected:new Set()}}catch(e){}}
+async function loadTicketsFromApi(){
+  try{
+    const data=await ticketApiRequest('adminListTicketItems',{});
+    state.tickets=(data.items||[]).map(apiTicketToState);
+    state.selected=new Set();
+    saveLocal();
+    renderList();
+  }catch(err){
+    console.error('[ticket] adminList failed, local fallback',err);
+    loadLocal();
+    renderList();
+  }
+}
 function fmtDate(d){if(!d)return '-'; const [y,m,day]=d.split('-'); return `${m}.${day}`}
 function fmtLongDate(d){if(!d)return '-'; return d.replaceAll('-','.')}
 function badgeClass(b){return (b||'').toLowerCase()}
 function statusLabel(s){return {sale:'예매중',soon:'예정',closed:'마감',archive:'지난공연'}[s]||'예정'}
 function statusClass(s){return `badge status ${s||''}`}
+function safeJsonParse(text,fallback={}){
+  try{return JSON.parse(text||'{}')||fallback}catch(e){return fallback}
+}
+function ticketPublishToApiStatus(t){
+  if(t.publishStatus==='draft')return 'draft';
+  if(t.publishStatus==='private')return 'hidden';
+  if(t.ticketStatus==='archive')return 'archived';
+  if(t.ticketStatus==='closed')return 'closed';
+  return 'open';
+}
+function ticketIsCurrent(t){
+  return t.publishStatus==='public' && (t.ticketStatus==='sale'||t.ticketStatus==='soon');
+}
+function ticketIsArchived(t){
+  return t.ticketStatus==='archive';
+}
+function buildPriceText(t){
+  const parts=[];
+  if(t.ticketName)parts.push(t.ticketName);
+  if(t.price)parts.push(t.price);
+  if(t.ticketDesc)parts.push(t.ticketDesc);
+  return parts.join(' / ');
+}
+function buildNoticeText(t){
+  return [t.intro,t.ruleNotice].filter(Boolean).join('\n\n');
+}
+function buildBenefitText(t){
+  return [t.packageText,t.packageA,t.packageB,t.mateOptions].filter(Boolean).join('\n\n');
+}
+function buildGuideText(t){
+  return [t.entry,t.venueDetail,t.ruleEntry,t.ruleRefund].filter(Boolean).join('\n\n');
+}
+function stateTicketToApiPayload(t){
+  t=t||{};
+  const memo={
+    badge:t.badge||'LIVE',
+    ticketStatus:t.ticketStatus||'soon',
+    posterUrl:t.posterUrl||'',
+    posterType:t.posterType||'vertical',
+    intro:t.intro||'',
+    cast:t.cast||'',
+    entry:t.entry||'',
+    venueDetail:t.venueDetail||'',
+    ruleEntry:t.ruleEntry||'',
+    ruleRefund:t.ruleRefund||'',
+    ruleNotice:t.ruleNotice||'',
+    packageEnabled:t.packageEnabled||'false',
+    packageText:t.packageText||'',
+    packageA:t.packageA||'',
+    packageB:t.packageB||'',
+    account:t.account||'',
+    holder:t.holder||'',
+    ticketName:t.ticketName||'',
+    price:t.price||'',
+    ticketDesc:t.ticketDesc||'',
+    mateOptions:t.mateOptions||'',
+    publishStatus:t.publishStatus||'draft',
+    createdAt:t.createdAt||''
+  };
+  return {
+    ticketId:String(t.id||'').startsWith('tk-')?'':(t.id||''),
+    eventId:t.eventId||'',
+    title:t.title||'',
+    date:t.date||'',
+    time:t.timeText||t.time||'',
+    venue:t.venue||'',
+    status:ticketPublishToApiStatus(t),
+    isCurrent:ticketIsCurrent(t),
+    isArchived:ticketIsArchived(t),
+    lang:'ko',
+    ticketUrl:t.ticketUrl||'',
+    reservationUrl:t.reservationUrl||'',
+    priceText:buildPriceText(t),
+    noticeText:buildNoticeText(t),
+    benefitText:buildBenefitText(t),
+    guideText:buildGuideText(t),
+    buttonText:t.ticketStatus==='soon'?'준비중':(t.ticketStatus==='closed'?'마감':'예매하기'),
+    archiveLabel:'지난 공연 보기',
+    sortOrder:Number(t.sortOrder||0),
+    createdBy:'admin',
+    updatedBy:'admin',
+    memo:JSON.stringify(memo)
+  };
+}
+function apiStatusToTicketStatus(item,memo){
+  if(memo.ticketStatus)return memo.ticketStatus;
+  if(item.status==='archived')return 'archive';
+  if(item.status==='closed')return 'closed';
+  if(item.status==='draft')return 'soon';
+  return item.isCurrent?'sale':'soon';
+}
+function apiStatusToPublishStatus(item,memo){
+  if(memo.publishStatus)return memo.publishStatus;
+  if(item.status==='draft')return 'draft';
+  if(item.status==='hidden')return 'private';
+  return 'public';
+}
+function apiTicketToState(item){
+  item=item||{};
+  const memo=safeJsonParse(item.memo||'',{});
+  return {
+    id:item.ticketId||memo.id||`tk-${Date.now()}`,
+    eventId:item.eventId||memo.eventId||'',
+    badge:memo.badge||'LIVE',
+    ticketStatus:apiStatusToTicketStatus(item,memo),
+    title:item.title||memo.title||'',
+    date:item.date||memo.date||'',
+    timeText:item.time||memo.timeText||'',
+    venue:item.venue||memo.venue||'',
+    posterUrl:memo.posterUrl||'',
+    posterType:memo.posterType||'vertical',
+    intro:memo.intro||item.noticeText||'',
+    cast:memo.cast||'',
+    entry:memo.entry||'',
+    venueDetail:memo.venueDetail||'',
+    ruleEntry:memo.ruleEntry||'',
+    ruleRefund:memo.ruleRefund||'',
+    ruleNotice:memo.ruleNotice||'',
+    packageEnabled:memo.packageEnabled||'false',
+    packageText:memo.packageText||item.benefitText||'',
+    packageA:memo.packageA||'',
+    packageB:memo.packageB||'',
+    account:memo.account||'',
+    holder:memo.holder||'',
+    ticketName:memo.ticketName||'',
+    price:memo.price||item.priceText||'',
+    ticketDesc:memo.ticketDesc||'',
+    mateOptions:memo.mateOptions||'',
+    publishStatus:apiStatusToPublishStatus(item,memo),
+    createdAt:memo.createdAt||String(item.createdAt||'').slice(0,10),
+    ticketUrl:item.ticketUrl||'',
+    reservationUrl:item.reservationUrl||'',
+    sortOrder:item.sortOrder||0
+  };
+}
+
 function renderFilters(){
   $('filters').innerHTML=filters.map(([key,label])=>`<button class="pill-btn ${state.filter===key?'active':''}" onclick="setFilter('${key}')">${label}</button>`).join('');
 }
@@ -1494,9 +1664,38 @@ function setFilter(f){state.filter=f;state.page=1;renderList()}
 function movePage(n){const total=Math.max(1,Math.ceil(getFiltered().length/pageSize));state.page=Math.min(total,Math.max(1,state.page+n));renderList()}
 function toggleSelect(id,checked){checked?state.selected.add(id):state.selected.delete(id)}
 function toggleAll(checked){getFiltered().forEach(t=>checked?state.selected.add(t.id):state.selected.delete(t.id));renderList()}
-function bulkSet(status){state.tickets.forEach(t=>{if(state.selected.has(t.id))t.publishStatus=status});saveLocal();renderList()}
-function bulkDelete(){state.tickets=state.tickets.filter(t=>!state.selected.has(t.id));state.selected.clear();saveLocal();renderList()}
-function togglePublish(id){const t=state.tickets.find(x=>x.id===id);if(!t)return;t.publishStatus=t.publishStatus==='public'?'private':'public';saveLocal();renderList()}
+async function bulkSet(status){
+  const targets=state.tickets.filter(t=>state.selected.has(t.id));
+  for(const t of targets){
+    t.publishStatus=status;
+    try{await ticketApiRequest('adminSaveTicketItem',stateTicketToApiPayload(t))}catch(err){console.error('[ticket] bulk save failed',err)}
+  }
+  saveLocal();renderList();
+}
+async function bulkDelete(){
+  const targets=state.tickets.filter(t=>state.selected.has(t.id));
+  for(const t of targets){
+    if(!String(t.id||'').startsWith('tk-')){
+      try{await ticketApiRequest('adminArchiveTicketItem',{ticketId:t.id,updatedBy:'admin'})}catch(err){console.error('[ticket] archive failed',err)}
+    }
+  }
+  state.tickets=state.tickets.filter(t=>!state.selected.has(t.id));
+  state.selected.clear();saveLocal();renderList();
+}
+async function togglePublish(id){
+  const t=state.tickets.find(x=>x.id===id);if(!t)return;
+  t.publishStatus=t.publishStatus==='public'?'private':'public';
+  try{
+    const data=await ticketApiRequest('adminSaveTicketItem',stateTicketToApiPayload(t));
+    const saved=apiTicketToState(data.item||{});
+    const idx=state.tickets.findIndex(x=>x.id===id);
+    if(idx>=0)state.tickets[idx]=saved;
+    saveLocal();renderList();
+  }catch(err){
+    console.error('[ticket] toggle failed',err);
+    alert('공개 상태 변경 실패: '+(err.message||err));
+  }
+}
 
 function openWrite(){state.editingId=null;clearForm();showWrite()}
 function showWrite(){ $('listPanel').classList.add('hidden'); $('writePanel').classList.remove('hidden'); updateMiniPreview(); window.scrollTo({top:0,behavior:'smooth'})}
@@ -1528,12 +1727,28 @@ function editTicket(id){
   state.editingId=id; clearForm(); fillForm(t); showWrite();
 }
 function saveDraft(){ $('publishStatus').value='draft'; saveTicket() }
-function saveTicket(){
+async function saveTicket(){
   const data=readForm();
-  const idx=state.tickets.findIndex(t=>t.id===data.id);
-  if(idx>=0) state.tickets[idx]=data; else state.tickets.unshift(data);
-  state.editingId=data.id;
-  saveLocal(); alert('저장했어요.'); backToList();
+  if(!data.title){alert('공연명을 입력해 주세요.');return}
+  if(!data.date){alert('날짜를 입력해 주세요.');return}
+  try{
+    const payload=stateTicketToApiPayload(data);
+    if(ticketTranslations)payload.translations=ticketTranslations;
+    const result=await ticketApiRequest('adminSaveTicketItem',payload);
+    const saved=apiTicketToState(result.item||{});
+    const oldId=data.id;
+    const idx=state.tickets.findIndex(t=>t.id===oldId||t.id===saved.id);
+    if(idx>=0) state.tickets[idx]=saved; else state.tickets.unshift(saved);
+    state.editingId=saved.id;
+    resetTicketTranslations();
+    saveLocal();
+    alert('저장했어요.');
+    backToList();
+    loadTicketsFromApi();
+  }catch(err){
+    console.error('[ticket] save failed',err);
+    alert('저장 실패: '+(err.message||err));
+  }
 }
 function previewTicket(id){const t=state.tickets.find(x=>x.id===id); openPreview(t)}
 function openPreview(ticket){
@@ -1619,6 +1834,32 @@ function cancelWrite(){
     backToList();
   }
 }
+async function runTicketAutoTranslate(){
+  const data=readForm();
+  const payload=stateTicketToApiPayload(data);
+  try{
+    alert('자동번역을 시작합니다. 완료 후 저장을 누르면 다국어 행이 함께 저장됩니다.');
+    const result=await ticketApiRequest('translateTicketContent',{
+      sourceLang:'ko',
+      targetLangs:['ja','en','zh'],
+      title:payload.title||'',
+      venue:payload.venue||'',
+      priceText:payload.priceText||'',
+      noticeText:payload.noticeText||'',
+      benefitText:payload.benefitText||'',
+      guideText:payload.guideText||'',
+      buttonText:payload.buttonText||'',
+      archiveLabel:payload.archiveLabel||'',
+      memo:''
+    });
+    ticketTranslations=result.translations||{};
+    alert('자동번역 완료. 이제 등록/저장을 누르면 다국어 행이 함께 저장됩니다.');
+  }catch(err){
+    console.error('[ticket] translate failed',err);
+    alert('자동번역 실패: '+(err.message||err));
+  }
+}
+
 function handlePosterFile(event){
   const file=event.target.files&&event.target.files[0];
   if(!file)return;
@@ -1693,6 +1934,7 @@ document.addEventListener('input',e=>{if(e.target.closest('#writePanel'))updateM
 document.addEventListener('change',e=>{if(e.target.closest('#writePanel'))updateMiniPreview()});
 loadLocal();
 renderList();
+loadTicketsFromApi();
 </script>
 </body>
 </html>
