@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TICKET 글쓰기 목업 v2-8.4 기능연동준비 | Lumibelle Admin</title>
+<title>TICKET 글쓰기 목업 v2-8.4 포스터폴더연동 | Lumibelle Admin</title>
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=SUIT:wght@500;600;700;800;900&display=swap');
@@ -1030,48 +1030,6 @@ textarea::-webkit-scrollbar-thumb{
   .side-actions .btn{height:44px;min-height:44px;font-size:14px}
 }
 
-
-/* ticket feature hooks: recent image grid */
-.recent-image-grid{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:12px;
-}
-.recent-image-card{
-  border:1px solid var(--line);
-  border-radius:16px;
-  background:#fff;
-  padding:8px;
-  color:#a08294;
-  font-size:12px;
-  font-weight:850;
-  text-align:center;
-}
-.recent-image-card button{
-  width:100%;
-  border:0;
-  background:transparent;
-  padding:0;
-  cursor:pointer;
-}
-.recent-image-card img{
-  width:100%;
-  aspect-ratio:1;
-  object-fit:cover;
-  border-radius:12px;
-  display:block;
-  margin-bottom:7px;
-  background:#fff8fc;
-}
-.recent-image-empty{
-  border:1px dashed var(--line);
-  border-radius:18px;
-  padding:22px;
-  text-align:center;
-  color:#a08294;
-  font-weight:850;
-}
-
 </style>
 </head>
 <body>
@@ -1452,6 +1410,7 @@ textarea::-webkit-scrollbar-thumb{
 
 <script>
 const API_URL='https://lumi-news-api.lumibelle-love.workers.dev';
+const TICKET_POSTER_FOLDER_ID='1_M88F2SulmxC2xpAbL8OI8rmvXYJ6ulY';
 const TEAM_STORAGE_KEY='lumibelle_ticket_team_recent_v2';
 const DRAFT_STORAGE_KEY='lumibelle_ticket_drafts_mockup_v2_2';
 const $=id=>document.getElementById(id);
@@ -1494,7 +1453,7 @@ function openAddressSearch(){
   if(!window.daum||!daum.Postcode){alert('주소 검색을 불러오지 못했어요. 직접 입력을 사용해 주세요.');return}
   new daum.Postcode({
     oncomplete:function(data){
-      $('venueName').value=data.buildingName||$('venueName').value||'';
+      $('venueName').value=data.buildingName||data.roadAddress||data.address||'';
       $('venueDetail').value=data.roadAddress||data.address||'';
     }
   }).open();
@@ -1751,8 +1710,6 @@ function applyPosterEditAndClose(){
 }
 function applyPoster(url){
   $('posterUrl').value=url;
-  $('posterUrl').dataset.fileId='';
-  $('posterUrl').dataset.source='local';
   const img=new Image();
   img.onload=function(){
     const type=img.naturalWidth>=img.naturalHeight?'wide':'portrait';
@@ -1776,20 +1733,12 @@ function setPosterLayout(type){
     $('posterModalPreview').classList.toggle('portrait',type==='portrait');
   }
 }
-async function openRecentTicketImages(){
+function openRecentTicketImages(){
   $('recentImageModal').classList.add('open');
-  $('recentImageList').innerHTML='<div class="recent-image-empty">최근 사진을 불러오는 중...</div>';
-  try{
-    const data=await fetchRecentTicketImages();
-    const images=normalizeRecentImages(data);
-    renderRecentTicketImages(images);
-  }catch(err){
-    console.error(err);
-    $('recentImageList').innerHTML='<div class="recent-image-empty">최근 사진을 불러오지 못했어요.<br>NEWS 이미지 API 연결을 확인해 주세요.</div>';
-  }
+  $('recentImageList').innerHTML='<div class="empty">최근사진 목록</div>';
 }
 function closeRecentTicketImages(){$('recentImageModal').classList.remove('open')}
-function openTicketSliderModal(){alert('슬라이더는 아직 백엔드 저장 구조가 필요해요. 포스터 1장 저장 연동 후 붙이는 게 안전해요.')}
+function openTicketSliderModal(){alert('슬라이더 선택')}
 
 
 function showToast(message){
@@ -1799,57 +1748,6 @@ function showToast(message){
   el.classList.add('show');
   clearTimeout(showToast._timer);
   showToast._timer=setTimeout(()=>el.classList.remove('show'),1400);
-}
-
-
-async function fetchRecentTicketImages(){
-  const actions=['getDriveImageData','listRecentImages','adminListRecentImages'];
-  let lastError=null;
-  for(const action of actions){
-    try{
-      const data=await api(action,{type:'ticketPoster',category:'ticket',limit:24});
-      return data;
-    }catch(err){
-      lastError=err;
-    }
-  }
-  throw lastError||new Error('recent image api not found');
-}
-function normalizeRecentImages(data){
-  const raw=data.images||data.items||data.files||data.list||[];
-  return raw.map(item=>{
-    const url=item.url||item.thumbnailUrl||item.webViewLink||item.imageUrl||item.dataUrl||item.src||'';
-    const fullUrl=item.fullUrl||item.originalUrl||item.url||url;
-    const fileId=item.fileId||item.id||item.thumbnailFileId||'';
-    const name=item.name||item.title||item.filename||'사진';
-    return {url,fullUrl,fileId,name,item};
-  }).filter(x=>x.url||x.fullUrl);
-}
-function renderRecentTicketImages(images){
-  if(!images.length){
-    $('recentImageList').innerHTML='<div class="recent-image-empty">최근 사진이 없어요.</div>';
-    return;
-  }
-  $('recentImageList').innerHTML=`<div class="recent-image-grid">${
-    images.map((img,i)=>`
-      <div class="recent-image-card">
-        <button type="button" onclick="selectRecentTicketImage(${i})">
-          <img src="${escapeAttr(img.url||img.fullUrl)}" alt="${escapeAttr(img.name)}">
-          <span>${escapeHtml(img.name)}</span>
-        </button>
-      </div>`).join('')
-  }</div>`;
-  window.__ticketRecentImages=images;
-}
-function selectRecentTicketImage(index){
-  const images=window.__ticketRecentImages||[];
-  const img=images[index];
-  if(!img)return;
-  applyPoster(img.fullUrl||img.url);
-  $('posterUrl').dataset.fileId=img.fileId||'';
-  $('posterUrl').dataset.source='drive';
-  closeRecentTicketImages();
-  showToast('포스터 사진을 적용했어요');
 }
 
 async function api(action,payload={}){
@@ -1885,8 +1783,6 @@ function buildPayload(){
     badge:$('ticketBadge').value,
     ticketStatus:$('ticketStatus').value,
     posterUrl:$('posterUrl').value,
-    posterFileId:$('posterUrl').dataset.fileId||'',
-    posterSource:$('posterUrl').dataset.source||'local',
     posterLayout:posterLayout,
     castTeams:castTeams,
     venueDetail:$('venueDetail').value,
@@ -1919,9 +1815,6 @@ function buildPayload(){
     lang:'ko',
     ticketUrl:'',
     reservationUrl:'',
-    thumbnailUrl:$('posterUrl').value,
-    thumbnailFileId:$('posterUrl').dataset.fileId||'',
-    thumbnailSource:$('posterUrl').dataset.source||'local',
     priceText:($('reservePrice').value ? (($('reserveTicketName').value||'사전 예약 티켓')+' '+$('reservePrice').value+'원') : buildPriceText()),
     noticeText:$('introText').value,
     benefitText:buildBenefitText(),
