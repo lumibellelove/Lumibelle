@@ -1518,6 +1518,326 @@
   </script>
 
   <script>
+    /* Ticket public output sync: ticket_items → 공홈 티켓 현재 공연 표시 */
+    (function(){
+      const TICKET_CONTENT_API_URL = 'https://script.google.com/macros/s/AKfycbzmZHCLvg_Nd8f6qnat3RisYoMPnGARaLWPqeCnt2zHI8wl0-QuXkMmnGtcP_BoSFEH/exec';
+      const TICKET_SYNC_STATE = {
+        loaded: false,
+        item: null
+      };
+
+      function htmlEscapeTicket(value){
+        return String(value == null ? '' : value).replace(/[&<>"']/g, function(ch){
+          return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+        });
+      }
+
+      function textOrEmpty(value){
+        return String(value == null ? '' : value).trim();
+      }
+
+      function normalizeTicketLang(value){
+        value = String(value || 'ko').toLowerCase().trim();
+        if(value === 'kr') return 'ko';
+        if(value === 'jp') return 'ja';
+        if(value === 'cn' || value === 'zh-cn' || value === 'zh_hans' || value === 'zh-hans') return 'zh';
+        return ['ko','ja','en','zh'].includes(value) ? value : 'ko';
+      }
+
+      function getTicketLang(){
+        try{
+          const params = new URLSearchParams(location.search);
+          return normalizeTicketLang(params.get('lang') || localStorage.getItem('lumibelle.home.lang') || 'ko');
+        }catch(err){
+          return 'ko';
+        }
+      }
+
+      function parseTicketMemo(item){
+        if(!item) return {};
+        const memo = item.memo || item._memo || item.memoJson || '';
+        if(!memo) return {};
+        if(typeof memo === 'object') return memo;
+        try{
+          return JSON.parse(String(memo));
+        }catch(err){
+          return {};
+        }
+      }
+
+      function ticketJsonp(action, payload){
+        payload = payload || {};
+        return new Promise(function(resolve, reject){
+          const callbackName = '__lumibelleTicketPublicCb_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+          const script = document.createElement('script');
+          const timer = setTimeout(function(){
+            cleanup();
+            reject(new Error('ticketApiTimeout'));
+          }, 12000);
+
+          function cleanup(){
+            clearTimeout(timer);
+            try{ delete window[callbackName]; }catch(err){ window[callbackName] = undefined; }
+            if(script && script.parentNode) script.parentNode.removeChild(script);
+          }
+
+          window[callbackName] = function(data){
+            cleanup();
+            resolve(data || {});
+          };
+
+          const params = new URLSearchParams();
+          params.set('action', action);
+          params.set('callback', callbackName);
+          params.set('payload', JSON.stringify(payload));
+          Object.keys(payload).forEach(function(key){
+            if(payload[key] == null) return;
+            params.set(key, payload[key]);
+          });
+
+          script.onerror = function(){
+            cleanup();
+            reject(new Error('ticketApiLoadFailed'));
+          };
+          script.src = TICKET_CONTENT_API_URL + '?' + params.toString();
+          document.head.appendChild(script);
+        });
+      }
+
+      function pickTicketItems(response){
+        if(!response) return [];
+        if(Array.isArray(response.items)) return response.items;
+        if(response.data && Array.isArray(response.data.items)) return response.data.items;
+        if(response.result && Array.isArray(response.result.items)) return response.result.items;
+        if(Array.isArray(response)) return response;
+        return [];
+      }
+
+      function formatTicketDate(value){
+        const raw = textOrEmpty(value);
+        if(!raw) return '';
+        const m = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+        if(!m) return raw;
+        const y = m[1], mo = String(m[2]).padStart(2,'0'), d = String(m[3]).padStart(2,'0');
+        const date = new Date(Number(y), Number(mo)-1, Number(d));
+        const dayNames = ['일','월','화','수','목','금','토'];
+        const day = isNaN(date.getTime()) ? '' : ' (' + dayNames[date.getDay()] + ')';
+        return y + '년 ' + Number(mo) + '월 ' + Number(d) + '일' + day;
+      }
+
+      function lineListHtml(value, fallback){
+        const raw = textOrEmpty(value || fallback);
+        if(!raw) return '<li>상세 안내는 추후 업데이트됩니다.</li>';
+        return raw
+          .split(/\n+/)
+          .map(function(line){ return textOrEmpty(line); })
+          .filter(Boolean)
+          .map(function(line){ return '<li>' + htmlEscapeTicket(line) + '</li>'; })
+          .join('');
+      }
+
+      function splitCastTeams(value){
+        if(Array.isArray(value)) return value.map(textOrEmpty).filter(Boolean);
+        return String(value || '')
+          .split(/[\n,/|]+/)
+          .map(textOrEmpty)
+          .filter(Boolean);
+      }
+
+      function updateStatusPills(item, memo){
+        const row = document.querySelector('.hero-mini .status-row');
+        if(!row) return;
+        const badge = textOrEmpty(memo.badge || item.badge || 'NOW OPEN');
+        const ticketStatus = textOrEmpty(memo.ticketStatus || item.ticketStatus || item.status || 'open');
+        const labels = [];
+        labels.push(badge);
+        if(ticketStatus === 'soon') labels.push('PRE-ORDER');
+        else if(ticketStatus === 'closed') labels.push('마감');
+        else if(ticketStatus === 'archived') labels.push('지난 공연');
+        else labels.push('NOW OPEN');
+        labels.push('입금 확인 후 예약 확정');
+        row.innerHTML = labels.map(function(label, index){
+          return '<span class="status-pill' + (index === 0 ? ' strong' : '') + '">' + htmlEscapeTicket(label) + '</span>';
+        }).join('');
+      }
+
+      function updatePoster(item, memo){
+        const posterUrl = textOrEmpty(item.posterUrl || memo.posterUrl || item.heroImageUrl || item.heroImage);
+        const posterBox = document.querySelector('.poster-box');
+        if(!posterBox || !posterUrl) return;
+        const title = textOrEmpty(item.title || 'Lumibelle Ticket Poster');
+        posterBox.innerHTML = '<img alt="' + htmlEscapeTicket(title) + ' 포스터" src="' + htmlEscapeTicket(posterUrl) + '" onerror="this.closest(\'.poster-box\').innerHTML=\'공연 포스터를 불러오지 못했어요.\';">';
+        const layout = textOrEmpty(item.posterLayout || memo.posterLayout || 'portrait');
+        posterBox.dataset.posterLayout = layout;
+      }
+
+      function updateInfo(item, memo){
+        const title = textOrEmpty(item.title || '루미벨 공연');
+        const dateText = formatTicketDate(item.date || item.eventDate);
+        const timeText = textOrEmpty(item.time || item.startTime || memo.time);
+        const venue = textOrEmpty(item.venue || item.venueName);
+        const venueDetail = textOrEmpty(memo.venueDetail || item.venueDetail || item.venueAddress);
+        const intro = textOrEmpty(memo.intro || item.noticeText || item.description || '빛나는 미소의 소녀들, Lumibelle의 공연을 함께해 주세요.');
+        const casts = splitCastTeams(memo.castTeams || item.castTeams || item.members || 'Lumibelle');
+
+        const heroSub = document.querySelector('.hero-mini .sub');
+        const heroTitle = document.querySelector('.hero-mini h1');
+        const heroText = document.querySelector('.hero-mini p');
+        if(heroSub) heroSub.textContent = '루미벨 티켓 예매';
+        if(heroTitle) heroTitle.textContent = 'Ticket';
+        if(heroText) heroText.innerHTML = htmlEscapeTicket(title) + '<br>' + htmlEscapeTicket(intro);
+
+        const infoTitle = document.querySelector('.info-card h2');
+        const infoText = document.querySelector('.info-card > p');
+        const castList = document.querySelector('.cast-list');
+        const eventLines = document.querySelector('.event-lines');
+        if(infoTitle) infoTitle.textContent = '공연 정보';
+        if(infoText) infoText.textContent = intro;
+        if(castList && casts.length){
+          castList.innerHTML = casts.map(function(team){
+            return '<span class="cast-pill">' + htmlEscapeTicket(team) + '</span>';
+          }).join('');
+        }
+        if(eventLines){
+          const rows = [];
+          if(dateText || timeText) rows.push(['일시', [dateText, timeText].filter(Boolean).join(' ')]);
+          if(timeText) rows.push(['입장', timeText.indexOf('OPEN') >= 0 ? timeText : textOrEmpty(memo.openText || '상세 시간은 안내를 확인해 주세요.')]);
+          if(venue || venueDetail) rows.push(['장소', [venue, venueDetail].filter(Boolean).join('<br>')]);
+          eventLines.innerHTML = rows.map(function(row){
+            return '<div class="event-line"><strong>' + htmlEscapeTicket(row[0]) + '</strong><span>' + row[1] + '</span></div>';
+          }).join('');
+        }
+      }
+
+      function updateNotice(item, memo){
+        const boxes = document.querySelectorAll('.notice-box');
+        if(!boxes.length) return;
+        const guide = textOrEmpty(item.guideText || '');
+        const guideParts = guide ? guide.split(/\n\n+/) : [];
+        const entry = textOrEmpty(memo.ruleEntry || guideParts[0] || '');
+        const refund = textOrEmpty(memo.ruleRefund || guideParts[1] || '');
+        const notice = textOrEmpty(memo.ruleNotice || guideParts.slice(2).join('\n') || '');
+
+        const data = [
+          ['입장 및 대기 규칙', entry],
+          ['취소 및 환불', refund],
+          ['관람 유의사항', notice]
+        ];
+
+        boxes.forEach(function(box, index){
+          if(!data[index]) return;
+          const h3 = box.querySelector('h3');
+          const ul = box.querySelector('ul');
+          if(h3) h3.textContent = data[index][0];
+          if(ul && data[index][1]) ul.innerHTML = lineListHtml(data[index][1]);
+        });
+      }
+
+      function updatePackage(item, memo){
+        const card = document.querySelector('.package-card');
+        if(!card) return;
+        const packages = Array.isArray(memo.packages) ? memo.packages : [];
+        const benefitText = textOrEmpty(item.benefitText || '');
+        if(packages.length){
+          const links = packages.map(function(pkg){
+            const name = textOrEmpty(pkg.name || '패키지');
+            const price = textOrEmpty(pkg.price);
+            const desc = textOrEmpty(pkg.description || pkg.benefit);
+            return '<div class="ticket-note" style="margin:8px 0 0"><strong>' + htmlEscapeTicket(name) + '</strong>' + (price ? ' · ' + htmlEscapeTicket(price) : '') + (desc ? '<br>' + htmlEscapeTicket(desc).replace(/\n/g,'<br>') : '') + '</div>';
+          }).join('');
+          card.innerHTML = '<h2>한정 패키지 안내</h2>' + links + '<div class="package-actions"><a class="package-btn" href="../goods/">굿즈 페이지 보러가기</a></div>';
+        }else if(benefitText){
+          card.innerHTML = '<h2>혜택 안내</h2><p class="ticket-note" style="margin-top:0">' + htmlEscapeTicket(benefitText).replace(/\n/g,'<br>') + '</p>';
+        }
+      }
+
+      function updateReserveBox(item, memo){
+        const reservation = memo.reservation || {};
+        const reserveName = textOrEmpty(reservation.ticketName || item.reserveTicketName || '사전 예약 티켓');
+        const rawPrice = textOrEmpty(reservation.price || item.priceText || '10000');
+        const priceText = rawPrice.match(/원|₩/) ? rawPrice : rawPrice + '원';
+        const description = textOrEmpty(reservation.description || '일반 입장권 / 입금 확인 후 예약 확정');
+        const account = textOrEmpty(reservation.account || item.accountText);
+        const holder = textOrEmpty(reservation.holder || item.accountHolder);
+        const statusRow = document.querySelector('.ticket-card .status-row');
+        const display = document.getElementById('ticketDisplay');
+
+        if(statusRow && (account || holder)){
+          statusRow.innerHTML = [
+            account ? '<span class="status-pill">계좌 : ' + htmlEscapeTicket(account) + '</span>' : '',
+            holder ? '<span class="status-pill">예금주 : ' + htmlEscapeTicket(holder) + '</span>' : ''
+          ].filter(Boolean).join('');
+        }
+
+        try{
+          ticketData.pre.title = reserveName;
+          ticketData.pre.desc = description;
+          ticketData.pre.price = priceText;
+          ticketData.pre.formValue = reserveName + (priceText ? ' (' + priceText + ')' : '');
+          selectedTicket = 'pre';
+        }catch(err){}
+
+        if(display){
+          display.innerHTML = '<div><strong>' + htmlEscapeTicket(reserveName) + '</strong><span>' + htmlEscapeTicket(description) + '</span></div><b>' + htmlEscapeTicket(priceText) + '</b>';
+        }
+      }
+
+      function updateMeateOptions(item, memo){
+        const meateBox = document.querySelector('.meate-options');
+        if(!meateBox) return;
+        const teams = splitCastTeams(memo.castTeams || item.castTeams || item.members || 'Lumibelle');
+        if(!teams.length) return;
+        meateBox.innerHTML = teams.map(function(team){
+          return '<button class="meate-option" data-meate="' + htmlEscapeTicket(team) + '" type="button">' + htmlEscapeTicket(team) + '</button>';
+        }).join('');
+
+        meateBox.querySelectorAll('.meate-option').forEach(function(button){
+          button.addEventListener('click', function(){
+            const input = document.getElementById('meate');
+            if(input) input.value = button.dataset.meate;
+            meateBox.querySelectorAll('.meate-option').forEach(function(btn){ btn.classList.remove('active'); });
+            button.classList.add('active');
+          });
+        });
+      }
+
+      function applyTicketItem(item){
+        if(!item) return;
+        const memo = parseTicketMemo(item);
+        TICKET_SYNC_STATE.loaded = true;
+        TICKET_SYNC_STATE.item = item;
+
+        updateStatusPills(item, memo);
+        updatePoster(item, memo);
+        updateInfo(item, memo);
+        updateNotice(item, memo);
+        updatePackage(item, memo);
+        updateReserveBox(item, memo);
+        updateMeateOptions(item, memo);
+      }
+
+      async function loadPublicTicket(){
+        const lang = getTicketLang();
+        const payload = { lang: lang, mode: 'current' };
+        try{
+          const response = await ticketJsonp('publicListTicketItems', payload);
+          const items = pickTicketItems(response);
+          if(items.length) applyTicketItem(items[0]);
+        }catch(err){
+          console.warn('[Lumibelle Ticket] publicListTicketItems failed', err);
+        }
+      }
+
+      if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', loadPublicTicket);
+      }else{
+        loadPublicTicket();
+      }
+    })();
+  </script>
+
+
+  <script>
     const revealItems = document.querySelectorAll('.reveal');
     const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
