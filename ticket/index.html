@@ -1687,16 +1687,28 @@
           .filter(Boolean);
       }
 
+      function normalizeTicketOpenStatus(value){
+        const raw = textOrEmpty(value || '').toLowerCase().replace(/\s+/g, '');
+        if(!raw) return 'open';
+        if(['sale','open','public','nowopen','reservationopen','예매중','판매중','예약중'].includes(raw)) return 'open';
+        if(['soon','upcoming','preparing','reservationsoon','예매예정','예약예정','준비중'].includes(raw)) return 'soon';
+        if(['closed','ended','마감','판매마감','예매마감'].includes(raw)) return 'closed';
+        if(['archive','archived','지난공연'].includes(raw)) return 'archived';
+        if(['draft','hidden','private','비공개','숨김'].includes(raw)) return 'hidden';
+        return raw;
+      }
+
       function updateStatusPills(item, memo){
         const row = document.querySelector('.hero-mini .status-row');
         if(!row) return;
         const badge = textOrEmpty(memo.badge || item.badge || 'NOW OPEN');
-        const ticketStatus = textOrEmpty(memo.ticketStatus || item.ticketStatus || item.status || 'open');
+        const ticketStatus = normalizeTicketOpenStatus(memo.ticketStatus || item.ticketStatus || item.status || 'open');
         const labels = [];
         labels.push(badge);
         if(ticketStatus === 'soon') labels.push('PRE-ORDER');
         else if(ticketStatus === 'closed') labels.push('마감');
         else if(ticketStatus === 'archived') labels.push('지난 공연');
+        else if(ticketStatus === 'hidden') labels.push('비공개');
         else labels.push('NOW OPEN');
         labels.push('입금 확인 후 예약 확정');
         row.innerHTML = labels.map(function(label, index){
@@ -1875,9 +1887,9 @@
         const description = textOrEmpty(reservation.description || '일반 입장권 / 입금 확인 후 예약 확정');
         const account = textOrEmpty(reservation.account || item.accountText);
         const holder = textOrEmpty(reservation.holder || item.accountHolder);
-        const ticketStatus = textOrEmpty(memo.ticketStatus || item.ticketStatus || 'open').toLowerCase();
-        const isReservable = ticketStatus === 'open' || ticketStatus === 'public' || ticketStatus === 'nowopen';
-        const closedText = ticketStatus === 'soon' ? '예매 오픈 전입니다. 관리자에서 예매 상태를 open으로 바꾸면 신청 버튼이 열려요.' : '현재 예매를 받을 수 없는 상태입니다.';
+        const ticketStatus = normalizeTicketOpenStatus(memo.ticketStatus || item.ticketStatus || item.status || 'open');
+        const isReservable = ticketStatus === 'open';
+        const closedText = ticketStatus === 'soon' ? '예매 오픈 전입니다. 관리자에서 예매 상태를 예매중으로 바꾸면 신청 버튼이 열려요.' : '현재 예매를 받을 수 없는 상태입니다.';
         const statusRow = document.querySelector('.ticket-card .status-row');
         const display = document.getElementById('ticketDisplay');
         const ticketCard = document.querySelector('.ticket-card');

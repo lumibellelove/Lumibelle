@@ -1381,15 +1381,6 @@ function getTimeText(){
 }
 function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function escapeAttr(s){return escapeHtml(s).replace(/`/g,'&#96;')}
-function normalizeTicketStatusAdmin(value){
-  const raw=String(value||'').trim().toLowerCase().replace(/[\s_-]+/g,'');
-  if(raw==='open'||raw==='sale'||raw==='public'||raw==='nowopen'||raw==='예매중'||raw==='예약중'||raw==='reservationopen')return 'sale';
-  if(raw==='soon'||raw==='upcoming'||raw==='preparing'||raw==='예매예정'||raw==='예약예정'||raw==='reservationsoon')return 'soon';
-  if(raw==='closed'||raw==='ended'||raw==='close'||raw==='마감')return 'closed';
-  if(raw==='archive'||raw==='archived'||raw==='지난공연')return 'archive';
-  if(raw==='private'||raw==='hidden'||raw==='draft'||raw==='비공개'||raw==='숨김')return 'private';
-  return raw||'soon';
-}
 
 /* ══════════════════════════════════════════
    LIST PANEL
@@ -1485,7 +1476,10 @@ function renderList(){
     if(listFilter==='all')return true;
     if(listFilter==='draft')return t._publishStatus==='draft';
     const memo=t._memo||{};
-    return normalizeTicketStatusAdmin(memo.ticketStatus||t._ticketStatus||t.status)===normalizeTicketStatusAdmin(listFilter);
+    const st=String(memo.ticketStatus||t.ticketStatus||t.status||'').trim().toLowerCase();
+    if(listFilter==='open')return st==='open'||st==='sale'||st==='public'||st==='예매중'||st==='reservationopen';
+    if(listFilter==='soon')return st==='soon'||st==='upcoming'||st==='preparing'||st==='예매예정'||st==='예약예정'||st==='reservationsoon';
+    return st===listFilter;
   });
   const total=filtered.length;
   const totalPages=Math.max(1,Math.ceil(total/LIST_PER_PAGE));
@@ -1517,7 +1511,8 @@ function renderList(){
     </tr></thead>
     <tbody>${page.map(t=>{
       const memo=t._memo||{};
-      const st=normalizeTicketStatusAdmin(memo.ticketStatus||t._ticketStatus||t.status||'soon');
+      const rawSt=String(memo.ticketStatus||t.ticketStatus||t.status||'soon').trim().toLowerCase();
+      const st=(rawSt==='open'||rawSt==='public'||rawSt==='예매중'||rawSt==='reservationopen')?'sale':rawSt;
       const pub=t._publishStatus||'draft';
       return `<tr>
         <td><input type="checkbox" class="ticket-row-check" data-localid="${escapeAttr(t._localId)}" style="width:15px;height:15px;accent-color:var(--pink)"></td>
@@ -1632,7 +1627,11 @@ function editTicket(localId){
   }
 
   $('ticketBadge').value=memo.badge||'LIVE';
-  $('ticketStatus').value=normalizeTicketStatusAdmin(memo.ticketStatus||item._ticketStatus||item.status||'soon');
+  {
+    const rawStatus=String(memo.ticketStatus||ticket.ticketStatus||ticket.status||'soon').trim().toLowerCase();
+    $('ticketStatus').value=(rawStatus==='open'||rawStatus==='public'||rawStatus==='예매중'||rawStatus==='reservationopen')?'sale':rawStatus;
+    if(!$('ticketStatus').value)$('ticketStatus').value='soon';
+  }
 
   const pub=item._publishStatus||'draft';
   const radio=document.querySelector(`input[name="publishStatus"][value="${pub}"]`);
@@ -2422,12 +2421,11 @@ function getPublishStatus(){
 }
 function statusForApi(){
   const pub=getPublishStatus();
-  const st=normalizeTicketStatusAdmin($('ticketStatus').value);
+  const st=$('ticketStatus').value;
   if(pub==='draft')return 'draft';
   if(pub==='private'||st==='private')return 'hidden';
   if(st==='archive')return 'archived';
   if(st==='closed')return 'closed';
-  if(st==='soon')return 'soon';
   return 'open';
 }
 function buildBenefitText(){
@@ -2437,7 +2435,7 @@ function buildBenefitText(){
 function buildPayload(){
   const memo={
     badge:$('ticketBadge').value,
-    ticketStatus:normalizeTicketStatusAdmin($('ticketStatus').value),
+    ticketStatus:$('ticketStatus').value,
     posterUrl:$('posterUrl').value,
     posterLayout:posterLayout,
     castTeams:castTeams,
@@ -2466,7 +2464,7 @@ function buildPayload(){
     time:getTimeText(),
     venue:$('venueName').value,
     status:statusForApi(),
-    isCurrent:getPublishStatus()==='public'&&['soon','sale'].includes(normalizeTicketStatusAdmin($('ticketStatus').value)),
+    isCurrent:getPublishStatus()==='public'&&['soon','sale'].includes($('ticketStatus').value),
     isArchived:$('ticketStatus').value==='archive',
     lang:'ko',
     ticketUrl:'',
@@ -2475,7 +2473,7 @@ function buildPayload(){
     noticeText:$('introText').value,
     benefitText:buildBenefitText(),
     guideText:[$('venueDetail').value,$('ruleEntry').value,$('ruleRefund').value,$('ruleNotice').value].filter(Boolean).join('\n\n'),
-    buttonText:normalizeTicketStatusAdmin($('ticketStatus').value)==='soon'?'예매 예정':(normalizeTicketStatusAdmin($('ticketStatus').value)==='closed'?'마감':'예매하기'),
+    buttonText:$('ticketStatus').value==='soon'?'준비중':($('ticketStatus').value==='closed'?'마감':'예매하기'),
     archiveLabel:'지난 공연 보기',
     sortOrder:0,
     createdBy:'admin',
@@ -2518,7 +2516,7 @@ async function saveTicket(){
   const listItem={
     _localId:localId,
     _publishStatus:getPublishStatus(),
-    _ticketStatus:normalizeTicketStatusAdmin(memo.ticketStatus||'soon'),
+    _ticketStatus:memo.ticketStatus||'soon',
     _memo:memo,
     _memoRaw:payload.memo,
     ticketId:serverTicketId||$('ticketId').value||localId,
