@@ -1017,6 +1017,32 @@
   opacity:.45;
   cursor:not-allowed;
 }
+.setlist-toast{
+  position:fixed;
+  left:50%;
+  bottom:24px;
+  z-index:1000;
+  transform:translateX(-50%) translateY(12px);
+  min-height:42px;
+  max-width:min(420px,calc(100% - 36px));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 18px;
+  border-radius:999px;
+  background:linear-gradient(180deg,#ff7fba,#ff59a5);
+  color:#fff;
+  font-size:13px;
+  font-weight:900;
+  box-shadow:0 14px 28px rgba(255,95,165,.24);
+  opacity:0;
+  pointer-events:none;
+  transition:.2s ease;
+}
+.setlist-toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
 .song-select-check{
   position:absolute;
   top:14px;
@@ -1677,6 +1703,8 @@
     </div>
   </div>
 
+  <div class="setlist-toast" id="setlistToast" role="status" aria-live="polite"></div>
+
   <script>
     const STORE_KEY = 'lumibelle_admin_setlist_draft_v1';
 
@@ -2004,6 +2032,7 @@
           <button class="filter-tool-btn" type="button" onclick="setSelectedVisibility('draft')" ${selectedCount ? '' : 'disabled'}>선택 비공개 ${selectedCount ? `(${selectedCount})` : ''}</button>
           <button class="filter-tool-btn danger" type="button" onclick="deleteSelectedSongs()" ${selectedCount ? '' : 'disabled'}>선택 삭제 ${selectedCount ? `(${selectedCount})` : ''}</button>
           <button class="filter-tool-btn" type="button" onclick="moveSelectedSongs()" ${selectedCount ? '' : 'disabled'}>선택 이동 ${selectedCount ? `(${selectedCount})` : ''}</button>
+          <button class="filter-tool-btn" type="button" onclick="runSetlistAutoTranslate()">자동번역</button>
         </div>
       `;
       document.getElementById('filterTabs').innerHTML = `
@@ -2236,6 +2265,93 @@
       const ids = Array.from(selectedSongIds);
       if(!ids.length) return;
       alert('선택 이동은 년도별 그룹 기준을 만든 뒤 다음 패치에서 연결할 예정입니다.');
+    }
+
+    function showSetlistToast(message){
+      const el = document.getElementById('setlistToast');
+      if(!el){
+        alert(message);
+        return;
+      }
+      el.textContent = message;
+      el.classList.add('show');
+      clearTimeout(showSetlistToast._timer);
+      showSetlistToast._timer = setTimeout(()=>el.classList.remove('show'), 1500);
+    }
+
+    function setlistApiUrl(){
+      const lcs = window.LumiContentSync;
+      return window.LUMI_SETLIST_API_URL
+        || window.LUMI_NEWS_API_URL
+        || window.LUMI_SCRIPT_URL
+        || window.SCRIPT_URL
+        || window.API_URL
+        || (lcs && (lcs._url || lcs.scriptUrl || lcs.endpoint || lcs._endpoint
+          || (lcs.config && (lcs.config.url || lcs.config.scriptUrl || lcs.config.endpoint))))
+        || 'https://lumi-news-api.lumibelle-love.workers.dev';
+    }
+
+    async function setlistTranslateRequest(title){
+      const body = new URLSearchParams();
+      body.set('action', 'translateTicketContent');
+      body.set('payload', JSON.stringify({
+        sourceLang:'ko',
+        targetLangs:['ja','en'],
+        title:title || '',
+        venue:'',
+        priceText:'',
+        noticeText:'',
+        benefitText:'',
+        guideText:'',
+        buttonText:'',
+        archiveLabel:'',
+        memo:''
+      }));
+      const res = await fetch(setlistApiUrl(), {
+        method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
+        body:body.toString()
+      });
+      const data = await res.json().catch(()=>({ok:false,error:'invalidJson'}));
+      if(!res.ok || !data.ok) throw new Error(data.message || data.error || ('API 오류 ' + res.status));
+      return data.translations || {};
+    }
+
+    function applySetlistSongTranslation(song, translations){
+      if(!song || !translations) return false;
+      const enTitle = translations.en?.title || translations.en?.Title || '';
+      const jpTitle = translations.ja?.title || translations.jp?.title || translations.ja?.Title || translations.jp?.Title || '';
+      if(enTitle) song.titleEn = enTitle;
+      if(jpTitle) song.titleJp = jpTitle;
+      if(enTitle) song.subtitle = enTitle;
+      return !!(enTitle || jpTitle);
+    }
+
+    async function runSetlistAutoTranslate(){
+      const ids = selectedSongIds.size ? Array.from(selectedSongIds) : [data.selectedSongId || selectedSong()?.id].filter(Boolean);
+      const targetSongs = ids.map(id => data.songs.find(song => song.id === id)).filter(Boolean);
+      if(!targetSongs.length){
+        showSetlistToast('번역할 곡을 선택해 주세요');
+        return;
+      }
+      try{
+        showSetlistToast('자동번역 중...');
+        let done = 0;
+        for(const song of targetSongs){
+          const sourceTitle = String(song.titleKo || song.title || '').trim();
+          if(!sourceTitle) continue;
+          const translations = await setlistTranslateRequest(sourceTitle);
+          if(applySetlistSongTranslation(song, translations)) done += 1;
+        }
+        persist();
+        renderFilters();
+        renderSongs();
+        renderDetail();
+        showSetlistToast(done ? `자동번역 완료 (${done}곡)` : '자동번역 완료');
+      }catch(err){
+        console.error('[setlist] translate failed', err);
+        showSetlistToast('번역 실패');
+      }
     }
 
     function deleteSelectedSongs(){
