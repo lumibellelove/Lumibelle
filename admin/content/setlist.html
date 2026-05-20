@@ -2317,37 +2317,90 @@
       return data.translations || {};
     }
 
+    function hasText(value){
+      return String(value ?? '').trim().length > 0;
+    }
+
+    function songNeedsTitleTranslation(song){
+      if(!song) return false;
+      const sourceTitle = String(song.titleKo || song.title || '').trim();
+      if(!sourceTitle) return false;
+      const hasEn = hasText(song.titleEn) || hasText(song.subtitle);
+      const hasJp = hasText(song.titleJp);
+      return !hasEn || !hasJp;
+    }
+
+    function normalizeExistingSongTranslation(song){
+      if(!song) return 0;
+      let filled = 0;
+      if(!hasText(song.titleEn) && hasText(song.subtitle)){
+        song.titleEn = String(song.subtitle).trim();
+        filled += 1;
+      }
+      return filled;
+    }
+
     function applySetlistSongTranslation(song, translations){
-      if(!song || !translations) return false;
+      if(!song || !translations) return 0;
+      let filled = normalizeExistingSongTranslation(song);
       const enTitle = translations.en?.title || translations.en?.Title || '';
       const jpTitle = translations.ja?.title || translations.jp?.title || translations.ja?.Title || translations.jp?.Title || '';
-      if(enTitle) song.titleEn = enTitle;
-      if(jpTitle) song.titleJp = jpTitle;
-      if(enTitle) song.subtitle = enTitle;
-      return !!(enTitle || jpTitle);
+      if(!hasText(song.titleEn) && !hasText(song.subtitle) && hasText(enTitle)){
+        song.titleEn = String(enTitle).trim();
+        song.subtitle = String(enTitle).trim();
+        filled += 1;
+      }
+      if(!hasText(song.titleJp) && hasText(jpTitle)){
+        song.titleJp = String(jpTitle).trim();
+        filled += 1;
+      }
+      return filled;
     }
 
     async function runSetlistAutoTranslate(){
-      const ids = selectedSongIds.size ? Array.from(selectedSongIds) : [data.selectedSongId || selectedSong()?.id].filter(Boolean);
-      const targetSongs = ids.map(id => data.songs.find(song => song.id === id)).filter(Boolean);
+      const ids = selectedSongIds.size ? Array.from(selectedSongIds) : [];
+      const scopeSongs = ids.length
+        ? ids.map(id => data.songs.find(song => song.id === id)).filter(Boolean)
+        : data.songs.slice();
+      const targetSongs = scopeSongs.filter(songNeedsTitleTranslation);
+      if(!scopeSongs.length){
+        showSetlistToast('번역할 곡이 없습니다');
+        return;
+      }
       if(!targetSongs.length){
-        showSetlistToast('번역할 곡을 선택해 주세요');
+        showSetlistToast('채울 번역칸이 없습니다');
         return;
       }
       try{
         showSetlistToast('자동번역 중...');
-        let done = 0;
+        let filledFields = 0;
+        let touchedSongs = 0;
         for(const song of targetSongs){
           const sourceTitle = String(song.titleKo || song.title || '').trim();
           if(!sourceTitle) continue;
-          const translations = await setlistTranslateRequest(sourceTitle);
-          if(applySetlistSongTranslation(song, translations)) done += 1;
+
+          const beforeFilled = normalizeExistingSongTranslation(song);
+          let added = beforeFilled;
+
+          if(songNeedsTitleTranslation(song)){
+            const translations = await setlistTranslateRequest(sourceTitle);
+            added += applySetlistSongTranslation(song, translations);
+          }
+
+          if(added > 0){
+            filledFields += added;
+            touchedSongs += 1;
+          }
         }
         persist();
         renderFilters();
         renderSongs();
         renderDetail();
-        showSetlistToast(done ? `자동번역 완료 (${done}곡)` : '자동번역 완료');
+        if(filledFields){
+          showSetlistToast(`자동번역 완료 (${touchedSongs}곡 · ${filledFields}칸)`);
+        }else{
+          showSetlistToast('채울 번역칸이 없습니다');
+        }
       }catch(err){
         console.error('[setlist] translate failed', err);
         showSetlistToast('번역 실패');
