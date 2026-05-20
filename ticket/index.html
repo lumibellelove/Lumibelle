@@ -953,7 +953,34 @@
         gap:12px;
       }
     }
-</style>
+
+
+    /* ===== Ticket poster layout fix2: 관리자 posterLayout(wide/portrait) 반영 ===== */
+    .poster-box{
+      overflow:hidden !important;
+      aspect-ratio:3 / 4 !important;
+    }
+    .poster-box[data-poster-layout="portrait"],
+    .poster-box[data-poster-layout="vertical"]{
+      aspect-ratio:3 / 4 !important;
+    }
+    .poster-box[data-poster-layout="wide"],
+    .poster-box[data-poster-layout="landscape"],
+    .poster-box[data-poster-layout="horizontal"]{
+      aspect-ratio:16 / 9 !important;
+    }
+    .poster-box[data-poster-layout="square"]{
+      aspect-ratio:1 / 1 !important;
+    }
+    .poster-box img{
+      width:100% !important;
+      height:100% !important;
+      object-fit:contain !important;
+      object-position:center center !important;
+      background:linear-gradient(135deg,#fff0f7 0%,#fff8fb 100%) !important;
+    }
+
+  </style>
  </head>
  <body>
   <div class="top-lang-bar">
@@ -1079,7 +1106,7 @@
     <section class="ticket-layout reveal">
      <div class="left-stack">
       <article class="poster-card reveal">
-       <div class="poster-box">
+       <div class="poster-box" data-poster-layout="portrait">
         <picture>
          <source srcset="../img/poster/2026-07-12.webp" type="image/webp"/>
          <img alt="Shine Me UP 루미벨 데뷔 라이브 포스터" onerror="this.closest('.poster-box').innerHTML='공연 포스터<br>2026.07.12<br>Shine Me UP';" src="../img/poster/2026-07-12.png"/>
@@ -1661,14 +1688,21 @@
         }).join('');
       }
 
+      function normalizePosterLayout(value){
+        const raw = textOrEmpty(value || '').toLowerCase();
+        if(raw === 'wide' || raw === 'landscape' || raw === 'horizontal' || raw === '가로') return 'wide';
+        if(raw === 'square' || raw === '정방형') return 'square';
+        return 'portrait';
+      }
+
       function updatePoster(item, memo){
         const posterUrl = textOrEmpty(item.posterUrl || memo.posterUrl || item.heroImageUrl || item.heroImage);
         const posterBox = document.querySelector('.poster-box');
         if(!posterBox || !posterUrl) return;
         const title = textOrEmpty(item.title || 'Lumibelle Ticket Poster');
-        posterBox.innerHTML = '<img alt="' + htmlEscapeTicket(title) + ' 포스터" src="' + htmlEscapeTicket(posterUrl) + '" onerror="this.closest(\'.poster-box\').innerHTML=\'공연 포스터를 불러오지 못했어요.\';">';
-        const layout = textOrEmpty(item.posterLayout || memo.posterLayout || 'portrait');
+        const layout = normalizePosterLayout(item.posterLayout || memo.posterLayout || 'portrait');
         posterBox.dataset.posterLayout = layout;
+        posterBox.innerHTML = '<img alt="' + htmlEscapeTicket(title) + ' 포스터" src="' + htmlEscapeTicket(posterUrl) + '" onerror="this.closest(\'.poster-box\').innerHTML=\'공연 포스터를 불러오지 못했어요.\';">';
       }
 
       function updateInfo(item, memo){
@@ -1736,8 +1770,18 @@
       function updatePackage(item, memo){
         const card = document.querySelector('.package-card');
         if(!card) return;
-        const packages = Array.isArray(memo.packages) ? memo.packages : [];
-        const benefitText = textOrEmpty(item.benefitText || '');
+        const packages = Array.isArray(memo.packages) ? memo.packages.filter(function(pkg){
+          if(!pkg) return false;
+          if(typeof pkg === 'string') return !!textOrEmpty(pkg);
+          const name = textOrEmpty(pkg.name || '');
+          const price = textOrEmpty(pkg.price || '');
+          const desc = textOrEmpty(pkg.description || pkg.benefit || '');
+          const url = textOrEmpty(pkg.url || pkg.link || '');
+          return !!(name || price || desc || url);
+        }) : [];
+        const rawBenefitText = textOrEmpty(item.benefitText || memo.benefitText || '');
+        const benefitText = /^(패키지|package|한정 패키지|package 안내)$/i.test(rawBenefitText.trim()) ? '' : rawBenefitText;
+
         if(packages.length){
           const links = packages.map(function(pkg){
             const name = textOrEmpty(pkg.name || '패키지');
@@ -1745,9 +1789,16 @@
             const desc = textOrEmpty(pkg.description || pkg.benefit);
             return '<div class="ticket-note" style="margin:8px 0 0"><strong>' + htmlEscapeTicket(name) + '</strong>' + (price ? ' · ' + htmlEscapeTicket(price) : '') + (desc ? '<br>' + htmlEscapeTicket(desc).replace(/\n/g,'<br>') : '') + '</div>';
           }).join('');
+          card.hidden = false;
+          card.style.display = '';
           card.innerHTML = '<h2>한정 패키지 안내</h2>' + links + '<div class="package-actions"><a class="package-btn" href="../goods/">굿즈 페이지 보러가기</a></div>';
         }else if(benefitText){
+          card.hidden = false;
+          card.style.display = '';
           card.innerHTML = '<h2>혜택 안내</h2><p class="ticket-note" style="margin-top:0">' + htmlEscapeTicket(benefitText).replace(/\n/g,'<br>') + '</p>';
+        }else{
+          card.hidden = true;
+          card.style.display = 'none';
         }
       }
 
@@ -1759,14 +1810,25 @@
         const description = textOrEmpty(reservation.description || '일반 입장권 / 입금 확인 후 예약 확정');
         const account = textOrEmpty(reservation.account || item.accountText);
         const holder = textOrEmpty(reservation.holder || item.accountHolder);
+        const ticketStatus = textOrEmpty(memo.ticketStatus || item.ticketStatus || 'open').toLowerCase();
+        const isReservable = ticketStatus === 'open' || ticketStatus === 'public' || ticketStatus === 'nowopen';
+        const closedText = ticketStatus === 'soon' ? '예매 오픈 전입니다. 관리자에서 예매 상태를 open으로 바꾸면 신청 버튼이 열려요.' : '현재 예매를 받을 수 없는 상태입니다.';
         const statusRow = document.querySelector('.ticket-card .status-row');
         const display = document.getElementById('ticketDisplay');
+        const ticketCard = document.querySelector('.ticket-card');
+        const form = document.getElementById('reserveForm');
+        const submitButton = form ? form.querySelector('.reserve-btn') : null;
+        const reserveMsg = document.getElementById('reserveMsg');
 
-        if(statusRow && (account || holder)){
-          statusRow.innerHTML = [
-            account ? '<span class="status-pill">계좌 : ' + htmlEscapeTicket(account) + '</span>' : '',
-            holder ? '<span class="status-pill">예금주 : ' + htmlEscapeTicket(holder) + '</span>' : ''
-          ].filter(Boolean).join('');
+        if(statusRow){
+          if(isReservable && (account || holder)){
+            statusRow.innerHTML = [
+              account ? '<span class="status-pill">계좌 : ' + htmlEscapeTicket(account) + '</span>' : '',
+              holder ? '<span class="status-pill">예금주 : ' + htmlEscapeTicket(holder) + '</span>' : ''
+            ].filter(Boolean).join('');
+          }else if(!isReservable){
+            statusRow.innerHTML = '<span class="status-pill">예매 예정</span>';
+          }
         }
 
         try{
@@ -1778,7 +1840,28 @@
         }catch(err){}
 
         if(display){
-          display.innerHTML = '<div><strong>' + htmlEscapeTicket(reserveName) + '</strong><span>' + htmlEscapeTicket(description) + '</span></div><b>' + htmlEscapeTicket(priceText) + '</b>';
+          display.innerHTML = '<div><strong>' + htmlEscapeTicket(reserveName) + '</strong><span>' + htmlEscapeTicket(isReservable ? description : closedText) + '</span></div><b>' + htmlEscapeTicket(priceText) + '</b>';
+        }
+
+        if(ticketCard){
+          ticketCard.dataset.ticketStatus = ticketStatus || 'open';
+        }
+        if(form){
+          form.dataset.reservable = isReservable ? 'true' : 'false';
+          form.querySelectorAll('input, button.ticket-option, button.meate-option').forEach(function(el){
+            if(el.classList && el.classList.contains('reserve-btn')) return;
+            el.disabled = !isReservable;
+          });
+        }
+        if(submitButton){
+          submitButton.disabled = !isReservable;
+          submitButton.textContent = isReservable ? '예매하기' : '예매 예정';
+          submitButton.style.opacity = isReservable ? '' : '.55';
+          submitButton.style.cursor = isReservable ? '' : 'not-allowed';
+        }
+        if(reserveMsg && !isReservable){
+          reserveMsg.textContent = closedText;
+          reserveMsg.classList.add('show');
         }
       }
 
