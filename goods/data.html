@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lumibelle Goods Review Design Mockup</title>
+<title>Lumibelle Goods Detail</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=SUIT:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -18,8 +18,1217 @@ a{color:inherit;text-decoration:none}img{max-width:100%;display:block}
 .sparkle::before{width:40%;height:40%;left:8%;top:12%;background:rgba(255,255,255,0.82);filter:blur(.5px);}
 .sparkle::after{width:24%;height:24%;right:10%;top:18%;background:rgba(255,205,230,0.8);filter:blur(.5px);}
 @keyframes sparklePop{0%{transform:translate(-50%,-50%) scale(0.35) translateY(0);opacity:1;}55%{transform:translate(-50%,-50%) scale(1.45) translateY(-8px);opacity:.72;}100%{transform:translate(-50%,-50%) scale(2.1) translateY(-18px);opacity:0;}}
-</style>
-<style>
+
+.qty .qty-input{
+  width:42px;
+  height:100%;
+  border:0;
+  background:transparent;
+  color:var(--text);
+  font:inherit;
+  font-weight:1000;
+  text-align:center;
+  outline:none;
+  -moz-appearance:textfield;
+}
+.qty .qty-input::-webkit-outer-spin-button,
+.qty .qty-input::-webkit-inner-spin-button{
+  -webkit-appearance:none;
+  margin:0;
+}
+#reviewList.is-empty{display:none;}
+#reviewEmptyState.is-hidden{display:none;}
+.review-card.generated-review .review-photos{
+  margin:0 0 14px;
+  flex-wrap:wrap;
+}
+.review-card.generated-review .review-body{
+  white-space:pre-line;
+}
+.review-card.generated-review .review-title-line{
+  margin:0 0 8px;
+  color:#d36f9b;
+  font-weight:1000;
+}
+.review-pager{
+  display:none;
+  align-items:center;
+  justify-content:center;
+  gap:22px;
+  margin-top:24px;
+  color:#d36f9b;
+  font-weight:1000;
+}
+.review-pager.show{display:flex;}
+.review-pager button{
+  width:42px;
+  height:42px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:#d36f9b;
+  font-size:22px;
+  font-weight:900;
+  cursor:pointer;
+}
+.review-pager button:disabled{
+  opacity:.35;
+  cursor:default;
+}
+
+/* ===== GOODS REVIEW WRITE MODAL - clean integrated version ===== */
+.grm-lock{overflow:hidden;}
+.goods-review-modal{
+  position:fixed;
+  inset:0;
+  z-index:3000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:38px 26px;
+  background:rgba(78,42,60,.34);
+  backdrop-filter:blur(4px);
+  overscroll-behavior:contain;
+}
+.goods-review-modal.is-open{display:flex;}
+.grm-dialog{
+  width:min(1120px, calc(100vw - 80px));
+  max-height:calc(100vh - 64px);
+  overflow:auto;
+  overscroll-behavior:contain;
+  border-radius:28px;
+  background:linear-gradient(180deg,rgba(255,254,254,.98) 0%,rgba(255,253,254,.96) 100%);
+  border:1px solid rgba(244,200,218,.95);
+  box-shadow:0 30px 76px rgba(99,68,82,.22), inset 0 1px 0 rgba(255,255,255,.72);
+  color:#6b5160;
+}
+.grm-head{
+  min-height:76px;
+  padding:0 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid #f8dfea;
+  background:rgba(255,255,255,.78);
+  position:sticky;
+  top:0;
+  z-index:2;
+  backdrop-filter:blur(10px);
+}
+.grm-title{
+  margin:0;
+  color:#ec5b9a;
+  font-size:28px;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:-.04em;
+}
+.grm-close{
+  width:46px;
+  height:46px;
+  border-radius:999px;
+  border:1px solid #f4c8da;
+  background:#fff;
+  color:#dc7da5;
+  font-size:26px;
+  font-weight:800;
+  cursor:pointer;
+}
+.grm-body{
+  padding:22px 26px 28px;
+  display:grid;
+  grid-template-columns:minmax(0,1.12fr) minmax(390px,.92fr);
+  gap:20px;
+  align-items:stretch;
+}
+.grm-panel{
+  background:linear-gradient(180deg,rgba(255,255,255,.80) 0%,rgba(255,253,254,.72) 100%);
+  border:1px solid #f4c8da;
+  border-radius:24px;
+  box-shadow:0 14px 34px rgba(219,105,158,.095), inset 0 1px 0 rgba(255,255,255,.70);
+}
+.grm-form{padding:22px;}
+.grm-field{margin-bottom:18px;}
+.grm-label{
+  display:block;
+  margin:0 0 10px;
+  color:#dc7da5;
+  font-size:15px;
+  font-weight:900;
+  letter-spacing:-.02em;
+}
+.grm-input,.grm-textarea{
+  width:100%;
+  border:1px solid #f4c8da;
+  background:linear-gradient(180deg,rgba(255,255,255,.86) 0%,rgba(255,251,253,.76) 100%);
+  border-radius:15px;
+  color:#6b5160;
+  font-family:inherit;
+  font-size:14px;
+  font-weight:750;
+  outline:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55);
+}
+.grm-input{
+  height:40px;
+  padding:0 16px;
+  display:flex;
+  align-items:center;
+}
+.grm-textarea{
+  min-height:128px;
+  max-height:210px;
+  padding:14px 16px;
+  line-height:1.75;
+  resize:vertical;
+}
+.grm-input:focus,.grm-textarea:focus{
+  border-color:#ee8db8;
+  box-shadow:0 0 0 3px rgba(236,91,154,.10), inset 0 1px 0 rgba(255,255,255,.65);
+}
+.grm-helper{
+  margin:8px 0 0;
+  color:#b5869a;
+  font-size:12px;
+  line-height:1.65;
+  font-weight:750;
+}
+.grm-counter{font-weight:900;color:#dc7da5;}
+.grm-photos{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.grm-photo-slot{
+  height:96px;
+  border:1px dashed #efc1d5;
+  border-radius:16px;
+  background:linear-gradient(180deg,#fff 0%,#fff9fc 100%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  color:#c4869e;
+  font-size:13px;
+  font-weight:850;
+  cursor:pointer;
+  overflow:hidden;
+  transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease;
+}
+.grm-photo-slot:hover{
+  border-color:#eda7c6;
+  box-shadow:0 8px 18px rgba(219,105,158,.10);
+}
+.grm-photo-slot.has-image{padding:0;}
+.grm-photo-slot.has-image img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.grm-photo-icon{
+  width:32px;
+  height:32px;
+  border-radius:999px;
+  border:1px solid #f6c6da;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#ec5b9a;
+  font-size:17px;
+}
+.grm-checks{display:grid;gap:8px;}
+.grm-check{
+  min-height:36px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 12px;
+  border:1px solid #f8dfea;
+  border-radius:13px;
+  background:rgba(255,255,255,.72);
+  color:#7d5d6e;
+  font-size:13px;
+  font-weight:750;
+}
+.grm-check input{
+  width:20px;
+  height:20px;
+  accent-color:#ec5b9a;
+  flex:0 0 auto;
+}
+.grm-actions{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:10px;
+  margin-top:22px;
+  padding-top:18px;
+  border-top:1px dashed #f8dfea;
+}
+.grm-btn{
+  min-width:92px;
+  height:46px;
+  border-radius:999px;
+  border:1px solid #f4c8da;
+  background:#fff;
+  color:#dc7da5;
+  font-weight:900;
+  font-family:inherit;
+  cursor:pointer;
+  transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease;
+}
+.grm-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 20px rgba(219,105,158,.12);
+}
+.grm-btn.primary{
+  background:linear-gradient(180deg,#ff6daa 0%,#ec4f94 100%);
+  border-color:#ec4f94;
+  color:#fff;
+  box-shadow:0 12px 24px rgba(244,92,159,.22);
+}
+.grm-btn.primary.is-waiting-check{
+  opacity:.72;
+  filter:saturate(.82);
+}
+
+.grm-side{
+  display:grid;
+  grid-template-rows:1.18fr .82fr;
+  gap:16px;
+  min-height:0;
+}
+.grm-side-panel{
+  padding:20px 18px;
+  min-height:0;
+}
+.grm-side-title{
+  margin:0 0 14px;
+  color:#dc7da5;
+  text-align:center;
+  font-size:18px;
+  font-weight:900;
+  letter-spacing:-.03em;
+}
+.grm-preview-panel{
+  display:grid;
+  grid-template-rows:auto 1fr;
+}
+.grm-preview-card{
+  min-height:0;
+  border:1.5px solid #f36ea9;
+  background:linear-gradient(180deg,#fff 0%,#fffdfd 100%);
+  border-radius:22px;
+  padding:22px 12px 18px;
+  box-shadow:0 10px 26px rgba(255,90,162,.08);
+  display:flex;
+  flex-direction:column;
+}
+.grm-preview-text{padding:0 14px;}
+.grm-preview-top{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:16px;
+}
+.grm-avatar{
+  width:52px;
+  height:52px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid #f8dfea;
+  background:radial-gradient(circle at 38% 32%,#fff 0%,#fff6fb 45%,#fff0f7 100%);
+  color:#ec5b9a;
+  font-size:22px;
+  flex:0 0 auto;
+}
+.grm-preview-name{font-weight:900;color:#7a5366;margin-top:4px;}
+.grm-preview-date{font-size:12px;color:#b48599;font-weight:750;margin-top:4px;}
+.grm-badge{
+  margin-left:auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:32px;
+  padding:0 13px;
+  border-radius:999px;
+  background:linear-gradient(180deg,#fff5fa 0%,#fff0f7 100%);
+  border:1px solid #f1bdd4;
+  color:#ec5b9a;
+  font-size:12px;
+  font-weight:900;
+  transform:translateY(-3px);
+}
+.grm-preview-title{
+  margin:0 0 10px;
+  color:#ec5b9a;
+  font-size:19px;
+  font-weight:1000;
+  letter-spacing:-.03em;
+}
+.grm-preview-body{
+  margin:0;
+  font-size:14px;
+  line-height:1.78;
+  font-weight:750;
+  color:#6b5160;
+}
+.grm-preview-thumbs{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
+  margin-top:20px;
+  padding-top:0;
+}
+.grm-preview-thumb{
+  aspect-ratio:1;
+  border-radius:13px;
+  overflow:hidden;
+  border:1px solid #f8dfea;
+  background:linear-gradient(135deg,#fff4fa,#ffe2ef);
+  position:relative;
+  transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease;
+}
+.grm-preview-thumb:hover{
+  border-color:#eda7c6;
+  box-shadow:0 8px 18px rgba(219,105,158,.10);
+}
+.grm-preview-thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.grm-preview-thumb::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 58% 42%, rgba(255,255,255,.85) 0 7%, transparent 8%),
+    radial-gradient(circle at 42% 57%, rgba(236,91,154,.65) 0 20%, transparent 21%),
+    linear-gradient(135deg,rgba(255,255,255,.4),rgba(255,167,205,.26));
+}
+.grm-preview-thumb:nth-child(2)::before{
+  background:
+    radial-gradient(circle at 50% 50%, rgba(236,91,154,.7) 0 22%, transparent 23%),
+    linear-gradient(135deg,#fff2f8,#ffd9eb);
+}
+.grm-preview-thumb:nth-child(3)::before{
+  background:
+    radial-gradient(circle at 52% 28%, rgba(219,176,87,.55) 0 10%, transparent 11%),
+    radial-gradient(circle at 52% 58%, rgba(255,120,178,.48) 0 24%, transparent 25%),
+    linear-gradient(135deg,#fff,#ffe2ef);
+}
+.grm-preview-thumb:nth-child(4)::before{
+  background:linear-gradient(135deg,#fff5fa 0 45%,#ffd8e9 46% 100%);
+}
+.grm-preview-thumb.has-image::before{display:none;}
+.grm-guide{display:flex;flex-direction:column;}
+.grm-guide-list{display:grid;gap:9px;}
+.grm-guide-row{
+  min-height:52px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:0 17px;
+  border:1px solid #f8dfea;
+  border-radius:16px;
+  background:linear-gradient(180deg,#fff 0%,#fffafd 100%);
+  color:#7a5b6c;
+  font-size:15px;
+  font-weight:850;
+}
+.grm-guide-ico{
+  width:31px;
+  height:31px;
+  border-radius:11px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#ec5b9a;
+  font-size:18px;
+  flex:0 0 auto;
+}
+.grm-guide-note{
+  margin:auto 4px 0;
+  padding-top:14px;
+  color:#a6788d;
+  font-size:12.5px;
+  line-height:1.75;
+  font-weight:750;
+}
+@media (max-width:980px){
+  .goods-review-modal{
+    align-items:flex-start;
+    padding:18px 14px;
+    overflow:auto;
+  }
+  .grm-dialog{
+    max-height:none;
+    border-radius:24px;
+  }
+  .grm-head{
+    min-height:68px;
+    padding:0 18px;
+  }
+  .grm-title{font-size:24px;}
+  .grm-body{
+    grid-template-columns:1fr;
+    padding:18px;
+  }
+  .grm-side{
+    grid-template-rows:auto auto;
+  }
+}
+@media (max-width:520px){
+  .grm-body{
+    padding:14px;
+    gap:14px;
+  }
+  .grm-form,.grm-side-panel{
+    padding:16px;
+  }
+  .grm-actions{
+    justify-content:stretch;
+  }
+  .grm-actions .grm-btn{
+    flex:1;
+  }
+}
+
+/* Payment confirm notice only */
+.note.payment-confirm-note{
+  display:block;
+  margin-top:19px;
+  font-size:14px;
+  font-weight:900;
+  line-height:1.5;
+  color:#b87994;
+  text-align:center;
+}
+
+
+
+/* ===== GOODS DETAIL FINAL POLISH - homepage tone ===== */
+:root{
+  --lb-home-bg:#fffafc;
+  --lb-home-panel:#fff5fb;
+  --lb-home-line:#f2d8e7;
+  --lb-home-pink:#ff5fa8;
+  --lb-home-pink-deep:#ff59a5;
+  --lb-home-text:#7f6a77;
+  --lb-home-muted:#b28ea2;
+  --lb-home-shadow:0 8px 24px rgba(232,191,211,.12);
+}
+.detail-card,
+.buy-panel,
+.review-section,
+.review-card,
+.review-empty,
+.review-note,
+.tab-panel{
+  border-color:var(--lb-home-line) !important;
+  box-shadow:var(--lb-home-shadow);
+}
+.review-section{
+  background:linear-gradient(180deg,#fff8fb 0%,#fff5fb 100%);
+}
+.review-card{
+  background:linear-gradient(180deg,#fff 0%,#fffafd 100%);
+  border-radius:24px;
+  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.review-card:hover{
+  transform:translateY(-1px);
+  border-color:#efc5da !important;
+  box-shadow:0 12px 28px rgba(232,191,211,.18);
+}
+.review-write,
+.reserve-btn,
+.cart-btn,
+.tab-btn,
+.detail-tabs button,
+.review-photo-lightbox .rpl-close,
+.grm-btn,
+.grm-close{
+  transition:transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease;
+}
+.review-write:hover,
+.reserve-btn:hover,
+.cart-btn:hover,
+.grm-btn:hover,
+.rpl-close:hover,
+.grm-close:hover{
+  transform:translateY(-1px);
+}
+.review-photo{
+  border-radius:14px;
+  overflow:hidden;
+  transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+.review-photo:hover{
+  transform:translateY(-1px);
+  box-shadow:0 8px 18px rgba(255,95,165,.14);
+}
+.review-note{
+  background:linear-gradient(180deg,#fff 0%,#fff8fb 100%);
+  border-radius:18px;
+}
+.buy-panel{
+  background:linear-gradient(180deg,#fffafc 0%,#fff5fb 100%);
+}
+.buy-panel .price,
+.price{
+  color:var(--lb-home-pink-deep);
+}
+@media (max-width: 760px){
+  .goods-review-modal{
+    padding:14px 10px;
+  }
+  .grm-dialog{
+    width:100%;
+    max-height:calc(100dvh - 28px);
+    border-radius:22px;
+  }
+  .grm-body{
+    grid-template-columns:1fr;
+    gap:14px;
+    padding:14px;
+  }
+  .grm-head{
+    min-height:64px;
+    padding:0 16px;
+  }
+  .grm-title{
+    font-size:23px;
+  }
+  .grm-form,
+  .grm-side-panel{
+    padding:16px;
+  }
+  .grm-photos{
+    gap:8px;
+  }
+  .grm-photo-slot{
+    height:92px;
+  }
+  .grm-preview-thumbs{
+    gap:6px;
+  }
+  .grm-guide-row{
+    min-height:48px;
+    font-size:14px;
+  }
+  .grm-actions{
+    position:sticky;
+    bottom:0;
+    z-index:3;
+    padding:14px 0 0;
+    background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,253,254,.96) 28%,rgba(255,253,254,.98) 100%);
+  }
+  .review-photo-lightbox{
+    padding:14px 10px;
+  }
+  .rpl-dialog{
+    width:100%;
+    max-height:calc(100dvh - 28px);
+  }
+  .rpl-stage{
+    min-height:260px;
+  }
+  .rpl-image{
+    max-height:58dvh;
+  }
+}
+@media (max-width: 430px){
+  .grm-photo-slot{
+    height:84px;
+  }
+  .grm-preview-card{
+    padding:18px 10px 16px;
+  }
+  .grm-preview-text{
+    padding:0 10px;
+  }
+  .grm-preview-body{
+    font-size:13.5px;
+  }
+  .grm-preview-thumbs{
+    gap:5px;
+  }
+  .grm-btn{
+    min-width:0;
+  }
+}
+
+/* ===== REVIEW PHOTO SLIDER ===== */
+.review-photo,
+.review-photo img{
+  cursor:pointer;
+}
+.review-photo-lightbox{
+  position:fixed;
+  inset:0;
+  z-index:3600;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:34px 22px;
+  background:rgba(44,28,38,.58);
+  backdrop-filter:blur(5px);
+  overscroll-behavior:contain;
+}
+.review-photo-lightbox.is-open{
+  display:flex;
+}
+.rpl-dialog{
+  width:min(820px, calc(100vw - 48px));
+  max-height:calc(100vh - 58px);
+  border-radius:26px;
+  border:1px solid rgba(244,200,218,.9);
+  background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,250,253,.96) 100%);
+  box-shadow:0 30px 76px rgba(50,30,42,.30), inset 0 1px 0 rgba(255,255,255,.72);
+  overflow:hidden;
+  color:#6b5160;
+}
+.rpl-head{
+  min-height:62px;
+  padding:0 18px 0 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid #f8dfea;
+}
+.rpl-title{
+  margin:0;
+  color:#ec5b9a;
+  font-size:18px;
+  font-weight:950;
+  letter-spacing:-.03em;
+}
+.rpl-close{
+  width:40px;
+  height:40px;
+  border-radius:999px;
+  border:1px solid #f4c8da;
+  background:#fff;
+  color:#dc7da5;
+  font-size:22px;
+  font-weight:900;
+  cursor:pointer;
+}
+.rpl-body{
+  padding:20px;
+}
+.rpl-stage{
+  position:relative;
+  min-height:360px;
+  border-radius:22px;
+  border:1px solid #f8dfea;
+  background:linear-gradient(180deg,#fff 0%,#fff7fb 100%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+.rpl-image{
+  display:block;
+  max-width:100%;
+  max-height:min(62vh, 620px);
+  object-fit:cover;
+  border-radius:18px;
+}
+.rpl-nav{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  width:44px;
+  height:44px;
+  border-radius:999px;
+  border:1px solid rgba(244,200,218,.85);
+  background:rgba(255,255,255,.84);
+  color:#ec5b9a;
+  font-size:28px;
+  font-weight:900;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  box-shadow:0 10px 24px rgba(219,105,158,.16);
+}
+.rpl-prev{left:14px;}
+.rpl-next{right:14px;}
+.rpl-counter{
+  margin:14px 0 0;
+  text-align:center;
+  color:#a6788d;
+  font-size:13px;
+  font-weight:850;
+}
+.rpl-thumbs{
+  margin-top:14px;
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+.rpl-thumb{
+  width:58px;
+  height:58px;
+  border-radius:12px;
+  border:2px solid transparent;
+  background:#fff;
+  padding:0;
+  overflow:hidden;
+  cursor:pointer;
+}
+.rpl-thumb.is-active{
+  border-color:#ec5b9a;
+}
+.rpl-thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+@media (max-width:620px){
+  .review-photo-lightbox{
+    padding:18px 12px;
+  }
+  .rpl-dialog{
+    width:100%;
+    border-radius:22px;
+  }
+  .rpl-stage{
+    min-height:280px;
+  }
+  .rpl-nav{
+    width:38px;
+    height:38px;
+    font-size:24px;
+  }
+}
+
+
+/* ===== TOP 버튼 (공홈 index 기준) ===== */
+.back-to-top{
+  position:fixed;
+  right:22px;
+  bottom:22px;
+  width:64px;
+  height:64px;
+  border:none;
+  border-radius:50%;
+  background:linear-gradient(180deg,#ff86bb 0%,#ff5fa5 54%,#caa7ff 100%);
+  color:#fff;
+  cursor:pointer;
+  box-shadow:
+    0 14px 28px rgba(255,95,165,.28),
+    0 0 0 6px rgba(255,255,255,.58),
+    0 0 24px rgba(202,167,255,.18);
+  z-index:1200;
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(10px) scale(.94);
+  transition:opacity .2s ease, visibility .2s ease, transform .2s ease, filter .2s ease;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  font-family:"SUIT","Noto Sans KR",sans-serif;
+  -webkit-tap-highlight-color:transparent;
+}
+.back-to-top.show{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0) scale(1);
+}
+.back-to-top:hover{
+  filter:brightness(1.04);
+  transform:translateY(-3px) scale(1.03);
+}
+.back-to-top::before{
+  content:"";
+  position:absolute;
+  inset:-70%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,.75), transparent 16%),
+    radial-gradient(circle at 68% 62%, rgba(255,255,255,.34), transparent 18%),
+    conic-gradient(from 0deg, transparent, rgba(255,255,255,.42), transparent, rgba(255,255,255,.28), transparent);
+  animation:lumiTopSpin 5s linear infinite;
+  pointer-events:none;
+}
+.back-to-top::after{
+  content:"✦";
+  position:absolute;
+  right:10px;
+  top:8px;
+  color:rgba(255,255,255,.78);
+  font-size:14px;
+  animation:lumiTopStar 1.8s ease-in-out infinite;
+  pointer-events:none;
+}
+.back-to-top .top-arrow,
+.back-to-top .top-label{
+  position:relative;
+  z-index:1;
+  line-height:1;
+  font-style:normal;
+  text-shadow:0 2px 8px rgba(148,64,112,.18);
+}
+.back-to-top .top-arrow{
+  font-size:25px;
+  font-weight:900;
+  margin-top:1px;
+}
+.back-to-top .top-label{
+  margin-top:4px;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+@keyframes lumiTopSpin{
+  to{transform:rotate(360deg);}
+}
+@keyframes lumiTopStar{
+  0%,100%{transform:translateY(0) rotate(0deg);opacity:.58;}
+  50%{transform:translateY(-3px) rotate(12deg);opacity:1;}
+}
+@media (max-width:780px){
+  .back-to-top{
+    right:16px;
+    bottom:16px;
+    width:58px;
+    height:58px;
+  }
+  .back-to-top .top-arrow{ font-size:23px; }
+  .back-to-top .top-label{ font-size:9px; }
+}
+
+
+/* 리뷰 작성 버튼은 위치가 흔들리지 않게 고정 */
+.review-write:hover,
+.review-write:focus,
+.review-write:active{
+  transform:none !important;
+}
+
+
+/* ===== SAFE BUTTON SHINE + READABILITY FIX ===== */
+.review-write,
+.reserve-btn,
+.cart-btn,
+.grm-btn.primary{
+  position:relative;
+  overflow:hidden;
+}
+.review-write::before,
+.reserve-btn::before,
+.cart-btn::before,
+.grm-btn.primary::before{
+  content:"";
+  position:absolute;
+  top:-45%;
+  left:-80%;
+  width:54%;
+  height:190%;
+  background:linear-gradient(115deg, transparent 0%, rgba(255,255,255,.18) 34%, rgba(255,255,255,.58) 50%, rgba(255,255,255,.18) 66%, transparent 100%);
+  transform:skewX(-18deg);
+  pointer-events:none;
+  opacity:.72;
+  animation:buttonShine 3.8s ease-in-out infinite;
+}
+@keyframes buttonShine{
+  0%,58%{left:-88%; opacity:0;}
+  68%{opacity:.72;}
+  100%{left:138%; opacity:0;}
+}
+.review-write:hover,
+.review-write:focus,
+.review-write:active,
+.reserve-btn:hover,
+.reserve-btn:focus,
+.reserve-btn:active,
+.cart-btn:hover,
+.cart-btn:focus,
+.cart-btn:active,
+.grm-btn:hover,
+.grm-btn:focus,
+.grm-btn:active{
+  transform:none !important;
+}
+.cart-btn,
+.reserve-btn{
+  font-weight:950;
+}
+.cart-btn{
+  background:linear-gradient(180deg,#fff 0%,#fff8fb 100%);
+  border-color:#f0bfd4;
+  color:#d86fa3;
+}
+.cart-btn:hover{
+  border-color:#ff8fc1;
+  box-shadow:0 10px 22px rgba(255,95,165,.10);
+}
+.reserve-btn{
+  box-shadow:0 12px 28px rgba(255,95,165,.18);
+}
+.reserve-btn:hover{
+  filter:brightness(1.025);
+  box-shadow:0 14px 30px rgba(255,95,165,.22);
+}
+.review-card .review-body,
+.review-body{
+  font-size:15px;
+  line-height:1.86;
+  color:#6f5262;
+}
+.review-title-line{
+  font-size:17px;
+  line-height:1.55;
+  font-weight:950;
+  color:#ff5fa8;
+  margin:10px 0 8px;
+}
+.review-meta{
+  font-size:14px;
+}
+.review-meta b{
+  font-size:15px;
+}
+.rpl-image:not([src]),
+.rpl-thumb img:not([src]){
+  display:none;
+}
+.rpl-thumb{
+  color:transparent;
+  font-size:0;
+}
+
+
+/* ===== FIX4 SAFE OVERRIDES ===== */
+
+/* TOP 버튼 공홈 기준 통합 완료 - 상단 선언으로 통합 */
+
+/* 리뷰 작성/예약하기/장바구니는 hover 때 위치 이동 금지 */
+.review-write,
+.review-write *,
+.review-write:hover,
+.review-write:hover *,
+.review-write:focus,
+.review-write:focus *,
+.review-write:active,
+.review-write:active *,
+.reserve-btn,
+.reserve-btn *,
+.reserve-btn:hover,
+.reserve-btn:hover *,
+.reserve-btn:focus,
+.reserve-btn:focus *,
+.reserve-btn:active,
+.reserve-btn:active *,
+.cart-btn,
+.cart-btn *,
+.cart-btn:hover,
+.cart-btn:hover *,
+.cart-btn:focus,
+.cart-btn:focus *,
+.cart-btn:active,
+.cart-btn:active *{
+  transform:none !important;
+}
+
+/* 예약하기/장바구니/리뷰작성 버튼에는 표면 빛반사만 유지 */
+.review-write,
+.reserve-btn,
+.cart-btn{
+  position:relative;
+  overflow:hidden;
+}
+
+.review-write::before,
+.reserve-btn::before,
+.cart-btn::before{
+  content:"";
+  position:absolute;
+  top:-45%;
+  left:-80%;
+  width:54%;
+  height:190%;
+  background:linear-gradient(115deg, transparent 0%, rgba(255,255,255,.18) 34%, rgba(255,255,255,.58) 50%, rgba(255,255,255,.18) 66%, transparent 100%);
+  transform:skewX(-18deg) !important;
+  pointer-events:none;
+  opacity:.72;
+  animation:buttonShine 3.8s ease-in-out infinite;
+}
+
+/* 상세정보/구매안내/루미나 후기 탭은 빛반사 없이 선택/hover만 */
+.tab-btn,
+.detail-tabs button{
+  overflow:visible;
+}
+.tab-btn::before,
+.detail-tabs button::before{
+  animation:none !important;
+}
+.tab-btn:hover,
+.detail-tabs button:hover{
+  transform:none !important;
+}
+
+/* 리뷰 목록 본문 가독성 */
+.review-card .review-body,
+.review-body{
+  font-size:15px;
+  line-height:1.86;
+  color:#6f5262;
+}
+.review-title-line{
+  font-size:17px;
+  line-height:1.55;
+  font-weight:950;
+  color:#ff5fa8;
+  margin:10px 0 8px;
+}
+.review-meta{
+  font-size:14px;
+}
+.review-meta b{
+  font-size:15px;
+}
+
+
+/* ===== CTA ACTIVE BUTTON FIX ===== */
+/* 예약하기 / 장바구니는 실사용 가능한 활성 버튼처럼 보이게 */
+.actions .btn,
+.cart-btn,
+.reserve-btn{
+  position:relative;
+  overflow:hidden;
+  transform:none !important;
+}
+
+.actions .btn:hover,
+.actions .btn:focus,
+.actions .btn:active,
+.cart-btn:hover,
+.cart-btn:focus,
+.cart-btn:active,
+.reserve-btn:hover,
+.reserve-btn:focus,
+.reserve-btn:active{
+  transform:none !important;
+}
+
+/* 장바구니: 서브 액션 */
+.actions .btn:not(.primary),
+.cart-btn{
+  background:linear-gradient(180deg,#fff 0%,#fff8fb 100%) !important;
+  border:1px solid #f0bfd4 !important;
+  color:#d86fa3 !important;
+  box-shadow:0 8px 18px rgba(255,95,165,.08) !important;
+  font-weight:950 !important;
+}
+
+/* 예약하기: 메인 액션 */
+.actions .btn.primary,
+.reserve-btn{
+  background:linear-gradient(180deg,#ff78b2 0%,#ff5fa8 55%,#f04f98 100%) !important;
+  border:1px solid #ff5fa8 !important;
+  color:#fff !important;
+  box-shadow:0 12px 28px rgba(255,95,165,.24) !important;
+  font-weight:1000 !important;
+}
+
+/* 빛반사는 구매 CTA와 리뷰 작성에만 */
+.actions .btn::before,
+.cart-btn::before,
+.reserve-btn::before,
+.review-write::before{
+  content:"";
+  position:absolute;
+  top:-45%;
+  left:-80%;
+  width:54%;
+  height:190%;
+  background:linear-gradient(115deg, transparent 0%, rgba(255,255,255,.16) 34%, rgba(255,255,255,.60) 50%, rgba(255,255,255,.16) 66%, transparent 100%);
+  transform:skewX(-18deg) !important;
+  pointer-events:none;
+  opacity:.72;
+  animation:buttonShine 3.8s ease-in-out infinite;
+}
+
+@keyframes buttonShine{
+  0%,58%{left:-88%; opacity:0;}
+  68%{opacity:.72;}
+  100%{left:138%; opacity:0;}
+}
+
+/* 리뷰 작성 버튼/내부 요소는 까딱거림 금지 */
+.review-write,
+.review-write *,
+.review-write:hover,
+.review-write:hover *,
+.review-write:focus,
+.review-write:focus *,
+.review-write:active,
+.review-write:active *{
+  transform:none !important;
+}
+
+/* 비활성 상태가 붙는 경우만 명확히 흐리게 */
+.actions .btn:disabled,
+.cart-btn:disabled,
+.reserve-btn:disabled,
+.actions .btn.disabled,
+.cart-btn.disabled,
+.reserve-btn.disabled{
+  opacity:.48 !important;
+  filter:saturate(.65) !important;
+  cursor:not-allowed !important;
+  box-shadow:none !important;
+}
+
+
+/* ===== CTA ACTIVE FIX 2 : click-safe buttons ===== */
+
+/* 구매 액션 버튼은 빛반사는 유지하되 클릭 가능 상태 보장 */
+.cart-btn,
+.reserve-btn,
+.actions .btn,
+.review-write{
+  pointer-events:auto !important;
+  cursor:pointer !important;
+}
+
+.cart-btn::before,
+.reserve-btn::before,
+.actions .btn::before,
+.review-write::before{
+  pointer-events:none !important;
+}
+
+/* 버튼 hover 이동 금지 유지 */
+.cart-btn,
+.cart-btn *,
+.reserve-btn,
+.reserve-btn *,
+.review-write,
+.review-write *,
+.actions .btn,
+.actions .btn *{
+  transform:none !important;
+}
+
+
+/* ===== merged ===== */
+
 :root {
   --pink:#ff5aa2;
   --pink-dark:#d46f9d;
@@ -39,61 +1248,127 @@ body {
     radial-gradient(circle at 50% -120px, rgba(255,186,220,.30), transparent 420px),
     linear-gradient(180deg,#fff 0%,#fff8fc 45%,#fff 100%);
 }
+    /* ===== 헤더 (공홈 setlist 기준) ===== */
     .top-lang-bar{
-      width:100%; max-width:1260px; margin:16px auto 18px; display:flex;
-      justify-content:flex-end; padding:0 34px 0 18px; box-sizing:border-box;
+      width:100%;
+      max-width:1260px;
+      margin:16px auto 0;
+      display:flex;
+      justify-content:flex-end;
+      padding:0 34px 0 18px;
+      box-sizing:border-box;
     }
-    .header-box{ display:flex; align-items:center; gap:24px; }
-    .lang-switch{ display:flex; align-items:center; gap:10px; flex:0 0 auto; padding-right:2px; }
+    .lang-switch{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+      padding-right:2px;
+    }
     .lang-switch a{
-      display:inline-flex; align-items:center; justify-content:center;
-      min-width:42px; height:36px; padding:0 10px; border-radius:999px;
-      background:#fff; border:1px solid #f0bfd4; color:#d27ca8; text-decoration:none;
-      font-size:12px; font-weight:900; box-shadow:0 4px 10px rgba(255,95,165,0.08);
-      transition:background .18s ease, color .18s ease, box-shadow .18s ease;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:42px;
+      height:36px;
+      padding:0 10px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid #f0bfd4;
+      color:#d27ca8;
+      text-decoration:none;
+      font-size:12px;
+      font-weight:900;
+      transition:background .18s ease,color .18s ease,box-shadow .18s ease;
+      box-shadow:0 4px 10px rgba(255,95,165,.08);
     }
-    .lang-switch a:hover,.lang-switch a.active{ background:#fff0f7; color:#ff59a5; }
-    header {
-      border-bottom:1px solid #ffe1ee;
-      background:rgba(255,255,255,.88);
-      position:sticky;
-      top:0;
-      z-index:50;
-      backdrop-filter:blur(10px);
+    .lang-switch a:hover,
+    .lang-switch a.active{
+      background:#fff0f7;
+      color:#ff59a5;
     }
-    nav{
-      display:grid; grid-template-columns:repeat(8, minmax(0, 1fr)); gap:18px;
-      text-align:center; align-items:center; flex:1; margin:0 20px;
+    .header-box{
+      display:flex;
+      align-items:center;
+      gap:24px;
     }
-    nav a{
-      width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
-      min-width:0; position:relative; border-radius:22px; text-decoration:none;
+    header nav{
+      display:grid;
+      grid-template-columns:repeat(8,minmax(0,1fr));
+      gap:18px;
+      text-align:center;
+      align-items:center;
+      flex:1;
+      margin:0 20px;
     }
-    nav a b, nav a span{ display:block; width:100%; text-align:center; white-space:nowrap; }
-    nav a b{ font-size:1.2em; font-weight:700; color:#d97ca9; letter-spacing:-0.03em; }
-    nav a span{ font-size:.94em; font-weight:600; color:#c697b1; margin-top:10px; letter-spacing:-0.01em; line-height:1.25; }
-    nav a.current b, nav a:hover b{ color:#ff59a5 !important; }
-    nav a.current span, nav a:hover span{ color:#d88dad !important; }
-    nav a::before{
-      content:""; position:absolute; inset:0; border-radius:22px;
-      background:linear-gradient(90deg, rgba(255,217,232,0.00) 0%, rgba(255,217,232,0.18) 16%, rgba(255,192,215,0.20) 36%, rgba(255,192,215,0.24) 50%, rgba(255,192,215,0.20) 64%, rgba(255,217,232,0.18) 84%, rgba(255,217,232,0.00) 100%);
-      z-index:-1; opacity:0; transition:opacity .18s ease; pointer-events:none;
+    header nav a{
+      position:relative;
+      width:100%;
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      border-radius:22px;
+      overflow:visible;
+      transform:none !important;
+      -webkit-tap-highlight-color:transparent;
     }
-    nav a.current::before, nav a:hover::before{ opacity:1; }
-    .logo img{ height:48px; width:auto; display:block; }
-    @media (max-width:1180px){ nav{ grid-template-columns:repeat(4,1fr); gap:16px; } }
-    @media (max-width:980px){
+    header nav a b,
+    header nav a span{
+      display:block;
+      width:100%;
+      text-align:center;
+      white-space:nowrap;
+      position:relative;
+      z-index:1;
+    }
+    header nav a b{ font-size:1.2em; font-weight:700; color:#d97ca9; letter-spacing:-0.03em; }
+    header nav a span{ margin-top:6px; font-size:.94em; color:#c697b1; font-weight:600; }
+    header nav a.current,header nav a:hover,header nav a:focus,header nav a:focus-visible,header nav a:active{
+      background:transparent !important;box-shadow:none !important;outline:none !important;transform:none !important;
+    }
+    header nav a.current::before,header nav a:hover::before,header nav a:focus::before,header nav a:focus-visible::before{
+      content:"";position:absolute;top:0;bottom:0;left:0;right:0;border-radius:18px;
+      background:linear-gradient(90deg,rgba(255,217,232,0) 0%,rgba(255,217,232,.18) 16%,rgba(255,192,215,.20) 36%,rgba(255,192,215,.24) 50%,rgba(255,192,215,.20) 64%,rgba(255,217,232,.18) 84%,rgba(255,217,232,0) 100%);
+      z-index:0;pointer-events:none;
+    }
+    header nav a.current b,header nav a:hover b{ color:#ff59a5 !important; }
+    header nav a.current span,header nav a:hover span{ color:#d88dad !important; }
+    @media (max-width:1180px){
+      header nav{ grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
       .header-box{ flex-wrap:wrap; justify-content:center; }
-      nav{ grid-template-columns:repeat(4,1fr); width:100%; margin:0; }
-      .top-lang-bar{ justify-content:center; padding:0 18px; }
+      .logo{ justify-content:center; }
+    }
+    @media (max-width:980px){
+      .header-box{
+        width:min(100% - 24px,430px); max-width:430px;
+        margin:12px auto; padding:16px 14px 15px;
+        min-height:0; gap:12px; flex-direction:column; align-items:center;
+        border-radius:24px;
+      }
+      .logo{ justify-content:center; width:100%; }
+      .logo img{ height:78px; margin:0 auto; }
+      header nav{
+        width:100%; grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:7px 8px; margin:0;
+      }
+      header nav a{ min-height:48px; padding:8px 4px; border-radius:16px; }
+      header nav a b{ font-size:17px; }
+      header nav a span{ font-size:13px; }
+      .top-lang-bar{ justify-content:center; padding:0 14px; margin-top:12px; }
     }
 .wrap {
   width:min(1260px, calc(100% - 46px));
   margin:44px auto 80px;
 }
+header .wrap {
+  width:min(1220px,calc(100% - 28px));
+  margin:0 auto;
+}
 .breadcrumb {
   color:#d879a4;
-  font-size:13px;
+  font-size:14px;
   font-weight:900;
   margin:0 0 18px;
 }
@@ -124,7 +1399,7 @@ body {
 .main-image img {
   width:100%;
   height:100%;
-  object-fit:contain;
+  object-fit:cover;
   display:block;
 }
 .thumbs {
@@ -157,7 +1432,7 @@ body {
 }
 .buy-panel {
   position:sticky;
-  top:104px;
+  top:200px;
   padding:28px;
   border-radius:26px;
 }
@@ -190,9 +1465,10 @@ body {
 }
 .desc {
   margin:0 0 22px;
-  font-size:14px;
+  font-size:15px;
   line-height:1.8;
-  font-weight:750;
+  font-weight:600;
+  color:#8d6a78;
 }
 .price-label { color:#d879a4; font-size:14px; font-weight:1000; }
 .price {
@@ -562,7 +1838,6 @@ footer {
   padding:40px 0;
 }
 @media (max-width:980px) {
-  header { height:64px; }
   .logo { font-size:25px; }
   .wrap { width:min(100% - 28px, 720px); margin:24px auto 110px; }
   .layout { grid-template-columns:1fr; }
@@ -592,32 +1867,7 @@ footer {
   .mobile-fixed .btn { height:46px; }
 }
 
-/* ===== TOP 버튼 ===== */
-.back-to-top{
-  position:fixed; right:22px; bottom:22px; width:64px; height:64px;
-  border:none; border-radius:50%;
-  background:linear-gradient(180deg,#ff86bb 0%,#ff5fa5 54%,#caa7ff 100%);
-  color:#fff; cursor:pointer;
-  box-shadow:0 14px 28px rgba(255,95,165,.28),0 0 0 6px rgba(255,255,255,.58),0 0 24px rgba(202,167,255,.18);
-  z-index:1200; opacity:0; visibility:hidden;
-  transform:translateY(10px) scale(.94);
-  transition:opacity .2s ease,visibility .2s ease,transform .2s ease,filter .2s ease;
-  overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  font-family:"SUIT","Noto Sans KR",sans-serif; -webkit-tap-highlight-color:transparent;
-}
-.back-to-top.show{ opacity:1; visibility:visible; transform:translateY(0) scale(1); }
-.back-to-top:hover{ filter:brightness(1.04); transform:translateY(-3px) scale(1.03); }
-.back-to-top::before{
-  content:""; position:absolute; inset:-70%;
-  background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.75),transparent 16%),radial-gradient(circle at 68% 62%,rgba(255,255,255,.34),transparent 18%),conic-gradient(from 0deg,transparent,rgba(255,255,255,.42),transparent,rgba(255,255,255,.28),transparent);
-  animation:lumiTopSpin 5s linear infinite; pointer-events:none;
-}
-.back-to-top::after{ content:"✦"; position:absolute; right:10px; top:8px; color:rgba(255,255,255,.78); font-size:14px; animation:lumiTopStar 1.8s ease-in-out infinite; pointer-events:none; }
-.back-to-top .top-arrow,.back-to-top .top-label{ position:relative; z-index:1; line-height:1; font-style:normal; text-shadow:0 2px 8px rgba(148,64,112,.18); }
-.back-to-top .top-arrow{ font-size:25px; font-weight:900; margin-top:1px; }
-.back-to-top .top-label{ margin-top:4px; font-size:10px; font-weight:900; letter-spacing:.08em; }
-@keyframes lumiTopSpin{ to{transform:rotate(360deg);} }
-@keyframes lumiTopStar{ 0%,100%{transform:translateY(0) rotate(0deg);opacity:.58;} 50%{transform:translateY(-3px) rotate(12deg);opacity:1;} }
+/* TOP 버튼 선언 - 상단 통합 블록 참조 */
 
 /* ===== 클릭/마우스 효과 ===== */
 .glitter-burst{ position:fixed; pointer-events:none; width:8px; height:8px; background:radial-gradient(circle,#fff 0%,#ffc0d7 60%,transparent 100%); border-radius:50%; opacity:0; animation:glitterPop 0.8s ease-out forwards; }
@@ -630,10 +1880,7 @@ footer {
 .burst-petal{ width:14px; height:14px; border-radius:999px; background:radial-gradient(circle at 35% 35%,#fff 0%,#ffd9e8 42%,#ffc0d7 78%,rgba(255,192,215,0) 100%); box-shadow:0 0 10px rgba(255,192,215,.55); animation:burstPetal .78s ease-out forwards; }
 @keyframes burstSpark{ 0%{transform:translate(0,0) scale(.45) rotate(0deg);opacity:1;} 100%{transform:translate(var(--x),var(--y)) scale(1.15) rotate(90deg);opacity:0;} }
 @keyframes burstPetal{ 0%{transform:translate(0,0) scale(.6);opacity:1;} 100%{transform:translate(var(--x),var(--y)) scale(1.2);opacity:0;} }
-nav a{ position:relative; overflow:hidden; isolation:isolate; }
-nav a::after{ content:""; position:absolute; top:-35%; left:-42%; width:22%; height:170%; background:linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.12) 35%,rgba(255,255,255,.28) 50%,rgba(255,255,255,.12) 65%,rgba(255,255,255,0) 100%); transform:skewX(-22deg) translateX(0); opacity:0; pointer-events:none; z-index:2; }
-nav a:hover::after{ animation:sweepShine .9s ease forwards; }
-@keyframes sweepShine{ 0%{opacity:0;transform:skewX(-22deg) translateX(0);} 15%{opacity:1;} 100%{opacity:0;transform:skewX(-22deg) translateX(560%);} }
+
     /* ===== 루미벨 나비 열쇠 커서 + 클릭 마법 효과 ===== */
         @media (hover:hover) and (pointer:fine){
           a, button, .ticket-option, .meate-option, .package-btn, .quick-icon-btn, .reserve-btn, .top-button, .back-to-top, .lang-switch a, nav a, .subnav-card, .live-guide-card, .member-card, .member-btn, .more-btn, .info-link-btn, .ticket-btn, .sns-icon, .news-item, .schedule-item{
@@ -994,7 +2241,7 @@ nav a:hover::after{ animation:sweepShine .9s ease forwards; }
 <header>
   <div class="wrap header-box">
     <div class="logo">
-      <a href="#">
+      <a href="../index.html">
         <picture>
           <source srcset="../img/ui/logo.webp?v=3" type="image/webp"/>
           <img alt="Lumibelle 로고" decoding="async" loading="eager" src="../img/ui/logo.png?v=3"/>
@@ -1002,20 +2249,20 @@ nav a:hover::after{ animation:sweepShine .9s ease forwards; }
       </a>
     </div>
     <nav>
-      <a href="#"><b>HOME</b><span>홈</span></a>
-      <a href="#"><b>NEWS</b><span>공지사항</span></a>
-      <a href="#"><b>MEMBER</b><span>멤버 소개</span></a>
-      <a href="#"><b>SCHEDULE</b><span>스케줄</span></a>
-      <a href="#"><b>TICKET</b><span>예매</span></a>
-      <a class="current" href="#"><b>GOODS</b><span>굿즈</span></a>
-      <a href="#"><b>SETLIST</b><span>응원 가이드</span></a>
-      <a href="#"><b>INFO</b><span>안내</span></a>
+      <a href="../index.html"><b>HOME</b><span data-i18n="nav.home">홈</span></a>
+      <a href="../news.html"><b>NEWS</b><span data-i18n="nav.news">공지사항</span></a>
+      <a href="../member.html"><b>MEMBER</b><span data-i18n="nav.member">멤버 소개</span></a>
+      <a href="../schedule.html"><b>SCHEDULE</b><span data-i18n="nav.schedule">스케줄</span></a>
+      <a href="../ticket/"><b>TICKET</b><span data-i18n="nav.ticket">예매</span></a>
+      <a class="current" href="../goods/"><b>GOODS</b><span data-i18n="nav.goods">굿즈</span></a>
+      <a href="../setlist.html"><b>SETLIST</b><span data-i18n="nav.setlist">응원 가이드</span></a>
+      <a href="../info.html"><b>INFO</b><span data-i18n="nav.info">안내</span></a>
     </nav>
   </div>
 </header>
 
 <main class="wrap">
-  <p class="breadcrumb">GOODS / 단품 굿즈 / 로샨 틴케이스 예시</p>
+  <p class="breadcrumb">HOME &gt; GOODS &gt; 로샨 틴케이스</p>
 
   <div class="layout">
     <div class="left-col">
@@ -1073,17 +2320,17 @@ nav a:hover::after{ animation:sweepShine .9s ease forwards; }
       <section class="tab-panel" id="tab-review">
         <div class="section-head">
           <h2 class="section-title"><strong>Lumina Review</strong><span>루미나 후기</span></h2>
-          <button class="review-write">리뷰 작성</button>
+          <button class="review-write" type="button" data-review-write-open>리뷰 작성</button>
         </div>
 
-        <div class="review-empty">
+        <div class="review-empty" id="reviewEmptyState">
           아직 등록된 루미나 후기가 없어요.<br>
           굿즈를 수령한 루미나의 반짝이는 후기가 이곳에 모일 예정입니다.<br><br>
           후기 작성은 루미 ID 로그인 후,<br>
           해당 굿즈 구매/예약 기록과 수령 완료 기록이 있을 때 가능해요.
         </div>
 
-        <div class="review-list">
+        <div class="review-list" id="reviewList">
           <article class="review-card">
             <div class="review-meta">
               <b>루미나 닉네임</b>
@@ -1130,8 +2377,8 @@ nav a:hover::after{ animation:sweepShine .9s ease forwards; }
         <span class="chip">OFFICIAL GOODS</span>
         <span class="chip">SINGLE</span>
       </div>
-      <h1>로샨 틴케이스<br>루미벨 적용 예시</h1>
-      <p class="desc">상단은 쇼핑몰형 구매 패널, 왼쪽은 이미지 갤러리, 아래 상세정보는 탭 전환형으로 확인하는 구조예요.</p>
+      <h1>로샨 틴케이스</h1>
+      <p class="desc">루미벨의 반짝이는 순간을 담은 공식 굿즈입니다. 현장 수령 기준으로 운영됩니다.</p>
 
       <div class="price-label">판매가</div>
       <div class="price">₩20,000</div>
@@ -1150,14 +2397,14 @@ nav a:hover::after{ animation:sweepShine .9s ease forwards; }
 
       <div class="qty-line">
         <label>수량</label>
-        <div class="qty"><button id="qtyMinus">-</button><span id="qtyNum">1</span><button id="qtyPlus">+</button></div>
+        <div class="qty" data-max-qty="99"><button id="qtyMinus" type="button">-</button><input id="qtyNum" class="qty-input" type="number" min="1" value="1" inputmode="numeric" aria-label="수량"><button id="qtyPlus" type="button">+</button></div>
       </div>
 
       <div class="actions">
         <button class="btn">장바구니</button>
         <button class="btn primary">예약하기</button>
       </div>
-      <div class="note">입금 확인 후 예약이 확정됩니다.</div>
+      <div class="note payment-confirm-note">입금 확인 후 예약이 확정됩니다.</div>
     </aside>
   </div>
 </main>
@@ -1255,66 +2502,6 @@ if(revealItems.length){
       });
     });
   </script>
-
-
-<script>
-(function(){
-  function makeBurstAt(x, y, level = "normal"){
-    const petalCount = level === "big" ? 12 : 8;
-    const sparkCount = level === "big" ? 6 : 4;
-    const petalMin = level === "big" ? 26 : 18;
-    const petalMax = level === "big" ? 72 : 56;
-    const sparkMin = level === "big" ? 36 : 26;
-    const sparkMax = level === "big" ? 92 : 70;
-
-    const makeBurst = (cls, count, minD, maxD) => {
-      for(let i=0;i<count;i++){
-        const el = document.createElement("span");
-        el.className = cls;
-
-        const angle = (Math.PI * 2 / count) * i + (Math.random() * 0.35 - 0.175);
-        const distance = minD + Math.random() * (maxD - minD);
-
-        el.style.setProperty("--x", Math.cos(angle) * distance + "px");
-        el.style.setProperty("--y", Math.sin(angle) * distance + "px");
-        el.style.left = x + "px";
-        el.style.top = y + "px";
-
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 850);
-      }
-    };
-
-    makeBurst("burst-petal", petalCount, petalMin, petalMax);
-    makeBurst("burst-spark", sparkCount, sparkMin, sparkMax);
-  }
-
-  document.addEventListener("pointerdown", function(e){
-    const target = e.target.closest("nav a, button, .member-card, .subnav-card, .live-guide-card, .info-link-btn, .ticket-btn, .member-btn, .more-btn");
-    if(!target) return;
-
-    const level = target.closest("nav") ? "normal" : (target.classList.contains("subnav-card") ? "big" : "normal");
-    makeBurstAt(e.clientX, e.clientY, level);
-  });
-
-  document.addEventListener("click", function(e){
-    const link = e.target.closest('a[href]');
-    if(!link) return;
-
-    const href = link.getAttribute('href');
-    const targetAttr = link.getAttribute('target');
-    const isHash = href && href.startsWith('#');
-    const isJs = href && href.startsWith('javascript:');
-    const isMail = href && href.startsWith('mailto:');
-    const isTel = href && href.startsWith('tel:');
-    const isBlank = targetAttr === '_blank';
-    const hasDownload = link.hasAttribute('download');
-
-    if (!href || isHash || isJs || isMail || isTel || isBlank || hasDownload) return;
-  });
-})();
-</script>
-
 
 
 <script>
@@ -1488,8 +2675,594 @@ document.addEventListener("click", function(e){
   </script>
 
 
+
+
+
+
+<div class="goods-review-modal" id="goodsReviewModal" aria-hidden="true">
+  <section class="grm-dialog" role="dialog" aria-modal="true" aria-labelledby="goodsReviewModalTitle">
+    <header class="grm-head">
+      <h2 class="grm-title" id="goodsReviewModalTitle">리뷰 작성</h2>
+      <button class="grm-close" type="button" data-grm-close aria-label="닫기">×</button>
+    </header>
+
+    <div class="grm-body">
+      <main class="grm-panel grm-form">
+        <div class="grm-field">
+          <label class="grm-label">상품 정보</label>
+          <div class="grm-input" id="grmProductName" aria-readonly="true">로샨 틴케이스</div>
+        </div>
+
+        <div class="grm-field">
+          <label class="grm-label" for="grmNickname">공개 닉네임</label>
+          <input class="grm-input" id="grmNickname" value="루미나 닉네임" maxlength="20" />
+        </div>
+
+        <div class="grm-field">
+          <label class="grm-label" for="grmReviewTitle">리뷰 제목</label>
+          <input class="grm-input" id="grmReviewTitle" value="너무 예쁘고 만족스러워요!" maxlength="40" />
+        </div>
+
+        <div class="grm-field">
+          <label class="grm-label" for="grmReviewBody">리뷰 내용</label>
+          <textarea class="grm-textarea" id="grmReviewBody" minlength="20" maxlength="500">실물이 사진보다 더 영롱하고 예뻐요!
+아크릴 퀄리티도 좋고, 마감도 깔끔해서 만족합니다.
+포장도 너무 예쁘게 와서 기분이 좋았어요 💗</textarea>
+          <p class="grm-helper">
+            상품을 받은 뒤의 느낌, 포장 상태, 실물 만족도 등을 자유롭게 적어주세요.
+            <span class="grm-counter" id="grmBodyCount">0 / 500</span>
+          </p>
+        </div>
+
+        <div class="grm-field">
+          <span class="grm-label">사진 첨부</span>
+          <input type="file" id="grmPhotoInput" accept="image/*" multiple hidden>
+          <div class="grm-photos" id="grmPhotoSlots">
+            <button class="grm-photo-slot" type="button" data-grm-photo-slot="0"><span class="grm-photo-icon">▣</span><span>사진 1</span></button>
+            <button class="grm-photo-slot" type="button" data-grm-photo-slot="1"><span class="grm-photo-icon">▣</span><span>사진 2</span></button>
+            <button class="grm-photo-slot" type="button" data-grm-photo-slot="2"><span class="grm-photo-icon">▣</span><span>사진 3</span></button>
+            <button class="grm-photo-slot" type="button" data-grm-photo-slot="3"><span class="grm-photo-icon">▣</span><span>사진 4</span></button>
+          </div>
+          <p class="grm-helper">사진은 최대 4장까지 첨부할 수 있어요.</p>
+        </div>
+
+        <div class="grm-field">
+          <span class="grm-label">안내 확인</span>
+          <div class="grm-checks">
+            <label class="grm-check"><input type="checkbox" id="grmCheckReal"> <span>실제 수령 후기를 작성합니다</span></label>
+            <label class="grm-check"><input type="checkbox" id="grmCheckGuide"> <span>비방·허위 내용 없이 작성 가이드를 확인했습니다</span></label>
+          </div>
+        </div>
+
+        <div class="grm-actions">
+          <button class="grm-btn primary" type="button" id="grmSubmit">등록</button>
+          <button class="grm-btn" type="button" data-grm-close>취소</button>
+        </div>
+      </main>
+
+      <aside class="grm-side">
+        <section class="grm-panel grm-side-panel grm-preview-panel">
+          <h3 class="grm-side-title">리뷰 카드 미리보기</h3>
+          <article class="grm-preview-card">
+            <div class="grm-preview-text">
+              <div class="grm-preview-top">
+                <div class="grm-avatar">✦</div>
+                <div>
+                  <div class="grm-preview-name" id="grmPreviewName">루미나 닉네임</div>
+                  <div class="grm-preview-date" id="grmPreviewDate">2026.05.20</div>
+                </div>
+                <span class="grm-badge">구매 인증</span>
+              </div>
+              <h4 class="grm-preview-title" id="grmPreviewTitle">너무 예쁘고 만족스러워요!</h4>
+              <p class="grm-preview-body" id="grmPreviewBody">실물이 사진보다 더 영롱하고 예뻐요!<br>아크릴 퀄리티도 좋고, 마감도 깔끔해서 만족합니다.<br>포장도 너무 예쁘게 와서 기분이 좋았어요 💗</p>
+            </div>
+            <div class="grm-preview-thumbs" id="grmPreviewThumbs">
+              <div class="grm-preview-thumb"></div>
+              <div class="grm-preview-thumb"></div>
+              <div class="grm-preview-thumb"></div>
+              <div class="grm-preview-thumb"></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="grm-panel grm-side-panel grm-guide">
+          <h3 class="grm-side-title">작성 가이드</h3>
+          <div class="grm-guide-list">
+            <div class="grm-guide-row"><span class="grm-guide-ico">▧</span><span>사진: 최대 4장</span></div>
+            <div class="grm-guide-row"><span class="grm-guide-ico">✎</span><span>권장 길이: 20자 이상</span></div>
+            <div class="grm-guide-row"><span class="grm-guide-ico">♡</span><span>작성 대상: 수령 완료 회원</span></div>
+            <div class="grm-guide-row"><span class="grm-guide-ico">☆</span><span>노출 위치: 상품 상세 리뷰 영역</span></div>
+          </div>
+          <p class="grm-guide-note">후기 사진은 굿즈 확인용으로만 첨부해 주세요.<br>얼굴, 개인정보, 타인의 모습이 포함된 사진은 숨김 처리될 수 있어요.</p>
+        </section>
+      </aside>
+    </div>
+  </section>
+</div>
+
+
 <script>
+(function(){
+  const qtyWrap = document.querySelector('.qty');
+  const qtyInput = document.getElementById('qtyNum');
+  const minus = document.getElementById('qtyMinus');
+  const plus = document.getElementById('qtyPlus');
+  const maxQty = qtyWrap ? Number(qtyWrap.dataset.maxQty || 99) : 99;
+
+  function clampQty(value){
+    let n = parseInt(value, 10);
+    if (!Number.isFinite(n) || n < 1) n = 1;
+    if (n > maxQty) n = maxQty;
+    return n;
+  }
+
+  if (qtyInput && minus && plus) {
+    minus.addEventListener('click', () => qtyInput.value = clampQty(Number(qtyInput.value || 1) - 1));
+    plus.addEventListener('click', () => qtyInput.value = clampQty(Number(qtyInput.value || 1) + 1));
+    qtyInput.addEventListener('input', () => qtyInput.value = qtyInput.value.replace(/[^\d]/g, ''));
+    qtyInput.addEventListener('blur', () => qtyInput.value = clampQty(qtyInput.value));
+  }
+
+  const reviewList = document.getElementById('reviewList');
+  const emptyState = document.getElementById('reviewEmptyState');
+  const pager = document.getElementById('reviewPager');
+  const prevPageBtn = document.getElementById('reviewPrevPage');
+  const nextPageBtn = document.getElementById('reviewNextPage');
+  const pageLabel = document.getElementById('reviewPageLabel');
+  const pageSize = 5;
+  let currentPage = 1;
+
+  if (reviewList && emptyState) {
+    reviewList.innerHTML = '';
+    reviewList.classList.add('is-empty');
+  }
+
+  function getReviewCards(){
+    return reviewList ? Array.from(reviewList.querySelectorAll('.generated-review')) : [];
+  }
+
+  function renderReviewPages(){
+    const cards = getReviewCards();
+    const totalPages = Math.max(1, Math.ceil(cards.length / pageSize));
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    cards.forEach((card, index) => {
+      const page = Math.floor(index / pageSize) + 1;
+      card.style.display = page === currentPage ? '' : 'none';
+    });
+
+    if (pager) pager.classList.toggle('show', cards.length > pageSize);
+    if (pageLabel) pageLabel.textContent = `${currentPage} / ${totalPages}`;
+    if (prevPageBtn) prevPageBtn.disabled = currentPage <= 1;
+    if (nextPageBtn) nextPageBtn.disabled = currentPage >= totalPages;
+  }
+
+  if (prevPageBtn) prevPageBtn.addEventListener('click', () => {
+    currentPage -= 1;
+    renderReviewPages();
+  });
+  if (nextPageBtn) nextPageBtn.addEventListener('click', () => {
+    currentPage += 1;
+    renderReviewPages();
+  });
+
+  const reviewModal = document.getElementById('goodsReviewModal');
+  const reviewOpenBtn = document.querySelector('[data-review-write-open], .review-write');
+  const reviewCloseBtns = reviewModal ? reviewModal.querySelectorAll('[data-grm-close]') : [];
+
+  const grmProductName = document.getElementById('grmProductName');
+  const grmNickname = document.getElementById('grmNickname');
+  const grmTitle = document.getElementById('grmReviewTitle');
+  const grmBody = document.getElementById('grmReviewBody');
+  const grmBodyCount = document.getElementById('grmBodyCount');
+  const grmPreviewName = document.getElementById('grmPreviewName');
+  const grmPreviewTitle = document.getElementById('grmPreviewTitle');
+  const grmPreviewBody = document.getElementById('grmPreviewBody');
+  const grmPreviewDate = document.getElementById('grmPreviewDate');
+  const grmPhotoInput = document.getElementById('grmPhotoInput');
+  const grmPhotoSlots = reviewModal ? Array.from(reviewModal.querySelectorAll('[data-grm-photo-slot]')) : [];
+  const grmPreviewThumbs = reviewModal ? Array.from(reviewModal.querySelectorAll('.grm-preview-thumb')) : [];
+  const grmSubmit = document.getElementById('grmSubmit');
+  const grmCheckReal = document.getElementById('grmCheckReal');
+  const grmCheckGuide = document.getElementById('grmCheckGuide');
+  let grmPhotoUrls = [];
+
+  function resetReviewFormAfterSubmit(){
+    const keepName = grmNickname ? grmNickname.value : '';
+    if (grmTitle) grmTitle.value = '너무 예쁘고 만족스러워요!';
+    if (grmBody) grmBody.value = '';
+    if (grmCheckReal) grmCheckReal.checked = false;
+    if (grmCheckGuide) grmCheckGuide.checked = false;
+    if (grmNickname) grmNickname.value = keepName || '루미나 닉네임';
+    grmPhotoUrls = [];
+    renderGrmPhotos();
+    updateGrmPreview();
+    updateSubmitState();
+  }
+
+  function updateSubmitState(){
+    if (!grmSubmit) return;
+    const ready = !!(grmCheckReal && grmCheckGuide && grmCheckReal.checked && grmCheckGuide.checked);
+    grmSubmit.classList.toggle('is-waiting-check', !ready);
+  }
+
+  function todayText(){
+    const d = new Date();
+    return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, ch => ({
+      '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;'
+    }[ch]));
+  }
+
+  function currentProductName(){
+    const h1 = document.querySelector('.buy-panel h1');
+    return h1 ? h1.textContent.replace(/\s+/g, ' ').trim() : '로샨 틴케이스';
+  }
+
+  function openReviewModal(){
+    if (!reviewModal) return;
+    if (grmProductName) grmProductName.textContent = currentProductName();
+    if (grmPreviewDate) grmPreviewDate.textContent = todayText();
+    updateGrmPreview();
+    updateSubmitState();
+    reviewModal.classList.add('is-open');
+    reviewModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('grm-lock');
+  }
+
+  function closeReviewModal(){
+    if (!reviewModal) return;
+    reviewModal.classList.remove('is-open');
+    reviewModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('grm-lock');
+  }
+
+  function updateGrmPreview(){
+    const name = (grmNickname?.value || '').trim() || '루미나 닉네임';
+    const titleText = (grmTitle?.value || '').trim() || '리뷰 제목';
+    const bodyText = (grmBody?.value || '').trim() || '리뷰 내용을 입력하면 이곳에 미리 보여요.';
+
+    if (grmPreviewName) grmPreviewName.textContent = name;
+    if (grmPreviewTitle) grmPreviewTitle.textContent = titleText;
+    if (grmPreviewBody) grmPreviewBody.innerHTML = escapeHtml(bodyText).replace(/\n/g, '<br>');
+    if (grmBodyCount && grmBody) grmBodyCount.textContent = `${grmBody.value.length} / 500`;
+  }
+
+  function renderGrmPhotos(){
+    grmPhotoSlots.forEach((slot, index) => {
+      const url = grmPhotoUrls[index];
+      slot.classList.toggle('has-image', !!url);
+      slot.innerHTML = url
+        ? `<img src="${url}" alt="첨부 사진 ${index + 1}">`
+        : `<span class="grm-photo-icon">▣</span><span>사진 ${index + 1}</span>`;
+    });
+
+    grmPreviewThumbs.forEach((thumb, index) => {
+      const url = grmPhotoUrls[index];
+      thumb.classList.toggle('has-image', !!url);
+      thumb.innerHTML = url ? `<img src="${url}" alt="리뷰 카드 사진 ${index + 1}">` : '';
+    });
+  }
+
+  if (reviewOpenBtn) reviewOpenBtn.addEventListener('click', openReviewModal);
+  reviewCloseBtns.forEach(btn => btn.addEventListener('click', closeReviewModal));
+
+  if (reviewModal) {
+    reviewModal.addEventListener('click', event => {
+      if (event.target === reviewModal) {
+        event.preventDefault();
+      }
+    });
+  }
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && reviewModal && reviewModal.classList.contains('is-open')) {
+      event.preventDefault();
+    }
+  });
+
+  [grmNickname, grmTitle, grmBody].forEach(el => {
+    if (el) el.addEventListener('input', updateGrmPreview);
+  });
+  updateGrmPreview();
+  updateSubmitState();
+  [grmCheckReal, grmCheckGuide].forEach(el => {
+    if (el) el.addEventListener('change', updateSubmitState);
+  });
+
+  grmPhotoSlots.forEach(slot => {
+    slot.addEventListener('click', () => {
+      if (grmPhotoInput) grmPhotoInput.click();
+    });
+  });
+
+  if (grmPhotoInput) {
+    grmPhotoInput.addEventListener('change', () => {
+      const files = Array.from(grmPhotoInput.files || []);
+      files.forEach(file => {
+        if (grmPhotoUrls.length < 4) {
+          grmPhotoUrls.push(URL.createObjectURL(file));
+        }
+      });
+      renderGrmPhotos();
+      grmPhotoInput.value = '';
+    });
+  }
+
+  function createReviewCardFromModal(){
+    const card = document.createElement('article');
+    card.className = 'review-card generated-review';
+
+    const meta = document.createElement('div');
+    meta.className = 'review-meta';
+    meta.innerHTML = `<b>${escapeHtml(grmNickname?.value || '루미나 닉네임')}</b><span>${todayText()}</span><span>수령 상품: ${escapeHtml(currentProductName())}</span>`;
+
+    const titleEl = document.createElement('p');
+    titleEl.className = 'review-title-line';
+    titleEl.textContent = grmTitle?.value || '리뷰 제목';
+
+    const bodyEl = document.createElement('p');
+    bodyEl.className = 'review-body';
+    bodyEl.textContent = grmBody?.value || '';
+
+    card.appendChild(meta);
+    card.appendChild(titleEl);
+    card.appendChild(bodyEl);
+
+    if (grmPhotoUrls.length) {
+      const photos = document.createElement('div');
+      photos.className = 'review-photos';
+      grmPhotoUrls.slice(0, 4).forEach((url, index) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'review-photo';
+        const img = document.createElement('img');
+        img.src = url;
+        img.dataset.full = url;
+        img.alt = `리뷰 사진 ${index + 1}`;
+        wrap.appendChild(img);
+        photos.appendChild(wrap);
+      });
+      card.appendChild(photos);
+    }
+
+    return card;
+  }
+
+  if (grmSubmit) {
+    grmSubmit.addEventListener('click', () => {
+      const titleText = (grmTitle?.value || '').trim();
+      const text = (grmBody?.value || '').trim();
+
+      if (titleText.length > 40) {
+        alert('리뷰 제목은 40자 이하로 작성해 주세요.');
+        return;
+      }
+      if (text.length < 20) {
+        alert('리뷰 내용은 20자 이상 작성해 주세요.');
+        if (grmBody) grmBody.focus();
+        return;
+      }
+      if (text.length > 500) {
+        alert('리뷰 내용은 500자 이하로 작성해 주세요.');
+        if (grmBody) grmBody.focus();
+        return;
+      }
+      const checkReal = reviewModal ? reviewModal.querySelector('#grmCheckReal') : document.getElementById('grmCheckReal');
+      const checkGuide = reviewModal ? reviewModal.querySelector('#grmCheckGuide') : document.getElementById('grmCheckGuide');
+      if (!checkReal || !checkGuide || !checkReal.checked || !checkGuide.checked) {
+        alert('안내 확인 항목을 체크해 주세요.');
+        return;
+      }
+
+      if (reviewList && emptyState) {
+        emptyState.classList.add('is-hidden');
+        reviewList.classList.remove('is-empty');
+        reviewList.prepend(createReviewCardFromModal());
+        currentPage = 1;
+        renderReviewPages();
+      }
+
+      closeReviewModal();
+      resetReviewFormAfterSubmit();
+      const reviewTabBtn = document.querySelector('[data-tab="review"]');
+      if (reviewTabBtn) reviewTabBtn.click();
+    });
+  }
+
+})();
+</script>
+
+
+<div class="review-photo-lightbox" id="reviewPhotoLightbox" aria-hidden="true">
+  <section class="rpl-dialog" role="dialog" aria-modal="true" aria-labelledby="rplTitle">
+    <header class="rpl-head">
+      <h2 class="rpl-title" id="rplTitle">후기 사진 보기</h2>
+      <button class="rpl-close" type="button" data-rpl-close aria-label="닫기">×</button>
+    </header>
+    <div class="rpl-body">
+      <div class="rpl-stage">
+        <button class="rpl-nav rpl-prev" type="button" data-rpl-prev aria-label="이전 사진">‹</button>
+        <img class="rpl-image" id="rplImage" alt="후기 사진 크게 보기">
+        <button class="rpl-nav rpl-next" type="button" data-rpl-next aria-label="다음 사진">›</button>
+      </div>
+      <p class="rpl-counter" id="rplCounter">1 / 1</p>
+      <div class="rpl-thumbs" id="rplThumbs"></div>
+    </div>
+  </section>
+</div>
+
+
+<script>
+(function(){
+  const lightbox = document.getElementById('reviewPhotoLightbox');
+  if(!lightbox) return;
+
+  const image = document.getElementById('rplImage');
+  const counter = document.getElementById('rplCounter');
+  const thumbsWrap = document.getElementById('rplThumbs');
+  const closeBtns = lightbox.querySelectorAll('[data-rpl-close]');
+  const prevBtn = lightbox.querySelector('[data-rpl-prev]');
+  const nextBtn = lightbox.querySelector('[data-rpl-next]');
+  let photos = [];
+  let current = 0;
+
+  function setPhoto(index){
+    if(!photos.length) return;
+    current = (index + photos.length) % photos.length;
+    image.src = photos[current];
+    counter.textContent = (current + 1) + ' / ' + photos.length;
+    Array.from(thumbsWrap.children).forEach((btn, idx) => {
+      btn.classList.toggle('is-active', idx === current);
+    });
+  }
+
+  function openLightbox(photoList, startIndex){
+    photos = photoList;
+    current = startIndex || 0;
+    thumbsWrap.innerHTML = '';
+    photos.forEach((src, idx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'rpl-thumb';
+      btn.innerHTML = '<img src="' + src + '" alt="후기 사진 썸네일 ' + (idx + 1) + '">';
+      btn.addEventListener('click', () => setPhoto(idx));
+      thumbsWrap.appendChild(btn);
+    });
+    setPhoto(current);
+    lightbox.classList.add('is-open');
+    lightbox.setAttribute('aria-hidden','false');
+    document.body.classList.add('grm-lock');
+  }
+
+  function closeLightbox(){
+    lightbox.classList.remove('is-open');
+    lightbox.setAttribute('aria-hidden','true');
+    image.removeAttribute('src');
+    const reviewModal = document.getElementById('goodsReviewModal');
+    if (!reviewModal || !reviewModal.classList.contains('is-open')) {
+      document.body.classList.remove('grm-lock');
+    }
+  }
+
+  document.addEventListener('click', (event) => {
+    const img = event.target.closest('.review-photo img');
+    if(!img) return;
+
+    const card = img.closest('.review-card');
+    const imgs = card ? Array.from(card.querySelectorAll('.review-photo img')) : [img];
+    const list = imgs.map(photo => photo.dataset.full || photo.currentSrc || photo.getAttribute('src') || photo.src).filter(Boolean);
+    const start = Math.max(0, imgs.indexOf(img));
+    if(list.length){
+      event.preventDefault();
+      openLightbox(list, start);
+    }
+  });
+
+  closeBtns.forEach(btn => btn.addEventListener('click', closeLightbox));
+  if(prevBtn) prevBtn.addEventListener('click', () => setPhoto(current - 1));
+  if(nextBtn) nextBtn.addEventListener('click', () => setPhoto(current + 1));
+
+  lightbox.addEventListener('click', (event) => {
+    if(event.target === lightbox) closeLightbox();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if(!lightbox.classList.contains('is-open')) return;
+    if(event.key === 'Escape') closeLightbox();
+    if(event.key === 'ArrowLeft') setPhoto(current - 1);
+    if(event.key === 'ArrowRight') setPhoto(current + 1);
+  });
+})();
+</script>
+
+
+<button class="back-to-top" id="backToTop" type="button" aria-label="맨 위로 이동">
+  <span class="top-arrow">↑</span>
+  <span class="top-label">TOP</span>
+</button>
+
+
+<script>
+(function(){
+  const topBtn = document.getElementById('backToTop');
+
+  function updateTopButton(){
+    if(!topBtn) return;
+    topBtn.classList.toggle('show', window.scrollY > 360);
+  }
+
+  window.addEventListener('scroll', updateTopButton, { passive:true });
+  updateTopButton();
+
+  if(topBtn){
+    topBtn.addEventListener('click', () => {
+      window.scrollTo({ top:0, behavior:'smooth' });
+    });
+  }
+
+})();
+</script>
+
+
+<script>
+(function(){
+  const cartBtn = document.querySelector('.cart-btn, .actions .btn:not(.primary)');
+  const reserveBtn = document.querySelector('.reserve-btn, .actions .btn.primary');
+
+  function showToast(message){
+    let toast = document.querySelector('.goods-action-toast');
+    if(!toast){
+      toast = document.createElement('div');
+      toast.className = 'goods-action-toast';
+      toast.style.position = 'fixed';
+      toast.style.left = '50%';
+      toast.style.bottom = '34px';
+      toast.style.transform = 'translateX(-50%)';
+      toast.style.zIndex = '6000';
+      toast.style.padding = '13px 22px';
+      toast.style.borderRadius = '999px';
+      toast.style.background = 'linear-gradient(180deg,#ff78b2 0%,#ff5fa8 100%)';
+      toast.style.color = '#fff';
+      toast.style.fontWeight = '900';
+      toast.style.fontFamily = '"SUIT","Noto Sans KR",sans-serif';
+      toast.style.boxShadow = '0 14px 32px rgba(255,95,165,.28)';
+      toast.style.opacity = '0';
+      toast.style.transition = 'opacity .18s ease, transform .18s ease';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    requestAnimationFrame(() => {
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(-4px)';
+    });
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+    }, 1500);
+  }
+
+  if(cartBtn && !cartBtn.dataset.boundAction){
+    cartBtn.dataset.boundAction = 'true';
+    cartBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      showToast('장바구니에 담았습니다.');
+    });
+  }
+
+  if(reserveBtn && !reserveBtn.dataset.boundAction){
+    reserveBtn.dataset.boundAction = 'true';
+    reserveBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      showToast('예약 진행 준비 중입니다.');
+    });
+  }
+})();
+</script>
 
 </body>
 </html>
-
