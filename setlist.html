@@ -4452,12 +4452,103 @@ We are Sweetie pie! 루미베르 데스~`,
       { id: 'all', label: '전체', note: '등록된 모든 응원가이드 곡을 보여줘요.' }
     ];
 
+    // songCategoryMap: 초기값은 공홈 원본 기준. 관리자 sync 시 전체 교체됨.
     const songCategoryMap = {
       'stardust-magical': ['current','team','solo','all'],
       'storyberrylove': ['current','team','all'],
       'shukipi': ['current','team','solo','all'],
       'canaria': ['current','team','solo','all']
     };
+
+    // 한국어 카테고리 레이블 → 공홈 필터 ID 변환
+    const CATEGORY_LABEL_TO_ID = {
+      '현재 셋리': 'current', '현재셋리': 'current', '현재': 'current',
+      '팀곡': 'team', '팀': 'team',
+      '솔로': 'solo', '솔로곡': 'solo',
+      '유닛': 'unit', '유닛곡': 'unit',
+      '생일': 'birthday', '생일곡': 'birthday',
+      '스페셜': 'special', '특별': 'special',
+      'current': 'current', 'team': 'team', 'solo': 'solo',
+      'unit': 'unit', 'birthday': 'birthday', 'special': 'special', 'all': 'all'
+    };
+
+    function normalizeCategoryList(rawList){
+      if(!Array.isArray(rawList)) return ['all'];
+      const result = [];
+      rawList.forEach(label => {
+        const mapped = CATEGORY_LABEL_TO_ID[String(label || '').trim()];
+        if(mapped && !result.includes(mapped)) result.push(mapped);
+      });
+      if(!result.includes('all')) result.push('all');
+      return result.length > 1 ? result : ['all'];
+    }
+
+    function normalizeSong(raw){
+      return {
+        id: raw.id,
+        title: raw.title || raw.id,
+        subtitle: raw.subtitle || String(raw.title || '').toUpperCase(),
+        desc: raw.desc || '',
+        thumb: raw.thumb || '',
+        status: Array.isArray(raw.status) ? raw.status : (raw.status ? [raw.status] : ['응원가이드 준비중']),
+        lyrics: raw.lyrics || '',
+        meta: Array.isArray(raw.meta) ? raw.meta : [],
+        performable: Array.isArray(raw.performable) ? raw.performable : [],
+        audioPolicy: raw.audioPolicy || 'original',
+        officialAudio: raw.officialAudio || '',
+        officialAudioEmbed: raw.officialAudioEmbed || '',
+        officialAudioLinks: Array.isArray(raw.officialAudioLinks) ? raw.officialAudioLinks : [],
+        callReferenceEmbed: raw.callReferenceEmbed || '',
+        callReferenceNote: raw.callReferenceNote || '',
+        audio: raw.audio || '',
+        video: raw.video || '',
+        support: raw.support || { team: { beginner: null, advanced: null }, solo: { beginner: null, advanced: null } }
+      };
+    }
+
+    /**
+     * publicApplySetlistData(sheetSongs)
+     * 관리자/시트 전체 목록을 받아 공홈을 완전 동기화한다.
+     * - 기존곡 수정, 삭제, 신곡 추가 모두 반영
+     * - 기존 4곡도 예외 없이 관리자 값이 최종값
+     * - UI(슬라이더·선택곡)는 최대한 유지하고 카드만 조용히 갱신
+     */
+    function publicApplySetlistData(sheetSongs){
+      if(!Array.isArray(sheetSongs) || !sheetSongs.length) return;
+
+      // 유효한 곡만 필터
+      const validSongs = sheetSongs.filter(s => s && s.id);
+      if(!validSongs.length) return;
+
+      // songs 배열 전체를 관리자 데이터 기준으로 교체
+      songs.length = 0;
+      validSongs.forEach(raw => songs.push(normalizeSong(raw)));
+
+      // songCategoryMap 전체 재구성
+      Object.keys(songCategoryMap).forEach(k => delete songCategoryMap[k]);
+      songs.forEach(song => {
+        const raw = validSongs.find(r => r.id === song.id);
+        const catRaw = raw ? (raw.categories || raw.category) : null;
+        songCategoryMap[song.id] = normalizeCategoryList(
+          Array.isArray(catRaw) ? catRaw : (catRaw ? [catRaw] : null)
+        );
+      });
+
+      // 현재 선택곡이 남아있으면 유지, 삭제됐으면 첫 곡으로 fallback
+      const currentStillExists = songs.some(s => s.id === state.songId);
+      if(!currentStillExists){
+        state.songId = songs.length ? songs[0].id : null;
+        state.comingSoonIndex = null;
+      }
+
+      // 카드 목록만 조용히 갱신 — sliderIndex 강제 리셋 없음, render(true) 금지
+      renderSongCards();
+      ensureActiveCardVisible();
+      updateSlider();
+    }
+
+    // 외부(관리자/Worker/Apps Script)에서 호출 가능하도록 전역 노출
+    window.publicApplySetlistData = publicApplySetlistData;
 
     function getSongCategories(song){
       return songCategoryMap[song.id] || ['all'];
@@ -4538,19 +4629,7 @@ We are Sweetie pie! 루미베르 데스~`,
     }
 
     function buildComingSoonCards(){
-      return Array.from({length:4}, (_, i) => `
-        <article class="song-card coming-soon-card ${state.comingSoonIndex === i ? 'active' : ''}" data-coming-index="${i}">
-          <div class="song-card-badge">NOW</div>
-          <div class="song-card-sparkles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-          <div class="song-thumb">COMING<br>SOON</div>
-          <div class="song-title">Coming Soon</div>
-          <div class="song-en">SETLIST SLOT ${i + 1}</div>
-          <div class="song-desc">추가 셋리 / 이벤트곡 / 솔로곡이 들어갈 자리예요.</div>
-          <div class="song-status">
-            <span class="chip">준비중</span>
-          </div>
-        </article>
-      `).join('');
+      return '';
     }
 
     function getVisibleCardCount(){
@@ -4599,13 +4678,16 @@ We are Sweetie pie! 루미베르 데스~`,
 
     function renderSongCards(){
       const visibleSongs = getFilteredSongs();
-      songGrid.innerHTML = visibleSongs.map(song => `
+      songGrid.innerHTML = visibleSongs.map(song => {
+        const thumbHtml = song.thumb
+          ? `<img src="${song.thumb}" alt="${song.title} 썸네일" onerror="this.style.display='none';this.parentElement.style.background='#fff7fb';">`
+          : '';
+        return `
         <article class="song-card ${state.comingSoonIndex === null && song.id === state.songId ? 'active' : ''}" data-song="${song.id}">
-          
           <div class="song-card-badge">NOW</div>
           <div class="song-card-sparkles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
           <div class="song-thumb">
-            <img src="${song.thumb}" alt="${song.title} 썸네일" onerror="if(!this.dataset.try1){this.dataset.try1=1;this.src='./'+this.getAttribute('src').replace(/^\.\//,'');}else if(!this.dataset.try2){this.dataset.try2=1;this.src='../'+this.getAttribute('src').replace(/^\.\//,'').replace(/^\.\.\//,'');}else{this.style.display='none';this.parentElement.style.background='#fff7fb';}">
+            ${thumbHtml}
           </div>
           <div class="song-title">${song.title}</div>
           <div class="song-en">${song.subtitle}</div>
@@ -4613,8 +4695,8 @@ We are Sweetie pie! 루미베르 데스~`,
           <div class="song-status">
             ${song.status.map(item => `<span class="chip">${item}</span>`).join('')}
           </div>
-        </article>
-      `).join('') + buildComingSoonCards();
+        </article>`;
+      }).join('') + buildComingSoonCards();
 
       document.querySelectorAll('#songGrid .song-card[data-song]').forEach(card => {
         card.addEventListener('click', () => {
