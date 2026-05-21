@@ -2212,7 +2212,7 @@
   <div class="setlist-translate-toast" id="setlistTranslateToast" aria-live="polite"></div>
 
   <script>
-    const STORE_KEY = 'lumibelle_admin_setlist_draft_v2_sheet_first';
+    const STORE_KEY = 'lumibelle_admin_setlist_draft_v1';
     const SETLIST_API_URL = 'https://lumi-news-api.lumibelle-love.workers.dev';
     const SETLIST_TRANSLATE_API_URL = window.LUMIBELLE_SETLIST_API_URL || window.LUMIBELLE_CONTENT_API_URL || window.CONTENT_DB_API_URL || SETLIST_API_URL;
 
@@ -2359,20 +2359,39 @@
     let selectedSongIds = new Set();
     let cheerGuideDraft = null;
     let cheerGuideOpenIndex = 0;
-    let setlistSheetLoaded = false;
     const SONGS_PER_PAGE = 4;
 
+    function isLegacySampleSong(song){
+      const id = String(song?.id || song?.songId || '').trim().toLowerCase();
+      const title = String(song?.title || song?.titleKo || '').trim();
+      const subtitle = String(song?.subtitle || song?.titleEn || '').trim().toUpperCase();
+      return id === 'canaria' || title === '카나리아' || subtitle === 'CANARIA';
+    }
+
+    function sanitizeSetlistDataForAdmin(input){
+      const target = input && typeof input === 'object' ? input : structuredClone(defaultData);
+      if(Array.isArray(target.songs)){
+        target.songs = target.songs.filter(song => !isLegacySampleSong(song));
+      }
+      if(Array.isArray(target.guides)){
+        target.guides = target.guides.filter(guide => String(guide?.songId || '').trim().toLowerCase() !== 'canaria');
+      }
+      if(String(target.selectedSongId || '').trim().toLowerCase() === 'canaria'){
+        target.selectedSongId = target.songs?.[0]?.id || target.songs?.[0]?.songId || '';
+      }
+      return target;
+    }
+
     function loadData(){
-      // 시트 연동 관리자에서는 오래된 브라우저 임시저장본이 시트를 덮어쓰면 안 된다.
-      // 특히 예전 샘플 곡(canaria)이 localStorage에 남아 있으면 가이드 저장 때 계속 되살아난다.
       try{
-        localStorage.removeItem('lumibelle_admin_setlist_draft_v1');
-        localStorage.removeItem('lumibelle_admin_setlist_draft_v2');
+        const saved = localStorage.getItem(STORE_KEY);
+        if(saved) return sanitizeSetlistDataForAdmin(JSON.parse(saved));
       }catch(e){}
-      return structuredClone(defaultData);
+      return sanitizeSetlistDataForAdmin(structuredClone(defaultData));
     }
 
     function persist(){
+      data = sanitizeSetlistDataForAdmin(data);
       localStorage.setItem(STORE_KEY, JSON.stringify(data));
     }
 
@@ -2390,13 +2409,8 @@
       if(!apiData || typeof apiData !== 'object') return base;
       const merged = Object.assign(base, apiData);
       merged.filters = Array.isArray(apiData.filters) ? apiData.filters : base.filters;
-      merged.songs = Array.isArray(apiData.songs) ? apiData.songs.map(song=>ensureSongIdentity(song)).filter(song=>songKey(song)) : base.songs.map(song=>ensureSongIdentity(song));
-      const currentSelected = String(merged.selectedSongId || '').trim();
-      if(!merged.songs.some(song => songKey(song) === currentSelected || song.songId === currentSelected)){
-        const firstFiltered = merged.songs.find(song => Array.isArray(song.categories) && song.categories.includes(merged.activeFilter));
-        merged.selectedSongId = songSheetId(firstFiltered || merged.songs[0] || {});
-      }
-      return merged;
+      merged.songs = Array.isArray(apiData.songs) ? apiData.songs : base.songs;
+      return sanitizeSetlistDataForAdmin(merged);
     }
 
     async function callSetlistApi(action, payload){
@@ -2428,16 +2442,14 @@
 
     async function initSetlistAdmin(){
       try{
-        // 먼저 브라우저 저장본/defaultData를 그대로 보여준다.
-        // 시트가 비어 있을 때 빈 데이터로 덮어쓰면 곡 카드/상세 영역이 사라져 보이기 때문.
         setAdminStatus('시트 데이터를 불러오는 중입니다...');
+        data = sanitizeSetlistDataForAdmin(data);
         render();
 
         const response = await callSetlistApi('adminGetSetlistData', {});
 
         if(response && response.ok && hasSetlistSongs(response.data)){
           data = normalizeSetlistAdminData(response.data);
-          setlistSheetLoaded = true;
           persist();
           setAdminStatus('시트 데이터 불러오기 완료 · 수정 후 저장 버튼을 눌러 주세요.');
           render();
@@ -2445,8 +2457,7 @@
         }
 
         if(response && response.ok){
-          setlistSheetLoaded = false;
-          setAdminStatus('시트 데이터가 아직 비어 있어 기본 화면을 표시합니다 · 이 상태에서 저장하면 샘플 데이터가 들어갈 수 있으니 먼저 시트 연결을 확인해 주세요.');
+          setAdminStatus('시트 데이터가 아직 비어 있어 브라우저 저장본을 표시합니다 · 저장하면 시트에 등록됩니다.');
           render();
           return;
         }
@@ -2463,50 +2474,6 @@
       return String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     }
     function nl(v){ return esc(v).replace(/\n/g,'<br>'); }
-
-    function songKey(song){
-      return String(song?.id || song?.songId || '').trim();
-    }
-
-    function songSheetId(song){
-      return String(song?.songId || song?.id || '').trim();
-    }
-
-    function ensureSongIdentity(song){
-      if(!song || typeof song !== 'object') return song;
-      const id = songSheetId(song);
-      if(id){
-        song.id = id;
-        song.songId = id;
-      }
-      return song;
-    }
-
-    function hasGuideContent(line){
-      return !!(line && (line.time || line.stage || line.lyric || line.desc || line.tags || line.call || line.guideKo || line.callKo || line.mixKo || line.pointKo));
-    }
-
-    function normalizeGuideLinesForSong(song){
-      const id = songSheetId(song);
-      if(!id || !Array.isArray(song?.guide)) return song?.guide || [];
-      return song.guide.filter(hasGuideContent).map((line, index)=>({
-        ...line,
-        songId:id,
-        guideId: line.guideId || `${id}-guide-${String(index + 1).padStart(2,'0')}`
-      }));
-    }
-
-    function prepareSetlistAdminSaveData(source){
-      const copy = structuredClone(source || {});
-      copy.songs = Array.isArray(copy.songs) ? copy.songs.map(song=>{
-        ensureSongIdentity(song);
-        song.guide = normalizeGuideLinesForSong(song);
-        return song;
-      }).filter(song=>songKey(song)) : [];
-      const selected = copy.songs.find(song => songKey(song) === copy.selectedSongId || song.songId === copy.selectedSongId);
-      copy.selectedSongId = selected ? songSheetId(selected) : (copy.songs[0] ? songSheetId(copy.songs[0]) : '');
-      return copy;
-    }
     function cardDesc(song){
       return String(song?.desc || '').trim() || '곡 설명을 입력해 주세요.';
     }
@@ -2541,8 +2508,7 @@
       if(hidden) hidden.value = btn.dataset.value || 'public';
     }
     function selectedSong(){
-      const current = String(data.selectedSongId || '').trim();
-      return data.songs.find(s=>songKey(s)===current || s.songId===current) || data.songs[0];
+      return data.songs.find(s=>s.id===data.selectedSongId) || data.songs[0];
     }
 
     function displayMode(song){
@@ -2941,8 +2907,7 @@
     }
 
     function selectSong(id){
-      const target = data.songs.find(song => songKey(song) === id || song.songId === id);
-      data.selectedSongId = target ? songSheetId(target) : id;
+      data.selectedSongId = id;
       render();
       document.getElementById('guidePanel').scrollIntoView({behavior:'smooth', block:'start'});
     }
@@ -3615,16 +3580,7 @@
         </div>
         <div class="line-editor-toolbar"><button class="btn" type="button" onclick="addCheerGuideLine()">+ 라인 추가</button></div>${modalActions()}
       `, ()=>{
-        ensureSongIdentity(s);
-        const currentSongId = songSheetId(s);
-        data.selectedSongId = currentSongId || data.selectedSongId;
-        s.guide = collectCheerGuideDraft()
-          .filter(hasGuideContent)
-          .map((line, index)=>({
-            ...line,
-            songId: currentSongId,
-            guideId: line.guideId || `${currentSongId}-guide-${String(index + 1).padStart(2,'0')}`
-          }));
+        s.guide = collectCheerGuideDraft().filter(l=>l.time||l.stage||l.lyric||l.desc||l.tags||l.call);
         cheerGuideDraft = null;
         cheerGuideOpenIndex = 0;
       });
@@ -3716,18 +3672,12 @@
 
     async function saveAll(){
       try{
-        if(!setlistSheetLoaded){
-          alert('아직 시트 데이터를 정상으로 불러오지 못했어요. 이 상태에서 저장하면 예전 샘플 데이터가 시트를 덮어쓸 수 있어서 저장을 중단합니다. 페이지를 새로고침한 뒤 “시트 데이터 불러오기 완료” 문구가 보이는지 확인해 주세요.');
-          setAdminStatus('저장 중단 · 시트 데이터 불러오기 완료 후 다시 저장해 주세요.');
-          return;
-        }
         setAdminStatus('시트 저장 중입니다...');
-        const saveData = prepareSetlistAdminSaveData(data);
-        const response = await callSetlistApi('adminSaveSetlistData', {data:saveData});
+        data = sanitizeSetlistDataForAdmin(data);
+        const response = await callSetlistApi('adminSaveSetlistData', {data:data});
         if(!response || response.ok === false){
           throw new Error((response && (response.message || response.error)) || 'saveFailed');
         }
-        data = saveData;
         persist();
         setAdminStatus('시트 저장 완료 · 새로고침 후에도 같은 내용이 유지되는지 확인해 주세요.');
         alert('SETLIST 관리 내용이 시트에 저장되었습니다.');
@@ -3742,7 +3692,7 @@
     function resetData(){
       if(!confirm('SETLIST 관리 내용을 초기 상태로 되돌릴까요?')) return;
       localStorage.removeItem(STORE_KEY);
-      data = structuredClone(defaultData);
+      data = sanitizeSetlistDataForAdmin(structuredClone(defaultData));
       render();
     }
 
