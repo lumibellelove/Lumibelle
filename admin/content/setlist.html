@@ -751,6 +751,8 @@
     .tag{display:inline-flex;align-items:center;min-height:32px;padding:8px 13px;border-radius:999px;background:rgba(255,89,165,.08);color:var(--pink-deep);font-size:12px;font-weight:900}
     .guide-call{margin:0;color:#926f84;font-size:15px;line-height:1.8;font-weight:800}
 
+
+
     /* modal */
     .modal-overlay{
       position:fixed;
@@ -1016,32 +1018,6 @@
 .filter-tool-btn:disabled{
   opacity:.45;
   cursor:not-allowed;
-}
-.setlist-toast{
-  position:fixed;
-  left:50%;
-  bottom:24px;
-  z-index:1000;
-  transform:translateX(-50%) translateY(12px);
-  min-height:42px;
-  max-width:min(420px,calc(100% - 36px));
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:10px 18px;
-  border-radius:999px;
-  background:linear-gradient(180deg,#ff7fba,#ff59a5);
-  color:#fff;
-  font-size:13px;
-  font-weight:900;
-  box-shadow:0 14px 28px rgba(255,95,165,.24);
-  opacity:0;
-  pointer-events:none;
-  transition:.2s ease;
-}
-.setlist-toast.show{
-  opacity:1;
-  transform:translateX(-50%) translateY(0);
 }
 .song-select-check{
   position:absolute;
@@ -1625,6 +1601,547 @@
   word-break:keep-all;
 }
 
+/* ===== Clean detail admin modal: song cheer settings ===== */
+.modal-card:has(.detail-admin-modal){
+  width:min(1180px,94vw);
+}
+.modal-body:has(.detail-admin-modal){
+  padding:22px 24px 24px;
+}
+.detail-admin-modal{
+  display:grid;
+  grid-template-columns:minmax(0,1.35fr) minmax(360px,.9fr);
+  gap:22px;
+  align-items:stretch;
+}
+.detail-admin-left,
+.detail-admin-panel{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:20px;
+  box-shadow:0 10px 28px rgba(244,87,161,.06);
+}
+.detail-admin-section{
+  padding:0 0 18px;
+  margin:0 0 18px;
+  border-bottom:1px dashed rgba(255,229,241,.95);
+}
+.detail-admin-section:last-of-type{border-bottom:0;margin-bottom:0}
+.detail-admin-label-row{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+}
+.detail-admin-label{
+  margin:0;
+  color:#db72a2;
+  font-size:16px;
+  font-weight:900;
+  letter-spacing:-.045em;
+}
+.detail-admin-modal textarea,
+.detail-admin-modal input{
+  width:100%;
+  border:1px solid #ff7fbd;
+  border-radius:17px;
+  background:#fff;
+  color:#715568;
+  font-family:inherit;
+  font-weight:650;
+  font-size:14px;
+  line-height:1.65;
+  padding:14px 16px;
+  outline:none;
+  resize:none;
+}
+.detail-admin-modal textarea:focus,
+.detail-admin-modal input:focus{box-shadow:0 0 0 3px rgba(255,90,167,.11)}
+.detail-admin-chips{display:flex;flex-wrap:wrap;gap:9px}
+.detail-admin-chip,
+.detail-admin-modal .modal-chip-btn{
+  min-height:36px;
+  padding:8px 15px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  color:#c2729b;
+  font-size:14px;
+  font-weight:900;
+  letter-spacing:-.035em;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  white-space:nowrap;
+}
+.detail-admin-members .modal-chip-btn.active{
+  background:linear-gradient(180deg,#ff73b6,#ff4fa1);
+  border-color:transparent;
+  color:#fff;
+  box-shadow:0 8px 18px rgba(255,83,163,.18);
+}
+.detail-admin-meta-editor .modal-chip-btn.active,
+.detail-admin-choice-row .modal-chip-btn.active{
+  background:#fff0f7;
+  border-color:#ff9aca;
+  color:#f252a0;
+  box-shadow:none;
+}
+.detail-admin-summary{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:12px;
+  border:1px solid rgba(255,229,241,.95);
+  border-radius:18px;
+  background:linear-gradient(180deg,#fff,#fff8fc);
+}
+.detail-admin-summary .detail-admin-chip{
+  min-height:34px;
+  padding:7px 13px;
+  font-size:14px;
+  border-color:#ffd8e9;
+  background:#fff;
+}
+.detail-admin-tiny-btn{
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  color:#d66f9f;
+  padding:8px 13px;
+  font-size:12px;
+  font-weight:900;
+}
+.detail-admin-meta-editor{
+  margin-top:12px;
+  padding:14px;
+  border-radius:20px;
+  border:1px solid rgba(255,229,241,.95);
+  background:#fffafd;
+}
+.detail-admin-meta-editor.is-folded{display:none}
+.detail-admin-tag-row{
+  display:grid;
+  grid-template-columns:72px 1fr;
+  gap:12px;
+  align-items:start;
+  padding:10px 0;
+  border-bottom:1px dashed #ffe1ef;
+}
+.detail-admin-tag-row:last-child{border-bottom:0;padding-bottom:0}
+.detail-admin-mini-label{
+  color:#c37a9d;
+  font-size:15px;
+  font-weight:900;
+  padding-top:8px;
+  letter-spacing:-.02em;
+}
+.detail-admin-tag-row .detail-admin-chips{gap:7px}
+.detail-admin-tag-row .modal-chip-btn{
+  min-height:32px;
+  padding:6px 12px;
+  font-size:14px;
+}
+.detail-admin-direct{
+  display:grid;
+  grid-template-columns:1fr 62px;
+  gap:8px;
+  width:100%;
+}
+.detail-admin-direct input{height:36px;border-radius:999px;font-size:14px;padding:7px 13px}
+.detail-admin-direct .detail-admin-tiny-btn{height:36px;padding:0 12px}
+.detail-admin-foot{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  padding-top:16px;
+  border-top:1px solid rgba(255,229,241,.95);
+}
+.detail-admin-save,
+.detail-admin-cancel{
+  height:42px;
+  min-width:70px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  font-family:inherit;
+  font-weight:900;
+  font-size:13px;
+}
+.detail-admin-save{background:linear-gradient(180deg,#ff73b6,#ff4fa1);color:#fff;border-color:transparent;box-shadow:0 12px 26px rgba(255,83,163,.23)}
+.detail-admin-cancel{background:#fff;color:#c87a9e}
+.detail-admin-right{display:grid;grid-template-rows:auto 1fr;gap:14px;align-self:stretch;height:100%}
+.detail-admin-right-title{text-align:center;margin:0 0 14px;color:#db72a2;font-size:17px;font-weight:900}
+.detail-admin-preview-card{border:2px solid #ff7fbd;border-radius:22px;overflow:hidden;background:#fff}
+.detail-admin-preview-visual{
+  height:142px;
+  background:linear-gradient(135deg,#fff0f8,#f3ebff);
+  display:grid;
+  place-items:center;
+  position:relative;
+}
+.detail-admin-preview-badge{position:absolute;right:13px;top:12px;background:var(--pink);color:#fff;font-size:10px;font-weight:900;border-radius:999px;padding:7px 10px}
+.detail-admin-note-circle{width:56px;height:56px;border-radius:50%;background:#fff;display:grid;place-items:center;color:var(--pink);font-size:28px;font-weight:900}
+.detail-admin-preview-info{padding:20px 18px 22px;text-align:center}
+.detail-admin-song-title{margin:0 0 8px;color:var(--pink);font-weight:900;font-size:23px;letter-spacing:-.06em}
+.detail-admin-song-desc{font-size:13px;line-height:1.58;color:#78566b;font-weight:800;max-width:330px;margin:0 auto 14px}
+.detail-admin-preview-tags{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-width:282px;margin:0 auto}
+.detail-admin-preview-tags span{border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-size:12px;color:#c2729b;font-weight:900;background:#fff;text-align:center}
+.detail-admin-preview-tags .hot{background:var(--pink);color:#fff;border-color:transparent}
+.detail-admin-practice{display:flex;flex-direction:column;min-height:100%}
+.detail-admin-practice-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.detail-admin-practice-head h3{margin:0;color:#db72a2;font-size:17px;font-weight:900}
+.detail-admin-status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:38px}
+.detail-admin-status{
+  border:1px solid rgba(255,229,241,.95);
+  background:#fff6fb;
+  border-radius:18px;
+  min-height:88px;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  color:#c87a9e;
+  font-weight:900;
+  font-size:13px;
+  padding:14px 8px;
+}
+.detail-admin-status b{display:block;color:#f252a0;font-size:13px;margin-bottom:5px}
+.detail-admin-practice-fields{display:flex;flex-direction:column;gap:20px;padding-top:22px}
+.detail-admin-field-row{display:grid;grid-template-columns:92px 1fr;gap:8px;align-items:center}
+.detail-admin-field-row span{font-size:15px;font-weight:900;color:#d26d9e}
+.detail-admin-field-row input{height:42px;border-radius:14px;font-size:13px;padding:9px 13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:900px){
+  .detail-admin-modal{grid-template-columns:1fr}
+}
+
+
+
+/* ===== Patch: song card edit modal + removable selected chips ===== */
+.detail-admin-meta-editor .modal-chip-btn.active,
+.detail-admin-members .modal-chip-btn.active,
+.song-card-admin-modal .modal-chip-btn.active{
+  gap:6px;
+  padding-right:10px;
+}
+.detail-admin-meta-editor .modal-chip-btn.active::after,
+.detail-admin-members .modal-chip-btn.active::after,
+.song-card-admin-modal .modal-chip-btn.active::after{
+  content:'×';
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  line-height:1;
+  color:#d27ca8;
+  background:#fff7fb;
+  border:1px solid rgba(255,229,241,.95);
+  font-weight:900;
+  margin-left:2px;
+}
+.detail-admin-summary .detail-admin-chip::after{
+  content:none !important;
+}
+.modal-card:has(.song-card-admin-modal){
+  width:min(1180px,94vw);
+}
+.modal-body:has(.song-card-admin-modal){
+  padding:22px 24px 24px;
+}
+.song-card-admin-modal{
+  display:grid;
+  grid-template-columns:minmax(0,1.35fr) minmax(360px,.9fr);
+  gap:22px;
+  align-items:stretch;
+}
+.song-card-admin-left,
+.song-card-admin-panel{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:20px;
+  box-shadow:0 10px 28px rgba(244,87,161,.06);
+}
+.song-card-admin-section{
+  padding:0 0 18px;
+  margin:0 0 18px;
+  border-bottom:1px dashed rgba(255,229,241,.95);
+}
+.song-card-admin-section:last-of-type{border-bottom:0;margin-bottom:0}
+.song-card-admin-label-row{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+}
+.song-card-admin-label{
+  margin:0;
+  color:#db72a2;
+  font-size:16px;
+  font-weight:900;
+  letter-spacing:-.045em;
+}
+.song-card-admin-modal textarea,
+.song-card-admin-modal input{
+  width:100%;
+  border:1px solid #ff7fbd;
+  border-radius:17px;
+  background:#fff;
+  color:#715568;
+  font-family:inherit;
+  font-weight:650;
+  font-size:14px;
+  line-height:1.65;
+  padding:14px 16px;
+  outline:none;
+  resize:none;
+}
+.song-card-admin-modal textarea:focus,
+.song-card-admin-modal input:focus{box-shadow:0 0 0 3px rgba(255,90,167,.11)}
+.song-card-admin-support-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.song-card-admin-summary{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:12px;
+  border:1px solid rgba(255,229,241,.95);
+  border-radius:18px;
+  background:linear-gradient(180deg,#fff,#fff8fc);
+}
+.song-card-admin-chip,
+.song-card-admin-modal .modal-chip-btn{
+  min-height:36px;
+  padding:8px 15px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  color:#c2729b;
+  font-size:14px;
+  font-weight:900;
+  letter-spacing:-.035em;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  white-space:nowrap;
+}
+.song-card-admin-summary .song-card-admin-chip{
+  min-height:34px;
+  padding:7px 13px;
+  font-size:14px;
+  border-color:#ffd8e9;
+  background:#fff;
+}
+.song-card-admin-modal .modal-chip-btn.active{
+  background:#fff0f7;
+  border-color:#ff9aca;
+  color:#f252a0;
+  box-shadow:none;
+}
+.song-card-admin-tiny-btn{
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  color:#d66f9f;
+  padding:8px 13px;
+  font-size:12px;
+  font-weight:900;
+}
+.song-card-tag-editor{
+  margin-top:12px;
+  padding:14px;
+  border-radius:20px;
+  border:1px solid rgba(255,229,241,.95);
+  background:#fffafd;
+}
+.song-card-tag-row{
+  display:grid;
+  grid-template-columns:72px 1fr;
+  gap:12px;
+  align-items:start;
+  padding:10px 0;
+  border-bottom:1px dashed #ffe1ef;
+}
+.song-card-tag-row:last-child{border-bottom:0;padding-bottom:0}
+.song-card-mini-label{
+  color:#c37a9d;
+  font-size:15px;
+  font-weight:900;
+  padding-top:8px;
+  letter-spacing:-.02em;
+}
+.song-card-admin-chips{display:flex;flex-wrap:wrap;gap:7px}
+.song-card-tag-row .modal-chip-btn{min-height:32px;padding:6px 12px;font-size:14px}
+.song-card-direct{display:grid;grid-template-columns:1fr 62px;gap:8px;width:100%}
+.song-card-direct input{height:36px;border-radius:999px;font-size:14px;padding:7px 13px}
+.song-card-direct .song-card-admin-tiny-btn{height:36px;padding:0 12px}
+.song-card-admin-foot{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  padding-top:16px;
+  border-top:1px solid rgba(255,229,241,.95);
+}
+.song-card-admin-save,
+.song-card-admin-cancel{
+  height:42px;
+  min-width:70px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  font-family:inherit;
+  font-weight:900;
+  font-size:13px;
+}
+.song-card-admin-save{background:linear-gradient(180deg,#ff73b6,#ff4fa1);color:#fff;border-color:transparent;box-shadow:0 12px 26px rgba(255,83,163,.23)}
+.song-card-admin-cancel{background:#fff;color:#c87a9e}
+.song-card-admin-right{display:grid;grid-template-rows:auto 1fr;gap:14px;align-self:stretch;height:100%}
+.song-card-admin-right-title{text-align:center;margin:0 0 14px;color:#db72a2;font-size:17px;font-weight:900}
+.song-card-preview-card{
+  width:min(340px,100%);
+  margin:0 auto;
+  border:1px solid var(--line);
+  border-radius:24px;
+  background:#fff;
+  overflow:hidden;
+}
+.song-card-preview-visual{
+  height:265px;
+  border-bottom:1px solid rgba(255,229,241,.95);
+  background:#fff8fc;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  color:#c69aad;
+  font-size:13px;
+  font-weight:900;
+}
+.song-card-preview-visual img,
+.song-card-thumb-box img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:var(--thumb-x,50%) var(--thumb-y,50%);
+  transform:scale(var(--thumb-scale,1));
+  transform-origin:var(--thumb-x,50%) var(--thumb-y,50%);
+  user-select:none;
+  pointer-events:none;
+}
+.song-card-preview-info{
+  padding:24px 20px 28px;
+  text-align:center;
+}
+.song-card-preview-title{
+  margin:0 0 10px;
+  color:#715568;
+  font-size:26px;
+  font-weight:900;
+  letter-spacing:-.06em;
+  line-height:1.22;
+}
+.song-card-preview-en{
+  margin:0;
+  color:#d27ca8;
+  font-size:15px;
+  font-weight:900;
+  letter-spacing:.12em;
+  line-height:1.3;
+}
+.song-card-thumb-box{
+  height:260px;
+  margin-top:10px;
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:#fff8fc;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  color:#c69aad;
+  font-size:13px;
+  font-weight:900;
+}
+.song-card-thumb-box.thumb-crop-stage{touch-action:none;cursor:grab}
+.song-card-thumb-box.thumb-crop-stage:active{cursor:grabbing}
+.song-card-thumb-actions{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:20px;
+}
+.song-card-thumb-actions .song-card-admin-tiny-btn,
+.song-card-thumb-actions .thumb-file-label{
+  min-height:38px;
+  padding:0 18px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  color:#d66f9f;
+  font-size:15px;
+  font-weight:900;
+}
+.song-card-thumb-panel .detail-admin-practice-head{justify-content:center;text-align:center}
+.song-card-thumb-panel .detail-admin-practice-head h3{width:100%;text-align:center}
+.thumb-hidden-input{display:none !important}
+@media(max-width:900px){
+  .song-card-admin-modal{grid-template-columns:1fr}
+  .song-card-admin-support-grid{grid-template-columns:1fr}
+}
+
+
+/* setlist auto-translate: button + toast only */
+.filter-tool-btn.translate{
+  position:relative;
+  border-color:#f5bdd5;
+  background:linear-gradient(180deg,#fff,#fff7fb);
+  color:#d66f9f;
+}
+.filter-tool-btn.translate::before{
+  content:'✦';
+  margin-right:6px;
+  color:#ff7eb9;
+  font-size:.9em;
+}
+.setlist-translate-toast{
+  position:fixed;
+  left:50%;
+  bottom:42px;
+  z-index:99999;
+  transform:translateX(-50%) translateY(16px);
+  min-width:180px;
+  max-width:calc(100vw - 40px);
+  padding:15px 26px;
+  border:1px solid #f6bdd6;
+  border-radius:999px;
+  background:rgba(255,255,255,.94);
+  box-shadow:0 18px 50px rgba(214,111,159,.18);
+  color:#d66f9f;
+  font-size:15px;
+  font-weight:900;
+  text-align:center;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .22s ease, transform .22s ease;
+}
+.setlist-translate-toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+.setlist-translate-toast.is-loading::before{
+  content:'✦';
+  display:inline-block;
+  margin-right:8px;
+  animation:setlistTranslateSpin 1.2s linear infinite;
+}
+@keyframes setlistTranslateSpin{to{transform:rotate(360deg)}}
+
 </style>
 </head>
 <body>
@@ -1703,10 +2220,11 @@
     </div>
   </div>
 
-  <div class="setlist-toast" id="setlistToast" role="status" aria-live="polite"></div>
+  <div class="setlist-translate-toast" id="setlistTranslateToast" aria-live="polite"></div>
 
   <script>
     const STORE_KEY = 'lumibelle_admin_setlist_draft_v1';
+    const SETLIST_TRANSLATE_API_URL = window.LUMIBELLE_SETLIST_API_URL || window.LUMIBELLE_CONTENT_API_URL || window.CONTENT_DB_API_URL || '';
 
     const defaultData = {
       hero:{
@@ -1880,14 +2398,14 @@
       return song?.visibility || 'public';
     }
     function visibilityLabel(value){
-      const labels = {draft:'관리자만', public:'공홈 공개', hidden:'숨김'};
+      const labels = {draft:'임시 저장', public:'공개', hidden:'비공개'};
       return labels[value] || labels.public;
     }
     function renderVisibilityChips(current){
       const options = [
-        {value:'draft', label:'관리자만 보기'},
-        {value:'public', label:'공홈 공개'},
-        {value:'hidden', label:'숨김'}
+        {value:'draft', label:'임시 저장'},
+        {value:'public', label:'공개'},
+        {value:'hidden', label:'비공개'}
       ];
       const active = current || 'public';
       return options.map(option => `
@@ -2032,7 +2550,7 @@
           <button class="filter-tool-btn" type="button" onclick="setSelectedVisibility('draft')" ${selectedCount ? '' : 'disabled'}>선택 비공개 ${selectedCount ? `(${selectedCount})` : ''}</button>
           <button class="filter-tool-btn danger" type="button" onclick="deleteSelectedSongs()" ${selectedCount ? '' : 'disabled'}>선택 삭제 ${selectedCount ? `(${selectedCount})` : ''}</button>
           <button class="filter-tool-btn" type="button" onclick="moveSelectedSongs()" ${selectedCount ? '' : 'disabled'}>선택 이동 ${selectedCount ? `(${selectedCount})` : ''}</button>
-          <button class="filter-tool-btn" type="button" onclick="runSetlistAutoTranslate()">자동번역</button>
+          <button class="filter-tool-btn translate" type="button" onclick="translateSelectedSongs()">자동 번역 ${selectedCount ? `(${selectedCount})` : ''}</button>
         </div>
       `;
       document.getElementById('filterTabs').innerHTML = `
@@ -2106,29 +2624,24 @@
       const video = mediaUrl(song.video);
       if(!video) return '이 곡은 아직 연결된 영상이 없어요.<br>영상이 준비되면 이 영역에서 바로 볼 수 있게 표시됩니다.';
       const embed = youtubeEmbedUrl(video);
-      const openButton = `<br><a class="media-open-btn" href="${esc(video)}" target="_blank" rel="noopener noreferrer">YouTube에서 보기</a>`;
       if(embed){
         if(location.protocol === 'file:'){
-          return `<div>로컬 파일에서는 YouTube 임베드가 막힐 수 있어요.<br>업로드 후에는 영상 영역으로 표시됩니다.${openButton}</div>`;
+          return `<div>업로드 후에는 영상 영역으로 표시됩니다.</div>`;
         }
-        return `<iframe src="${esc(embed)}" title="${esc(song.title)} YouTube" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>${openButton}`;
+        return `<iframe src="${esc(embed)}" title="${esc(song.title)} YouTube" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
       }
-      return `<div>영상 링크가 연결되어 있어요.${openButton}</div>`;
+      return `<div>영상 링크가 연결되어 있어요.</div>`;
     }
 
     function renderAudioBox(song){
       const hasInlineAudio = !!mediaUrl(song.audio || song.officialAudioEmbed);
       const hasCallReference = !!mediaUrl(song.callReferenceEmbed || song.callReferenceUrl);
       const status = hasInlineAudio
-        ? '홈페이지 안에서 재생 가능한 공식 음원이 연결되어 있어요.'
-        : '홈페이지 안에서 재생 가능한 공식 음원이 아직 없어요.';
+        ? '연습용 음원이 연결되어 있어요.'
+        : '연습용 음원이 아직 준비되지 않았어요.';
       return `<div class="audio-box has-link">
-        <div>외부 이동 없이 LUMI PRACTICE 안에서 연습하는 구조입니다.<br>${status}</div>
-        <div class="admin-practice-actions">
-          <button class="admin-practice-btn" type="button" onclick="openMediaModal()">LUMI PRACTICE 설정</button>
-          ${hasCallReference ? '<span class="admin-call-badge">콜 영상 참고 있음</span>' : ''}
-        </div>
-        <div class="admin-practice-note">공식 음원/콜 영상은 홈페이지 안 재생 가능한 임베드만 사용하고, 외부 플랫폼 이동 버튼은 노출하지 않습니다.</div>
+        <div>루미 프랙티스에서 곡을 확인해요.<br>${status}</div>
+        ${hasCallReference ? '<div class="admin-practice-actions"><span class="admin-call-badge">콜 영상 참고 있음</span></div>' : ''}
       </div>`;
     }
 
@@ -2156,7 +2669,7 @@
                 <div class="video-title">${esc(s.title)}</div>
                 <div class="video-eng">${esc(s.subtitle)}</div>
               </div>
-              <button class="video-youtube-badge" type="button" onclick="openMediaModal()">YOUTUBE</button>
+              <button class="video-youtube-badge" type="button">YOUTUBE</button>
             </div>
             <div class="video-frame-wrap ${mediaUrl(s.video) ? 'has-video' : ''}">
               ${renderVideoFrame(s)}
@@ -2265,146 +2778,6 @@
       const ids = Array.from(selectedSongIds);
       if(!ids.length) return;
       alert('선택 이동은 년도별 그룹 기준을 만든 뒤 다음 패치에서 연결할 예정입니다.');
-    }
-
-    function showSetlistToast(message){
-      const el = document.getElementById('setlistToast');
-      if(!el){
-        alert(message);
-        return;
-      }
-      el.textContent = message;
-      el.classList.add('show');
-      clearTimeout(showSetlistToast._timer);
-      showSetlistToast._timer = setTimeout(()=>el.classList.remove('show'), 1500);
-    }
-
-    function setlistApiUrl(){
-      const lcs = window.LumiContentSync;
-      return window.LUMI_SETLIST_API_URL
-        || window.LUMI_NEWS_API_URL
-        || window.LUMI_SCRIPT_URL
-        || window.SCRIPT_URL
-        || window.API_URL
-        || (lcs && (lcs._url || lcs.scriptUrl || lcs.endpoint || lcs._endpoint
-          || (lcs.config && (lcs.config.url || lcs.config.scriptUrl || lcs.config.endpoint))))
-        || 'https://lumi-news-api.lumibelle-love.workers.dev';
-    }
-
-    async function setlistTranslateRequest(title){
-      const body = new URLSearchParams();
-      body.set('action', 'translateTicketContent');
-      body.set('payload', JSON.stringify({
-        sourceLang:'ko',
-        targetLangs:['ja','en'],
-        title:title || '',
-        venue:'',
-        priceText:'',
-        noticeText:'',
-        benefitText:'',
-        guideText:'',
-        buttonText:'',
-        archiveLabel:'',
-        memo:''
-      }));
-      const res = await fetch(setlistApiUrl(), {
-        method:'POST',
-        headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
-        body:body.toString()
-      });
-      const data = await res.json().catch(()=>({ok:false,error:'invalidJson'}));
-      if(!res.ok || !data.ok) throw new Error(data.message || data.error || ('API 오류 ' + res.status));
-      return data.translations || {};
-    }
-
-    function hasText(value){
-      return String(value ?? '').trim().length > 0;
-    }
-
-    function songNeedsTitleTranslation(song){
-      if(!song) return false;
-      const sourceTitle = String(song.titleKo || song.title || '').trim();
-      if(!sourceTitle) return false;
-      const hasEn = hasText(song.titleEn) || hasText(song.subtitle);
-      const hasJp = hasText(song.titleJp);
-      return !hasEn || !hasJp;
-    }
-
-    function normalizeExistingSongTranslation(song){
-      if(!song) return 0;
-      let filled = 0;
-      if(!hasText(song.titleEn) && hasText(song.subtitle)){
-        song.titleEn = String(song.subtitle).trim();
-        filled += 1;
-      }
-      return filled;
-    }
-
-    function applySetlistSongTranslation(song, translations){
-      if(!song || !translations) return 0;
-      let filled = normalizeExistingSongTranslation(song);
-      const enTitle = translations.en?.title || translations.en?.Title || '';
-      const jpTitle = translations.ja?.title || translations.jp?.title || translations.ja?.Title || translations.jp?.Title || '';
-      if(!hasText(song.titleEn) && !hasText(song.subtitle) && hasText(enTitle)){
-        song.titleEn = String(enTitle).trim();
-        song.subtitle = String(enTitle).trim();
-        filled += 1;
-      }
-      if(!hasText(song.titleJp) && hasText(jpTitle)){
-        song.titleJp = String(jpTitle).trim();
-        filled += 1;
-      }
-      return filled;
-    }
-
-    async function runSetlistAutoTranslate(){
-      const ids = selectedSongIds.size ? Array.from(selectedSongIds) : [];
-      const scopeSongs = ids.length
-        ? ids.map(id => data.songs.find(song => song.id === id)).filter(Boolean)
-        : data.songs.slice();
-      const targetSongs = scopeSongs.filter(songNeedsTitleTranslation);
-      if(!scopeSongs.length){
-        showSetlistToast('번역할 곡이 없습니다');
-        return;
-      }
-      if(!targetSongs.length){
-        showSetlistToast('채울 번역칸이 없습니다');
-        return;
-      }
-      try{
-        showSetlistToast('자동번역 중...');
-        let filledFields = 0;
-        let touchedSongs = 0;
-        for(const song of targetSongs){
-          const sourceTitle = String(song.titleKo || song.title || '').trim();
-          if(!sourceTitle) continue;
-
-          const beforeFilled = normalizeExistingSongTranslation(song);
-          let added = beforeFilled;
-
-          if(songNeedsTitleTranslation(song)){
-            const translations = await setlistTranslateRequest(sourceTitle);
-            added += applySetlistSongTranslation(song, translations);
-          }
-
-          if(added > 0){
-            filledFields += added;
-            touchedSongs += 1;
-          }
-        }
-        persist();
-        renderFilters();
-        renderSongs();
-        renderDetail();
-        if(filledFields){
-          showSetlistToast(`자동번역 완료 (${touchedSongs}곡 · ${filledFields}칸)`);
-        }else{
-          showSetlistToast('채울 번역칸이 없습니다');
-        }
-      }catch(err){
-        console.error('[setlist] translate failed', err);
-        showSetlistToast('번역 실패');
-      }
     }
 
     function deleteSelectedSongs(){
@@ -2603,17 +2976,14 @@
 
     function applySongThumbCropPreview(){
       const crop = readSongThumbCropInputs();
-      const preview = document.getElementById('songThumbPreview');
-      const img = preview ? preview.querySelector('img') : null;
-      const zoomValue = document.getElementById('songThumbZoomValue');
-      if(zoomValue) zoomValue.textContent = `${Math.round(crop.scale * 100)}%`;
-      if(!img) return;
-      img.style.objectPosition = `${crop.x}% ${crop.y}%`;
-      img.style.setProperty('--thumb-x', `${crop.x}%`);
-      img.style.setProperty('--thumb-y', `${crop.y}%`);
-      img.style.setProperty('--thumb-scale', String(crop.scale));
-      img.style.transform = `scale(${crop.scale})`;
-      img.style.transformOrigin = `${crop.x}% ${crop.y}%`;
+      document.querySelectorAll('#songThumbPreview img, .song-thumb-sync img').forEach(img => {
+        img.style.objectPosition = `${crop.x}% ${crop.y}%`;
+        img.style.setProperty('--thumb-x', `${crop.x}%`);
+        img.style.setProperty('--thumb-y', `${crop.y}%`);
+        img.style.setProperty('--thumb-scale', String(crop.scale));
+        img.style.transform = `scale(${crop.scale})`;
+        img.style.transformOrigin = `${crop.x}% ${crop.y}%`;
+      });
     }
 
     function writeSongThumbCropInputs(crop){
@@ -2637,6 +3007,16 @@
 
     function resetSongThumbCrop(){
       writeSongThumbCropInputs({x:50, y:50, scale:1});
+    }
+
+    function handleSongThumbWheel(event){
+      const preview = document.getElementById('songThumbPreview');
+      if(!preview || !preview.querySelector('img')) return;
+      event.preventDefault();
+      const crop = readSongThumbCropInputs();
+      const step = event.deltaY < 0 ? 0.08 : -0.08;
+      crop.scale = clampNumber(crop.scale + step, 1, 2.5, 1);
+      writeSongThumbCropInputs(crop);
     }
 
     function startSongThumbDrag(event){
@@ -2673,9 +3053,9 @@
       reader.onload = () => {
         const result = String(reader.result || '');
         const hidden = document.getElementById('songThumb');
-        const preview = document.getElementById('songThumbPreview');
+        const imgHtml = `<img src="${result}" alt="썸네일 미리보기">`;
         if(hidden) hidden.value = result;
-        if(preview) preview.innerHTML = `<img src="${result}" alt="썸네일 미리보기">`;
+        document.querySelectorAll('#songThumbPreview, .song-thumb-sync').forEach(box => { box.innerHTML = imgHtml; });
         writeSongThumbCropInputs({x:50, y:50, scale:1});
       };
       reader.readAsDataURL(file);
@@ -2684,78 +3064,124 @@
     function openSongModal(id){
       const s=data.songs.find(x=>x.id===id);
       if(!s) return;
-      const categoryOptions = ['현재 셋리','팀곡','유닛곡','생탄','스페셜','전체'];
-      const statusOptions = ['응원가이드 일부','응원가이드 작성','응원가이드 준비중','영상 준비중','영상 있음','음원 있음'];
+      const categoryOptions = ['현재 셋리','팀곡','솔로곡','유닛곡','생탄','스페셜','전체'];
+      const statusOptions = ['음원 있음','음원 없음','영상 준비중','영상 있음','응원가이드 준비중','응원가이드 일부','응원가이드 작성'];
       const selectedCategories = uniqueValues(s.categories || []);
       const selectedStatus = uniqueValues(s.status || []);
       const selectedVisibility = songVisibility(s);
       const categoryChipOptions = uniqueValues([...categoryOptions, ...selectedCategories]);
       const statusChipOptions = uniqueValues([...statusOptions, ...selectedStatus]);
-      openModal('곡 카드 수정', `
-        <div class="form-grid song-modal-form">
-          <div class="field"><label>곡 제목</label><input class="input" id="songTitle" value="${esc(s.title)}"></div>
-          <div class="field"><label>영어 제목</label><input class="input" id="songSubtitle" value="${esc(s.subtitle)}"></div>
-          <div class="field full"><label>설명</label><textarea class="textarea" id="songDesc">${esc(s.desc)}</textarea></div>
+      const crop = getThumbCrop(s);
+      const summaryTags = uniqueValues([
+        visibilityLabel(selectedVisibility),
+        ...selectedCategories.filter(tag => tag !== '전체').slice(0, 2),
+        ...selectedStatus.slice(0, 2)
+      ]).slice(0, 5);
+      const thumbImg = s.thumb ? `<img src="${esc(s.thumb)}" alt="${esc(s.title)} 썸네일 미리보기" style="${esc(thumbStyle(s))}">` : '';
 
-          <div class="field full thumb-chip-field">
-            <label>썸네일</label>
-            <div class="thumb-picker">
-              <div class="thumb-preview-box thumb-crop-stage" id="songThumbPreview" onpointerdown="startSongThumbDrag(event)" onpointermove="moveSongThumbDrag(event)" onpointerup="endSongThumbDrag(event)" onpointercancel="endSongThumbDrag(event)" onpointerleave="endSongThumbDrag(event)">
-                ${s.thumb ? `<img src="${esc(s.thumb)}" alt="${esc(s.title)} 썸네일 미리보기" style="${esc(thumbStyle(s))}">` : '썸네일 준비중'}
+      openModal('곡 카드 수정', `
+        <div class="song-card-admin-modal">
+          <div class="song-card-admin-left">
+            <div class="song-card-admin-section">
+              <div class="song-card-admin-label-row"><h2 class="song-card-admin-label">기본 정보</h2></div>
+              <div class="song-card-admin-support-grid">
+                <input id="songTitle" value="${esc(s.title)}" placeholder="곡 제목">
+                <input id="songSubtitle" value="${esc(s.subtitle)}" placeholder="영어 제목">
               </div>
-              <div class="thumb-picker-actions">
+            </div>
+
+            <div class="song-card-admin-section">
+              <div class="song-card-admin-label-row"><h2 class="song-card-admin-label">설명</h2></div>
+              <textarea id="songDesc" rows="3">${esc(s.desc)}</textarea>
+            </div>
+
+            <div class="song-card-admin-section">
+              <div class="song-card-admin-label-row">
+                <h2 class="song-card-admin-label">공홈 표시 태그</h2>
+                <button class="song-card-admin-tiny-btn" type="button" onclick="document.getElementById('songCardTagEditor')?.classList.toggle('is-folded')">태그 접기</button>
+              </div>
+              <div class="song-card-admin-summary">
+                ${summaryTags.map(tag => `<span class="song-card-admin-chip">${esc(tag)}</span>`).join('')}
+              </div>
+
+              <div class="song-card-tag-editor" id="songCardTagEditor">
+                <div class="song-card-tag-row">
+                  <div class="song-card-mini-label">공개</div>
+                  <div class="song-card-admin-chips" id="songVisibilityChips">
+                    ${renderVisibilityChips(selectedVisibility)}
+                  </div>
+                </div>
+                <div class="song-card-tag-row">
+                  <div class="song-card-mini-label">분류</div>
+                  <div class="song-card-admin-chips" id="songCategoryChips">
+                    ${renderModalChips(categoryChipOptions, selectedCategories)}
+                  </div>
+                </div>
+                <div class="song-card-tag-row">
+                  <div class="song-card-mini-label">직접</div>
+                  <div class="song-card-admin-chips">
+                    <div class="song-card-direct"><input id="songCategoryCustom" placeholder="직접 분류 입력"><button class="song-card-admin-tiny-btn" type="button" onclick="addCustomModalChip('songCategoryChips','songCategoryCustom')">추가</button></div>
+                  </div>
+                </div>
+                <div class="song-card-tag-row">
+                  <div class="song-card-mini-label">상태</div>
+                  <div class="song-card-admin-chips" id="songStatusChips">
+                    ${renderModalChips(statusChipOptions, selectedStatus)}
+                  </div>
+                </div>
+                <div class="song-card-tag-row">
+                  <div class="song-card-mini-label">직접</div>
+                  <div class="song-card-admin-chips">
+                    <div class="song-card-direct"><input id="songStatusCustom" placeholder="직접 상태 입력"><button class="song-card-admin-tiny-btn" type="button" onclick="addCustomModalChip('songStatusChips','songStatusCustom')">추가</button></div>
+                  </div>
+                </div>
+              </div>
+              <input class="thumb-hidden-input" id="songVisibility" value="${esc(selectedVisibility)}">
+            </div>
+
+            <div class="song-card-admin-foot">
+              <button class="song-card-admin-save" type="button" onclick="saveModal()">저장</button>
+              <button class="song-card-admin-cancel" type="button" onclick="closeModal()">취소</button>
+            </div>
+          </div>
+
+          <aside class="song-card-admin-right">
+            <div class="song-card-admin-panel">
+              <h2 class="song-card-admin-right-title">공홈 카드 미리보기</h2>
+              <div class="song-card-preview-card">
+                <div class="song-card-preview-visual song-thumb-sync">${thumbImg}</div>
+                <div class="song-card-preview-info">
+                  <h3 class="song-card-preview-title">${esc(s.title)}</h3>
+                  <p class="song-card-preview-en">${esc(s.subtitle)}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="song-card-admin-panel song-card-thumb-panel detail-admin-practice">
+              <div class="detail-admin-practice-head">
+                <h3>썸네일 설정</h3>
+              </div>
+              <div class="song-card-thumb-box thumb-crop-stage" id="songThumbPreview"
+                onwheel="handleSongThumbWheel(event)"
+                onpointerdown="startSongThumbDrag(event)"
+                onpointermove="moveSongThumbDrag(event)"
+                onpointerup="endSongThumbDrag(event)"
+                onpointercancel="endSongThumbDrag(event)"
+                onpointerleave="endSongThumbDrag(event)">${thumbImg || '썸네일 준비중'}</div>
+              <div class="song-card-thumb-actions">
                 <label class="thumb-file-label">
                   사진 선택
                   <input type="file" id="songThumbFile" accept="image/*" onchange="previewSongThumb(this)">
                 </label>
-                <input class="input thumb-hidden-input" id="songThumb" value="${esc(s.thumb || '')}">
-                <input class="input thumb-hidden-input" id="songThumbX" value="${getThumbCrop(s).x}">
-                <input class="input thumb-hidden-input" id="songThumbY" value="${getThumbCrop(s).y}">
-                <p class="thumb-help">새 사진 선택 시에만 교체돼요.</p>
-                <p class="thumb-crop-help">이미지를 드래그하고 확대/축소해요.</p>
-                <div class="thumb-zoom-row" aria-label="썸네일 확대 축소">
-                  <span>−</span>
-                  <input id="songThumbScale" type="range" min="1" max="2.5" step="0.05" value="${getThumbCrop(s).scale}" oninput="updateSongThumbCropPreview()">
-                  <span>＋</span>
-                </div>
-                <span class="thumb-position-value" id="songThumbZoomValue">${Math.round(getThumbCrop(s).scale * 100)}%</span>
-                <button class="thumb-crop-reset" type="button" onclick="resetSongThumbCrop()">위치 초기화</button>
+                <button class="song-card-admin-tiny-btn" type="button" onclick="resetSongThumbCrop()">위치 초기화</button>
               </div>
+              <input class="thumb-hidden-input" id="songThumb" value="${esc(s.thumb || '')}">
+              <input class="thumb-hidden-input" id="songThumbX" value="${crop.x}">
+              <input class="thumb-hidden-input" id="songThumbY" value="${crop.y}">
+              <input class="thumb-hidden-input" id="songThumbScale" value="${crop.scale}">
             </div>
-          </div>
-
-          <div class="field full category-chip-field">
-            <label>분류 선택</label>
-            <div class="chip-select-wrap" id="songCategoryChips">
-              ${renderModalChips(categoryChipOptions, selectedCategories)}
-              <button class="modal-chip-btn add" type="button" onclick="toggleCustomChipRow('songCategoryCustomRow')">+ 직접 입력</button>
-            </div>
-            <div class="custom-chip-row" id="songCategoryCustomRow">
-              <input class="input" id="songCategoryCustom" placeholder="직접 분류 입력">
-              <button class="btn soft" type="button" onclick="addCustomModalChip('songCategoryChips','songCategoryCustom')">추가</button>
-            </div>
-          </div>
-
-          <div class="field full status-chip-field">
-            <label>상태 표시</label>
-            <div class="chip-select-wrap" id="songStatusChips">
-              ${renderModalChips(statusChipOptions, selectedStatus)}
-              <button class="modal-chip-btn add" type="button" onclick="toggleCustomChipRow('songStatusCustomRow')">+ 직접 입력</button>
-            </div>
-            <div class="custom-chip-row" id="songStatusCustomRow">
-              <input class="input" id="songStatusCustom" placeholder="직접 상태 입력">
-              <button class="btn soft" type="button" onclick="addCustomModalChip('songStatusChips','songStatusCustom')">추가</button>
-            </div>
-          </div>
-
-          <div class="field full visibility-chip-field">
-            <label>공개 상태</label>
-            <div class="chip-select-wrap" id="songVisibilityChips">
-              ${renderVisibilityChips(selectedVisibility)}
-            </div>
-            <input class="input thumb-hidden-input" id="songVisibility" value="${esc(selectedVisibility)}">
-          </div>
-        </div>${modalActions()}
+          </aside>
+        </div>
       `, ()=>{
         s.title=val('songTitle');
         s.subtitle=val('songSubtitle');
@@ -2774,72 +3200,144 @@
 
     function openDetailModal(){
       const s=selectedSong();
-      const detailMetaBase = ['오리곡','커버곡','팀용 지원','솔로용 지원','유닛 지원','외부곡 공식 링크'];
-      const detailMetaMore = ['리스폰스','믹스 있음','영상 있음','음원 있음','가사 있음','오리곡 음원 준비중'];
       const detailMetaSelected = uniqueValues(s.meta || []);
-      openModal('선택 곡 상세 수정', `
-        <div class="form-grid detail-modal-form">
-          <div class="field full"><label>곡 설명</label><textarea class="textarea" id="detailDesc">${esc(s.desc)}</textarea></div>
+      const members = uniqueValues(s.performable || []);
+      const typeOptions = ['오리곡','커버곡'];
+      const cheerOptions = ['팀용 지원','솔로용 지원','유닛 지원'];
+      const levelOptions = ['초보용','고급용','준비중 표시'];
+      const sourceOptions = ['외부곡 공식 링크','영상 있음','음원 있음','가사 있음','오리곡 음원 준비중'];
+      const extraOptions = ['리스폰스','믹스 있음'];
+      const summaryTags = uniqueValues([
+        members.length ? members.join(' · ') : '',
+        detailMetaSelected.includes('오리곡') ? '오리곡' : (detailMetaSelected.includes('커버곡') ? '커버곡' : ''),
+        s.mode || '팀 응원',
+        s.level || '초보용',
+        detailMetaSelected.includes('영상 있음') ? '영상 있음' : '',
+        detailMetaSelected.includes('오리곡 음원 준비중') ? '오리곡 음원 준비중' : ''
+      ]).slice(0, 6);
+      const previewMember = members.length ? members.join(' · ') : '멤버 미선택';
+      const previewType = detailMetaSelected.includes('오리곡') ? '오리곡' : (detailMetaSelected.includes('커버곡') ? '커버곡' : '곡 타입');
+      const mediaVideoStatus = s.video ? '입력됨' : '준비중';
+      const mediaCallStatus = (s.callReferenceEmbed || s.callReferenceUrl) ? '입력됨' : '준비중';
+      const mediaAudioStatus = s.audio ? '입력됨' : '준비중';
+      openModal('곡별 응원 설정', `
+        <div class="detail-admin-modal">
+          <div class="detail-admin-left">
+            <div class="detail-admin-section">
+              <div class="detail-admin-label-row"><h2 class="detail-admin-label">곡 설명</h2></div>
+              <textarea id="detailDesc" rows="3">${esc(s.desc)}</textarea>
+            </div>
 
-          <div class="field full performable-chip-field">
-            <label>멤버 칩</label>
-            <div class="chip-select-wrap" id="detailPerformableChips">
-              ${renderModalChips(['마리링','루루','이로','루나'], uniqueValues(s.performable || []))}
+            <div class="detail-admin-section">
+              <div class="detail-admin-label-row"><h2 class="detail-admin-label">멤버</h2></div>
+              <div class="detail-admin-chips detail-admin-members" id="detailPerformableChips">
+                ${renderModalChips(['마리링','루루','이로','루나'], members)}
+              </div>
+            </div>
+
+            <div class="detail-admin-section">
+              <div class="detail-admin-label-row">
+                <h2 class="detail-admin-label">공홈 표시 태그</h2>
+                <button class="detail-admin-tiny-btn" type="button" onclick="document.getElementById('detailMetaEditor')?.classList.toggle('is-folded')">태그 접기</button>
+              </div>
+              <div class="detail-admin-summary">
+                ${summaryTags.map(tag => `<span class="detail-admin-chip">${esc(tag)}</span>`).join('')}
+              </div>
+
+              <div class="detail-admin-meta-editor" id="detailMetaEditor">
+                <div class="detail-admin-tag-row">
+                  <div class="detail-admin-mini-label">곡 타입</div>
+                  <div class="detail-admin-chips" id="detailMetaTypeChips">${renderModalChips(typeOptions, detailMetaSelected)}</div>
+                </div>
+                <div class="detail-admin-tag-row">
+                  <div class="detail-admin-mini-label">응원</div>
+                  <div class="detail-admin-chips" id="detailMetaCheerChips">${renderModalChips(cheerOptions, detailMetaSelected)}</div>
+                </div>
+                <div class="detail-admin-tag-row">
+                  <div class="detail-admin-mini-label">난이도</div>
+                  <div class="detail-admin-chips detail-admin-choice-row">
+                    ${renderDetailChoiceChips(['초보용','고급용'], s.level || '초보용', 'detailLevel')}
+                    <button class="modal-chip-btn pending ${s.levelPending?'active':''}" id="detailLevelPending" type="button" data-value="준비중 표시" onclick="toggleModalChip(this)">준비중 표시</button>
+                  </div>
+                </div>
+                <div class="detail-admin-tag-row">
+                  <div class="detail-admin-mini-label">자료</div>
+                  <div class="detail-admin-chips" id="detailMetaSourceChips">${renderModalChips(sourceOptions, detailMetaSelected)}</div>
+                </div>
+                <div class="detail-admin-tag-row">
+                  <div class="detail-admin-mini-label">기타</div>
+                  <div class="detail-admin-chips" id="detailMetaExtraChips">
+                    ${renderModalChips(extraOptions, detailMetaSelected)}
+                    <div class="detail-admin-direct"><input id="detailMetaCustom" placeholder="직접 메타칩 입력"><button class="detail-admin-tiny-btn" type="button" onclick="addCustomModalChip('detailMetaExtraChips','detailMetaCustom')">추가</button></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="detail-admin-section">
+              <div class="detail-admin-label-row"><h2 class="detail-admin-label">핵심 포인트</h2></div>
+              <textarea id="detailPoint" rows="3">${esc(s.point||'')}</textarea>
+            </div>
+
+            <div class="detail-admin-foot">
+              <button class="detail-admin-save" type="button" onclick="saveModal()">저장</button>
+              <button class="detail-admin-cancel" type="button" onclick="closeModal()">취소</button>
             </div>
           </div>
 
-          <div class="field full detail-meta-field">
-            <label>메타칩 선택</label>
-            <div class="chip-select-wrap detail-meta-chips" id="detailMetaChips">
-              ${renderModalChips(detailMetaBase, detailMetaSelected)}
-              <button class="modal-chip-btn add" type="button" id="detailMetaMoreBtn" onclick="toggleDetailMetaMore()">+ 더보기</button>
+          <aside class="detail-admin-right">
+            <div class="detail-admin-panel">
+              <h2 class="detail-admin-right-title">공홈 카드 미리보기</h2>
+              <div class="detail-admin-preview-card">
+                <div class="detail-admin-preview-visual"><span class="detail-admin-preview-badge">PREVIEW</span><div class="detail-admin-note-circle">♪</div></div>
+                <div class="detail-admin-preview-info">
+                  <h3 class="detail-admin-song-title">${esc(s.title)}</h3>
+                  <p class="detail-admin-song-desc">${esc(s.desc)}</p>
+                  <div class="detail-admin-preview-tags"><span>${esc(previewMember)}</span><span>${esc(previewType)}</span><span class="hot">${esc(s.mode || '팀 응원')}</span><span class="hot">${esc(s.level || '초보용')}</span></div>
+                </div>
+              </div>
             </div>
-            <div class="chip-select-wrap detail-meta-chips detail-meta-more" id="detailMetaMoreChips">
-              ${renderModalChips(detailMetaMore, detailMetaSelected)}
-              <button class="modal-chip-btn add" type="button" onclick="toggleCustomChipRow('detailMetaCustomRow')">직접 입력</button>
-            </div>
-            <div class="custom-chip-row detail-meta-custom-row" id="detailMetaCustomRow">
-              <input class="input" id="detailMetaCustom" placeholder="직접 메타칩 입력">
-              <button class="btn soft" type="button" onclick="addCustomModalChip('detailMetaChips','detailMetaCustom')">추가</button>
-            </div>
-          </div>
 
-          <div class="field">
-            <label>응원 모드</label>
-            <div class="chip-select-wrap detail-choice-chips">
-              ${renderDetailChoiceChips(['팀 응원','솔로 응원'], s.mode || '팀 응원', 'detailMode')}
-              <button class="modal-chip-btn pending ${s.modePending?'active':''}" type="button" data-value="준비중 표시" onclick="toggleModalChip(this)">준비중 표시</button>
+            <div class="detail-admin-panel detail-admin-practice">
+              <div class="detail-admin-practice-head">
+                <h3>LUMI PRACTICE / 영상 설정</h3>
+              </div>
+              <div class="detail-admin-status-grid">
+                <div class="detail-admin-status"><b>대표 영상</b>${esc(mediaVideoStatus)}</div>
+                <div class="detail-admin-status"><b>콜 영상</b>${esc(mediaCallStatus)}</div>
+                <div class="detail-admin-status"><b>연습 음원</b>${esc(mediaAudioStatus)}</div>
+              </div>
+              <div class="detail-admin-practice-fields">
+                <div class="detail-admin-field-row"><span>대표 영상 URL</span><input id="mediaVideo" value="${esc(s.video||'')}" placeholder="https://youtube.com/... / 공홈 큰 대표 영상"></div>
+                <div class="detail-admin-field-row"><span>연습용 오디오</span><input id="mediaAudio" value="${esc(s.audio||'')}" placeholder="루미벨 오리지널곡 mp3/m4a 경로가 있을 때만 입력"></div>
+                <div class="detail-admin-field-row"><span>공식 음원 링크</span><input id="mediaOfficialEmbed" value="${esc(s.officialAudioEmbed||'')}" placeholder="YouTube/Spotify 링크"></div>
+                <div class="detail-admin-field-row"><span>콜 연습 영상</span><input id="mediaCallReferenceEmbed" value="${esc(s.callReferenceEmbed||s.callReferenceUrl||'')}" placeholder="곡별 콜/믹스 타이밍 참고 영상"></div>
+                <div class="detail-admin-field-row"><span>안내문</span><input id="mediaCallReferenceNote" value="${esc(s.callReferenceNote||'')}" placeholder="비워두면 기본 안내문 사용"></div>
+              </div>
             </div>
-          </div>
-
-          <div class="field">
-            <label>난이도</label>
-            <div class="chip-select-wrap detail-choice-chips">
-              ${renderDetailChoiceChips(['초보용','고급용'], s.level || '초보용', 'detailLevel')}
-              <button class="modal-chip-btn pending ${s.levelPending?'active':''}" type="button" data-value="준비중 표시" onclick="toggleModalChip(this)">준비중 표시</button>
-            </div>
-          </div>
-
-          <div class="field full"><label>핵심 포인트</label><textarea class="textarea" id="detailPoint">${esc(s.point||'')}</textarea></div>
+          </aside>
         </div>
-        ${modalActions()}
       `, ()=>{
         s.desc=val('detailDesc');
         s.performable=collectModalChipValues('detailPerformableChips','');
         s.meta=uniqueValues([
-          ...collectModalChipValues('detailMetaChips','detailMetaCustom'),
-          ...collectModalChipValues('detailMetaMoreChips','detailMetaCustom')
+          ...collectModalChipValues('detailMetaTypeChips',''),
+          ...collectModalChipValues('detailMetaCheerChips',''),
+          ...collectModalChipValues('detailMetaSourceChips',''),
+          ...collectModalChipValues('detailMetaExtraChips','detailMetaCustom')
         ]);
-        s.mode=optionalDetailChoiceValue('detailMode');
-        s.level=optionalDetailChoiceValue('detailLevel');
-        s.modePending=document.querySelector('.detail-choice-chips .modal-chip-btn.pending.active[data-value="준비중 표시"]')?.closest('.field')?.querySelector('[data-group="detailMode"]') !== null;
-        const pendingButtons = Array.from(document.querySelectorAll('.detail-choice-chips .modal-chip-btn.pending'));
-        s.modePending=pendingButtons[0]?.classList.contains('active') || false;
-        s.levelPending=pendingButtons[1]?.classList.contains('active') || false;
+        s.mode=optionalDetailChoiceValue('detailMode') || s.mode || '팀 응원';
+        s.level=optionalDetailChoiceValue('detailLevel') || s.level || '초보용';
+        s.modePending=s.modePending || false;
+        s.levelPending=document.getElementById('detailLevelPending')?.classList.contains('active') || false;
         s.point=val('detailPoint');
+        s.video=val('mediaVideo');
+        s.audio=val('mediaAudio');
+        s.officialAudioEmbed=val('mediaOfficialEmbed');
+        s.callReferenceEmbed=val('mediaCallReferenceEmbed');
+        s.callReferenceNote=val('mediaCallReferenceNote');
       });
     }
-
 
     function radioValue(name, fallback){
       return document.querySelector(`input[name="${name}"]:checked`)?.value || fallback;
@@ -2892,27 +3390,6 @@
         songSelectMode = false;
         selectedSongIds.clear();
         songPage = Math.max(0, Math.ceil(filteredSongs().length / SONGS_PER_PAGE) - 1);
-      });
-    }
-
-    function openMediaModal(){
-      const s = selectedSong();
-      openModal('LUMI PRACTICE / 영상 설정', `
-        <div class="form-grid">
-          <div class="field full"><label>대표 유튜브 영상 · NOW PLAYING</label><input class="input" id="mediaVideo" value="${esc(s.video||'')}" placeholder="https://youtube.com/... / 공홈 큰 대표 영상"></div>
-          <div class="field full"><label>오리곡 자체 음원 파일 · 선택</label><input class="input" id="mediaAudio" value="${esc(s.audio||'')}" placeholder="루미벨 오리지널곡 mp3/m4a 파일 경로가 있을 때만 입력"></div>
-          <div class="field full"><label>공식 음원 임베드 · 홈페이지 안 재생용</label><input class="input" id="mediaOfficialEmbed" value="${esc(s.officialAudioEmbed||'')}" placeholder="YouTube/Spotify 임베드 또는 링크 · 외부 이동 버튼은 노출하지 않음"></div>
-          <div class="field full"><label>콜 영상 참고 · 홈페이지 안 재생용</label><input class="input" id="mediaCallReferenceEmbed" value="${esc(s.callReferenceEmbed||s.callReferenceUrl||'')}" placeholder="곡별 콜/믹스 타이밍 참고 YouTube 임베드 또는 링크"></div>
-          <div class="field full"><label>콜 영상 참고 안내문</label><input class="input" id="mediaCallReferenceNote" value="${esc(s.callReferenceNote||'')}" placeholder="비워두면 기본 안내문 사용"></div>
-        </div>
-        <div class="admin-practice-note" style="text-align:center;margin-top:14px;">LUMI PRACTICE에는 홈페이지 안에서 재생 가능한 자료만 표시합니다. 멜론/지니/스포티파이 외부 이동 버튼은 만들지 않습니다.</div>
-        ${modalActions()}
-      `, ()=>{
-        s.video = val('mediaVideo');
-        s.audio = val('mediaAudio');
-        s.officialAudioEmbed = val('mediaOfficialEmbed');
-        s.callReferenceEmbed = val('mediaCallReferenceEmbed');
-        s.callReferenceNote = val('mediaCallReferenceNote');
       });
     }
 
@@ -3016,6 +3493,90 @@
         cheerGuideDraft = null;
         cheerGuideOpenIndex = 0;
       });
+    }
+
+
+    function showSetlistTranslateToast(message, state){
+      const toast = document.getElementById('setlistTranslateToast');
+      if(!toast) return;
+      toast.textContent = message || '';
+      toast.classList.toggle('is-loading', state === 'loading');
+      toast.classList.add('show');
+      clearTimeout(showSetlistTranslateToast._timer);
+      if(state !== 'loading'){
+        showSetlistTranslateToast._timer = setTimeout(()=>toast.classList.remove('show','is-loading'), 1700);
+      }
+    }
+
+    function setlistJsonpRequest(url, payload){
+      return new Promise((resolve, reject)=>{
+        if(!url) return reject(new Error('missingApiUrl'));
+        const callbackName = 'setlistTranslateCallback_' + Date.now() + '_' + Math.floor(Math.random()*100000);
+        const script = document.createElement('script');
+        const timer = setTimeout(()=>{
+          cleanup();
+          reject(new Error('apiTimeout'));
+        }, 30000);
+        function cleanup(){
+          clearTimeout(timer);
+          try{ delete window[callbackName]; }catch(e){ window[callbackName] = undefined; }
+          if(script && script.parentNode) script.parentNode.removeChild(script);
+        }
+        window[callbackName] = function(response){
+          cleanup();
+          resolve(response || {});
+        };
+        const sep = url.indexOf('?') === -1 ? '?' : '&';
+        script.src = url + sep + 'action=translateSetlistContent&callback=' + encodeURIComponent(callbackName) + '&payload=' + encodeURIComponent(JSON.stringify(payload || {}));
+        script.onerror = function(){
+          cleanup();
+          reject(new Error('apiLoadError'));
+        };
+        document.body.appendChild(script);
+      });
+    }
+
+    function buildSetlistTranslatePayload(ids){
+      return {
+        mode: ids && ids.length ? 'selectedSongs' : 'allSongs',
+        sourceLang: 'ko',
+        targetLangs: ['en','ja','zh'],
+        songIds: ids || []
+      };
+    }
+
+    function summarizeSetlistTranslateResponse(response){
+      const parts = [];
+      ['songs','guides','categories'].forEach(key => {
+        const item = response && response[key];
+        if(item && typeof item.updated !== 'undefined') parts.push(`${key}:${item.updated}`);
+      });
+      return parts.length ? parts.join(' · ') : '';
+    }
+
+    async function translateSelectedSongs(){
+      const ids = Array.from(selectedSongIds);
+      const targetText = ids.length ? `선택한 곡 ${ids.length}개` : '전체 응원가이드 데이터';
+      const confirmText = `${targetText}의 빈 번역칸을 자동번역할까요?\n기존 영어 제목/공식 영문 표기와 이미 입력된 번역은 덮어쓰지 않습니다.`;
+      if(!confirm(confirmText)) return;
+
+      const payload = buildSetlistTranslatePayload(ids);
+      showSetlistTranslateToast('번역중', 'loading');
+
+      try{
+        const response = await setlistJsonpRequest(SETLIST_TRANSLATE_API_URL, payload);
+        if(response && response.ok === false){
+          throw new Error(response.message || response.error || 'translateFailed');
+        }
+        const summary = summarizeSetlistTranslateResponse(response);
+        showSetlistTranslateToast(summary ? `번역 완료 · ${summary}` : '번역 완료', 'done');
+      }catch(err){
+        const message = String(err && err.message ? err.message : err);
+        showSetlistTranslateToast('번역 연결 확인 필요', 'done');
+        alert(message === 'missingApiUrl'
+          ? '자동번역 API 주소가 아직 연결되지 않았어요. 콘텐츠 DB Apps Script 배포 URL을 window.LUMIBELLE_SETLIST_API_URL 또는 window.LUMIBELLE_CONTENT_API_URL로 연결해 주세요.'
+          : '자동번역 중 오류가 발생했어요: ' + message);
+      }
     }
 
     function saveAll(){
