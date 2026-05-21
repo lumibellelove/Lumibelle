@@ -8,26 +8,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=SUIT:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap" rel="stylesheet">
-  <script>
-    /*
-      SETLIST 관리자 API 주소
-      - 공지/스케줄/티켓과 같은 콘텐츠 Worker를 우선 사용합니다.
-      - Apps Script 직접 주소는 GitHub Pages에서 CORS/iframe 응답 문제로 멈출 수 있어 기본값으로 쓰지 않습니다.
-    */
-    window.LUMIBELLE_CONTENT_API_URL =
-      window.LUMIBELLE_CONTENT_API_URL ||
-      window.LUMI_NEWS_API_URL ||
-      window.CONTENT_DB_API_URL ||
-      'https://lumi-news-api.lumibelle-love.workers.dev';
-
-    window.LUMIBELLE_SETLIST_API_URL =
-      window.LUMIBELLE_SETLIST_API_URL ||
-      window.LUMIBELLE_CONTENT_API_URL;
-
-    window.CONTENT_DB_API_URL =
-      window.CONTENT_DB_API_URL ||
-      window.LUMIBELLE_CONTENT_API_URL;
-  </script>
   <style>
     :root{
       --bg:#fff8fb;
@@ -2244,7 +2224,8 @@
 
   <script>
     const STORE_KEY = 'lumibelle_admin_setlist_draft_v1';
-    const SETLIST_TRANSLATE_API_URL = window.LUMIBELLE_SETLIST_API_URL || window.LUMIBELLE_CONTENT_API_URL || window.CONTENT_DB_API_URL || '';
+    const SETLIST_API_URL = 'https://lumi-news-api.lumibelle-love.workers.dev';
+    const SETLIST_TRANSLATE_API_URL = window.LUMIBELLE_SETLIST_API_URL || window.LUMIBELLE_CONTENT_API_URL || window.CONTENT_DB_API_URL || SETLIST_API_URL;
 
     const defaultData = {
       hero:{
@@ -2409,7 +2390,7 @@
     }
 
     function getSetlistApiUrl(){
-      return window.LUMIBELLE_SETLIST_API_URL || window.LUMIBELLE_CONTENT_API_URL || window.CONTENT_DB_API_URL || SETLIST_TRANSLATE_API_URL || '';
+      return window.LUMIBELLE_SETLIST_API_URL || window.LUMIBELLE_CONTENT_API_URL || window.CONTENT_DB_API_URL || SETLIST_API_URL || SETLIST_TRANSLATE_API_URL || '';
     }
 
     function normalizeSetlistAdminData(apiData){
@@ -2429,10 +2410,6 @@
       body.set('action', action);
       body.set('payload', JSON.stringify(payload || {}));
 
-      /*
-        공지/스케줄/티켓과 같은 방식: Worker fetch 호출.
-        v3의 iframe 방식은 Apps Script 직접 호출용이라 Worker와 섞이면 postMessage가 오지 않아 timeout이 납니다.
-      */
       const res = await fetch(apiUrl, {
         method:'POST',
         headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
@@ -2440,78 +2417,12 @@
       });
 
       const text = await res.text();
-      let parsed;
       try{
-        parsed = JSON.parse(text);
+        return JSON.parse(text);
       }catch(err){
         console.error('SETLIST API raw response:', text);
-        throw new Error('setlistApiInvalidJson');
+        throw new Error('invalidJsonResponse');
       }
-
-      if(!res.ok){
-        console.error('SETLIST API HTTP error:', res.status, parsed);
-        throw new Error('setlistApiHttp' + res.status);
-      }
-
-      return parsed;
-    }
-
-    function postSetlistApiViaIframe(apiUrl, action, payload){
-      return new Promise((resolve, reject) => {
-        const uploadId = 'setlist_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-        const iframeName = 'setlist_api_iframe_' + uploadId;
-        const iframe = document.createElement('iframe');
-        const form = document.createElement('form');
-        let timer = null;
-
-        iframe.name = iframeName;
-        iframe.style.display = 'none';
-        form.method = 'POST';
-        form.action = apiUrl;
-        form.target = iframeName;
-        form.style.display = 'none';
-
-        const fields = {
-          action,
-          payload: JSON.stringify(payload || {}),
-          responseMode: 'iframe',
-          uploadId
-        };
-
-        Object.keys(fields).forEach(key => {
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = key;
-          input.value = fields[key];
-          form.appendChild(input);
-        });
-
-        function cleanup(){
-          if(timer) clearTimeout(timer);
-          window.removeEventListener('message', onMessage);
-          setTimeout(() => {
-            iframe.remove();
-            form.remove();
-          }, 50);
-        }
-
-        function onMessage(event){
-          const data = event.data;
-          if(!data || data.uploadId !== uploadId) return;
-          cleanup();
-          resolve(data);
-        }
-
-        window.addEventListener('message', onMessage);
-        timer = setTimeout(() => {
-          cleanup();
-          reject(new Error('setlistApiTimeout'));
-        }, 30000);
-
-        document.body.appendChild(iframe);
-        document.body.appendChild(form);
-        form.submit();
-      });
     }
 
     async function initSetlistAdmin(){
@@ -2570,10 +2481,7 @@
       if(hidden) hidden.value = btn.dataset.value || 'public';
     }
     function selectedSong(){
-      if(!Array.isArray(data.songs) || !data.songs.length){
-        data.songs = structuredClone(defaultData.songs || []);
-      }
-      return data.songs.find(s=>s.id===data.selectedSongId) || data.songs[0] || null;
+      return data.songs.find(s=>s.id===data.selectedSongId) || data.songs[0];
     }
 
     function displayMode(song){
@@ -2799,11 +2707,6 @@
 
     function renderDetail(){
       const s = selectedSong();
-      const guidePanel = document.getElementById('guidePanel');
-      if(!s){
-        if(guidePanel) guidePanel.innerHTML = '<div class="audio-box">표시할 곡 데이터가 아직 없어요.</div>';
-        return;
-      }
       const lines = (s.guide||[]).length ? s.guide.map(line => `
         <div class="guide-line">
           <div class="guide-line-top">
