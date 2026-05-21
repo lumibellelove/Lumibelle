@@ -5270,6 +5270,70 @@ We are Sweetie pie! 루미베르 데스~`,
 
     render(true);
     syncGuideColumns();
+
+    /* ── 공홈 setlist 시트 동기화 ─────────────────────────────
+       관리자에서 저장한 데이터를 Worker에서 가져와 화면에 반영한다.
+       - 페이지 로드 시 백그라운드에서 1회 실행
+       - 성공하면 publicApplySetlistData()로 조용히 갱신
+       - 실패해도 공홈 기본 4곡은 그대로 유지 (빈 화면 없음)
+    ────────────────────────────────────────────────────────── */
+    /* ── setlist stale-while-revalidate ──────────────────────────
+       뉴스/스케줄과 동일한 패턴:
+       1) localStorage 캐시 있으면 → 즉시 렌더 (첫 화면 깜빡임 없음)
+       2) 백그라운드 fetch → 성공하면 캐시 갱신 + 화면 조용히 교체
+       3) fetch 실패 → 캐시 or 공홈 기본 4곡 유지
+    ────────────────────────────────────────────────────────── */
+    const SETLIST_CACHE_KEY = 'lumibelle_public_setlist_v1';
+    const SETLIST_WORKER_URL = 'https://lumi-news-api.lumibelle-love.workers.dev';
+
+    function loadCachedSetlist(){
+      try{
+        const raw = localStorage.getItem(SETLIST_CACHE_KEY);
+        if(!raw) return null;
+        const parsed = JSON.parse(raw);
+        if(parsed && Array.isArray(parsed.songs) && parsed.songs.length) return parsed.songs;
+      }catch(e){}
+      return null;
+    }
+
+    function saveCachedSetlist(songs){
+      try{
+        localStorage.setItem(SETLIST_CACHE_KEY, JSON.stringify({ songs, ts: Date.now() }));
+      }catch(e){}
+    }
+
+    async function syncPublicSetlistInBackground(){
+      try{
+        const qs = '?action=adminGetSetlistData&payload=%7B%7D&_nocache=' + Date.now();
+        const res = await fetch(SETLIST_WORKER_URL + qs, {
+          method: 'GET',
+          mode: 'cors',
+          headers: { 'Accept': 'application/json, text/plain, */*' }
+        });
+        if(!res.ok) return;
+        const json = await res.json();
+        const sheetSongs = json && json.data && Array.isArray(json.data.songs)
+          ? json.data.songs
+          : null;
+        if(!sheetSongs || !sheetSongs.length) return;
+        // 캐시 저장 후 화면 반영
+        saveCachedSetlist(sheetSongs);
+        publicApplySetlistData(sheetSongs);
+      }catch(e){
+        console.warn('[setlist sync] 시트 동기화 실패:', e && e.message ? e.message : e);
+      }
+    }
+
+    // stale-while-revalidate: 캐시 있으면 즉시 반영, 동시에 백그라운드 fetch
+    (function(){
+      const cached = loadCachedSetlist();
+      if(cached){
+        // 캐시 데이터로 즉시 화면 교체 (깜빡임 없음)
+        publicApplySetlistData(cached);
+      }
+      // 캐시 있든 없든 백그라운드에서 최신 데이터 fetch
+      syncPublicSetlistInBackground();
+    })();
   </script>
 
 
