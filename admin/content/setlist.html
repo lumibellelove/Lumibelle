@@ -2224,9 +2224,9 @@
 
   <script>
     const STORE_KEY = 'lumibelle_admin_setlist_draft_v1';
-    const SETLIST_DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbzmZHCLvg_Nd8f6qnat3RisYoMPnGARaLWPqeCnt2zHI8wl0-QuXkMmnGtcP_BoSFEH/exec';
-    const SETLIST_API_URL = window.LUMIBELLE_SETLIST_API_URL || window.LUMIBELLE_CONTENT_API_URL || window.CONTENT_DB_API_URL || SETLIST_DEFAULT_API_URL;
-    const SETLIST_TRANSLATE_API_URL = SETLIST_API_URL;
+    const SETLIST_DATA_API_URL = window.LUMIBELLE_SETLIST_API_URL || window.LUMIBELLE_CONTENT_API_URL || 'https://script.google.com/macros/s/AKfycbzmZHCLvg_Nd8f6qnat3RisYoMPnGARaLWPqeCnt2zHI8wl0-QuXkMmnGtcP_BoSFEH/exec';
+
+    const SETLIST_TRANSLATE_API_URL = window.LUMIBELLE_SETLIST_API_URL || window.LUMIBELLE_CONTENT_API_URL || window.CONTENT_DB_API_URL || '';
 
     const defaultData = {
       hero:{
@@ -2385,26 +2385,11 @@
       localStorage.setItem(STORE_KEY, JSON.stringify(data));
     }
 
-    function mergeSetlistServerData(serverData){
-      const base = structuredClone(defaultData);
-      const incoming = serverData || {};
-      if(Array.isArray(incoming.filters)) base.filters = incoming.filters.length ? incoming.filters : base.filters;
-      if(Array.isArray(incoming.songs)) base.songs = incoming.songs;
-      if(incoming.hero && typeof incoming.hero === 'object') base.hero = Object.assign({}, base.hero, incoming.hero);
-      if(incoming.liveGuide && typeof incoming.liveGuide === 'object') base.liveGuide = Object.assign({}, base.liveGuide, incoming.liveGuide);
-      if(incoming.activeFilter && base.filters.includes(incoming.activeFilter)) base.activeFilter = incoming.activeFilter;
-      else if(base.filters.length && !base.filters.includes(base.activeFilter)) base.activeFilter = base.filters[0];
-      if(incoming.selectedSongId) base.selectedSongId = incoming.selectedSongId;
-      if(!base.songs.some(song => song.id === base.selectedSongId)){
-        base.selectedSongId = (base.songs[0] && base.songs[0].id) || '';
-      }
-      return base;
-    }
-
-    function setlistApiRequest(action, payload){
+    function setlistDataJsonpRequest(action, payload){
       return new Promise((resolve, reject)=>{
-        if(!SETLIST_API_URL) return reject(new Error('missingApiUrl'));
-        const callbackName = 'setlistApiCallback_' + Date.now() + '_' + Math.floor(Math.random()*100000);
+        const url = SETLIST_DATA_API_URL;
+        if(!url) return reject(new Error('missingApiUrl'));
+        const callbackName = 'setlistDataCallback_' + Date.now() + '_' + Math.floor(Math.random()*100000);
         const script = document.createElement('script');
         const timer = setTimeout(()=>{
           cleanup();
@@ -2419,8 +2404,12 @@
           cleanup();
           resolve(response || {});
         };
-        const sep = SETLIST_API_URL.indexOf('?') === -1 ? '?' : '&';
-        script.src = SETLIST_API_URL + sep + 'action=' + encodeURIComponent(action) + '&callback=' + encodeURIComponent(callbackName) + '&payload=' + encodeURIComponent(JSON.stringify(payload || {})) + '&_nocache=' + Date.now();
+        const sep = url.indexOf('?') === -1 ? '?' : '&';
+        script.src = url + sep
+          + 'action=' + encodeURIComponent(action)
+          + '&callback=' + encodeURIComponent(callbackName)
+          + '&payload=' + encodeURIComponent(JSON.stringify(payload || {}))
+          + '&_nocache=' + Date.now();
         script.onerror = function(){
           cleanup();
           reject(new Error('apiLoadError'));
@@ -2429,28 +2418,50 @@
       });
     }
 
+    function normalizeSetlistServerData(response){
+      const body = response && response.data ? response.data : response;
+      if(!body) return null;
+      if(Array.isArray(body.songs) || Array.isArray(body.filters) || body.hero || body.liveGuide){
+        const next = structuredClone(defaultData);
+        if(body.hero) next.hero = Object.assign({}, next.hero || {}, body.hero);
+        if(body.liveGuide) next.liveGuide = Object.assign({}, next.liveGuide || {}, body.liveGuide);
+        if(Array.isArray(body.filters)) next.filters = body.filters;
+        if(Array.isArray(body.songs)) next.songs = body.songs;
+        return next;
+      }
+      return null;
+    }
+
     async function loadSetlistFromSheet(){
       try{
-        const response = await setlistApiRequest('adminGetSetlistData', {});
+        const response = await setlistDataJsonpRequest('adminGetSetlistData', {});
         if(response && response.ok === false){
           throw new Error(response.message || response.error || 'loadFailed');
         }
-        const serverData = response.data || response;
-        data = mergeSetlistServerData(serverData);
-        selectedSongIds.clear();
-        songPage = 0;
-        render();
-        showSetlistTranslateToast('시트 불러오기 완료', 'done');
+        const next = normalizeSetlistServerData(response);
+        if(next){
+          data = next;
+          persist();
+          render();
+        }
       }catch(err){
-        console.warn('setlist sheet load failed', err);
-        showSetlistTranslateToast('시트 불러오기 실패 · 브라우저 저장본 표시', 'done');
+        alert('시트 불러오기 실패: ' + String(err && err.message ? err.message : err));
       }
     }
 
-    async function initSetlistConnection(){
-      render();
-      await loadSetlistFromSheet();
+    async function saveSetlistToSheet(){
+      try{
+        const response = await setlistDataJsonpRequest('adminSaveSetlistData', {data:data});
+        if(response && response.ok === false){
+          throw new Error(response.message || response.error || 'saveFailed');
+        }
+        persist();
+        alert('SETLIST 관리 내용이 시트에 저장되었습니다.');
+      }catch(err){
+        alert('시트 저장 실패: ' + String(err && err.message ? err.message : err));
+      }
     }
+
 
     function esc(v){
       return String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -3648,23 +3659,8 @@
       }
     }
 
-    async function saveAll(){
-      persist();
-      showSetlistTranslateToast('시트 저장중', 'loading');
-      try{
-        const response = await setlistApiRequest('adminSaveSetlistData', {data:data});
-        if(response && response.ok === false){
-          throw new Error(response.message || response.error || 'saveFailed');
-        }
-        showSetlistTranslateToast('시트 저장 완료', 'done');
-        alert('SETLIST 관리 내용이 시트에 저장되었습니다.');
-      }catch(err){
-        const message = String(err && err.message ? err.message : err);
-        showSetlistTranslateToast('시트 저장 실패', 'done');
-        alert(message === 'missingApiUrl'
-          ? 'SETLIST 저장 API 주소가 연결되지 않았어요.'
-          : '시트 저장 중 오류가 발생했어요: ' + message);
-      }
+    function saveAll(){
+      saveSetlistToSheet();
     }
 
     function resetData(){
@@ -3686,8 +3682,8 @@
     document.getElementById('modal').addEventListener('click', e=>{
       if(e.target.id === 'modal') closeModal();
     });
-
-    initSetlistConnection();
+    render();
+    loadSetlistFromSheet();
   </script>
 </body>
 </html>
