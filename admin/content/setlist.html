@@ -2387,7 +2387,12 @@
       if(!apiData || typeof apiData !== 'object') return base;
       const merged = Object.assign(base, apiData);
       merged.filters = Array.isArray(apiData.filters) ? apiData.filters : base.filters;
-      merged.songs = Array.isArray(apiData.songs) ? apiData.songs : base.songs;
+      merged.songs = Array.isArray(apiData.songs) ? apiData.songs.map(song=>ensureSongIdentity(song)).filter(song=>songKey(song)) : base.songs.map(song=>ensureSongIdentity(song));
+      const currentSelected = String(merged.selectedSongId || '').trim();
+      if(!merged.songs.some(song => songKey(song) === currentSelected || song.songId === currentSelected)){
+        const firstFiltered = merged.songs.find(song => Array.isArray(song.categories) && song.categories.includes(merged.activeFilter));
+        merged.selectedSongId = songSheetId(firstFiltered || merged.songs[0] || {});
+      }
       return merged;
     }
 
@@ -2453,6 +2458,50 @@
       return String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     }
     function nl(v){ return esc(v).replace(/\n/g,'<br>'); }
+
+    function songKey(song){
+      return String(song?.id || song?.songId || '').trim();
+    }
+
+    function songSheetId(song){
+      return String(song?.songId || song?.id || '').trim();
+    }
+
+    function ensureSongIdentity(song){
+      if(!song || typeof song !== 'object') return song;
+      const id = songSheetId(song);
+      if(id){
+        song.id = id;
+        song.songId = id;
+      }
+      return song;
+    }
+
+    function hasGuideContent(line){
+      return !!(line && (line.time || line.stage || line.lyric || line.desc || line.tags || line.call || line.guideKo || line.callKo || line.mixKo || line.pointKo));
+    }
+
+    function normalizeGuideLinesForSong(song){
+      const id = songSheetId(song);
+      if(!id || !Array.isArray(song?.guide)) return song?.guide || [];
+      return song.guide.filter(hasGuideContent).map((line, index)=>({
+        ...line,
+        songId:id,
+        guideId: line.guideId || `${id}-guide-${String(index + 1).padStart(2,'0')}`
+      }));
+    }
+
+    function prepareSetlistAdminSaveData(source){
+      const copy = structuredClone(source || {});
+      copy.songs = Array.isArray(copy.songs) ? copy.songs.map(song=>{
+        ensureSongIdentity(song);
+        song.guide = normalizeGuideLinesForSong(song);
+        return song;
+      }).filter(song=>songKey(song)) : [];
+      const selected = copy.songs.find(song => songKey(song) === copy.selectedSongId || song.songId === copy.selectedSongId);
+      copy.selectedSongId = selected ? songSheetId(selected) : (copy.songs[0] ? songSheetId(copy.songs[0]) : '');
+      return copy;
+    }
     function cardDesc(song){
       return String(song?.desc || '').trim() || '곡 설명을 입력해 주세요.';
     }
@@ -2487,7 +2536,8 @@
       if(hidden) hidden.value = btn.dataset.value || 'public';
     }
     function selectedSong(){
-      return data.songs.find(s=>s.id===data.selectedSongId) || data.songs[0];
+      const current = String(data.selectedSongId || '').trim();
+      return data.songs.find(s=>songKey(s)===current || s.songId===current) || data.songs[0];
     }
 
     function displayMode(song){
@@ -2886,7 +2936,8 @@
     }
 
     function selectSong(id){
-      data.selectedSongId = id;
+      const target = data.songs.find(song => songKey(song) === id || song.songId === id);
+      data.selectedSongId = target ? songSheetId(target) : id;
       render();
       document.getElementById('guidePanel').scrollIntoView({behavior:'smooth', block:'start'});
     }
@@ -3559,7 +3610,16 @@
         </div>
         <div class="line-editor-toolbar"><button class="btn" type="button" onclick="addCheerGuideLine()">+ 라인 추가</button></div>${modalActions()}
       `, ()=>{
-        s.guide = collectCheerGuideDraft().filter(l=>l.time||l.stage||l.lyric||l.desc||l.tags||l.call);
+        ensureSongIdentity(s);
+        const currentSongId = songSheetId(s);
+        data.selectedSongId = currentSongId || data.selectedSongId;
+        s.guide = collectCheerGuideDraft()
+          .filter(hasGuideContent)
+          .map((line, index)=>({
+            ...line,
+            songId: currentSongId,
+            guideId: line.guideId || `${currentSongId}-guide-${String(index + 1).padStart(2,'0')}`
+          }));
         cheerGuideDraft = null;
         cheerGuideOpenIndex = 0;
       });
@@ -3652,10 +3712,12 @@
     async function saveAll(){
       try{
         setAdminStatus('시트 저장 중입니다...');
-        const response = await callSetlistApi('adminSaveSetlistData', {data:data});
+        const saveData = prepareSetlistAdminSaveData(data);
+        const response = await callSetlistApi('adminSaveSetlistData', {data:saveData});
         if(!response || response.ok === false){
           throw new Error((response && (response.message || response.error)) || 'saveFailed');
         }
+        data = saveData;
         persist();
         setAdminStatus('시트 저장 완료 · 새로고침 후에도 같은 내용이 유지되는지 확인해 주세요.');
         alert('SETLIST 관리 내용이 시트에 저장되었습니다.');
