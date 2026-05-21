@@ -2425,17 +2425,34 @@
       }
     }
 
+    function hasSetlistSongs(apiData){
+      return !!(apiData && Array.isArray(apiData.songs) && apiData.songs.length > 0);
+    }
+
     async function initSetlistAdmin(){
       try{
+        // 먼저 브라우저 저장본/defaultData를 그대로 보여준다.
+        // 시트가 비어 있을 때 빈 데이터로 덮어쓰면 곡 카드/상세 영역이 사라져 보이기 때문.
         setAdminStatus('시트 데이터를 불러오는 중입니다...');
+        render();
+
         const response = await callSetlistApi('adminGetSetlistData', {});
-        if(response && response.ok && response.data){
+
+        if(response && response.ok && hasSetlistSongs(response.data)){
           data = normalizeSetlistAdminData(response.data);
           persist();
           setAdminStatus('시트 데이터 불러오기 완료 · 수정 후 저장 버튼을 눌러 주세요.');
-        }else{
-          setAdminStatus('시트 데이터가 아직 없어 브라우저 임시 저장본을 표시합니다.');
+          render();
+          return;
         }
+
+        if(response && response.ok){
+          setAdminStatus('시트 데이터가 아직 비어 있어 브라우저 저장본을 표시합니다 · 저장하면 시트에 등록됩니다.');
+          render();
+          return;
+        }
+
+        setAdminStatus('시트 불러오기 실패 · 브라우저 임시 저장본을 표시합니다.');
       }catch(err){
         console.error(err);
         setAdminStatus('시트 불러오기 실패 · 브라우저 임시 저장본을 표시합니다.');
