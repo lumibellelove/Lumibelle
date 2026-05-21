@@ -3180,7 +3180,9 @@ nav a.current span,nav a:hover span{ color:#d88dad !important; }
 
 
   <script>
-    const songs = [
+    const SETLIST_PUBLIC_API_URL = 'https://lumi-news-api.lumibelle-love.workers.dev';
+
+    let songs = [
       {
         id: 'stardust-magical',
         title: 'Stardust Magical',
@@ -4452,12 +4454,151 @@ We are Sweetie pie! 루미베르 데스~`,
       { id: 'all', label: '전체', note: '등록된 모든 응원가이드 곡을 보여줘요.' }
     ];
 
-    const songCategoryMap = {
+    let songCategoryMap = {
       'stardust-magical': ['current','team','solo','all'],
       'storyberrylove': ['current','team','all'],
       'shukipi': ['current','team','solo','all'],
       'canaria': ['current','team','solo','all']
     };
+
+    function setlistText(value){
+      return String(value == null ? '' : value).trim();
+    }
+
+    function setlistArray(value){
+      if(Array.isArray(value)) return value.map(item => setlistText(item)).filter(Boolean);
+      if(value == null || value === '') return [];
+      if(typeof value === 'string'){
+        const trimmed = value.trim();
+        if(!trimmed) return [];
+        try{
+          const parsed = JSON.parse(trimmed);
+          if(Array.isArray(parsed)) return parsed.map(item => setlistText(item)).filter(Boolean);
+        }catch(e){ /* plain text */ }
+        return trimmed.split(',').map(item => item.trim()).filter(Boolean);
+      }
+      return [setlistText(value)].filter(Boolean);
+    }
+
+    function labelToFilterId(label){
+      const text = setlistText(label);
+      const map = {
+        '현재 셋리':'current',
+        '현재셋리':'current',
+        'current':'current',
+        '팀곡':'team',
+        'team':'team',
+        '솔로곡':'solo',
+        'solo':'solo',
+        '유닛곡':'unit',
+        'unit':'unit',
+        '생탄':'birthday',
+        'birthday':'birthday',
+        '스페셜':'special',
+        'special':'special',
+        '전체':'all',
+        'all':'all'
+      };
+      return map[text] || map[text.toLowerCase()] || 'all';
+    }
+
+    function htmlLineBreak(text){
+      return setlistText(text).replace(/\\n/g, '\n').replace(/\n/g, '<br>');
+    }
+
+    function normalizeGuideLines(song){
+      const source = Array.isArray(song.guide) ? song.guide : [];
+      return source.map(line => ({
+        time: setlistText(line.time || line.sectionLabelKo || line.sectionLabel || ''),
+        stage: setlistText(line.stage || line.guideType || ''),
+        lyric: htmlLineBreak(line.lyric || line.guideKo || line.guide || line.desc || ''),
+        tags: setlistArray(line.tags || line.mixKo || line.mix),
+        call: htmlLineBreak(line.call || line.callKo || '')
+      }));
+    }
+
+    function normalizeSupport(song){
+      if(song.support && typeof song.support === 'object') return song.support;
+
+      const modeText = setlistText(song.mode || '팀 응원');
+      const levelText = setlistText(song.level || '초보용');
+      const modeKey = modeText.includes('솔로') ? 'solo' : 'team';
+      const levelKey = levelText.includes('고급') || levelText.toLowerCase().includes('advanced') ? 'advanced' : 'beginner';
+      const support = {
+        team: { beginner: null, advanced: null },
+        solo: { beginner: null, advanced: null }
+      };
+      support[modeKey][levelKey] = {
+        point: setlistText(song.point || song.pointKo || '응원 포인트 준비중'),
+        lines: normalizeGuideLines(song)
+      };
+      return support;
+    }
+
+    function normalizePublicSong(song){
+      const normalized = {
+        id: setlistText(song.id || song.songId || song.title || 'song'),
+        title: setlistText(song.title || song.titleKo || song.id || 'Untitled'),
+        subtitle: setlistText(song.subtitle || song.titleEn || song.title || '').toUpperCase(),
+        desc: htmlLineBreak(song.desc || song.descKo || song.notes || ''),
+        thumb: setlistText(song.thumb || song.thumbUrl || ''),
+        status: setlistArray(song.status).length ? setlistArray(song.status) : ['응원가이드'],
+        lyrics: setlistText(song.lyrics || song.lyricMemo || ''),
+        meta: setlistArray(song.meta),
+        performable: setlistArray(song.performable || song.members),
+        audioPolicy: setlistText(song.audioPolicy),
+        officialAudio: setlistText(song.officialAudio || song.officialAudioUrl),
+        officialAudioEmbed: setlistText(song.officialAudioEmbed || song.officialAudioEmbedUrl),
+        officialAudioLinks: Array.isArray(song.officialAudioLinks) ? song.officialAudioLinks : [],
+        callReferenceEmbed: setlistText(song.callReferenceEmbed || song.callReferenceEmbedUrl),
+        callReferenceNote: setlistText(song.callReferenceNote),
+        audio: setlistText(song.audio || song.audioUrl || song.officialAudioUrl),
+        video: setlistText(song.video || song.videoUrl),
+        support: normalizeSupport(song)
+      };
+      return normalized;
+    }
+
+    function applyPublicSetlistData(apiData){
+      if(!apiData || !Array.isArray(apiData.songs) || !apiData.songs.length) return false;
+      const nextSongs = apiData.songs
+        .filter(song => String(song.visibility || 'public') === 'public')
+        .map(normalizePublicSong)
+        .filter(song => !!song.id);
+      if(!nextSongs.length) return false;
+
+      songs = nextSongs;
+      songCategoryMap = {};
+      apiData.songs.forEach(song => {
+        const songId = setlistText(song.id || song.songId || song.title);
+        if(!songId) return;
+        const ids = setlistArray(song.categories || song.categoryId).map(labelToFilterId);
+        if(!ids.includes('all')) ids.push('all');
+        songCategoryMap[songId] = ids.length ? Array.from(new Set(ids)) : ['all'];
+      });
+
+      if(!songs.some(song => song.id === state.songId)){
+        state.songId = songs[0].id;
+      }
+      state.comingSoonIndex = null;
+      sliderIndex = 0;
+      return true;
+    }
+
+    async function loadPublicSetlistData(){
+      try{
+        const url = new URL(SETLIST_PUBLIC_API_URL);
+        url.searchParams.set('action', 'publicListSetlistData');
+        url.searchParams.set('_nocache', String(Date.now()));
+        const res = await fetch(url.toString(), { method:'GET', cache:'no-store' });
+        const result = await res.json();
+        if(result && result.ok && result.data){
+          applyPublicSetlistData(result.data);
+        }
+      }catch(err){
+        console.warn('SETLIST public data fallback:', err);
+      }
+    }
 
     function getSongCategories(song){
       return songCategoryMap[song.id] || ['all'];
@@ -5186,8 +5327,13 @@ We are Sweetie pie! 루미베르 데스~`,
 
     window.addEventListener('resize', updateSlider);
 
-    render(true);
-    syncGuideColumns();
+    async function initPublicSetlistPage(){
+      await loadPublicSetlistData();
+      render(true);
+      syncGuideColumns();
+    }
+
+    initPublicSetlistPage();
   </script>
 
 
