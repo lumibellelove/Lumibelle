@@ -2358,6 +2358,7 @@
     let songSelectMode = false;
     let selectedSongIds = new Set();
     let cheerGuideDraft = null;
+    let cheerGuideDraftSongId = '';
     let cheerGuideOpenIndex = 0;
     const SONGS_PER_PAGE = 4;
 
@@ -2404,12 +2405,97 @@
       return window.LUMIBELLE_SETLIST_API_URL || window.LUMIBELLE_CONTENT_API_URL || window.CONTENT_DB_API_URL || SETLIST_API_URL || SETLIST_TRANSLATE_API_URL || '';
     }
 
+    function guideSongKey(value){
+      return String(value || '').trim().toLowerCase();
+    }
+
+    function normalizeGuideLineFromSheet(row){
+      const section = row && (row.sectionLabelKo || row.sectionLabel || row.time || row.stage || '');
+      const guideText = row && (row.guideKo || row.guide || row.lyric || row.desc || '');
+      const callText = row && (row.callKo || row.call || '');
+      const mixText = row && (row.mixKo || row.mix || '');
+      const pointText = row && (row.pointKo || row.point || '');
+      return {
+        time: String(section || '').trim(),
+        stage: String((row && (row.guideType || row.stage)) || '').trim(),
+        lyric: String(guideText || '').trim(),
+        desc: String(pointText || mixText || '').trim(),
+        tags: [mixText ? '믹스' : '', pointText ? '포인트' : ''].filter(Boolean).join(', '),
+        call: String(callText || '').trim()
+      };
+    }
+
+    function isVisibleGuideRow(row){
+      if(!row || typeof row !== 'object') return false;
+      const active = row.isActive;
+      if(active === false) return false;
+      if(String(active || '').trim().toUpperCase() === 'FALSE') return false;
+      return !!String(row.songId || row.id || '').trim();
+    }
+
+    function hasGuideLineContent(line){
+      return !!(line && (line.time || line.stage || line.lyric || line.desc || line.tags || line.call));
+    }
+
+    function collectApiGuideRows(apiData){
+      if(!apiData || typeof apiData !== 'object') return [];
+      return apiData.guides || apiData.setlistGuides || apiData.setlist_guides || apiData.guideRows || [];
+    }
+
+    function attachGuideRowsToSongs(merged, apiData){
+      const rows = collectApiGuideRows(apiData);
+      if(!Array.isArray(rows) || !rows.length || !Array.isArray(merged.songs)) return merged;
+      const grouped = {};
+      rows.filter(isVisibleGuideRow).forEach(row => {
+        const key = guideSongKey(row.songId);
+        if(!key || key === 'canaria') return;
+        const line = normalizeGuideLineFromSheet(row);
+        if(!hasGuideLineContent(line)) return;
+        if(!grouped[key]) grouped[key] = [];
+        grouped[key].push({ line, order: Number(row.sortOrder || 0) });
+      });
+      merged.songs = merged.songs.map(song => {
+        const key = guideSongKey(song.id || song.songId);
+        const found = grouped[key];
+        if(!found || !found.length) return song;
+        return Object.assign({}, song, {
+          guide: found.sort((a,b)=>a.order-b.order).map(item => item.line)
+        });
+      });
+      return merged;
+    }
+
+    function buildGuideRowsFromSongs(){
+      const rows = [];
+      (data.songs || []).forEach(song => {
+        const songId = String(song.id || song.songId || '').trim();
+        if(!songId || songId.toLowerCase() === 'canaria') return;
+        (song.guide || []).filter(hasGuideLineContent).forEach((line, index) => {
+          rows.push({
+            guideId: `${songId}-guide-${String(index + 1).padStart(2,'0')}`,
+            songId,
+            guideType: line.stage || '',
+            sectionLabelKo: line.time || '',
+            guideKo: line.lyric || line.desc || '',
+            callKo: line.call || '',
+            mixKo: line.tags || '',
+            pointKo: line.desc || '',
+            videoUrl: song.callReferenceUrl || song.callReferenceEmbed || song.video || '',
+            sortOrder: index + 1,
+            isActive: true
+          });
+        });
+      });
+      return rows;
+    }
+
     function normalizeSetlistAdminData(apiData){
       const base = structuredClone(defaultData);
       if(!apiData || typeof apiData !== 'object') return base;
-      const merged = Object.assign(base, apiData);
+      let merged = Object.assign(base, apiData);
       merged.filters = Array.isArray(apiData.filters) ? apiData.filters : base.filters;
       merged.songs = Array.isArray(apiData.songs) ? apiData.songs : base.songs;
+      merged = attachGuideRowsToSongs(merged, apiData);
       return sanitizeSetlistDataForAdmin(merged);
     }
 
@@ -2508,10 +2594,7 @@
       if(hidden) hidden.value = btn.dataset.value || 'public';
     }
     function selectedSong(){
-      const songs = Array.isArray(data.songs) ? data.songs.filter(song => !isLegacySampleSong(song)) : [];
-      const current = songs.find(s=>s.id===data.selectedSongId) || songs[0] || {id:'', title:'', subtitle:'', desc:'', guide:[]};
-      if(current && current.id && data.selectedSongId !== current.id) data.selectedSongId = current.id;
-      return current;
+      return data.songs.find(s=>s.id===data.selectedSongId) || data.songs[0];
     }
 
     function displayMode(song){
@@ -2741,7 +2824,8 @@
 
     function renderDetail(){
       const s = selectedSong();
-      const lines = (s.guide||[]).length ? s.guide.map(line => `
+      const visibleGuideLines = (s.guide || []).filter(hasGuideLineContent);
+      const lines = visibleGuideLines.length ? visibleGuideLines.map(line => `
         <div class="guide-line">
           <div class="guide-line-top">
             <div class="guide-time">${esc(line.time)}</div>
@@ -2786,7 +2870,7 @@
             <div class="guide-info-mix">
               <div class="mix-practice-title">🎧 MIX PRACTICE</div>
               <div class="mix-practice-desc">타이밍에 맞춰 콜을 넣어보세요!</div>
-              <button class="mix-practice-btn" type="button" onclick="openCheerGuideModal()">START</button>
+              <button class="mix-practice-btn" type="button">START</button>
             </div>
           </div>
         </div>
@@ -3545,7 +3629,14 @@
 
     function openCheerGuideModal(){
       const s = selectedSong();
+      const currentSongId = String(s.id || s.songId || '').trim();
+      if(cheerGuideDraftSongId !== currentSongId){
+        cheerGuideDraft = null;
+        cheerGuideOpenIndex = 0;
+        cheerGuideDraftSongId = currentSongId;
+      }
       if(!Array.isArray(cheerGuideDraft)) cheerGuideDraft = Array.isArray(s.guide) ? structuredClone(s.guide) : [];
+      cheerGuideDraft = cheerGuideDraft.filter(hasGuideLineContent);
       if(!cheerGuideDraft.length) cheerGuideDraft = [{time:'',stage:'',lyric:'',desc:'',tags:'',call:''}];
       const guide = cheerGuideDraft;
       openModal('CHEER GUIDE 수정', `
@@ -3583,8 +3674,9 @@
         </div>
         <div class="line-editor-toolbar"><button class="btn" type="button" onclick="addCheerGuideLine()">+ 라인 추가</button></div>${modalActions()}
       `, ()=>{
-        s.guide = collectCheerGuideDraft().filter(l=>l.time||l.stage||l.lyric||l.desc||l.tags||l.call);
+        s.guide = collectCheerGuideDraft().filter(hasGuideLineContent);
         cheerGuideDraft = null;
+        cheerGuideDraftSongId = '';
         cheerGuideOpenIndex = 0;
       });
     }
@@ -3677,6 +3769,7 @@
       try{
         setAdminStatus('시트 저장 중입니다...');
         data = sanitizeSetlistDataForAdmin(data);
+        data.guides = buildGuideRowsFromSongs();
         const response = await callSetlistApi('adminSaveSetlistData', {data:data});
         if(!response || response.ok === false){
           throw new Error((response && (response.message || response.error)) || 'saveFailed');
