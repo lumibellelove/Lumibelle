@@ -4484,24 +4484,37 @@ We are Sweetie pie! 루미베르 데스~`,
     }
 
     function normalizeSong(raw){
+      const id = raw.id || raw.songId || '';
+      const title = raw.title || raw.titleKo || id;
+      const subtitle = raw.subtitle || raw.titleEn || String(title || '').toUpperCase();
+      const desc = raw.desc || raw.descKo || '';
+      const officialAudioEmbed = raw.officialAudioEmbed || raw.officialAudioEmbedUrl || '';
+      const officialAudio = raw.officialAudio || raw.officialAudioUrl || '';
+      const audio = raw.audio || raw.audioUrl || '';
+      const callReferenceEmbed = raw.callReferenceEmbed || raw.callReferenceEmbedUrl || '';
+      const callReferenceUrl = raw.callReferenceUrl || '';
+      const hasExternalSource = !!String(officialAudioEmbed || officialAudio || audio || callReferenceEmbed || callReferenceUrl).trim();
+      const audioPolicy = raw.audioPolicy || (hasExternalSource ? 'external' : 'original');
+
       return {
-        id: raw.id,
-        title: raw.title || raw.id,
-        subtitle: raw.subtitle || String(raw.title || '').toUpperCase(),
-        desc: raw.desc || '',
-        thumb: raw.thumb || '',
+        id,
+        title,
+        subtitle,
+        desc,
+        thumb: raw.thumb || raw.thumbUrl || '',
         status: Array.isArray(raw.status) ? raw.status : (raw.status ? [raw.status] : ['응원가이드 준비중']),
-        lyrics: raw.lyrics || '',
+        lyrics: raw.lyrics || raw.lyricMemo || '',
         meta: Array.isArray(raw.meta) ? raw.meta : [],
         performable: Array.isArray(raw.performable) ? raw.performable : [],
-        audioPolicy: raw.audioPolicy || 'original',
-        officialAudio: raw.officialAudio || '',
-        officialAudioEmbed: raw.officialAudioEmbed || '',
+        audioPolicy,
+        officialAudio,
+        officialAudioEmbed,
         officialAudioLinks: Array.isArray(raw.officialAudioLinks) ? raw.officialAudioLinks : [],
-        callReferenceEmbed: raw.callReferenceEmbed || '',
+        callReferenceEmbed,
+        callReferenceUrl,
         callReferenceNote: raw.callReferenceNote || '',
-        audio: raw.audio || '',
-        video: raw.video || '',
+        audio,
+        video: raw.video || raw.videoUrl || '',
         support: raw.support || { team: { beginner: null, advanced: null }, solo: { beginner: null, advanced: null } }
       };
     }
