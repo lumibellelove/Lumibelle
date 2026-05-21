@@ -2170,7 +2170,7 @@
         </div>
       </div>
       <div class="admin-note">
-        1차 테스트용입니다. 현재는 브라우저 localStorage에 저장됩니다. 나중에 안정되면 Google Sheets/API 저장으로 연결하면 됩니다.
+        시트 연동 준비 중입니다. 페이지를 열면 시트 데이터를 먼저 불러오고, 저장 버튼은 Google Sheets/API에 저장합니다. 실패 시 브라우저 백업본을 표시합니다.
       </div>
     </section>
 
@@ -2224,9 +2224,8 @@
 
   <script>
     const STORE_KEY = 'lumibelle_admin_setlist_draft_v1';
-    const SETLIST_DATA_API_URL = window.LUMIBELLE_SETLIST_API_URL || window.LUMIBELLE_CONTENT_API_URL || 'https://script.google.com/macros/s/AKfycbzmZHCLvg_Nd8f6qnat3RisYoMPnGARaLWPqeCnt2zHI8wl0-QuXkMmnGtcP_BoSFEH/exec';
-
-    const SETLIST_TRANSLATE_API_URL = window.LUMIBELLE_SETLIST_API_URL || window.LUMIBELLE_CONTENT_API_URL || window.CONTENT_DB_API_URL || '';
+    const SETLIST_API_URL = window.LUMIBELLE_SETLIST_API_URL || window.LUMIBELLE_CONTENT_API_URL || window.CONTENT_DB_API_URL || window.LUMI_CONTENT_API_URL || '';
+    const SETLIST_TRANSLATE_API_URL = SETLIST_API_URL;
 
     const defaultData = {
       hero:{
@@ -2385,83 +2384,78 @@
       localStorage.setItem(STORE_KEY, JSON.stringify(data));
     }
 
-    function setlistDataJsonpRequest(action, payload){
-      return new Promise((resolve, reject)=>{
-        const url = SETLIST_DATA_API_URL;
-        if(!url) return reject(new Error('missingApiUrl'));
-        const callbackName = 'setlistDataCallback_' + Date.now() + '_' + Math.floor(Math.random()*100000);
-        const script = document.createElement('script');
-        const timer = setTimeout(()=>{
-          cleanup();
-          reject(new Error('apiTimeout'));
-        }, 30000);
-        function cleanup(){
-          clearTimeout(timer);
-          try{ delete window[callbackName]; }catch(e){ window[callbackName] = undefined; }
-          if(script && script.parentNode) script.parentNode.removeChild(script);
-        }
-        window[callbackName] = function(response){
-          cleanup();
-          resolve(response || {});
-        };
-        const sep = url.indexOf('?') === -1 ? '?' : '&';
-        script.src = url + sep
-          + 'action=' + encodeURIComponent(action)
-          + '&callback=' + encodeURIComponent(callbackName)
-          + '&payload=' + encodeURIComponent(JSON.stringify(payload || {}))
-          + '&_nocache=' + Date.now();
-        script.onerror = function(){
-          cleanup();
-          reject(new Error('apiLoadError'));
-        };
-        document.body.appendChild(script);
+    function setAdminStatus(message){
+      const note = document.querySelector('.admin-note');
+      if(note) note.textContent = message || '';
+    }
+
+    async function callSetlistAdminApi(action, payload){
+      if(!SETLIST_API_URL) throw new Error('missingApiUrl');
+
+      const body = new URLSearchParams();
+      body.set('action', action);
+      body.set('payload', JSON.stringify(payload || {}));
+
+      const res = await fetch(SETLIST_API_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
+        body
       });
-    }
 
-    function normalizeSetlistServerData(response){
-      const body = response && response.data ? response.data : response;
-      if(!body) return null;
-      if(Array.isArray(body.songs) || Array.isArray(body.filters) || body.hero || body.liveGuide){
-        const next = structuredClone(defaultData);
-        if(body.hero) next.hero = Object.assign({}, next.hero || {}, body.hero);
-        if(body.liveGuide) next.liveGuide = Object.assign({}, next.liveGuide || {}, body.liveGuide);
-        if(Array.isArray(body.filters)) next.filters = body.filters;
-        if(Array.isArray(body.songs)) next.songs = body.songs;
-        return next;
-      }
-      return null;
-    }
-
-    async function loadSetlistFromSheet(){
+      const text = await res.text();
+      let json;
       try{
-        const response = await setlistDataJsonpRequest('adminGetSetlistData', {});
-        if(response && response.ok === false){
-          throw new Error(response.message || response.error || 'loadFailed');
-        }
-        const next = normalizeSetlistServerData(response);
-        if(next){
-          data = next;
+        json = JSON.parse(text);
+      }catch(err){
+        console.error('SETLIST API raw response:', text);
+        throw new Error('invalidJsonResponse');
+      }
+
+      if(!json || json.ok === false){
+        throw new Error((json && (json.message || json.error)) || 'apiFailed');
+      }
+
+      return json;
+    }
+
+    function normalizeSetlistAdminData(apiData){
+      const base = structuredClone(defaultData);
+      if(!apiData || typeof apiData !== 'object') return base;
+
+      const merged = {
+        ...base,
+        ...apiData,
+        hero:{...base.hero, ...(apiData.hero || {})},
+        liveGuide:{...base.liveGuide, ...(apiData.liveGuide || {})},
+        filters:Array.isArray(apiData.filters) ? apiData.filters : base.filters,
+        activeFilter:apiData.activeFilter || base.activeFilter,
+        selectedSongId:apiData.selectedSongId || base.selectedSongId,
+        songs:Array.isArray(apiData.songs) ? apiData.songs : base.songs
+      };
+
+      return merged;
+    }
+
+    async function initSetlistAdmin(){
+      try{
+        setAdminStatus('시트 데이터를 불러오는 중입니다...');
+        const response = await callSetlistAdminApi('adminGetSetlistData', {});
+        if(response && response.data){
+          data = normalizeSetlistAdminData(response.data);
           persist();
-          render();
+          setAdminStatus('시트 데이터 불러오기 완료 · 수정 후 저장을 누르면 Google Sheets에 반영됩니다.');
+        }else{
+          setAdminStatus('시트에 저장된 SETLIST 데이터가 없어 브라우저 기본값을 표시합니다.');
         }
       }catch(err){
-        alert('시트 불러오기 실패: ' + String(err && err.message ? err.message : err));
+        console.error(err);
+        const message = String(err && err.message ? err.message : err);
+        setAdminStatus(message === 'missingApiUrl'
+          ? 'API 주소가 연결되지 않아 브라우저 저장본을 표시합니다. window.LUMIBELLE_SETLIST_API_URL 또는 window.LUMIBELLE_CONTENT_API_URL 연결이 필요합니다.'
+          : '시트 불러오기 실패 · 브라우저 저장본을 표시합니다. Apps Script/Worker 배포 상태를 확인해 주세요.');
       }
+      render();
     }
-
-    async function saveSetlistToSheet(){
-      try{
-        const response = await setlistDataJsonpRequest('adminSaveSetlistData', {data:data});
-        if(response && response.ok === false){
-          throw new Error(response.message || response.error || 'saveFailed');
-        }
-        persist();
-        alert('SETLIST 관리 내용이 시트에 저장되었습니다.');
-      }catch(err){
-        alert('시트 저장 실패: ' + String(err && err.message ? err.message : err));
-      }
-    }
-
 
     function esc(v){
       return String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -3659,8 +3653,26 @@
       }
     }
 
-    function saveAll(){
-      saveSetlistToSheet();
+    async function saveAll(){
+      try{
+        setAdminStatus('시트에 저장 중입니다...');
+        const response = await callSetlistAdminApi('adminSaveSetlistData', {
+          data,
+          updatedBy:'admin'
+        });
+        persist();
+        const updatedAt = response && response.updatedAt ? ` · ${response.updatedAt}` : '';
+        setAdminStatus('시트 저장 완료' + updatedAt);
+        alert('SETLIST 관리 내용이 시트에 저장되었습니다.');
+      }catch(err){
+        console.error(err);
+        const message = String(err && err.message ? err.message : err);
+        persist();
+        setAdminStatus('시트 저장 실패 · 브라우저 백업본에는 저장했습니다.');
+        alert(message === 'missingApiUrl'
+          ? 'API 주소가 아직 연결되지 않았어요. window.LUMIBELLE_SETLIST_API_URL 또는 window.LUMIBELLE_CONTENT_API_URL을 먼저 연결해 주세요.'
+          : '시트 저장에 실패했어요. 브라우저 백업본에는 저장했습니다. 오류: ' + message);
+      }
     }
 
     function resetData(){
@@ -3682,8 +3694,8 @@
     document.getElementById('modal').addEventListener('click', e=>{
       if(e.target.id === 'modal') closeModal();
     });
-    render();
-    loadSetlistFromSheet();
+
+    initSetlistAdmin();
   </script>
 </body>
 </html>
