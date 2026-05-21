@@ -9,11 +9,24 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=SUIT:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap" rel="stylesheet">
   <script>
-    // SETLIST 관리자 전용 콘텐츠 API 주소
-    // GitHub Pages에서 API URL을 못 찾아 화면 렌더가 멈추는 문제 방지
-    window.LUMIBELLE_CONTENT_API_URL = window.LUMIBELLE_CONTENT_API_URL || 'https://script.google.com/macros/s/AKfycbzmZHCLvg_Nd8f6qnat3RisYoMPnGARaLWPqeCnt2zHI8wl0-QuXkMmnGtcP_BoSFEH/exec';
-    window.LUMIBELLE_SETLIST_API_URL = window.LUMIBELLE_SETLIST_API_URL || window.LUMIBELLE_CONTENT_API_URL;
-    window.CONTENT_DB_API_URL = window.CONTENT_DB_API_URL || window.LUMIBELLE_CONTENT_API_URL;
+    /*
+      SETLIST 관리자 API 주소
+      - 공지/스케줄/티켓과 같은 콘텐츠 Worker를 우선 사용합니다.
+      - Apps Script 직접 주소는 GitHub Pages에서 CORS/iframe 응답 문제로 멈출 수 있어 기본값으로 쓰지 않습니다.
+    */
+    window.LUMIBELLE_CONTENT_API_URL =
+      window.LUMIBELLE_CONTENT_API_URL ||
+      window.LUMI_NEWS_API_URL ||
+      window.CONTENT_DB_API_URL ||
+      'https://lumi-news-api.lumibelle-love.workers.dev';
+
+    window.LUMIBELLE_SETLIST_API_URL =
+      window.LUMIBELLE_SETLIST_API_URL ||
+      window.LUMIBELLE_CONTENT_API_URL;
+
+    window.CONTENT_DB_API_URL =
+      window.CONTENT_DB_API_URL ||
+      window.LUMIBELLE_CONTENT_API_URL;
   </script>
   <style>
     :root{
@@ -2416,12 +2429,10 @@
       body.set('action', action);
       body.set('payload', JSON.stringify(payload || {}));
 
-      // Apps Script 직접 호출은 GitHub Pages fetch CORS에 막힐 수 있어서
-      // responseMode=iframe + postMessage 방식으로 안전하게 처리합니다.
-      if(apiUrl.indexOf('script.google.com/macros/') !== -1){
-        return postSetlistApiViaIframe(apiUrl, action, payload);
-      }
-
+      /*
+        공지/스케줄/티켓과 같은 방식: Worker fetch 호출.
+        v3의 iframe 방식은 Apps Script 직접 호출용이라 Worker와 섞이면 postMessage가 오지 않아 timeout이 납니다.
+      */
       const res = await fetch(apiUrl, {
         method:'POST',
         headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
@@ -2429,12 +2440,20 @@
       });
 
       const text = await res.text();
+      let parsed;
       try{
-        return JSON.parse(text);
+        parsed = JSON.parse(text);
       }catch(err){
         console.error('SETLIST API raw response:', text);
-        throw new Error('invalidJsonResponse');
+        throw new Error('setlistApiInvalidJson');
       }
+
+      if(!res.ok){
+        console.error('SETLIST API HTTP error:', res.status, parsed);
+        throw new Error('setlistApiHttp' + res.status);
+      }
+
+      return parsed;
     }
 
     function postSetlistApiViaIframe(apiUrl, action, payload){
