@@ -2508,7 +2508,10 @@
       if(hidden) hidden.value = btn.dataset.value || 'public';
     }
     function selectedSong(){
-      return data.songs.find(s=>s.id===data.selectedSongId) || data.songs[0];
+      const songs = Array.isArray(data.songs) ? data.songs.filter(song => !isLegacySampleSong(song)) : [];
+      const current = songs.find(s=>s.id===data.selectedSongId) || songs[0] || {id:'', title:'', subtitle:'', desc:'', guide:[]};
+      if(current && current.id && data.selectedSongId !== current.id) data.selectedSongId = current.id;
+      return current;
     }
 
     function displayMode(song){
@@ -2783,7 +2786,7 @@
             <div class="guide-info-mix">
               <div class="mix-practice-title">🎧 MIX PRACTICE</div>
               <div class="mix-practice-desc">타이밍에 맞춰 콜을 넣어보세요!</div>
-              <button class="mix-practice-btn" type="button">START</button>
+              <button class="mix-practice-btn" type="button" onclick="openCheerGuideModal()">START</button>
             </div>
           </div>
         </div>
