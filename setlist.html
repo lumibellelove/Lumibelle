@@ -3180,7 +3180,7 @@ nav a.current span,nav a:hover span{ color:#d88dad !important; }
 
 
   <script>
-    let songs = [
+    const songs = [
       {
         id: 'stardust-magical',
         title: 'Stardust Magical',
@@ -4290,10 +4290,6 @@ We are Sweetie pie! 루미베르 데스~`,
       }
     ];
 
-    const PUBLIC_SETLIST_API_URL = 'https://lumi-news-api.lumibelle-love.workers.dev';
-    const publicBaseSongs = JSON.parse(JSON.stringify(songs));
-    const publicBaseSongIds = new Set(publicBaseSongs.map(song => song.id));
-
     const state = {
       songId: 'stardust-magical',
       mode: 'team',
@@ -4472,168 +4468,6 @@ We are Sweetie pie! 루미베르 데스~`,
       return songs.filter(song => getSongCategories(song).includes(state.filter));
     }
 
-    function publicClone(value){
-      try{ return JSON.parse(JSON.stringify(value)); }
-      catch(e){ return value; }
-    }
-
-    function publicText(value){
-      return String(value == null ? '' : value).trim();
-    }
-
-    function publicArray(value){
-      if(Array.isArray(value)) return value.map(item => publicText(item)).filter(Boolean);
-      if(typeof value === 'string'){
-        return value.split(',').map(item => publicText(item)).filter(Boolean);
-      }
-      return [];
-    }
-
-    function publicGuideLines(apiSong){
-      const guide = Array.isArray(apiSong?.guide) ? apiSong.guide : [];
-      return guide.map(line => ({
-        time: publicText(line.time || line.sectionLabel || line.sectionLabelKo),
-        stage: publicText(line.stage || line.guideType),
-        lyric: publicText(line.lyric || line.guide || line.guideKo || line.desc),
-        tags: Array.isArray(line.tags) ? line.tags : publicArray(line.tags || line.mix || line.mixKo),
-        call: publicText(line.call || line.callKo)
-      })).filter(line => line.time || line.stage || line.lyric || line.call || (line.tags || []).length);
-    }
-
-    function publicApplyGuideToSupport(baseSong, apiSong){
-      const merged = publicClone(baseSong || {});
-      const lines = publicGuideLines(apiSong);
-      if(!lines.length) return merged;
-
-      const point = publicText(apiSong.point || apiSong.pointKo) || merged.support?.team?.beginner?.point || '응원 포인트 준비중';
-      const modeText = publicText(apiSong.mode || '팀 응원');
-      const targetMode = modeText.includes('솔로') ? 'solo' : 'team';
-      const nextSupport = publicClone(merged.support || {});
-      if(!nextSupport[targetMode]) nextSupport[targetMode] = {};
-      nextSupport[targetMode].beginner = { point, lines };
-      merged.support = nextSupport;
-      return merged;
-    }
-
-    function publicSongTemplate(apiSong){
-      const id = publicText(apiSong.id || apiSong.songId) || ('song-' + Date.now());
-      const title = publicText(apiSong.title || apiSong.titleKo) || 'Untitled Song';
-      const subtitle = publicText(apiSong.subtitle || apiSong.titleEn) || title.toUpperCase();
-      const desc = publicText(apiSong.desc || apiSong.descKo) || '응원가이드 준비중입니다.';
-      const status = publicArray(apiSong.status);
-      const meta = publicArray(apiSong.meta);
-      const performable = publicArray(apiSong.performable || apiSong.members);
-      const thumb = publicText(apiSong.thumb || apiSong.thumbUrl) || 'img/tmb/mariring-tmb.png';
-      const base = {
-        id,
-        title,
-        subtitle,
-        desc,
-        thumb,
-        status: status.length ? status : ['응원가이드 준비중'],
-        lyrics: publicText(apiSong.lyrics || apiSong.lyricMemo) || `${title} 가사지 준비중`,
-        meta: meta.length ? meta : ['응원가이드 준비중'],
-        performable,
-        audioPolicy: publicText(apiSong.audioPolicy) || 'external',
-        officialAudio: publicText(apiSong.officialAudio || apiSong.officialAudioUrl),
-        officialAudioEmbed: publicText(apiSong.officialAudioEmbed || apiSong.officialAudioEmbedUrl),
-        officialAudioLinks: [],
-        callReferenceEmbed: publicText(apiSong.callReferenceEmbed || apiSong.callReferenceEmbedUrl),
-        callReferenceUrl: publicText(apiSong.callReferenceUrl),
-        callReferenceNote: publicText(apiSong.callReferenceNote),
-        audio: publicText(apiSong.audio || apiSong.audioUrl),
-        video: publicText(apiSong.video || apiSong.videoUrl),
-        support: {
-          team: { beginner: null, advanced: null },
-          solo: { beginner: null, advanced: null }
-        }
-      };
-      return publicApplyGuideToSupport(base, apiSong);
-    }
-
-    function publicMergeSong(baseSong, apiSong){
-      const merged = publicApplyGuideToSupport(baseSong, apiSong);
-      const title = publicText(apiSong.title || apiSong.titleKo);
-      const subtitle = publicText(apiSong.subtitle || apiSong.titleEn);
-      const desc = publicText(apiSong.desc || apiSong.descKo);
-      const status = publicArray(apiSong.status);
-      const meta = publicArray(apiSong.meta);
-      const performable = publicArray(apiSong.performable || apiSong.members);
-      const lyrics = publicText(apiSong.lyrics || apiSong.lyricMemo);
-
-      if(title) merged.title = title;
-      if(subtitle) merged.subtitle = subtitle;
-      if(desc) merged.desc = desc;
-      if(status.length) merged.status = status;
-      if(meta.length) merged.meta = meta;
-      if(performable.length) merged.performable = performable;
-      if(lyrics) merged.lyrics = lyrics;
-
-      // 공홈 원본에 이미 들어 있던 썸네일/영상/모달/음원 관련 값은 우선 보존한다.
-      // 새 곡에만 publicSongTemplate에서 기본값을 입힌다.
-      return merged;
-    }
-
-    function publicApplySetlistData(apiData){
-      const apiSongs = Array.isArray(apiData?.songs)
-        ? apiData.songs.filter(song => String(song.visibility || 'public') === 'public')
-        : [];
-      if(!apiSongs.length) return false;
-
-      const apiById = new Map();
-      apiSongs.forEach(song => {
-        const id = publicText(song.id || song.songId);
-        if(id) apiById.set(id, song);
-      });
-
-      const nextSongs = publicBaseSongs.map(baseSong => {
-        const apiSong = apiById.get(baseSong.id);
-        return apiSong ? publicMergeSong(baseSong, apiSong) : publicClone(baseSong);
-      });
-
-      apiSongs.forEach(apiSong => {
-        const id = publicText(apiSong.id || apiSong.songId);
-        if(!id || publicBaseSongIds.has(id)) return;
-        nextSongs.push(publicSongTemplate(apiSong));
-      });
-
-      songs = nextSongs;
-
-      apiSongs.forEach(apiSong => {
-        const id = publicText(apiSong.id || apiSong.songId);
-        if(!id) return;
-        const categories = publicArray(apiSong.categories);
-        if(categories.length){
-          songCategoryMap[id] = categories.includes('all') ? categories : [...categories, 'all'];
-        }else if(!songCategoryMap[id]){
-          songCategoryMap[id] = ['all'];
-        }
-      });
-
-      const filtered = getFilteredSongs();
-      if(!songs.some(song => song.id === state.songId)){
-        state.songId = filtered[0]?.id || songs[0]?.id || '';
-      }
-      state.comingSoonIndex = null;
-      sliderIndex = 0;
-      render(true);
-      updateSlider();
-      return true;
-    }
-
-    async function syncPublicSetlistInBackground(){
-      try{
-        const url = `${PUBLIC_SETLIST_API_URL}?action=publicListSetlistData&_nocache=${Date.now()}`;
-        const res = await fetch(url, { method:'GET', cache:'no-store' });
-        if(!res.ok) return;
-        const json = await res.json();
-        if(!json || json.ok === false || !json.data) return;
-        publicApplySetlistData(json.data);
-      }catch(err){
-        console.warn('public setlist sync skipped:', err);
-      }
-    }
-
     function getCurrentFilter(){
       return setlistFilters.find(item => item.id === state.filter) || setlistFilters[0];
     }
@@ -4704,7 +4538,19 @@ We are Sweetie pie! 루미베르 데스~`,
     }
 
     function buildComingSoonCards(){
-      return '';
+      return Array.from({length:4}, (_, i) => `
+        <article class="song-card coming-soon-card ${state.comingSoonIndex === i ? 'active' : ''}" data-coming-index="${i}">
+          <div class="song-card-badge">NOW</div>
+          <div class="song-card-sparkles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="song-thumb">COMING<br>SOON</div>
+          <div class="song-title">Coming Soon</div>
+          <div class="song-en">SETLIST SLOT ${i + 1}</div>
+          <div class="song-desc">추가 셋리 / 이벤트곡 / 솔로곡이 들어갈 자리예요.</div>
+          <div class="song-status">
+            <span class="chip">준비중</span>
+          </div>
+        </article>
+      `).join('');
     }
 
     function getVisibleCardCount(){
@@ -5342,7 +5188,6 @@ We are Sweetie pie! 루미베르 데스~`,
 
     render(true);
     syncGuideColumns();
-    syncPublicSetlistInBackground();
   </script>
 
 
