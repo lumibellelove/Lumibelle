@@ -2142,6 +2142,128 @@
 }
 @keyframes setlistTranslateSpin{to{transform:rotate(360deg)}}
 
+
+
+/* ===== Patch 7: SETLIST song thumbnail Drive editor ===== */
+.song-card-thumb-panel{
+  gap:14px;
+}
+.song-card-thumb-panel .song-card-thumb-box{
+  width:100%;
+  height:248px;
+  max-width:340px;
+  margin:0 auto;
+  border-radius:20px;
+  border:1px solid var(--line);
+  background:#fff8fc;
+}
+.song-card-thumb-panel .song-card-thumb-box img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:var(--thumb-x,50%) var(--thumb-y,50%);
+  transform:scale(var(--thumb-scale,1));
+  transform-origin:var(--thumb-x,50%) var(--thumb-y,50%);
+}
+.song-thumb-tool-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-top:14px;
+}
+.song-thumb-tool-grid .thumb-file-label,
+.song-thumb-tool-grid .song-card-admin-tiny-btn{
+  width:100%;
+  min-height:40px;
+  margin:0;
+  padding:0 12px;
+  font-size:13px;
+}
+.song-thumb-tool-grid .danger{
+  color:#bd6d90;
+  background:#fffafd;
+}
+.song-thumb-meta-box{
+  margin-top:12px;
+  padding:12px;
+  border:1px dashed rgba(239,184,208,.78);
+  border-radius:18px;
+  background:#fffafd;
+  color:#a98298;
+  font-size:12px;
+  line-height:1.55;
+  font-weight:850;
+  text-align:center;
+}
+.song-thumb-recent-panel{
+  display:none;
+  margin-top:12px;
+  padding:12px;
+  border:1px solid rgba(255,229,241,.95);
+  border-radius:18px;
+  background:#fff;
+}
+.song-thumb-recent-panel.open{display:block}
+.song-thumb-recent-title{
+  margin:0 0 10px;
+  color:#d26d9e;
+  font-size:13px;
+  font-weight:900;
+  text-align:center;
+}
+.song-thumb-recent-list{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.song-thumb-recent-item{
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#fff8fc;
+  overflow:hidden;
+  padding:0;
+  color:#9f6f88;
+  font-size:11px;
+  font-weight:900;
+}
+.song-thumb-recent-item img{
+  width:100%;
+  height:78px;
+  object-fit:cover;
+  display:block;
+}
+.song-thumb-recent-name{
+  display:block;
+  padding:7px 7px 8px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.song-thumb-recent-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  margin-top:10px;
+}
+.song-thumb-recent-actions button{
+  min-height:32px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  color:#c2729b;
+  font-size:11px;
+  font-weight:900;
+}
+.song-thumb-empty-note{
+  padding:14px;
+  border:1px dashed var(--line);
+  border-radius:14px;
+  color:#a98298;
+  font-size:12px;
+  font-weight:850;
+  text-align:center;
+}
+
 </style>
 </head>
 <body>
@@ -2376,6 +2498,22 @@
       }
       if(Array.isArray(target.guides)){
         target.guides = target.guides.filter(guide => String(guide?.songId || '').trim().toLowerCase() !== 'canaria');
+      }
+      if(Array.isArray(target.songs)){
+        target.songs = target.songs.map(song => {
+          const fileId = String(song.thumbFileId || extractDriveFileId(song.thumbUrl || song.thumb || '') || '').trim();
+          const thumbUrl = String(song.thumbUrl || song.thumb || driveThumbUrl(fileId) || '').trim();
+          return Object.assign(song, {
+            thumb: thumbUrl,
+            thumbUrl,
+            thumbFileId: fileId,
+            thumbX: clampNumber(song.thumbX, 0, 100, 50),
+            thumbY: clampNumber(song.thumbY ?? song.thumbPosition, 0, 100, 50),
+            thumbScale: clampNumber(song.thumbScale, 1, 2.5, 1),
+            thumbStyle: song.thumbStyle || 'cover',
+            thumbPresetName: song.thumbPresetName || ''
+          });
+        });
       }
       if(String(target.selectedSongId || '').trim().toLowerCase() === 'canaria'){
         target.selectedSongId = target.songs?.[0]?.id || target.songs?.[0]?.songId || '';
@@ -2765,7 +2903,7 @@
           ${data.selectedSongId===s.id ? '<div class="song-card-badge">NOW</div>' : ''}
           ${songVisibility(s)!=='public' ? `<div class="song-visibility-badge ${data.selectedSongId===s.id?'under-now':''} ${esc(songVisibility(s))}">${esc(visibilityLabel(songVisibility(s)))}</div>` : ''}
           <button class="song-edit" type="button" onclick="event.stopPropagation();openSongModal('${esc(s.id)}')">수정</button>
-          <div class="song-thumb">${s.thumb ? `<img src="${esc(s.thumb)}" alt="${esc(s.title)} 썸네일" style="${esc(thumbStyle(s))}">` : '썸네일 준비중'}</div>
+          <div class="song-thumb">${getSongThumbSrc(s) ? `<img src="${esc(getSongThumbSrc(s))}" alt="${esc(s.title)} 썸네일" style="${esc(thumbStyle(s))}">` : '썸네일 준비중'}</div>
           <h3 class="song-title">${esc(s.title)}</h3>
           <p class="song-en">${esc(s.subtitle)}</p>
           <p class="song-desc">${nl(cardDesc(s))}</p>
@@ -3177,6 +3315,7 @@
       if(yInput) yInput.value = String(Math.round(safe.y * 100) / 100);
       if(scaleInput) scaleInput.value = String(Math.round(safe.scale * 100) / 100);
       applySongThumbCropPreview();
+      updateSongThumbMeta();
     }
 
     function updateSongThumbCropPreview(){
@@ -3224,17 +3363,167 @@
       if(songThumbDragState && songThumbDragState.pointerId === event.pointerId) songThumbDragState = null;
     }
 
-    function previewSongThumb(input){
+    function extractDriveFileId(value){
+      const text = String(value || '').trim();
+      if(!text) return '';
+      const patterns = [
+        /\/file\/d\/([a-zA-Z0-9_-]+)/,
+        /[?&]id=([a-zA-Z0-9_-]+)/,
+        /\/d\/([a-zA-Z0-9_-]+)/
+      ];
+      for(const pattern of patterns){
+        const match = text.match(pattern);
+        if(match && match[1]) return match[1];
+      }
+      return '';
+    }
+
+    function driveThumbUrl(fileId){
+      const id = String(fileId || '').trim();
+      return id ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(id)}&sz=w1200` : '';
+    }
+
+    function getSongThumbSrc(song){
+      return String(song?.thumbUrl || song?.thumb || '').trim();
+    }
+
+    function currentSongThumbState(){
+      return {
+        thumb: val('songThumb') || '',
+        thumbUrl: val('songThumbUrl') || val('songThumb') || '',
+        thumbFileId: val('songThumbFileId') || '',
+        thumbStyle: val('songThumbStyle') || '',
+        thumbPresetName: val('songThumbPresetName') || '',
+        ...readSongThumbCropInputs()
+      };
+    }
+
+    function setSongThumbPreviewImage(src, alt){
+      const safeSrc = String(src || '').trim();
+      const imgHtml = safeSrc ? `<img src="${esc(safeSrc)}" alt="${esc(alt || '썸네일 미리보기')}">` : '썸네일 준비중';
+      document.querySelectorAll('#songThumbPreview, .song-thumb-sync').forEach(box => { box.innerHTML = imgHtml; });
+      applySongThumbCropPreview();
+    }
+
+    function applySongThumbSource(source, options){
+      const opt = options || {};
+      const fileId = String(source?.thumbFileId || source?.fileId || extractDriveFileId(source?.thumbUrl || source?.url || source?.thumb) || '').trim();
+      const thumbUrl = String(source?.thumbUrl || source?.url || source?.thumb || driveThumbUrl(fileId) || '').trim();
+      const thumb = thumbUrl;
+      const hiddenThumb = document.getElementById('songThumb');
+      const hiddenThumbUrl = document.getElementById('songThumbUrl');
+      const hiddenThumbFileId = document.getElementById('songThumbFileId');
+      const hiddenThumbStyle = document.getElementById('songThumbStyle');
+      const hiddenThumbPreset = document.getElementById('songThumbPresetName');
+      if(hiddenThumb) hiddenThumb.value = thumb;
+      if(hiddenThumbUrl) hiddenThumbUrl.value = thumbUrl;
+      if(hiddenThumbFileId) hiddenThumbFileId.value = fileId;
+      if(hiddenThumbStyle) hiddenThumbStyle.value = String(source?.thumbStyle || 'cover');
+      if(hiddenThumbPreset) hiddenThumbPreset.value = String(source?.thumbPresetName || source?.presetName || '');
+      if(opt.withCrop){
+        writeSongThumbCropInputs({
+          x: source?.thumbX ?? source?.x ?? 50,
+          y: source?.thumbY ?? source?.y ?? 50,
+          scale: source?.thumbScale ?? source?.scale ?? 1
+        });
+      }else if(opt.resetCrop !== false){
+        writeSongThumbCropInputs({x:50, y:50, scale:1});
+      }
+      setSongThumbPreviewImage(thumbUrl, '곡 카드 썸네일 미리보기');
+      updateSongThumbMeta();
+    }
+
+    function clearSongThumb(){
+      if(!confirm('이 곡 카드에서 썸네일 연결을 제거할까요?
+Drive 원본 파일은 삭제되지 않습니다.')) return;
+      ['songThumb','songThumbUrl','songThumbFileId','songThumbStyle','songThumbPresetName'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.value = '';
+      });
+      writeSongThumbCropInputs({x:50, y:50, scale:1});
+      setSongThumbPreviewImage('', '썸네일 준비중');
+      updateSongThumbMeta();
+    }
+
+    function updateSongThumbMeta(){
+      const box = document.getElementById('songThumbMetaBox');
+      if(!box) return;
+      const state = currentSongThumbState();
+      const srcLabel = state.thumbFileId ? `Drive fileId 저장됨` : (state.thumbUrl ? '이미지 URL 저장됨' : '썸네일 없음');
+      box.textContent = `${srcLabel} · X ${Math.round(state.x)} / Y ${Math.round(state.y)} / Scale ${Math.round(state.scale * 100) / 100}`;
+    }
+
+    function collectRecentSongThumbs(currentSongId){
+      const map = new Map();
+      (data.songs || []).forEach(song => {
+        const src = getSongThumbSrc(song);
+        if(!src) return;
+        const key = String(song.thumbFileId || src);
+        if(!key || map.has(key)) return;
+        map.set(key, {
+          title: song.title || song.id || '최근 사진',
+          thumb: src,
+          thumbUrl: song.thumbUrl || src,
+          thumbFileId: song.thumbFileId || extractDriveFileId(src),
+          thumbX: song.thumbX ?? 50,
+          thumbY: song.thumbY ?? 50,
+          thumbScale: song.thumbScale ?? 1,
+          thumbStyle: song.thumbStyle || 'cover',
+          thumbPresetName: song.thumbPresetName || '',
+          isCurrent: String(song.id || song.songId || '') === String(currentSongId || '')
+        });
+      });
+      return Array.from(map.values()).filter(item => !item.isCurrent).slice(0, 8);
+    }
+
+    function toggleRecentSongThumbPanel(){
+      const panel = document.getElementById('songThumbRecentPanel');
+      if(panel) panel.classList.toggle('open');
+    }
+
+    function applyRecentSongThumb(index, withCrop){
+      const currentId = document.getElementById('songThumbEditingId')?.value || '';
+      const list = collectRecentSongThumbs(currentId);
+      const item = list[index];
+      if(!item) return;
+      applySongThumbSource(item, {withCrop:!!withCrop, resetCrop:!withCrop});
+    }
+
+    async function uploadSongThumbToDrive(input){
       const file = input.files && input.files[0];
       if(!file || !file.type || !file.type.startsWith('image/')) return;
       const reader = new FileReader();
-      reader.onload = () => {
-        const result = String(reader.result || '');
-        const hidden = document.getElementById('songThumb');
-        const imgHtml = `<img src="${result}" alt="썸네일 미리보기">`;
-        if(hidden) hidden.value = result;
-        document.querySelectorAll('#songThumbPreview, .song-thumb-sync').forEach(box => { box.innerHTML = imgHtml; });
-        writeSongThumbCropInputs({x:50, y:50, scale:1});
+      reader.onload = async () => {
+        const dataUrl = String(reader.result || '');
+        setSongThumbPreviewImage(dataUrl, '업로드 미리보기');
+        updateSongThumbMeta();
+        try{
+          setAdminStatus('썸네일을 Drive에 업로드하는 중입니다...');
+          const response = await callSetlistApi('adminUploadSetlistThumb', {
+            filename:file.name,
+            mimeType:file.type,
+            dataUrl,
+            songId:document.getElementById('songThumbEditingId')?.value || data.selectedSongId || ''
+          });
+          if(!response || response.ok === false) throw new Error((response && (response.message || response.error)) || 'uploadFailed');
+          const result = response.data || response.file || response;
+          applySongThumbSource({
+            thumbFileId:result.thumbFileId || result.fileId || result.id,
+            thumbUrl:result.thumbUrl || result.url || driveThumbUrl(result.thumbFileId || result.fileId || result.id),
+            thumbStyle:'cover'
+          }, {resetCrop:true});
+          setAdminStatus('썸네일 Drive 업로드 완료 · 저장 후 반영을 눌러 주세요.');
+        }catch(err){
+          console.error(err);
+          ['songThumb','songThumbUrl','songThumbFileId'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.value = '';
+          });
+          setAdminStatus('썸네일 업로드 API 연결 확인 필요 · Drive 업로드 action이 필요합니다.');
+          alert('사진 미리보기는 되었지만 Drive 업로드 저장은 실패했어요.
+adminUploadSetlistThumb action 연결이 필요합니다.
+오류: ' + (err && err.message ? err.message : err));
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -3255,7 +3544,8 @@
         ...selectedCategories.filter(tag => tag !== '전체').slice(0, 2),
         ...selectedStatus.slice(0, 2)
       ]).slice(0, 5);
-      const thumbImg = s.thumb ? `<img src="${esc(s.thumb)}" alt="${esc(s.title)} 썸네일 미리보기" style="${esc(thumbStyle(s))}">` : '';
+      const thumbSrc = getSongThumbSrc(s);
+      const thumbImg = thumbSrc ? `<img src="${esc(thumbSrc)}" alt="${esc(s.title)} 썸네일 미리보기" style="${esc(thumbStyle(s))}">` : '';
 
       openModal('곡 카드 수정', `
         <div class="song-card-admin-modal">
@@ -3339,6 +3629,7 @@
               <div class="detail-admin-practice-head">
                 <h3>썸네일 설정</h3>
               </div>
+              <input class="thumb-hidden-input" id="songThumbEditingId" value="${esc(s.id || s.songId || '')}">
               <div class="song-card-thumb-box thumb-crop-stage" id="songThumbPreview"
                 onwheel="handleSongThumbWheel(event)"
                 onpointerdown="startSongThumbDrag(event)"
@@ -3346,14 +3637,40 @@
                 onpointerup="endSongThumbDrag(event)"
                 onpointercancel="endSongThumbDrag(event)"
                 onpointerleave="endSongThumbDrag(event)">${thumbImg || '썸네일 준비중'}</div>
-              <div class="song-card-thumb-actions">
+              <div class="song-thumb-tool-grid">
                 <label class="thumb-file-label">
-                  사진 선택
-                  <input type="file" id="songThumbFile" accept="image/*" onchange="previewSongThumb(this)">
+                  사진 불러오기
+                  <input type="file" id="songThumbFile" accept="image/*" onchange="uploadSongThumbToDrive(this)">
                 </label>
+                <button class="song-card-admin-tiny-btn" type="button" onclick="toggleRecentSongThumbPanel()">최근 사진</button>
                 <button class="song-card-admin-tiny-btn" type="button" onclick="resetSongThumbCrop()">위치 초기화</button>
+                <button class="song-card-admin-tiny-btn danger" type="button" onclick="clearSongThumb()">사진 삭제</button>
+              </div>
+              <div class="song-thumb-meta-box" id="songThumbMetaBox">썸네일 상태를 확인 중입니다.</div>
+              <div class="song-thumb-recent-panel" id="songThumbRecentPanel">
+                <p class="song-thumb-recent-title">최근 사진</p>
+                ${(() => {
+                  const recent = collectRecentSongThumbs(s.id || s.songId);
+                  if(!recent.length) return '<div class="song-thumb-empty-note">최근 사진이 아직 없어요.</div>';
+                  return `<div class="song-thumb-recent-list">${recent.map((item,index)=>`
+                    <div>
+                      <button class="song-thumb-recent-item" type="button" onclick="applyRecentSongThumb(${index}, false)">
+                        <img src="${esc(item.thumbUrl || item.thumb)}" alt="${esc(item.title)}">
+                        <span class="song-thumb-recent-name">${esc(item.title)}</span>
+                      </button>
+                      <div class="song-thumb-recent-actions">
+                        <button type="button" onclick="applyRecentSongThumb(${index}, false)">사진만</button>
+                        <button type="button" onclick="applyRecentSongThumb(${index}, true)">위치까지</button>
+                      </div>
+                    </div>
+                  `).join('')}</div>`;
+                })()}
               </div>
               <input class="thumb-hidden-input" id="songThumb" value="${esc(s.thumb || '')}">
+              <input class="thumb-hidden-input" id="songThumbUrl" value="${esc(s.thumbUrl || s.thumb || '')}">
+              <input class="thumb-hidden-input" id="songThumbFileId" value="${esc(s.thumbFileId || '')}">
+              <input class="thumb-hidden-input" id="songThumbStyle" value="${esc(s.thumbStyle || 'cover')}">
+              <input class="thumb-hidden-input" id="songThumbPresetName" value="${esc(s.thumbPresetName || '')}">
               <input class="thumb-hidden-input" id="songThumbX" value="${crop.x}">
               <input class="thumb-hidden-input" id="songThumbY" value="${crop.y}">
               <input class="thumb-hidden-input" id="songThumbScale" value="${crop.scale}">
@@ -3365,6 +3682,10 @@
         s.subtitle=val('songSubtitle');
         s.desc=val('songDesc');
         s.thumb=val('songThumb');
+        s.thumbUrl=val('songThumbUrl') || val('songThumb');
+        s.thumbFileId=val('songThumbFileId');
+        s.thumbStyle=val('songThumbStyle') || 'cover';
+        s.thumbPresetName=val('songThumbPresetName');
         const thumbCrop = readSongThumbCropInputs();
         s.thumbX = thumbCrop.x;
         s.thumbY = thumbCrop.y;
@@ -3373,7 +3694,13 @@
         s.visibility=val('songVisibility') || 'public';
         s.categories=collectModalChipValues('songCategoryChips','songCategoryCustom');
         s.status=collectModalChipValues('songStatusChips','songStatusCustom');
+        s.thumb=val('songThumb');
+        s.thumbUrl=val('songThumbUrl') || val('songThumb');
+        s.thumbFileId=val('songThumbFileId');
+        s.thumbStyle=val('songThumbStyle') || 'cover';
+        s.thumbPresetName=val('songThumbPresetName');
       });
+      setTimeout(updateSongThumbMeta, 0);
     }
 
     function openDetailModal(){
