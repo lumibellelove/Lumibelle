@@ -57,7 +57,7 @@ button,input{font:inherit}button{cursor:pointer}
 }
 .avatar{width:56px;height:56px;border-radius:21px;border:1px solid rgba(255,255,255,.92);box-shadow:0 10px 22px rgba(168,97,134,.13);display:grid;place-items:center;font-size:26px;position:relative;color:#fff;font-weight:950;background:linear-gradient(135deg,#ffc5de,#ff8ab9)}
 .info-avatar,.setting-avatar,.profile-avatar{border:2px solid rgba(255,255,255,.92)}
-.info-avatar,.setting-avatar{background:#fff4fa}
+.info-avatar,.setting-avatar{background:#fff4fa;border:2px solid rgba(255,255,255,.9) !important}
 .profile-avatar,.info-avatar{cursor:pointer}
 .profile-avatar:active,.info-avatar:active{transform:scale(.985)}
 
@@ -737,9 +737,6 @@ button,
 .channel-name b,
 .room-title,
 .desc,
-.preview{
-  color:inherit;
-}
 .channel-name b,
 .room-title{
   color:var(--ink) !important;
@@ -887,4 +884,110 @@ button:focus-visible{
   .app{
     min-height:100dvh;
   }
+}
+
+
+/* 버그4: 채널 추가 화면 하단 버튼 safe-area */
+.join-button {
+  position: sticky;
+  bottom: calc(var(--safe-bottom) + 16px);
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+.join-body {
+  padding-bottom: calc(var(--safe-bottom) + 100px);
+}
+
+/* 버그6: 아이폰 설정 화면 미세 스크롤 방지 */
+.screen-chat-setting {
+  overflow: hidden;
+  height: calc(100dvh - var(--safe-top) - var(--safe-bottom));
+}
+.setting-body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  height: calc(100% - 80px);
+}
+
+/* 아바타 핑크 테두리 — 아래 통합본으로 이동 */
+.avatar img,
+.room-avatar img,
+.info-avatar img,
+.setting-avatar img,
+.profile-avatar img,
+.msg-avatar img,
+.join-avatar img {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: inherit;
+}
+
+/* 아바타 wrapper 핑크 테두리 완전 제거 */
+.avatar,
+.room-avatar,
+.info-avatar,
+.setting-avatar,
+.profile-avatar,
+.msg-avatar {
+  border: none !important;
+  outline: none !important;
+}
+
+/* info/setting만 흰색 테두리 유지 */
+.info-avatar,
+.setting-avatar {
+  border: 2px solid rgba(255,255,255,.9) !important;
+}
+
+/* cursor — 통합 */
+.profile-avatar,
+#joinAvatar,
+#profileAvatar,
+#infoAvatar {
+  cursor: pointer;
+}
+#joinAvatar img,
+#profileAvatar img {
+  pointer-events: none;
+}
+
+/* ── iPhone Safari 색상 오버라이드 (통합) ── */
+.channel-name b,
+.channel-main b {
+  color: #2b2530;
+  -webkit-text-fill-color: #2b2530;
+}
+.preview {
+  color: #967c8c;
+  -webkit-text-fill-color: #967c8c;
+}
+
+/* ── joinScreen 버튼 z-index ── */
+.profile-top {
+  position: relative;
+  z-index: 10;
+}
+.profile-top .dark-btn {
+  position: relative;
+  z-index: 10;
+  pointer-events: all;
+}
+
+/* ── 아바타 img 핑크 배경 제거 ── */
+.avatar img, .room-avatar img, .info-avatar img,
+.setting-avatar img, .profile-avatar img, .msg-avatar img {
+  background: transparent;
+  border: none;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
 }

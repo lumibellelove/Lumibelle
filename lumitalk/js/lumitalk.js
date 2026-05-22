@@ -37,7 +37,7 @@ const rooms = {
   },
   help:{
     title:"운영팀 문의하기", short:"문의하기", label:"LUMI HELP", avatar:"?", avatarClass:"a-help", mark:"HELP", cover:null, profile:null,
-    sub:"예매, 입금, 굿즈, 오류 문의를 운영팀에게 남기는 채널이에요. 멤버 채널과는 분리돼요.", profileSub:"루미벨 운영 문의 채널", talkButton:"문의 남기기", photoTitle:"문의 안내",
+    sub:"예매, 입금, 굿즈, 오류 문의를 운영팀에게 남기는 채널이에요. 멤버 채널과는 분리돼요.", profileSub:"루미벨 운영팀이 확인 후 답변드려요", talkButton:"문의 남기기", photoTitle:"문의 안내",
     joinCopy:"운영팀에게 문의를 남길 수 있어요.",
     messages:[
       {type:"notice", text:"문의 내용은 운영팀에게만 전달돼요. 멤버 채널 답장함과 섞이지 않아요."},
@@ -235,6 +235,13 @@ function renderJoin(id){
   const items=(galleryItems[id]||galleryItems.lulu).slice(0,3);
   $("#joinPreviewRow").innerHTML=items.map(item=>photoHTML(item)).join("");
   $("#joinChannelBtn").textContent=`${room.short} 채널 추가하기`;
+  // 미리보기 사진 클릭 → 갤러리 뷰어
+  setTimeout(()=>{
+    $$("#joinPreviewRow img").forEach((img,i)=>{
+      img.style.cursor="pointer";
+      img.onclick=(e)=>{e.stopPropagation();openViewer(currentRoomId,i,"join");};
+    });
+  },0);
 }
 
 function joinCurrentChannel(){
@@ -326,6 +333,8 @@ function moveViewer(dir){
 
 function backFromViewer(){
   if(viewerReturn==="room"){renderRoom(currentRoomId);showScreen("roomScreen");return;}
+  if(viewerReturn==="join"){renderJoin(currentRoomId);showScreen("joinScreen");return;}
+  if(viewerReturn==="join-profile"){renderProfile(currentRoomId);showScreen("profileScreen");return;}
   if(viewerReturn==="info"){renderChannelInfo(currentRoomId);showScreen("channelInfoScreen");return;}
   if(viewerReturn==="profile"){renderProfile(currentRoomId);showScreen("profileScreen");return;}
   openGallery(currentRoomId);
@@ -376,8 +385,10 @@ function bindEvents(){
   $("#homeAddBtn").onclick=()=>$("#homeAddSheet").classList.remove("hidden");
   $("#settingMuteBtn").onclick=()=>{toggleMute();renderChatSetting(currentRoomId);};
   $("#settingLeaveBtn").onclick=()=>{$("#leaveTitle").textContent=`${getRoom(currentRoomId).title}을 나갈까요?`;$("#leaveConfirmSheet").classList.remove("hidden");};
-  $("#joinBackBtn").onclick=()=>showScreen("listScreen");
-  $("#joinHeartBtn").onclick=()=>{renderProfile(currentRoomId);showScreen("profileScreen");};
+  $("#joinBackBtn").onclick=(e)=>{e.stopPropagation();showScreen("listScreen");};
+  $("#joinHeartBtn").onclick=(e)=>{e.stopPropagation();renderProfile(currentRoomId);showScreen("profileScreen");};
+  // joinAvatar 클릭 → 프로필 이미지 뷰어
+  $("#joinAvatar").onclick=(e)=>{e.stopPropagation();openProfileImageViewer(currentRoomId,"join");};
   $("#joinChannelBtn").onclick=joinCurrentChannel;
   $("#profileBackBtn").onclick=()=>showScreen("listScreen");
   $("#goChatBtn").onclick=()=>openChannel(currentRoomId);
