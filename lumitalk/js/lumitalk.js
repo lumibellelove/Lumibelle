@@ -461,3 +461,53 @@ bindEvents();
     helpAvatar.textContent='?';
   }
 })();
+
+
+/* Patch 20.3 — my profile saved photos */
+(function(){
+  const bindMyProfilePhotos = () => {
+    document.querySelectorAll("[data-my-photo]").forEach((btn) => {
+      btn.onclick = () => {
+        const idx = Number(btn.dataset.myPhoto || 0);
+        galleryItems.__mySaved = [
+          {src:"./assets/lulu_cover.png", caption:"율의 소장 사진", type:"photo", date:"소장 사진"},
+          {src:"./assets/lulu_sd.png", caption:"율의 소장 사진", type:"photo", date:"소장 사진"},
+          {src:"./assets/lulu_spring.png", caption:"율의 소장 사진", type:"photo", date:"소장 사진"}
+        ];
+        currentRoomId = "__mySaved";
+        currentGalleryIndex = idx;
+        viewerReturn = "myProfile";
+        const item = galleryItems.__mySaved[idx] || galleryItems.__mySaved[0];
+        $("#viewerMember").textContent = "율";
+        $("#viewerDate").textContent = "소장 사진 · LB-0002";
+        $("#viewerPhotoImg").src = item.src;
+        $("#viewerCaption").textContent = item.caption;
+        $("#viewerIndex").textContent = `${idx + 1} / ${galleryItems.__mySaved.length}`;
+        $("#photoViewerScreen").classList.remove("ui-hidden");
+        showScreen("photoViewerScreen");
+      };
+    });
+  };
+
+  const oldOpen = window.openMyProfileSheet;
+  window.bindMyProfilePhotos = bindMyProfilePhotos;
+  document.getElementById("myProfileBtn")?.addEventListener("click", () => {
+    setTimeout(bindMyProfilePhotos, 0);
+  });
+})();
+
+/* Patch 20.3 — viewer back for my profile */
+(function(){
+  const oldBack = typeof backFromViewer === "function" ? backFromViewer : null;
+  if(oldBack){
+    window.backFromViewer = function(){
+      if(viewerReturn === "myProfile"){
+        showScreen("listScreen");
+        $("#myProfileSheet").classList.remove("hidden");
+        setTimeout(()=>window.bindMyProfilePhotos && window.bindMyProfilePhotos(), 0);
+        return;
+      }
+      return oldBack();
+    };
+  }
+})();
