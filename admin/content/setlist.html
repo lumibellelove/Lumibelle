@@ -458,7 +458,7 @@
       font-size:12px;
       font-weight:800;
     }
-    .song-thumb img{width:100%;height:100%;object-fit:cover;transform:scale(var(--thumb-scale,1));transform-origin:var(--thumb-x,50%) var(--thumb-y,50%)}
+    .song-thumb img{width:100%;height:100%;object-fit:cover;object-position:var(--thumb-x,50%) var(--thumb-y,50%);transform:scale(var(--thumb-scale,1));transform-origin:var(--thumb-x,50%) var(--thumb-y,50%)}
     .song-title{
       margin:0 0 10px;
       color:var(--text-strong);
@@ -2074,7 +2074,7 @@
   overflow:hidden;
 }
 .song-card-preview-visual{
-  height:265px;
+  height:248px;
   border-bottom:1px solid rgba(255,229,241,.95);
   background:#fff8fc;
   display:flex;
@@ -2117,7 +2117,7 @@
   line-height:1.3;
 }
 .song-card-thumb-box{
-  height:260px;
+  height:248px;
   margin-top:10px;
   border:1px solid var(--line);
   border-radius:22px;
@@ -2207,6 +2207,23 @@
   animation:setlistTranslateSpin 1.2s linear infinite;
 }
 @keyframes setlistTranslateSpin{to{transform:rotate(360deg)}}
+
+
+/* ===== Thumbnail preview sync patch 0522: admin preview = actual song card ===== */
+.song-card-preview-visual,
+.song-card-thumb-box{
+  height:248px;
+}
+.song-card-preview-visual img,
+.song-card-thumb-box img,
+.song-thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:var(--thumb-x,50%) var(--thumb-y,50%);
+  transform:scale(var(--thumb-scale,1));
+  transform-origin:var(--thumb-x,50%) var(--thumb-y,50%);
+}
 
 </style>
 </head>
