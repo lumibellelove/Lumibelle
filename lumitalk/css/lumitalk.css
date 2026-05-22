@@ -180,7 +180,7 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 
 /* ── 채팅 설정 화면 ── */
 .screen-chat-setting{background:#fff;color:var(--ink);overflow:auto}
-.setting-head{position:sticky;top:0;z-index:3;display:grid;grid-template-columns:56px 1fr 44px;align-items:center;padding:calc(var(--safe-top) + 15px) 16px 14px;background:rgba(255,255,255,.92);border-bottom:1px solid #eee4ea}
+.setting-head{position:static;top:0;z-index:3;display:grid;grid-template-columns:56px 1fr 44px;align-items:center;padding:calc(var(--safe-top) + 15px) 16px 14px;background:rgba(255,255,255,.92);border-bottom:1px solid #eee4ea}
 .setting-head strong{font-size:20px;font-weight:950;letter-spacing:-.05em}
 .setting-body{padding:24px 16px calc(var(--safe-bottom) + 28px)}
 .setting-profile{display:flex;align-items:center;gap:16px;padding:8px 2px 28px}
@@ -233,7 +233,7 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 
 /* ── 갤러리 화면 ── */
 .screen-gallery{background:#faf7f9;color:var(--ink);overflow:auto}
-.gallery-head{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(var(--safe-top) + 14px) 16px 14px;background:rgba(255,255,255,.88);backdrop-filter:blur(12px);border-bottom:1px solid #f0e5ec}
+.gallery-head{position:static;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(var(--safe-top) + 14px) 16px 14px;background:rgba(255,255,255,.88);backdrop-filter:blur(12px);border-bottom:1px solid #f0e5ec}
 .gallery-head-copy{flex:1;min-width:0}
 .gallery-head-copy b{display:block;font-size:14px;font-weight:950}
 .gallery-head-copy span{display:block;margin-top:2px;font-size:11px;color:#9b8593;font-weight:800}
@@ -817,8 +817,8 @@ button:focus-visible{
     overflow:hidden;
   }
   .join-button{
-    position:sticky;
-    bottom:calc(env(safe-area-inset-bottom, 0px) + 12px);
+    position:static;
+    bottom:auto;
     margin:18px 18px 16px;
     width:calc(100% - 36px);
     min-height:58px;
@@ -1250,4 +1250,138 @@ button:focus-visible{
 /* remove bottom cut */
 .my-profile-section{
   padding-bottom:38px !important;
+}
+
+
+/* Patch 20.2: actual iPhone setting text color fix */
+#chatSettingScreen,
+#chatSettingScreen button,
+#chatSettingScreen .setting-row,
+#chatSettingScreen .setting-row div,
+#chatSettingScreen .setting-row b,
+#chatSettingScreen .setting-row span,
+#chatSettingScreen .setting-row em,
+#chatSettingScreen .setting-profile,
+#chatSettingScreen .setting-profile b,
+#chatSettingScreen .setting-profile p,
+#chatSettingScreen #settingMuteText,
+#chatSettingScreen .setting-leave{
+  color:#4f3b47;
+  -webkit-text-fill-color:#4f3b47;
+  text-decoration:none;
+  appearance:none;
+  -webkit-appearance:none;
+}
+#chatSettingScreen .setting-row span,
+#chatSettingScreen .setting-profile p{
+  color:#967c8c;
+  -webkit-text-fill-color:#967c8c;
+}
+#chatSettingScreen .setting-row em{
+  color:#cab7c3;
+  -webkit-text-fill-color:#cab7c3;
+}
+#chatSettingScreen .setting-leave{
+  color:#e04f78;
+  -webkit-text-fill-color:#e04f78;
+}
+
+/* Patch 20.2: real sticky removal for join button */
+#joinChannelBtn.join-button,
+.join-button{
+  position:static;
+  bottom:auto;
+  left:auto;
+  right:auto;
+  width:calc(100% - 36px);
+  margin:18px 18px 22px;
+  transform:none;
+}
+
+/* Make join screen not create fake sticky scroll space */
+@media (max-width:759px){
+  #joinScreen.screen-join{
+    overflow-y:auto;
+    overflow-x:hidden;
+  }
+  #joinScreen .join-hero{
+    min-height:470px;
+    padding-top:46px;
+    padding-bottom:18px;
+  }
+  #joinScreen .join-card{
+    bottom:20px;
+  }
+  #joinScreen .join-body{
+    min-height:auto;
+    padding:18px 0 calc(env(safe-area-inset-bottom, 0px) + 12px);
+  }
+  #joinScreen .join-copy{
+    margin:0 18px 12px;
+    padding:16px;
+  }
+  #joinScreen .join-preview-row{
+    padding:0 18px;
+    margin:0 0 8px;
+  }
+}
+
+/* Help profile note only */
+.screen-profile.help-profile #profileNote{
+  color:#7d5f72;
+  -webkit-text-fill-color:#7d5f72;
+}
+
+
+/* Patch 20.2: my Lumi profile stable layout */
+.my-profile-home{
+  background:#fff;
+}
+.my-profile-home .sheet-head{
+  display:none;
+}
+.my-profile-hero{
+  position:relative;
+  min-height:570px;
+  padding:18px 16px;
+  background:
+    linear-gradient(180deg,rgba(50,20,35,.08),rgba(50,20,35,.58)),
+    url("../assets/lulu_cover.png") center 28% / cover no-repeat;
+}
+.my-profile-hero::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,rgba(50,20,35,.04),rgba(50,20,35,.36));
+  pointer-events:none;
+}
+.my-profile-hero .profile-top,
+.my-profile-hero .profile-info{
+  position:relative;
+  z-index:2;
+}
+.my-profile-avatar{
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,#ff93c4,#d9a8ff);
+  color:#fff;
+}
+.my-profile-section{
+  min-height:0;
+  padding-bottom:30px;
+}
+.my-saved-photo-row{
+  margin-bottom:14px;
+}
+.my-profile-section .my-action{
+  width:100%;
+  border:1px solid var(--line);
+  background:#fff7fb;
+  border-radius:999px;
+  padding:12px;
+  margin-top:14px;
+  color:#8b667a;
+  -webkit-text-fill-color:#8b667a;
+  font-size:12px;
+  font-weight:950;
 }

@@ -274,6 +274,12 @@ function renderProfile(id){
   $("#goChatBtn").textContent=room.talkButton;
   $("#profilePhotoBtn").textContent=room.photoTitle;
   $("#profilePhotoTitle").textContent=room.photoTitle;
+  const noteEl=$("#profileNote");
+  if(noteEl){
+    noteEl.textContent = id==="help"
+      ? "예매, 입금, 굿즈, 오류 문의를 운영팀에게 남길 수 있어요."
+      : "멤버가 남긴 사진과 순간들을 천천히 모아두는 공간이에요.";
+  }
   $("#profilePhotoBtn").style.display=(id==="help")?"none":"block";
   const items=(galleryItems[id]||[]).slice(0,3);
   $("#profilePhotoRow").innerHTML=items.length ? items.map((item,i)=>`<button class="profile-photo-thumb" data-profile-photo="${i}" type="button">${photoHTML(item)}</button>`).join("") : "";
