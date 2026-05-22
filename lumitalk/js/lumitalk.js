@@ -258,6 +258,8 @@ function leaveCurrentChannel(){
 
 function renderProfile(id){
   const room=getRoom(id); currentRoomId=id;
+  const screen=$("#profileScreen");
+  screen.classList.toggle("help-profile", id==="help");
   $("#profileHero").style.backgroundImage=room.cover?`url("${room.cover}")`:"linear-gradient(135deg,#f6c7d6,#b98896)";
   $("#profileAvatar").innerHTML=memberAvatarHTML(room);
   $("#profileName").textContent=room.short;
@@ -265,13 +267,14 @@ function renderProfile(id){
   $("#goChatBtn").textContent=room.talkButton;
   $("#profilePhotoBtn").textContent=room.photoTitle;
   $("#profilePhotoTitle").textContent=room.photoTitle;
-  const items=(galleryItems[id]||galleryItems.lulu).slice(0,3);
-  $("#profilePhotoRow").innerHTML=items.map((item,i)=>`<button class="profile-photo-thumb" data-profile-photo="${i}" type="button">${photoHTML(item)}</button>`).join("");
+  $("#profilePhotoBtn").style.display=(id==="help")?"none":"block";
+  const items=(galleryItems[id]||[]).slice(0,3);
+  $("#profilePhotoRow").innerHTML=items.length ? items.map((item,i)=>`<button class="profile-photo-thumb" data-profile-photo="${i}" type="button">${photoHTML(item)}</button>`).join("") : "";
   $$("[data-profile-photo]").forEach(btn=>btn.addEventListener("click",()=>openViewer(id,Number(btn.dataset.profilePhoto),"profile")));
   $("#profileAvatar").onclick=()=>openProfileImageViewer(id,"profile");
-  const heartBtn=document.querySelector(".screen-profile .profile-tools .heart-icon");
+  const heartBtn=$("#profileHeartBtn");
   if(heartBtn) heartBtn.onclick=()=>showToast("프로필을 소장했어요.");
-  const moreBtn=document.querySelector(".screen-profile .profile-tools .dark-btn:not(.heart-icon)");
+  const moreBtn=$("#profileMoreBtn");
   if(moreBtn) moreBtn.onclick=()=>{renderChannelInfo(id);showScreen("channelInfoScreen");};
 }
 
