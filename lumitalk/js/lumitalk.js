@@ -429,3 +429,20 @@ renderChannels();
 renderRoom(currentRoomId);
 renderProfile(currentRoomId);
 bindEvents();
+
+
+/* Patch 19: join heart safe override */
+(function(){
+  const joinHeart = document.getElementById("joinHeartBtn");
+  if (joinHeart) {
+    joinHeart.onclick = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      showToast("채널을 소장했어요.");
+    };
+  }
+  const joinHero = document.getElementById("joinHero");
+  if (joinHero) {
+    joinHero.onclick = null;
+  }
+})();
