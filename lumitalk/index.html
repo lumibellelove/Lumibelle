@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>LUMI TALK · Fan Clean Baseline</title>
+<title>LUMI TALK · Patch 7 Clean</title>
 <link rel="stylesheet" href="./css/lumitalk.css" />
 </head>
 <body>
 <div class="app" id="app">
-  <section id="listScreen" class="screen screen-list">
+  <section id="listScreen" class="screen">
     <header class="top">
       <div class="top-row">
         <div>
@@ -17,74 +17,140 @@
         </div>
         <div class="icon-row">
           <button class="profile-chip" id="myProfileBtn" type="button">LB-0002</button>
-          <button class="icon-btn" id="searchBtn" type="button" aria-label="루미톡 검색">⌕</button>
-          <button class="icon-btn" id="savedBtn" type="button" aria-label="소장함">♡</button>
+          <button class="icon-btn" id="searchBtn" type="button" aria-label="대화 검색">⌕</button>
+          <button class="icon-btn heart-icon" id="savedBtn" type="button" aria-label="소장함">❤︎</button>
         </div>
       </div>
       <p class="desc">멤버가 보낸 말과 루미나의 답장이 조용히 이어지는 루미벨 전용 채널이에요.</p>
     </header>
-
-    <div class="filters" aria-label="채널 필터">
-      <button class="pill active" type="button">전체</button>
-      <button class="pill" type="button">안 읽음 9</button>
-      <button class="pill" type="button">내 채널</button>
-    </div>
-
+    <nav class="filters" id="filterBar" aria-label="채널 필터"></nav>
     <main class="channel-list" id="channelList"></main>
   </section>
 
-  <section id="roomScreen" class="screen screen-room hidden">
+  <section id="roomScreen" class="screen hidden">
     <header class="room-head">
       <div class="room-head-row">
-        <button class="back" id="roomBackBtn" type="button" aria-label="채널 목록으로">‹</button>
-        <button class="room-profile" id="roomProfileBtn" type="button" aria-label="프로필홈 열기">
+        <button class="back" id="roomBackBtn" type="button">‹</button>
+        <button class="room-profile" id="roomProfileBtn" type="button">
           <div id="roomAvatar" class="avatar room-avatar"></div>
           <div class="room-title-wrap">
             <div id="roomTitle" class="room-title"></div>
             <div id="roomStatus" class="room-status"></div>
           </div>
         </button>
-        <button class="icon-btn" type="button" aria-label="채널 메뉴">⋯</button>
+        <button class="icon-btn" id="roomMenuBtn" type="button">⋯</button>
       </div>
     </header>
-
     <div class="room-card">
       <div class="room-card-inner">
         <div id="roomLabel" class="room-card-label"></div>
         <div id="roomSub" class="room-card-text"></div>
       </div>
     </div>
-
     <main id="chatBody" class="chat"></main>
-
     <footer class="composer">
       <div class="composer-row">
         <div class="reply-box">답장을 남겨주세요.</div>
-        <button class="send" type="button" aria-label="답장 보내기">➤</button>
+        <button class="send" type="button">➤</button>
       </div>
       <div class="composer-note">답장은 멤버에게만 전달되고 다른 팬에게 보이지 않아요.</div>
     </footer>
   </section>
 
-  <section id="profileScreen" class="screen screen-profile hidden">
-    <div class="profile-hero">
+  <section id="channelInfoScreen" class="screen screen-info hidden">
+    <header class="info-head">
+      <button class="back" id="infoBackBtn" type="button">‹</button>
+      <div class="info-icons">
+        <button class="info-icon" id="infoMuteBtn" type="button" aria-label="알림"></button>
+        <button class="info-icon heart-icon" id="infoSavedBtn" type="button">❤︎</button>
+        <button class="info-icon" id="infoSettingBtn" type="button">⚙</button>
+      </div>
+    </header>
+    <main class="info-main">
+      <div id="infoAvatar" class="info-avatar"></div>
+      <h2 id="infoTitle"></h2>
+      <p id="infoStatus"></p>
+
+      <section class="info-card media-card">
+        <button class="media-title-button" id="openGalleryTitleBtn" type="button">사진/동영상</button>
+        <div class="media-strip" id="infoPhotoStrip"></div>
+      </section>
+
+      <section class="info-card">
+        <button class="info-row" id="infoSavedRowBtn" type="button">
+          <b>소장함 보기</b><span>소장한 메시지와 루미레터</span>
+        </button>
+        <button class="info-row" id="infoProfileRowBtn" type="button">
+          <b>프로필홈 보기</b><span>멤버 프로필과 대표 사진</span>
+        </button>
+        <button class="info-row" id="infoMuteRowBtn" type="button">
+          <b id="infoMuteText">알림 끄기</b><span>알림을 꺼도 새 메시지는 조용히 쌓여요.</span>
+        </button>
+      </section>
+
+      <section class="info-card leave-card">
+        <button class="info-leave" id="infoLeaveBtn" type="button">채널 나가기</button>
+      </section>
+    </main>
+  </section>
+
+  <section id="chatSettingScreen" class="screen screen-chat-setting hidden">
+    <header class="setting-head">
+      <button class="back" id="settingBackBtn" type="button">‹</button>
+      <strong>채팅방 설정</strong>
+      <span></span>
+    </header>
+    <main class="setting-body">
+      <section class="setting-profile">
+        <div id="settingAvatar" class="setting-avatar"></div>
+        <div>
+          <b id="settingTitle"></b>
+          <p id="settingSub">나에게만 보이는 채널 이름과 배경을 설정해요.</p>
+        </div>
+      </section>
+      <section class="setting-card">
+        <button class="setting-row" id="editDisplayNameBtn" type="button"><div><b>표시 이름 편집</b><span>나에게만 보이는 채널 이름을 바꿀 수 있어요.</span></div><em>›</em></button>
+        <button class="setting-row" id="backgroundBtn" type="button"><div><b>루미톡 배경</b><span>기본 배경, 멤버 테마, 단색 배경</span></div><em>›</em></button>
+        <button class="setting-row" id="homeAddBtn" type="button"><div><b>홈 화면 바로가기 추가</b><span>오시 채널을 앱처럼 바로 열 수 있어요.</span></div><em>›</em></button>
+      </section>
+      <section class="setting-card">
+        <button class="setting-row" id="settingMuteBtn" type="button"><div><b id="settingMuteText">알림 끄기</b><span>알림을 꺼도 새 메시지는 조용히 쌓여요.</span></div><em>›</em></button>
+      </section>
+      <section class="setting-card"><button class="setting-leave" id="settingLeaveBtn" type="button">채널 나가기</button></section>
+    </main>
+  </section>
+
+  <section id="joinScreen" class="screen screen-join hidden">
+    <div class="join-hero" id="joinHero">
       <div class="profile-top">
-        <button class="dark-btn" id="profileBackBtn" type="button" aria-label="뒤로">‹</button>
+        <button class="dark-btn" id="joinBackBtn" type="button">‹</button>
+        <button class="dark-btn heart-icon" id="joinHeartBtn" type="button">❤︎</button>
+      </div>
+      <div class="join-card">
+        <div id="joinAvatar" class="profile-avatar"></div>
+        <div id="joinTitle" class="join-title"></div>
+        <div id="joinSub" class="join-sub"></div>
+      </div>
+    </div>
+    <div class="join-body">
+      <div class="join-copy">
+        <b id="joinCopyTitle"></b>
+        <p id="joinCopyText">지난 대화는 보이지 않고, 추가한 순간부터 함께 시작해요.</p>
+      </div>
+      <div class="join-preview-row" id="joinPreviewRow"></div>
+      <button class="join-button" id="joinChannelBtn" type="button">채널 추가하기</button>
+    </div>
+  </section>
+
+  <section id="profileScreen" class="screen screen-profile hidden">
+    <div class="profile-hero" id="profileHero">
+      <div class="profile-top">
+        <button class="dark-btn" id="profileBackBtn" type="button">‹</button>
         <div class="profile-tools">
-          <button class="dark-btn" type="button" aria-label="좋아요">♡</button>
-          <button class="dark-btn" type="button" aria-label="프로필 메뉴">⋯</button>
+          <button class="dark-btn heart-icon" type="button">❤︎</button>
+          <button class="dark-btn" type="button">⋯</button>
         </div>
       </div>
-
-      <div class="collage" aria-hidden="true">
-        <div class="tile big">🐰</div>
-        <div class="tile">🍓</div>
-        <div class="tile">🍼</div>
-        <div class="tile tall">🎀</div>
-        <div class="tile">💌</div>
-        <div class="tile">✨</div>
-      </div>
-
       <div class="profile-info">
         <div id="profileAvatar" class="profile-avatar"></div>
         <div id="profileName" class="profile-name"></div>
@@ -95,61 +161,92 @@
         </div>
       </div>
     </div>
-
     <div class="profile-section">
       <h2 id="profilePhotoTitle">멤버가 남긴 사진</h2>
-      <div class="photo-row">
-        <div class="mini-photo">🌹<span>루미톡</span></div>
-        <div class="mini-photo">🐰<span>루미톡</span></div>
-        <div class="mini-photo">🍓<span>루미톡</span></div>
-      </div>
+      <div class="photo-row" id="profilePhotoRow"></div>
       <div class="profile-note">멤버 프로필홈 정보는 나중에 멤버 페이지/멤버 허브에서 수정하면 같이 반영되는 구조로 둡니다.</div>
     </div>
   </section>
 
+  <section id="galleryScreen" class="screen screen-gallery hidden">
+    <header class="gallery-head">
+      <button class="back" id="galleryBackBtn" type="button">‹</button>
+      <div class="gallery-head-copy">
+        <b id="galleryRoomTitle"></b>
+        <span>사진/동영상</span>
+      </div>
+      <button class="gallery-heart heart-icon" type="button">❤︎</button>
+    </header>
+    <main class="gallery-body">
+      <div class="gallery-date">✦ 2026.05.22 FRI ✦</div>
+      <section class="gallery-grid" id="galleryGrid"></section>
+    </main>
+  </section>
+
+  <section id="photoViewerScreen" class="screen photo-viewer hidden">
+    <header id="viewerHead" class="viewer-head">
+      <button class="viewer-back" id="viewerBackBtn" type="button">‹</button>
+      <div class="viewer-meta">
+        <b id="viewerMember">루루</b>
+        <span id="viewerDate">2026.05.22 07:02 · 🍼🐰</span>
+      </div>
+      <button class="viewer-gallery" id="viewerGalleryBtn" type="button">୨୧</button>
+    </header>
+    <main class="viewer-body" id="viewerBody">
+      <button class="viewer-arrow left" id="viewerPrevBtn" type="button">‹</button>
+      <div class="viewer-photo-wrap">
+        <img id="viewerPhotoImg" class="viewer-photo-img" alt="루미톡 사진" />
+        <div class="viewer-caption" id="viewerCaption"></div>
+      </div>
+      <button class="viewer-arrow right" id="viewerNextBtn" type="button">›</button>
+    </main>
+    <footer id="viewerFooter" class="viewer-footer">
+      <button id="savePhotoBtn" type="button">저장</button>
+      <button id="keepPhotoBtn" type="button">소장</button>
+      <button id="morePhotoBtn" type="button">더보기</button>
+      <div class="viewer-index" id="viewerIndex">1 / 6</div>
+    </footer>
+  </section>
+
   <section id="searchSheet" class="sheet hidden">
-    <div class="sheet-head">
-      <button class="back sheet-close" type="button" aria-label="닫기">‹</button>
-      <div class="sheet-title">루미톡 검색</div>
-    </div>
-    <div class="sheet-body">
-      <div class="search-box">채널명, 멤버 메시지, 소장한 내용을 검색해요.</div>
-      <div id="searchResults"></div>
-    </div>
+    <div class="sheet-head"><button class="back sheet-close" type="button">‹</button><div class="sheet-title">대화 검색</div></div>
+    <div class="sheet-body"><div class="search-box">채널명, 멤버 메시지, 소장한 내용을 검색해요.</div><div id="searchResults"></div></div>
   </section>
 
   <section id="savedSheet" class="sheet hidden">
-    <div class="sheet-head">
-      <button class="back sheet-close" type="button" aria-label="닫기">‹</button>
-      <div class="sheet-title">소장함</div>
-    </div>
+    <div class="sheet-head"><button class="back sheet-close" type="button">‹</button><div class="sheet-title">소장함</div></div>
     <div class="sheet-body" id="savedList"></div>
   </section>
 
   <section id="myProfileSheet" class="sheet hidden">
-    <div class="sheet-head">
-      <button class="back sheet-close" type="button" aria-label="닫기">‹</button>
-      <div class="sheet-title">내 루미 프로필</div>
-    </div>
+    <div class="sheet-head"><button class="back sheet-close" type="button">‹</button><div class="sheet-title">내 루미 프로필</div></div>
     <div class="sheet-body">
-      <div class="my-card">
-        <div class="my-profile-row">
-          <div class="my-ava">✦</div>
-          <div>
-            <b>율 · LB-0002</b>
-            <p>대표 칭호: 첫 번째 반짝임<br>오시: 루루 🐰🩷</p>
-          </div>
-        </div>
-        <button class="my-action" type="button">루미폰 프로필에서 수정하기</button>
-      </div>
-      <div class="my-card">
-        <b>루미톡 표시 기준</b>
-        <p>닉네임, 루미 ID, 대표 칭호, 오시 설정은 루미폰 프로필에서 가져와요. 루미톡 안에서는 따로 팬 프로필 꾸미기를 만들지 않아요.</p>
-      </div>
+      <div class="my-card"><div class="my-profile-row"><div class="my-ava">✦</div><div><b>율 · LB-0002</b><p>대표 칭호: 첫 번째 반짝임<br>오시: 루루 🍼🐰</p></div></div><button class="my-action" type="button">루미폰 프로필에서 수정하기</button></div>
+      <div class="my-card"><b>루미톡 표시 기준</b><p>닉네임, 루미 ID, 대표 칭호, 오시 설정은 루미폰 프로필에서 가져와요.</p></div>
+    </div>
+  </section>
+
+  <section id="leaveConfirmSheet" class="bottom-sheet hidden">
+    <div class="sheet-dim" data-close-leave></div>
+    <div class="bottom-panel confirm-panel">
+      <div class="sheet-handle"></div>
+      <div class="settings-title" id="leaveTitle">채널을 나갈까요?</div>
+      <p class="confirm-copy">나가면 새 메시지와 알림을 받지 않아요.<br>다시 추가하면 그 시점부터 대화가 시작돼요.</p>
+      <div class="confirm-actions"><button class="confirm-cancel" data-close-leave type="button">취소</button><button class="confirm-danger" id="confirmLeaveBtn" type="button">채널 나가기</button></div>
+    </div>
+  </section>
+
+  <section id="homeAddSheet" class="bottom-sheet hidden">
+    <div class="sheet-dim" data-close-homeadd></div>
+    <div class="bottom-panel homeadd-panel">
+      <div class="sheet-handle"></div>
+      <div class="homeadd-title">홈 화면에 추가</div>
+      <p class="homeadd-copy">루미톡을 홈 화면에 추가하면<br>오시 채널을 앱처럼 바로 열 수 있어요.</p>
+      <div class="homeadd-preview"><div class="homeadd-icon"><span id="homeAddIcon">🐰</span></div><b id="homeAddName">루루</b><span>1 × 1</span></div>
+      <div class="confirm-actions"><button class="confirm-cancel" data-close-homeadd type="button">취소</button><button class="confirm-danger" id="confirmHomeAddBtn" type="button">추가</button></div>
     </div>
   </section>
 </div>
-
 <script src="./js/lumitalk.js"></script>
 </body>
 </html>
