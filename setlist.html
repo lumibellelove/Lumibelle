@@ -4500,7 +4500,10 @@ We are Sweetie pie! 루미베르 데스~`,
         title: raw.title || raw.id,
         subtitle: raw.subtitle || String(raw.title || '').toUpperCase(),
         desc: raw.desc || '',
-        thumb: raw.thumb || '',
+        thumb: raw.thumbUrl || raw.thumb || '',
+        thumbX: raw.thumbX != null ? Number(raw.thumbX) : 50,
+        thumbY: raw.thumbY != null ? Number(raw.thumbY) : (raw.thumbPosition != null ? Number(raw.thumbPosition) : 50),
+        thumbScale: raw.thumbScale != null ? Number(raw.thumbScale) : 1,
         status: Array.isArray(raw.status) ? raw.status : (raw.status ? [raw.status] : ['응원가이드 준비중']),
         lyrics: raw.lyrics || '',
         meta: Array.isArray(raw.meta) ? raw.meta : [],
@@ -4690,8 +4693,12 @@ We are Sweetie pie! 루미베르 데스~`,
     function renderSongCards(){
       const visibleSongs = getFilteredSongs();
       songGrid.innerHTML = visibleSongs.map(song => {
+        const tx = Number.isFinite(song.thumbX) ? song.thumbX : 50;
+        const ty = Number.isFinite(song.thumbY) ? song.thumbY : 50;
+        const ts = Number.isFinite(song.thumbScale) && song.thumbScale >= 1 ? song.thumbScale : 1;
+        const thumbInlineStyle = `object-position:${tx}% ${ty}%;--thumb-x:${tx}%;--thumb-y:${ty}%;--thumb-scale:${ts};`;
         const thumbHtml = song.thumb
-          ? `<img src="${song.thumb}" alt="${song.title} 썸네일" onerror="this.style.display='none';this.parentElement.style.background='#fff7fb';">`
+          ? `<img src="${song.thumb}" alt="${song.title} 썸네일" style="${thumbInlineStyle}" onerror="this.style.display='none';this.parentElement.style.background='#fff7fb';">`
           : '';
         return `
         <article class="song-card ${state.comingSoonIndex === null && song.id === state.songId ? 'active' : ''}" data-song="${song.id}">
