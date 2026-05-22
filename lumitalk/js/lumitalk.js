@@ -3,7 +3,7 @@
 const AS = "./assets/";
 const rooms = {
   lumibelle:{
-    title:"루미벨 반짝채널", short:"루미벨", label:"LUMIBELLE", avatar:"✦", avatarClass:"a-lumi", mark:"✦", cover:null, profile:null,
+    title:"루미벨 반짝채널", short:"루미벨", label:"LUMIBELLE", avatar:"✦", avatarClass:"a-lumi", mark:"✦", cover:AS+"lumibelle_logo.png", profile:AS+"lumibelle_logo.png",
     sub:"루미벨이 루미나에게 보내는 단체 반짝 메시지예요.", profileSub:"루미벨 공식 반짝채널", talkButton:"반짝채널 보기", photoTitle:"루미벨이 남긴 사진",
     joinCopy:"루미벨 공식 소식과 공통 메시지를 받을 수 있어요.",
     messages:[
@@ -26,9 +26,9 @@ const rooms = {
     ]
   },
   mari:{
-    title:"링링의 별빛톡", short:"마리링", label:"MARIRING", avatar:"🎀", avatarClass:"a-mari", mark:"🎀⭐️", cover:AS+"lulu_cover.png", profile:null,
+    title:"링링의 별빛톡", short:"마리링", label:"MARIRING", avatar:"🎀", avatarClass:"a-mari", mark:"🎀⭐️", cover:AS+"mariring_cover.webp", profile:AS+"mariring_sd.png",
     sub:"링링이 루미나에게 별빛 같은 말을 남기는 공간이에요.", profileSub:"별빛톡 · 펼쳐지는 세상에 마법을 걸어줄게", talkButton:"링링과 이야기하기", photoTitle:"링링이 남긴 사진",
-    joinCopy:"이 채널을 추가하면 지금부터 링링이 남기는 별빛톡을 받을 수 있어요.",
+    joinCopy:"링링의 별빛톡을 받아볼 수 있어요.",
     messages:[
       {type:"date", text:"2026년 5월 22일 금요일"},
       {type:"notice", text:"링링의 별빛톡이 시작되었어요. 답장은 링링에게만 전달돼요."},
@@ -64,9 +64,9 @@ const galleryItems = {
     {src:AS+"lulu_sd.png", caption:"오늘의 작은 마음", type:"photo", date:"2026.05.22 07:06"}
   ],
   mari:[
-    {src:AS+"lulu_spring.png", caption:"별빛처럼 반짝이는 하루", type:"photo", date:"2026.05.22 20:17"},
-    {src:AS+"lulu_cover.png", caption:"링링이 남긴 사진", type:"photo", date:"2026.05.22 20:18"},
-    {src:AS+"lulu_spring.png", caption:"반짝이는 순간", type:"photo", date:"2026.05.22 20:19"}
+    {src:AS+"mariring_cover.webp", caption:"링링이 남긴 별빛 순간", type:"photo", date:"2026.05.22 20:17"},
+    {src:AS+"mariring_sd.png", caption:"링링 프로필 사진", type:"photo", date:"2026.05.22 20:18"},
+    {src:AS+"mariring_cover.webp", caption:"별빛톡 미리보기", type:"photo", date:"2026.05.22 20:19"}
   ],
   lumibelle:[
     {src:AS+"lulu_spring.png", caption:"루미벨 반짝채널 사진", type:"photo", date:"2026.05.22 10:18"}
