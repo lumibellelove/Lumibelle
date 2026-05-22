@@ -15,7 +15,7 @@ const rooms = {
   lulu:{
     title:"루루의 포근포근 토끼굴", short:"루루", label:"LULU", avatar:"🐰", avatarClass:"a-lulu", mark:"🍼🐰", cover:AS+"lulu_cover.png", profile:AS+"lulu_sd.png",
     sub:"루루와 루미나가 포근한 마음을 주고받는 작은 토끼굴이에요.", profileSub:"포근포근 토끼굴 · 루루만의 길로 한발씩", talkButton:"루루와 이야기하기", photoTitle:"루루가 남긴 사진",
-    joinCopy:"이 채널을 추가하면 지금부터 루루가 남기는 루미톡을 받을 수 있어요.",
+    joinCopy:"루루의 포근포근 토끼굴에 함께할 수 있어요.",
     messages:[
       {type:"date", text:"2026년 5월 22일 금요일"},
       {type:"notice", text:"팬끼리 보이지 않는 멤버 전용 채널이에요. 답장은 루루에게만 전달돼요."},
