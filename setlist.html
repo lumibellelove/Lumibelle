@@ -4500,7 +4500,11 @@ We are Sweetie pie! 루미베르 데스~`,
         title: raw.title || raw.id,
         subtitle: raw.subtitle || String(raw.title || '').toUpperCase(),
         desc: raw.desc || '',
+        visibility: String(raw.visibility || (raw.isActive === false || String(raw.isActive).toUpperCase() === 'FALSE' ? 'hidden' : 'public')).trim() || 'public',
+        isActive: raw.isActive !== false && String(raw.isActive).toUpperCase() !== 'FALSE',
         thumb: raw.thumbUrl || raw.thumb || '',
+        thumbUrl: raw.thumbUrl || raw.thumb || '',
+        thumbFileId: raw.thumbFileId || '',
         thumbX: raw.thumbX != null ? Number(raw.thumbX) : 50,
         thumbY: raw.thumbY != null ? Number(raw.thumbY) : (raw.thumbPosition != null ? Number(raw.thumbPosition) : 50),
         thumbScale: raw.thumbScale != null ? Number(raw.thumbScale) : 1,
@@ -4520,6 +4524,23 @@ We are Sweetie pie! 루미베르 데스~`,
       };
     }
 
+
+    function isLegacySampleSong(raw){
+      const id = String(raw?.id || raw?.songId || '').trim().toLowerCase();
+      const title = String(raw?.title || raw?.titleKo || '').trim();
+      const subtitle = String(raw?.subtitle || raw?.titleEn || '').trim().toUpperCase();
+      return id === 'canaria' || title === '카나리아' || subtitle === 'CANARIA';
+    }
+
+    function isPublicSetlistSong(raw){
+      if(!raw) return false;
+      if(isLegacySampleSong(raw)) return false;
+      const visibility = String(raw.visibility || (raw.isActive === false || String(raw.isActive).toUpperCase() === 'FALSE' ? 'hidden' : 'public')).trim().toLowerCase();
+      if(['hidden','private','draft','archived','inactive','비공개'].includes(visibility)) return false;
+      if(raw.isActive === false || String(raw.isActive).toUpperCase() === 'FALSE') return false;
+      return true;
+    }
+
     /**
      * publicApplySetlistData(sheetSongs)
      * 관리자/시트 전체 목록을 받아 공홈을 완전 동기화한다.
@@ -4531,7 +4552,7 @@ We are Sweetie pie! 루미베르 데스~`,
       if(!Array.isArray(sheetSongs) || !sheetSongs.length) return;
 
       // 유효한 곡만 필터
-      const validSongs = sheetSongs.filter(s => s && s.id);
+      const validSongs = sheetSongs.filter(s => s && s.id && isPublicSetlistSong(s));
       if(!validSongs.length) return;
 
       // songs 배열 전체를 관리자 데이터 기준으로 교체
@@ -4569,8 +4590,9 @@ We are Sweetie pie! 루미베르 데스~`,
     }
 
     function getFilteredSongs(){
-      if(state.filter === 'all') return songs;
-      return songs.filter(song => getSongCategories(song).includes(state.filter));
+      const publicSongs = songs.filter(song => isPublicSetlistSong(song));
+      if(state.filter === 'all') return publicSongs;
+      return publicSongs.filter(song => getSongCategories(song).includes(state.filter));
     }
 
     function getCurrentFilter(){
@@ -5301,7 +5323,7 @@ We are Sweetie pie! 루미베르 데스~`,
        2) 백그라운드 fetch → 성공하면 캐시 갱신 + 화면 조용히 교체
        3) fetch 실패 → 캐시 or 공홈 기본 4곡 유지
     ────────────────────────────────────────────────────────── */
-    const SETLIST_CACHE_KEY = 'lumibelle_public_setlist_v1';
+    const SETLIST_CACHE_KEY = 'lumibelle_public_setlist_v2';
     const SETLIST_WORKER_URL = 'https://lumi-news-api.lumibelle-love.workers.dev';
 
     function loadCachedSetlist(){
@@ -5322,7 +5344,7 @@ We are Sweetie pie! 루미베르 데스~`,
 
     async function syncPublicSetlistInBackground(){
       try{
-        const qs = '?action=adminGetSetlistData&payload=%7B%7D&_nocache=' + Date.now();
+        const qs = '?action=publicListSetlistData&payload=%7B%7D&_nocache=' + Date.now();
         const res = await fetch(SETLIST_WORKER_URL + qs, {
           method: 'GET',
           mode: 'cors',
