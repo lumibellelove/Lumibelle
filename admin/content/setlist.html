@@ -2295,6 +2295,142 @@
   }
 }
 
+
+
+/* ===== Patch 0522: thumbnail editor right panel calm UI ===== */
+.song-card-admin-right{
+  grid-template-rows:auto auto !important;
+  align-self:start !important;
+  gap:12px !important;
+}
+.song-card-admin-right .song-card-admin-panel{
+  padding:18px !important;
+  border-radius:22px !important;
+  box-shadow:0 8px 20px rgba(244,87,161,.055) !important;
+}
+.song-card-admin-right-title{
+  margin:0 0 12px !important;
+  font-size:16px !important;
+  line-height:1.25 !important;
+}
+.song-card-preview-card{
+  width:293px !important;
+  max-width:100% !important;
+  padding:12px 12px 18px !important;
+  margin:0 auto !important;
+  border-radius:24px !important;
+  border:1px solid var(--line) !important;
+  background:#fff !important;
+  overflow:hidden !important;
+}
+.song-card-preview-visual{
+  width:100% !important;
+  height:248px !important;
+  border:1px solid #f0dde8 !important;
+  border-radius:20px !important;
+  border-bottom:1px solid #f0dde8 !important;
+  background:#fff8fc !important;
+}
+.song-card-preview-info{
+  padding:16px 8px 0 !important;
+}
+.song-card-preview-title{
+  margin:0 0 8px !important;
+  font-size:20px !important;
+  line-height:1.22 !important;
+  letter-spacing:-.045em !important;
+}
+.song-card-preview-en{
+  font-size:13px !important;
+  line-height:1.3 !important;
+  letter-spacing:.105em !important;
+}
+.thumb-sync-note{
+  width:min(300px,100%);
+  margin:0 auto 10px;
+  color:#a98298;
+  font-size:12px;
+  line-height:1.65;
+  font-weight:850;
+  text-align:center;
+}
+.song-card-thumb-box{
+  width:269px !important;
+  max-width:100% !important;
+  height:248px !important;
+  margin:8px auto 0 !important;
+  border-radius:20px !important;
+  border-color:#f0dde8 !important;
+  background:#fff8fc !important;
+}
+.song-card-thumb-actions{
+  width:min(300px,100%) !important;
+  margin:14px auto 0 !important;
+  display:grid !important;
+  grid-template-columns:1fr 1fr !important;
+  gap:8px !important;
+  justify-content:stretch !important;
+}
+.song-card-thumb-actions .song-card-admin-tiny-btn,
+.song-card-thumb-actions .thumb-file-label{
+  width:100% !important;
+  min-height:34px !important;
+  padding:0 12px !important;
+  font-size:12px !important;
+  line-height:1 !important;
+  box-shadow:none !important;
+}
+.song-card-thumb-actions .thumb-action-primary{
+  border-color:#ff9fca !important;
+  background:linear-gradient(180deg,#fff7fb,#fff0f7) !important;
+  color:#ff59a5 !important;
+}
+.song-card-thumb-actions .thumb-action-reset{
+  background:#fffafd !important;
+  color:#b67894 !important;
+}
+.song-card-thumb-actions .thumb-action-danger{
+  background:#fff !important;
+  color:#b88a9f !important;
+  border-color:#f0d5e2 !important;
+}
+.song-card-thumb-actions .thumb-status{
+  grid-column:1 / -1;
+  margin:2px 0 0 !important;
+  padding:8px 10px;
+  border:1px dashed #f2cfe0;
+  border-radius:14px;
+  background:#fffafd;
+  font-size:11px !important;
+  line-height:1.55 !important;
+}
+.thumb-recent-modal .modal-card{
+  width:min(1040px,calc(100% - 36px)) !important;
+}
+.thumb-recent-grid{
+  display:grid !important;
+  grid-template-columns:repeat(auto-fill,minmax(148px,148px)) !important;
+  justify-content:start !important;
+  gap:16px !important;
+}
+.thumb-recent-card{
+  box-shadow:none !important;
+  border-radius:18px !important;
+}
+.thumb-recent-actions{
+  gap:6px !important;
+  padding:8px !important;
+}
+.thumb-recent-actions button{
+  min-height:30px !important;
+  font-size:10.5px !important;
+  letter-spacing:-.02em !important;
+}
+.thumb-recent-actions button.default{
+  background:#fff8fc !important;
+  color:#b67894 !important;
+}
+
 </style>
 </head>
 <body>
@@ -3519,8 +3655,9 @@
           <div class="thumb-recent-card">
             <div class="thumb-recent-image"><img src="${esc(item.thumbUrl)}" alt="최근 썸네일"></div>
             <div class="thumb-recent-actions">
-              <button type="button" onclick="applyRecentSetlistThumb(${index}, false)">사진만 적용</button>
-              <button class="primary" type="button" onclick="applyRecentSetlistThumb(${index}, true)">사진 + 위치값</button>
+              <button type="button" onclick="applyRecentSetlistThumb(${index}, 'image')">사진만 적용</button>
+              <button class="default" type="button" onclick="applyRecentSetlistThumb(${index}, 'default')">기본 위치로 적용</button>
+              <button class="primary" type="button" onclick="applyRecentSetlistThumb(${index}, 'saved')">저장 위치 적용</button>
             </div>
           </div>
         `).join('');
@@ -3535,19 +3672,30 @@
       if(modal) modal.classList.remove('open');
     }
 
-    function applyRecentSetlistThumb(index, withPosition){
+    function applyRecentSetlistThumb(index, mode){
       const items = window.__setlistRecentThumbItems || [];
       const item = items[index];
       if(!item) return;
       const current = readSongThumbCropInputs();
+      const selectedMode = mode === true ? 'saved' : (mode || 'image');
+      const crop = selectedMode === 'saved'
+        ? {x:item.thumbX, y:item.thumbY, scale:item.thumbScale}
+        : selectedMode === 'default'
+          ? {x:50, y:50, scale:1}
+          : current;
       applySongThumbToModal({
         thumbUrl: item.thumbUrl,
         thumbFileId: item.fileId,
-        thumbX: withPosition ? item.thumbX : current.x,
-        thumbY: withPosition ? item.thumbY : current.y,
-        thumbScale: withPosition ? item.thumbScale : current.scale,
+        thumbX: crop.x,
+        thumbY: crop.y,
+        thumbScale: crop.scale,
         thumbPresetName: item.thumbPresetName
-      }, {keepPosition: !withPosition});
+      }, {keepPosition: selectedMode === 'image'});
+      setSongThumbStatus(
+        selectedMode === 'saved' ? '최근 썸네일의 저장 위치까지 적용했어요.' :
+        selectedMode === 'default' ? '사진을 기본 위치로 적용했어요.' :
+        '사진만 적용했어요. 현재 위치값은 유지됩니다.'
+      );
       closeThumbRecentModal();
     }
 
@@ -3652,6 +3800,7 @@
               <div class="detail-admin-practice-head">
                 <h3>썸네일 설정</h3>
               </div>
+              <p class="thumb-sync-note">위 공홈 카드와 같은 썸네일 비율입니다. 드래그로 위치, 휠로 확대/축소해 주세요.</p>
               <div class="song-card-thumb-box thumb-crop-stage" id="songThumbPreview"
                 onwheel="handleSongThumbWheel(event)"
                 onpointerdown="startSongThumbDrag(event)"
@@ -3660,13 +3809,13 @@
                 onpointercancel="endSongThumbDrag(event)"
                 onpointerleave="endSongThumbDrag(event)">${thumbImg || '썸네일 준비중'}</div>
               <div class="song-card-thumb-actions">
-                <label class="thumb-file-label">
-                  사진 불러오기
+                <button class="song-card-admin-tiny-btn thumb-action-primary" type="button" onclick="openThumbRecentModal()">최근 썸네일</button>
+                <label class="thumb-file-label thumb-action-secondary">
+                  직접 업로드
                   <input type="file" id="songThumbFile" accept="image/*" onchange="previewSongThumb(this)">
                 </label>
-                <button class="song-card-admin-tiny-btn" type="button" onclick="openThumbRecentModal()">최근 사진</button>
-                <button class="song-card-admin-tiny-btn" type="button" onclick="resetSongThumbCrop()">위치 초기화</button>
-                <button class="song-card-admin-tiny-btn" type="button" onclick="resetSongThumbImage()">사진 삭제</button>
+                <button class="song-card-admin-tiny-btn thumb-action-reset" type="button" onclick="resetSongThumbCrop()">기본 위치</button>
+                <button class="song-card-admin-tiny-btn thumb-action-danger" type="button" onclick="resetSongThumbImage()">사진 삭제</button>
                 <div class="thumb-status" id="songThumbStatus">앨범 썸네일 폴더에 저장된 이미지를 사용합니다.</div>
               </div>
               <input class="thumb-hidden-input" id="songThumb" value="${esc(thumbSrc || '')}">
