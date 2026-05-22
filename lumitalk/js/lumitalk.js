@@ -446,3 +446,12 @@ bindEvents();
     joinHero.onclick = null;
   }
 })();
+
+
+/* Patch 20 help icon visibility */
+(function(){
+  const helpAvatar = document.querySelector('.help-avatar');
+  if(helpAvatar && helpAvatar.textContent.trim()===''){
+    helpAvatar.textContent='?';
+  }
+})();
