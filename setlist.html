@@ -343,7 +343,7 @@ button{font:inherit}
   overflow:hidden;
   background:#fff;
 }
-.song-thumb img{width:100%;height:100%;object-fit:cover}
+.song-thumb img{width:100%;height:100%;object-fit:cover;object-position:var(--thumb-x,50%) var(--thumb-y,50%);transform:scale(var(--thumb-scale,1));transform-origin:var(--thumb-x,50%) var(--thumb-y,50%)}
 .song-title{
   margin:0 0 10px;
   color:var(--text-strong);
@@ -2884,6 +2884,17 @@ nav a.current span,nav a:hover span{ color:#d88dad !important; }
   box-shadow:0 10px 22px rgba(255,120,178,.045) !important;
 }
 
+
+/* ===== Thumbnail position sync patch 0522: use saved thumbX/Y/Scale ===== */
+.song-thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:var(--thumb-x,50%) var(--thumb-y,50%);
+  transform:scale(var(--thumb-scale,1));
+  transform-origin:var(--thumb-x,50%) var(--thumb-y,50%);
+}
+
 </style>
 
 </head>
@@ -4483,140 +4494,27 @@ We are Sweetie pie! 루미베르 데스~`,
       return result.length > 1 ? result : ['all'];
     }
 
-    function guideSongKey(value){
-      return String(value || '').trim().toLowerCase();
-    }
-
-    function normalizeGuideLineFromSheet(row){
-      const section = row && (row.sectionLabelKo || row.sectionLabel || row.time || row.stage || '');
-      const guideText = row && (row.guideKo || row.guide || row.lyric || row.desc || '');
-      const callText = row && (row.callKo || row.call || '');
-      const mixText = row && (row.mixKo || row.mix || '');
-      const pointText = row && (row.pointKo || row.point || '');
-      return {
-        time: String(section || '').trim(),
-        stage: String((row && (row.guideType || row.stage)) || '').trim(),
-        lyric: String(guideText || '').trim(),
-        tags: [mixText ? 'MIX' : '', pointText ? 'POINT' : ''].filter(Boolean),
-        call: String(callText || pointText || mixText || '').trim()
-      };
-    }
-
-    function hasGuideLineContent(line){
-      return !!(line && (line.time || line.stage || line.lyric || line.call || (Array.isArray(line.tags) && line.tags.length)));
-    }
-
-    function normalizeGuideLines(raw){
-      const guideRows = Array.isArray(raw.guide) ? raw.guide : (Array.isArray(raw.guides) ? raw.guides : []);
-      return guideRows
-        .map(row => row && row.lyric !== undefined ? row : normalizeGuideLineFromSheet(row))
-        .map(line => ({
-          time: String(line.time || line.sectionLabelKo || '').trim(),
-          stage: String(line.stage || line.guideType || '').trim(),
-          lyric: String(line.lyric || line.guideKo || line.desc || '').trim(),
-          tags: Array.isArray(line.tags) ? line.tags : String(line.tags || '').split(',').map(v => v.trim()).filter(Boolean),
-          call: String(line.call || line.callKo || '').trim()
-        }))
-        .filter(hasGuideLineContent);
-    }
-
-    function supportModeFromLabel(value){
-      const text = String(value || '').toLowerCase();
-      if(text.includes('solo') || text.includes('솔로')) return 'solo';
-      return 'team';
-    }
-
-    function supportLevelFromLabel(value){
-      const text = String(value || '').toLowerCase();
-      if(text.includes('advanced') || text.includes('고급')) return 'advanced';
-      return 'beginner';
-    }
-
-    function buildSupportFromRaw(raw){
-      const base = { team: { beginner: null, advanced: null }, solo: { beginner: null, advanced: null } };
-      if(raw.support && typeof raw.support === 'object'){
-        return Object.assign(base, raw.support);
-      }
-      const lines = normalizeGuideLines(raw);
-      if(!lines.length) return base;
-      const mode = supportModeFromLabel(raw.mode || raw.performableMode || raw.guideMode);
-      const level = supportLevelFromLabel(raw.level || raw.difficulty || raw.guideLevel);
-      base[mode][level] = {
-        point: raw.pointKo || raw.point || raw.lyricMemo || '응원 포인트를 확인해 주세요.',
-        lines
-      };
-      return base;
-    }
-
     function normalizeSong(raw){
-      const id = raw.id || raw.songId || '';
-      const title = raw.title || raw.titleKo || id;
-      const subtitle = raw.subtitle || raw.titleEn || String(title || '').toUpperCase();
-      const desc = raw.desc || raw.descKo || '';
-      const officialAudioEmbed = raw.officialAudioEmbed || raw.officialAudioEmbedUrl || '';
-      const officialAudio = raw.officialAudio || raw.officialAudioUrl || '';
-      const audio = raw.audio || raw.audioUrl || '';
-      const callReferenceEmbed = raw.callReferenceEmbed || raw.callReferenceEmbedUrl || '';
-      const callReferenceUrl = raw.callReferenceUrl || '';
-      const hasExternalSource = !!String(officialAudioEmbed || officialAudio || audio || callReferenceEmbed || callReferenceUrl).trim();
-      const audioPolicy = raw.audioPolicy || (hasExternalSource ? 'external' : 'original');
-
       return {
-        id,
-        title,
-        subtitle,
-        desc,
-        thumb: raw.thumb || raw.thumbUrl || '',
+        id: raw.id,
+        title: raw.title || raw.id,
+        subtitle: raw.subtitle || String(raw.title || '').toUpperCase(),
+        desc: raw.desc || '',
+        thumb: raw.thumb || '',
         status: Array.isArray(raw.status) ? raw.status : (raw.status ? [raw.status] : ['응원가이드 준비중']),
-        lyrics: raw.lyrics || raw.lyricMemo || '',
+        lyrics: raw.lyrics || '',
         meta: Array.isArray(raw.meta) ? raw.meta : [],
         performable: Array.isArray(raw.performable) ? raw.performable : [],
-        audioPolicy,
-        officialAudio,
-        officialAudioEmbed,
+        audioPolicy: raw.audioPolicy || 'original',
+        officialAudio: raw.officialAudio || '',
+        officialAudioEmbed: raw.officialAudioEmbed || '',
         officialAudioLinks: Array.isArray(raw.officialAudioLinks) ? raw.officialAudioLinks : [],
-        callReferenceEmbed,
-        callReferenceUrl,
+        callReferenceEmbed: raw.callReferenceEmbed || '',
         callReferenceNote: raw.callReferenceNote || '',
-        audio,
-        video: raw.video || raw.videoUrl || '',
-        support: buildSupportFromRaw(raw)
+        audio: raw.audio || '',
+        video: raw.video || '',
+        support: raw.support || { team: { beginner: null, advanced: null }, solo: { beginner: null, advanced: null } }
       };
-    }
-
-    function collectGuideRowsFromApi(apiData){
-      if(!apiData || typeof apiData !== 'object') return [];
-      return apiData.guides || apiData.setlistGuides || apiData.setlist_guides || apiData.guideRows || [];
-    }
-
-    function mergeGuideRowsIntoSongs(sheetSongs, apiData){
-      const rows = collectGuideRowsFromApi(apiData);
-      if(!Array.isArray(sheetSongs) || !sheetSongs.length || !Array.isArray(rows) || !rows.length) return sheetSongs;
-      const grouped = {};
-      rows.forEach(row => {
-        const active = row && row.isActive;
-        if(active === false || String(active || '').trim().toUpperCase() === 'FALSE') return;
-        const key = guideSongKey(row.songId);
-        if(!key || key === 'canaria') return;
-        const line = normalizeGuideLineFromSheet(row);
-        if(!hasGuideLineContent(line)) return;
-        if(!grouped[key]) grouped[key] = [];
-        grouped[key].push({ line, order: Number(row.sortOrder || 0) });
-      });
-      return sheetSongs.map(song => {
-        const key = guideSongKey(song.id || song.songId);
-        const found = grouped[key];
-        if(!found || !found.length) return song;
-        return Object.assign({}, song, {
-          guide: found.sort((a,b) => a.order - b.order).map(item => item.line)
-        });
-      });
-    }
-
-    function publicApplySetlistApiData(apiData){
-      const sheetSongs = apiData && Array.isArray(apiData.songs) ? apiData.songs : null;
-      if(!sheetSongs || !sheetSongs.length) return;
-      publicApplySetlistData(mergeGuideRowsIntoSongs(sheetSongs, apiData));
     }
 
     /**
@@ -5404,15 +5302,14 @@ We are Sweetie pie! 루미베르 데스~`,
         const raw = localStorage.getItem(SETLIST_CACHE_KEY);
         if(!raw) return null;
         const parsed = JSON.parse(raw);
-        if(parsed && parsed.data && Array.isArray(parsed.data.songs) && parsed.data.songs.length) return parsed.data;
-        if(parsed && Array.isArray(parsed.songs) && parsed.songs.length) return parsed;
+        if(parsed && Array.isArray(parsed.songs) && parsed.songs.length) return parsed.songs;
       }catch(e){}
       return null;
     }
 
-    function saveCachedSetlist(apiData){
+    function saveCachedSetlist(songs){
       try{
-        localStorage.setItem(SETLIST_CACHE_KEY, JSON.stringify({ data: apiData, ts: Date.now() }));
+        localStorage.setItem(SETLIST_CACHE_KEY, JSON.stringify({ songs, ts: Date.now() }));
       }catch(e){}
     }
 
@@ -5426,12 +5323,13 @@ We are Sweetie pie! 루미베르 데스~`,
         });
         if(!res.ok) return;
         const json = await res.json();
-        const apiData = json && json.data ? json.data : null;
-        const sheetSongs = apiData && Array.isArray(apiData.songs) ? apiData.songs : null;
+        const sheetSongs = json && json.data && Array.isArray(json.data.songs)
+          ? json.data.songs
+          : null;
         if(!sheetSongs || !sheetSongs.length) return;
-        // 캐시 저장 후 화면 반영 — guides가 별도 배열로 내려와도 함께 보관
-        saveCachedSetlist(apiData);
-        publicApplySetlistApiData(apiData);
+        // 캐시 저장 후 화면 반영
+        saveCachedSetlist(sheetSongs);
+        publicApplySetlistData(sheetSongs);
       }catch(e){
         console.warn('[setlist sync] 시트 동기화 실패:', e && e.message ? e.message : e);
       }
@@ -5442,7 +5340,7 @@ We are Sweetie pie! 루미베르 데스~`,
       const cached = loadCachedSetlist();
       if(cached){
         // 캐시 데이터로 즉시 화면 교체 (깜빡임 없음)
-        publicApplySetlistApiData(cached);
+        publicApplySetlistData(cached);
       }
       // 캐시 있든 없든 백그라운드에서 최신 데이터 fetch
       syncPublicSetlistInBackground();
