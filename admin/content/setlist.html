@@ -3497,6 +3497,23 @@
       };
     }
 
+
+    function commitSongThumbStateToCurrentSong(){
+      const editingId = document.getElementById('songThumbEditingId')?.value || data.selectedSongId || '';
+      const song = (data.songs || []).find(item => String(item.id || item.songId || '') === String(editingId));
+      if(!song) return;
+      const state = currentSongThumbState();
+      song.thumb = state.thumbUrl || state.thumb || '';
+      song.thumbUrl = state.thumbUrl || state.thumb || '';
+      song.thumbFileId = state.thumbFileId || '';
+      song.thumbStyle = state.thumbStyle || 'cover';
+      song.thumbPresetName = state.thumbPresetName || '';
+      song.thumbX = state.x;
+      song.thumbY = state.y;
+      song.thumbScale = state.scale;
+      delete song.thumbPosition;
+    }
+
     function setSongThumbPreviewImage(src, alt){
       const safeSrc = String(src || '').trim();
       const imgHtml = safeSrc ? `<img src="${esc(safeSrc)}" alt="${esc(alt || '썸네일 미리보기')}">` : '썸네일 준비중';
@@ -3529,6 +3546,7 @@
         writeSongThumbCropInputs({x:50, y:50, scale:1});
       }
       setSongThumbPreviewImage(thumbUrl, '곡 카드 썸네일 미리보기');
+      commitSongThumbStateToCurrentSong();
       updateSongThumbMeta();
     }
 
@@ -3540,6 +3558,7 @@
       });
       writeSongThumbCropInputs({x:50, y:50, scale:1});
       setSongThumbPreviewImage('', '썸네일 준비중');
+      commitSongThumbStateToCurrentSong();
       updateSongThumbMeta();
     }
 
