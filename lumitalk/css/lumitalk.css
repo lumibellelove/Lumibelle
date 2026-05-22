@@ -209,7 +209,7 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 .setting-leave{width:100%;border:0;background:#fff;color:#e04f78;-webkit-text-fill-color:#e04f78;text-align:left;padding:18px 0;font-size:16px;font-weight:950;border-bottom:1px solid #f1e8ee}
 
 /* ── 채널 추가 전 화면 ── */
-.screen-join{background:#b98998;color:white;overflow-y:auto;overflow-x:hidden}
+.screen-join{background:#b98998;color:white;overflow-y:auto;overflow-x:hidden;padding-bottom:env(safe-area-inset-bottom,0px)}
 .join-hero{position:relative;min-height:470px;padding:52px 16px 18px;background-size:cover;background-position:center 22%}
 .join-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(40,20,30,.10),rgba(40,20,30,.58));pointer-events:none}
 .profile-top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:10;padding-top:0}
@@ -217,14 +217,14 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 .join-card{position:absolute;left:20px;right:20px;bottom:16px;z-index:2}
 .join-title{font-size:31px;font-weight:950;letter-spacing:-.06em;line-height:1.05;margin-top:10px;text-shadow:0 2px 15px rgba(0,0,0,.25);color:#fff}
 .join-sub{margin-top:6px;font-size:13px;line-height:1.55;font-weight:800;color:rgba(255,255,255,.9)}
-.join-body{background:#fff;color:var(--ink);padding:18px 0 calc(var(--safe-bottom) + 12px)}
+.join-body{background:#fff;color:var(--ink);padding:18px 0 24px}
 .join-copy{border:1px solid var(--line);border-radius:22px;background:#fff8fc;padding:15px;box-shadow:var(--shadow2);margin:0 18px 10px}
 .join-copy b{font-size:15px}
 .join-copy p{margin:7px 0 0;font-size:12px;line-height:1.55;color:#8f7787;word-break:keep-all}
 .join-preview-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 18px;margin:0 0 8px}
 .join-preview-row img,.join-preview-row button img{width:100%;aspect-ratio:1/1;border-radius:18px;object-fit:cover;object-position:center 28%;display:block}
 .join-preview{appearance:none;-webkit-appearance:none;border:0;padding:0;background:transparent;display:block;cursor:pointer;border-radius:18px;overflow:hidden}
-.join-button{width:calc(100% - 36px);margin:12px 18px 16px;border:0;border-radius:999px;background:linear-gradient(135deg,#ff6cad,#ff9acb);color:#fff;font-size:14px;font-weight:950;padding:14px 16px;box-shadow:0 12px 26px rgba(255,108,173,.22);display:block}
+.join-button{width:calc(100% - 36px);margin:12px 18px calc(env(safe-area-inset-bottom,0px) + 16px);border:0;border-radius:999px;background:linear-gradient(135deg,#ff6cad,#ff9acb);color:#fff;font-size:14px;font-weight:950;padding:14px 16px;box-shadow:0 12px 26px rgba(255,108,173,.22);display:block}
 
 /* ── 프로필홈 화면 ── */
 .screen-profile{background:#fff;overflow:auto}
@@ -327,7 +327,7 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 .my-profile-hero .profile-info{position:absolute;left:20px;right:20px;bottom:22px}
 .my-profile-avatar{display:grid;place-items:center;background:linear-gradient(135deg,#ff93c4,#d9a8ff);color:#fff}
 .my-status-message{margin-top:6px;color:rgba(255,255,255,.90);font-size:13px;font-weight:800;line-height:1.45;text-shadow:0 2px 12px rgba(40,20,30,.34)}
-.my-profile-section{min-height:0;padding:16px 16px 30px;background:#fff}
+.my-profile-section{min-height:0;padding:16px 16px calc(var(--safe-bottom) + 16px);background:#fff}
 .my-compact-meta{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
 .my-compact-meta span{flex:1 1 auto;border:1px solid var(--line);border-radius:999px;background:#fff8fc;color:#8b667a;-webkit-text-fill-color:#8b667a;font-size:12px;font-weight:900;padding:9px 12px;text-align:center}
 .my-saved-photo-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
@@ -401,4 +401,15 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 }
 @media (max-width:759px){
   .screen-profile{overflow:auto}
+}
+/* Z Flip 6 펼쳤을 때: 너비 374px, 높이 832px 전후 */
+@media (max-width:380px) and (min-height:780px){
+  .join-hero,.profile-hero,.my-profile-hero{min-height:400px}
+  .my-profile-section{padding-bottom:12px}
+  .join-body{padding-bottom:16px}
+}
+/* Z Flip 6 접었을 때 커버스크린: 너비 376px, 높이 ~512px */
+@media (max-width:380px) and (max-height:560px){
+  .join-hero,.profile-hero,.my-profile-hero{min-height:280px}
+  .join-button{margin-bottom:8px}
 }
