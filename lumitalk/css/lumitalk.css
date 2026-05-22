@@ -319,21 +319,43 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 .toast{position:absolute;left:18px;right:18px;bottom:calc(var(--safe-bottom) + 18px);z-index:30;background:rgba(43,37,48,.92);color:white;border-radius:999px;padding:12px 16px;text-align:center;font-size:12px;font-weight:900;box-shadow:0 14px 36px rgba(43,37,48,.26)}
 
 /* ── 내 프로필 시트 ── */
-#myProfileSheet.my-profile-home{background:#fff;color:var(--ink);overflow:auto}
-#myProfileSheet .sheet-head{display:none}
-.my-profile-hero{position:relative;min-height:520px;padding:18px 16px;background:linear-gradient(180deg,rgba(50,20,35,.08),rgba(50,20,35,.58)),url("../assets/lulu_cover.png") center 28%/cover no-repeat}
+#myProfileSheet.my-profile-home{background:#fff;color:var(--ink);overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column}
+.my-profile-hero{position:relative;min-height:520px;padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 18px;background:linear-gradient(180deg,rgba(50,20,35,.08),rgba(50,20,35,.58)),url("../assets/lulu_cover.png") center 28%/cover no-repeat}
 .my-profile-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(50,20,35,.04),rgba(50,20,35,.32));pointer-events:none}
+.my-hero-tap{position:absolute;inset:0;z-index:1;border:0;background:transparent;cursor:pointer;width:100%;height:100%}
 .my-profile-hero .profile-top,.my-profile-hero .profile-info{position:relative;z-index:2}
 .my-profile-hero .profile-info{position:absolute;left:20px;right:20px;bottom:22px}
 .my-profile-avatar{display:grid;place-items:center;background:linear-gradient(135deg,#ff93c4,#d9a8ff);color:#fff}
 .my-status-message{margin-top:6px;color:rgba(255,255,255,.90);font-size:13px;font-weight:800;line-height:1.45;text-shadow:0 2px 12px rgba(40,20,30,.34)}
-.my-profile-section{min-height:0;padding:16px 16px calc(var(--safe-bottom) + 16px);background:#fff}
-.my-compact-meta{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
-.my-compact-meta span{flex:1 1 auto;border:1px solid var(--line);border-radius:999px;background:#fff8fc;color:#8b667a;-webkit-text-fill-color:#8b667a;font-size:12px;font-weight:900;padding:9px 12px;text-align:center}
-.my-saved-photo-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.my-profile-rule{margin-top:14px;padding:13px 14px;border:1px solid var(--line);border-radius:20px;background:#fff8fc;font-size:12px;line-height:1.42}
+.my-profile-section{min-height:0;padding:0 0 calc(var(--safe-bottom) + 20px);background:#fff}
+.my-profile-rule{margin:16px 16px 0;padding:13px 14px;border:1px solid var(--line);border-radius:20px;background:#fff8fc;font-size:12px;line-height:1.42}
 .my-profile-rule b{color:#c06c96}
-.my-profile-section .my-action{width:100%;border:1px solid var(--line);background:#fff7fb;border-radius:999px;padding:12px;margin-top:10px;color:#8b667a;-webkit-text-fill-color:#8b667a;font-size:12px;font-weight:950}
+
+/* 채널 리스트 내 프로필 카드 */
+.my-profile-card{width:100%;border:0;background:linear-gradient(135deg,rgba(255,147,196,.08),rgba(217,168,255,.08));border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;text-align:left}
+.my-profile-card-avatar{width:44px;height:44px;border-radius:16px;background:linear-gradient(135deg,#ff93c4,#d9a8ff);display:grid;place-items:center;font-size:20px;color:#fff;flex-shrink:0;font-weight:950}
+.my-profile-card-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.my-profile-card-name{font-size:14px;font-weight:950;color:var(--ink)}
+.my-profile-card-id{font-size:11px;color:#a08494;font-weight:700}
+.my-profile-card-arrow{font-size:20px;color:#c9a0b8;line-height:1}
+
+/* 소장 사진 섹션 */
+.my-saved-section{padding:20px 16px 0}
+.my-saved-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.my-saved-member-name{font-size:13px;font-weight:950;color:var(--ink)}
+.my-saved-more{border:0;background:transparent;color:#c06c96;font-size:12px;font-weight:900;padding:0;cursor:pointer}
+.my-saved-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.my-saved-thumb{border:0;padding:0;background:transparent;cursor:pointer;border-radius:14px;overflow:hidden;aspect-ratio:1/1;display:block}
+.my-saved-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ⋯ 더보기 시트 */
+.my-more-panel{padding:16px 0 calc(var(--safe-bottom) + 16px)}
+.my-more-row{width:100%;border:0;background:transparent;display:flex;align-items:center;gap:14px;padding:14px 20px;font-size:14px;font-weight:900;color:var(--ink);cursor:pointer;text-align:left}
+.my-more-row:active{background:#fdf0f6}
+.my-more-icon{font-size:18px;width:28px;text-align:center}
+
+/* 멤버별 소장 갤러리 풀스크린 */
+.my-saved-gallery-screen{background:#fff;display:flex;flex-direction:column}
 
 /* ── 반응형 ── */
 @media (max-width:430px){

@@ -78,6 +78,7 @@ let currentRoomId="lulu";
 let currentFilter="all";
 let currentGalleryIndex=0;
 let viewerReturn="gallery";
+let galleryReturn="info";
 let touchStartX=0;
 
 const $=(s)=>document.querySelector(s);
@@ -292,8 +293,8 @@ function renderProfile(id){
   if(moreBtn) moreBtn.onclick=()=>{renderChannelInfo(id);showScreen("channelInfoScreen");};
 }
 
-function openGallery(id){
-  currentRoomId=id; const room=getRoom(id), items=galleryItems[id]||galleryItems.lulu;
+function openGallery(id,returnTo="info"){
+  currentRoomId=id; galleryReturn=returnTo; const room=getRoom(id), items=galleryItems[id]||galleryItems.lulu;
   $("#galleryRoomTitle").textContent=room.title;
   $("#galleryGrid").innerHTML=items.map((item,i)=>`<button class="gallery-item" data-gallery-index="${i}" type="button">${photoHTML(item)}<div class="gallery-meta"><span class="gallery-chip">${item.type==="video"?"VIDEO":"PHOTO"}</span><span class="gallery-like">❤︎</span></div></button>`).join("");
   $$("[data-gallery-index]").forEach(btn=>btn.addEventListener("click",()=>openViewer(id,Number(btn.dataset.galleryIndex),"gallery")));
@@ -344,6 +345,8 @@ function backFromViewer(){
   if(viewerReturn==="join-profile"){renderProfile(currentRoomId);showScreen("profileScreen");return;}
   if(viewerReturn==="info"){renderChannelInfo(currentRoomId);showScreen("channelInfoScreen");return;}
   if(viewerReturn==="profile"){renderProfile(currentRoomId);showScreen("profileScreen");return;}
+  if(viewerReturn==="myProfile"){openMyProfile();return;}
+  if(viewerReturn==="mySavedGallery"){showScreen("mySavedGalleryScreen");return;}
   openGallery(currentRoomId);
 }
 
@@ -399,19 +402,19 @@ function bindEvents(){
   $("#joinChannelBtn").onclick=joinCurrentChannel;
   $("#profileBackBtn").onclick=()=>showScreen("listScreen");
   $("#goChatBtn").onclick=()=>openChannel(currentRoomId);
-  $("#profilePhotoBtn").onclick=()=>openGallery(currentRoomId);
-  $("#galleryBackBtn").onclick=()=>{renderChannelInfo(currentRoomId);showScreen("channelInfoScreen");};
+  $("#profilePhotoBtn").onclick=()=>openGallery(currentRoomId,"profile");
+  $("#galleryBackBtn").onclick=()=>{ if(galleryReturn==="profile"){renderProfile(currentRoomId);showScreen("profileScreen");}else{renderChannelInfo(currentRoomId);showScreen("channelInfoScreen");} };
   $("#viewerBackBtn").onclick=backFromViewer;
-  $("#viewerGalleryBtn").onclick=()=>openGallery(currentRoomId);
+  $("#viewerGalleryBtn").onclick=()=>openGallery(currentRoomId,galleryReturn);
   $("#viewerPrevBtn").onclick=()=>moveViewer(-1);
   $("#viewerNextBtn").onclick=()=>moveViewer(1);
-  $("#viewerBody").onclick=(e)=>{if(e.target.closest(".viewer-arrow"))return;$("#photoViewerScreen").classList.toggle("ui-hidden");};
+  $("#viewerBody").onclick=(e)=>{if(e.target.closest(".viewer-arrow")||e.target.closest(".viewer-footer")||e.target.closest("#viewerBackBtn"))return;$("#photoViewerScreen").classList.toggle("ui-hidden");};
   $("#savePhotoBtn").onclick=()=>showToast("루미톡 사진이 저장되었어요.");
   $("#keepPhotoBtn").onclick=()=>showToast("소장함에 담았어요.");
   $("#morePhotoBtn").onclick=()=>showToast("더보기는 다음 단계에서 열릴 예정이에요.");
   $("#searchBtn").onclick=()=>{renderSearchResults();$("#searchSheet").classList.remove("hidden");};
   $("#savedBtn").onclick=()=>{renderSavedList();$("#savedSheet").classList.remove("hidden");};
-  $("#myProfileBtn").onclick=()=>$("#myProfileSheet").classList.remove("hidden");
+  $("#myProfileBtn").onclick=openMyProfile;
   $$(".sheet-close").forEach(b=>b.onclick=closeSheets);
   $$("[data-close-leave]").forEach(b=>b.onclick=()=>$("#leaveConfirmSheet").classList.add("hidden"));
   $("#confirmLeaveBtn").onclick=leaveCurrentChannel;
@@ -432,43 +435,181 @@ function bindEvents(){
   });
 }
 
+/* ── 내 프로필 ── */
+const mySavedItems = {
+  lulu: [
+    {src:"./assets/lulu_cover.png", caption:"루루 소장 사진", type:"photo", date:"2026.05.22"},
+    {src:"./assets/lulu_sd.png", caption:"루루 SD", type:"photo", date:"2026.05.22"},
+    {src:"./assets/lulu_spring.png", caption:"봄날의 루루", type:"photo", date:"2026.05.22"}
+  ],
+  mari: [
+    {src:"./assets/mariring_cover.webp", caption:"링링 소장 사진", type:"photo", date:"2026.05.22"},
+    {src:"./assets/mariring_sd.png", caption:"링링 SD", type:"photo", date:"2026.05.22"}
+  ]
+};
+
+function openMyProfile(){
+  showScreen("myProfileSheet");
+  renderMySavedSections();
+  bindMyProfileEvents();
+}
+
+function renderMySavedSections(){
+  // 오시 설정된 멤버 ID (rooms에서 오시 채널)
+  const oshiId = "lulu"; // 율의 오시: 루루
+
+  // 표시할 멤버: 채널 추가(joined/muted)한 멤버 + 오시
+  const visibleMembers = channels
+    .filter(c => c.type === "member" && (c.status === "joined" || c.status === "muted" || c.id === oshiId))
+    .filter(c => mySavedItems[c.id] && mySavedItems[c.id].length > 0)
+    .map(c => c.id);
+
+  // 중복 제거
+  const memberIds = [...new Set([oshiId, ...visibleMembers])].filter(id => mySavedItems[id]);
+
+  const container = $("#mySavedSections");
+  if(!container) return;
+
+  container.innerHTML = memberIds.map(memberId => {
+    const room = getRoom(memberId);
+    const items = mySavedItems[memberId] || [];
+    const thumbs = items.slice(0,3).map((item, i) =>
+      `<button class="my-saved-thumb" data-my-photo="${i}" data-member="${memberId}" type="button">
+        <img src="${item.src}" alt="소장 사진" />
+      </button>`
+    ).join("");
+    return `
+      <div class="my-saved-section">
+        <div class="my-saved-header">
+          <span class="my-saved-member-name">${room.avatar} ${room.title}</span>
+          <button class="my-saved-more" data-member-gallery="${memberId}" type="button">더보기 ›</button>
+        </div>
+        <div class="my-saved-grid">${thumbs}</div>
+      </div>`;
+  }).join("");
+}
+
+function bindMyProfileEvents(){
+  // 뒤로가기 - 시트만 닫기
+  const closeBtn=$("#myProfileCloseBtn");
+  if(closeBtn) closeBtn.onclick=()=>showScreen("listScreen");
+
+  // 히어로 사진 탭 → 뷰어
+  const heroTap=$("#myHeroTapBtn");
+  if(heroTap) heroTap.onclick=()=>{
+    galleryItems.__myHero=[{src:"./assets/lulu_cover.png",caption:"내 프로필 배경 사진",type:"photo",date:"프로필 사진"}];
+    currentRoomId="__myHero";
+    currentGalleryIndex=0;
+    viewerReturn="myProfile";
+    $("#viewerMember").textContent="율";
+    $("#viewerDate").textContent="프로필 배경 사진";
+    $("#viewerPhotoImg").src="./assets/lulu_cover.png";
+    $("#viewerCaption").textContent="내 프로필 배경 사진";
+    $("#viewerIndex").textContent="1 / 1";
+    $("#photoViewerScreen").classList.remove("ui-hidden");
+    showScreen("photoViewerScreen");
+  };
+
+  const heartBtn=$("#myHeartBtn");
+  if(heartBtn) heartBtn.onclick=()=>{renderSavedList();$("#savedSheet").classList.remove("hidden");};
+
+  const moreBtn=$("#myMoreBtn");
+  if(moreBtn) moreBtn.onclick=(e)=>{e.stopPropagation();$("#myMoreSheet").classList.remove("hidden");};
+
+  const moreDim=$("#myMoreDim");
+  if(moreDim) moreDim.onclick=()=>$("#myMoreSheet").classList.add("hidden");
+
+  const editName=$("#editNameBtn");
+  if(editName) editName.onclick=()=>{
+    $("#myMoreSheet").classList.add("hidden");
+    const cur=localStorage.getItem("myDisplayName")||"율";
+    const next=prompt("표시 이름을 입력해 주세요.", cur);
+    if(next===null) return;
+    const clean=next.trim()||"율";
+    localStorage.setItem("myDisplayName", clean);
+    $$("#myProfileSheet .profile-name").forEach(el=>el.textContent=clean);
+    $(".my-profile-card-name").textContent=clean;
+    showToast("표시 이름을 저장했어요.");
+  };
+
+  const editStatus=$("#editStatusBtn");
+  if(editStatus) editStatus.onclick=()=>{
+    $("#myMoreSheet").classList.add("hidden");
+    const cur=$("#myStatusMsg")?.textContent||"별빛톡 · 펼쳐지는 세상에 마법을 걸어줄게";
+    const next=prompt("상태 메세지를 입력해 주세요.", cur);
+    if(next===null) return;
+    if($("#myStatusMsg")) $("#myStatusMsg").textContent=next.trim()||cur;
+    showToast("상태 메세지를 저장했어요.");
+  };
+
+  // 이벤트 위임 — 동적 DOM 문제 근본 해결
+  const savedSections=$("#mySavedSections");
+  if(savedSections){
+    savedSections.onclick=(e)=>{
+      const thumb=e.target.closest("[data-my-photo]");
+      const more=e.target.closest("[data-member-gallery]");
+      if(thumb){
+        const member=thumb.dataset.member||"lulu";
+        const idx=Number(thumb.dataset.myPhoto||0);
+        const items=mySavedItems[member]||mySavedItems.lulu;
+        galleryItems.__mySaved=items;
+        currentRoomId="__mySaved";
+        currentGalleryIndex=idx;
+        viewerReturn="myProfile";
+        const item=items[idx]||items[0];
+        const room=getRoom(member);
+        $("#viewerMember").textContent=room.short;
+        $("#viewerDate").textContent=`소장 사진 · ${item.date}`;
+        $("#viewerPhotoImg").src=item.src;
+        $("#viewerCaption").textContent=item.caption;
+        $("#viewerIndex").textContent=`${idx+1} / ${items.length}`;
+        $("#photoViewerScreen").classList.remove("ui-hidden");
+        showScreen("photoViewerScreen");
+      } else if(more){
+        openMySavedGallery(more.dataset.memberGallery);
+      }
+    };
+  }
+}
+
+function openMySavedGallery(memberId){
+  const room=getRoom(memberId);
+  const items=mySavedItems[memberId]||[];
+  $("#mySavedGalleryTitle").textContent=`${room.short}의 소장 사진`;
+  $("#mySavedGalleryGrid").innerHTML=items.map((item,i)=>
+    `<button class="gallery-item" data-saved-index="${i}" data-saved-member="${memberId}" type="button">
+      <img src="${item.src}" alt="소장 사진" />
+      <div class="gallery-meta"><span class="gallery-chip">PHOTO</span><span class="gallery-like">❤︎</span></div>
+    </button>`
+  ).join("");
+  $$("[data-saved-index]").forEach(btn=>{
+    btn.onclick=()=>{
+      const idx=Number(btn.dataset.savedIndex);
+      const mid=btn.dataset.savedMember;
+      const items2=mySavedItems[mid]||[];
+      galleryItems.__mySaved=items2;
+      currentRoomId="__mySaved";
+      currentGalleryIndex=idx;
+      viewerReturn="mySavedGallery";
+      const item=items2[idx]||items2[0];
+      const room2=getRoom(mid);
+      $("#viewerMember").textContent=room2.short;
+      $("#viewerDate").textContent=`소장 사진 · ${item.date}`;
+      $("#viewerPhotoImg").src=item.src;
+      $("#viewerCaption").textContent=item.caption;
+      $("#viewerIndex").textContent=`${idx+1} / ${items2.length}`;
+      $("#photoViewerScreen").classList.remove("ui-hidden");
+      showScreen("photoViewerScreen");
+    };
+  });
+  showScreen("mySavedGalleryScreen");
+}
+
+// 갤러리 뒤로가기 → 내 프로필로
+$("#mySavedGalleryBack").onclick=()=>openMyProfile();
+
+
 renderChannels();
 renderRoom(currentRoomId);
 renderProfile(currentRoomId);
 bindEvents();
-
-
-
-
-/* Patch 20.3 — my profile saved photos */
-(function(){
-  const bindMyProfilePhotos = () => {
-    document.querySelectorAll("[data-my-photo]").forEach((btn) => {
-      btn.onclick = () => {
-        const idx = Number(btn.dataset.myPhoto || 0);
-        galleryItems.__mySaved = [
-          {src:"./assets/lulu_cover.png", caption:"율의 소장 사진", type:"photo", date:"소장 사진"},
-          {src:"./assets/lulu_sd.png", caption:"율의 소장 사진", type:"photo", date:"소장 사진"},
-          {src:"./assets/lulu_spring.png", caption:"율의 소장 사진", type:"photo", date:"소장 사진"}
-        ];
-        currentRoomId = "__mySaved";
-        currentGalleryIndex = idx;
-        viewerReturn = "myProfile";
-        const item = galleryItems.__mySaved[idx] || galleryItems.__mySaved[0];
-        $("#viewerMember").textContent = "율";
-        $("#viewerDate").textContent = "소장 사진 · LB-0002";
-        $("#viewerPhotoImg").src = item.src;
-        $("#viewerCaption").textContent = item.caption;
-        $("#viewerIndex").textContent = `${idx + 1} / ${galleryItems.__mySaved.length}`;
-        $("#photoViewerScreen").classList.remove("ui-hidden");
-        showScreen("photoViewerScreen");
-      };
-    });
-  };
-
-  const oldOpen = window.openMyProfileSheet;
-  window.bindMyProfilePhotos = bindMyProfilePhotos;
-  document.getElementById("myProfileBtn")?.addEventListener("click", () => {
-    setTimeout(bindMyProfilePhotos, 0);
-  });
-})();

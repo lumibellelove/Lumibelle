@@ -16,7 +16,6 @@
           <h1>LUMI TALK</h1>
         </div>
         <div class="icon-row">
-          <button class="profile-chip" id="myProfileBtn" type="button">LB-0002</button>
           <button class="icon-btn" id="searchBtn" type="button" aria-label="대화 검색">⌕</button>
           <button class="icon-btn heart-icon" id="savedBtn" type="button" aria-label="소장함">❤︎</button>
         </div>
@@ -24,6 +23,14 @@
       <p class="desc">멤버의 메시지와 루미나의 마음이 반짝임으로 기록되는 루미톡.</p>
     </header>
     <nav class="filters" id="filterBar" aria-label="채널 필터"></nav>
+    <button class="my-profile-card" id="myProfileBtn" type="button">
+      <div class="my-profile-card-avatar">✦</div>
+      <div class="my-profile-card-info">
+        <span class="my-profile-card-name">율</span>
+        <span class="my-profile-card-id">LB-0002 · 내 프로필</span>
+      </div>
+      <span class="my-profile-card-arrow">›</span>
+    </button>
     <main class="channel-list" id="channelList"></main>
   </section>
 
@@ -218,18 +225,21 @@
     <div class="sheet-body" id="savedList"></div>
   </section>
 
-  <section id="myProfileSheet" class="sheet hidden my-profile-home">
+  <section id="myProfileSheet" class="screen hidden my-profile-home">
     <div class="my-profile-hero">
+      <button class="my-hero-tap" id="myHeroTapBtn" type="button" aria-label="배경 사진 보기"></button>
       <div class="profile-top">
-        <button class="dark-btn sheet-close" type="button" aria-label="뒤로">‹</button>
-
+        <button class="dark-btn" id="myProfileCloseBtn" type="button" aria-label="뒤로">‹</button>
+        <div class="profile-tools">
+          <button class="dark-btn heart-icon" id="myHeartBtn" type="button" aria-label="소장함">❤︎</button>
+          <button class="dark-btn more-icon" id="myMoreBtn" type="button" aria-label="더보기">⋯</button>
+        </div>
       </div>
-
       <div class="profile-info">
         <div class="profile-avatar my-profile-avatar" id="myProfileAvatar">✦</div>
         <div class="profile-name">율</div>
         <div class="profile-sub">LB-0002</div>
-        <div class="my-status-message">별빛톡 · 펼쳐지는 세상에 마법을 걸어줄게</div>
+        <div class="my-status-message" id="myStatusMsg">별빛톡 · 펼쳐지는 세상에 마법을 걸어줄게</div>
         <div class="profile-actions">
           <button class="my-lumiphone-btn" type="button">루미폰 프로필</button>
           <button class="my-oshi-btn" type="button">오시 루루 🍼🐰</button>
@@ -237,22 +247,39 @@
       </div>
     </div>
 
-    <div class="profile-section my-profile-section">
+    <div class="my-profile-section">
+      <div id="mySavedSections"></div>
 
-
-      <h2 class="my-saved-title">율의 소장 사진</h2>
-      <div class="photo-row my-saved-photo-row">
-        <button class="profile-photo-thumb my-saved-photo" data-my-photo="0" type="button"><img src="./assets/lulu_cover.png" alt="소장 사진" /></button>
-        <button class="profile-photo-thumb my-saved-photo" data-my-photo="1" type="button"><img src="./assets/lulu_sd.png" alt="소장 사진" /></button>
-        <button class="profile-photo-thumb my-saved-photo" data-my-photo="2" type="button"><img src="./assets/lulu_spring.png" alt="소장 사진" /></button>
-      </div>
-
-      <div class="profile-note my-profile-rule">
+      <div class="my-profile-rule">
         <b>루미톡 표시 기준</b><br>
         닉네임, 루미 ID, 칭호, 오시는 루미폰에서 설정해요.
       </div>
+    </div>
+  </section>
 
+  <!-- 내 프로필 ⋯ 메뉴 시트 -->
+  <section id="myMoreSheet" class="bottom-sheet hidden">
+    <div class="sheet-dim" id="myMoreDim"></div>
+    <div class="bottom-panel my-more-panel">
+      <div class="sheet-handle"></div>
+      <button class="my-more-row" id="editNameBtn" type="button">
+        <span class="my-more-icon">✏️</span>표시 이름 편집
+      </button>
+      <button class="my-more-row" id="editStatusBtn" type="button">
+        <span class="my-more-icon">💬</span>상태 메세지 수정
+      </button>
+    </div>
+  </section>
 
+  <!-- 멤버별 소장 갤러리 풀스크린 -->
+  <section id="mySavedGalleryScreen" class="screen hidden my-saved-gallery-screen">
+    <div class="gallery-head">
+      <button class="back" id="mySavedGalleryBack" type="button" aria-label="뒤로"></button>
+      <span class="gallery-room-title" id="mySavedGalleryTitle">소장 사진</span>
+      <div></div>
+    </div>
+    <div class="gallery-body">
+      <div class="gallery-grid" id="mySavedGalleryGrid"></div>
     </div>
   </section>
 
