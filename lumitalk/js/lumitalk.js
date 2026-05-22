@@ -268,6 +268,7 @@ function renderProfile(id){
   const screen=$("#profileScreen");
   screen.classList.toggle("help-profile", id==="help");
   $("#profileHero").style.backgroundImage=room.cover?`url("${room.cover}")`:"linear-gradient(135deg,#f6c7d6,#b98896)";
+  $("#profileAvatar").className=`profile-avatar ${room.avatarClass}`;
   $("#profileAvatar").innerHTML=memberAvatarHTML(room);
   $("#profileName").textContent=room.short;
   $("#profileSub").textContent=room.profileSub;
@@ -437,30 +438,6 @@ renderProfile(currentRoomId);
 bindEvents();
 
 
-/* Patch 19: join heart safe override */
-(function(){
-  const joinHeart = document.getElementById("joinHeartBtn");
-  if (joinHeart) {
-    joinHeart.onclick = (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      showToast("채널을 소장했어요.");
-    };
-  }
-  const joinHero = document.getElementById("joinHero");
-  if (joinHero) {
-    joinHero.onclick = null;
-  }
-})();
-
-
-/* Patch 20 help icon visibility */
-(function(){
-  const helpAvatar = document.querySelector('.help-avatar');
-  if(helpAvatar && helpAvatar.textContent.trim()===''){
-    helpAvatar.textContent='?';
-  }
-})();
 
 
 /* Patch 20.3 — my profile saved photos */
@@ -494,20 +471,4 @@ bindEvents();
   document.getElementById("myProfileBtn")?.addEventListener("click", () => {
     setTimeout(bindMyProfilePhotos, 0);
   });
-})();
-
-/* Patch 20.3 — viewer back for my profile */
-(function(){
-  const oldBack = typeof backFromViewer === "function" ? backFromViewer : null;
-  if(oldBack){
-    window.backFromViewer = function(){
-      if(viewerReturn === "myProfile"){
-        showScreen("listScreen");
-        $("#myProfileSheet").classList.remove("hidden");
-        setTimeout(()=>window.bindMyProfilePhotos && window.bindMyProfilePhotos(), 0);
-        return;
-      }
-      return oldBack();
-    };
-  }
 })();

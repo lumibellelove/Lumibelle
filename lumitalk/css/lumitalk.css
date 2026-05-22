@@ -1,6 +1,9 @@
-/* LUMI TALK Clean Baseline
-   Patch 7~10 누적 정리본. 모바일 우선, 루미폰 프레임 기준.
+/* LUMI TALK CSS — Clean Baseline v2
+   Patch 7~21.1 통합 정리본
+   모바일 우선 / iPhone 17 Pro + Galaxy Z Flip 6 기준
 */
+
+/* ── 변수 ── */
 :root{
   --phone-max-mobile:430px;
   --safe-top:env(safe-area-inset-top,0px);
@@ -16,50 +19,66 @@
   --shadow2:0 12px 30px rgba(205,96,153,.10);
   --font:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;
 }
+
+/* ── 기본 리셋 ── */
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;width:100%;overflow:hidden;font-family:var(--font);color:var(--ink);background:radial-gradient(circle at 18% 8%,rgba(255,184,219,.28),transparent 32%),radial-gradient(circle at 88% 18%,rgba(232,214,255,.55),transparent 32%),linear-gradient(180deg,#fff7fb 0%,#fff 48%,#fff8fc 100%);font-kerning:normal;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
-button,input{font:inherit}button{cursor:pointer}
+button,input{font:inherit}
+button{cursor:pointer}
+a,button{-webkit-tap-highlight-color:transparent}
+button:focus,button:focus-visible{outline:none}
+
+/* ── 앱 컨테이너 ── */
 .app{width:min(100%,var(--phone-max-mobile));height:100dvh;min-height:100dvh;margin:0 auto;padding-top:var(--safe-top);padding-bottom:var(--safe-bottom);background:rgba(255,255,255,.94);position:relative;overflow:hidden;box-shadow:var(--shadow)}
 .app::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 0%,rgba(255,190,222,.32),transparent 34%),radial-gradient(circle at 95% 12%,rgba(225,211,255,.38),transparent 30%),linear-gradient(180deg,#fffafd 0%,#fff 54%,#fff8fc 100%);pointer-events:none}
 .screen{position:relative;height:calc(100dvh - var(--safe-top) - var(--safe-bottom));display:flex;flex-direction:column}
 .hidden{display:none!important}
 
-/* ── 공통 버튼 (중복 제거 통합본) ── */
-.back,.dark-btn,.icon-btn,.info-icon,.viewer-back,.viewer-gallery,.viewer-arrow,.gallery-heart,.gallery-like{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  line-height:1;
-  padding:0;
-  vertical-align:middle;
-}
+/* ── 공통 버튼 ── */
+.back,.dark-btn,.icon-btn,.info-icon,.viewer-back,.viewer-gallery,.viewer-arrow,.gallery-heart,.gallery-like{display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1;padding:0;vertical-align:middle}
 .back{width:40px;height:40px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#7d5f72;font-size:0;font-weight:700;box-shadow:0 6px 16px rgba(205,96,153,.08);position:relative}
 .back::before{content:"‹";display:block;font-size:27px;line-height:1;transform:translateY(-1px)}
 .dark-btn{width:42px;height:42px;border-radius:999px;border:0;background:rgba(40,25,30,.32);color:white;font-size:0;backdrop-filter:blur(7px);position:relative}
 .dark-btn::before{content:"‹";display:block;font-size:25px;line-height:1;transform:translateY(-1px)}
-.dark-btn.heart-icon::before{content:"❤︎";font-size:23px;transform:none}
+.dark-btn.heart-icon::before{content:"❤︎";font-size:23px;transform:none;color:#f67cad}
 .profile-tools .dark-btn:not(.heart-icon)::before{content:"⋯";font-size:24px;transform:none}
 .icon-btn{width:40px;height:40px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#7d5f72;box-shadow:0 6px 16px rgba(205,96,153,.08)}
-.gallery-heart{width:42px;height:42px;border:0;border-radius:999px;background:transparent;font-size:24px}
+.gallery-heart{width:42px;height:42px;border:0;border-radius:999px;background:transparent;font-size:24px;color:#f67cad}
 .gallery-like{width:32px;height:32px;border-radius:999px;border:0;background:rgba(255,255,255,.92);color:#f67cad;font-size:18px;font-weight:900}
+.heart-icon{color:#f67cad}
 
-/* ── 아바타 (overflow 충돌 통합) ── */
-.avatar,.room-avatar,.info-avatar,.setting-avatar,.profile-avatar,.my-ava{
-  overflow:visible; /* 배지가 밖으로 나와야 해서 visible */
-  border:1px solid rgba(255,255,255,.92);
-  outline:none;
-}
-.avatar img,.room-avatar img,.info-avatar img,.setting-avatar img,.profile-avatar img{
-  width:100%;height:100%;object-fit:cover;object-position:center center;display:block;
-  overflow:hidden;border-radius:inherit; /* 이미지 자체는 크롭 */
-  max-width:100%;max-height:100%;
-}
+/* 프로필 전용 버튼 */
+#profileHeartBtn,#profileMoreBtn{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:999px;border:0;background:rgba(40,25,30,.34);color:#fff;padding:0;line-height:1}
+#profileHeartBtn::before{content:"❤︎";color:#f67cad;font-size:23px;line-height:1}
+#profileMoreBtn::before{content:"⋯";color:#fff;font-size:24px;line-height:1;transform:translateY(-1px)}
+#roomMenuBtn{font-size:24px;color:#7d5f72}
+#roomMenuBtn::before{content:none}
+
+/* ── 아바타 ── */
+.avatar,.room-avatar,.info-avatar,.setting-avatar,.profile-avatar,.my-ava,.msg-avatar{overflow:visible;outline:0}
+.avatar img,.room-avatar img,.info-avatar img,.setting-avatar img,.profile-avatar img,.my-ava img,.msg-avatar img{width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;overflow:hidden;border-radius:inherit;background:transparent;border:none}
 .avatar{width:56px;height:56px;border-radius:21px;border:1px solid rgba(255,255,255,.92);box-shadow:0 10px 22px rgba(168,97,134,.13);display:grid;place-items:center;font-size:26px;position:relative;color:#fff;font-weight:950;background:linear-gradient(135deg,#ffc5de,#ff8ab9)}
-.info-avatar,.setting-avatar,.profile-avatar{border:2px solid rgba(255,255,255,.92)}
-.info-avatar,.setting-avatar{background:#fff4fa;border:2px solid rgba(255,255,255,.9) !important}
-.profile-avatar,.info-avatar{cursor:pointer}
+.info-avatar,.setting-avatar,.profile-avatar{border:2px solid rgba(255,255,255,.92);display:grid;place-items:center}
+.info-avatar{width:104px;height:104px;margin:0 auto;border-radius:34px;font-size:48px;box-shadow:0 14px 34px rgba(120,70,95,.13);background:#fff4fa}
+.setting-avatar{width:76px;height:76px;border-radius:26px;font-size:36px;background:#fff4fa}
+.profile-avatar{width:74px;height:74px;border-radius:28px;font-size:36px;box-shadow:0 12px 30px rgba(0,0,0,.18);cursor:pointer;background:#fff6fb}
 .profile-avatar:active,.info-avatar:active{transform:scale(.985)}
+.room-avatar{width:44px;height:44px;border-radius:17px;font-size:22px}
+.msg-avatar{width:42px;height:42px;border-radius:16px;background:#fff4fa;display:grid;place-items:center}
+.my-ava{width:56px;height:56px;border-radius:21px;background:linear-gradient(135deg,#ff93c4,#d9a8ff);display:grid;place-items:center;color:white;font-size:24px;border:2px solid #fff;box-shadow:0 10px 22px rgba(168,97,134,.13)}
+
+/* SD 이미지 전체 표시 */
+.profile-avatar img[src*="_sd"],
+.info-avatar img[src*="_sd"],
+.setting-avatar img[src*="_sd"],
+.avatar img[src*="_sd"],
+.room-avatar img[src*="_sd"],
+.msg-avatar img[src*="_sd"]{object-fit:cover;object-position:center 24%;background:transparent}
+
+/* HELP 아바타 */
+.a-help{display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,#ff8dbd,#d2a8ff)}
+.a-help img{display:none}
+.info-avatar.a-help,.setting-avatar.a-help,.profile-avatar.a-help{background:linear-gradient(135deg,#ff8dbd,#d2a8ff);color:#fff}
 
 /* ── 배지 ── */
 .unread{position:absolute;right:-3px;top:-3px;min-width:20px;height:20px;padding:0 6px;border-radius:999px;display:grid;place-items:center;background:var(--hot);color:#fff;font-size:10px;font-weight:950;z-index:5;box-shadow:0 2px 0 #fff,0 6px 12px rgba(255,108,173,.28)}
@@ -70,7 +89,6 @@ button,input{font:inherit}button{cursor:pointer}
 .a-mari{background:linear-gradient(135deg,#ff87bb,#ffd173)}
 .a-iro{background:linear-gradient(135deg,#afe8ff,#86afff)}
 .a-lunar{background:linear-gradient(135deg,#baa3ff,#7366d8)}
-.a-help{background:linear-gradient(135deg,#ffe1a8,#ff9fc4)}
 
 /* ── 상단 헤더 ── */
 .top{padding:22px 20px 12px}
@@ -78,9 +96,8 @@ button,input{font:inherit}button{cursor:pointer}
 .kicker{font-size:11px;letter-spacing:.22em;font-weight:950;color:#d879a7}
 h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:-.055em}
 .icon-row{display:flex;gap:8px}
-.heart-icon{font-family:var(--font);color:#f67cad}
 .profile-chip{height:40px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#c06c96;padding:0 12px;font-size:11px;font-weight:950;box-shadow:0 6px 16px rgba(205,96,153,.08)}
-.desc{margin:12px 0 0;font-size:12px;line-height:1.55;color:var(--muted);font-weight:700}
+.desc{margin:12px 0 0;font-size:12px;line-height:1.55;color:var(--muted);font-weight:700;word-break:keep-all}
 
 /* ── 필터 탭 ── */
 .filters{display:flex;gap:8px;padding:0 20px 14px;overflow:hidden}
@@ -96,10 +113,11 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 .avatar-btn{border:0;background:transparent;padding:0;margin:0;width:56px;height:56px;border-radius:21px}
 .channel-main{min-width:0;border:0;background:transparent;text-align:left;padding:0;overflow:hidden}
 .channel-name{display:flex;align-items:center;gap:6px;min-width:0}
-.channel-name b{font-size:14px;letter-spacing:-.045em;line-height:1.15;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.channel-name b,.channel b,.channel-main b,.room-title{color:var(--ink);-webkit-text-fill-color:var(--ink);font-size:14px;letter-spacing:-.045em;line-height:1.15;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tag{flex:0 0 auto;border:1px solid var(--line);background:var(--soft);color:#c06c96;border-radius:999px;padding:2px 7px;font-size:9px;font-weight:950}
-.preview{font-size:12px;color:#967c8c;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.preview{font-size:12px;color:#967c8c;-webkit-text-fill-color:#967c8c;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .time{font-size:10px;color:#a28c9b;font-weight:800;white-space:nowrap}
+.time.is-new{color:#f67cad;font-weight:950}
 .empty-list{margin:20px 4px 0;padding:26px 20px;border:1px solid var(--line);border-radius:26px;background:rgba(255,255,255,.74);box-shadow:var(--shadow2);text-align:center;color:#8f7284;font-size:13px;font-weight:800;line-height:1.55}
 .empty-list::before{content:"❤︎";display:grid;place-items:center;width:48px;height:48px;margin:0 auto 12px;border-radius:18px;background:linear-gradient(135deg,#ffd1e4,#ff93c4);color:#fff;font-size:20px;box-shadow:0 10px 24px rgba(205,96,153,.16)}
 
@@ -107,9 +125,7 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 .room-head{padding:16px 14px 12px;background:rgba(255,255,255,.78);backdrop-filter:blur(10px);border-bottom:1px solid var(--line2)}
 .room-head-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .room-profile{flex:1;min-width:0;display:flex;align-items:center;gap:10px;border:0;background:transparent;text-align:left;padding:0}
-.room-avatar{width:44px;height:44px;border-radius:17px;font-size:22px}
 .room-title-wrap{min-width:0}
-.room-title{font-size:15px;font-weight:900;letter-spacing:-.045em;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .room-status{font-size:11px;color:#967c8c;font-weight:800;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .room-card{padding:12px 14px;background:rgba(255,255,255,.45);border-bottom:1px solid rgba(255,255,255,.75)}
 .room-card-inner{border:1px solid var(--line);background:rgba(255,255,255,.8);border-radius:20px;padding:12px 14px;box-shadow:0 8px 20px rgba(205,96,153,.08)}
@@ -121,9 +137,10 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 .date-pill{align-self:center;padding:7px 12px;border-radius:999px;background:#fff;border:1px solid #f0e4ec;color:#a08494;font-size:11px;font-weight:900;box-shadow:0 6px 18px rgba(70,40,58,.04)}
 .notice{text-align:center}
 .notice span{display:inline-block;border:1px solid var(--line);background:rgba(255,255,255,.75);border-radius:999px;padding:7px 11px;font-size:10px;color:var(--muted);font-weight:800}
-.msg{display:flex;gap:8px;align-items:flex-end}
-.msg.me{justify-content:flex-end}
-.msg-avatar{width:36px;height:36px;border-radius:14px;border:2px solid #fff;display:grid;place-items:center;box-shadow:0 8px 18px rgba(168,97,134,.1)}
+.msg{display:flex;gap:8px;align-items:flex-start}
+.msg.me{justify-content:flex-end;align-items:flex-end}
+.msg-head{display:flex;align-items:center;gap:6px;margin:0 0 5px 2px;font-size:12px;font-weight:900;color:#4f3b47}
+.msg-name{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bubble-wrap{max-width:78%}
 .bubble{border:1px solid white;background:rgba(255,255,255,.88);border-radius:20px;border-bottom-left-radius:6px;padding:12px 14px;font-size:13px;line-height:1.55;white-space:pre-line;box-shadow:0 10px 22px rgba(174,93,138,.08)}
 .me .bubble{background:#ffe0ef;border-color:#ffc5df;border-bottom-left-radius:20px;border-bottom-right-radius:6px}
@@ -132,7 +149,7 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 .react{border:1px solid var(--line);background:rgba(255,255,255,.8);color:#b86d91;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:950}
 .photos{display:flex;gap:7px;margin-top:10px}
 .photo{width:62px;height:62px;border-radius:17px;border:1px solid var(--line);background:var(--soft);display:block;overflow:hidden;padding:0}
-.photo img{width:100%;height:100%;object-fit:cover;display:block}
+.photo img{width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block}
 .letter{border:1px solid var(--line);background:rgba(255,255,255,.84);border-radius:22px;padding:14px;box-shadow:var(--shadow2)}
 .letter-label{font-size:12px;font-weight:950;color:#c06c96}
 .letter-body{font-size:13px;line-height:1.6;color:#5b4050;margin-top:8px;white-space:pre-line}
@@ -146,14 +163,14 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 .send{width:39px;height:39px;border-radius:999px;border:0;background:var(--hot2);color:white;display:grid;place-items:center}
 .composer-note{text-align:center;font-size:10px;color:#a98a9a;margin-top:7px}
 
-/* ── 채널 정보(설정) 화면 ── */
+/* ── 채널 정보 화면 ── */
 .screen-info{background:#f7f4f6;color:var(--ink);overflow:auto}
 .info-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:calc(var(--safe-top) + 17px) 18px 12px;background:rgba(255,255,255,.88);border-bottom:1px solid #eee4ea}
 .info-icons{display:flex;align-items:center;gap:14px}
 .info-icon{width:42px;height:42px;border:0;background:transparent;color:#17151a;font-size:24px;position:relative}
+.info-icon.heart-icon{color:#f67cad}
 .info-icon.is-muted::before{content:"zZ";position:absolute;left:-14px;top:50%;transform:translateY(-58%) rotate(-8deg);color:#62a7ff;font-size:12px;font-weight:950}
 .info-main{padding:34px 16px calc(var(--safe-bottom) + 28px)}
-.info-avatar{width:104px;height:104px;margin:0 auto;border-radius:34px;font-size:48px;box-shadow:0 14px 34px rgba(120,70,95,.13)}
 .info-main h2{margin:18px 0 0;text-align:center;font-size:27px;letter-spacing:-.045em;font-weight:900;line-height:1.15}
 .info-main p{margin:7px 0 0;text-align:center;color:#8f7284;font-size:13px;font-weight:800;letter-spacing:-.015em}
 .info-card{margin-top:24px;background:#fff;border-radius:24px;padding:12px;box-shadow:0 12px 34px rgba(90,60,78,.06);border:1px solid rgba(255,220,237,.58)}
@@ -164,7 +181,7 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 .media-title-button{border:0;background:transparent;padding:0;margin:0 0 10px;text-align:left;font-size:16px;font-weight:900;letter-spacing:-.03em;color:var(--ink)}
 .media-strip{display:flex;gap:6px;overflow:hidden}
 .media-thumb{position:relative;flex:0 0 54px;width:54px;height:54px;border:0;border-radius:12px;overflow:hidden;padding:0;background:#ffeaf3}
-.media-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.media-thumb img{width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block}
 .media-thumb em{position:absolute;right:4px;bottom:4px;padding:1px 5px;border-radius:7px;background:rgba(40,33,42,.72);color:#fff;font-style:normal;font-size:9px;font-weight:900}
 .info-row{width:100%;border:0;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;padding:15px 10px;border-radius:18px}
 .info-row+.info-row{border-top:1px solid #f1e8ee}
@@ -173,67 +190,68 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 .info-leave{width:100%;border:0;background:transparent;color:#e04f78;text-align:left;padding:15px 10px;font-size:16px;font-weight:950}
 .leave-card{margin-top:18px}
 .info-main.no-media{padding-top:40px}
-.info-main.no-media .info-card:first-of-type{margin-top:22px}
-.info-main.no-media .info-avatar{margin-top:8px}
-.info-main.no-media h2{margin-top:16px}
 .screen-info.help-mode .media-card,.screen-info.no-gallery .media-card{display:none}
 
 /* ── 채팅 설정 화면 ── */
-.screen-chat-setting{background:#fff;color:var(--ink);overflow:auto}
-.setting-head{position:static;top:0;z-index:3;display:grid;grid-template-columns:56px 1fr 44px;align-items:center;padding:calc(var(--safe-top) + 15px) 16px 14px;background:rgba(255,255,255,.92);border-bottom:1px solid #eee4ea}
-.setting-head strong{font-size:20px;font-weight:950;letter-spacing:-.05em}
-.setting-body{padding:24px 16px calc(var(--safe-bottom) + 28px)}
+.screen-chat-setting{background:#fff;color:var(--ink);overflow-y:auto}
+.setting-head{position:static;display:grid;grid-template-columns:56px 1fr 44px;align-items:center;padding:calc(var(--safe-top) + 15px) 16px 14px;background:rgba(255,255,255,.92);border-bottom:1px solid #eee4ea}
+.setting-head strong{font-size:20px;font-weight:950;letter-spacing:-.05em;color:var(--ink);-webkit-text-fill-color:var(--ink)}
+.setting-body{padding:24px 16px calc(var(--safe-bottom) + 28px);overflow-y:auto}
 .setting-profile{display:flex;align-items:center;gap:16px;padding:8px 2px 28px}
-.setting-avatar{width:76px;height:76px;border-radius:26px;font-size:36px}
-.setting-profile b{font-size:22px;font-weight:950;letter-spacing:-.05em}
-.setting-profile p{margin:5px 0 0;color:#9a8794;font-size:12px;line-height:1.45;font-weight:800}
-.setting-card{margin-top:14px;border-top:1px solid #f1e8ee}
+.setting-profile b{display:block;font-size:22px;font-weight:950;letter-spacing:-.05em;color:var(--ink);-webkit-text-fill-color:var(--ink)}
+.setting-profile p{margin:5px 0 0;color:#9a8794;-webkit-text-fill-color:#9a8794;font-size:12px;line-height:1.45;font-weight:800}
+.setting-card{border-top:1px solid #f1e8ee;margin-top:14px}
+.setting-card+.setting-card{border-top:0;margin-top:8px}
 .setting-row{width:100%;border:0;background:#fff;padding:18px 0;display:flex;align-items:center;justify-content:space-between;gap:14px;text-align:left;border-bottom:1px solid #f1e8ee}
-.setting-row b{display:block;font-size:16px;font-weight:900;letter-spacing:-.03em}
-.setting-row span{display:block;margin-top:5px;color:#967c8c;font-size:12px;line-height:1.4;font-weight:700}
-.setting-row em{flex:0 0 auto;color:#cab7c3;font-style:normal;font-size:24px}
-.setting-leave{width:100%;border:0;background:#fff;color:#e04f78;text-align:left;padding:18px 0;font-size:16px;font-weight:950;border-bottom:1px solid #f1e8ee}
+.setting-row b{display:block;font-size:16px;font-weight:900;letter-spacing:-.03em;color:#4f3b47;-webkit-text-fill-color:#4f3b47}
+.setting-row span{display:block;margin-top:5px;color:#967c8c;-webkit-text-fill-color:#967c8c;font-size:12px;line-height:1.4;font-weight:700}
+.setting-row em{flex:0 0 auto;color:#cab7c3;-webkit-text-fill-color:#cab7c3;font-style:normal;font-size:24px}
+.setting-leave{width:100%;border:0;background:#fff;color:#e04f78;-webkit-text-fill-color:#e04f78;text-align:left;padding:18px 0;font-size:16px;font-weight:950;border-bottom:1px solid #f1e8ee}
 
 /* ── 채널 추가 전 화면 ── */
-.screen-join{background:#b98998;color:white;overflow:auto}
-.join-hero{position:relative;min-height:500px;padding:18px 16px;background-size:cover;background-position:center}
+.screen-join{background:#b98998;color:white;overflow-y:auto;overflow-x:hidden}
+.join-hero{position:relative;min-height:470px;padding:52px 16px 18px;background-size:cover;background-position:center 22%}
 .join-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(40,20,30,.10),rgba(40,20,30,.58));pointer-events:none}
-.profile-top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2;padding-top:0}
-.profile-top .dark-btn,.join-hero .dark-btn{background:rgba(40,25,30,.34);border:0;outline:0}
-.join-card{position:absolute;left:20px;right:20px;bottom:34px;z-index:2}
-.profile-avatar{width:74px;height:74px;border-radius:28px;font-size:36px;box-shadow:0 12px 30px rgba(0,0,0,.18)}
-.join-title{font-size:31px;font-weight:950;letter-spacing:-.06em;line-height:1.05;margin-top:10px;text-shadow:0 2px 15px rgba(0,0,0,.25)}
+.profile-top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:10;padding-top:0}
+.profile-top .dark-btn{background:rgba(40,25,30,.34);border:0;outline:0;position:relative;z-index:10;pointer-events:all}
+.join-card{position:absolute;left:20px;right:20px;bottom:16px;z-index:2}
+.join-title{font-size:31px;font-weight:950;letter-spacing:-.06em;line-height:1.05;margin-top:10px;text-shadow:0 2px 15px rgba(0,0,0,.25);color:#fff}
 .join-sub{margin-top:6px;font-size:13px;line-height:1.55;font-weight:800;color:rgba(255,255,255,.9)}
-.join-body{background:#fff;color:var(--ink);padding:22px 16px calc(var(--safe-bottom) + 34px);min-height:260px}
-.join-copy{border:1px solid var(--line);border-radius:22px;background:#fff8fc;padding:15px;box-shadow:var(--shadow2)}
+.join-body{background:#fff;color:var(--ink);padding:18px 0 calc(var(--safe-bottom) + 12px)}
+.join-copy{border:1px solid var(--line);border-radius:22px;background:#fff8fc;padding:15px;box-shadow:var(--shadow2);margin:0 18px 10px}
 .join-copy b{font-size:15px}
-.join-copy p{margin:7px 0 0;font-size:12px;line-height:1.55;color:#8f7787}
-.join-preview-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}
-.join-preview-row:empty{display:none}
-.join-preview-row img{width:100%;aspect-ratio:1/1;border-radius:18px;object-fit:cover}
-.join-button{width:100%;margin-top:18px;border:0;border-radius:999px;background:linear-gradient(135deg,#ff6cad,#ff9acb);color:#fff;font-size:14px;font-weight:950;padding:14px 16px;box-shadow:0 12px 26px rgba(255,108,173,.22)}
+.join-copy p{margin:7px 0 0;font-size:12px;line-height:1.55;color:#8f7787;word-break:keep-all}
+.join-preview-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 18px;margin:0 0 8px}
+.join-preview-row img,.join-preview-row button img{width:100%;aspect-ratio:1/1;border-radius:18px;object-fit:cover;object-position:center 28%;display:block}
+.join-preview{appearance:none;-webkit-appearance:none;border:0;padding:0;background:transparent;display:block;cursor:pointer;border-radius:18px;overflow:hidden}
+.join-button{width:calc(100% - 36px);margin:12px 18px 16px;border:0;border-radius:999px;background:linear-gradient(135deg,#ff6cad,#ff9acb);color:#fff;font-size:14px;font-weight:950;padding:14px 16px;box-shadow:0 12px 26px rgba(255,108,173,.22);display:block}
 
 /* ── 프로필홈 화면 ── */
 .screen-profile{background:#fff;overflow:auto}
-.profile-hero{position:relative;min-height:570px;padding:18px 16px;background-size:cover;background-position:center;max-width:100%}
+.profile-hero{position:relative;min-height:520px;padding:18px 16px;background-size:cover;background-position:center 22%;max-width:100%;background-color:#c9a0b4}
 .profile-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(50,20,35,.08),rgba(50,20,35,.58));pointer-events:none}
-.profile-info{position:absolute;left:20px;right:20px;bottom:22px;z-index:3}
-.profile-tools{display:flex;gap:8px}
-.profile-name{font-size:34px;font-weight:950;letter-spacing:-.06em;margin-top:10px;text-shadow:0 2px 15px rgba(0,0,0,.28)}
-.profile-sub{font-size:15px;font-weight:800;opacity:.92;margin-top:4px}
-.profile-actions{display:grid;grid-template-columns:1fr 1fr;margin-top:20px;border:1px solid rgba(255,255,255,.5);border-radius:18px;overflow:hidden;background:rgba(80,45,55,.22);backdrop-filter:blur(10px)}
-.profile-actions button{border:0;background:transparent;color:white;padding:14px 8px;font-size:15px;font-weight:900}
+.profile-info{position:absolute;left:20px;right:20px;bottom:18px;z-index:3}
+.profile-tools{display:flex;gap:8px;position:relative;z-index:10}
+.profile-name{font-size:34px;font-weight:950;letter-spacing:-.06em;margin-top:10px;text-shadow:0 2px 15px rgba(0,0,0,.28);color:#fff}
+.profile-sub{font-size:15px;font-weight:800;opacity:.92;margin-top:4px;color:#fff;line-height:1.35;text-shadow:0 2px 14px rgba(40,20,30,.34)}
+.profile-actions{display:grid;grid-template-columns:1fr 1fr;margin-top:16px;border:1px solid rgba(255,255,255,.55);border-radius:18px;overflow:hidden;background:rgba(70,40,50,.38);backdrop-filter:blur(10px)}
+.profile-actions button{border:0;background:transparent;color:#fff;padding:14px 8px;font-size:15px;font-weight:900;text-shadow:0 2px 14px rgba(40,20,30,.36)}
 .profile-actions button+button{border-left:1px solid rgba(255,255,255,.45)}
-.profile-section{background:#fff;padding:15px 16px;min-height:300px;max-width:100%}
+.profile-section{background:#fff;padding:15px 16px;min-height:200px;max-width:100%}
 .profile-section h2{margin:0 0 10px;font-size:15px}
 .photo-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .profile-photo-thumb{width:100%;height:104px;border:0;border-radius:18px;overflow:hidden;padding:0}
-.profile-photo-thumb img{width:100%;height:100%;object-fit:cover}
-.profile-note{margin-top:12px;color:#967c8c;font-size:11px;line-height:1.5}
+.profile-photo-thumb img{width:100%;height:100%;object-fit:cover;object-position:center 28%}
+.profile-note{margin-top:12px;color:#9a7488;font-size:11px;line-height:1.55;word-break:keep-all}
+
+/* HELP 프로필 */
+.screen-profile.help-profile .photo-row{display:none}
+.screen-profile.help-profile .profile-note{margin-top:0;padding:14px 16px;border:1px solid var(--line);border-radius:20px;background:#fff8fc}
+.screen-profile.help-profile .profile-info{bottom:12px}
 
 /* ── 갤러리 화면 ── */
 .screen-gallery{background:#faf7f9;color:var(--ink);overflow:auto}
-.gallery-head{position:static;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(var(--safe-top) + 14px) 16px 14px;background:rgba(255,255,255,.88);backdrop-filter:blur(12px);border-bottom:1px solid #f0e5ec}
+.gallery-head{position:static;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(var(--safe-top) + 14px) 16px 14px;background:rgba(255,255,255,.88);backdrop-filter:blur(12px);border-bottom:1px solid #f0e5ec}
 .gallery-head-copy{flex:1;min-width:0}
 .gallery-head-copy b{display:block;font-size:14px;font-weight:950}
 .gallery-head-copy span{display:block;margin-top:2px;font-size:11px;color:#9b8593;font-weight:800}
@@ -241,7 +259,7 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 .gallery-date{width:max-content;margin:0 auto 16px;padding:8px 14px;border-radius:999px;background:#fff;border:1px solid #f1e6ec;font-size:11px;font-weight:900;color:#9d8694;box-shadow:0 8px 24px rgba(60,40,50,.04)}
 .gallery-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
 .gallery-item{position:relative;aspect-ratio:1/1;overflow:hidden;border:0;border-radius:24px;background:#ffeaf3;padding:0;box-shadow:0 12px 28px rgba(90,60,78,.10)}
-.gallery-item img{width:100%;height:100%;object-fit:cover;display:block}
+.gallery-item img{width:100%;height:100%;object-fit:cover;object-position:center 28%;display:block}
 .gallery-meta{position:absolute;left:10px;right:10px;bottom:10px;display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
 .gallery-chip{padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.88);color:#8e7283;font-size:10px;font-weight:900}
 
@@ -273,8 +291,7 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 .result-card b,.saved-card b,.my-card b{font-size:14px}
 .result-card p,.saved-card p,.my-card p{margin:6px 0 0;font-size:12px;line-height:1.55;color:#8f7787}
 .my-profile-row{display:flex;align-items:center;gap:12px}
-.my-ava{width:56px;height:56px;border-radius:21px;background:linear-gradient(135deg,#ff93c4,#d9a8ff);display:grid;place-items:center;color:white;font-size:24px;border:2px solid #fff;box-shadow:0 10px 22px rgba(168,97,134,.13)}
-.my-action{width:100%;border:1px solid var(--line);background:#fff7fb;border-radius:999px;padding:12px;margin-top:12px;color:#8b667a;font-size:12px;font-weight:950}
+.my-action{width:100%;border:1px solid var(--line);background:#fff7fb;border-radius:999px;padding:12px;margin-top:12px;color:#8b667a;-webkit-text-fill-color:#8b667a;font-size:12px;font-weight:950}
 
 /* ── 바텀 시트 ── */
 .bottom-sheet{position:absolute;inset:0;z-index:20}
@@ -292,7 +309,8 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 .homeadd-title{font-size:18px;font-weight:950;letter-spacing:-.04em}
 .homeadd-copy{margin:10px 0 16px;color:#604b58;font-size:13px;line-height:1.55;font-weight:800}
 .homeadd-preview{border-radius:24px;background:#f6eef3;padding:20px;margin-bottom:16px}
-.homeadd-icon{width:62px;height:62px;border-radius:18px;display:grid;place-items:center;background:#fff;margin:0 auto 10px;box-shadow:0 8px 20px rgba(80,50,65,.09)}
+.homeadd-icon{width:62px;height:62px;border-radius:18px;display:grid;place-items:center;background:#fff;margin:0 auto 10px;box-shadow:0 8px 20px rgba(80,50,65,.09);overflow:hidden}
+.homeadd-icon img{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit}
 .homeadd-icon span{font-size:28px}
 .homeadd-preview b{display:block;font-size:16px;font-weight:950}
 .homeadd-preview span{display:block;margin-top:3px;color:#7d6674;font-size:12px;font-weight:800}
@@ -301,13 +319,21 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 .toast{position:absolute;left:18px;right:18px;bottom:calc(var(--safe-bottom) + 18px);z-index:30;background:rgba(43,37,48,.92);color:white;border-radius:999px;padding:12px 16px;text-align:center;font-size:12px;font-weight:900;box-shadow:0 14px 36px rgba(43,37,48,.26)}
 
 /* ── 내 프로필 시트 ── */
-#myProfileSheet{background:#b98998;color:#fff}
-#myProfileSheet .sheet-head{background:linear-gradient(180deg,rgba(120,70,90,.45),rgba(120,70,90,.18));border-bottom:0;color:#fff}
-#myProfileSheet .sheet-title{color:#fff}
-#myProfileSheet .sheet-body{padding:0;background:linear-gradient(180deg,rgba(60,30,45,.15),rgba(60,30,45,.54)),url("../assets/lulu_cover.png") center/cover no-repeat}
-#myProfileSheet .my-card:first-child{margin:260px 16px 14px;border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.90);color:var(--ink);border-radius:26px}
-#myProfileSheet .my-card:nth-child(2){margin:0 16px 22px;border-radius:24px;background:rgba(255,255,255,.92)}
-#myProfileSheet .my-ava{background:linear-gradient(135deg,#ffc5de,#ff8ab9)}
+#myProfileSheet.my-profile-home{background:#fff;color:var(--ink);overflow:auto}
+#myProfileSheet .sheet-head{display:none}
+.my-profile-hero{position:relative;min-height:520px;padding:18px 16px;background:linear-gradient(180deg,rgba(50,20,35,.08),rgba(50,20,35,.58)),url("../assets/lulu_cover.png") center 28%/cover no-repeat}
+.my-profile-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(50,20,35,.04),rgba(50,20,35,.32));pointer-events:none}
+.my-profile-hero .profile-top,.my-profile-hero .profile-info{position:relative;z-index:2}
+.my-profile-hero .profile-info{position:absolute;left:20px;right:20px;bottom:22px}
+.my-profile-avatar{display:grid;place-items:center;background:linear-gradient(135deg,#ff93c4,#d9a8ff);color:#fff}
+.my-status-message{margin-top:6px;color:rgba(255,255,255,.90);font-size:13px;font-weight:800;line-height:1.45;text-shadow:0 2px 12px rgba(40,20,30,.34)}
+.my-profile-section{min-height:0;padding:16px 16px 30px;background:#fff}
+.my-compact-meta{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+.my-compact-meta span{flex:1 1 auto;border:1px solid var(--line);border-radius:999px;background:#fff8fc;color:#8b667a;-webkit-text-fill-color:#8b667a;font-size:12px;font-weight:900;padding:9px 12px;text-align:center}
+.my-saved-photo-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.my-profile-rule{margin-top:14px;padding:13px 14px;border:1px solid var(--line);border-radius:20px;background:#fff8fc;font-size:12px;line-height:1.42}
+.my-profile-rule b{color:#c06c96}
+.my-profile-section .my-action{width:100%;border:1px solid var(--line);background:#fff7fb;border-radius:999px;padding:12px;margin-top:10px;color:#8b667a;-webkit-text-fill-color:#8b667a;font-size:12px;font-weight:950}
 
 /* ── 반응형 ── */
 @media (max-width:430px){
@@ -318,6 +344,13 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
   .room-head{padding:calc(var(--safe-top) + 12px) 13px 11px}
   .chat{padding:15px 13px}
   .composer{padding:11px 12px calc(var(--safe-bottom) + 11px)}
+  .setting-body{padding-bottom:8px}
+}
+@media (max-width:440px){
+  .join-hero,.profile-hero,.my-profile-hero{min-height:440px}
+  .profile-info{bottom:14px}
+  .screen-profile.help-profile .profile-hero{min-height:400px}
+  .profile-top .dark-btn{transform:translateY(-12px)}
 }
 @media (max-width:380px){
   h1{font-size:29px}
@@ -336,7 +369,6 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
   .media-thumb{flex-basis:48px;width:48px;height:48px}
   .viewer-photo-img{max-height:58dvh}
   .info-main h2{font-size:25px}
-  .back{font-size:0}
 }
 @media (max-width:360px){
   .top{padding-left:14px;padding-right:14px}
@@ -344,10 +376,17 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
   .pill{padding:8px 11px;font-size:11.5px}
   .channel{grid-template-columns:50px 1fr auto;gap:9px}
   .avatar,.avatar-btn{width:50px;height:50px}
-  .profile-chip{display:none}
+  .profile-chip{font-size:10px;padding:0 8px}
   .room-title{font-size:14px}
   .room-status{font-size:10.5px}
   .setting-head{grid-template-columns:50px 1fr 30px}
+  .setting-row{padding-top:17px;padding-bottom:17px}
+}
+@media (min-width:441px) and (max-width:760px){
+  .join-hero,.profile-hero,.my-profile-hero{min-height:480px}
+  .screen-profile.help-profile .profile-hero{min-height:440px}
+  .profile-info{bottom:16px}
+  .profile-top .dark-btn{transform:translateY(-9px)}
 }
 @media (min-width:760px){
   :root{--phone-max-mobile:430px}
@@ -355,1360 +394,11 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
   body{min-height:100vh;display:grid;place-items:center;padding:24px}
   .app{height:min(820px,calc(100dvh - 48px));min-height:760px;border-radius:34px;box-shadow:var(--shadow);border:1px solid var(--line);padding-top:0;padding-bottom:0}
   .screen{height:100%}
-  .screen-profile{overflow:hidden}
   .profile-hero{min-height:548px}
+  .join-hero{min-height:500px}
+  .my-profile-hero{min-height:540px}
   .profile-section{min-height:0;padding-bottom:24px}
-  .profile-section::after{display:none}
 }
 @media (max-width:759px){
   .screen-profile{overflow:auto}
-}
-
-
-/* Patch 11 safety: top more button restore */
-#roomMenuBtn{
-  font-size:24px;
-  color:#7d5f72;
-}
-#roomMenuBtn::before{
-  content:none;
-}
-
-/* Patch 11 safety: NEW text point color only */
-.channel .time{
-  color:#a28c9b;
-}
-.channel .time:where(:not(:empty)){
-  font-weight:800;
-}
-
-
-/* Patch 12: interaction + profile polish */
-
-/* pink heart restore */
-.heart-icon,
-.gallery-heart,
-.gallery-like,
-.info-icon.heart-icon,
-.dark-btn.heart-icon::before{
-  color:#f67cad !important;
-}
-
-/* top profile more button and heart positions */
-.profile-tools{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.profile-tools .dark-btn{
-  color:#fff;
-}
-.profile-tools .dark-btn:not(.heart-icon)::before{
-  content:"⋯";
-  font-size:24px;
-  transform:none;
-}
-
-/* room/info top icons should not turn black on pink UI */
-.info-icons .heart-icon{
-  color:#f67cad !important;
-}
-
-/* profile hero copy must be readable on photo */
-.profile-name,
-.profile-sub,
-.profile-actions button{
-  color:#fff !important;
-}
-.profile-name,
-.profile-sub{
-  text-shadow:0 2px 14px rgba(40,20,30,.34);
-}
-.profile-actions{
-  margin-top:16px;
-  background:rgba(70,40,50,.38);
-  border-color:rgba(255,255,255,.55);
-}
-
-/* profile hero avatar should sit above text safely */
-.profile-avatar{
-  background:#fff6fb;
-}
-.profile-info{
-  bottom:24px;
-}
-.profile-sub{
-  line-height:1.35;
-}
-
-/* remove developer note look */
-.profile-note{
-  color:#9c788b;
-  font-size:11px;
-  line-height:1.55;
-}
-
-/* thumbnail crop: show face/top better */
-.profile-photo-thumb img,
-.join-preview-row img,
-.gallery-item img,
-.media-thumb img,
-.photo img{
-  object-position:center 38%;
-}
-
-/* chat member message profile style */
-.msg{
-  align-items:flex-start;
-}
-.msg.me{
-  align-items:flex-end;
-}
-.msg-head{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  margin:0 0 5px 2px;
-  font-size:12px;
-  font-weight:900;
-  color:#4f3b47;
-}
-.msg-head .msg-name{
-  max-width:140px;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.msg-avatar{
-  width:42px;
-  height:42px;
-  border-radius:16px;
-  overflow:hidden;
-  background:#fff4fa;
-}
-.msg-avatar img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  object-position:center 38%;
-  display:block;
-  border-radius:inherit;
-}
-
-/* my profile sheet: make it closer to member profile home, not floating chaos */
-#myProfileSheet{
-  background:#fff;
-  color:var(--ink);
-}
-#myProfileSheet .sheet-head{
-  height:72px;
-  background:#b98998;
-  border-bottom:0;
-  color:#fff;
-  border-radius:34px 34px 0 0;
-}
-#myProfileSheet .sheet-title{
-  color:#fff;
-}
-#myProfileSheet .sheet-body{
-  padding:0;
-  min-height:calc(100% - 72px);
-  background:
-    linear-gradient(180deg,rgba(50,20,35,.08),rgba(50,20,35,.52)),
-    url("../assets/lulu_cover.png") center/cover no-repeat;
-}
-#myProfileSheet .my-card:first-child{
-  margin:270px 16px 14px;
-  border-color:rgba(255,255,255,.72);
-  background:rgba(255,255,255,.88);
-  backdrop-filter:blur(8px);
-  color:var(--ink);
-  border-radius:26px;
-}
-#myProfileSheet .my-card:nth-child(2){
-  margin:0 16px 22px;
-  border-color:rgba(255,255,255,.72);
-  background:rgba(255,255,255,.82);
-  backdrop-filter:blur(8px);
-  border-radius:24px;
-}
-#myProfileSheet .my-ava{
-  background:linear-gradient(135deg,#ff93c4,#ff8ab9);
-}
-
-/* info/profile generic dark text bug guard */
-.profile-hero .profile-info *{
-  color:#fff;
-}
-
-/* NEW text pink point; class added from JS */
-.time.is-new{
-  color:#f67cad !important;
-  font-weight:950 !important;
-}
-
-
-/* Patch 13: final text/profile bug fixes */
-
-/* profile top buttons: explicit restore */
-#profileHeartBtn,
-#profileMoreBtn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:42px;
-  height:42px;
-  border-radius:999px;
-  border:0;
-  background:rgba(40,25,30,.34);
-  color:#fff;
-  padding:0;
-  line-height:1;
-}
-
-#profileHeartBtn::before{
-  content:"❤︎";
-  color:#f67cad;
-  font-size:23px;
-  line-height:1;
-  transform:none;
-}
-
-#profileMoreBtn::before{
-  content:"⋯";
-  color:#fff;
-  font-size:24px;
-  line-height:1;
-  transform:translateY(-1px);
-}
-
-/* prevent old generic dark-btn pseudo from hiding more */
-.profile-tools .more-icon::before{
-  content:"⋯" !important;
-}
-
-/* profile hero readable text */
-.profile-hero .profile-name,
-.profile-hero .profile-sub,
-.profile-hero .profile-actions button{
-  color:#fff !important;
-  text-shadow:0 2px 14px rgba(40,20,30,.36);
-}
-
-/* profile thumbnail crop: less face cut */
-.profile-photo-thumb img,
-.join-preview-row img,
-.gallery-item img,
-.media-thumb img{
-  object-position:center 32%;
-}
-
-/* official/help icon center and crop safety */
-.info-avatar,
-.profile-avatar{
-  display:grid;
-  place-items:center;
-  overflow:hidden;
-}
-.info-avatar img,
-.profile-avatar img{
-  object-fit:cover;
-  object-position:center 32%;
-}
-
-/* profile note final copy look */
-.profile-note{
-  color:#9a7488;
-  font-size:11px;
-  line-height:1.55;
-  word-break:keep-all;
-}
-
-/* help profile should not look like a broken member photo area */
-.screen-profile.help-profile .profile-section h2{
-  margin-bottom:12px;
-}
-.screen-profile.help-profile .photo-row{
-  display:none;
-}
-.screen-profile.help-profile .profile-note{
-  margin-top:0;
-  padding:14px 16px;
-  border:1px solid var(--line);
-  border-radius:20px;
-  background:#fff8fc;
-}
-
-/* main desc final text can sit compactly */
-.desc{
-  word-break:keep-all;
-}
-
-
-/* Patch 14: Lumibelle logo / setting divider / text polish */
-
-/* Lumibelle logo/home icon image */
-.homeadd-icon{
-  overflow:hidden;
-}
-.homeadd-icon img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  object-position:center center;
-  display:block;
-  border-radius:inherit;
-}
-
-/* official Lumibelle logo should not crop oddly */
-.a-lumi img,
-#infoAvatar.a-lumi img,
-#profileAvatar.a-lumi img{
-  object-fit:cover;
-  object-position:center center;
-}
-
-/* chat setting duplicate divider cleanup */
-.setting-card{
-  border-top:1px solid #f1e8ee;
-}
-.setting-row{
-  border-bottom:1px solid #f1e8ee;
-}
-.setting-row + .setting-row{
-  border-top:0;
-}
-.setting-card + .setting-card{
-  border-top:0;
-  margin-top:8px;
-}
-
-/* prevent double thin lines from stacked groups */
-.setting-row:last-child{
-  border-bottom:1px solid #f1e8ee;
-}
-
-/* profile note no developer feel */
-.profile-note{
-  color:#9a7488;
-}
-
-/* join copy one-line friendly */
-.join-copy p{
-  word-break:keep-all;
-}
-
-/* help profile icon center fix */
-.screen-profile.help-profile .profile-avatar{
-  display:grid;
-  place-items:center;
-}
-
-/* main channel logo/profile icon */
-.room-avatar img,
-.info-avatar img,
-.profile-avatar img,
-.avatar img{
-  object-position:center center;
-}
-
-/* NEW should stay text-only pink */
-.time.is-new{
-  color:#f67cad;
-  font-weight:950;
-}
-
-
-/* Patch 15: mobile real-device fixes */
-
-/* iOS Safari blue tap/link color guard */
-a,
-button,
-.channel,
-.channel *,
-.tab,
-.tab *,
-.room-title,
-.channel-name b{
-  -webkit-tap-highlight-color:transparent;
-}
-.channel,
-.channel b,
-.channel-name b,
-.room-title,
-.desc,
-.channel-name b,
-.room-title{
-  color:var(--ink) !important;
-}
-
-/* profile pink rim cleanup */
-.avatar,
-.room-avatar,
-.info-avatar,
-.setting-avatar,
-.profile-avatar,
-.join-avatar,
-.homeadd-icon,
-.my-ava{
-  outline:0;
-}
-.profile-avatar,
-.join-avatar,
-.info-avatar,
-.setting-avatar{
-  border:2px solid rgba(255,255,255,.96);
-  box-shadow:0 12px 28px rgba(120,70,90,.16);
-}
-
-/* avoid visible pink/blue ring on mobile focus */
-button:focus,
-button:focus-visible{
-  outline:none;
-}
-
-/* join preview buttons reset */
-.join-preview{
-  appearance:none;
-  -webkit-appearance:none;
-  border:0;
-  padding:0;
-  background:transparent;
-  display:block;
-  cursor:pointer;
-}
-.join-preview img{
-  display:block;
-}
-
-/* mobile join screen: prevent bottom button overflow and giant text wrapping */
-@media (max-width:759px){
-  .join-hero{
-    min-height:min(73vh, 640px);
-    padding:52px 20px 24px;
-  }
-  .join-card{
-    bottom:22px;
-    left:20px;
-    right:20px;
-  }
-  .join-name{
-    font-size:38px;
-    line-height:1.05;
-    letter-spacing:-.07em;
-  }
-  .join-copy{
-    margin:24px 18px 18px;
-    padding:20px;
-  }
-  .join-copy h3{
-    font-size:21px;
-  }
-  .join-copy p{
-    font-size:15px;
-    line-height:1.45;
-  }
-  .join-preview-row{
-    padding:0 18px;
-    gap:10px;
-  }
-  .join-preview{
-    border-radius:18px;
-    overflow:hidden;
-  }
-  .join-button{
-    position:static;
-    bottom:auto;
-    margin:18px 18px 16px;
-    width:calc(100% - 36px);
-    min-height:58px;
-    border-radius:999px;
-    z-index:3;
-  }
-}
-
-/* iPhone setting page slight scroll suppression */
-@media (max-width:430px){
-  .screen-info,
-  .screen-setting{
-    min-height:auto;
-  }
-  .setting-body{
-    padding-bottom:18px;
-  }
-  .setting-screen,
-  #chatSettingScreen{
-    overflow:auto;
-  }
-}
-
-/* keep Flip stable but allow iPhone tiny overflow */
-@media (max-width:390px){
-  .setting-row{
-    padding-top:17px;
-    padding-bottom:17px;
-  }
-}
-
-/* Mariring / profile thumbnail crop safer */
-.a-mari img,
-#profileAvatar.a-mari img,
-#infoAvatar.a-mari img,
-#joinAvatar.a-mari img,
-.avatar.a-mari img{
-  object-fit:cover;
-  object-position:center 30%;
-}
-
-/* SD profile icons should fit fully */
-.profile-avatar img[src*="mariring_sd"],
-.info-avatar img[src*="mariring_sd"],
-.setting-avatar img[src*="mariring_sd"],
-.avatar img[src*="mariring_sd"]{
-  object-fit:contain;
-  background:#fff;
-  padding:3px;
-}
-
-/* list text must remain non-link colored on iOS */
-.channel .time,
-.channel .preview{
-  color:#a28c9b !important;
-}
-.channel .time.is-new{
-  color:#f67cad !important;
-}
-
-/* mobile main card top spacing safe for browser chrome */
-@media (max-width:759px){
-  .app{
-    min-height:100dvh;
-  }
-}
-
-
-/* 버그4: 채널 추가 화면 하단 버튼 safe-area */
-.join-button {
-  position: sticky;
-  bottom: calc(var(--safe-bottom) + 16px);
-  margin-top: 16px;
-  margin-bottom: 8px;
-}
-.join-body {
-  padding-bottom: calc(var(--safe-bottom) + 100px);
-}
-
-/* 버그6: 아이폰 설정 화면 미세 스크롤 방지 */
-.screen-chat-setting {
-  overflow: hidden;
-  height: calc(100dvh - var(--safe-top) - var(--safe-bottom));
-}
-.setting-body {
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  height: calc(100% - 80px);
-}
-
-/* 아바타 핑크 테두리 — 아래 통합본으로 이동 */
-.avatar img,
-.room-avatar img,
-.info-avatar img,
-.setting-avatar img,
-.profile-avatar img,
-.msg-avatar img,
-.join-avatar img {
-  background: transparent !important;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  border-radius: inherit;
-}
-
-/* 아바타 wrapper 핑크 테두리 완전 제거 */
-.avatar,
-.room-avatar,
-.info-avatar,
-.setting-avatar,
-.profile-avatar,
-.msg-avatar {
-  border: none !important;
-  outline: none !important;
-}
-
-/* info/setting만 흰색 테두리 유지 */
-.info-avatar,
-.setting-avatar {
-  border: 2px solid rgba(255,255,255,.9) !important;
-}
-
-/* cursor — 통합 */
-.profile-avatar,
-#joinAvatar,
-#profileAvatar,
-#infoAvatar {
-  cursor: pointer;
-}
-#joinAvatar img,
-#profileAvatar img {
-  pointer-events: none;
-}
-
-/* ── iPhone Safari 색상 오버라이드 (통합) ── */
-.channel-name b,
-.channel-main b {
-  color: #2b2530;
-  -webkit-text-fill-color: #2b2530;
-}
-.preview {
-  color: #967c8c;
-  -webkit-text-fill-color: #967c8c;
-}
-
-/* ── joinScreen 버튼 z-index ── */
-.profile-top {
-  position: relative;
-  z-index: 10;
-}
-.profile-top .dark-btn {
-  position: relative;
-  z-index: 10;
-  pointer-events: all;
-}
-
-/* ── 아바타 img 핑크 배경 제거 ── */
-.avatar img, .room-avatar img, .info-avatar img,
-.setting-avatar img, .profile-avatar img, .msg-avatar img {
-  background: transparent;
-  border: none;
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: inherit;
-}
-
-
-/* Patch 19: profile crop + my profile home */
-.join-hero,
-.profile-hero,
-.my-profile-hero{
-  background-position:center 28% !important;
-}
-
-#joinHero[style*="mariring"],
-#profileHero[style*="mariring"],
-.join-hero[style*="mariring"],
-.profile-hero[style*="mariring"]{
-  background-size:cover !important;
-  background-position:center 22% !important;
-}
-
-.avatar img,
-.room-avatar img,
-.msg-avatar img,
-.info-avatar img,
-.setting-avatar img,
-.profile-avatar img,
-.media-thumb img,
-.gallery-item img,
-.profile-photo-thumb img,
-.join-preview img,
-.photo img{
-  object-position:center 28% !important;
-}
-
-.avatar img[src*="mariring_sd"],
-.room-avatar img[src*="mariring_sd"],
-.msg-avatar img[src*="mariring_sd"],
-.info-avatar img[src*="mariring_sd"],
-.setting-avatar img[src*="mariring_sd"],
-.profile-avatar img[src*="mariring_sd"],
-.avatar img[src*="lulu_sd"],
-.room-avatar img[src*="lulu_sd"],
-.msg-avatar img[src*="lulu_sd"],
-.info-avatar img[src*="lulu_sd"],
-.setting-avatar img[src*="lulu_sd"],
-.profile-avatar img[src*="lulu_sd"]{
-  object-fit:cover !important;
-  object-position:center 24% !important;
-  padding:0 !important;
-  background:transparent !important;
-}
-
-.my-profile-home{
-  background:#fff !important;
-  color:var(--ink) !important;
-}
-.my-profile-home .sheet-head{
-  display:none !important;
-}
-.my-profile-hero{
-  position:relative;
-  min-height:570px;
-  padding:18px 16px;
-  background:
-    linear-gradient(180deg,rgba(50,20,35,.08),rgba(50,20,35,.58)),
-    url("../assets/lulu_cover.png") center 28% / cover no-repeat;
-}
-.my-profile-hero::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(180deg,rgba(50,20,35,.04),rgba(50,20,35,.36));
-  pointer-events:none;
-}
-.my-profile-hero .profile-top,
-.my-profile-hero .profile-info{
-  position:relative;
-  z-index:2;
-}
-.my-profile-avatar{
-  display:grid;
-  place-items:center;
-  background:linear-gradient(135deg,#ff93c4,#d9a8ff);
-  color:#fff;
-}
-.my-profile-section{
-  min-height:220px !important;
-}
-.my-lumi-cards{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:10px;
-}
-.my-lumi-card{
-  border:1px solid var(--line);
-  border-radius:20px;
-  background:#fff8fc;
-  padding:13px 14px;
-}
-.my-lumi-card b{
-  display:block;
-  font-size:12px;
-  color:#c06c96;
-  font-weight:950;
-}
-.my-lumi-card span{
-  display:block;
-  margin-top:4px;
-  color:#5b4050;
-  font-size:14px;
-  font-weight:900;
-}
-
-#joinHeartBtn{
-  color:#f67cad !important;
-}
-
-.avatar,
-.room-avatar,
-.info-avatar,
-.setting-avatar,
-.profile-avatar{
-  outline:0 !important;
-}
-
-
-/* Patch 20 — mobile realworld polish */
-
-/* iPhone blue text hard fix */
-.setting-row,
-.setting-row *,
-.setting-item,
-.setting-item *,
-.setting-label,
-.setting-value,
-.setting-title,
-.setting-button{
-  color:#4f3b47 !important;
-  -webkit-text-fill-color:#4f3b47 !important;
-  text-decoration:none !important;
-}
-.setting-row a,
-.setting-row button{
-  color:#4f3b47 !important;
-  -webkit-text-fill-color:#4f3b47 !important;
-}
-
-/* join button stop sticky-follow issue */
-.join-button{
-  position:relative !important;
-  bottom:auto !important;
-  left:auto !important;
-  right:auto !important;
-  margin:18px auto 24px !important;
-  width:calc(100% - 36px);
-  display:flex;
-  justify-content:center;
-}
-
-/* remove extra mobile scroll */
-.join-screen,
-.screen-join,
-#joinScreen,
-.screen-setting,
-#chatSettingScreen,
-.screen-profile.help-profile{
-  overflow-x:hidden !important;
-}
-
-@media (max-width:430px){
-  .screen-setting,
-  #chatSettingScreen{
-    min-height:100dvh;
-    overflow-y:auto;
-    padding-bottom:0 !important;
-  }
-
-  .setting-body{
-    padding-bottom:8px !important;
-  }
-
-  .screen-profile.help-profile{
-    min-height:100dvh;
-    overflow-y:auto;
-    padding-bottom:0 !important;
-  }
-
-  .screen-profile.help-profile .profile-section{
-    padding-bottom:12px !important;
-  }
-
-  .join-copy{
-    margin-bottom:14px !important;
-  }
-
-  .join-preview-row{
-    margin-bottom:10px !important;
-  }
-}
-
-/* HELP icon contrast */
-.screen-profile.help-profile .profile-avatar,
-.help-avatar,
-.info-avatar.help-avatar{
-  background:linear-gradient(135deg,#ff8dbd,#d2a8ff) !important;
-  color:#fff !important;
-  border:2px solid rgba(255,255,255,.96);
-  box-shadow:0 10px 24px rgba(120,70,90,.18);
-}
-
-.screen-profile.help-profile .profile-avatar *,
-.help-avatar *,
-.info-avatar.help-avatar *{
-  color:#fff !important;
-}
-
-/* help profile spacing */
-.screen-profile.help-profile .profile-info{
-  bottom:22px !important;
-}
-
-.screen-profile.help-profile .profile-note{
-  margin-top:16px;
-}
-
-/* remove weird rim from menu/profile pages */
-.profile-avatar,
-.info-avatar,
-.setting-avatar,
-.room-avatar,
-.avatar{
-  box-shadow:none !important;
-}
-
-/* profile avatar clean */
-.profile-avatar img,
-.info-avatar img,
-.setting-avatar img,
-.room-avatar img,
-.avatar img{
-  border:none !important;
-  outline:none !important;
-}
-
-/* my profile clean layout */
-.my-profile-home{
-  overflow-y:auto !important;
-}
-
-.my-profile-home .profile-actions{
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-.my-profile-home .profile-actions button{
-  min-width:0;
-  flex:1 1 auto;
-}
-
-/* remove bottom cut */
-.my-profile-section{
-  padding-bottom:38px !important;
-}
-
-
-/* Patch 20.2: actual iPhone setting text color fix */
-#chatSettingScreen,
-#chatSettingScreen button,
-#chatSettingScreen .setting-row,
-#chatSettingScreen .setting-row div,
-#chatSettingScreen .setting-row b,
-#chatSettingScreen .setting-row span,
-#chatSettingScreen .setting-row em,
-#chatSettingScreen .setting-profile,
-#chatSettingScreen .setting-profile b,
-#chatSettingScreen .setting-profile p,
-#chatSettingScreen #settingMuteText,
-#chatSettingScreen .setting-leave{
-  color:#4f3b47;
-  -webkit-text-fill-color:#4f3b47;
-  text-decoration:none;
-  appearance:none;
-  -webkit-appearance:none;
-}
-#chatSettingScreen .setting-row span,
-#chatSettingScreen .setting-profile p{
-  color:#967c8c;
-  -webkit-text-fill-color:#967c8c;
-}
-#chatSettingScreen .setting-row em{
-  color:#cab7c3;
-  -webkit-text-fill-color:#cab7c3;
-}
-#chatSettingScreen .setting-leave{
-  color:#e04f78;
-  -webkit-text-fill-color:#e04f78;
-}
-
-/* Patch 20.2: real sticky removal for join button */
-#joinChannelBtn.join-button,
-.join-button{
-  position:static;
-  bottom:auto;
-  left:auto;
-  right:auto;
-  width:calc(100% - 36px);
-  margin:18px 18px 22px;
-  transform:none;
-}
-
-/* Make join screen not create fake sticky scroll space */
-@media (max-width:759px){
-  #joinScreen.screen-join{
-    overflow-y:auto;
-    overflow-x:hidden;
-  }
-  #joinScreen .join-hero{
-    min-height:470px;
-    padding-top:46px;
-    padding-bottom:18px;
-  }
-  #joinScreen .join-card{
-    bottom:20px;
-  }
-  #joinScreen .join-body{
-    min-height:auto;
-    padding:18px 0 calc(env(safe-area-inset-bottom, 0px) + 12px);
-  }
-  #joinScreen .join-copy{
-    margin:0 18px 12px;
-    padding:16px;
-  }
-  #joinScreen .join-preview-row{
-    padding:0 18px;
-    margin:0 0 8px;
-  }
-}
-
-/* Help profile note only */
-.screen-profile.help-profile #profileNote{
-  color:#7d5f72;
-  -webkit-text-fill-color:#7d5f72;
-}
-
-
-/* Patch 20.2: my Lumi profile stable layout */
-.my-profile-home{
-  background:#fff;
-}
-.my-profile-home .sheet-head{
-  display:none;
-}
-.my-profile-hero{
-  position:relative;
-  min-height:570px;
-  padding:18px 16px;
-  background:
-    linear-gradient(180deg,rgba(50,20,35,.08),rgba(50,20,35,.58)),
-    url("../assets/lulu_cover.png") center 28% / cover no-repeat;
-}
-.my-profile-hero::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(180deg,rgba(50,20,35,.04),rgba(50,20,35,.36));
-  pointer-events:none;
-}
-.my-profile-hero .profile-top,
-.my-profile-hero .profile-info{
-  position:relative;
-  z-index:2;
-}
-.my-profile-avatar{
-  display:grid;
-  place-items:center;
-  background:linear-gradient(135deg,#ff93c4,#d9a8ff);
-  color:#fff;
-}
-.my-profile-section{
-  min-height:0;
-  padding-bottom:30px;
-}
-.my-saved-photo-row{
-  margin-bottom:14px;
-}
-.my-profile-section .my-action{
-  width:100%;
-  border:1px solid var(--line);
-  background:#fff7fb;
-  border-radius:999px;
-  padding:12px;
-  margin-top:14px;
-  color:#8b667a;
-  -webkit-text-fill-color:#8b667a;
-  font-size:12px;
-  font-weight:950;
-}
-
-
-/* Patch 20.3 — My Lumi Profile Cleanup */
-
-/* HELP setting/profile icon center */
-.a-help,
-.info-avatar.a-help,
-.setting-avatar.a-help,
-.profile-avatar.a-help{
-  display:grid;
-  place-items:center;
-  color:#fff;
-  background:linear-gradient(135deg,#ff8dbd,#d2a8ff);
-}
-.info-avatar.a-help,
-.setting-avatar.a-help{
-  text-align:center;
-}
-.info-avatar.a-help img,
-.setting-avatar.a-help img{
-  display:none;
-}
-
-/* My profile: authoritative layout */
-#myProfileSheet.my-profile-home{
-  background:#fff;
-  color:var(--ink);
-  overflow:auto;
-}
-#myProfileSheet .sheet-head{
-  display:none;
-}
-.my-profile-hero{
-  position:relative;
-  min-height:560px;
-  padding:18px 16px;
-  background:
-    linear-gradient(180deg,rgba(50,20,35,.08),rgba(50,20,35,.58)),
-    url("../assets/lulu_cover.png") center 28% / cover no-repeat;
-}
-.my-profile-hero::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(180deg,rgba(50,20,35,.04),rgba(50,20,35,.32));
-  pointer-events:none;
-}
-.my-profile-hero .profile-top,
-.my-profile-hero .profile-info{
-  position:relative;
-  z-index:2;
-}
-.my-profile-hero .profile-info{
-  bottom:auto;
-  position:absolute;
-  left:20px;
-  right:20px;
-  bottom:22px;
-}
-.my-profile-avatar{
-  display:grid;
-  place-items:center;
-  background:linear-gradient(135deg,#ff93c4,#d9a8ff);
-  color:#fff;
-}
-.my-status-message{
-  margin-top:6px;
-  color:rgba(255,255,255,.90);
-  font-size:13px;
-  font-weight:800;
-  line-height:1.45;
-  text-shadow:0 2px 12px rgba(40,20,30,.34);
-}
-.my-profile-section{
-  min-height:0;
-  padding:16px 16px 34px;
-  background:#fff;
-}
-.my-record-grid{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:9px;
-  margin-bottom:18px;
-}
-.my-record-card{
-  border:1px solid var(--line);
-  border-radius:20px;
-  background:#fff8fc;
-  padding:13px 14px;
-}
-.my-record-card b{
-  display:block;
-  font-size:12px;
-  color:#c06c96;
-  font-weight:950;
-}
-.my-record-card span{
-  display:block;
-  margin-top:4px;
-  color:#5b4050;
-  font-size:14px;
-  font-weight:900;
-}
-.my-saved-title{
-  margin-top:18px;
-}
-.my-saved-photo-row{
-  margin-bottom:14px;
-}
-.my-profile-rule{
-  margin-top:14px;
-  padding:13px 14px;
-  border:1px solid var(--line);
-  border-radius:20px;
-  background:#fff8fc;
-}
-.my-profile-rule b{
-  color:#c06c96;
-}
-.my-profile-section .my-action{
-  width:100%;
-  border:1px solid var(--line);
-  background:#fff7fb;
-  border-radius:999px;
-  padding:12px;
-  margin-top:14px;
-  color:#8b667a;
-  -webkit-text-fill-color:#8b667a;
-  font-size:12px;
-  font-weight:950;
-}
-
-/* Prevent hidden/cut content */
-#myProfileSheet .profile-section{
-  max-height:none;
-  overflow:visible;
-}
-
-
-/* Patch 21 — Device Layout Stabilize */
-
-/* Common hero cleanup */
-.join-hero,
-.profile-hero,
-.my-profile-hero{
-  min-height:520px;
-}
-
-.profile-info{
-  bottom:18px !important;
-}
-
-/* Compact my profile */
-.my-record-grid{
-  display:flex !important;
-  gap:8px;
-  flex-wrap:wrap;
-}
-.my-record-card{
-  flex:1 1 calc(33.333% - 6px);
-  min-width:90px;
-}
-.my-record-card b{
-  font-size:11px;
-}
-.my-record-card span{
-  font-size:12px;
-}
-
-.my-profile-rule{
-  font-size:12px;
-  line-height:1.45;
-}
-
-.my-action{
-  margin-top:10px !important;
-}
-
-/* Saved photos */
-.my-saved-photo-row{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:8px;
-}
-
-/* HELP page tighten */
-.screen-profile.help-profile .profile-info{
-  bottom:12px !important;
-}
-
-.screen-profile.help-profile .profile-section{
-  padding-top:14px !important;
-}
-
-/* Join page tighten */
-#joinScreen .join-hero{
-  min-height:470px;
-}
-#joinScreen .join-card{
-  bottom:16px;
-}
-#joinScreen .join-copy{
-  margin-bottom:10px !important;
-}
-#joinScreen .join-button{
-  margin-top:12px !important;
-  margin-bottom:16px !important;
-}
-
-/* iPhone 17 Pro tuning */
-@media (max-width:440px){
-  .join-hero,
-  .profile-hero,
-  .my-profile-hero{
-    min-height:470px !important;
-  }
-
-  .profile-info{
-    bottom:14px !important;
-  }
-
-  #joinScreen .join-hero{
-    min-height:430px !important;
-  }
-
-  .screen-profile.help-profile .profile-hero{
-    min-height:420px !important;
-  }
-
-  .my-profile-hero{
-    min-height:440px !important;
-  }
-
-  .my-record-grid{
-    display:grid !important;
-    grid-template-columns:1fr;
-  }
-
-  .my-record-card{
-    min-width:0;
-  }
-
-  .my-profile-section{
-    padding-bottom:20px !important;
-  }
-}
-
-/* Galaxy Z Flip 6 tuning */
-@media (min-width:441px) and (max-width:760px){
-  .join-hero,
-  .profile-hero,
-  .my-profile-hero{
-    min-height:500px !important;
-  }
-
-  #joinScreen .join-hero{
-    min-height:460px !important;
-  }
-
-  .screen-profile.help-profile .profile-hero{
-    min-height:440px !important;
-  }
-
-  .profile-info{
-    bottom:16px !important;
-  }
-}
-
-
-/* Patch 21.1 — top buttons + rule text tune */
-
-/* Hero top buttons: raise slightly on mobile devices */
-@media (max-width:760px){
-  .profile-top,
-  .join-top{
-    top:14px;
-  }
-
-  .profile-top .dark-btn,
-  .join-top .dark-btn{
-    transform:translateY(-8px);
-  }
-}
-
-/* iPhone Safari: a bit more upward */
-@media (max-width:440px){
-  .profile-top .dark-btn,
-  .join-top .dark-btn{
-    transform:translateY(-12px);
-  }
-}
-
-/* Galaxy Z Flip 6 / Android width band: modest upward */
-@media (min-width:441px) and (max-width:760px){
-  .profile-top .dark-btn,
-  .join-top .dark-btn{
-    transform:translateY(-9px);
-  }
-}
-
-/* My profile: compact meta instead of long vertical cards */
-.my-record-grid,
-.my-record-card{
-  display:none;
-}
-.my-compact-meta{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin:0 0 16px;
-}
-.my-compact-meta span{
-  flex:1 1 auto;
-  border:1px solid var(--line);
-  border-radius:999px;
-  background:#fff8fc;
-  color:#8b667a;
-  -webkit-text-fill-color:#8b667a;
-  font-size:12px;
-  font-weight:900;
-  padding:9px 12px;
-  text-align:center;
-}
-.my-profile-rule{
-  font-size:12px;
-  line-height:1.42;
 }
