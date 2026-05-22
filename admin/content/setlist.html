@@ -2264,6 +2264,79 @@
   text-align:center;
 }
 
+.song-thumb-recent-modal-card{
+  width:min(980px,calc(100% - 36px));
+}
+.song-thumb-recent-modal-sub{
+  margin:7px 0 0;
+  color:#b887a0;
+  font-size:13px;
+  line-height:1.5;
+  font-weight:850;
+}
+.song-thumb-recent-modal-actions{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:0 0 18px;
+}
+.song-thumb-recent-modal-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+}
+.song-thumb-recent-modal-item{
+  position:relative;
+  display:block;
+  width:100%;
+  padding:10px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:#fff;
+  color:#9b6f86;
+  text-align:left;
+}
+.song-thumb-recent-modal-item.is-selected{
+  border-color:#ff7fbd;
+  box-shadow:0 0 0 3px rgba(255,89,165,.12);
+  background:#fff7fb;
+}
+.song-thumb-recent-modal-item img{
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  border-radius:14px;
+  border:1px solid rgba(255,229,241,.95);
+  background:#fff8fc;
+}
+.song-thumb-recent-modal-name{
+  display:none !important;
+  display:block;
+  margin-top:8px;
+  font-size:12px;
+  line-height:1.35;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.song-thumb-recent-modal-badge{
+  position:absolute;
+  top:16px;
+  right:16px;
+  min-height:24px;
+  padding:5px 8px;
+  border-radius:999px;
+  background:#ff59a5;
+  color:#fff;
+  font-size:10px;
+  font-weight:900;
+}
+@media(max-width:900px){
+  .song-thumb-recent-modal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
 </style>
 </head>
 <body>
@@ -2331,12 +2404,38 @@
     </div>
   </div>
 
+  
+  <div class="modal-overlay" id="songThumbRecentModal">
+    <div class="modal-card song-thumb-recent-modal-card">
+      <div class="modal-head">
+        <div>
+          <div class="modal-title">최근 앨범 썸네일 선택</div>
+          <p class="song-thumb-recent-modal-sub">앨범 썸네일 전용 Drive 폴더의 사진만 불러옵니다.</p>
+        </div>
+        <button class="modal-close" type="button" onclick="closeRecentSongThumbModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="song-thumb-recent-modal-actions">
+          <button type="button" class="btn sub" onclick="reloadRecentSongThumbImages()">새로고침</button>
+          <button type="button" class="btn" onclick="applySelectedRecentSongThumb(false)">사진만 적용</button>
+          <button type="button" class="btn sub" onclick="applySelectedRecentSongThumb(true)">사진 + 위치값 적용</button>
+        </div>
+        <div id="songThumbRecentModalGrid" class="song-thumb-recent-modal-grid">
+          <div class="song-thumb-empty-note">최근 사진을 불러오는 중입니다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <div class="setlist-translate-toast" id="setlistTranslateToast" aria-live="polite"></div>
 
   <script>
     const STORE_KEY = 'lumibelle_admin_setlist_draft_v1';
     const SETLIST_API_URL = 'https://lumi-news-api.lumibelle-love.workers.dev';
     const SETLIST_TRANSLATE_API_URL = window.LUMIBELLE_SETLIST_API_URL || window.LUMIBELLE_CONTENT_API_URL || window.CONTENT_DB_API_URL || SETLIST_API_URL;
+    const SETLIST_THUMB_FOLDER_ID = '14uLxp8zKceCevy0glR1b7Nz8OzGhowR_';
+    const SETLIST_THUMB_FOLDER_NAME = 'setlist-album-thumbnails';
 
     const defaultData = {
       hero:{
@@ -3434,8 +3533,7 @@
     }
 
     function clearSongThumb(){
-      if(!confirm('이 곡 카드에서 썸네일 연결을 제거할까요?
-Drive 원본 파일은 삭제되지 않습니다.')) return;
+      if(!confirm('이 곡 카드에서 썸네일 연결을 제거할까요?\nDrive 원본 파일은 삭제되지 않습니다.')) return;
       ['songThumb','songThumbUrl','songThumbFileId','songThumbStyle','songThumbPresetName'].forEach(id => {
         const el = document.getElementById(id);
         if(el) el.value = '';
@@ -3453,18 +3551,70 @@ Drive 원본 파일은 삭제되지 않습니다.')) return;
       box.textContent = `${srcLabel} · X ${Math.round(state.x)} / Y ${Math.round(state.y)} / Scale ${Math.round(state.scale * 100) / 100}`;
     }
 
+    let songThumbRecentDriveItems = [];
+    let songThumbRecentLoaded = false;
+    let songThumbRecentSelectedIndex = null;
+
+    function normalizeSongThumbImageItem(item){
+      item = item || {};
+      const fileId = String(item.fileId || item.id || item.thumbFileId || '').trim();
+      const imageUrl = String(item.imageUrl || item.url || item.webViewUrl || item.thumbnailUrl || item.thumbUrl || item.thumb || driveThumbUrl(fileId) || '').trim();
+      const thumbnailUrl = String(item.thumbnailUrl || item.imageUrl || item.url || item.thumbUrl || imageUrl || driveThumbUrl(fileId) || '').trim();
+      const itemFolderId = String(item.folderId || item.parentId || item.driveFolderId || '').trim();
+      return {
+        title: item.title || item.name || item.fileName || '앨범 썸네일',
+        name: item.name || item.fileName || item.title || 'album thumbnail',
+        thumb: thumbnailUrl || imageUrl,
+        thumbUrl: imageUrl || thumbnailUrl,
+        thumbFileId: fileId || extractDriveFileId(imageUrl || thumbnailUrl),
+        folderId: itemFolderId,
+        thumbX: item.thumbX ?? item.x ?? 50,
+        thumbY: item.thumbY ?? item.y ?? 50,
+        thumbScale: item.thumbScale ?? item.scale ?? 1,
+        thumbStyle: item.thumbStyle || 'cover',
+        thumbPresetName: item.thumbPresetName || item.presetName || ''
+      };
+    }
+
     function collectRecentSongThumbs(currentSongId){
+      const usedCropMap = new Map();
+      (data.songs || []).forEach(song => {
+        const src = getSongThumbSrc(song);
+        const fileId = String(song.thumbFileId || extractDriveFileId(src) || '').trim();
+        const key = fileId || String(src || '').trim();
+        if(!key) return;
+        usedCropMap.set(key, {
+          thumbX: song.thumbX ?? 50,
+          thumbY: song.thumbY ?? 50,
+          thumbScale: song.thumbScale ?? 1,
+          thumbStyle: song.thumbStyle || 'cover',
+          thumbPresetName: song.thumbPresetName || '',
+          sourceSongId: String(song.id || song.songId || '')
+        });
+      });
+
       const map = new Map();
+      (songThumbRecentDriveItems || []).forEach(item => {
+        const src = item.thumbUrl || item.thumb;
+        if(!src) return;
+        if(item.folderId && item.folderId !== SETLIST_THUMB_FOLDER_ID) return;
+        const key = String(item.thumbFileId || extractDriveFileId(src) || src);
+        const crop = usedCropMap.get(key);
+        const merged = crop ? {...item, ...crop} : item;
+        if(key && !map.has(key)) map.set(key, merged);
+      });
+
       (data.songs || []).forEach(song => {
         const src = getSongThumbSrc(song);
         if(!src) return;
-        const key = String(song.thumbFileId || src);
+        const key = String(song.thumbFileId || extractDriveFileId(src) || src);
         if(!key || map.has(key)) return;
         map.set(key, {
           title: song.title || song.id || '최근 사진',
           thumb: src,
           thumbUrl: song.thumbUrl || src,
           thumbFileId: song.thumbFileId || extractDriveFileId(src),
+          folderId: SETLIST_THUMB_FOLDER_ID,
           thumbX: song.thumbX ?? 50,
           thumbY: song.thumbY ?? 50,
           thumbScale: song.thumbScale ?? 1,
@@ -3473,12 +3623,82 @@ Drive 원본 파일은 삭제되지 않습니다.')) return;
           isCurrent: String(song.id || song.songId || '') === String(currentSongId || '')
         });
       });
-      return Array.from(map.values()).filter(item => !item.isCurrent).slice(0, 8);
+      return Array.from(map.values()).filter(item => !item.isCurrent).slice(0, 60);
     }
 
-    function toggleRecentSongThumbPanel(){
-      const panel = document.getElementById('songThumbRecentPanel');
-      if(panel) panel.classList.toggle('open');
+    async function loadRecentSongThumbImages(force){
+      if(songThumbRecentLoaded && !force) return songThumbRecentDriveItems;
+      try{
+        const response = await callSetlistApi('adminListSetlistThumbs', {
+          folderId: SETLIST_THUMB_FOLDER_ID,
+          folderName: SETLIST_THUMB_FOLDER_NAME,
+          limit: 60
+        });
+        const rawItems = response.items || response.images || response.data || [];
+        songThumbRecentDriveItems = (Array.isArray(rawItems) ? rawItems : [])
+          .map(normalizeSongThumbImageItem)
+          .filter(item => item.thumbUrl || item.thumb);
+        songThumbRecentLoaded = true;
+      }catch(err){
+        console.warn('[SETLIST 썸네일 최근사진 로드 실패]', err);
+        songThumbRecentDriveItems = [];
+        songThumbRecentLoaded = true;
+      }
+      return songThumbRecentDriveItems;
+    }
+
+    function renderRecentSongThumbModal(){
+      const grid = document.getElementById('songThumbRecentModalGrid');
+      if(!grid) return;
+      const currentId = document.getElementById('songThumbEditingId')?.value || '';
+      const items = collectRecentSongThumbs(currentId);
+      if(!items.length){
+        grid.innerHTML = '<div class="song-thumb-empty-note">앨범 썸네일 폴더에 최근 사진이 없어요.</div>';
+        return;
+      }
+      grid.innerHTML = items.map((item,index) => `
+        <button type="button" class="song-thumb-recent-modal-item ${songThumbRecentSelectedIndex === index ? 'is-selected' : ''}" data-index="${index}" onclick="selectRecentSongThumb(${index})" ondblclick="applyRecentSongThumb(${index}, false)">
+          <img src="${esc(item.thumb || item.thumbUrl)}" alt="${esc(item.title || '앨범 썸네일')}">
+          ${songThumbRecentSelectedIndex === index ? '<span class="song-thumb-recent-modal-badge">선택</span>' : ''}
+        </button>
+      `).join('');
+    }
+
+    async function openRecentSongThumbModal(){
+      const modal = document.getElementById('songThumbRecentModal');
+      const grid = document.getElementById('songThumbRecentModalGrid');
+      if(modal) modal.classList.add('open');
+      songThumbRecentSelectedIndex = null;
+      if(grid) grid.innerHTML = '<div class="song-thumb-empty-note">앨범 썸네일 폴더에서 최근 사진을 불러오는 중입니다.</div>';
+      await loadRecentSongThumbImages(false);
+      renderRecentSongThumbModal();
+    }
+
+    function closeRecentSongThumbModal(){
+      const modal = document.getElementById('songThumbRecentModal');
+      if(modal) modal.classList.remove('open');
+      songThumbRecentSelectedIndex = null;
+    }
+
+    async function reloadRecentSongThumbImages(){
+      const grid = document.getElementById('songThumbRecentModalGrid');
+      if(grid) grid.innerHTML = '<div class="song-thumb-empty-note">앨범 썸네일 폴더를 다시 불러오는 중입니다.</div>';
+      songThumbRecentSelectedIndex = null;
+      await loadRecentSongThumbImages(true);
+      renderRecentSongThumbModal();
+    }
+
+    function selectRecentSongThumb(index){
+      songThumbRecentSelectedIndex = index;
+      renderRecentSongThumbModal();
+    }
+
+    function applySelectedRecentSongThumb(withCrop){
+      if(songThumbRecentSelectedIndex === null || songThumbRecentSelectedIndex === undefined){
+        alert('적용할 최근 사진을 먼저 선택해 주세요.');
+        return;
+      }
+      applyRecentSongThumb(songThumbRecentSelectedIndex, withCrop);
     }
 
     function applyRecentSongThumb(index, withCrop){
@@ -3487,6 +3707,7 @@ Drive 원본 파일은 삭제되지 않습니다.')) return;
       const item = list[index];
       if(!item) return;
       applySongThumbSource(item, {withCrop:!!withCrop, resetCrop:!withCrop});
+      closeRecentSongThumbModal();
     }
 
     async function uploadSongThumbToDrive(input){
@@ -3503,7 +3724,9 @@ Drive 원본 파일은 삭제되지 않습니다.')) return;
             filename:file.name,
             mimeType:file.type,
             dataUrl,
-            songId:document.getElementById('songThumbEditingId')?.value || data.selectedSongId || ''
+            songId:document.getElementById('songThumbEditingId')?.value || data.selectedSongId || '',
+            folderId:SETLIST_THUMB_FOLDER_ID,
+            folderName:SETLIST_THUMB_FOLDER_NAME
           });
           if(!response || response.ok === false) throw new Error((response && (response.message || response.error)) || 'uploadFailed');
           const result = response.data || response.file || response;
@@ -3520,9 +3743,7 @@ Drive 원본 파일은 삭제되지 않습니다.')) return;
             if(el) el.value = '';
           });
           setAdminStatus('썸네일 업로드 API 연결 확인 필요 · Drive 업로드 action이 필요합니다.');
-          alert('사진 미리보기는 되었지만 Drive 업로드 저장은 실패했어요.
-adminUploadSetlistThumb action 연결이 필요합니다.
-오류: ' + (err && err.message ? err.message : err));
+          alert('사진 미리보기는 되었지만 Drive 업로드 저장은 실패했어요.\nadminUploadSetlistThumb action 연결이 필요합니다.\n오류: ' + (err && err.message ? err.message : err));
         }
       };
       reader.readAsDataURL(file);
@@ -3642,30 +3863,12 @@ adminUploadSetlistThumb action 연결이 필요합니다.
                   사진 불러오기
                   <input type="file" id="songThumbFile" accept="image/*" onchange="uploadSongThumbToDrive(this)">
                 </label>
-                <button class="song-card-admin-tiny-btn" type="button" onclick="toggleRecentSongThumbPanel()">최근 사진</button>
+                <button class="song-card-admin-tiny-btn" type="button" onclick="openRecentSongThumbModal()">최근 사진</button>
                 <button class="song-card-admin-tiny-btn" type="button" onclick="resetSongThumbCrop()">위치 초기화</button>
                 <button class="song-card-admin-tiny-btn danger" type="button" onclick="clearSongThumb()">사진 삭제</button>
               </div>
               <div class="song-thumb-meta-box" id="songThumbMetaBox">썸네일 상태를 확인 중입니다.</div>
-              <div class="song-thumb-recent-panel" id="songThumbRecentPanel">
-                <p class="song-thumb-recent-title">최근 사진</p>
-                ${(() => {
-                  const recent = collectRecentSongThumbs(s.id || s.songId);
-                  if(!recent.length) return '<div class="song-thumb-empty-note">최근 사진이 아직 없어요.</div>';
-                  return `<div class="song-thumb-recent-list">${recent.map((item,index)=>`
-                    <div>
-                      <button class="song-thumb-recent-item" type="button" onclick="applyRecentSongThumb(${index}, false)">
-                        <img src="${esc(item.thumbUrl || item.thumb)}" alt="${esc(item.title)}">
-                        <span class="song-thumb-recent-name">${esc(item.title)}</span>
-                      </button>
-                      <div class="song-thumb-recent-actions">
-                        <button type="button" onclick="applyRecentSongThumb(${index}, false)">사진만</button>
-                        <button type="button" onclick="applyRecentSongThumb(${index}, true)">위치까지</button>
-                      </div>
-                    </div>
-                  `).join('')}</div>`;
-                })()}
-              </div>
+              <div class="song-thumb-recent-panel" id="songThumbRecentPanel" aria-hidden="true"></div>
               <input class="thumb-hidden-input" id="songThumb" value="${esc(s.thumb || '')}">
               <input class="thumb-hidden-input" id="songThumbUrl" value="${esc(s.thumbUrl || s.thumb || '')}">
               <input class="thumb-hidden-input" id="songThumbFileId" value="${esc(s.thumbFileId || '')}">
