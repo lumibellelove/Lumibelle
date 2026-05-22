@@ -210,9 +210,9 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 
 /* ── 채널 추가 전 화면 ── */
 .screen-join{background:#b98998;color:white;overflow-y:auto;overflow-x:hidden;padding-bottom:env(safe-area-inset-bottom,0px)}
-.join-hero{position:relative;min-height:470px;padding:52px 16px 18px;background-size:cover;background-position:center 22%}
+.join-hero{position:relative;min-height:470px;padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 18px;background-size:cover;background-position:center 22%}
 .join-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(40,20,30,.10),rgba(40,20,30,.58));pointer-events:none}
-.profile-top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:10;padding-top:0}
+.profile-top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:10;padding-top:env(safe-area-inset-top,0px)}
 .profile-top .dark-btn{background:rgba(40,25,30,.34);border:0;outline:0;position:relative;z-index:10;pointer-events:all}
 .join-card{position:absolute;left:20px;right:20px;bottom:16px;z-index:2}
 .join-title{font-size:31px;font-weight:950;letter-spacing:-.06em;line-height:1.05;margin-top:10px;text-shadow:0 2px 15px rgba(0,0,0,.25);color:#fff}
@@ -228,7 +228,7 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
 
 /* ── 프로필홈 화면 ── */
 .screen-profile{background:#fff;overflow:auto}
-.profile-hero{position:relative;min-height:520px;padding:18px 16px;background-size:cover;background-position:center 22%;max-width:100%;background-color:#c9a0b4}
+.profile-hero{position:relative;min-height:520px;padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 18px;background-size:cover;background-position:center 22%;max-width:100%;background-color:#c9a0b4}
 .profile-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(50,20,35,.08),rgba(50,20,35,.58));pointer-events:none}
 .profile-info{position:absolute;left:20px;right:20px;bottom:18px;z-index:3}
 .profile-tools{display:flex;gap:8px;position:relative;z-index:10}
@@ -350,7 +350,6 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
   .join-hero,.profile-hero,.my-profile-hero{min-height:440px}
   .profile-info{bottom:14px}
   .screen-profile.help-profile .profile-hero{min-height:400px}
-  .profile-top .dark-btn{transform:translateY(-12px)}
 }
 @media (max-width:380px){
   h1{font-size:29px}
@@ -386,7 +385,6 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
   .join-hero,.profile-hero,.my-profile-hero{min-height:480px}
   .screen-profile.help-profile .profile-hero{min-height:440px}
   .profile-info{bottom:16px}
-  .profile-top .dark-btn{transform:translateY(-9px)}
 }
 @media (min-width:760px){
   :root{--phone-max-mobile:430px}
@@ -403,13 +401,19 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
   .screen-profile{overflow:auto}
 }
 /* Z Flip 6 펼쳤을 때: 너비 374px, 높이 832px 전후 */
-@media (max-width:380px) and (min-height:780px){
-  .join-hero,.profile-hero,.my-profile-hero{min-height:400px}
-  .my-profile-section{padding-bottom:12px}
-  .join-body{padding-bottom:16px}
+@media (max-width:390px) and (min-height:780px){
+  .join-hero,.profile-hero,.my-profile-hero{min-height:380px}
+  .my-profile-section{padding-bottom:8px}
+  .join-body{padding-bottom:12px}
+  .my-profile-rule{margin-top:8px}
 }
-/* Z Flip 6 접었을 때 커버스크린: 너비 376px, 높이 ~512px */
-@media (max-width:380px) and (max-height:560px){
-  .join-hero,.profile-hero,.my-profile-hero{min-height:280px}
-  .join-button{margin-bottom:8px}
+/* Z Flip 6 접었을 때 커버스크린 */
+@media (max-width:390px) and (max-height:560px){
+  .join-hero,.profile-hero,.my-profile-hero{min-height:260px}
+  .join-button{margin-bottom:6px}
+}
+/* 아이폰 Safari 주소창으로 인한 버튼 잘림 방지 */
+@supports (-webkit-touch-callout:none){
+  .screen-join{padding-bottom:max(env(safe-area-inset-bottom,0px),20px)}
+  .join-button{margin-bottom:max(calc(env(safe-area-inset-bottom,0px) + 16px),28px)}
 }
