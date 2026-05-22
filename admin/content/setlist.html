@@ -753,6 +753,72 @@
 
 
 
+/* ===== SETLIST thumbnail recent popup: ticket/news working flow port ===== */
+.thumb-status{
+  width:100%;
+  margin:2px 0 0;
+  color:#a98298;
+  font-size:12px;
+  line-height:1.55;
+  font-weight:850;
+  text-align:center;
+}
+.thumb-recent-modal .modal-card{
+  width:min(980px,calc(100% - 36px));
+}
+.thumb-recent-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(132px,1fr));
+  gap:14px;
+}
+.thumb-recent-card{
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:#fff;
+  overflow:hidden;
+  box-shadow:0 8px 18px rgba(255,120,178,.07);
+}
+.thumb-recent-image{
+  width:100%;
+  aspect-ratio:1/1;
+  background:#fff8fc;
+  overflow:hidden;
+}
+.thumb-recent-image img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.thumb-recent-actions{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:7px;
+  padding:9px;
+}
+.thumb-recent-actions button{
+  min-height:32px;
+  border:1px solid #efb8d0;
+  border-radius:999px;
+  background:#fff;
+  color:#d26f9e;
+  font-size:11px;
+  font-weight:900;
+}
+.thumb-recent-actions button.primary{
+  border-color:transparent;
+  background:linear-gradient(180deg,#ff7fba,#ff59a5);
+  color:#fff;
+}
+.thumb-recent-empty{
+  padding:36px 14px;
+  text-align:center;
+  color:#a98298;
+  font-size:14px;
+  line-height:1.8;
+  font-weight:850;
+}
+
+
     /* modal */
     .modal-overlay{
       position:fixed;
@@ -2142,201 +2208,6 @@
 }
 @keyframes setlistTranslateSpin{to{transform:rotate(360deg)}}
 
-
-
-/* ===== Patch 7: SETLIST song thumbnail Drive editor ===== */
-.song-card-thumb-panel{
-  gap:14px;
-}
-.song-card-thumb-panel .song-card-thumb-box{
-  width:100%;
-  height:248px;
-  max-width:340px;
-  margin:0 auto;
-  border-radius:20px;
-  border:1px solid var(--line);
-  background:#fff8fc;
-}
-.song-card-thumb-panel .song-card-thumb-box img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  object-position:var(--thumb-x,50%) var(--thumb-y,50%);
-  transform:scale(var(--thumb-scale,1));
-  transform-origin:var(--thumb-x,50%) var(--thumb-y,50%);
-}
-.song-thumb-tool-grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:10px;
-  margin-top:14px;
-}
-.song-thumb-tool-grid .thumb-file-label,
-.song-thumb-tool-grid .song-card-admin-tiny-btn{
-  width:100%;
-  min-height:40px;
-  margin:0;
-  padding:0 12px;
-  font-size:13px;
-}
-.song-thumb-tool-grid .danger{
-  color:#bd6d90;
-  background:#fffafd;
-}
-.song-thumb-meta-box{
-  margin-top:12px;
-  padding:12px;
-  border:1px dashed rgba(239,184,208,.78);
-  border-radius:18px;
-  background:#fffafd;
-  color:#a98298;
-  font-size:12px;
-  line-height:1.55;
-  font-weight:850;
-  text-align:center;
-}
-.song-thumb-recent-panel{
-  display:none;
-  margin-top:12px;
-  padding:12px;
-  border:1px solid rgba(255,229,241,.95);
-  border-radius:18px;
-  background:#fff;
-}
-.song-thumb-recent-panel.open{display:block}
-.song-thumb-recent-title{
-  margin:0 0 10px;
-  color:#d26d9e;
-  font-size:13px;
-  font-weight:900;
-  text-align:center;
-}
-.song-thumb-recent-list{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:10px;
-}
-.song-thumb-recent-item{
-  border:1px solid var(--line);
-  border-radius:16px;
-  background:#fff8fc;
-  overflow:hidden;
-  padding:0;
-  color:#9f6f88;
-  font-size:11px;
-  font-weight:900;
-}
-.song-thumb-recent-item img{
-  width:100%;
-  height:78px;
-  object-fit:cover;
-  display:block;
-}
-.song-thumb-recent-name{
-  display:block;
-  padding:7px 7px 8px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.song-thumb-recent-actions{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:6px;
-  margin-top:10px;
-}
-.song-thumb-recent-actions button{
-  min-height:32px;
-  border:1px solid var(--line);
-  border-radius:999px;
-  background:#fff;
-  color:#c2729b;
-  font-size:11px;
-  font-weight:900;
-}
-.song-thumb-empty-note{
-  padding:14px;
-  border:1px dashed var(--line);
-  border-radius:14px;
-  color:#a98298;
-  font-size:12px;
-  font-weight:850;
-  text-align:center;
-}
-
-.song-thumb-recent-modal-card{
-  width:min(980px,calc(100% - 36px));
-}
-.song-thumb-recent-modal-sub{
-  margin:7px 0 0;
-  color:#b887a0;
-  font-size:13px;
-  line-height:1.5;
-  font-weight:850;
-}
-.song-thumb-recent-modal-actions{
-  display:flex;
-  justify-content:center;
-  gap:10px;
-  flex-wrap:wrap;
-  margin:0 0 18px;
-}
-.song-thumb-recent-modal-grid{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:14px;
-}
-.song-thumb-recent-modal-item{
-  position:relative;
-  display:block;
-  width:100%;
-  padding:10px;
-  border:1px solid var(--line);
-  border-radius:18px;
-  background:#fff;
-  color:#9b6f86;
-  text-align:left;
-}
-.song-thumb-recent-modal-item.is-selected{
-  border-color:#ff7fbd;
-  box-shadow:0 0 0 3px rgba(255,89,165,.12);
-  background:#fff7fb;
-}
-.song-thumb-recent-modal-item img{
-  width:100%;
-  aspect-ratio:1/1;
-  object-fit:cover;
-  border-radius:14px;
-  border:1px solid rgba(255,229,241,.95);
-  background:#fff8fc;
-}
-.song-thumb-recent-modal-name{
-  display:none !important;
-  display:block;
-  margin-top:8px;
-  font-size:12px;
-  line-height:1.35;
-  font-weight:900;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.song-thumb-recent-modal-badge{
-  position:absolute;
-  top:16px;
-  right:16px;
-  min-height:24px;
-  padding:5px 8px;
-  border-radius:999px;
-  background:#ff59a5;
-  color:#fff;
-  font-size:10px;
-  font-weight:900;
-}
-@media(max-width:900px){
-  .song-thumb-recent-modal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-
 </style>
 </head>
 <body>
@@ -2404,29 +2275,19 @@
     </div>
   </div>
 
-  
-  <div class="modal-overlay" id="songThumbRecentModal">
-    <div class="modal-card song-thumb-recent-modal-card">
+
+
+  <div class="modal-overlay thumb-recent-modal" id="thumbRecentModal">
+    <div class="modal-card">
       <div class="modal-head">
-        <div>
-          <div class="modal-title">최근 앨범 썸네일 선택</div>
-          <p class="song-thumb-recent-modal-sub">앨범 썸네일 전용 Drive 폴더의 사진만 불러옵니다.</p>
-        </div>
-        <button class="modal-close" type="button" onclick="closeRecentSongThumbModal()">×</button>
+        <div class="modal-title">최근 앨범 썸네일</div>
+        <button class="modal-close" type="button" onclick="closeThumbRecentModal()">×</button>
       </div>
       <div class="modal-body">
-        <div class="song-thumb-recent-modal-actions">
-          <button type="button" class="btn sub" onclick="reloadRecentSongThumbImages()">새로고침</button>
-          <button type="button" class="btn" onclick="applySelectedRecentSongThumb(false)">사진만 적용</button>
-          <button type="button" class="btn sub" onclick="applySelectedRecentSongThumb(true)">사진 + 위치값 적용</button>
-        </div>
-        <div id="songThumbRecentModalGrid" class="song-thumb-recent-modal-grid">
-          <div class="song-thumb-empty-note">최근 사진을 불러오는 중입니다.</div>
-        </div>
+        <div class="thumb-recent-grid" id="thumbRecentGrid"></div>
       </div>
     </div>
   </div>
-
 
   <div class="setlist-translate-toast" id="setlistTranslateToast" aria-live="polite"></div>
 
@@ -2435,7 +2296,6 @@
     const SETLIST_API_URL = 'https://lumi-news-api.lumibelle-love.workers.dev';
     const SETLIST_TRANSLATE_API_URL = window.LUMIBELLE_SETLIST_API_URL || window.LUMIBELLE_CONTENT_API_URL || window.CONTENT_DB_API_URL || SETLIST_API_URL;
     const SETLIST_THUMB_FOLDER_ID = '14uLxp8zKceCevy0glR1b7Nz8OzGhowR_';
-    const SETLIST_THUMB_FOLDER_NAME = 'setlist-album-thumbnails';
 
     const defaultData = {
       hero:{
@@ -2593,26 +2453,23 @@
     function sanitizeSetlistDataForAdmin(input){
       const target = input && typeof input === 'object' ? input : structuredClone(defaultData);
       if(Array.isArray(target.songs)){
-        target.songs = target.songs.filter(song => !isLegacySampleSong(song));
-      }
-      if(Array.isArray(target.guides)){
-        target.guides = target.guides.filter(guide => String(guide?.songId || '').trim().toLowerCase() !== 'canaria');
-      }
-      if(Array.isArray(target.songs)){
-        target.songs = target.songs.map(song => {
-          const fileId = String(song.thumbFileId || extractDriveFileId(song.thumbUrl || song.thumb || '') || '').trim();
-          const thumbUrl = String(song.thumbUrl || song.thumb || driveThumbUrl(fileId) || '').trim();
+        target.songs = target.songs.filter(song => !isLegacySampleSong(song)).map(song => {
+          const thumbUrl = String(song.thumbUrl || song.thumb || '').trim();
+          const thumbFileId = String(song.thumbFileId || '').trim();
           return Object.assign(song, {
             thumb: thumbUrl,
             thumbUrl,
-            thumbFileId: fileId,
+            thumbFileId,
             thumbX: clampNumber(song.thumbX, 0, 100, 50),
             thumbY: clampNumber(song.thumbY ?? song.thumbPosition, 0, 100, 50),
             thumbScale: clampNumber(song.thumbScale, 1, 2.5, 1),
-            thumbStyle: song.thumbStyle || 'cover',
-            thumbPresetName: song.thumbPresetName || ''
+            thumbStyle: String(song.thumbStyle || '').trim(),
+            thumbPresetName: String(song.thumbPresetName || '').trim()
           });
         });
+      }
+      if(Array.isArray(target.guides)){
+        target.guides = target.guides.filter(guide => String(guide?.songId || '').trim().toLowerCase() !== 'canaria');
       }
       if(String(target.selectedSongId || '').trim().toLowerCase() === 'canaria'){
         target.selectedSongId = target.songs?.[0]?.id || target.songs?.[0]?.songId || '';
@@ -2895,6 +2752,10 @@
       return `object-position:${crop.x}% ${crop.y}%;--thumb-x:${crop.x}%;--thumb-y:${crop.y}%;--thumb-scale:${crop.scale};`;
     }
 
+    function songThumbSrc(song){
+      return String(song?.thumbUrl || song?.thumb || '').trim();
+    }
+
     function render(){
       renderHero();
       renderLiveGuide();
@@ -3002,7 +2863,7 @@
           ${data.selectedSongId===s.id ? '<div class="song-card-badge">NOW</div>' : ''}
           ${songVisibility(s)!=='public' ? `<div class="song-visibility-badge ${data.selectedSongId===s.id?'under-now':''} ${esc(songVisibility(s))}">${esc(visibilityLabel(songVisibility(s)))}</div>` : ''}
           <button class="song-edit" type="button" onclick="event.stopPropagation();openSongModal('${esc(s.id)}')">수정</button>
-          <div class="song-thumb">${getSongThumbSrc(s) ? `<img src="${esc(getSongThumbSrc(s))}" alt="${esc(s.title)} 썸네일" style="${esc(thumbStyle(s))}">` : '썸네일 준비중'}</div>
+          <div class="song-thumb">${songThumbSrc(s) ? `<img src="${esc(songThumbSrc(s))}" alt="${esc(s.title)} 썸네일" style="${esc(thumbStyle(s))}">` : '썸네일 준비중'}</div>
           <h3 class="song-title">${esc(s.title)}</h3>
           <p class="song-en">${esc(s.subtitle)}</p>
           <p class="song-desc">${nl(cardDesc(s))}</p>
@@ -3414,7 +3275,6 @@
       if(yInput) yInput.value = String(Math.round(safe.y * 100) / 100);
       if(scaleInput) scaleInput.value = String(Math.round(safe.scale * 100) / 100);
       applySongThumbCropPreview();
-      updateSongThumbMeta();
     }
 
     function updateSongThumbCropPreview(){
@@ -3462,310 +3322,146 @@
       if(songThumbDragState && songThumbDragState.pointerId === event.pointerId) songThumbDragState = null;
     }
 
-    function extractDriveFileId(value){
-      const text = String(value || '').trim();
-      if(!text) return '';
-      const patterns = [
-        /\/file\/d\/([a-zA-Z0-9_-]+)/,
-        /[?&]id=([a-zA-Z0-9_-]+)/,
-        /\/d\/([a-zA-Z0-9_-]+)/
-      ];
-      for(const pattern of patterns){
-        const match = text.match(pattern);
-        if(match && match[1]) return match[1];
-      }
-      return '';
+    function readFileAsDataUrl(file){
+      return new Promise((resolve, reject)=>{
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ''));
+        reader.onerror = () => reject(new Error('fileReadFailed'));
+        reader.readAsDataURL(file);
+      });
     }
 
-    function driveThumbUrl(fileId){
-      const id = String(fileId || '').trim();
-      return id ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(id)}&sz=w1200` : '';
+    function setSongThumbStatus(message){
+      const el = document.getElementById('songThumbStatus');
+      if(el) el.textContent = message || '';
     }
 
-    function getSongThumbSrc(song){
-      return String(song?.thumbUrl || song?.thumb || '').trim();
-    }
-
-    function currentSongThumbState(){
-      return {
-        thumb: val('songThumb') || '',
-        thumbUrl: val('songThumbUrl') || val('songThumb') || '',
-        thumbFileId: val('songThumbFileId') || '',
-        thumbStyle: val('songThumbStyle') || '',
-        thumbPresetName: val('songThumbPresetName') || '',
-        ...readSongThumbCropInputs()
+    function applySongThumbToModal(item, options){
+      item = item || {};
+      options = options || {};
+      const thumbUrl = String(item.thumbUrl || item.imageUrl || item.thumbnailUrl || item.url || item.thumb || '').trim();
+      const fileId = String(item.thumbFileId || item.fileId || '').trim();
+      if(!thumbUrl) return;
+      const keepPosition = !!options.keepPosition;
+      const crop = keepPosition ? readSongThumbCropInputs() : {
+        x: item.thumbX !== undefined ? item.thumbX : 50,
+        y: item.thumbY !== undefined ? item.thumbY : 50,
+        scale: item.thumbScale !== undefined ? item.thumbScale : 1
       };
-    }
-
-
-    function commitSongThumbStateToCurrentSong(){
-      const editingId = document.getElementById('songThumbEditingId')?.value || data.selectedSongId || '';
-      const song = (data.songs || []).find(item => String(item.id || item.songId || '') === String(editingId));
-      if(!song) return;
-      const state = currentSongThumbState();
-      song.thumb = state.thumbUrl || state.thumb || '';
-      song.thumbUrl = state.thumbUrl || state.thumb || '';
-      song.thumbFileId = state.thumbFileId || '';
-      song.thumbStyle = state.thumbStyle || 'cover';
-      song.thumbPresetName = state.thumbPresetName || '';
-      song.thumbX = state.x;
-      song.thumbY = state.y;
-      song.thumbScale = state.scale;
-      delete song.thumbPosition;
-    }
-
-    function setSongThumbPreviewImage(src, alt){
-      const safeSrc = String(src || '').trim();
-      const imgHtml = safeSrc ? `<img src="${esc(safeSrc)}" alt="${esc(alt || '썸네일 미리보기')}">` : '썸네일 준비중';
+      const hidden = document.getElementById('songThumb');
+      const hiddenUrl = document.getElementById('songThumbUrl');
+      const hiddenFile = document.getElementById('songThumbFileId');
+      const hiddenPreset = document.getElementById('songThumbPresetName');
+      if(hidden) hidden.value = thumbUrl;
+      if(hiddenUrl) hiddenUrl.value = thumbUrl;
+      if(hiddenFile) hiddenFile.value = fileId;
+      if(hiddenPreset) hiddenPreset.value = String(item.thumbPresetName || item.name || '');
+      writeSongThumbCropInputs(crop);
+      const style = `object-position:${crop.x}% ${crop.y}%;--thumb-x:${crop.x}%;--thumb-y:${crop.y}%;--thumb-scale:${crop.scale};`;
+      const imgHtml = `<img src="${esc(thumbUrl)}" alt="썸네일 미리보기" style="${esc(style)}">`;
       document.querySelectorAll('#songThumbPreview, .song-thumb-sync').forEach(box => { box.innerHTML = imgHtml; });
-      applySongThumbCropPreview();
+      setSongThumbStatus(fileId ? 'Drive 썸네일이 연결되었어요.' : '썸네일이 적용되었어요.');
     }
 
-    function applySongThumbSource(source, options){
-      const opt = options || {};
-      const fileId = String(source?.thumbFileId || source?.fileId || extractDriveFileId(source?.thumbUrl || source?.url || source?.thumb) || '').trim();
-      const thumbUrl = String(source?.thumbUrl || source?.url || source?.thumb || driveThumbUrl(fileId) || '').trim();
-      const thumb = thumbUrl;
-      const hiddenThumb = document.getElementById('songThumb');
-      const hiddenThumbUrl = document.getElementById('songThumbUrl');
-      const hiddenThumbFileId = document.getElementById('songThumbFileId');
-      const hiddenThumbStyle = document.getElementById('songThumbStyle');
-      const hiddenThumbPreset = document.getElementById('songThumbPresetName');
-      if(hiddenThumb) hiddenThumb.value = thumb;
-      if(hiddenThumbUrl) hiddenThumbUrl.value = thumbUrl;
-      if(hiddenThumbFileId) hiddenThumbFileId.value = fileId;
-      if(hiddenThumbStyle) hiddenThumbStyle.value = String(source?.thumbStyle || 'cover');
-      if(hiddenThumbPreset) hiddenThumbPreset.value = String(source?.thumbPresetName || source?.presetName || '');
-      if(opt.withCrop){
-        writeSongThumbCropInputs({
-          x: source?.thumbX ?? source?.x ?? 50,
-          y: source?.thumbY ?? source?.y ?? 50,
-          scale: source?.thumbScale ?? source?.scale ?? 1
+    async function previewSongThumb(input){
+      const file = input.files && input.files[0];
+      if(!file || !file.type || !file.type.startsWith('image/')) return;
+      try{
+        setSongThumbStatus('Drive에 업로드 중입니다...');
+        const dataUrl = await readFileAsDataUrl(file);
+        const uploaded = await callSetlistApi('adminUploadSetlistThumb', {
+          fileName: file.name || ('setlist-thumb-' + Date.now() + '.png'),
+          mimeType: file.type || 'image/png',
+          data: dataUrl,
+          folderId: SETLIST_THUMB_FOLDER_ID
         });
-      }else if(opt.resetCrop !== false){
-        writeSongThumbCropInputs({x:50, y:50, scale:1});
+        if(!uploaded || uploaded.ok === false){
+          throw new Error((uploaded && (uploaded.message || uploaded.error)) || 'uploadFailed');
+        }
+        applySongThumbToModal({
+          thumbUrl: uploaded.thumbUrl || uploaded.imageUrl || uploaded.thumbnailUrl || uploaded.url,
+          thumbFileId: uploaded.thumbFileId || uploaded.fileId,
+          thumbX: 50,
+          thumbY: 50,
+          thumbScale: 1,
+          thumbPresetName: uploaded.name || file.name || ''
+        });
+      }catch(err){
+        console.error('[SETLIST 썸네일 업로드 오류]', err);
+        setSongThumbStatus('업로드 실패 · Apps Script/Worker 연결을 확인해 주세요.');
+        alert('썸네일 업로드에 실패했어요.\n오류: ' + (err && err.message ? err.message : err));
+      }finally{
+        if(input) input.value = '';
       }
-      setSongThumbPreviewImage(thumbUrl, '곡 카드 썸네일 미리보기');
-      commitSongThumbStateToCurrentSong();
-      updateSongThumbMeta();
     }
 
-    function clearSongThumb(){
-      if(!confirm('이 곡 카드에서 썸네일 연결을 제거할까요?\nDrive 원본 파일은 삭제되지 않습니다.')) return;
-      ['songThumb','songThumbUrl','songThumbFileId','songThumbStyle','songThumbPresetName'].forEach(id => {
+    function resetSongThumbImage(){
+      if(!confirm('이 곡 카드의 썸네일 연결을 제거할까요?\nDrive 원본 파일은 삭제하지 않습니다.')) return;
+      ['songThumb','songThumbUrl','songThumbFileId','songThumbPresetName'].forEach(id=>{
         const el = document.getElementById(id);
         if(el) el.value = '';
       });
       writeSongThumbCropInputs({x:50, y:50, scale:1});
-      setSongThumbPreviewImage('', '썸네일 준비중');
-      commitSongThumbStateToCurrentSong();
-      updateSongThumbMeta();
+      document.querySelectorAll('#songThumbPreview, .song-thumb-sync').forEach(box => { box.innerHTML = '썸네일 준비중'; });
+      setSongThumbStatus('썸네일 연결을 제거했어요. 저장을 누르면 반영됩니다.');
     }
 
-    function updateSongThumbMeta(){
-      const box = document.getElementById('songThumbMetaBox');
-      if(!box) return;
-      const state = currentSongThumbState();
-      const srcLabel = state.thumbFileId ? `Drive fileId 저장됨` : (state.thumbUrl ? '이미지 URL 저장됨' : '썸네일 없음');
-      box.textContent = `${srcLabel} · X ${Math.round(state.x)} / Y ${Math.round(state.y)} / Scale ${Math.round(state.scale * 100) / 100}`;
-    }
-
-    let songThumbRecentDriveItems = [];
-    let songThumbRecentLoaded = false;
-    let songThumbRecentSelectedIndex = null;
-
-    function normalizeSongThumbImageItem(item){
-      item = item || {};
-      const fileId = String(item.fileId || item.id || item.thumbFileId || '').trim();
-      const imageUrl = String(item.imageUrl || item.url || item.webViewUrl || item.thumbnailUrl || item.thumbUrl || item.thumb || driveThumbUrl(fileId) || '').trim();
-      const thumbnailUrl = String(item.thumbnailUrl || item.imageUrl || item.url || item.thumbUrl || imageUrl || driveThumbUrl(fileId) || '').trim();
-      const itemFolderId = String(item.folderId || item.parentId || item.driveFolderId || '').trim();
-      return {
-        title: item.title || item.name || item.fileName || '앨범 썸네일',
-        name: item.name || item.fileName || item.title || 'album thumbnail',
-        thumb: thumbnailUrl || imageUrl,
-        thumbUrl: imageUrl || thumbnailUrl,
-        thumbFileId: fileId || extractDriveFileId(imageUrl || thumbnailUrl),
-        folderId: itemFolderId,
-        thumbX: item.thumbX ?? item.x ?? 50,
-        thumbY: item.thumbY ?? item.y ?? 50,
-        thumbScale: item.thumbScale ?? item.scale ?? 1,
-        thumbStyle: item.thumbStyle || 'cover',
-        thumbPresetName: item.thumbPresetName || item.presetName || ''
-      };
-    }
-
-    function collectRecentSongThumbs(currentSongId){
-      const usedCropMap = new Map();
-      (data.songs || []).forEach(song => {
-        const src = getSongThumbSrc(song);
-        const fileId = String(song.thumbFileId || extractDriveFileId(src) || '').trim();
-        const key = fileId || String(src || '').trim();
-        if(!key) return;
-        usedCropMap.set(key, {
-          thumbX: song.thumbX ?? 50,
-          thumbY: song.thumbY ?? 50,
-          thumbScale: song.thumbScale ?? 1,
-          thumbStyle: song.thumbStyle || 'cover',
-          thumbPresetName: song.thumbPresetName || '',
-          sourceSongId: String(song.id || song.songId || '')
-        });
-      });
-
-      const map = new Map();
-      (songThumbRecentDriveItems || []).forEach(item => {
-        const src = item.thumbUrl || item.thumb;
-        if(!src) return;
-        if(item.folderId && item.folderId !== SETLIST_THUMB_FOLDER_ID) return;
-        const key = String(item.thumbFileId || extractDriveFileId(src) || src);
-        const crop = usedCropMap.get(key);
-        const merged = crop ? {...item, ...crop} : item;
-        if(key && !map.has(key)) map.set(key, merged);
-      });
-
-      (data.songs || []).forEach(song => {
-        const src = getSongThumbSrc(song);
-        if(!src) return;
-        const key = String(song.thumbFileId || extractDriveFileId(src) || src);
-        if(!key || map.has(key)) return;
-        map.set(key, {
-          title: song.title || song.id || '최근 사진',
-          thumb: src,
-          thumbUrl: song.thumbUrl || src,
-          thumbFileId: song.thumbFileId || extractDriveFileId(src),
-          folderId: SETLIST_THUMB_FOLDER_ID,
-          thumbX: song.thumbX ?? 50,
-          thumbY: song.thumbY ?? 50,
-          thumbScale: song.thumbScale ?? 1,
-          thumbStyle: song.thumbStyle || 'cover',
-          thumbPresetName: song.thumbPresetName || '',
-          isCurrent: String(song.id || song.songId || '') === String(currentSongId || '')
-        });
-      });
-      return Array.from(map.values()).filter(item => !item.isCurrent).slice(0, 60);
-    }
-
-    async function loadRecentSongThumbImages(force){
-      if(songThumbRecentLoaded && !force) return songThumbRecentDriveItems;
+    async function openThumbRecentModal(){
+      const modal = document.getElementById('thumbRecentModal');
+      const grid = document.getElementById('thumbRecentGrid');
+      if(!modal || !grid) return;
+      modal.classList.add('open');
+      grid.innerHTML = '<div class="thumb-recent-empty">최근 앨범 썸네일을 불러오는 중입니다...</div>';
       try{
-        const response = await callSetlistApi('adminListSetlistThumbs', {
-          folderId: SETLIST_THUMB_FOLDER_ID,
-          folderName: SETLIST_THUMB_FOLDER_NAME,
-          limit: 60
-        });
-        const rawItems = response.items || response.images || response.data || [];
-        songThumbRecentDriveItems = (Array.isArray(rawItems) ? rawItems : [])
-          .map(normalizeSongThumbImageItem)
-          .filter(item => item.thumbUrl || item.thumb);
-        songThumbRecentLoaded = true;
-      }catch(err){
-        console.warn('[SETLIST 썸네일 최근사진 로드 실패]', err);
-        songThumbRecentDriveItems = [];
-        songThumbRecentLoaded = true;
-      }
-      return songThumbRecentDriveItems;
-    }
-
-    function renderRecentSongThumbModal(){
-      const grid = document.getElementById('songThumbRecentModalGrid');
-      if(!grid) return;
-      const currentId = document.getElementById('songThumbEditingId')?.value || '';
-      const items = collectRecentSongThumbs(currentId);
-      if(!items.length){
-        grid.innerHTML = '<div class="song-thumb-empty-note">앨범 썸네일 폴더에 최근 사진이 없어요.</div>';
-        return;
-      }
-      grid.innerHTML = items.map((item,index) => `
-        <button type="button" class="song-thumb-recent-modal-item ${songThumbRecentSelectedIndex === index ? 'is-selected' : ''}" data-index="${index}" onclick="selectRecentSongThumb(${index})" ondblclick="applyRecentSongThumb(${index}, false)">
-          <img src="${esc(item.thumb || item.thumbUrl)}" alt="${esc(item.title || '앨범 썸네일')}">
-          ${songThumbRecentSelectedIndex === index ? '<span class="song-thumb-recent-modal-badge">선택</span>' : ''}
-        </button>
-      `).join('');
-    }
-
-    async function openRecentSongThumbModal(){
-      const modal = document.getElementById('songThumbRecentModal');
-      const grid = document.getElementById('songThumbRecentModalGrid');
-      if(modal) modal.classList.add('open');
-      songThumbRecentSelectedIndex = null;
-      if(grid) grid.innerHTML = '<div class="song-thumb-empty-note">앨범 썸네일 폴더에서 최근 사진을 불러오는 중입니다.</div>';
-      await loadRecentSongThumbImages(false);
-      renderRecentSongThumbModal();
-    }
-
-    function closeRecentSongThumbModal(){
-      const modal = document.getElementById('songThumbRecentModal');
-      if(modal) modal.classList.remove('open');
-      songThumbRecentSelectedIndex = null;
-    }
-
-    async function reloadRecentSongThumbImages(){
-      const grid = document.getElementById('songThumbRecentModalGrid');
-      if(grid) grid.innerHTML = '<div class="song-thumb-empty-note">앨범 썸네일 폴더를 다시 불러오는 중입니다.</div>';
-      songThumbRecentSelectedIndex = null;
-      await loadRecentSongThumbImages(true);
-      renderRecentSongThumbModal();
-    }
-
-    function selectRecentSongThumb(index){
-      songThumbRecentSelectedIndex = index;
-      renderRecentSongThumbModal();
-    }
-
-    function applySelectedRecentSongThumb(withCrop){
-      if(songThumbRecentSelectedIndex === null || songThumbRecentSelectedIndex === undefined){
-        alert('적용할 최근 사진을 먼저 선택해 주세요.');
-        return;
-      }
-      applyRecentSongThumb(songThumbRecentSelectedIndex, withCrop);
-    }
-
-    function applyRecentSongThumb(index, withCrop){
-      const currentId = document.getElementById('songThumbEditingId')?.value || '';
-      const list = collectRecentSongThumbs(currentId);
-      const item = list[index];
-      if(!item) return;
-      applySongThumbSource(item, {withCrop:!!withCrop, resetCrop:!withCrop});
-      closeRecentSongThumbModal();
-    }
-
-    async function uploadSongThumbToDrive(input){
-      const file = input.files && input.files[0];
-      if(!file || !file.type || !file.type.startsWith('image/')) return;
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const dataUrl = String(reader.result || '');
-        setSongThumbPreviewImage(dataUrl, '업로드 미리보기');
-        updateSongThumbMeta();
-        try{
-          setAdminStatus('썸네일을 Drive에 업로드하는 중입니다...');
-          const response = await callSetlistApi('adminUploadSetlistThumb', {
-            filename:file.name,
-            mimeType:file.type,
-            dataUrl,
-            songId:document.getElementById('songThumbEditingId')?.value || data.selectedSongId || '',
-            folderId:SETLIST_THUMB_FOLDER_ID,
-            folderName:SETLIST_THUMB_FOLDER_NAME
-          });
-          if(!response || response.ok === false) throw new Error((response && (response.message || response.error)) || 'uploadFailed');
-          const result = response.data || response.file || response;
-          applySongThumbSource({
-            thumbFileId:result.thumbFileId || result.fileId || result.id,
-            thumbUrl:result.thumbUrl || result.url || driveThumbUrl(result.thumbFileId || result.fileId || result.id),
-            thumbStyle:'cover'
-          }, {resetCrop:true});
-          setAdminStatus('썸네일 Drive 업로드 완료 · 저장 후 반영을 눌러 주세요.');
-        }catch(err){
-          console.error(err);
-          ['songThumb','songThumbUrl','songThumbFileId'].forEach(id => {
-            const el = document.getElementById(id);
-            if(el) el.value = '';
-          });
-          setAdminStatus('썸네일 업로드 API 연결 확인 필요 · Drive 업로드 action이 필요합니다.');
-          alert('사진 미리보기는 되었지만 Drive 업로드 저장은 실패했어요.\nadminUploadSetlistThumb action 연결이 필요합니다.\n오류: ' + (err && err.message ? err.message : err));
+        const response = await callSetlistApi('adminListSetlistThumbs', {folderId:SETLIST_THUMB_FOLDER_ID, limit:48});
+        if(!response || response.ok === false) throw new Error((response && (response.message || response.error)) || 'listFailed');
+        const items = (response.items || response.images || []).map(item => ({
+          fileId: item.fileId || item.thumbFileId || '',
+          thumbUrl: item.thumbUrl || item.imageUrl || item.thumbnailUrl || item.url || '',
+          thumbX: item.thumbX !== undefined ? item.thumbX : 50,
+          thumbY: item.thumbY !== undefined ? item.thumbY : 50,
+          thumbScale: item.thumbScale !== undefined ? item.thumbScale : 1,
+          thumbPresetName: item.thumbPresetName || item.name || ''
+        })).filter(item => item.thumbUrl);
+        window.__setlistRecentThumbItems = items;
+        if(!items.length){
+          grid.innerHTML = '<div class="thumb-recent-empty">앨범 썸네일 폴더에 최근 사진이 없어요.</div>';
+          return;
         }
-      };
-      reader.readAsDataURL(file);
+        grid.innerHTML = items.map((item, index)=>`
+          <div class="thumb-recent-card">
+            <div class="thumb-recent-image"><img src="${esc(item.thumbUrl)}" alt="최근 썸네일"></div>
+            <div class="thumb-recent-actions">
+              <button type="button" onclick="applyRecentSetlistThumb(${index}, false)">사진만 적용</button>
+              <button class="primary" type="button" onclick="applyRecentSetlistThumb(${index}, true)">사진 + 위치값</button>
+            </div>
+          </div>
+        `).join('');
+      }catch(err){
+        console.error('[SETLIST 최근 썸네일 오류]', err);
+        grid.innerHTML = '<div class="thumb-recent-empty">최근 썸네일을 불러오지 못했어요.<br>Worker action 연결을 확인해 주세요.</div>';
+      }
+    }
+
+    function closeThumbRecentModal(){
+      const modal = document.getElementById('thumbRecentModal');
+      if(modal) modal.classList.remove('open');
+    }
+
+    function applyRecentSetlistThumb(index, withPosition){
+      const items = window.__setlistRecentThumbItems || [];
+      const item = items[index];
+      if(!item) return;
+      const current = readSongThumbCropInputs();
+      applySongThumbToModal({
+        thumbUrl: item.thumbUrl,
+        thumbFileId: item.fileId,
+        thumbX: withPosition ? item.thumbX : current.x,
+        thumbY: withPosition ? item.thumbY : current.y,
+        thumbScale: withPosition ? item.thumbScale : current.scale,
+        thumbPresetName: item.thumbPresetName
+      }, {keepPosition: !withPosition});
+      closeThumbRecentModal();
     }
 
     function openSongModal(id){
@@ -3784,7 +3480,7 @@
         ...selectedCategories.filter(tag => tag !== '전체').slice(0, 2),
         ...selectedStatus.slice(0, 2)
       ]).slice(0, 5);
-      const thumbSrc = getSongThumbSrc(s);
+      const thumbSrc = songThumbSrc(s);
       const thumbImg = thumbSrc ? `<img src="${esc(thumbSrc)}" alt="${esc(s.title)} 썸네일 미리보기" style="${esc(thumbStyle(s))}">` : '';
 
       openModal('곡 카드 수정', `
@@ -3869,7 +3565,6 @@
               <div class="detail-admin-practice-head">
                 <h3>썸네일 설정</h3>
               </div>
-              <input class="thumb-hidden-input" id="songThumbEditingId" value="${esc(s.id || s.songId || '')}">
               <div class="song-card-thumb-box thumb-crop-stage" id="songThumbPreview"
                 onwheel="handleSongThumbWheel(event)"
                 onpointerdown="startSongThumbDrag(event)"
@@ -3877,21 +3572,19 @@
                 onpointerup="endSongThumbDrag(event)"
                 onpointercancel="endSongThumbDrag(event)"
                 onpointerleave="endSongThumbDrag(event)">${thumbImg || '썸네일 준비중'}</div>
-              <div class="song-thumb-tool-grid">
+              <div class="song-card-thumb-actions">
                 <label class="thumb-file-label">
                   사진 불러오기
-                  <input type="file" id="songThumbFile" accept="image/*" onchange="uploadSongThumbToDrive(this)">
+                  <input type="file" id="songThumbFile" accept="image/*" onchange="previewSongThumb(this)">
                 </label>
-                <button class="song-card-admin-tiny-btn" type="button" onclick="openRecentSongThumbModal()">최근 사진</button>
+                <button class="song-card-admin-tiny-btn" type="button" onclick="openThumbRecentModal()">최근 사진</button>
                 <button class="song-card-admin-tiny-btn" type="button" onclick="resetSongThumbCrop()">위치 초기화</button>
-                <button class="song-card-admin-tiny-btn danger" type="button" onclick="clearSongThumb()">사진 삭제</button>
+                <button class="song-card-admin-tiny-btn" type="button" onclick="resetSongThumbImage()">사진 삭제</button>
+                <div class="thumb-status" id="songThumbStatus">앨범 썸네일 폴더에 저장된 이미지를 사용합니다.</div>
               </div>
-              <div class="song-thumb-meta-box" id="songThumbMetaBox">썸네일 상태를 확인 중입니다.</div>
-              <div class="song-thumb-recent-panel" id="songThumbRecentPanel" aria-hidden="true"></div>
-              <input class="thumb-hidden-input" id="songThumb" value="${esc(s.thumb || '')}">
-              <input class="thumb-hidden-input" id="songThumbUrl" value="${esc(s.thumbUrl || s.thumb || '')}">
+              <input class="thumb-hidden-input" id="songThumb" value="${esc(thumbSrc || '')}">
+              <input class="thumb-hidden-input" id="songThumbUrl" value="${esc(s.thumbUrl || thumbSrc || '')}">
               <input class="thumb-hidden-input" id="songThumbFileId" value="${esc(s.thumbFileId || '')}">
-              <input class="thumb-hidden-input" id="songThumbStyle" value="${esc(s.thumbStyle || 'cover')}">
               <input class="thumb-hidden-input" id="songThumbPresetName" value="${esc(s.thumbPresetName || '')}">
               <input class="thumb-hidden-input" id="songThumbX" value="${crop.x}">
               <input class="thumb-hidden-input" id="songThumbY" value="${crop.y}">
@@ -3903,26 +3596,21 @@
         s.title=val('songTitle');
         s.subtitle=val('songSubtitle');
         s.desc=val('songDesc');
-        s.thumb=val('songThumb');
-        s.thumbUrl=val('songThumbUrl') || val('songThumb');
-        s.thumbFileId=val('songThumbFileId');
-        s.thumbStyle=val('songThumbStyle') || 'cover';
-        s.thumbPresetName=val('songThumbPresetName');
+        const nextThumbUrl = val('songThumbUrl') || val('songThumb');
+        s.thumb = nextThumbUrl;
+        s.thumbUrl = nextThumbUrl;
+        s.thumbFileId = val('songThumbFileId') || '';
+        s.thumbPresetName = val('songThumbPresetName') || '';
         const thumbCrop = readSongThumbCropInputs();
         s.thumbX = thumbCrop.x;
         s.thumbY = thumbCrop.y;
         s.thumbScale = thumbCrop.scale;
+        s.thumbStyle = '';
         delete s.thumbPosition;
         s.visibility=val('songVisibility') || 'public';
         s.categories=collectModalChipValues('songCategoryChips','songCategoryCustom');
         s.status=collectModalChipValues('songStatusChips','songStatusCustom');
-        s.thumb=val('songThumb');
-        s.thumbUrl=val('songThumbUrl') || val('songThumb');
-        s.thumbFileId=val('songThumbFileId');
-        s.thumbStyle=val('songThumbStyle') || 'cover';
-        s.thumbPresetName=val('songThumbPresetName');
       });
-      setTimeout(updateSongThumbMeta, 0);
     }
 
     function openDetailModal(){
@@ -4352,6 +4040,9 @@
 
     document.getElementById('modal').addEventListener('click', e=>{
       if(e.target.id === 'modal') closeModal();
+    });
+    document.getElementById('thumbRecentModal').addEventListener('click', e=>{
+      if(e.target.id === 'thumbRecentModal') closeThumbRecentModal();
     });
 
     initSetlistAdmin();
