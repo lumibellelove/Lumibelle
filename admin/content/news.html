@@ -1191,7 +1191,7 @@ document.getElementById(isOpen?'main':'locked').hidden=false;
 const state={news:[],schedules:[],inner:{}};
 function q(id){return document.getElementById(id)}
 function toast(msg='저장 완료'){const el=q('toast');el.textContent=msg;el.classList.add('show');clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>el.classList.remove('show'),1400)}
-function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};seedNewsIfEmpty();renderAll();setupScheduleLivePreview();renderSchedulePreview();renderScheduleAdminCalendar();renderScheduleWriteCalendar();initColorGrid();setupNewsImageInput();setupEditorToolbarSelectionGuard();setupNewsSelectionMemory();setupFontSizeSelectionGuard();setupNewsTableDelegation();setupTableDeleteKey();setupEditorDeleteShortcuts();updateDraftCount();openPanel(location.hash?.replace('#','')||'news');loadNewsFromApi()}
+function load(){try{Object.assign(state,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'))}catch(e){};state.news=[];renderAll();setupScheduleLivePreview();renderSchedulePreview();renderScheduleAdminCalendar();renderScheduleWriteCalendar();initColorGrid();setupNewsImageInput();setupEditorToolbarSelectionGuard();setupNewsSelectionMemory();setupFontSizeSelectionGuard();setupNewsTableDelegation();setupTableDeleteKey();setupEditorDeleteShortcuts();updateDraftCount();openPanel(location.hash?.replace('#','')||'news');loadNewsFromApi()}
 function persist(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
 function saveAll(show=false){saveInnerFromFields();persist();if(show)toast('전체 저장 완료')}
 function loadNewsFromApi(){

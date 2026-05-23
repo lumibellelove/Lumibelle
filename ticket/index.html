@@ -1105,7 +1105,7 @@
      <p>
       Shine Me UP : 루미벨 데뷔 라이브 예매 페이지입니다.
       <br/>
-      일반 사전 예약은 예매폼에서 신청하고, A/B 패키지는 굿즈 페이지에서 확인해 주세요.
+      일반 사전 예약은 예매폼에서 신청해 주세요.
      </p>
      <div class="status-row">
       <span class="status-pill strong">
@@ -1238,12 +1238,6 @@
          </h3>
          <ul>
           <li>
-           한정 패키지:
-           <strong>
-            6/15 마감 후 환불 불가
-           </strong>
-          </li>
-          <li>
            일반 예약:
            <strong>
             7/5(일) 23:59까지 가능
@@ -1278,22 +1272,6 @@
         </div>
        </div>
       </article>
-      <article class="package-card reveal">
-       <h2>
-        한정 패키지 안내
-       </h2>
-       <p class="ticket-note" style="margin-top:0">
-        데뷔 기념 한정 A/B 패키지는 굿즈 상세 페이지에서 구성과 안내를 확인한 뒤 구매할 수 있어요.
-       </p>
-       <div class="package-actions">
-        <a class="package-btn" href="../goods/packages/package-a.html">
-         A 패키지 보러가기
-        </a>
-        <a class="package-btn" href="../goods/packages/package-b.html">
-         B 패키지 보러가기
-        </a>
-       </div>
-      </article>
       <article class="ticket-card reveal">
        <h2>
         예매 정보 입력
@@ -1322,12 +1300,6 @@
        <div aria-label="티켓 종류 선택" class="ticket-options">
         <button class="ticket-option active" data-ticket="pre" type="button">
          사전 예약
-        </button>
-        <button class="ticket-option" data-ticket="s" type="button">
-         S 티켓
-        </button>
-        <button class="ticket-option" data-ticket="vip" type="button">
-         VIP 티켓
         </button>
        </div>
        <div class="ticket-divider"></div>
@@ -1428,9 +1400,7 @@
     }
 
     const ticketData = {
-      pre: { title: '사전 예약 티켓', desc: '일반 입장권 / 입금 확인 후 예약 확정', price: '₩10,000', formValue: '사전 예약 (10,000원)' },
-      s: { title: 'S 티켓', desc: '추후 공개 예정 / 특전 포함 예정', price: '추후 공개', formValue: 'S 티켓' },
-      vip: { title: 'VIP 티켓', desc: '추후 공개 예정 / 우선 입장 및 특전 예정', price: '추후 공개', formValue: 'VIP 티켓' }
+      pre: { title: '사전 예약 티켓', desc: '일반 입장권 / 입금 확인 후 예약 확정', price: '₩10,000', formValue: '사전 예약 (10,000원)' }
     };
 
     let selectedTicket = 'pre';
@@ -1438,7 +1408,7 @@
     document.querySelectorAll('.ticket-option').forEach((button) => {
       button.addEventListener('click', () => {
         selectedTicket = button.dataset.ticket;
-        const data = ticketData[selectedTicket];
+        const data = ticketData[selectedTicket] || ticketData.pre;
         document.getElementById('ticketDisplay').innerHTML = `<div><strong>${data.title}</strong><span>${data.desc}</span></div><b>${data.price}</b>`;
         document.querySelectorAll('.ticket-option').forEach((btn) => btn.classList.remove('active'));
         button.classList.add('active');
@@ -1857,19 +1827,9 @@
           return !!(name || price || desc || url);
         }) : [];
         const rawBenefitText = textOrEmpty(item.benefitText || memo.benefitText || '');
-        const benefitText = /^(패키지|package|한정 패키지|package 안내)$/i.test(rawBenefitText.trim()) ? '' : rawBenefitText;
+        const benefitText = /^(패키지|package|package 안내)$/i.test(rawBenefitText.trim()) ? '' : rawBenefitText;
 
-        if(packages.length){
-          const links = packages.map(function(pkg){
-            const name = textOrEmpty(pkg.name || '패키지');
-            const price = textOrEmpty(pkg.price);
-            const desc = textOrEmpty(pkg.description || pkg.benefit);
-            return '<div class="ticket-note" style="margin:8px 0 0"><strong>' + htmlEscapeTicket(name) + '</strong>' + (price ? ' · ' + htmlEscapeTicket(price) : '') + (desc ? '<br>' + htmlEscapeTicket(desc).replace(/\n/g,'<br>') : '') + '</div>';
-          }).join('');
-          card.hidden = false;
-          card.style.display = '';
-          card.innerHTML = '<h2>한정 패키지 안내</h2>' + links + '<div class="package-actions"><a class="package-btn" href="../goods/">굿즈 페이지 보러가기</a></div>';
-        }else if(benefitText){
+        if(benefitText){
           card.hidden = false;
           card.style.display = '';
           card.innerHTML = '<h2>혜택 안내</h2><p class="ticket-note" style="margin-top:0">' + htmlEscapeTicket(benefitText).replace(/\n/g,'<br>') + '</p>';

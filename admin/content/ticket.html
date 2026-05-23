@@ -1141,8 +1141,7 @@ textarea{color:#695261;background:rgba(255,255,255,.88);border-color:#f2cadd;box
 
           <section class="card">
             <h2>취소 및 환불</h2>
-            <textarea id="ruleRefund">한정 패키지: 6/15 마감 후 환불 불가
-일반 예약: 7/5(일) 23:59까지 가능
+            <textarea id="ruleRefund">일반 예약: 7/5(일) 23:59까지 가능
 정가 외 프리미엄 양도 적발 시 예약이 강제 취소될 수 있습니다.</textarea>
           </section>
 
@@ -1356,6 +1355,8 @@ let reservationModalInitialized=false;
 
 /* ── 리스트 상태 ── */
 let ticketList=[];        // 저장된 티켓 배열
+let ticketListLoading=false;
+let ticketListError='';
 let listFilter='all';
 let listPage=1;
 const LIST_PER_PAGE=15;
@@ -1385,11 +1386,51 @@ function escapeAttr(s){return escapeHtml(s).replace(/`/g,'&#96;')}
 /* ══════════════════════════════════════════
    LIST PANEL
 ══════════════════════════════════════════ */
+function normalizeTicketApiItemForList(item){
+  item=item||{};
+  let memo={};
+  try{memo=typeof item.memo==='string'?JSON.parse(item.memo||'{}'):(item.memo||{})}catch(e){memo={}}
+  const ticketStatus=memo.ticketStatus||item.ticketStatus||item.status||'soon';
+  return {
+    _localId:item.ticketId||('server-'+Date.now()),
+    _publishStatus:(item.status==='open'||item.status==='public')?'public':'draft',
+    _ticketStatus:ticketStatus,
+    _memo:memo,
+    _memoRaw:item.memo||'',
+    ticketId:item.ticketId||'',
+    title:item.title||'',
+    date:item.date||'',
+    time:item.time||'',
+    venue:item.venue||'',
+    status:item.status||'draft',
+    posterUrl:item.posterUrl||memo.posterUrl||'',
+    priceText:item.priceText||'',
+    noticeText:item.noticeText||''
+  };
+}
 function loadTicketList(){
-  try{ticketList=JSON.parse(localStorage.getItem(LIST_STORAGE_KEY)||'[]')}catch(e){ticketList=[]}
+  ticketList=[];
+  ticketListLoading=true;
+  ticketListError='';
+}
+async function loadTicketListFromApi(){
+  ticketListLoading=true;
+  ticketListError='';
+  renderList();
+  try{
+    const data=await api('adminListTicketItems',{});
+    ticketList=(data.items||[]).map(normalizeTicketApiItemForList);
+  }catch(err){
+    console.error('[티켓 목록 API 불러오기 실패]',err);
+    ticketList=[];
+    ticketListError='티켓 목록을 불러오지 못했어요. API/Worker 연결을 확인해 주세요.';
+  }finally{
+    ticketListLoading=false;
+    renderList();
+  }
 }
 function saveTicketListToStorage(){
-  localStorage.setItem(LIST_STORAGE_KEY,JSON.stringify(ticketList));
+  /* 서버/API 목록을 기준으로 사용합니다. localStorage 목록 저장 금지. */
 }
 function setListFilter(f){
   listFilter=f;
@@ -1470,6 +1511,18 @@ function previewTicketFromList(localId){
   $('previewModal').classList.add('open');
 }
 function renderList(){
+  if(ticketListLoading){
+    $('ticketListBox').innerHTML='<div class="empty-list">티켓 목록을 불러오는 중입니다...</div>';
+    $('listPagination').innerHTML='';
+    $('listCountBadge').textContent='0건';
+    return;
+  }
+  if(ticketListError){
+    $('ticketListBox').innerHTML='<div class="empty-list">'+escapeHtml(ticketListError)+'</div>';
+    $('listPagination').innerHTML='';
+    $('listCountBadge').textContent='0건';
+    return;
+  }
   const q=($('listSearchInput').value||'').trim().toLowerCase();
   let filtered=ticketList.filter(t=>{
     if(q && !((t.title||'').toLowerCase().includes(q)||(t.venue||'').toLowerCase().includes(q)))return false;
@@ -1578,7 +1631,7 @@ function resetWriteForm(){
   $('venueName').value='';
   $('venueDetail').value='';
   $('ruleEntry').value='줄 대기 시작: 13:20부터 가능합니다.\n13:20 이전 대기는 절대 불가합니다.\n입장 순서: 사전 예약 입장(13:50~) ▶ 현장 입장\n입장 시 닉네임 + 숫자 4자리가 일치해야 합니다.';
-  $('ruleRefund').value='한정 패키지: 6/15 마감 후 환불 불가\n일반 예약: 7/5(일) 23:59까지 가능\n정가 외 프리미엄 양도 적발 시 예약이 강제 취소될 수 있습니다.';
+  $('ruleRefund').value='일반 예약: 7/5(일) 23:59까지 가능\n정가 외 프리미엄 양도 적발 시 예약이 강제 취소될 수 있습니다.';
   $('ruleNotice').value='500ml 생수 외 모든 음식물, 주류, 꽃다발 반입은 불가합니다.\n코인락커는 500원짜리 동전만 사용 가능하며, 지폐에서 동전 교환은 불가합니다.\n아티스트 선물은 로비 스태프를 통해서만 전달 가능합니다.\n공연장 내 주차가 불가하므로 대중교통 이용을 권장합니다.';
   $('posterUrl').value='';
   $('ticketId').value='tk-'+Date.now();
@@ -2500,17 +2553,19 @@ async function saveTicket(){
   if(!payload.date){alert('날짜를 입력해 주세요.');return}
   if(ticketTranslations)payload.translations=ticketTranslations;
 
-  /* ── API 저장 시도 (실패 시 로컬만 저장) ── */
+  /* ── API 저장 시도: 실패하면 로컬 임시 저장으로 속이지 않고 중단 ── */
   let serverTicketId='';
   try{
     const data=await api('adminSaveTicketItem',payload);
     serverTicketId=data.item?.ticketId||'';
     if(serverTicketId)$('ticketId').value=serverTicketId;
   }catch(err){
-    console.warn('[API 저장 실패, 로컬만 저장]',err);
+    console.error('[API 저장 실패]',err);
+    alert('티켓 저장에 실패했어요. API/Worker 연결을 확인해 주세요.');
+    return;
   }
 
-  /* ── 리스트 저장 ── */
+  /* ── 리스트 즉시 반영용 로컬 객체. 최종 목록은 API에서 다시 불러옴 ── */
   const memo=JSON.parse(payload.memo||'{}');
   const localId=editingTicketLocalId||(serverTicketId||('local-'+Date.now()));
   const listItem={
@@ -2536,10 +2591,9 @@ async function saveTicket(){
   }else{
     ticketList.unshift(listItem);
   }
-  saveTicketListToStorage();
   showToast(editingTicketLocalId?'수정했어요.':'등록했어요.');
   backToList();
-  renderList();
+  await loadTicketListFromApi();
 }
 function saveDraftOnly(){
   document.querySelector('input[name="publishStatus"][value="draft"]').checked=true;
@@ -2618,6 +2672,7 @@ document.addEventListener('click',function(e){
 ══════════════════════════════════════════ */
 loadTicketList();
 renderList();
+loadTicketListFromApi();
 $('createdAt').value=today();
 $('ticketId').value='tk-'+Date.now();
 initTimeSelects();
