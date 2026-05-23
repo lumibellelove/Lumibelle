@@ -2887,195 +2887,68 @@ nav a.current span,nav a:hover span{ color:#d88dad !important; }
 
 
 /* =========================================================
-   Emergency mobile CPR 2026-05-23
-   기준: 공홈 index/news/schedule 모바일 폭 규칙만 이식
-   범위: 응원가이드 모바일 폭/카드/필터 가독성 보정, JS 변경 없음
+   Mobile header fold patch 2026-05-23
+   기준: 공홈 index.html 모바일 로고 클릭 MENU/CLOSE 방식 이식
+   범위: header/nav 접힘 동작 + 모바일 헤더 정리만, 응원가이드 JS/데이터 로직 변경 없음
    ========================================================= */
-@media (max-width: 780px){
-  html, body{ overflow-x:hidden; }
-
-  .top-lang-bar,
-  header .wrap.header-box,
-  main .wrap{
-    width:min(100% - 24px, 430px);
-    max-width:430px;
-    margin-left:auto;
-    margin-right:auto;
+@media (max-width:780px){
+  header nav{
+    display:none !important;
   }
 
-  .top-lang-bar{
-    justify-content:center;
-    padding:0;
-    margin-top:18px;
+  header.mobile-nav-open nav{
+    display:grid !important;
+  }
+
+  .logo a{
+    display:inline-flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+    -webkit-tap-highlight-color:transparent !important;
+  }
+
+  .logo a::after{
+    content:"MENU";
+    display:block;
+    margin-top:6px;
+    color:#d77ca7;
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.08em;
+    text-align:center;
+    opacity:.78;
+  }
+
+  header.mobile-nav-open .logo a::after{
+    content:"CLOSE";
   }
 
   .header-box{
-    min-height:auto;
-    padding:16px 14px;
-    gap:16px;
-    flex-direction:column;
-    align-items:stretch;
-    border-radius:24px;
+    padding-bottom:18px !important;
   }
 
-  .logo{ justify-content:center; }
-  .logo img{ height:88px; max-width:180px; }
-
-  nav{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
-    gap:12px;
-    width:100%;
-    margin:0;
+  header:not(.mobile-nav-open) .header-box{
+    padding:16px 14px 18px !important;
   }
 
-  nav a{
-    min-width:0;
-    min-height:76px;
-    padding:14px 10px;
-    border-radius:18px;
+  header.mobile-nav-open .header-box{
+    padding:16px 14px 20px !important;
   }
 
-  nav a b{ font-size:1.08em; }
-  nav a span{ font-size:.88em; }
-
-  .setlist-page{
-    padding-top:18px;
+  header.mobile-nav-open nav{
+    grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+    gap:12px !important;
+    width:100% !important;
+    margin:0 !important;
   }
 
-  .hero-card,
-  .hero-card--new,
-  .live-guide-section,
-  .live-guide-section--new,
-  .setlist-songs-section--new,
-  .guide-panel{
-    width:100%;
-    max-width:100%;
-    border-radius:24px;
+  header.mobile-nav-open nav a{
+    min-width:0 !important;
+    min-height:76px !important;
+    padding:14px 10px !important;
+    border-radius:18px !important;
   }
-
-  .hero-card,
-  .hero-card--new{
-    padding:32px 20px 28px;
-  }
-  .hero-card--new .hero-kicker,
-  .hero-kicker{
-    font-size:13px;
-    letter-spacing:.13em;
-  }
-  .hero-card--new .hero-title,
-  .hero-title{
-    font-size:56px;
-    line-height:.95;
-    transform:none;
-  }
-  .hero-card--new .hero-sub,
-  .hero-sub{
-    font-size:13px;
-    letter-spacing:.12em;
-  }
-  .hero-card--new .hero-desc,
-  .hero-desc{
-    font-size:14px;
-    line-height:1.75;
-  }
-
-  .live-guide-section,
-  .live-guide-section--new,
-  .setlist-songs-section--new{
-    padding:22px 16px 20px;
-  }
-
-  .live-guide-title,
-  .setlist-songs-head h2{
-    font-size:30px;
-  }
-  .live-guide-hint,
-  .setlist-songs-head p{
-    font-size:13.5px;
-    line-height:1.7;
-  }
-
-  .hero-guide-points{
-    grid-template-columns:1fr;
-    gap:12px;
-  }
-  .hero-guide-box,
-  .hero-guide-box--new{
-    min-height:auto;
-    padding:16px 14px;
-    border-radius:18px;
-  }
-
-  .setlist-filter-tabs{
-    display:grid;
-    grid-template-columns:repeat(2, minmax(0, 1fr));
-    gap:8px;
-    padding:10px;
-  }
-  .setlist-filter-btn{
-    width:100%;
-    min-height:42px;
-    padding:9px 10px;
-    font-size:12px;
-  }
-
-  .slider-shell{
-    width:100%;
-    max-width:430px;
-    margin:0 auto 22px;
-  }
-  .slider-viewport{
-    overflow:hidden;
-    padding-top:10px;
-    margin-top:-10px;
-  }
-  .song-grid{ gap:12px; }
-  .song-card,
-  .coming-soon-card{
-    flex-basis:100%;
-    min-height:390px;
-    padding:12px 12px 16px;
-    border-radius:22px;
-  }
-  .song-thumb{
-    height:210px;
-    border-radius:18px;
-  }
-  .song-card .song-title,
-  .coming-soon-card .song-title{
-    font-size:19px;
-  }
-  .song-card .song-en,
-  .coming-soon-card .song-en{
-    font-size:12px;
-  }
-  .song-card .song-desc,
-  .coming-soon-card .song-desc{
-    width:90%;
-    font-size:13.5px;
-  }
-
-  .guide-head,
-  .guide-body{
-    grid-template-columns:1fr;
-    padding:16px;
-    gap:14px;
-  }
-  .video-title,
-  .guide-info-title{
-    font-size:28px;
-  }
-}
-
-@media (max-width: 374px){
-  .top-lang-bar,
-  header .wrap.header-box,
-  main .wrap{
-    width:calc(100% - 18px);
-  }
-  .hero-card--new .hero-title,
-  .hero-title{ font-size:50px; }
-  .song-thumb{ height:190px; }
 }
 
 </style>
@@ -5125,6 +4998,41 @@ function triggerCardShineEffect(){
 
 
   <!-- Patch 7-76: TRACK · AUDIO 버튼 줄에 가이드 제보 버튼 추가 -->
+
+
+<script>
+  /* MOBILE LOGO MENU TOGGLE - synced from main index */
+  (function(){
+    const header = document.querySelector("header");
+    const logoLink = document.querySelector(".logo a");
+    const nav = document.querySelector("header nav");
+    if(!header || !logoLink || !nav) return;
+
+    if(!nav.id) nav.id = "mobileMainNav";
+    logoLink.setAttribute("aria-controls", nav.id);
+    logoLink.setAttribute("aria-expanded", "false");
+
+    function isMobile(){
+      return window.matchMedia("(max-width: 780px)").matches;
+    }
+
+    logoLink.addEventListener("click", function(event){
+      if(!isMobile()) return;
+      event.preventDefault();
+      const willOpen = !header.classList.contains("mobile-nav-open");
+      header.classList.toggle("mobile-nav-open", willOpen);
+      logoLink.setAttribute("aria-expanded", willOpen ? "true" : "false");
+    });
+
+    window.addEventListener("resize", function(){
+      if(!isMobile()){
+        header.classList.remove("mobile-nav-open");
+        logoLink.setAttribute("aria-expanded", "false");
+      }
+    });
+  })();
+</script>
+
 </body>
 </html>
 <!-- final patch: keep official audio box large, only center its contents -->
