@@ -458,7 +458,7 @@
       font-size:12px;
       font-weight:800;
     }
-    .song-thumb img{width:100%;height:100%;object-fit:cover;object-position:var(--thumb-x,50%) var(--thumb-y,50%);transform:scale(var(--thumb-scale,1));transform-origin:var(--thumb-x,50%) var(--thumb-y,50%)}
+    .song-thumb img{width:100%;height:100%;object-fit:cover;transform:scale(var(--thumb-scale,1));transform-origin:var(--thumb-x,50%) var(--thumb-y,50%)}
     .song-title{
       margin:0 0 10px;
       color:var(--text-strong);
@@ -751,72 +751,6 @@
     .tag{display:inline-flex;align-items:center;min-height:32px;padding:8px 13px;border-radius:999px;background:rgba(255,89,165,.08);color:var(--pink-deep);font-size:12px;font-weight:900}
     .guide-call{margin:0;color:#926f84;font-size:15px;line-height:1.8;font-weight:800}
 
-
-
-/* ===== SETLIST thumbnail recent popup: ticket/news working flow port ===== */
-.thumb-status{
-  width:100%;
-  margin:2px 0 0;
-  color:#a98298;
-  font-size:12px;
-  line-height:1.55;
-  font-weight:850;
-  text-align:center;
-}
-.thumb-recent-modal .modal-card{
-  width:min(980px,calc(100% - 36px));
-}
-.thumb-recent-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(132px,1fr));
-  gap:14px;
-}
-.thumb-recent-card{
-  border:1px solid var(--line);
-  border-radius:18px;
-  background:#fff;
-  overflow:hidden;
-  box-shadow:0 8px 18px rgba(255,120,178,.07);
-}
-.thumb-recent-image{
-  width:100%;
-  aspect-ratio:1/1;
-  background:#fff8fc;
-  overflow:hidden;
-}
-.thumb-recent-image img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-.thumb-recent-actions{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:7px;
-  padding:9px;
-}
-.thumb-recent-actions button{
-  min-height:32px;
-  border:1px solid #efb8d0;
-  border-radius:999px;
-  background:#fff;
-  color:#d26f9e;
-  font-size:11px;
-  font-weight:900;
-}
-.thumb-recent-actions button.primary{
-  border-color:transparent;
-  background:linear-gradient(180deg,#ff7fba,#ff59a5);
-  color:#fff;
-}
-.thumb-recent-empty{
-  padding:36px 14px;
-  text-align:center;
-  color:#a98298;
-  font-size:14px;
-  line-height:1.8;
-  font-weight:850;
-}
 
 
     /* modal */
@@ -2074,7 +2008,7 @@
   overflow:hidden;
 }
 .song-card-preview-visual{
-  height:248px;
+  height:265px;
   border-bottom:1px solid rgba(255,229,241,.95);
   background:#fff8fc;
   display:flex;
@@ -2117,7 +2051,7 @@
   line-height:1.3;
 }
 .song-card-thumb-box{
-  height:248px;
+  height:260px;
   margin-top:10px;
   border:1px solid var(--line);
   border-radius:22px;
@@ -2210,184 +2144,29 @@
 
 
 
-/* ===== CLEAN_TEST 0523: SETLIST thumbnail display CSS only =====
-   범위: 관리자 곡카드 수정 모달의 공홈 카드 미리보기 / 썸네일 편집 박스 / 최근 썸네일 팝업 UI.
-   금지: 저장 로직, 최근사진 로직, 믹스가이드, CHEER GUIDE, GAS/Worker/시트 수정 없음.
-   기준: 공홈 실제 4열 카드에서 측정한 썸네일 박스 약 262px × 248px.
-*/
-.song-card-admin-right{
-  grid-template-rows:auto auto;
-  align-self:start;
-  gap:12px;
+/* ===== ADMIN SETLIST CARD SIZE SYNC 0523 =====
+   관리자 목록 카드만 공홈 카드 비율에 가깝게 축소.
+   저장/썸네일/믹스가이드 로직 수정 없음. */
+.song-grid{
+  grid-template-columns:repeat(4,286px) !important;
+  justify-content:center !important;
+  align-items:stretch !important;
 }
-.song-card-admin-right .song-card-admin-panel{
-  padding:18px;
-  border-radius:22px;
-  box-shadow:0 8px 20px rgba(244,87,161,.055);
+.song-grid > .song-card{
+  width:286px !important;
+  max-width:286px !important;
+  min-height:430px !important;
 }
-.song-card-admin-right-title{
-  margin:0 0 12px;
-  font-size:16px;
-  line-height:1.25;
+.song-grid > .song-card .song-thumb{
+  height:248px !important;
+  flex:0 0 248px !important;
 }
-.song-card-preview-card{
-  width:286px;
-  max-width:100%;
-  padding:12px 12px 18px;
-  margin:0 auto;
-  border:1px solid var(--line);
-  border-radius:24px;
-  background:#fff;
-  overflow:hidden;
+@media(max-width:1180px){
+  .song-grid{grid-template-columns:repeat(2,286px) !important;}
 }
-.song-card-preview-visual{
-  width:100%;
-  height:248px;
-  margin:0 0 16px;
-  border:1px solid #f0dde8;
-  border-radius:20px;
-  background:#fff8fc;
-  overflow:hidden;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#c69aad;
-  font-size:13px;
-  font-weight:900;
-}
-.song-card-preview-info{
-  padding:0;
-  text-align:center;
-}
-.song-card-preview-title{
-  margin:0 0 10px;
-  color:var(--text-strong);
-  font-size:20px;
-  line-height:1.2;
-  font-weight:900;
-  letter-spacing:-.03em;
-}
-.song-card-preview-en{
-  margin:0 0 16px;
-  color:#d184a9;
-  font-size:13px;
-  line-height:1.35;
-  font-weight:900;
-  letter-spacing:.12em;
-}
-.thumb-sync-note{
-  width:min(300px,100%);
-  margin:0 auto 10px;
-  color:#a98298;
-  font-size:12px;
-  line-height:1.65;
-  font-weight:850;
-  text-align:center;
-}
-.song-card-thumb-box{
-  width:262px;
-  max-width:100%;
-  height:248px;
-  margin:8px auto 0;
-  border:1px solid #f0dde8;
-  border-radius:20px;
-  background:#fff8fc;
-  overflow:hidden;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#c69aad;
-  font-size:13px;
-  font-weight:900;
-}
-.song-card-preview-visual img,
-.song-card-thumb-box img,
-.song-thumb img,
-.thumb-crop-stage img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  object-position:var(--thumb-x,50%) var(--thumb-y,50%);
-  transform:scale(var(--thumb-scale,1));
-  transform-origin:var(--thumb-x,50%) var(--thumb-y,50%);
-  user-select:none;
-  pointer-events:none;
-}
-.song-card-thumb-box.thumb-crop-stage{
-  touch-action:none;
-  cursor:grab;
-}
-.song-card-thumb-box.thumb-crop-stage:active{cursor:grabbing}
-.song-card-thumb-actions{
-  width:min(300px,100%);
-  margin:14px auto 0;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  justify-content:stretch;
-}
-.song-card-thumb-actions .song-card-admin-tiny-btn,
-.song-card-thumb-actions .thumb-file-label{
-  width:100%;
-  min-height:34px;
-  padding:0 12px;
-  font-size:12px;
-  line-height:1;
-  box-shadow:none;
-}
-.song-card-thumb-actions .thumb-action-primary{
-  border-color:#ff9fca;
-  background:linear-gradient(180deg,#fff7fb,#fff0f7);
-  color:#ff59a5;
-}
-.song-card-thumb-actions .thumb-action-reset{
-  background:#fffafd;
-  color:#b67894;
-}
-.song-card-thumb-actions .thumb-action-danger{
-  background:#fff;
-  color:#b88a9f;
-  border-color:#f0d5e2;
-}
-.song-card-thumb-actions .thumb-status{
-  grid-column:1 / -1;
-  margin:2px 0 0;
-  padding:8px 10px;
-  border:1px dashed #f2cfe0;
-  border-radius:14px;
-  background:#fffafd;
-  font-size:11px;
-  line-height:1.55;
-}
-.thumb-recent-modal .modal-card{
-  width:min(1040px,calc(100% - 36px));
-}
-.thumb-recent-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(148px,148px));
-  justify-content:start;
-  gap:16px;
-}
-.thumb-recent-card{
-  box-shadow:none;
-  border-radius:18px;
-}
-.thumb-recent-actions{
-  gap:6px;
-  padding:8px;
-}
-.thumb-recent-actions button{
-  min-height:30px;
-  font-size:10.5px;
-  letter-spacing:-.02em;
-}
-.thumb-recent-actions button.default{
-  background:#fff8fc;
-  color:#b67894;
-}
-@media(max-width:900px){
-  .song-card-preview-card{width:min(286px,100%)}
-  .song-card-thumb-box{width:min(262px,100%)}
+@media(max-width:780px){
+  .song-grid{grid-template-columns:minmax(0,286px) !important;}
+  .song-grid > .song-card{width:min(286px,100%) !important;max-width:286px !important;}
 }
 
 </style>
@@ -2457,27 +2236,12 @@
     </div>
   </div>
 
-
-
-  <div class="modal-overlay thumb-recent-modal" id="thumbRecentModal">
-    <div class="modal-card">
-      <div class="modal-head">
-        <div class="modal-title">최근 앨범 썸네일</div>
-        <button class="modal-close" type="button" onclick="closeThumbRecentModal()">×</button>
-      </div>
-      <div class="modal-body">
-        <div class="thumb-recent-grid" id="thumbRecentGrid"></div>
-      </div>
-    </div>
-  </div>
-
   <div class="setlist-translate-toast" id="setlistTranslateToast" aria-live="polite"></div>
 
   <script>
     const STORE_KEY = 'lumibelle_admin_setlist_draft_v1';
     const SETLIST_API_URL = 'https://lumi-news-api.lumibelle-love.workers.dev';
     const SETLIST_TRANSLATE_API_URL = window.LUMIBELLE_SETLIST_API_URL || window.LUMIBELLE_CONTENT_API_URL || window.CONTENT_DB_API_URL || SETLIST_API_URL;
-    const SETLIST_THUMB_FOLDER_ID = '14uLxp8zKceCevy0glR1b7Nz8OzGhowR_';
 
     const defaultData = {
       hero:{
@@ -2635,20 +2399,7 @@
     function sanitizeSetlistDataForAdmin(input){
       const target = input && typeof input === 'object' ? input : structuredClone(defaultData);
       if(Array.isArray(target.songs)){
-        target.songs = target.songs.filter(song => !isLegacySampleSong(song)).map(song => {
-          const thumbUrl = String(song.thumbUrl || song.thumb || '').trim();
-          const thumbFileId = String(song.thumbFileId || '').trim();
-          return Object.assign(song, {
-            thumb: thumbUrl,
-            thumbUrl,
-            thumbFileId,
-            thumbX: clampNumber(song.thumbX, 0, 100, 50),
-            thumbY: clampNumber(song.thumbY ?? song.thumbPosition, 0, 100, 50),
-            thumbScale: clampNumber(song.thumbScale, 1, 2.5, 1),
-            thumbStyle: String(song.thumbStyle || '').trim(),
-            thumbPresetName: String(song.thumbPresetName || '').trim()
-          });
-        });
+        target.songs = target.songs.filter(song => !isLegacySampleSong(song));
       }
       if(Array.isArray(target.guides)){
         target.guides = target.guides.filter(guide => String(guide?.songId || '').trim().toLowerCase() !== 'canaria');
@@ -2934,10 +2685,6 @@
       return `object-position:${crop.x}% ${crop.y}%;--thumb-x:${crop.x}%;--thumb-y:${crop.y}%;--thumb-scale:${crop.scale};`;
     }
 
-    function songThumbSrc(song){
-      return String(song?.thumbUrl || song?.thumb || '').trim();
-    }
-
     function render(){
       renderHero();
       renderLiveGuide();
@@ -3045,7 +2792,7 @@
           ${data.selectedSongId===s.id ? '<div class="song-card-badge">NOW</div>' : ''}
           ${songVisibility(s)!=='public' ? `<div class="song-visibility-badge ${data.selectedSongId===s.id?'under-now':''} ${esc(songVisibility(s))}">${esc(visibilityLabel(songVisibility(s)))}</div>` : ''}
           <button class="song-edit" type="button" onclick="event.stopPropagation();openSongModal('${esc(s.id)}')">수정</button>
-          <div class="song-thumb">${songThumbSrc(s) ? `<img src="${esc(songThumbSrc(s))}" alt="${esc(s.title)} 썸네일" style="${esc(thumbStyle(s))}">` : '썸네일 준비중'}</div>
+          <div class="song-thumb">${s.thumb ? `<img src="${esc(s.thumb)}" alt="${esc(s.title)} 썸네일" style="${esc(thumbStyle(s))}">` : '썸네일 준비중'}</div>
           <h3 class="song-title">${esc(s.title)}</h3>
           <p class="song-en">${esc(s.subtitle)}</p>
           <p class="song-desc">${nl(cardDesc(s))}</p>
@@ -3504,263 +3251,20 @@
       if(songThumbDragState && songThumbDragState.pointerId === event.pointerId) songThumbDragState = null;
     }
 
-    function readFileAsDataUrl(file){
-      return new Promise((resolve, reject)=>{
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result || ''));
-        reader.onerror = () => reject(new Error('fileReadFailed'));
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function setSongThumbStatus(message){
-      const el = document.getElementById('songThumbStatus');
-      if(el) el.textContent = message || '';
-    }
-
-    function applySongThumbToModal(item, options){
-      item = item || {};
-      options = options || {};
-      const thumbUrl = String(item.thumbUrl || item.imageUrl || item.thumbnailUrl || item.url || item.thumb || '').trim();
-      const fileId = String(item.thumbFileId || item.fileId || '').trim();
-      if(!thumbUrl) return;
-      const keepPosition = !!options.keepPosition;
-      const crop = keepPosition ? readSongThumbCropInputs() : {
-        x: item.thumbX !== undefined ? item.thumbX : 50,
-        y: item.thumbY !== undefined ? item.thumbY : 50,
-        scale: item.thumbScale !== undefined ? item.thumbScale : 1
-      };
-      const hidden = document.getElementById('songThumb');
-      const hiddenUrl = document.getElementById('songThumbUrl');
-      const hiddenFile = document.getElementById('songThumbFileId');
-      const hiddenPreset = document.getElementById('songThumbPresetName');
-      if(hidden) hidden.value = thumbUrl;
-      if(hiddenUrl) hiddenUrl.value = thumbUrl;
-      if(hiddenFile) hiddenFile.value = fileId;
-      if(hiddenPreset) hiddenPreset.value = String(item.thumbPresetName || item.name || '');
-      writeSongThumbCropInputs(crop);
-      const style = `object-position:${crop.x}% ${crop.y}%;--thumb-x:${crop.x}%;--thumb-y:${crop.y}%;--thumb-scale:${crop.scale};`;
-      const imgHtml = `<img src="${esc(thumbUrl)}" alt="썸네일 미리보기" style="${esc(style)}">`;
-      document.querySelectorAll('#songThumbPreview, .song-thumb-sync').forEach(box => { box.innerHTML = imgHtml; });
-      setSongThumbStatus(fileId ? 'Drive 썸네일이 연결되었어요.' : '썸네일이 적용되었어요.');
-    }
-
-    async function previewSongThumb(input){
+    function previewSongThumb(input){
       const file = input.files && input.files[0];
       if(!file || !file.type || !file.type.startsWith('image/')) return;
-      try{
-        setSongThumbStatus('Drive에 업로드 중입니다...');
-        const dataUrl = await readFileAsDataUrl(file);
-        const uploaded = await callSetlistApi('adminUploadSetlistThumb', {
-          fileName: file.name || ('setlist-thumb-' + Date.now() + '.png'),
-          mimeType: file.type || 'image/png',
-          data: dataUrl,
-          folderId: SETLIST_THUMB_FOLDER_ID
-        });
-        if(!uploaded || uploaded.ok === false){
-          throw new Error((uploaded && (uploaded.message || uploaded.error)) || 'uploadFailed');
-        }
-        applySongThumbToModal({
-          thumbUrl: uploaded.thumbUrl || uploaded.imageUrl || uploaded.thumbnailUrl || uploaded.url,
-          thumbFileId: uploaded.thumbFileId || uploaded.fileId,
-          thumbX: 50,
-          thumbY: 50,
-          thumbScale: 1,
-          thumbPresetName: uploaded.name || file.name || ''
-        });
-      }catch(err){
-        console.error('[SETLIST 썸네일 업로드 오류]', err);
-        setSongThumbStatus('업로드 실패 · Apps Script/Worker 연결을 확인해 주세요.');
-        alert('썸네일 업로드에 실패했어요.\n오류: ' + (err && err.message ? err.message : err));
-      }finally{
-        if(input) input.value = '';
-      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = String(reader.result || '');
+        const hidden = document.getElementById('songThumb');
+        const imgHtml = `<img src="${result}" alt="썸네일 미리보기">`;
+        if(hidden) hidden.value = result;
+        document.querySelectorAll('#songThumbPreview, .song-thumb-sync').forEach(box => { box.innerHTML = imgHtml; });
+        writeSongThumbCropInputs({x:50, y:50, scale:1});
+      };
+      reader.readAsDataURL(file);
     }
-
-    function resetSongThumbImage(){
-      if(!confirm('이 곡 카드의 썸네일 연결을 제거할까요?\nDrive 원본 파일은 삭제하지 않습니다.')) return;
-      ['songThumb','songThumbUrl','songThumbFileId','songThumbPresetName'].forEach(id=>{
-        const el = document.getElementById(id);
-        if(el) el.value = '';
-      });
-      writeSongThumbCropInputs({x:50, y:50, scale:1});
-      document.querySelectorAll('#songThumbPreview, .song-thumb-sync').forEach(box => { box.innerHTML = '썸네일 준비중'; });
-      setSongThumbStatus('썸네일 연결을 제거했어요. 저장을 누르면 반영됩니다.');
-    }
-
-    async function openThumbRecentModal(){
-      const modal = document.getElementById('thumbRecentModal');
-      const grid = document.getElementById('thumbRecentGrid');
-      if(!modal || !grid) return;
-      modal.classList.add('open');
-      grid.innerHTML = '<div class="thumb-recent-empty">최근 앨범 썸네일을 불러오는 중입니다...</div>';
-      try{
-        const response = await callSetlistApi('adminListSetlistThumbs', {folderId:SETLIST_THUMB_FOLDER_ID, limit:48});
-        if(!response || response.ok === false) throw new Error((response && (response.message || response.error)) || 'listFailed');
-        const localCropMap = buildLocalSetlistThumbCropMap();
-        const items = (response.items || response.images || []).map(item => applyLocalCropToRecentThumbItem({
-          fileId: item.fileId || item.thumbFileId || '',
-          thumbFileId: item.thumbFileId || item.fileId || '',
-          thumbUrl: item.thumbUrl || item.imageUrl || item.thumbnailUrl || item.url || '',
-          thumbnailUrl: item.thumbnailUrl || item.thumbUrl || item.imageUrl || item.url || '',
-          url: item.url || item.thumbUrl || item.imageUrl || item.thumbnailUrl || '',
-          thumbX: item.thumbX !== undefined ? item.thumbX : 50,
-          thumbY: item.thumbY !== undefined ? item.thumbY : 50,
-          thumbScale: item.thumbScale !== undefined ? item.thumbScale : 1,
-          thumbPresetName: item.thumbPresetName || item.name || ''
-        }, localCropMap)).filter(item => item.thumbUrl);
-        window.__setlistRecentThumbItems = items;
-        if(!items.length){
-          grid.innerHTML = '<div class="thumb-recent-empty">앨범 썸네일 폴더에 최근 사진이 없어요.</div>';
-          return;
-        }
-        grid.innerHTML = items.map((item, index)=>`
-          <div class="thumb-recent-card">
-            <div class="thumb-recent-image"><img src="${esc(item.thumbUrl)}" alt="최근 썸네일"></div>
-            <div class="thumb-recent-actions">
-              <button type="button" onclick="applyRecentSetlistThumb(${index}, 'image')">사진만 적용</button>
-              <button class="default" type="button" onclick="applyRecentSetlistThumb(${index}, 'default')">기본 위치로 적용</button>
-              <button class="primary" type="button" onclick="applyRecentSetlistThumb(${index}, 'saved')">저장 위치 적용</button>
-            </div>
-          </div>
-        `).join('');
-      }catch(err){
-        console.error('[SETLIST 최근 썸네일 오류]', err);
-        grid.innerHTML = '<div class="thumb-recent-empty">최근 썸네일을 불러오지 못했어요.<br>Worker action 연결을 확인해 주세요.</div>';
-      }
-    }
-
-    function closeThumbRecentModal(){
-      const modal = document.getElementById('thumbRecentModal');
-      if(modal) modal.classList.remove('open');
-    }
-
-function thumbRecentKey(value){
-      return String(value || '').trim();
-    }
-
-    function buildLocalSetlistThumbCropMap(){
-  const map = {};
-
-  const putById = (fileId, crop, source) => {
-    const key = thumbRecentKey(fileId);
-    if(!key) return;
-    if(map[key] && map[key].source === 'modal') return;
-    map[key] = {
-      thumbX: clampNumber(crop?.thumbX ?? crop?.x, 0, 100, 50),
-      thumbY: clampNumber(crop?.thumbY ?? crop?.y, 0, 100, 50),
-      thumbScale: clampNumber(crop?.thumbScale ?? crop?.scale, 1, 2.5, 1),
-      source
-    };
-  };
-
-  const putByUrl = (url, crop, source) => {
-    const key = thumbRecentKey(url);
-    if(!key) return;
-    if(map[key]) return;
-    map[key] = {
-      thumbX: clampNumber(crop?.thumbX ?? crop?.x, 0, 100, 50),
-      thumbY: clampNumber(crop?.thumbY ?? crop?.y, 0, 100, 50),
-      thumbScale: clampNumber(crop?.thumbScale ?? crop?.scale, 1, 2.5, 1),
-      source
-    };
-  };
-
-  // 1순위: 현재 모달에서 편집 중인 값
-  const modalCrop = readSongThumbCropInputs();
-  const modalFileId = thumbRecentKey(document.getElementById('songThumbFileId')?.value);
-  const modalUrl = thumbRecentKey(document.getElementById('songThumbUrl')?.value || document.getElementById('songThumb')?.value);
-  if(modalFileId) putById(modalFileId, modalCrop, 'modal');
-  if(modalUrl) putByUrl(modalUrl, modalCrop, 'modal');
-
-  // 2순위: data.songs 전체
-  (data.songs || []).forEach(song => {
-    const crop = getThumbCrop(song);
-    if(song.thumbFileId) putById(song.thumbFileId, crop, 'song');
-    if(song.thumbUrl) putByUrl(song.thumbUrl, crop, 'song');
-    if(song.thumb && song.thumb !== song.thumbUrl) putByUrl(song.thumb, crop, 'song');
-  });
-
-  return map;
-}
-
-    function applyLocalCropToRecentThumbItem(item, localCropMap){
-      const keys = [item.fileId, item.thumbFileId, item.thumbUrl, item.thumbnailUrl, item.url].map(thumbRecentKey).filter(Boolean);
-      const local = keys.map(key => localCropMap[key]).find(Boolean);
-      if(!local) return item;
-      return Object.assign({}, item, {
-        thumbX: local.thumbX,
-        thumbY: local.thumbY,
-        thumbScale: local.thumbScale,
-        thumbPresetName: item.thumbPresetName || local.source || ''
-      });
-    }
-
-        function applyRecentSetlistThumb(index, mode){
-  const items = window.__setlistRecentThumbItems || [];
-  const item = items[index];
-  if(!item) return;
-
-  const selectedMode = mode === true ? 'saved' : (mode || 'image');
-  const currentCrop = readSongThumbCropInputs();
-
-  let cropX, cropY, cropScale;
-
-  if(selectedMode === 'default'){
-    cropX = 50; cropY = 50; cropScale = 1;
-  } else if(selectedMode === 'image'){
-    cropX = currentCrop.x; cropY = currentCrop.y; cropScale = currentCrop.scale;
-  } else {
-    // 'saved': item 위치값 우선, 없으면 현재 모달값 유지
-    const hasX = item.thumbX !== undefined && item.thumbX !== null;
-    const hasY = item.thumbY !== undefined && item.thumbY !== null;
-    const hasScale = item.thumbScale !== undefined && item.thumbScale !== null;
-    cropX = hasX ? Number(item.thumbX) : currentCrop.x;
-    cropY = hasY ? Number(item.thumbY) : currentCrop.y;
-    cropScale = hasScale ? Number(item.thumbScale) : currentCrop.scale;
-  }
-
-  cropX = clampNumber(cropX, 0, 100, 50);
-  cropY = clampNumber(cropY, 0, 100, 50);
-  cropScale = clampNumber(cropScale, 1, 2.5, 1);
-
-  const xInput = document.getElementById('songThumbX');
-  const yInput = document.getElementById('songThumbY');
-  const scaleInput = document.getElementById('songThumbScale');
-  if(xInput) xInput.value = cropX;
-  if(yInput) yInput.value = cropY;
-  if(scaleInput) scaleInput.value = cropScale;
-
-  // thumbnailUrl fallback 포함
-  const thumbUrl = String(item.thumbUrl || item.thumbnailUrl || item.url || '').trim();
-  const fileId = String(item.fileId || item.thumbFileId || '').trim();
-
-  const hidden = document.getElementById('songThumb');
-  const hiddenUrl = document.getElementById('songThumbUrl');
-  const hiddenFile = document.getElementById('songThumbFileId');
-  const hiddenPreset = document.getElementById('songThumbPresetName');
-  if(hidden) hidden.value = thumbUrl;
-  if(hiddenUrl) hiddenUrl.value = thumbUrl;
-  if(hiddenFile) hiddenFile.value = fileId;
-  if(hiddenPreset) hiddenPreset.value = String(item.thumbPresetName || '');
-
-  applySongThumbCropPreview();
-  const imgHtml = thumbUrl
-    ? `<img src="${thumbUrl.replace(/"/g,'&quot;')}" alt="썸네일 미리보기">`
-    : '';
-  document.querySelectorAll('#songThumbPreview, .song-thumb-sync').forEach(box => {
-    box.innerHTML = imgHtml;
-  });
-  applySongThumbCropPreview();
-
-  setSongThumbStatus(
-    selectedMode === 'saved'  ? '저장 위치로 적용했어요.' :
-    selectedMode === 'default'? '기본 위치로 적용했어요.' :
-                                '사진만 적용했어요.'
-  );
-
-  closeThumbRecentModal();
-}
 
     function openSongModal(id){
       const s=data.songs.find(x=>x.id===id);
@@ -3778,8 +3282,7 @@ function thumbRecentKey(value){
         ...selectedCategories.filter(tag => tag !== '전체').slice(0, 2),
         ...selectedStatus.slice(0, 2)
       ]).slice(0, 5);
-      const thumbSrc = songThumbSrc(s);
-      const thumbImg = thumbSrc ? `<img src="${esc(thumbSrc)}" alt="${esc(s.title)} 썸네일 미리보기" style="${esc(thumbStyle(s))}">` : '';
+      const thumbImg = s.thumb ? `<img src="${esc(s.thumb)}" alt="${esc(s.title)} 썸네일 미리보기" style="${esc(thumbStyle(s))}">` : '';
 
       openModal('곡 카드 수정', `
         <div class="song-card-admin-modal">
@@ -3863,7 +3366,6 @@ function thumbRecentKey(value){
               <div class="detail-admin-practice-head">
                 <h3>썸네일 설정</h3>
               </div>
-              <p class="thumb-sync-note">위 공홈 카드와 같은 썸네일 비율입니다. 드래그로 위치, 휠로 확대/축소해 주세요.</p>
               <div class="song-card-thumb-box thumb-crop-stage" id="songThumbPreview"
                 onwheel="handleSongThumbWheel(event)"
                 onpointerdown="startSongThumbDrag(event)"
@@ -3872,19 +3374,13 @@ function thumbRecentKey(value){
                 onpointercancel="endSongThumbDrag(event)"
                 onpointerleave="endSongThumbDrag(event)">${thumbImg || '썸네일 준비중'}</div>
               <div class="song-card-thumb-actions">
-                <button class="song-card-admin-tiny-btn thumb-action-primary" type="button" onclick="openThumbRecentModal()">최근 썸네일</button>
-                <label class="thumb-file-label thumb-action-secondary">
-                  직접 업로드
+                <label class="thumb-file-label">
+                  사진 선택
                   <input type="file" id="songThumbFile" accept="image/*" onchange="previewSongThumb(this)">
                 </label>
-                <button class="song-card-admin-tiny-btn thumb-action-reset" type="button" onclick="resetSongThumbCrop()">기본 위치</button>
-                <button class="song-card-admin-tiny-btn thumb-action-danger" type="button" onclick="resetSongThumbImage()">사진 삭제</button>
-                <div class="thumb-status" id="songThumbStatus">앨범 썸네일 폴더에 저장된 이미지를 사용합니다.</div>
+                <button class="song-card-admin-tiny-btn" type="button" onclick="resetSongThumbCrop()">위치 초기화</button>
               </div>
-              <input class="thumb-hidden-input" id="songThumb" value="${esc(thumbSrc || '')}">
-              <input class="thumb-hidden-input" id="songThumbUrl" value="${esc(s.thumbUrl || thumbSrc || '')}">
-              <input class="thumb-hidden-input" id="songThumbFileId" value="${esc(s.thumbFileId || '')}">
-              <input class="thumb-hidden-input" id="songThumbPresetName" value="${esc(s.thumbPresetName || '')}">
+              <input class="thumb-hidden-input" id="songThumb" value="${esc(s.thumb || '')}">
               <input class="thumb-hidden-input" id="songThumbX" value="${crop.x}">
               <input class="thumb-hidden-input" id="songThumbY" value="${crop.y}">
               <input class="thumb-hidden-input" id="songThumbScale" value="${crop.scale}">
@@ -3895,16 +3391,11 @@ function thumbRecentKey(value){
         s.title=val('songTitle');
         s.subtitle=val('songSubtitle');
         s.desc=val('songDesc');
-        const nextThumbUrl = val('songThumbUrl') || val('songThumb');
-        s.thumb = nextThumbUrl;
-        s.thumbUrl = nextThumbUrl;
-        s.thumbFileId = val('songThumbFileId') || '';
-        s.thumbPresetName = val('songThumbPresetName') || '';
+        s.thumb=val('songThumb');
         const thumbCrop = readSongThumbCropInputs();
         s.thumbX = thumbCrop.x;
         s.thumbY = thumbCrop.y;
         s.thumbScale = thumbCrop.scale;
-        s.thumbStyle = '';
         delete s.thumbPosition;
         s.visibility=val('songVisibility') || 'public';
         s.categories=collectModalChipValues('songCategoryChips','songCategoryCustom');
@@ -4339,9 +3830,6 @@ function thumbRecentKey(value){
 
     document.getElementById('modal').addEventListener('click', e=>{
       if(e.target.id === 'modal') closeModal();
-    });
-    document.getElementById('thumbRecentModal').addEventListener('click', e=>{
-      if(e.target.id === 'thumbRecentModal') closeThumbRecentModal();
     });
 
     initSetlistAdmin();
