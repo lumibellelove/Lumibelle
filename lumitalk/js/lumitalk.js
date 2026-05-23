@@ -306,6 +306,21 @@ function openGallery(id,returnTo="info"){
 }
 
 function openViewer(id,index,returnTo="gallery"){
+  if(id==="__myProfileCore"){
+    currentRoomId=id; currentGalleryIndex=index; viewerReturn=returnTo;
+    fromMyProfileViewer=false;
+    const items=galleryItems.__myProfileCore||[];
+    const item=items[index]||items[0];
+    if(!item) return;
+    $("#viewerMember").textContent=returnTo==="mySavedGallery" ? "소장 사진" : "율";
+    $("#viewerDate").textContent=returnTo==="mySavedGallery" ? `소장 사진 · ${item.date||""}` : "내 루미 프로필 · LB-0002";
+    $("#viewerPhotoImg").src=item.src;
+    $("#viewerCaption").textContent=item.caption||"내 루미 프로필";
+    $("#viewerIndex").textContent=`${index+1} / ${items.length}`;
+    $("#photoViewerScreen").classList.remove("ui-hidden");
+    showScreen("photoViewerScreen");
+    return;
+  }
   currentRoomId=id; currentGalleryIndex=index; viewerReturn=returnTo;
   const room=getRoom(id), items=galleryItems[id]||galleryItems.lulu, item=items[index]||items[0];
   $("#viewerMember").textContent=room.short;
@@ -374,6 +389,13 @@ function moveMyViewer(dir){
 }
 
 function moveViewer(dir){
+  if(currentRoomId==="__myProfileCore"){
+    const items=galleryItems.__myProfileCore||[];
+    if(!items.length) return;
+    currentGalleryIndex=(currentGalleryIndex+dir+items.length)%items.length;
+    openViewer("__myProfileCore",currentGalleryIndex,viewerReturn);
+    return;
+  }
   if(viewerReturn==="myProfile" || viewerReturn==="mySavedGallery" || fromMyProfileViewer){
     moveMyViewer(dir);
     return;
@@ -384,6 +406,7 @@ function moveViewer(dir){
 }
 
 function backFromViewer(){
+  if(currentRoomId==="__myProfileCore"){openMyProfile();return;}
   if(viewerReturn==="room"){renderRoom(currentRoomId);showScreen("roomScreen");return;}
   if(viewerReturn==="join"){renderJoin(currentRoomId);showScreen("joinScreen");return;}
   if(viewerReturn==="join-profile"){renderProfile(currentRoomId);showScreen("profileScreen");return;}
@@ -650,758 +673,27 @@ renderRoom(currentRoomId);
 bindEvents();
 
 
-/* Patch 22 — myProfile viewer return guard */
+
+
+/* Patch 26c — clean mobile stability */
 (function(){
-  function safeShowMyProfile(){
-    // Do not mutate currentRoomId here.
-    const sheet = document.getElementById("myProfileSheet");
-    if (typeof showScreen === "function") {
-      showScreen("myProfileSheet");
-    } else if (sheet) {
-      document.querySelectorAll(".screen").forEach((el)=>el.classList.add("hidden"));
-      sheet.classList.remove("hidden");
-    }
-    if (typeof renderMySavedSections === "function") renderMySavedSections();
-    if (typeof bindMyProfileEvents === "function") bindMyProfileEvents();
-    if (window.bindMyProfilePhotos) window.bindMyProfilePhotos();
-  }
-
-  window.openMyProfileSafe = safeShowMyProfile;
-
-  // My profile button should preserve current room and open only my profile.
-  const myBtn = document.getElementById("myProfileBtn");
-  if (myBtn) {
-    myBtn.onclick = (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      if (typeof currentRoomId !== "undefined" && currentRoomId && !String(currentRoomId).startsWith("__my")) {
-        lastRoomIdBeforeMyProfile = currentRoomId;
-      }
-      safeShowMyProfile();
-    };
-  }
-
-  function openMyProfileViewer(src, caption, indexText){
-    fromMyProfileViewer = true;
-    viewerReturn = "myProfile";
-    const prevRoom = (typeof currentRoomId !== "undefined" && currentRoomId && !String(currentRoomId).startsWith("__my"))
-      ? currentRoomId
-      : lastRoomIdBeforeMyProfile;
-    lastRoomIdBeforeMyProfile = prevRoom || "lulu";
-
-    const member = document.getElementById("viewerMember");
-    const date = document.getElementById("viewerDate");
-    const img = document.getElementById("viewerPhotoImg");
-    const cap = document.getElementById("viewerCaption");
-    const idx = document.getElementById("viewerIndex");
-
-    if (member) member.textContent = "율";
-    if (date) date.textContent = "내 루미 프로필 · LB-0002";
-    if (img) img.src = src;
-    if (cap) cap.textContent = caption || "내 루미 프로필 사진";
-    if (idx) idx.textContent = indexText || "1 / 1";
-
-    if (typeof showScreen === "function") showScreen("photoViewerScreen");
-    else document.getElementById("photoViewerScreen")?.classList.remove("hidden");
-
-    // Restore channel state immediately; my profile viewer must not own currentRoomId.
-    currentRoomId = lastRoomIdBeforeMyProfile || "lulu";
-  }
-
-  // Hero background tap
-  const heroTap = document.getElementById("myHeroTapBtn");
-  if (heroTap) {
-    heroTap.onclick = (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      const src = heroTap.dataset.src || "./assets/lulu_cover.png";
-      openMyProfileViewer(src, "내 루미 프로필 배경", "1 / 1");
-    };
-  }
-
-  // Profile avatar tap if exists
-  const myAvatar = document.getElementById("myProfileAvatar");
-  if (myAvatar) {
-    myAvatar.onclick = (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      const img = myAvatar.querySelector("img");
-      const src = img?.getAttribute("src") || "./assets/lulu_sd.png";
-      openMyProfileViewer(src, "내 루미 프로필 사진", "1 / 1");
-    };
-  }
-
-  // Saved photo taps
-  document.querySelectorAll("[data-my-photo], .my-saved-photo").forEach((btn, idx) => {
-    btn.onclick = (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      const img = btn.querySelector("img");
-      const src = img?.getAttribute("src") || "./assets/lulu_cover.png";
-      openMyProfileViewer(src, "율의 소장 사진", `${idx + 1} / ${document.querySelectorAll("[data-my-photo], .my-saved-photo").length || 1}`);
-    };
-  });
-
-  // Patch backFromViewer with top-priority myProfile route.
-  if (typeof backFromViewer === "function" && !backFromViewer.__myProfilePatched) {
-    const originalBackFromViewer = backFromViewer;
-    backFromViewer = function(){
-      if (fromMyProfileViewer || viewerReturn === "myProfile") {
-        fromMyProfileViewer = false;
-        viewerReturn = "myProfile";
-        currentRoomId = lastRoomIdBeforeMyProfile || currentRoomId || "lulu";
-        safeShowMyProfile();
-        return;
-      }
-      return originalBackFromViewer.apply(this, arguments);
-    };
-    backFromViewer.__myProfilePatched = true;
-  }
-
-  const viewerBack = document.getElementById("viewerBackBtn");
-  if (viewerBack) {
-    viewerBack.addEventListener("click", function(event){
-      if (fromMyProfileViewer || viewerReturn === "myProfile") {
-        event.preventDefault();
-        event.stopPropagation();
-        fromMyProfileViewer = false;
-        currentRoomId = lastRoomIdBeforeMyProfile || currentRoomId || "lulu";
-        safeShowMyProfile();
-      }
-    }, true);
-  }
-})();
-
-
-/* Patch 22.1 — block myProfile viewer escape to member gallery */
-(function(){
-  function isMyProfileViewerActive(){
-    try{
-      return !!(typeof fromMyProfileViewer !== "undefined" && fromMyProfileViewer) ||
-             (typeof viewerReturn !== "undefined" && viewerReturn === "myProfile");
-    }catch(e){
-      return false;
-    }
-  }
-
-  function returnToMyProfileFromViewer(event){
-    if(event){
-      event.preventDefault();
-      event.stopPropagation();
-      if(event.stopImmediatePropagation) event.stopImmediatePropagation();
-    }
-    try{
-      fromMyProfileViewer = false;
-      viewerReturn = "myProfile";
-      currentRoomId = lastRoomIdBeforeMyProfile || currentRoomId || "lulu";
-    }catch(e){}
-    if(typeof openMyProfileSafe === "function"){
-      openMyProfileSafe();
-    }else if(typeof showScreen === "function"){
-      showScreen("myProfileSheet");
-    }
-  }
-
-  const viewer = document.getElementById("photoViewerScreen");
-  if(viewer && !viewer.__patch221Guarded){
-    viewer.addEventListener("click", function(event){
-      if(!isMyProfileViewerActive()) return;
-
-      const target = event.target;
-      const btn = target.closest("button, a, [role='button']");
-      if(!btn) return;
-
-      const text = (btn.textContent || "").trim();
-      const id = btn.id || "";
-      const cls = btn.className || "";
-
-      // Allow true viewer actions only.
-      const isBack = id === "viewerBackBtn" || cls.includes("viewer-back") || text === "‹" || text === "<";
-      const isSave = text.includes("저장");
-      const isCollect = text.includes("소장");
-      const isMore = text.includes("더보기") || text === "⋯";
-
-      // ୨୧ / gallery / album / profile escape must not open member gallery while in my profile viewer.
-      const isEscapeButton =
-        text.includes("୨୧") ||
-        text.includes("앨범") ||
-        text.includes("사진") ||
-        text.includes("프로필") ||
-        id.toLowerCase().includes("gallery") ||
-        id.toLowerCase().includes("album") ||
-        id.toLowerCase().includes("profile") ||
-        String(cls).toLowerCase().includes("gallery") ||
-        String(cls).toLowerCase().includes("album") ||
-        String(cls).toLowerCase().includes("profile");
-
-      if(isBack){
-        returnToMyProfileFromViewer(event);
-        return;
-      }
-
-      if(isEscapeButton && !isSave && !isCollect && !isMore){
-        returnToMyProfileFromViewer(event);
-        return;
-      }
-    }, true);
-
-    viewer.__patch221Guarded = true;
-  }
-
-  // Also directly guard known/possible top-right symbolic button by text after load.
-  function bindSymbolButtons(){
-    if(!viewer) return;
-    viewer.querySelectorAll("button, a, [role='button']").forEach((btn)=>{
-      const text = (btn.textContent || "").trim();
-      if(text.includes("୨୧")){
-        btn.addEventListener("click", function(event){
-          if(isMyProfileViewerActive()){
-            returnToMyProfileFromViewer(event);
-          }
-        }, true);
-      }
-    });
-  }
-
-  bindSymbolButtons();
-  setTimeout(bindSymbolButtons, 0);
-})();
-
-
-/* Patch 22.2 — myProfile lulu-trap hard guard */
-(function(){
-  function getMyViewerSrc(el, kind){
-    if(kind === "hero"){
-      return el?.dataset?.src || "./assets/lulu_cover.png";
-    }
-    const img = el?.querySelector?.("img");
-    if(img && img.getAttribute("src")) return img.getAttribute("src");
-    if(kind === "avatar") return "./assets/lulu_sd.png";
-    return "./assets/lulu_cover.png";
-  }
-
-  function openOnlyMyProfileViewer(src, caption){
-    try{
-      if(typeof currentRoomId !== "undefined" && currentRoomId && !String(currentRoomId).startsWith("__my")){
-        lastRoomIdBeforeMyProfile = currentRoomId;
-      }
-      fromMyProfileViewer = true;
-      viewerReturn = "myProfile";
-    }catch(e){}
-
-    const member = document.getElementById("viewerMember");
-    const date = document.getElementById("viewerDate");
-    const img = document.getElementById("viewerPhotoImg");
-    const cap = document.getElementById("viewerCaption");
-    const idx = document.getElementById("viewerIndex");
-
-    if(member) member.textContent = "율";
-    if(date) date.textContent = "내 루미 프로필 · LB-0002";
-    if(img) img.src = src;
-    if(cap) cap.textContent = caption || "내 루미 프로필";
-    if(idx) idx.textContent = "1 / 1";
-
-    if(typeof showScreen === "function") showScreen("photoViewerScreen");
-    else document.getElementById("photoViewerScreen")?.classList.remove("hidden");
-
-    // Never let my-profile viewer own member room state.
-    try{
-      currentRoomId = lastRoomIdBeforeMyProfile || currentRoomId || "lulu";
-    }catch(e){}
-  }
-
-  function openMyProfileAlbumOnly(event){
-    if(event){
-      event.preventDefault();
-      event.stopPropagation();
-      if(event.stopImmediatePropagation) event.stopImmediatePropagation();
-    }
-    try{
-      fromMyProfileViewer = false;
-      viewerReturn = "myProfile";
-      currentRoomId = lastRoomIdBeforeMyProfile || currentRoomId || "lulu";
-    }catch(e){}
-    if(typeof showScreen === "function"){
-      showScreen("mySavedGalleryScreen");
-    }else{
-      document.getElementById("mySavedGalleryScreen")?.classList.remove("hidden");
-    }
-    if(typeof renderMySavedSections === "function") renderMySavedSections();
-  }
-
-  function bindMyProfileHardGuard(){
-    const sheet = document.getElementById("myProfileSheet");
-    if(sheet && !sheet.__patch222ClickGuarded){
-      sheet.addEventListener("click", function(event){
-        const target = event.target;
-        const hit = target.closest("[data-my-profile-viewer], #myHeroTapBtn, #myProfileAvatar, .my-saved-photo, [data-my-photo]");
-        if(!hit) return;
-
-        event.preventDefault();
-        event.stopPropagation();
-        if(event.stopImmediatePropagation) event.stopImmediatePropagation();
-
-        const kind = hit.dataset.myProfileViewer || (hit.id === "myHeroTapBtn" ? "hero" : hit.id === "myProfileAvatar" ? "avatar" : "saved");
-        const src = getMyViewerSrc(hit, kind);
-        const caption = kind === "hero" ? "내 루미 프로필 배경" : kind === "avatar" ? "내 루미 프로필 사진" : "율의 소장 사진";
-        openOnlyMyProfileViewer(src, caption);
-      }, true);
-      sheet.__patch222ClickGuarded = true;
-    }
-
-    // Existing individual onclick may remain; capture guard above wins. Still override key ids for safety.
-    const hero = document.getElementById("myHeroTapBtn");
-    if(hero) hero.onclick = (event)=>{
-      event.preventDefault(); event.stopPropagation();
-      openOnlyMyProfileViewer(getMyViewerSrc(hero, "hero"), "내 루미 프로필 배경");
-    };
-
-    const avatar = document.getElementById("myProfileAvatar");
-    if(avatar) avatar.onclick = (event)=>{
-      event.preventDefault(); event.stopPropagation();
-      openOnlyMyProfileViewer(getMyViewerSrc(avatar, "avatar"), "내 루미 프로필 사진");
-    };
-  }
-
-  bindMyProfileHardGuard();
-  document.addEventListener("DOMContentLoaded", bindMyProfileHardGuard);
-  setTimeout(bindMyProfileHardGuard, 0);
-
-  // Viewer gallery button in my profile context should open my saved gallery, not lulu gallery.
-  const viewerGalleryBtn = document.getElementById("viewerGalleryBtn");
-  if(viewerGalleryBtn && !viewerGalleryBtn.__patch222Guarded){
-    viewerGalleryBtn.addEventListener("click", function(event){
-      let active = false;
-      try{
-        active = !!fromMyProfileViewer || viewerReturn === "myProfile";
-      }catch(e){}
-      if(active){
-        openMyProfileAlbumOnly(event);
-      }
-    }, true);
-    viewerGalleryBtn.__patch222Guarded = true;
-  }
-
-  // Back from mySavedGallery returns my profile, not lulu room.
-  const mySavedBack = document.getElementById("mySavedGalleryBack");
-  if(mySavedBack && !mySavedBack.__patch222Guarded){
-    mySavedBack.addEventListener("click", function(event){
-      event.preventDefault();
-      event.stopPropagation();
-      if(event.stopImmediatePropagation) event.stopImmediatePropagation();
-      if(typeof openMyProfileSafe === "function") openMyProfileSafe();
-      else if(typeof showScreen === "function") showScreen("myProfileSheet");
-    }, true);
-    mySavedBack.__patch222Guarded = true;
-  }
-})();
-
-
-/* Patch 22.3 — myProfile viewer prev/next must not fall into lulu gallery */
-(function(){
-  let myProfileViewerItems = [];
-  let myProfileViewerIndex = 0;
-
-  function isMyProfileViewerActive(){
-    try{
-      return !!fromMyProfileViewer || viewerReturn === "myProfile";
-    }catch(e){
-      return false;
-    }
-  }
-
-  function collectMyProfileItems(){
-    const items = [];
-
-    const hero = document.getElementById("myHeroTapBtn");
-    const heroSrc = hero?.dataset?.src || "./assets/lulu_cover.png";
-    if(heroSrc){
-      items.push({src:heroSrc, caption:"내 루미 프로필 배경"});
-    }
-
-    const avatar = document.getElementById("myProfileAvatar");
-    const avatarImg = avatar?.querySelector?.("img");
-    const avatarSrc = avatarImg?.getAttribute("src") || "./assets/lulu_sd.png";
-    if(avatarSrc){
-      items.push({src:avatarSrc, caption:"내 루미 프로필 사진"});
-    }
-
-    document.querySelectorAll("#myProfileSheet .my-saved-photo img, #myProfileSheet [data-my-photo] img").forEach((img)=>{
-      const src = img.getAttribute("src");
-      if(src && !items.some((it)=>it.src === src)){
-        items.push({src, caption:"율의 소장 사진"});
-      }
-    });
-
-    return items.length ? items : [{src:"./assets/lulu_cover.png", caption:"내 루미 프로필"}];
-  }
-
-  function setMyProfileViewerItemsFromCurrent(){
-    const currentSrc = document.getElementById("viewerPhotoImg")?.getAttribute("src") || "";
-    myProfileViewerItems = collectMyProfileItems();
-    const found = myProfileViewerItems.findIndex((it)=>it.src === currentSrc);
-    myProfileViewerIndex = found >= 0 ? found : 0;
-    renderMyProfileViewerItem();
-  }
-
-  function renderMyProfileViewerItem(){
-    const item = myProfileViewerItems[myProfileViewerIndex] || myProfileViewerItems[0];
-    if(!item) return;
-
-    const member = document.getElementById("viewerMember");
-    const date = document.getElementById("viewerDate");
-    const img = document.getElementById("viewerPhotoImg");
-    const cap = document.getElementById("viewerCaption");
-    const idx = document.getElementById("viewerIndex");
-
-    if(member) member.textContent = "율";
-    if(date) date.textContent = "내 루미 프로필 · LB-0002";
-    if(img) img.src = item.src;
-    if(cap) cap.textContent = item.caption || "내 루미 프로필";
-    if(idx) idx.textContent = `${myProfileViewerIndex + 1} / ${myProfileViewerItems.length}`;
-
-    try{
-      currentRoomId = lastRoomIdBeforeMyProfile || currentRoomId || "lulu";
-      viewerReturn = "myProfile";
-      fromMyProfileViewer = true;
-    }catch(e){}
-  }
-
-  function moveMyProfileViewer(delta, event){
-    if(event){
-      event.preventDefault();
-      event.stopPropagation();
-      if(event.stopImmediatePropagation) event.stopImmediatePropagation();
-    }
-
-    if(!myProfileViewerItems.length){
-      setMyProfileViewerItemsFromCurrent();
-      return;
-    }
-
-    myProfileViewerIndex = (myProfileViewerIndex + delta + myProfileViewerItems.length) % myProfileViewerItems.length;
-    renderMyProfileViewerItem();
-  }
-
-  function bindPrevNextGuard(){
-    const prev = document.getElementById("viewerPrevBtn");
-    const next = document.getElementById("viewerNextBtn");
-
-    if(prev && !prev.__patch223Guarded){
-      prev.addEventListener("click", function(event){
-        if(isMyProfileViewerActive()){
-          if(!myProfileViewerItems.length) setMyProfileViewerItemsFromCurrent();
-          moveMyProfileViewer(-1, event);
-        }
-      }, true);
-      prev.__patch223Guarded = true;
-    }
-
-    if(next && !next.__patch223Guarded){
-      next.addEventListener("click", function(event){
-        if(isMyProfileViewerActive()){
-          if(!myProfileViewerItems.length) setMyProfileViewerItemsFromCurrent();
-          moveMyProfileViewer(1, event);
-        }
-      }, true);
-      next.__patch223Guarded = true;
-    }
-
-    const viewer = document.getElementById("photoViewerScreen");
-    if(viewer && !viewer.__patch223AnyArrowGuarded){
-      viewer.addEventListener("click", function(event){
-        if(!isMyProfileViewerActive()) return;
-
-        const btn = event.target.closest("button, a, [role='button']");
-        if(!btn) return;
-        const id = btn.id || "";
-        const text = (btn.textContent || "").trim();
-
-        if(id === "viewerPrevBtn" || text === "‹" || text === "<"){
-          if(!myProfileViewerItems.length) setMyProfileViewerItemsFromCurrent();
-          moveMyProfileViewer(-1, event);
-        }
-
-        if(id === "viewerNextBtn" || text === "›" || text === ">"){
-          if(!myProfileViewerItems.length) setMyProfileViewerItemsFromCurrent();
-          moveMyProfileViewer(1, event);
-        }
-      }, true);
-      viewer.__patch223AnyArrowGuarded = true;
-    }
-  }
-
-  // When a my-profile viewer opens, refresh the dedicated item list after current image is set.
-  document.addEventListener("click", function(event){
-    const hit = event.target.closest("#myHeroTapBtn, #myProfileAvatar, #myProfileSheet .my-saved-photo, #myProfileSheet [data-my-photo]");
-    if(hit){
-      setTimeout(setMyProfileViewerItemsFromCurrent, 0);
-    }
-  }, true);
-
-  bindPrevNextGuard();
-  document.addEventListener("DOMContentLoaded", bindPrevNextGuard);
-  setTimeout(bindPrevNextGuard, 0);
-
-  window.__refreshMyProfileViewerItems = setMyProfileViewerItemsFromCurrent;
-})();
-
-
-/* Patch 23 — myProfile keyboard viewer guard */
-(function(){
-  function isViewerVisible(){
-    const viewer=document.getElementById("photoViewerScreen");
-    if(!viewer) return false;
-    return !viewer.classList.contains("hidden") && !viewer.classList.contains("ui-hidden");
-  }
-
-  function isMyProfileViewerActive(){
-    try{
-      return isViewerVisible() && (!!fromMyProfileViewer || viewerReturn==="myProfile");
-    }catch(e){
-      return false;
-    }
-  }
-
-  function toAbs(src){
-    try{
-      return new URL(src, location.href).href;
-    }catch(e){
-      return src || "";
-    }
-  }
-
-  function pushUnique(items, src, caption){
-    if(!src) return;
-    const abs=toAbs(src);
-    if(items.some((item)=>toAbs(item.src)===abs)) return;
-    items.push({src, caption:caption || "내 루미 프로필"});
-  }
-
-  function collectMyProfileViewerItems(){
-    const items=[];
-
-    const hero=document.getElementById("myHeroTapBtn");
-    pushUnique(items, hero?.dataset?.src || "./assets/lulu_cover.png", "내 루미 프로필 배경");
-
-    const avatar=document.getElementById("myProfileAvatar");
-    const avatarImg=avatar?.querySelector?.("img");
-    pushUnique(items, avatarImg?.getAttribute("src") || "./assets/lulu_sd.png", "내 루미 프로필 사진");
-
-    document.querySelectorAll("#myProfileSheet [data-my-photo] img, #myProfileSheet .my-saved-thumb img, #myProfileSheet .my-saved-photo img").forEach((img)=>{
-      pushUnique(items, img.getAttribute("src"), "율의 소장 사진");
-    });
-
-    const current=document.getElementById("viewerPhotoImg")?.getAttribute("src");
-    pushUnique(items, current, document.getElementById("viewerCaption")?.textContent || "내 루미 프로필");
-
-    return items.length ? items : [{src:"./assets/lulu_cover.png", caption:"내 루미 프로필 배경"}];
-  }
-
-  function renderMyProfileKeyboardItem(items, index){
-    const item=items[index] || items[0];
-    if(!item) return;
-
-    const member=document.getElementById("viewerMember");
-    const date=document.getElementById("viewerDate");
-    const img=document.getElementById("viewerPhotoImg");
-    const cap=document.getElementById("viewerCaption");
-    const idx=document.getElementById("viewerIndex");
-
-    if(member) member.textContent="율";
-    if(date) date.textContent="내 루미 프로필 · LB-0002";
-    if(img) img.src=item.src;
-    if(cap) cap.textContent=item.caption || "내 루미 프로필";
-    if(idx) idx.textContent=`${index+1} / ${items.length}`;
-
-    try{
-      viewerReturn="myProfile";
-      fromMyProfileViewer=true;
-      currentRoomId=lastRoomIdBeforeMyProfile || currentRoomId || "lulu";
-    }catch(e){}
-  }
-
-  function moveMyProfileKeyboardViewer(delta, event){
-    if(event){
-      event.preventDefault();
-      event.stopPropagation();
-      if(event.stopImmediatePropagation) event.stopImmediatePropagation();
-    }
-
-    const items=collectMyProfileViewerItems();
-    const currentSrc=toAbs(document.getElementById("viewerPhotoImg")?.getAttribute("src") || document.getElementById("viewerPhotoImg")?.src || "");
-    let index=items.findIndex((item)=>toAbs(item.src)===currentSrc);
-    if(index<0) index=0;
-    index=(index+delta+items.length)%items.length;
-    renderMyProfileKeyboardItem(items,index);
-  }
-
-  if(!window.__patch23MyProfileKeyboardGuard){
-    document.addEventListener("keydown", function(event){
-      if(!isMyProfileViewerActive()) return;
-
-      if(event.key==="ArrowLeft"){
-        moveMyProfileKeyboardViewer(-1,event);
-      }else if(event.key==="ArrowRight"){
-        moveMyProfileKeyboardViewer(1,event);
-      }
-    }, true);
-
-    window.__patch23MyProfileKeyboardGuard=true;
-  }
-
-  // Also make button prev/next use the same normalized list in my-profile context.
-  function bindButtonGuard(){
-    const prev=document.getElementById("viewerPrevBtn");
-    const next=document.getElementById("viewerNextBtn");
-
-    if(prev && !prev.__patch23KeyboardBound){
-      prev.addEventListener("click", function(event){
-        if(isMyProfileViewerActive()) moveMyProfileKeyboardViewer(-1,event);
-      }, true);
-      prev.__patch23KeyboardBound=true;
-    }
-
-    if(next && !next.__patch23KeyboardBound){
-      next.addEventListener("click", function(event){
-        if(isMyProfileViewerActive()) moveMyProfileKeyboardViewer(1,event);
-      }, true);
-      next.__patch23KeyboardBound=true;
-    }
-  }
-
-  bindButtonGuard();
-  document.addEventListener("DOMContentLoaded", bindButtonGuard);
-  setTimeout(bindButtonGuard,0);
-})();
-
-
-
-/* Patch 25b — top icons safe skeleton */
-function patch25bToast(text){
-  if(typeof showToast==="function") showToast(text);
-  else alert(text);
-}
-
-function patch25bFindTopIconGroup(){
-  const selectors=[
-    ".talk-hero-actions",
-    ".home-actions",
-    ".top-actions",
-    ".lumi-actions",
-    ".main-actions",
-    ".hero-actions",
-    ".header-actions"
-  ];
-  for(const selector of selectors){
-    const el=document.querySelector(selector);
-    if(el) return el;
-  }
-
-  const buttons=[...document.querySelectorAll("button")];
-  const topButtons=buttons.filter((btn)=>{
-    const text=(btn.textContent||"").trim();
-    const label=(btn.getAttribute("aria-label")||"").trim();
-    return text==="❤" || text==="♥" || text==="❤︎" || label.includes("소장") || label.includes("하트") || label.includes("검색") || text==="⌕" || text==="🔍";
-  });
-
-  if(topButtons.length){
-    const parent=topButtons[0].parentElement;
-    if(parent && parent.children.length <= 5) return parent;
-  }
-
-  return null;
-}
-
-function patch25bOpenPlaceholder(type){
-  const label={
-    search:"검색은 다음 단계에서 연결할게요.",
-    saved:"소장함은 다음 단계에서 연결할게요.",
-    calendar:"루미톡 캘린더는 다음 단계에서 연결할게요."
-  }[type] || "다음 단계에서 연결할게요.";
-  patch25bToast(label);
-}
-
-function bindTopIconSkeletonSafe(){
-  const group=patch25bFindTopIconGroup();
-  if(!group || group.__patch25bBound) return;
-
-  group.classList.add("patch25b-top-icons");
-
-  const buttons=[...group.querySelectorAll("button")];
-  buttons.forEach((btn)=>{
-    const text=(btn.textContent||"").trim();
-    const label=(btn.getAttribute("aria-label")||"").trim();
-
-    if(!document.getElementById("topSearchBtn") && (label.includes("검색") || text==="⌕" || text==="🔍")){
-      btn.id="topSearchBtn";
-      btn.addEventListener("click",(event)=>{
-        event.preventDefault();
-        event.stopPropagation();
-        patch25bOpenPlaceholder("search");
-      },true);
-    }
-
-    if(!document.getElementById("topSavedBtn") && (label.includes("소장") || label.includes("하트") || text==="❤" || text==="♥" || text==="❤︎")){
-      btn.id="topSavedBtn";
-      btn.addEventListener("click",(event)=>{
-        event.preventDefault();
-        event.stopPropagation();
-        patch25bOpenPlaceholder("saved");
-      },true);
-    }
-  });
-
-  if(!document.getElementById("topCalendarBtn")){
-    const calendar=document.createElement("button");
-    calendar.id="topCalendarBtn";
-    calendar.type="button";
-    calendar.className="patch25b-calendar-btn";
-    calendar.setAttribute("aria-label","캘린더");
-    calendar.textContent="🗓";
-    calendar.addEventListener("click",(event)=>{
-      event.preventDefault();
-      event.stopPropagation();
-      patch25bOpenPlaceholder("calendar");
-    });
-    group.appendChild(calendar);
-  }
-
-  group.__patch25bBound=true;
-}
-
-document.addEventListener("DOMContentLoaded",bindTopIconSkeletonSafe);
-setTimeout(bindTopIconSkeletonSafe,0);
-setTimeout(bindTopIconSkeletonSafe,300);
-
-
-
-
-
-
-
-/* Patch 26b — unify my profile swipe with core viewer */
-(function(){
-  function patch26bMakeVirtualGallery(key, items){
-    if(!Array.isArray(items) || !items.length) return null;
-    if(typeof galleryItems==="undefined") return null;
-    galleryItems[key]=items.map((item)=>({
+  function patch26cMakeVirtualGallery(items){
+    if(typeof galleryItems==="undefined" || !Array.isArray(items) || !items.length) return false;
+    galleryItems.__myProfileCore=items.map((item)=>({
       src:item.src,
       caption:item.caption || item.title || "내 루미 프로필",
       type:item.type || "photo",
       date:item.date || "내 프로필"
     }));
-    return key;
-  }
-
-  function patch26bOpenWithCoreViewer(items,index,returnTo){
-    const key=patch26bMakeVirtualGallery("__myProfileCore",items);
-    if(!key || typeof openViewer!=="function") return false;
-    openViewer(key,Number(index)||0,returnTo || "myProfile");
     return true;
   }
 
-  function patch26bHeroItems(){
+  function patch26cOpenCore(items,index,returnTo){
+    if(!patch26cMakeVirtualGallery(items)) return;
+    if(typeof openViewer==="function") openViewer("__myProfileCore",Number(index)||0,returnTo || "myProfile");
+  }
+
+  function patch26cHeroItems(){
     return [
       {src:"./assets/lulu_cover.png", caption:"내 루미 프로필 배경", type:"photo", date:"내 프로필"},
       {src:"./assets/lulu_sd.png", caption:"내 루미 프로필 사진", type:"photo", date:"내 프로필"},
@@ -1409,24 +701,23 @@ setTimeout(bindTopIconSkeletonSafe,300);
     ];
   }
 
-  function patch26bBindMyProfileCoreViewer(){
+  function patch26cBind(){
     const heroTap=document.getElementById("myHeroTapBtn");
-    if(heroTap && !heroTap.__patch26bBound){
+    if(heroTap && !heroTap.__patch26cBound){
       heroTap.addEventListener("click",(event)=>{
         event.preventDefault();
         event.stopPropagation();
         if(event.stopImmediatePropagation) event.stopImmediatePropagation();
-        patch26bOpenWithCoreViewer(patch26bHeroItems(),0,"myProfile");
+        patch26cOpenCore(patch26cHeroItems(),0,"myProfile");
       },true);
-      heroTap.__patch26bBound=true;
+      heroTap.__patch26cBound=true;
     }
 
     const savedSections=document.getElementById("mySavedSections");
-    if(savedSections && !savedSections.__patch26bBound){
+    if(savedSections && !savedSections.__patch26cBound){
       savedSections.addEventListener("click",(event)=>{
         const thumb=event.target.closest("[data-my-photo]");
         if(!thumb) return;
-
         const member=thumb.dataset.member || "lulu";
         const idx=Number(thumb.dataset.myPhoto || 0);
         const items=(typeof mySavedItems!=="undefined" && mySavedItems[member]) ? mySavedItems[member] : null;
@@ -1435,36 +726,23 @@ setTimeout(bindTopIconSkeletonSafe,300);
         event.preventDefault();
         event.stopPropagation();
         if(event.stopImmediatePropagation) event.stopImmediatePropagation();
-        patch26bOpenWithCoreViewer(items,idx,"myProfile");
+        patch26cOpenCore(items,idx,"myProfile");
       },true);
-      savedSections.__patch26bBound=true;
+      savedSections.__patch26cBound=true;
     }
   }
 
   const originalOpenMyProfile=window.openMyProfile;
-  if(typeof originalOpenMyProfile==="function" && !window.__patch26bOpenMyProfileWrapped){
+  if(typeof originalOpenMyProfile==="function" && !window.__patch26cOpenMyProfileWrapped){
     window.openMyProfile=function(){
       const result=originalOpenMyProfile.apply(this,arguments);
-      setTimeout(patch26bBindMyProfileCoreViewer,0);
+      setTimeout(patch26cBind,0);
       return result;
     };
-    window.__patch26bOpenMyProfileWrapped=true;
+    window.__patch26cOpenMyProfileWrapped=true;
   }
 
-  const originalBackFromViewer=window.backFromViewer;
-  if(typeof originalBackFromViewer==="function" && !window.__patch26bBackWrapped){
-    window.backFromViewer=function(){
-      if(typeof currentRoomId!=="undefined" && currentRoomId==="__myProfileCore"){
-        if(typeof openMyProfile==="function") openMyProfile();
-        else if(typeof showScreen==="function") showScreen("myProfileSheet");
-        return;
-      }
-      return originalBackFromViewer.apply(this,arguments);
-    };
-    window.__patch26bBackWrapped=true;
-  }
-
-  document.addEventListener("DOMContentLoaded",patch26bBindMyProfileCoreViewer);
-  setTimeout(patch26bBindMyProfileCoreViewer,0);
-  setTimeout(patch26bBindMyProfileCoreViewer,350);
+  document.addEventListener("DOMContentLoaded",patch26cBind);
+  setTimeout(patch26cBind,0);
+  setTimeout(patch26cBind,350);
 })();
