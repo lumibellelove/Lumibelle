@@ -557,3 +557,39 @@ h1{font-size:31px;line-height:.95;margin:4px 0 0;font-weight:950;letter-spacing:
     font-size:17px;
   }
 }
+
+
+
+/* Patch 26 — mobile stability */
+#photoViewerScreen,
+#viewerBody,
+#viewerPhotoImg{
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+#viewerBody,
+#viewerPhotoImg{
+  touch-action:pan-y;
+}
+
+@supports (-webkit-touch-callout: none){
+  @media (max-width:760px){
+    .screen-join{
+      background:#fff;
+      padding-bottom:0;
+      min-height:100dvh;
+    }
+    .join-hero{
+      min-height:calc(100svh - 310px);
+      max-height:560px;
+    }
+    .join-body{
+      background:#fff;
+      padding-bottom:calc(env(safe-area-inset-bottom,0px) + 34px);
+    }
+    .join-button{
+      margin-bottom:calc(env(safe-area-inset-bottom,0px) + 22px);
+    }
+  }
+}
