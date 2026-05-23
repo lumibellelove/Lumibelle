@@ -417,14 +417,234 @@ function backFromViewer(){
   openGallery(currentRoomId);
 }
 
-function renderSearchResults(){
-  const results=[["루루의 포근포근 토끼굴","오늘 와줘서 루루 진짜 힘났어…"],["소장한 메시지","우리 같이 천천히 가자 🐰🍀"],["운영팀 문의하기","예매, 입금, 굿즈, 오류 문의를 남길 수 있어요."]];
-  $("#searchResults").innerHTML=results.map(([t,x])=>`<div class="result-card"><b>${t}</b><p>${x}</p></div>`).join("");
+function renderSearchResults(queryOverride){
+  const input=$("#lumiTalkSearchInput");
+  const resultsEl=$("#searchResults");
+  const quick=$("#lumiTalkSearchQuick");
+  if(!resultsEl) return;
+
+  const lang = (window.LUMI_LANG || window.currentLang || new URLSearchParams(location.search).get("lang") || "ko").toLowerCase();
+  const normalizedLang = lang==="kr" ? "ko" : lang;
+  const q = String(queryOverride ?? input?.value ?? "").trim().toLowerCase();
+  const activeFilter = document.querySelector("[data-search-filter].active")?.dataset.searchFilter || "all";
+
+  const pickText=(item)=>{
+    if(!item) return "";
+    if(typeof item==="string") return item;
+    return item[normalizedLang] || item.ko || item.en || item.ja || item.zh || "";
+  };
+
+  const roomTitle=(room)=>{
+    if(!room) return "";
+    if(room.titleI18n) return pickText(room.titleI18n);
+    return room.title || room.short || "";
+  };
+
+  const roomSub=(room)=>{
+    if(!room) return "";
+    if(room.subI18n) return pickText(room.subI18n);
+    return room.sub || room.profileSub || "";
+  };
+
+  const messageText=(message)=>{
+    if(!message) return "";
+    if(message.textI18n) return pickText(message.textI18n);
+    return message.text || "";
+  };
+
+  const resultItems=[];
+
+  if(typeof rooms!=="undefined"){
+    Object.keys(rooms).forEach((id)=>{
+      const room=rooms[id];
+      const title=roomTitle(room);
+      const sub=roomSub(room);
+      const haystack=`${title} ${sub} ${room.short||""}`.toLowerCase();
+      if(q && haystack.includes(q)){
+        resultItems.push({type:"channel", id, title, body:sub || "채널 프로필로 이동", badge:"채널"});
+      }
+    });
+  }
+
+  if(typeof rooms!=="undefined"){
+    Object.keys(rooms).forEach((id)=>{
+      const room=rooms[id];
+      (room.messages||[]).forEach((m)=>{
+        if(!m || !m.text || m.type==="date") return;
+        const text=messageText(m);
+        if(!text) return;
+        if(q && text.toLowerCase().includes(q)){
+          resultItems.push({type:"message", id, title:roomTitle(room), body:text, badge:"메시지"});
+        }
+      });
+    });
+  }
+
+  const savedMock=[
+    {id:"lulu", title:{ko:"루루의 포근포근 토끼굴",en:"LULU's Cozy Bunny Den",ja:"ルルのぽかぽかうさぎ穴",zh:"LULU的暖暖兔子洞"}, text:{ko:"오늘 와줘서 루루 진짜 힘났어... 다음엔 더 열심히 할게...!",en:"Seeing you today gave LULU so much strength.",ja:"今日来てくれてルル、本当に元気をもらったよ…",zh:"今天你来见我，LULU真的得到了很多力量。"}},
+    {id:"mari", title:{ko:"링링의 별빛톡",en:"Ringring's Starlight Talk",ja:"リンリンの星明かりトーク",zh:"Ringring的星光聊天"}, text:{ko:"네가 있어서 오늘 무대도 더 반짝일 수 있었어.",en:"Because you were there, today’s stage shined brighter.",ja:"君がいてくれたから、今日のステージももっと輝けたよ。",zh:"因为有你在，今天的舞台也更加闪耀。"}},
+    {id:"lumibelle", title:{ko:"루미벨 반짝채널",en:"Lumibelle Sparkle Channel",ja:"ルミベルきらめきチャンネル",zh:"Lumibelle闪耀频道"}, text:{ko:"작은 점들이 모여 반짝이는 선이 되는 순간을 함께 기록해요.",en:"Let’s record the moment tiny points become a sparkling line.",ja:"小さな点が集まって、きらめく線になる瞬間を一緒に記録しよう。",zh:"一起记录小小的点连成闪耀线条的瞬间。"}}
+  ];
+
+  savedMock.forEach((item)=>{
+    const title=pickText(item.title);
+    const text=pickText(item.text);
+    const haystack=`${title} ${text}`.toLowerCase();
+    if(q && haystack.includes(q)){
+      resultItems.push({type:"saved", id:item.id, title, body:text, badge:"소장함"});
+    }
+  });
+
+  const filtered=resultItems.filter((item)=>activeFilter==="all" || item.type===activeFilter);
+
+  if(quick) quick.style.display = q ? "none" : "block";
+
+  if(!q){
+    resultsEl.innerHTML='<div class="search-empty">검색어를 입력하면 채널, 메시지, 소장함을 함께 찾아요.</div>';
+    return;
+  }
+
+  if(!filtered.length){
+    resultsEl.innerHTML=`<div class="search-empty">“${q}”에 대한 검색 결과가 없어요.</div>`;
+    return;
+  }
+
+  resultsEl.innerHTML=filtered.slice(0,20).map((item)=>`
+    <button class="search-result-card" type="button" data-search-result="${item.type}" data-search-room="${item.id}">
+      <span class="search-result-badge ${item.type}">${item.badge}</span>
+      <b>${item.title}</b>
+      <p>${item.body}</p>
+    </button>
+  `).join("");
+
+  resultsEl.querySelectorAll("[data-search-result]").forEach((card)=>{
+    card.addEventListener("click",()=>{
+      const type=card.dataset.searchResult;
+      const roomId=card.dataset.searchRoom;
+      $("#searchSheet")?.classList.add("hidden");
+      if(type==="channel" && typeof renderProfile==="function"){
+        renderProfile(roomId);
+        showScreen("profileScreen");
+        return;
+      }
+      if(type==="message" && typeof renderRoom==="function"){
+        renderRoom(roomId);
+        showScreen("roomScreen");
+        return;
+      }
+      if(type==="saved"){
+        if(typeof renderSavedList==="function") renderSavedList();
+        $("#savedSheet")?.classList.remove("hidden");
+        return;
+      }
+    });
+  });
 }
 function renderSavedList(){
-  const saved=[["루루 · LUMI LETTER","넘어지고 늦어도 괜찮아…"],["마리링 · 별빛톡","네가 있어서 오늘 무대도 더 반짝일 수 있었어."],["루미벨 반짝채널","작은 점들이 모여 반짝이는 선이 되는 순간을 함께 기록해요."]];
-  $("#savedList").innerHTML=saved.map(([t,x])=>`<div class="saved-card"><b>${t}</b><p>${x}</p></div>`).join("");
+  const list=$("#savedList");
+  if(!list) return;
+
+  const joined = channels.filter(c => c.type !== "help" && (c.status === "joined" || c.status === "muted"));
+
+  const savedByChannel = {
+    lulu: [
+      {kind:"멤버 메시지", text:"오늘 와줘서 루루 진짜 힘났어... 다음엔 더 열심히 할게...!", date:"2026.05.22"},
+      {kind:"멤버 메시지", text:"루루는 항상 기다리고 있었어... 다시 와줘서 너무 고마워.", date:"2026.05.23"}
+    ],
+    mari: [
+      {kind:"멤버 메시지", text:"네가 있어서 오늘 무대도 더 반짝일 수 있었어.", date:"2026.05.22"}
+    ],
+    lumibelle: [
+      {kind:"공식 메시지", text:"작은 점들이 모여 반짝이는 선이 되는 순간을 함께 기록해요.", date:"2026.05.20"}
+    ]
+  };
+
+  const available = joined
+    .map(c => {
+      const room = getRoom(c.id);
+      const items = savedByChannel[c.id] || [];
+      return {id:c.id, room, items};
+    })
+    .filter(x => x.items.length > 0);
+
+  if(!available.length){
+    list.innerHTML = `
+      <div class="saved-shell">
+        <p class="saved-intro">다시 보고 싶은 루미톡 메시지를 모아두는 곳이에요.</p>
+        <div class="saved-empty">아직 소장한 메시지가 없어요.</div>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = `
+    <div class="saved-shell" data-saved-view="channels">
+      <p class="saved-intro">다시 보고 싶은 루미톡 메시지를 채널별로 모아뒀어요.</p>
+      <div class="saved-channel-list">
+        ${available.map(({id,room,items})=>`
+          <button class="saved-channel-card" type="button" data-saved-channel="${id}">
+            <span class="saved-channel-icon">${room.avatar || "✦"}</span>
+            <span class="saved-channel-main">
+              <b>${room.title}</b>
+              <small>소장 메시지 ${items.length}개 · 최근 ${items[0].date}</small>
+              <span class="saved-channel-preview">“${items[0].text}”</span>
+            </span>
+            <em>›</em>
+          </button>
+        `).join("")}
+      </div>
+      <p class="saved-note">사진과 영상은 내 프로필의 채널별 앨범에서 볼 수 있어요.</p>
+    </div>`;
+
+  list.querySelectorAll("[data-saved-channel]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      renderSavedChannelDetail(btn.dataset.savedChannel, savedByChannel);
+    });
+  });
 }
+function renderSavedChannelDetail(channelId, savedByChannel){
+  const list=$("#savedList");
+  if(!list) return;
+
+  const room=getRoom(channelId);
+  const items=(savedByChannel && savedByChannel[channelId]) || [];
+
+  list.innerHTML = `
+    <div class="saved-shell" data-saved-view="detail">
+      <button class="saved-back" type="button" data-saved-back>‹ 소장함</button>
+      <div class="saved-detail-head">
+        <span class="saved-channel-icon">${room.avatar || "✦"}</span>
+        <span>
+          <b>${room.title}</b>
+          <small>소장 메시지 ${items.length}개 · 다시 보고 싶은 말을 모아뒀어요.</small>
+        </span>
+      </div>
+
+      <div class="saved-filter-row">
+        <button class="active" type="button">전체</button>
+        <button type="button">멤버 메시지</button>
+        <button type="button">공식 메시지</button>
+      </div>
+
+      <div class="saved-message-list">
+        ${items.map(item=>`
+          <article class="saved-message-card">
+            <div class="saved-message-meta">
+              <b>${room.short || room.title}</b>
+              <span>${item.kind}</span>
+            </div>
+            <p>${item.text}</p>
+            <small>${item.date} · 소장</small>
+          </article>
+        `).join("")}
+      </div>
+
+      <p class="saved-note">사진과 영상은 내 프로필의 채널별 앨범에서 볼 수 있어요.</p>
+    </div>`;
+
+  const back=list.querySelector("[data-saved-back]");
+  if(back) back.onclick=renderSavedList;
+}
+
 function showToast(text){
   const old=$(".toast"); if(old)old.remove();
   const toast=document.createElement("div"); toast.className="toast"; toast.textContent=text; $("#app").appendChild(toast);
@@ -473,7 +693,7 @@ function bindEvents(){
   $("#galleryBackBtn").onclick=()=>{ if(galleryReturn==="profile"){renderProfile(currentRoomId);showScreen("profileScreen");}else{renderChannelInfo(currentRoomId);showScreen("channelInfoScreen");} };
   $("#viewerBackBtn").onclick=backFromViewer;
   $("#viewerGalleryBtn").onclick=()=>{
-    if(viewerReturn==="myProfile" || fromMyProfileViewer){openMySavedGallery("lulu");return;}
+    if(viewerReturn==="myProfile" || fromMyProfileViewer){openMySavedGallery(currentRoomId||"lulu");return;}
     if(viewerReturn==="mySavedGallery"){showScreen("mySavedGalleryScreen");return;}
     openGallery(currentRoomId,galleryReturn);
   };
@@ -483,7 +703,11 @@ function bindEvents(){
   $("#savePhotoBtn").onclick=()=>showToast("루미톡 사진이 저장되었어요.");
   $("#keepPhotoBtn").onclick=()=>showToast("소장함에 담았어요.");
   $("#morePhotoBtn").onclick=()=>showToast("더보기는 다음 단계에서 열릴 예정이에요.");
-  $("#searchBtn").onclick=()=>{renderSearchResults();$("#searchSheet").classList.remove("hidden");};
+  $("#searchBtn").onclick=()=>{
+    $("#searchSheet").classList.remove("hidden");
+    renderSearchResults("");
+    setTimeout(()=>$("#lumiTalkSearchInput")?.focus(),80);
+  };
   $("#savedBtn").onclick=()=>{renderSavedList();$("#savedSheet").classList.remove("hidden");};
   $("#myProfileBtn").onclick=openMyProfile;
   $$(".sheet-close").forEach(b=>b.onclick=closeSheets);
@@ -745,4 +969,102 @@ bindEvents();
   document.addEventListener("DOMContentLoaded",patch26cBind);
   setTimeout(patch26cBind,0);
   setTimeout(patch26cBind,350);
+})();
+
+
+
+/* LUMITALK V1 LOCK FROM 26C — search, saved, photo title */
+(function(){
+  function bindLumiTalkSearch(){
+    const input=document.getElementById("lumiTalkSearchInput");
+    const clear=document.getElementById("lumiTalkSearchClear");
+    const filters=document.getElementById("lumiTalkSearchFilters");
+    const quick=document.getElementById("lumiTalkSearchQuick");
+
+    if(input && !input.__lockSearchBound){
+      input.addEventListener("input",()=>renderSearchResults());
+      input.__lockSearchBound=true;
+    }
+
+    if(clear && !clear.__lockSearchBound){
+      clear.addEventListener("click",()=>{
+        if(input) input.value="";
+        renderSearchResults("");
+        setTimeout(()=>input?.focus(),30);
+      });
+      clear.__lockSearchBound=true;
+    }
+
+    if(filters && !filters.__lockSearchBound){
+      filters.addEventListener("click",(event)=>{
+        const btn=event.target.closest("[data-search-filter]");
+        if(!btn) return;
+        filters.querySelectorAll("[data-search-filter]").forEach((el)=>el.classList.remove("active"));
+        btn.classList.add("active");
+        renderSearchResults();
+      });
+      filters.__lockSearchBound=true;
+    }
+
+    if(quick && !quick.__lockSearchBound){
+      quick.addEventListener("click",(event)=>{
+        const btn=event.target.closest("[data-search-word]");
+        if(!btn || !input) return;
+        input.value=btn.dataset.searchWord || "";
+        renderSearchResults();
+      });
+      quick.__lockSearchBound=true;
+    }
+  }
+
+  function isSavedDetailView(){
+    const list=document.getElementById("savedList");
+    const shell=list ? list.querySelector(".saved-shell") : null;
+    return !!(shell && shell.dataset && shell.dataset.savedView==="detail");
+  }
+
+  function bindSavedBackFlow(){
+    const savedSheet=document.getElementById("savedSheet");
+    if(!savedSheet || savedSheet.__lockSavedBackBound) return;
+
+    const topBack=savedSheet.querySelector(".sheet-close");
+    if(topBack){
+      topBack.addEventListener("click",(event)=>{
+        if(!isSavedDetailView()) return;
+        event.preventDefault();
+        event.stopPropagation();
+        if(event.stopImmediatePropagation) event.stopImmediatePropagation();
+        if(typeof renderSavedList==="function") renderSavedList();
+      },true);
+    }
+
+    savedSheet.__lockSavedBackBound=true;
+  }
+
+  function fixMyPhotoTitle(){
+    const title=document.getElementById("mySavedGalleryTitle");
+    if(!title) return;
+    const gallery=document.getElementById("mySavedGalleryScreen");
+    if(gallery && !gallery.classList.contains("hidden")){
+      title.textContent="내 사진 모음";
+    }
+  }
+
+  const originalOpenMySavedGallery=window.openMySavedGallery;
+  if(typeof originalOpenMySavedGallery==="function" && !window.__lockOpenMySavedGalleryWrapped){
+    window.openMySavedGallery=function(memberId){
+      const result=originalOpenMySavedGallery.apply(this,arguments);
+      setTimeout(fixMyPhotoTitle,0);
+      return result;
+    };
+    window.__lockOpenMySavedGalleryWrapped=true;
+  }
+
+  function bootLockCandidate(){
+    bindLumiTalkSearch();
+    bindSavedBackFlow();
+  }
+
+  document.addEventListener("DOMContentLoaded",bootLockCandidate);
+  setTimeout(bootLockCandidate,0);
 })();
