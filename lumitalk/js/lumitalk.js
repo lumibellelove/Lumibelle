@@ -1376,111 +1376,95 @@ setTimeout(bindTopIconSkeletonSafe,300);
 
 
 
-/* Patch 26 — mobile stability */
+
+
+
+
+/* Patch 26b — unify my profile swipe with core viewer */
 (function(){
-  let patch26Swipe = {x:0,y:0,active:false};
-
-  function patch26IsViewerOpen(){
-    const viewer=document.getElementById("photoViewerScreen");
-    if(!viewer) return false;
-    return !viewer.classList.contains("hidden") && !viewer.classList.contains("ui-hidden");
+  function patch26bMakeVirtualGallery(key, items){
+    if(!Array.isArray(items) || !items.length) return null;
+    if(typeof galleryItems==="undefined") return null;
+    galleryItems[key]=items.map((item)=>({
+      src:item.src,
+      caption:item.caption || item.title || "내 루미 프로필",
+      type:item.type || "photo",
+      date:item.date || "내 프로필"
+    }));
+    return key;
   }
 
-  function patch26BindViewerSwipe(){
-    const viewer=document.getElementById("photoViewerScreen");
-    if(!viewer || viewer.__patch26SwipeBound) return;
-
-    const start=(event)=>{
-      if(!patch26IsViewerOpen()) return;
-      const t=event.changedTouches && event.changedTouches[0];
-      if(!t) return;
-      patch26Swipe={x:t.clientX,y:t.clientY,active:true};
-    };
-
-    const end=(event)=>{
-      if(!patch26Swipe.active || !patch26IsViewerOpen()) return;
-      const t=event.changedTouches && event.changedTouches[0];
-      if(!t) return;
-
-      const dx=t.clientX-patch26Swipe.x;
-      const dy=t.clientY-patch26Swipe.y;
-      patch26Swipe.active=false;
-
-      if(Math.abs(dx)>44 && Math.abs(dx)>Math.abs(dy)*1.15){
-        event.preventDefault();
-        event.stopPropagation();
-        if(event.stopImmediatePropagation) event.stopImmediatePropagation();
-        if(typeof moveViewer==="function") moveViewer(dx<0?1:-1);
-      }
-    };
-
-    viewer.addEventListener("touchstart",start,{passive:true,capture:true});
-    viewer.addEventListener("touchend",end,{passive:false,capture:true});
-    viewer.__patch26SwipeBound=true;
+  function patch26bOpenWithCoreViewer(items,index,returnTo){
+    const key=patch26bMakeVirtualGallery("__myProfileCore",items);
+    if(!key || typeof openViewer!=="function") return false;
+    openViewer(key,Number(index)||0,returnTo || "myProfile");
+    return true;
   }
 
-  function patch26MyProfileHeroItems(){
-    const base=[
+  function patch26bHeroItems(){
+    return [
       {src:"./assets/lulu_cover.png", caption:"내 루미 프로필 배경", type:"photo", date:"내 프로필"},
       {src:"./assets/lulu_sd.png", caption:"내 루미 프로필 사진", type:"photo", date:"내 프로필"},
       {src:"./assets/lulu_spring.png", caption:"내 루미 프로필 후보", type:"photo", date:"내 프로필"}
     ];
-
-    try{
-      if(window.myProfilePhotos && Array.isArray(window.myProfilePhotos) && window.myProfilePhotos.length){
-        return window.myProfilePhotos.slice(0,6);
-      }
-    }catch(_){}
-
-    return base;
   }
 
-  function patch26BindMyProfilePhotoEntrypoints(){
+  function patch26bBindMyProfileCoreViewer(){
     const heroTap=document.getElementById("myHeroTapBtn");
-    if(heroTap && !heroTap.__patch26Bound){
+    if(heroTap && !heroTap.__patch26bBound){
       heroTap.addEventListener("click",(event)=>{
         event.preventDefault();
         event.stopPropagation();
         if(event.stopImmediatePropagation) event.stopImmediatePropagation();
-        if(typeof openMyViewer==="function") openMyViewer(patch26MyProfileHeroItems(),0,"myProfile");
+        patch26bOpenWithCoreViewer(patch26bHeroItems(),0,"myProfile");
       },true);
-      heroTap.__patch26Bound=true;
+      heroTap.__patch26bBound=true;
     }
 
     const savedSections=document.getElementById("mySavedSections");
-    if(savedSections && !savedSections.__patch26TouchBound){
+    if(savedSections && !savedSections.__patch26bBound){
       savedSections.addEventListener("click",(event)=>{
         const thumb=event.target.closest("[data-my-photo]");
         if(!thumb) return;
+
         const member=thumb.dataset.member || "lulu";
         const idx=Number(thumb.dataset.myPhoto || 0);
         const items=(typeof mySavedItems!=="undefined" && mySavedItems[member]) ? mySavedItems[member] : null;
-        if(!items || !items.length || typeof openMyViewer!=="function") return;
+        if(!items || !items.length) return;
+
         event.preventDefault();
         event.stopPropagation();
         if(event.stopImmediatePropagation) event.stopImmediatePropagation();
-        openMyViewer(items,idx,"myProfile");
+        patch26bOpenWithCoreViewer(items,idx,"myProfile");
       },true);
-      savedSections.__patch26TouchBound=true;
+      savedSections.__patch26bBound=true;
     }
   }
 
-  function patch26Run(){
-    patch26BindViewerSwipe();
-    patch26BindMyProfilePhotoEntrypoints();
-  }
-
   const originalOpenMyProfile=window.openMyProfile;
-  if(typeof originalOpenMyProfile==="function" && !window.__patch26OpenMyProfileWrapped){
+  if(typeof originalOpenMyProfile==="function" && !window.__patch26bOpenMyProfileWrapped){
     window.openMyProfile=function(){
       const result=originalOpenMyProfile.apply(this,arguments);
-      setTimeout(patch26Run,0);
+      setTimeout(patch26bBindMyProfileCoreViewer,0);
       return result;
     };
-    window.__patch26OpenMyProfileWrapped=true;
+    window.__patch26bOpenMyProfileWrapped=true;
   }
 
-  document.addEventListener("DOMContentLoaded",patch26Run);
-  setTimeout(patch26Run,0);
-  setTimeout(patch26Run,350);
+  const originalBackFromViewer=window.backFromViewer;
+  if(typeof originalBackFromViewer==="function" && !window.__patch26bBackWrapped){
+    window.backFromViewer=function(){
+      if(typeof currentRoomId!=="undefined" && currentRoomId==="__myProfileCore"){
+        if(typeof openMyProfile==="function") openMyProfile();
+        else if(typeof showScreen==="function") showScreen("myProfileSheet");
+        return;
+      }
+      return originalBackFromViewer.apply(this,arguments);
+    };
+    window.__patch26bBackWrapped=true;
+  }
+
+  document.addEventListener("DOMContentLoaded",patch26bBindMyProfileCoreViewer);
+  setTimeout(patch26bBindMyProfileCoreViewer,0);
+  setTimeout(patch26bBindMyProfileCoreViewer,350);
 })();
