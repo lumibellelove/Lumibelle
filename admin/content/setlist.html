@@ -3638,14 +3638,18 @@
       try{
         const response = await callSetlistApi('adminListSetlistThumbs', {folderId:SETLIST_THUMB_FOLDER_ID, limit:48});
         if(!response || response.ok === false) throw new Error((response && (response.message || response.error)) || 'listFailed');
-        const items = (response.items || response.images || []).map(item => ({
+        const localCropMap = buildLocalSetlistThumbCropMap();
+        const items = (response.items || response.images || []).map(item => applyLocalCropToRecentThumbItem({
           fileId: item.fileId || item.thumbFileId || '',
+          thumbFileId: item.thumbFileId || item.fileId || '',
           thumbUrl: item.thumbUrl || item.imageUrl || item.thumbnailUrl || item.url || '',
+          thumbnailUrl: item.thumbnailUrl || item.thumbUrl || item.imageUrl || item.url || '',
+          url: item.url || item.thumbUrl || item.imageUrl || item.thumbnailUrl || '',
           thumbX: item.thumbX !== undefined ? item.thumbX : 50,
           thumbY: item.thumbY !== undefined ? item.thumbY : 50,
           thumbScale: item.thumbScale !== undefined ? item.thumbScale : 1,
           thumbPresetName: item.thumbPresetName || item.name || ''
-        })).filter(item => item.thumbUrl);
+        }, localCropMap)).filter(item => item.thumbUrl);
         window.__setlistRecentThumbItems = items;
         if(!items.length){
           grid.innerHTML = '<div class="thumb-recent-empty">앨범 썸네일 폴더에 최근 사진이 없어요.</div>';
@@ -3672,7 +3676,48 @@
       if(modal) modal.classList.remove('open');
     }
 
-    function applyRecentSetlistThumb(index, mode){
+function thumbRecentKey(value){
+      return String(value || '').trim();
+    }
+
+    function buildLocalSetlistThumbCropMap(){
+      const map = {};
+      const put = (key, crop, source) => {
+        key = thumbRecentKey(key);
+        if(!key) return;
+        map[key] = {
+          thumbX: clampNumber(crop?.thumbX ?? crop?.x, 0, 100, 50),
+          thumbY: clampNumber(crop?.thumbY ?? crop?.y, 0, 100, 50),
+          thumbScale: clampNumber(crop?.thumbScale ?? crop?.scale, 1, 2.5, 1),
+          source: source || 'local'
+        };
+      };
+      (data.songs || []).forEach(song => {
+        const crop = getThumbCrop(song);
+        put(song.thumbFileId, crop, 'song');
+        put(song.thumbUrl, crop, 'song');
+        put(song.thumb, crop, 'song');
+      });
+      const modalCrop = readSongThumbCropInputs();
+      put(document.getElementById('songThumbFileId')?.value, modalCrop, 'modal');
+      put(document.getElementById('songThumbUrl')?.value, modalCrop, 'modal');
+      put(document.getElementById('songThumb')?.value, modalCrop, 'modal');
+      return map;
+    }
+
+    function applyLocalCropToRecentThumbItem(item, localCropMap){
+      const keys = [item.fileId, item.thumbFileId, item.thumbUrl, item.thumbnailUrl, item.url].map(thumbRecentKey).filter(Boolean);
+      const local = keys.map(key => localCropMap[key]).find(Boolean);
+      if(!local) return item;
+      return Object.assign({}, item, {
+        thumbX: local.thumbX,
+        thumbY: local.thumbY,
+        thumbScale: local.thumbScale,
+        thumbPresetName: item.thumbPresetName || local.source || ''
+      });
+    }
+
+        function applyRecentSetlistThumb(index, mode){
       const items = window.__setlistRecentThumbItems || [];
       const item = items[index];
       if(!item) return;
