@@ -3681,29 +3681,49 @@ function thumbRecentKey(value){
     }
 
     function buildLocalSetlistThumbCropMap(){
-      const map = {};
-      const put = (key, crop, source) => {
-        key = thumbRecentKey(key);
-        if(!key) return;
-        map[key] = {
-          thumbX: clampNumber(crop?.thumbX ?? crop?.x, 0, 100, 50),
-          thumbY: clampNumber(crop?.thumbY ?? crop?.y, 0, 100, 50),
-          thumbScale: clampNumber(crop?.thumbScale ?? crop?.scale, 1, 2.5, 1),
-          source: source || 'local'
-        };
-      };
-      (data.songs || []).forEach(song => {
-        const crop = getThumbCrop(song);
-        put(song.thumbFileId, crop, 'song');
-        put(song.thumbUrl, crop, 'song');
-        put(song.thumb, crop, 'song');
-      });
-      const modalCrop = readSongThumbCropInputs();
-      put(document.getElementById('songThumbFileId')?.value, modalCrop, 'modal');
-      put(document.getElementById('songThumbUrl')?.value, modalCrop, 'modal');
-      put(document.getElementById('songThumb')?.value, modalCrop, 'modal');
-      return map;
-    }
+  const map = {};
+
+  const putById = (fileId, crop, source) => {
+    const key = thumbRecentKey(fileId);
+    if(!key) return;
+    if(map[key] && map[key].source === 'modal') return;
+    map[key] = {
+      thumbX: clampNumber(crop?.thumbX ?? crop?.x, 0, 100, 50),
+      thumbY: clampNumber(crop?.thumbY ?? crop?.y, 0, 100, 50),
+      thumbScale: clampNumber(crop?.thumbScale ?? crop?.scale, 1, 2.5, 1),
+      source
+    };
+  };
+
+  const putByUrl = (url, crop, source) => {
+    const key = thumbRecentKey(url);
+    if(!key) return;
+    if(map[key]) return;
+    map[key] = {
+      thumbX: clampNumber(crop?.thumbX ?? crop?.x, 0, 100, 50),
+      thumbY: clampNumber(crop?.thumbY ?? crop?.y, 0, 100, 50),
+      thumbScale: clampNumber(crop?.thumbScale ?? crop?.scale, 1, 2.5, 1),
+      source
+    };
+  };
+
+  // 1순위: 현재 모달에서 편집 중인 값
+  const modalCrop = readSongThumbCropInputs();
+  const modalFileId = thumbRecentKey(document.getElementById('songThumbFileId')?.value);
+  const modalUrl = thumbRecentKey(document.getElementById('songThumbUrl')?.value || document.getElementById('songThumb')?.value);
+  if(modalFileId) putById(modalFileId, modalCrop, 'modal');
+  if(modalUrl) putByUrl(modalUrl, modalCrop, 'modal');
+
+  // 2순위: data.songs 전체
+  (data.songs || []).forEach(song => {
+    const crop = getThumbCrop(song);
+    if(song.thumbFileId) putById(song.thumbFileId, crop, 'song');
+    if(song.thumbUrl) putByUrl(song.thumbUrl, crop, 'song');
+    if(song.thumb && song.thumb !== song.thumbUrl) putByUrl(song.thumb, crop, 'song');
+  });
+
+  return map;
+}
 
     function applyLocalCropToRecentThumbItem(item, localCropMap){
       const keys = [item.fileId, item.thumbFileId, item.thumbUrl, item.thumbnailUrl, item.url].map(thumbRecentKey).filter(Boolean);
@@ -3718,31 +3738,70 @@ function thumbRecentKey(value){
     }
 
         function applyRecentSetlistThumb(index, mode){
-      const items = window.__setlistRecentThumbItems || [];
-      const item = items[index];
-      if(!item) return;
-      const current = readSongThumbCropInputs();
-      const selectedMode = mode === true ? 'saved' : (mode || 'image');
-      const crop = selectedMode === 'saved'
-        ? {x:item.thumbX, y:item.thumbY, scale:item.thumbScale}
-        : selectedMode === 'default'
-          ? {x:50, y:50, scale:1}
-          : current;
-      applySongThumbToModal({
-        thumbUrl: item.thumbUrl,
-        thumbFileId: item.fileId,
-        thumbX: crop.x,
-        thumbY: crop.y,
-        thumbScale: crop.scale,
-        thumbPresetName: item.thumbPresetName
-      }, {keepPosition: selectedMode === 'image'});
-      setSongThumbStatus(
-        selectedMode === 'saved' ? '최근 썸네일의 저장 위치까지 적용했어요.' :
-        selectedMode === 'default' ? '사진을 기본 위치로 적용했어요.' :
-        '사진만 적용했어요. 현재 위치값은 유지됩니다.'
-      );
-      closeThumbRecentModal();
-    }
+  const items = window.__setlistRecentThumbItems || [];
+  const item = items[index];
+  if(!item) return;
+
+  const selectedMode = mode === true ? 'saved' : (mode || 'image');
+  const currentCrop = readSongThumbCropInputs();
+
+  let cropX, cropY, cropScale;
+
+  if(selectedMode === 'default'){
+    cropX = 50; cropY = 50; cropScale = 1;
+  } else if(selectedMode === 'image'){
+    cropX = currentCrop.x; cropY = currentCrop.y; cropScale = currentCrop.scale;
+  } else {
+    // 'saved': item 위치값 우선, 없으면 현재 모달값 유지
+    const hasX = item.thumbX !== undefined && item.thumbX !== null;
+    const hasY = item.thumbY !== undefined && item.thumbY !== null;
+    const hasScale = item.thumbScale !== undefined && item.thumbScale !== null;
+    cropX = hasX ? Number(item.thumbX) : currentCrop.x;
+    cropY = hasY ? Number(item.thumbY) : currentCrop.y;
+    cropScale = hasScale ? Number(item.thumbScale) : currentCrop.scale;
+  }
+
+  cropX = clampNumber(cropX, 0, 100, 50);
+  cropY = clampNumber(cropY, 0, 100, 50);
+  cropScale = clampNumber(cropScale, 1, 2.5, 1);
+
+  const xInput = document.getElementById('songThumbX');
+  const yInput = document.getElementById('songThumbY');
+  const scaleInput = document.getElementById('songThumbScale');
+  if(xInput) xInput.value = cropX;
+  if(yInput) yInput.value = cropY;
+  if(scaleInput) scaleInput.value = cropScale;
+
+  // thumbnailUrl fallback 포함
+  const thumbUrl = String(item.thumbUrl || item.thumbnailUrl || item.url || '').trim();
+  const fileId = String(item.fileId || item.thumbFileId || '').trim();
+
+  const hidden = document.getElementById('songThumb');
+  const hiddenUrl = document.getElementById('songThumbUrl');
+  const hiddenFile = document.getElementById('songThumbFileId');
+  const hiddenPreset = document.getElementById('songThumbPresetName');
+  if(hidden) hidden.value = thumbUrl;
+  if(hiddenUrl) hiddenUrl.value = thumbUrl;
+  if(hiddenFile) hiddenFile.value = fileId;
+  if(hiddenPreset) hiddenPreset.value = String(item.thumbPresetName || '');
+
+  applySongThumbCropPreview();
+  const imgHtml = thumbUrl
+    ? `<img src="${thumbUrl.replace(/"/g,'&quot;')}" alt="썸네일 미리보기">`
+    : '';
+  document.querySelectorAll('#songThumbPreview, .song-thumb-sync').forEach(box => {
+    box.innerHTML = imgHtml;
+  });
+  applySongThumbCropPreview();
+
+  setSongThumbStatus(
+    selectedMode === 'saved'  ? '저장 위치로 적용했어요.' :
+    selectedMode === 'default'? '기본 위치로 적용했어요.' :
+                                '사진만 적용했어요.'
+  );
+
+  closeThumbRecentModal();
+}
 
     function openSongModal(id){
       const s=data.songs.find(x=>x.id===id);
