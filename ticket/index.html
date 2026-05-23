@@ -1190,7 +1190,167 @@
   .meate-options{ gap:8px; }
 }
 
-</style>
+
+    /* ===== TICKET mobile folded header patch: logo tap opens menu ===== */
+    @media (max-width:780px){
+      html, body{ overflow-x:hidden !important; }
+
+      .wrap,
+      .top-lang-bar,
+      header .wrap.header-box,
+      .header-box{
+        width:calc(100% - 22px) !important;
+        max-width:none !important;
+        box-sizing:border-box !important;
+      }
+
+      .top-lang-bar{
+        margin:12px auto 0 !important;
+        padding:0 !important;
+        justify-content:center !important;
+      }
+
+      .lang-switch{
+        gap:6px !important;
+        flex-wrap:wrap !important;
+        justify-content:center !important;
+      }
+
+      .lang-switch a{
+        min-width:42px !important;
+        height:30px !important;
+        padding:0 10px !important;
+        font-size:11px !important;
+        line-height:30px !important;
+      }
+
+      header .wrap.header-box,
+      .header-box{
+        margin:10px auto 0 !important;
+        padding:16px 14px 18px !important;
+        min-height:auto !important;
+        flex-direction:column !important;
+        align-items:center !important;
+        justify-content:center !important;
+        gap:0 !important;
+        border-radius:28px !important;
+      }
+
+      .logo{
+        width:100% !important;
+        min-width:0 !important;
+        justify-content:center !important;
+        text-align:center !important;
+      }
+
+      .logo a{
+        position:relative !important;
+        display:inline-flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+        width:100% !important;
+        max-width:260px !important;
+        margin:0 auto !important;
+        -webkit-tap-highlight-color:transparent !important;
+      }
+
+      .logo a::after{
+        content:"MENU";
+        position:absolute !important;
+        left:calc(50% + 70px) !important;
+        top:50% !important;
+        transform:translateY(-50%) !important;
+        color:#c989a9 !important;
+        font-size:13px !important;
+        line-height:1 !important;
+        font-weight:900 !important;
+        letter-spacing:.13em !important;
+        text-align:center !important;
+        opacity:.82 !important;
+        white-space:nowrap !important;
+      }
+
+      header.mobile-nav-open .logo a::after{
+        content:"CLOSE";
+      }
+
+      .logo img{
+        height:76px !important;
+        width:auto !important;
+        max-width:100% !important;
+        display:block !important;
+      }
+
+      header nav{
+        display:none !important;
+      }
+
+      header.mobile-nav-open nav{
+        display:grid !important;
+        width:100% !important;
+        grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+        gap:8px !important;
+        margin-top:14px !important;
+      }
+
+      nav a{
+        min-height:46px !important;
+        padding:9px 8px !important;
+        border-radius:16px !important;
+      }
+
+      nav a b{
+        font-size:15px !important;
+        line-height:1.05 !important;
+      }
+
+      nav a span{
+        margin-top:4px !important;
+        font-size:11.5px !important;
+        line-height:1.2 !important;
+      }
+    }
+
+    @media (max-width:430px){
+      .wrap,
+      .top-lang-bar,
+      header .wrap.header-box,
+      .header-box{
+        width:calc(100% - 22px) !important;
+      }
+
+      .logo a::after{
+        left:calc(50% + 64px) !important;
+        font-size:12.5px !important;
+      }
+    }
+
+    @media (max-width:374px){
+      .wrap,
+      .top-lang-bar,
+      header .wrap.header-box,
+      .header-box{
+        width:calc(100% - 18px) !important;
+      }
+
+      .logo img{ height:70px !important; }
+      .logo a::after{
+        left:calc(50% + 58px) !important;
+        font-size:12px !important;
+      }
+
+      nav a b{ font-size:14px !important; }
+      nav a span{ font-size:11px !important; }
+    }
+
+    /* Ticket page should show the static shell immediately, not after scroll/reveal timing. */
+    .reveal,
+    .reveal.show{
+      opacity:1 !important;
+      transform:none !important;
+    }
+
+  </style>
  </head>
  <body>
   <div class="top-lang-bar">
@@ -2306,6 +2466,37 @@
         core.style.opacity = '';
         moveCursor(lastX, lastY);
       });
+    })();
+  </script>
+
+  <script>
+    // TICKET mobile folded header: tap logo to open/close menu.
+    (() => {
+      const header = document.querySelector('header');
+      const logoLink = document.querySelector('header .logo a');
+      if (!header || !logoLink) return;
+
+      const mq = window.matchMedia('(max-width:780px)');
+
+      function closeIfDesktop(){
+        if (!mq.matches) header.classList.remove('mobile-nav-open');
+      }
+
+      logoLink.addEventListener('click', (event) => {
+        if (!mq.matches) return;
+        event.preventDefault();
+        header.classList.toggle('mobile-nav-open');
+      });
+
+      document.querySelectorAll('header nav a').forEach((link) => {
+        link.addEventListener('click', () => {
+          if (mq.matches) header.classList.remove('mobile-nav-open');
+        });
+      });
+
+      if (mq.addEventListener) mq.addEventListener('change', closeIfDesktop);
+      else if (mq.addListener) mq.addListener(closeIfDesktop);
+      closeIfDesktop();
     })();
   </script>
 
