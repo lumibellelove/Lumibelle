@@ -19,6 +19,9 @@
   --theme-radius-md: 18px;
   --dock-h: 70px;
   --system-h: 72px;
+  --phone-max-mobile: 430px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 * { box-sizing: border-box; }
@@ -28,6 +31,8 @@ body { min-height: 100%; }
 
 body {
   margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
   font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Noto Sans KR", "Segoe UI", sans-serif;
   color: var(--theme-text);
   background:
@@ -35,9 +40,11 @@ body {
     radial-gradient(circle at 82% 20%, rgba(255, 244, 250, 0.92), transparent 32%),
     radial-gradient(circle at 48% 96%, rgba(255, 202, 229, 0.72), transparent 36%),
     linear-gradient(145deg, #fffafd 0%, #fff4fa 54%, #ffe3f0 100%);
-  display: grid;
-  place-items: center;
-  padding: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: max(8px, var(--safe-top)) 8px calc(12px + var(--safe-bottom));
+  overflow-x: hidden;
 }
 
 button {
@@ -47,19 +54,19 @@ button {
 }
 
 .phone-stage {
-  width: min(100%, 430px);
+  width: min(100%, var(--phone-max-mobile));
   display: grid;
   place-items: center;
 }
 
 .phone-shell {
-  width: 390px;
-  height: 790px;
-  max-width: calc(100vw - 24px);
-  max-height: calc(100vh - 24px);
-  min-height: 720px;
-  padding: 12px;
-  border-radius: 46px;
+  width: min(100%, var(--phone-max-mobile));
+  height: calc(100vh - 28px);
+  height: calc(100dvh - 28px);
+  min-height: 0;
+  max-height: none;
+  padding: 8px;
+  border-radius: 40px;
   background: linear-gradient(145deg, #fff7fb, #fff0f7 58%, #fffaf2);
   box-shadow:
     0 26px 84px rgba(224, 126, 178, 0.26),
@@ -70,7 +77,8 @@ button {
 
 .phone-screen {
   height: 100%;
-  border-radius: 38px;
+  min-height: 0;
+  border-radius: 29px;
   overflow: hidden;
   background:
     radial-gradient(circle at 50% 0%, rgba(255,236,247,0.82), transparent 34%),
@@ -884,16 +892,20 @@ button {
 }
 
 @media (max-width: 430px) {
-  body { padding: 12px; }
+  body {
+    padding: max(8px, var(--safe-top)) 8px calc(12px + var(--safe-bottom));
+  }
+
   .phone-shell {
-    width: min(390px, 100%);
-    height: min(790px, calc(100vh - 24px));
+    width: min(100%, var(--phone-max-mobile));
+    height: calc(100vh - 28px);
+    height: calc(100dvh - 28px);
   }
 }
 
 @media (max-width: 370px) {
-  .phone-shell { padding: 9px; }
-  .screen-page { padding-left: 14px; padding-right: 14px; }
+  .phone-shell { padding: 8px; }
+  .screen-page { padding-left: 12px; padding-right: 12px; }
   .top-widget-grid { grid-template-columns: 1fr 92px; }
   .clock-card { width: 90px; min-height: 90px; }
   .reservation-row { grid-template-columns: 1fr 88px; }
@@ -1046,4 +1058,28 @@ button {
   .stamp-preview { gap: 6px; }
   .energy-widget { grid-template-columns: 1fr 96px; }
   .energy-meter i { width: 82px; }
+}
+
+/* PC에서는 모바일 프레임을 중앙에 두고, 모바일 기준은 건드리지 않는다. */
+@media (min-width: 760px) {
+  body {
+    align-items: center;
+    padding: 28px 18px;
+  }
+
+  .phone-stage {
+    width: min(100%, 430px);
+  }
+
+  .phone-shell {
+    width: 390px;
+    height: min(790px, calc(100vh - 56px));
+    min-height: 720px;
+    padding: 12px;
+    border-radius: 46px;
+  }
+
+  .phone-screen {
+    border-radius: 38px;
+  }
 }
