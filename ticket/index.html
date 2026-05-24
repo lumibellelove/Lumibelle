@@ -953,7 +953,404 @@
         gap:12px;
       }
     }
-</style>
+
+
+    /* ===== Ticket poster showcase frame: 원본 비율 보호 + 액자 자동 맞춤 ===== */
+    .poster-card{
+      overflow:hidden !important;
+    }
+    .poster-box{
+      overflow:hidden !important;
+      aspect-ratio:3 / 4 !important;
+      padding:0 !important;
+      background:linear-gradient(135deg,#fff0f7 0%,#fff8fb 100%) !important;
+      border-radius:28px 28px 0 0;
+    }
+    .poster-box:not(.poster-has-image){
+      padding:22px !important;
+    }
+    .poster-box[data-poster-layout="portrait"],
+    .poster-box[data-poster-layout="vertical"]{
+      aspect-ratio:var(--poster-ratio, 1448 / 2048) !important;
+    }
+    .poster-box[data-poster-layout="wide"],
+    .poster-box[data-poster-layout="landscape"],
+    .poster-box[data-poster-layout="horizontal"]{
+      aspect-ratio:var(--poster-ratio, 2048 / 1448) !important;
+    }
+    .poster-box[data-poster-layout="square"]{
+      aspect-ratio:var(--poster-ratio, 1 / 1) !important;
+    }
+    .poster-box picture{
+      display:block !important;
+      width:100% !important;
+      height:100% !important;
+    }
+    .poster-box img{
+      width:100% !important;
+      height:100% !important;
+      object-fit:contain !important;
+      object-position:center center !important;
+      display:block !important;
+      border-radius:0 !important;
+      background:transparent !important;
+    }
+
+  
+
+/* =========================================================
+   Emergency mobile CPR 2026-05-23
+   기준: 공홈 index/news/schedule 모바일 폭 규칙만 이식
+   범위: 티켓 페이지 모바일 레이아웃/가독성 보정, 기능 JS 변경 없음
+   ========================================================= */
+@media (max-width: 780px){
+  html, body{ overflow-x:hidden; }
+
+  .top-lang-bar,
+  header .wrap.header-box,
+  main .wrap{
+    width:min(100% - 24px, 430px);
+    max-width:430px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  .top-lang-bar{
+    justify-content:center;
+    padding:0;
+    margin-top:18px;
+  }
+
+  .header-box{
+    min-height:auto;
+    padding:16px 14px;
+    gap:16px;
+    flex-direction:column;
+    align-items:stretch;
+    border-radius:24px;
+  }
+
+  .logo{ justify-content:center; }
+  .logo img{ height:88px; max-width:180px; }
+
+  nav{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:12px;
+    width:100%;
+    margin:0;
+  }
+
+  nav a{
+    min-width:0;
+    min-height:76px;
+    padding:14px 10px;
+    border-radius:18px;
+  }
+
+  nav a b{ font-size:1.08em; }
+  nav a span{ font-size:.88em; }
+
+  .hero-mini{
+    margin-top:22px;
+    padding:34px 20px 32px;
+    border-radius:24px;
+  }
+  .hero-mini h1{ font-size:54px; line-height:.95; }
+  .hero-mini .sub{ font-size:15px; letter-spacing:.12em; }
+  .hero-mini p{ font-size:13.5px; line-height:1.75; }
+  .hero-mini .status-row{ justify-content:center; gap:8px; }
+  .hero-mini .status-pill{
+    min-height:36px;
+    padding:0 12px;
+    font-size:12px;
+  }
+
+  .ticket-layout{
+    grid-template-columns:1fr;
+    gap:18px;
+    margin-top:18px;
+  }
+  .left-stack{ padding-top:0; }
+  .right-stack{ gap:16px; }
+  .right-top-actions{ justify-content:center; }
+  .quick-icon-btn{ width:100%; min-height:42px; }
+
+  .poster-card,
+  .ticket-card,
+  .detail-card,
+  .package-card{
+    border-radius:24px;
+  }
+
+  .poster-box{
+    max-height:360px;
+    border-radius:24px 24px 0 0;
+  }
+
+  .info-card,
+  .ticket-card,
+  .detail-card,
+  .package-card{
+    padding:20px 16px;
+  }
+
+  .info-card h2,
+  .ticket-card h2,
+  .detail-card h2,
+  .package-card h2{
+    font-size:27px;
+    margin-bottom:14px;
+  }
+
+  .event-lines{ gap:10px; }
+  .event-line{
+    grid-template-columns:72px minmax(0, 1fr);
+    gap:10px;
+    padding:12px 13px;
+    border-radius:16px;
+  }
+
+  .notice-grid{ gap:12px; }
+  .notice-box{
+    padding:16px 16px;
+    border-radius:18px;
+  }
+  .notice-box h3{ font-size:20px; }
+  .notice-box ul{ font-size:14.5px; line-height:1.72; }
+
+  .ticket-card > .status-row{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:8px;
+  }
+  .ticket-card > .status-row .status-pill{
+    width:100%;
+    justify-content:center;
+    min-height:40px;
+    padding:0 12px;
+    font-size:13px;
+  }
+
+  .ticket-price{
+    padding:17px 16px;
+    border-radius:18px;
+    gap:10px;
+  }
+  .ticket-price strong{ font-size:20px; }
+  .ticket-price b{ font-size:24px; }
+
+  .ticket-options{ gap:8px; }
+  .ticket-option{ flex:1 1 auto; min-height:42px; font-size:14px; }
+
+  .reserve-form{ max-width:100%; gap:12px; }
+  .form-row{
+    grid-template-columns:minmax(0, 1fr) 104px;
+    gap:9px;
+  }
+  .field label{ font-size:16px; }
+  .field input,
+  .field select{
+    min-height:48px;
+    border-radius:16px;
+    font-size:15px;
+    padding:0 14px;
+  }
+
+  .meate-options{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:9px;
+  }
+  .meate-option{
+    min-height:44px;
+    padding:0 10px;
+    font-size:14px;
+  }
+
+  .agree-box{
+    align-items:flex-start;
+    padding:11px 13px;
+    font-size:13.5px;
+  }
+  .reserve-btn{
+    width:100%;
+    max-width:none;
+    min-height:50px;
+  }
+}
+
+@media (max-width: 374px){
+  .top-lang-bar,
+  header .wrap.header-box,
+  main .wrap{
+    width:calc(100% - 18px);
+  }
+  .hero-mini h1{ font-size:48px; }
+  .event-line{ grid-template-columns:1fr; gap:4px; }
+  .form-row{ grid-template-columns:1fr; }
+  .meate-options{ gap:8px; }
+}
+
+
+    /* ===== TICKET mobile folded header patch: logo tap opens menu ===== */
+    @media (max-width:780px){
+      html, body{ overflow-x:hidden !important; }
+
+      .wrap,
+      .top-lang-bar,
+      header .wrap.header-box,
+      .header-box{
+        width:calc(100% - 22px) !important;
+        max-width:none !important;
+        box-sizing:border-box !important;
+      }
+
+      .top-lang-bar{
+        margin:12px auto 0 !important;
+        padding:0 !important;
+        justify-content:center !important;
+      }
+
+      .lang-switch{
+        gap:6px !important;
+        flex-wrap:wrap !important;
+        justify-content:center !important;
+      }
+
+      .lang-switch a{
+        min-width:42px !important;
+        height:30px !important;
+        padding:0 10px !important;
+        font-size:11px !important;
+        line-height:30px !important;
+      }
+
+      header .wrap.header-box,
+      .header-box{
+        margin:10px auto 0 !important;
+        padding:16px 14px 18px !important;
+        min-height:auto !important;
+        flex-direction:column !important;
+        align-items:center !important;
+        justify-content:center !important;
+        gap:0 !important;
+        border-radius:28px !important;
+      }
+
+      .logo{
+        width:100% !important;
+        min-width:0 !important;
+        justify-content:center !important;
+        text-align:center !important;
+      }
+
+      .logo a{
+        position:relative !important;
+        display:inline-flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+        width:100% !important;
+        max-width:260px !important;
+        margin:0 auto !important;
+        -webkit-tap-highlight-color:transparent !important;
+      }
+
+      .logo a::after{
+        content:"MENU";
+        position:absolute !important;
+        left:calc(50% + 70px) !important;
+        top:50% !important;
+        transform:translateY(-50%) !important;
+        color:#c989a9 !important;
+        font-size:13px !important;
+        line-height:1 !important;
+        font-weight:900 !important;
+        letter-spacing:.13em !important;
+        text-align:center !important;
+        opacity:.82 !important;
+        white-space:nowrap !important;
+      }
+
+      header.mobile-nav-open .logo a::after{
+        content:"CLOSE";
+      }
+
+      .logo img{
+        height:76px !important;
+        width:auto !important;
+        max-width:100% !important;
+        display:block !important;
+      }
+
+      header nav{
+        display:none !important;
+      }
+
+      header.mobile-nav-open nav{
+        display:grid !important;
+        width:100% !important;
+        grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+        gap:8px !important;
+        margin-top:14px !important;
+      }
+
+      nav a{
+        min-height:46px !important;
+        padding:9px 8px !important;
+        border-radius:16px !important;
+      }
+
+      nav a b{
+        font-size:15px !important;
+        line-height:1.05 !important;
+      }
+
+      nav a span{
+        margin-top:4px !important;
+        font-size:11.5px !important;
+        line-height:1.2 !important;
+      }
+    }
+
+    @media (max-width:430px){
+      .wrap,
+      .top-lang-bar,
+      header .wrap.header-box,
+      .header-box{
+        width:calc(100% - 22px) !important;
+      }
+
+      .logo a::after{
+        left:calc(50% + 64px) !important;
+        font-size:12.5px !important;
+      }
+    }
+
+    @media (max-width:374px){
+      .wrap,
+      .top-lang-bar,
+      header .wrap.header-box,
+      .header-box{
+        width:calc(100% - 18px) !important;
+      }
+
+      .logo img{ height:70px !important; }
+      .logo a::after{
+        left:calc(50% + 58px) !important;
+        font-size:12px !important;
+      }
+
+      nav a b{ font-size:14px !important; }
+      nav a span{ font-size:11px !important; }
+    }
+
+    /* Ticket page should show the static shell immediately, not after scroll/reveal timing. */
+    .reveal,
+    .reveal.show{
+      opacity:1 !important;
+      transform:none !important;
+    }
+
+  </style>
  </head>
  <body>
   <div class="top-lang-bar">
@@ -1062,7 +1459,7 @@
      <p>
       Shine Me UP : 루미벨 데뷔 라이브 예매 페이지입니다.
       <br/>
-      일반 사전 예약은 예매폼에서 신청하고, A/B 패키지는 굿즈 페이지에서 확인해 주세요.
+      일반 사전 예약은 예매폼에서 신청해 주세요.
      </p>
      <div class="status-row">
       <span class="status-pill strong">
@@ -1079,7 +1476,7 @@
     <section class="ticket-layout reveal">
      <div class="left-stack">
       <article class="poster-card reveal">
-       <div class="poster-box">
+       <div class="poster-box" data-poster-layout="portrait">
         <picture>
          <source srcset="../img/poster/2026-07-12.webp" type="image/webp"/>
          <img alt="Shine Me UP 루미벨 데뷔 라이브 포스터" onerror="this.closest('.poster-box').innerHTML='공연 포스터<br>2026.07.12<br>Shine Me UP';" src="../img/poster/2026-07-12.png"/>
@@ -1195,12 +1592,6 @@
          </h3>
          <ul>
           <li>
-           한정 패키지:
-           <strong>
-            6/15 마감 후 환불 불가
-           </strong>
-          </li>
-          <li>
            일반 예약:
            <strong>
             7/5(일) 23:59까지 가능
@@ -1235,22 +1626,6 @@
         </div>
        </div>
       </article>
-      <article class="package-card reveal">
-       <h2>
-        한정 패키지 안내
-       </h2>
-       <p class="ticket-note" style="margin-top:0">
-        데뷔 기념 한정 A/B 패키지는 굿즈 상세 페이지에서 구성과 안내를 확인한 뒤 구매할 수 있어요.
-       </p>
-       <div class="package-actions">
-        <a class="package-btn" href="../goods/packages/package-a.html">
-         A 패키지 보러가기
-        </a>
-        <a class="package-btn" href="../goods/packages/package-b.html">
-         B 패키지 보러가기
-        </a>
-       </div>
-      </article>
       <article class="ticket-card reveal">
        <h2>
         예매 정보 입력
@@ -1279,12 +1654,6 @@
        <div aria-label="티켓 종류 선택" class="ticket-options">
         <button class="ticket-option active" data-ticket="pre" type="button">
          사전 예약
-        </button>
-        <button class="ticket-option" data-ticket="s" type="button">
-         S 티켓
-        </button>
-        <button class="ticket-option" data-ticket="vip" type="button">
-         VIP 티켓
         </button>
        </div>
        <div class="ticket-divider"></div>
@@ -1385,9 +1754,7 @@
     }
 
     const ticketData = {
-      pre: { title: '사전 예약 티켓', desc: '일반 입장권 / 입금 확인 후 예약 확정', price: '₩10,000', formValue: '사전 예약 (10,000원)' },
-      s: { title: 'S 티켓', desc: '추후 공개 예정 / 특전 포함 예정', price: '추후 공개', formValue: 'S 티켓' },
-      vip: { title: 'VIP 티켓', desc: '추후 공개 예정 / 우선 입장 및 특전 예정', price: '추후 공개', formValue: 'VIP 티켓' }
+      pre: { title: '사전 예약 티켓', desc: '일반 입장권 / 입금 확인 후 예약 확정', price: '₩10,000', formValue: '사전 예약 (10,000원)' }
     };
 
     let selectedTicket = 'pre';
@@ -1395,7 +1762,7 @@
     document.querySelectorAll('.ticket-option').forEach((button) => {
       button.addEventListener('click', () => {
         selectedTicket = button.dataset.ticket;
-        const data = ticketData[selectedTicket];
+        const data = ticketData[selectedTicket] || ticketData.pre;
         document.getElementById('ticketDisplay').innerHTML = `<div><strong>${data.title}</strong><span>${data.desc}</span></div><b>${data.price}</b>`;
         document.querySelectorAll('.ticket-option').forEach((btn) => btn.classList.remove('active'));
         button.classList.add('active');
@@ -1450,7 +1817,9 @@
 
       const reservationData = {
         reservationNo: makeReservationNo(),
-        lumiId: makeLumiId(),
+        lumiId: '',
+        lumiIdRequest: 'not_selected',
+        lumiIdStatus: 'not_requested',
         nickname: `${nickname}${pin}`,
         rawNickname: nickname,
         pin,
@@ -1516,6 +1885,439 @@
       setTimeout(() => ripple.remove(), 700);
     });
   </script>
+
+  <script>
+    /* Ticket public output sync: ticket_items → 공홈 티켓 현재 공연 표시 */
+    (function(){
+      const TICKET_CONTENT_API_URL = 'https://script.google.com/macros/s/AKfycbzmZHCLvg_Nd8f6qnat3RisYoMPnGARaLWPqeCnt2zHI8wl0-QuXkMmnGtcP_BoSFEH/exec';
+      const TICKET_SYNC_STATE = {
+        loaded: false,
+        item: null
+      };
+
+      function htmlEscapeTicket(value){
+        return String(value == null ? '' : value).replace(/[&<>"']/g, function(ch){
+          return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+        });
+      }
+
+      function textOrEmpty(value){
+        return String(value == null ? '' : value).trim();
+      }
+
+      function normalizeTicketLang(value){
+        value = String(value || 'ko').toLowerCase().trim();
+        if(value === 'kr') return 'ko';
+        if(value === 'jp') return 'ja';
+        if(value === 'cn' || value === 'zh-cn' || value === 'zh_hans' || value === 'zh-hans') return 'zh';
+        return ['ko','ja','en','zh'].includes(value) ? value : 'ko';
+      }
+
+      function getTicketLang(){
+        try{
+          const params = new URLSearchParams(location.search);
+          return normalizeTicketLang(params.get('lang') || localStorage.getItem('lumibelle.home.lang') || 'ko');
+        }catch(err){
+          return 'ko';
+        }
+      }
+
+      function parseTicketMemo(item){
+        if(!item) return {};
+        const memo = item.memo || item._memo || item.memoJson || '';
+        if(!memo) return {};
+        if(typeof memo === 'object') return memo;
+        try{
+          return JSON.parse(String(memo));
+        }catch(err){
+          return {};
+        }
+      }
+
+      function ticketJsonp(action, payload){
+        payload = payload || {};
+        return new Promise(function(resolve, reject){
+          const callbackName = '__lumibelleTicketPublicCb_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+          const script = document.createElement('script');
+          const timer = setTimeout(function(){
+            cleanup();
+            reject(new Error('ticketApiTimeout'));
+          }, 12000);
+
+          function cleanup(){
+            clearTimeout(timer);
+            try{ delete window[callbackName]; }catch(err){ window[callbackName] = undefined; }
+            if(script && script.parentNode) script.parentNode.removeChild(script);
+          }
+
+          window[callbackName] = function(data){
+            cleanup();
+            resolve(data || {});
+          };
+
+          const params = new URLSearchParams();
+          params.set('action', action);
+          params.set('callback', callbackName);
+          params.set('payload', JSON.stringify(payload));
+          Object.keys(payload).forEach(function(key){
+            if(payload[key] == null) return;
+            params.set(key, payload[key]);
+          });
+
+          script.onerror = function(){
+            cleanup();
+            reject(new Error('ticketApiLoadFailed'));
+          };
+          script.src = TICKET_CONTENT_API_URL + '?' + params.toString();
+          document.head.appendChild(script);
+        });
+      }
+
+      function pickTicketItems(response){
+        if(!response) return [];
+        if(Array.isArray(response.items)) return response.items;
+        if(response.data && Array.isArray(response.data.items)) return response.data.items;
+        if(response.result && Array.isArray(response.result.items)) return response.result.items;
+        if(Array.isArray(response)) return response;
+        return [];
+      }
+
+      function formatTicketDate(value){
+        const raw = textOrEmpty(value);
+        if(!raw) return '';
+        const m = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+        if(!m) return raw;
+        const y = m[1], mo = String(m[2]).padStart(2,'0'), d = String(m[3]).padStart(2,'0');
+        const date = new Date(Number(y), Number(mo)-1, Number(d));
+        const dayNames = ['일','월','화','수','목','금','토'];
+        const day = isNaN(date.getTime()) ? '' : ' (' + dayNames[date.getDay()] + ')';
+        return y + '년 ' + Number(mo) + '월 ' + Number(d) + '일' + day;
+      }
+
+      function lineListHtml(value, fallback){
+        const raw = textOrEmpty(value || fallback);
+        if(!raw) return '<li>상세 안내는 추후 업데이트됩니다.</li>';
+        return raw
+          .split(/\n+/)
+          .map(function(line){ return textOrEmpty(line); })
+          .filter(Boolean)
+          .map(function(line){ return '<li>' + htmlEscapeTicket(line) + '</li>'; })
+          .join('');
+      }
+
+      function splitCastTeams(value){
+        if(Array.isArray(value)) return value.map(textOrEmpty).filter(Boolean);
+        return String(value || '')
+          .split(/[\n,/|]+/)
+          .map(textOrEmpty)
+          .filter(Boolean);
+      }
+
+      function normalizeTicketOpenStatus(value){
+        const raw = textOrEmpty(value || '').toLowerCase().replace(/\s+/g, '');
+        if(!raw) return 'open';
+        if(['sale','open','public','nowopen','reservationopen','예매중','판매중','예약중'].includes(raw)) return 'open';
+        if(['soon','upcoming','preparing','reservationsoon','예매예정','예약예정','준비중'].includes(raw)) return 'soon';
+        if(['closed','ended','마감','판매마감','예매마감'].includes(raw)) return 'closed';
+        if(['archive','archived','지난공연'].includes(raw)) return 'archived';
+        if(['draft','hidden','private','비공개','숨김'].includes(raw)) return 'hidden';
+        return raw;
+      }
+
+      function updateStatusPills(item, memo){
+        const row = document.querySelector('.hero-mini .status-row');
+        if(!row) return;
+        const badge = textOrEmpty(memo.badge || item.badge || 'NOW OPEN');
+        const ticketStatus = normalizeTicketOpenStatus(memo.ticketStatus || item.ticketStatus || item.status || 'open');
+        const labels = [];
+        labels.push(badge);
+        if(ticketStatus === 'soon') labels.push('PRE-ORDER');
+        else if(ticketStatus === 'closed') labels.push('마감');
+        else if(ticketStatus === 'archived') labels.push('지난 공연');
+        else if(ticketStatus === 'hidden') labels.push('비공개');
+        else labels.push('NOW OPEN');
+        labels.push('입금 확인 후 예약 확정');
+        row.innerHTML = labels.map(function(label, index){
+          return '<span class="status-pill' + (index === 0 ? ' strong' : '') + '">' + htmlEscapeTicket(label) + '</span>';
+        }).join('');
+      }
+
+      function normalizePosterLayout(value){
+        const raw = textOrEmpty(value || '').toLowerCase();
+        if(raw === 'wide' || raw === 'landscape' || raw === 'horizontal' || raw === '가로' || raw === '가로형') return 'wide';
+        if(raw === 'square' || raw === '정방형' || raw === 'square-ish') return 'square';
+        return 'portrait';
+      }
+
+      function layoutFromPosterRatio(width, height, fallback){
+        const w = Number(width || 0);
+        const h = Number(height || 0);
+        if(!w || !h) return normalizePosterLayout(fallback || 'portrait');
+        const ratio = w / h;
+        if(ratio >= 1.08) return 'wide';
+        if(ratio >= 0.86 && ratio < 1.08) return 'square';
+        return 'portrait';
+      }
+
+      function applyPosterFrame(posterBox, img, fallbackLayout){
+        if(!posterBox || !img) return;
+        posterBox.classList.add('poster-has-image');
+
+        function syncFrame(){
+          const w = img.naturalWidth || 0;
+          const h = img.naturalHeight || 0;
+          const layout = layoutFromPosterRatio(w, h, fallbackLayout || posterBox.dataset.posterLayout);
+          posterBox.dataset.posterLayout = layout;
+          if(w && h){
+            posterBox.style.setProperty('--poster-ratio', w + ' / ' + h);
+          }
+        }
+
+        if(img.complete && img.naturalWidth){
+          syncFrame();
+        }else{
+          img.addEventListener('load', syncFrame, { once:true });
+        }
+      }
+
+      function initStaticPosterFrame(){
+        document.querySelectorAll('.poster-box img').forEach(function(img){
+          const posterBox = img.closest('.poster-box');
+          applyPosterFrame(posterBox, img, posterBox ? posterBox.dataset.posterLayout : 'portrait');
+        });
+      }
+
+      function updatePoster(item, memo){
+        const posterUrl = textOrEmpty(item.posterUrl || memo.posterUrl || item.heroImageUrl || item.heroImage);
+        const posterBox = document.querySelector('.poster-box');
+        if(!posterBox || !posterUrl) return;
+        const title = textOrEmpty(item.title || 'Lumibelle Ticket Poster');
+        const layout = normalizePosterLayout(item.posterLayout || memo.posterLayout || 'portrait');
+        const img = document.createElement('img');
+        img.alt = title + ' 포스터';
+        img.src = posterUrl;
+        img.onerror = function(){
+          posterBox.classList.remove('poster-has-image');
+          posterBox.style.removeProperty('--poster-ratio');
+          posterBox.innerHTML = '공연 포스터를 불러오지 못했어요.';
+        };
+        posterBox.dataset.posterLayout = layout;
+        posterBox.style.removeProperty('--poster-ratio');
+        posterBox.classList.add('poster-has-image');
+        posterBox.replaceChildren(img);
+        applyPosterFrame(posterBox, img, layout);
+      }
+
+      function updateInfo(item, memo){
+        const title = textOrEmpty(item.title || '루미벨 공연');
+        const dateText = formatTicketDate(item.date || item.eventDate);
+        const timeText = textOrEmpty(item.time || item.startTime || memo.time);
+        const venue = textOrEmpty(item.venue || item.venueName);
+        const venueDetail = textOrEmpty(memo.venueDetail || item.venueDetail || item.venueAddress);
+        const intro = textOrEmpty(memo.intro || item.noticeText || item.description || '빛나는 미소의 소녀들, Lumibelle의 공연을 함께해 주세요.');
+        const casts = splitCastTeams(memo.castTeams || item.castTeams || item.members || 'Lumibelle');
+
+        const heroSub = document.querySelector('.hero-mini .sub');
+        const heroTitle = document.querySelector('.hero-mini h1');
+        const heroText = document.querySelector('.hero-mini p');
+        if(heroSub) heroSub.textContent = '루미벨 티켓 예매';
+        if(heroTitle) heroTitle.textContent = 'Ticket';
+        if(heroText) heroText.innerHTML = htmlEscapeTicket(title) + '<br>' + htmlEscapeTicket(intro);
+
+        const infoTitle = document.querySelector('.info-card h2');
+        const infoText = document.querySelector('.info-card > p');
+        const castList = document.querySelector('.cast-list');
+        const eventLines = document.querySelector('.event-lines');
+        if(infoTitle) infoTitle.textContent = '공연 정보';
+        if(infoText) infoText.textContent = intro;
+        if(castList && casts.length){
+          castList.innerHTML = casts.map(function(team){
+            return '<span class="cast-pill">' + htmlEscapeTicket(team) + '</span>';
+          }).join('');
+        }
+        if(eventLines){
+          const rows = [];
+          if(dateText || timeText) rows.push(['일시', [dateText, timeText].filter(Boolean).join(' ')]);
+          if(timeText) rows.push(['입장', timeText.indexOf('OPEN') >= 0 ? timeText : textOrEmpty(memo.openText || '상세 시간은 안내를 확인해 주세요.')]);
+          if(venue || venueDetail) rows.push(['장소', [venue, venueDetail].filter(Boolean).join('<br>')]);
+          eventLines.innerHTML = rows.map(function(row){
+            return '<div class="event-line"><strong>' + htmlEscapeTicket(row[0]) + '</strong><span>' + row[1] + '</span></div>';
+          }).join('');
+        }
+      }
+
+      function updateNotice(item, memo){
+        const boxes = document.querySelectorAll('.notice-box');
+        if(!boxes.length) return;
+        const guide = textOrEmpty(item.guideText || '');
+        const guideParts = guide ? guide.split(/\n\n+/) : [];
+        const entry = textOrEmpty(memo.ruleEntry || guideParts[0] || '');
+        const refund = textOrEmpty(memo.ruleRefund || guideParts[1] || '');
+        const notice = textOrEmpty(memo.ruleNotice || guideParts.slice(2).join('\n') || '');
+
+        const data = [
+          ['입장 및 대기 규칙', entry],
+          ['취소 및 환불', refund],
+          ['관람 유의사항', notice]
+        ];
+
+        boxes.forEach(function(box, index){
+          if(!data[index]) return;
+          const h3 = box.querySelector('h3');
+          const ul = box.querySelector('ul');
+          if(h3) h3.textContent = data[index][0];
+          if(ul && data[index][1]) ul.innerHTML = lineListHtml(data[index][1]);
+        });
+      }
+
+      function updatePackage(item, memo){
+        const card = document.querySelector('.package-card');
+        if(!card) return;
+        const packages = Array.isArray(memo.packages) ? memo.packages.filter(function(pkg){
+          if(!pkg) return false;
+          if(typeof pkg === 'string') return !!textOrEmpty(pkg);
+          const name = textOrEmpty(pkg.name || '');
+          const price = textOrEmpty(pkg.price || '');
+          const desc = textOrEmpty(pkg.description || pkg.benefit || '');
+          const url = textOrEmpty(pkg.url || pkg.link || '');
+          return !!(name || price || desc || url);
+        }) : [];
+        const rawBenefitText = textOrEmpty(item.benefitText || memo.benefitText || '');
+        const benefitText = /^(패키지|package|package 안내)$/i.test(rawBenefitText.trim()) ? '' : rawBenefitText;
+
+        if(benefitText){
+          card.hidden = false;
+          card.style.display = '';
+          card.innerHTML = '<h2>혜택 안내</h2><p class="ticket-note" style="margin-top:0">' + htmlEscapeTicket(benefitText).replace(/\n/g,'<br>') + '</p>';
+        }else{
+          card.hidden = true;
+          card.style.display = 'none';
+        }
+      }
+
+      function updateReserveBox(item, memo){
+        const reservation = memo.reservation || {};
+        const reserveName = textOrEmpty(reservation.ticketName || item.reserveTicketName || '사전 예약 티켓');
+        const rawPrice = textOrEmpty(reservation.price || item.priceText || '10000');
+        const priceText = rawPrice.match(/원|₩/) ? rawPrice : rawPrice + '원';
+        const description = textOrEmpty(reservation.description || '일반 입장권 / 입금 확인 후 예약 확정');
+        const account = textOrEmpty(reservation.account || item.accountText);
+        const holder = textOrEmpty(reservation.holder || item.accountHolder);
+        const ticketStatus = normalizeTicketOpenStatus(memo.ticketStatus || item.ticketStatus || item.status || 'open');
+        const isReservable = ticketStatus === 'open';
+        const closedText = ticketStatus === 'soon' ? '예매 오픈 전입니다. 관리자에서 예매 상태를 예매중으로 바꾸면 신청 버튼이 열려요.' : '현재 예매를 받을 수 없는 상태입니다.';
+        const statusRow = document.querySelector('.ticket-card .status-row');
+        const display = document.getElementById('ticketDisplay');
+        const ticketCard = document.querySelector('.ticket-card');
+        const form = document.getElementById('reserveForm');
+        const submitButton = form ? form.querySelector('.reserve-btn') : null;
+        const reserveMsg = document.getElementById('reserveMsg');
+
+        if(statusRow){
+          if(isReservable && (account || holder)){
+            statusRow.innerHTML = [
+              account ? '<span class="status-pill">계좌 : ' + htmlEscapeTicket(account) + '</span>' : '',
+              holder ? '<span class="status-pill">예금주 : ' + htmlEscapeTicket(holder) + '</span>' : ''
+            ].filter(Boolean).join('');
+          }else if(!isReservable){
+            statusRow.innerHTML = '<span class="status-pill">예매 예정</span>';
+          }
+        }
+
+        try{
+          ticketData.pre.title = reserveName;
+          ticketData.pre.desc = description;
+          ticketData.pre.price = priceText;
+          // Google Form 제출값은 폼 선택지와 정확히 맞아야 하므로 표시용 가격/API 값으로 덮어쓰지 않음.
+          // ticketData.pre.formValue는 초기값 '사전 예약 (10,000원)'을 유지.
+          selectedTicket = 'pre';
+        }catch(err){}
+
+        if(display){
+          display.innerHTML = '<div><strong>' + htmlEscapeTicket(reserveName) + '</strong><span>' + htmlEscapeTicket(isReservable ? description : closedText) + '</span></div><b>' + htmlEscapeTicket(priceText) + '</b>';
+        }
+
+        if(ticketCard){
+          ticketCard.dataset.ticketStatus = ticketStatus || 'open';
+        }
+        if(form){
+          form.dataset.reservable = isReservable ? 'true' : 'false';
+          form.querySelectorAll('input, button.ticket-option, button.meate-option').forEach(function(el){
+            if(el.classList && el.classList.contains('reserve-btn')) return;
+            el.disabled = !isReservable;
+          });
+        }
+        if(submitButton){
+          submitButton.disabled = !isReservable;
+          submitButton.textContent = isReservable ? '예매하기' : '예매 예정';
+          submitButton.style.opacity = isReservable ? '' : '.55';
+          submitButton.style.cursor = isReservable ? '' : 'not-allowed';
+        }
+        if(reserveMsg && !isReservable){
+          reserveMsg.textContent = closedText;
+          reserveMsg.classList.add('show');
+        }
+      }
+
+      function updateMeateOptions(item, memo){
+        const meateBox = document.querySelector('.meate-options');
+        if(!meateBox) return;
+        const teams = splitCastTeams(memo.castTeams || item.castTeams || item.members || 'Lumibelle');
+        if(!teams.length) return;
+        meateBox.innerHTML = teams.map(function(team){
+          return '<button class="meate-option" data-meate="' + htmlEscapeTicket(team) + '" type="button">' + htmlEscapeTicket(team) + '</button>';
+        }).join('');
+
+        meateBox.querySelectorAll('.meate-option').forEach(function(button){
+          button.addEventListener('click', function(){
+            const input = document.getElementById('meate');
+            if(input) input.value = button.dataset.meate;
+            meateBox.querySelectorAll('.meate-option').forEach(function(btn){ btn.classList.remove('active'); });
+            button.classList.add('active');
+          });
+        });
+      }
+
+      function applyTicketItem(item){
+        if(!item) return;
+        const memo = parseTicketMemo(item);
+        TICKET_SYNC_STATE.loaded = true;
+        TICKET_SYNC_STATE.item = item;
+
+        updateStatusPills(item, memo);
+        updatePoster(item, memo);
+        updateInfo(item, memo);
+        updateNotice(item, memo);
+        updatePackage(item, memo);
+        updateReserveBox(item, memo);
+        updateMeateOptions(item, memo);
+      }
+
+      async function loadPublicTicket(){
+        const lang = getTicketLang();
+        const payload = { lang: lang, mode: 'current' };
+        try{
+          const response = await ticketJsonp('publicListTicketItems', payload);
+          const items = pickTicketItems(response);
+          if(items.length) applyTicketItem(items[0]);
+        }catch(err){
+          console.warn('[Lumibelle Ticket] publicListTicketItems failed', err);
+        }
+      }
+
+      function bootTicketPage(){
+        initStaticPosterFrame();
+        loadPublicTicket();
+      }
+
+      if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', bootTicketPage);
+      }else{
+        bootTicketPage();
+      }
+    })();
+  </script>
+
 
   <script>
     const revealItems = document.querySelectorAll('.reveal');
@@ -1667,6 +2469,37 @@
         core.style.opacity = '';
         moveCursor(lastX, lastY);
       });
+    })();
+  </script>
+
+  <script>
+    // TICKET mobile folded header: tap logo to open/close menu.
+    (() => {
+      const header = document.querySelector('header');
+      const logoLink = document.querySelector('header .logo a');
+      if (!header || !logoLink) return;
+
+      const mq = window.matchMedia('(max-width:780px)');
+
+      function closeIfDesktop(){
+        if (!mq.matches) header.classList.remove('mobile-nav-open');
+      }
+
+      logoLink.addEventListener('click', (event) => {
+        if (!mq.matches) return;
+        event.preventDefault();
+        header.classList.toggle('mobile-nav-open');
+      });
+
+      document.querySelectorAll('header nav a').forEach((link) => {
+        link.addEventListener('click', () => {
+          if (mq.matches) header.classList.remove('mobile-nav-open');
+        });
+      });
+
+      if (mq.addEventListener) mq.addEventListener('change', closeIfDesktop);
+      else if (mq.addListener) mq.addListener(closeIfDesktop);
+      closeIfDesktop();
     })();
   </script>
 
