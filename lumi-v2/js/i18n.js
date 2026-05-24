@@ -68,10 +68,62 @@ window.LUMI_I18N = {
     "placeholder.attendance":"오늘의 루미 출석을 남기고 반짝 에너지를 모아요.",
     "placeholder.gameZone":  "작은 게임과 반짝 이벤트가 이곳에 모일 거예요.",
     "placeholder.more":      "새로운 루미폰 앱이 이곳에 찾아올 거예요."
-  },
-  en: {},
-  ja: {},
-  zh: {}
+  ,
+      "ticket.tabs": "티켓함 탭",
+      "ticket.current": "현재 티켓",
+      "ticket.benefit": "특전권",
+      "ticket.past": "지난 티켓",
+      "ticket.current.kicker": "CURRENT TICKET",
+      "ticket.current.meta": "입금 확인 대기 · 홍대 상상마당",
+      "ticket.status.waiting": "입금 확인 대기",
+      "ticket.enter.ready": "입장 전",
+      "ticket.empty.benefit": "아직 표시할 특전권이 없어요.",
+      "ticket.empty.past": "지난 티켓은 공연이 끝난 뒤 이곳에 모여요."
+,
+      "common.close": "닫기"
+},
+  en: {
+      "ticket.tabs": "Ticket tabs",
+      "ticket.current": "Current",
+      "ticket.benefit": "Benefits",
+      "ticket.past": "Past",
+      "ticket.current.kicker": "CURRENT TICKET",
+      "ticket.current.meta": "Payment pending · Hongdae Sangsangmadang",
+      "ticket.status.waiting": "Payment pending",
+      "ticket.enter.ready": "Before entry",
+      "ticket.empty.benefit": "No benefit tickets to show yet.",
+      "ticket.empty.past": "Past tickets will appear here after the show."
+,
+      "common.close": "Close"
+},
+  ja: {
+      "ticket.tabs": "チケットタブ",
+      "ticket.current": "現在のチケット",
+      "ticket.benefit": "特典券",
+      "ticket.past": "過去のチケット",
+      "ticket.current.kicker": "CURRENT TICKET",
+      "ticket.current.meta": "入金確認待ち · 弘大サンサンマダン",
+      "ticket.status.waiting": "入金確認待ち",
+      "ticket.enter.ready": "入場前",
+      "ticket.empty.benefit": "表示できる特典券はまだありません。",
+      "ticket.empty.past": "終了した公演のチケットはここに表示されます。"
+,
+      "common.close": "閉じる"
+},
+  zh: {
+      "ticket.tabs": "票券标签",
+      "ticket.current": "当前票券",
+      "ticket.benefit": "特典券",
+      "ticket.past": "历史票券",
+      "ticket.current.kicker": "CURRENT TICKET",
+      "ticket.current.meta": "等待确认入金 · 弘大 Sangsangmadang",
+      "ticket.status.waiting": "等待确认入金",
+      "ticket.enter.ready": "入场前",
+      "ticket.empty.benefit": "目前还没有可显示的特典券。",
+      "ticket.empty.past": "演出结束后，历史票券会显示在这里。"
+,
+      "common.close": "关闭"
+}
 };
 
 /**

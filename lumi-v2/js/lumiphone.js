@@ -21,7 +21,7 @@ window.LumiPhone = (function () {
   ───────────────────────────────────────── */
   var APP_REGISTRY = [
     /* ── Home 1 ── */
-    { id: "ticket",       labelKey: "app.ticket",        iconText: "T",   badge: "1", group: "main", color: "linear-gradient(145deg,#ffe0ef,#fff7fb)", renderer: "empty" },
+    { id: "ticket",       labelKey: "app.ticket",        iconText: "T",   badge: "1", group: "main", color: "linear-gradient(145deg,#ffe0ef,#fff7fb)", renderer: "native" },
     { id: "messages",     labelKey: "app.messages",      iconText: "M",   badge: "2", group: "main", color: "linear-gradient(145deg,#f0ebff,#fff7fb)", renderer: "empty" },
     { id: "mail",         labelKey: "app.mail",          iconText: "L",               group: "main", color: "linear-gradient(145deg,#fff5df,#fff7fb)", renderer: "empty" },
     { id: "lumitalk",     labelKey: "app.lumitalk",      iconText: "톡",              group: "main", color: "linear-gradient(145deg,#ffe0ef,#f0ebff)", renderer: "placeholder" },
@@ -235,7 +235,7 @@ window.LumiPhone = (function () {
       var action = actionEl.getAttribute("data-action");
       if (action === "home")         goHome();
       if (action === "back")         goBack();
-      if (action === "recent")       _openRecentApps();
+      if (action === "recent")       _toggleRecentApps();
       if (action === "close-recent") _closeRecentApps();
     });
 
@@ -323,7 +323,16 @@ window.LumiPhone = (function () {
     els.appWindow.classList.add("is-open");
     els.appWindow.setAttribute("aria-hidden", "false");
     if (els.dock) els.dock.setAttribute("aria-hidden", "true");
+    _bindActiveApp(app.id);
     _closeRecentApps();
+  }
+
+  function _bindActiveApp(appId) {
+    if (!els.appBody || !window.LumiApps) return;
+
+    if (appId === "ticket" && typeof window.LumiApps.bindTicket === "function") {
+      window.LumiApps.bindTicket(els.appBody);
+    }
   }
 
   /**
@@ -392,6 +401,15 @@ window.LumiPhone = (function () {
     state.recentApps = state.recentApps.filter(function (r) { return r.id !== appId; });
     state.recentApps.unshift({ id: appId, openedAt: _shortTime() });
     state.recentApps = state.recentApps.slice(0, 5);
+  }
+
+  function _toggleRecentApps() {
+    if (!els.recentPanel) return;
+    if (els.recentPanel.classList.contains("is-open")) {
+      _closeRecentApps();
+    } else {
+      _openRecentApps();
+    }
   }
 
   function _openRecentApps() {
