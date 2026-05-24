@@ -69,10 +69,13 @@ window.LumiPhone = (function () {
      OS 상태
   ───────────────────────────────────────── */
   var state = {
-    currentApp:  null,
-    appStack:    [],
-    recentApps:  [],
-    currentPage: 1
+    currentApp:      null,
+    appStack:        [],
+    recentApps:      [],
+    currentPage:     1,
+    _scrollLocked:   false,
+    _syncTimer:      null,
+    _scrollLockTimer: null
   };
 
   var els = {};
@@ -237,7 +240,7 @@ window.LumiPhone = (function () {
     });
 
     if (els.screens) {
-      els.screens.addEventListener("scroll", _throttle(_syncPageFromScroll, 100), { passive: true });
+      els.screens.addEventListener("scroll", _syncPageFromScroll, { passive: true });
       _bindSwipeFallback();
     }
   }
@@ -279,18 +282,27 @@ window.LumiPhone = (function () {
     if (!els.screens) return;
     var pageCount = els.screens.querySelectorAll(".screen-page").length || 3;
     var next = Math.max(0, Math.min(pageCount - 1, index));
-    els.screens.scrollTo({ left: els.screens.clientWidth * next, behavior: "smooth" });
     state.currentPage = next;
     _renderPageDots();
+    state._scrollLocked = true;
+    els.screens.scrollTo({ left: els.screens.clientWidth * next, behavior: "smooth" });
+    clearTimeout(state._scrollLockTimer);
+    state._scrollLockTimer = setTimeout(function () {
+      state._scrollLocked = false;
+    }, 400);
   }
 
   function _syncPageFromScroll() {
-    if (!els.screens) return;
-    var next = Math.round(els.screens.scrollLeft / (els.screens.clientWidth || 1));
-    if (next !== state.currentPage) {
-      state.currentPage = next;
-      _renderPageDots();
-    }
+    if (!els.screens || state._scrollLocked) return;
+    clearTimeout(state._syncTimer);
+    state._syncTimer = setTimeout(function () {
+      if (state._scrollLocked) return;
+      var next = Math.round(els.screens.scrollLeft / (els.screens.clientWidth || 1));
+      if (next !== state.currentPage) {
+        state.currentPage = next;
+        _renderPageDots();
+      }
+    }, 150);
   }
 
   /* ─────────────────────────────────────────
