@@ -1429,3 +1429,47 @@ button {
     padding-bottom: calc(var(--dock-h) + 54px);
   }
 }
+
+
+/* Patch 01F-fix7: safe app badge position without changing icon shape */
+.app-badge,
+.badge-dot {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  z-index: 4;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e56aa5;
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.94);
+  box-shadow: 0 3px 8px rgba(224, 126, 178, 0.18);
+  font-size: 8.5px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-style: normal;
+  pointer-events: none;
+}
+
+.app-badge[data-count="0"],
+.badge-dot[data-count="0"] {
+  display: none;
+}
+
+@media (max-width: 430px) {
+  .app-badge,
+  .badge-dot {
+    top: 3px;
+    right: 3px;
+    min-width: 15px;
+    height: 15px;
+    padding: 0 4px;
+    font-size: 8px;
+  }
+}
