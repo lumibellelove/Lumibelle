@@ -238,7 +238,38 @@ window.LumiPhone = (function () {
 
     if (els.screens) {
       els.screens.addEventListener("scroll", _throttle(_syncPageFromScroll, 100), { passive: true });
+      _bindSwipeFallback();
     }
+  }
+
+  function _bindSwipeFallback() {
+    if (!els.screens || els.screens.__lumiSwipeBound) return;
+    els.screens.__lumiSwipeBound = true;
+
+    var startX = 0;
+    var startY = 0;
+    var tracking = false;
+
+    els.screens.addEventListener("touchstart", function (e) {
+      if (!e.touches || e.touches.length !== 1) return;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      tracking = true;
+    }, { passive: true });
+
+    els.screens.addEventListener("touchend", function (e) {
+      if (!tracking || !e.changedTouches || !e.changedTouches.length) return;
+      tracking = false;
+
+      var dx = e.changedTouches[0].clientX - startX;
+      var dy = e.changedTouches[0].clientY - startY;
+
+      if (Math.abs(dx) < 42 || Math.abs(dx) < Math.abs(dy) * 1.15) return;
+
+      var next = state.currentPage + (dx < 0 ? 1 : -1);
+      next = Math.max(0, Math.min(2, next));
+      if (next !== state.currentPage) goToPage(next);
+    }, { passive: true });
   }
 
   /* ─────────────────────────────────────────
@@ -246,8 +277,10 @@ window.LumiPhone = (function () {
   ───────────────────────────────────────── */
   function goToPage(index) {
     if (!els.screens) return;
-    els.screens.scrollTo({ left: els.screens.clientWidth * index, behavior: "smooth" });
-    state.currentPage = index;
+    var pageCount = els.screens.querySelectorAll(".screen-page").length || 3;
+    var next = Math.max(0, Math.min(pageCount - 1, index));
+    els.screens.scrollTo({ left: els.screens.clientWidth * next, behavior: "smooth" });
+    state.currentPage = next;
     _renderPageDots();
   }
 
