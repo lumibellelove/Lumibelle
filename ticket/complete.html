@@ -3270,7 +3270,7 @@ line-height:1.9 !important;
         <div class="summary-grid" style="margin-top:18px;">
           <div class="card-box qr-card" id="ticketQrCard">
             <h3>입장 확인용 번호 / QR</h3>
-            <p class="qr-desc">현장 입장 확인을 위해 이 화면을 캡쳐해 주세요.<br>입장 확인용 번호 4자리를 크게 보여주시면 가장 빠르게 확인할 수 있어요.<br>QR은 보조 확인용이며, 인식이 안 되어도 입금자명/닉네임/루미ID로 확인할 수 있어요.</p>
+            <p class="qr-desc">현장 입장 확인을 위해 이 화면을 캡쳐해 주세요.<br>입장 확인용 번호 4자리를 크게 보여주시면 가장 빠르게 확인할 수 있어요.<br>QR은 보조 확인용이며, 인식이 안 되어도 입금자명/닉네임/예약번호로 확인할 수 있어요.</p>
             <div id="ticketQrArea">
               <div class="goods-empty">QR을 불러오는 중이에요.</div>
             </div>
@@ -3281,7 +3281,7 @@ line-height:1.9 !important;
             <div class="info-list">
               <div class="info-item">
                 <strong>입장 확인</strong>
-                <span>현장에서는 입장 확인용 번호 4자리, 예약번호, 입금자명, 닉네임, 루미ID 중 확인 가능한 정보로 입장 확인이 진행됩니다.</span>
+                <span>현장에서는 입장 확인용 번호 4자리, 예약번호, 입금자명, 닉네임 등 확인 가능한 정보로 입장 확인이 진행됩니다.</span>
               </div>
               <div id="meateGuideArea"></div>
               <div id="lumiIdGuideArea"></div>
@@ -3366,29 +3366,33 @@ line-height:1.9 !important;
       `;
     }
 
-    function renderLumiIdGuide(lumiId, meate){
+    function renderLumiIdGuide(lumiId, meate, lumiIdStatus){
       const area = document.getElementById('lumiIdGuideArea');
       if(!area) return;
 
       const hasLumiId = safe(lumiId) !== '-' && cleanText(lumiId) !== '';
-      const isTarget = isLumibelleMeate(meate);
+      const status = String(lumiIdStatus || '').trim();
 
-      if(hasLumiId || !isTarget){
+      if(hasLumiId){
         area.innerHTML = '';
         return;
       }
 
+      const isRequested = status === 'requested';
+      const guideTitle = isRequested ? '루미 ID 발급 신청 안내 ✦' : '루미 ID 선택 발급 안내 ✦';
+      const guideText = isRequested
+        ? '루미 ID 발급 신청이 함께 접수되었어요.<br>입금 확인 후 루미폰 이용 안내를 순차적으로 안내드릴게요.'
+        : '이번 예매는 루미 ID 없이 정상 접수되었어요.<br>루미 ID는 루미폰을 이용하고 싶은 분만 별도로 발급할 수 있어요.';
+      const guideNote = isRequested
+        ? '아직 LB 번호가 표시되지 않아도 오류가 아니에요.'
+        : '나중에 루미 ID가 필요해지면 운영 안내에 따라 별도로 발급할 수 있어요.';
+
       area.innerHTML = `
         <div class="lumi-id-guide-card">
           <div class="lumi-id-guide-badge">LUMI ID</div>
-          <h4>루미 ID 발급 안내 ✦</h4>
-          <p>
-            아직 루미 ID가 없는 경우, 입장 후 <b>루미벨 물판</b>에서 루미 ID 발급을 안내받아 주세요.<br>
-            루미 ID가 있으면 메아테 특전권, 루미 방문 기록, 스탬프, 반짝 XP, 루미폰 기록을 더 편하게 관리할 수 있어요.
-          </p>
-          <div class="mini-note">
-            스탭에게 “루미 ID 발급하고 싶어요”라고 말씀해 주세요.
-          </div>
+          <h4>${guideTitle}</h4>
+          <p>${guideText}</p>
+          <div class="mini-note">${guideNote}</div>
         </div>
       `;
     }
@@ -3506,12 +3510,13 @@ line-height:1.9 !important;
         `;
         renderTicketQr('');
         renderMeateGuide('');
-        renderLumiIdGuide('', '');
+        renderLumiIdGuide('', '', 'not_requested');
         return;
       }
 
       const reservationNo = order.reservationNo || makeReservationNo(order);
       const lumiId = order.lumiId || order.lumiID || order.lumi_id;
+      const lumiIdStatus = order.lumiIdStatus || (lumiId ? 'issued' : 'not_requested');
       const nickname = order.nickname || order.nickName || order.buyerName || order.name;
       const email = order.email || order.mail;
       const depositor = order.depositor || order.depositName || order.payerName;
@@ -3525,7 +3530,7 @@ line-height:1.9 !important;
       summaryBox.innerHTML = `
         <div class="line total"><span>입장 확인용 번호</span><span>${entryCode}</span></div>
         <div class="line"><span>예약번호</span><span>${safe(reservationNo)}</span></div>
-        <div class="line"><span>루미ID</span><span>${safe(lumiId)}</span></div>
+        <div class="line"><span>${safe(lumiId) === '-' ? '루미 ID 상태' : '루미 ID'}</span><span>${safe(lumiId) === '-' ? (lumiIdStatus === 'requested' ? '발급 신청 완료' : '미발급') : safe(lumiId)}</span></div>
         <div class="line"><span>티켓 종류</span><span>${safe(ticketType)}</span></div>
         <div class="line"><span>메아테</span><span>${safe(mate)}</span></div>
         <div class="line"><span>입장상태</span><span>${safe(entranceStatus)}</span></div>
@@ -3542,7 +3547,7 @@ line-height:1.9 !important;
 
       renderTicketQr(reservationNo);
       renderMeateGuide(mate);
-      renderLumiIdGuide(lumiId, mate);
+      renderLumiIdGuide(lumiId, mate, lumiIdStatus);
     }
 
     renderComplete();
