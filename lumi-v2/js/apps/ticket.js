@@ -28,7 +28,7 @@ window.LumiApps.ticket = function (app, ctx) {
             '<div class="ticket-entry-mini"><div><span>ENTRY NO.</span><b>0001</b></div></div>',
             '<div class="ticket-summary-status">',
               '<b>입금확인완료 · 미입장</b>',
-              '<span>예약번호 LBT-0712-0001 · 메아테 루루</span>',
+              '<span>예약번호 LBT-0712-0001<br>메아테 루루</span>',
             '</div>',
           '</div>',
           '<div class="ticket-card-footer">',
