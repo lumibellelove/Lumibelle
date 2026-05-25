@@ -437,14 +437,9 @@
     var send = replyArea.querySelector("[data-message-send]");
     if (send) send.classList.remove("is-ready");
 
-    /* 답장 완료 후 선택지 체크 표시와 함께 슬라이드 올라오기 */
-    var message = findMessage(app.__lumiMessagesCurrent);
-    var savedReply = getObject(STORAGE.replies)[app.__lumiMessagesCurrent];
-    if (message && message.choices && message.choices.length && savedReply && savedReply.choice) {
-      setTimeout(function () {
-        showCompletedChoices(app, message, savedReply.choice);
-      }, CHOICE_SLIDE_DELAY);
-    }
+    /* 답장 완료 후 선택지 숨김 */
+    var existingBox = replyArea.querySelector("[data-message-choice-box]");
+    if (existingBox) existingBox.remove();
 
     renderList(app);
   }
