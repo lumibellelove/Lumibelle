@@ -606,7 +606,7 @@
             '<div class="messages-reply-input">' +
               '<span class="messages-input-placeholder">터치하여 내용 입력...</span>' +
             '</div>' +
-            '<button type="button" class="messages-send">▶</button>' +
+            '<button type="button" class="messages-send">보내기</button>' +
           '</div>' +
         '</footer>'
       );
@@ -620,7 +620,7 @@
             '<div class="messages-reply-input">' +
               '<span class="messages-input-placeholder">터치하여 내용 입력...</span>' +
             '</div>' +
-            '<button type="button" class="messages-send">▶</button>' +
+            '<button type="button" class="messages-send">보내기</button>' +
           '</div>' +
         '</footer>'
       );
@@ -634,7 +634,7 @@
             '<span class="messages-input-placeholder">터치하여 내용 입력...</span>' +
             '<span class="messages-input-text"></span>' +
           '</div>' +
-          '<button type="button" class="messages-send" data-message-send>▶</button>' +
+          '<button type="button" class="messages-send" data-message-send>보내기</button>' +
         '</div>' +
         choicesHTML +
 
