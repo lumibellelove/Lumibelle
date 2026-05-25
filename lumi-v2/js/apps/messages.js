@@ -132,6 +132,32 @@
           '<button type="button" class="messages-tab" data-message-tab="operation">운영</button>' +
           '<button type="button" class="messages-tab" data-message-tab="saved">소장</button>' +
         '</div>' +
+        '<div class="messages-member-tools" data-message-member-tools>' +
+          '<div class="messages-saved-filter-row">' +
+            '<select class="messages-saved-select" data-member-select>' +
+              '<option value="">전체</option>' +
+              '<option value="mariring">마리링</option>' +
+              '<option value="lulu">루루</option>' +
+              '<option value="iro">이로</option>' +
+              '<option value="luna">루나</option>' +
+            '</select>' +
+            '<input class="messages-saved-search" data-member-search type="search" placeholder="검색할 내용을 입력하세요.">' +
+          '</div>' +
+        '</div>' +
+        '<div class="messages-saved-tools" data-message-saved-tools>' +
+          '<div class="messages-saved-filter-row">' +
+            '<select class="messages-saved-select" data-saved-select>' +
+              '<option value="">전체</option>' +
+              '<option value="mariring">마리링</option>' +
+              '<option value="lulu">루루</option>' +
+              '<option value="iro">이로</option>' +
+              '<option value="luna">루나</option>' +
+              '<option value="system">운영</option>' +
+              '<option value="letter">루미레터</option>' +
+            '</select>' +
+            '<input class="messages-saved-search" data-saved-search type="search" placeholder="검색할 내용을 입력하세요.">' +
+          '</div>' +
+        '</div>' +
         '<div class="messages-list" data-message-list></div>' +
         '<section class="messages-detail-sheet" data-message-detail aria-hidden="true"></section>' +
       '</section>'
@@ -147,6 +173,20 @@
     app.__lumiMessagesCurrent = null;
     app.__lumiMessagesTimers = [];
 
+    /* saved-tools / member-tools 초기 숨김 */
+    var initTools = app.querySelector("[data-message-saved-tools]");
+    if (initTools) initTools.style.display = "none";
+    var initMemberTools = app.querySelector("[data-message-member-tools]");
+    if (initMemberTools) initMemberTools.style.display = "none";
+
+    /* saved-tools / member-tools 이벤트 */
+    app.addEventListener("change", function (e) {
+      if (e.target.closest("[data-saved-select]") || e.target.closest("[data-member-select]")) { renderList(app); }
+    });
+    app.addEventListener("input", function (e) {
+      if (e.target.closest("[data-saved-search]") || e.target.closest("[data-member-search]")) { renderList(app); }
+    });
+
     renderList(app);
 
     app.addEventListener("click", function (e) {
@@ -157,6 +197,10 @@
         app.querySelectorAll("[data-message-tab]").forEach(function (btn) {
           btn.classList.toggle("is-active", btn === tab);
         });
+        var savedTools = app.querySelector("[data-message-saved-tools]");
+        if (savedTools) savedTools.style.display = (app.__lumiMessagesTab === "saved") ? "" : "none";
+        var memberTools = app.querySelector("[data-message-member-tools]");
+        if (memberTools) memberTools.style.display = (app.__lumiMessagesTab === "member") ? "" : "none";
         closeDetail(app);
         renderList(app);
         return;
@@ -720,9 +764,44 @@
     var savedIds   = getArray(STORAGE.saved);
     var tab        = app.__lumiMessagesTab || "all";
 
+    /* saved 탭 필터/검색값 */
+    var savedFilterVal = "";
+    var savedSearchTerm = "";
+    if (tab === "saved") {
+      var selEl = app.querySelector("[data-saved-select]");
+      var inpEl = app.querySelector("[data-saved-search]");
+      savedFilterVal  = selEl ? selEl.value : "";
+      savedSearchTerm = inpEl ? inpEl.value.trim().toLowerCase() : "";
+    }
+
+    var memberFilterVal = "";
+    var memberSearchTerm = "";
+    if (tab === "member") {
+      var mSelEl = app.querySelector("[data-member-select]");
+      var mInpEl = app.querySelector("[data-member-search]");
+      memberFilterVal  = mSelEl ? mSelEl.value : "";
+      memberSearchTerm = mInpEl ? mInpEl.value.trim().toLowerCase() : "";
+    }
+
     var filtered = messages.filter(function (m) {
-      if (tab === "saved")     return savedIds.indexOf(m.id) !== -1;
-      if (tab === "member")    return m.box !== "operation";
+      if (tab === "saved") {
+        if (savedIds.indexOf(m.id) === -1) return false;
+        if (savedFilterVal && m.member !== savedFilterVal) return false;
+        if (savedSearchTerm) {
+          var hay = [m.from, m.title, m.preview, m.tag].concat(m.lines || []).join(" ").toLowerCase();
+          if (hay.indexOf(savedSearchTerm) === -1) return false;
+        }
+        return true;
+      }
+      if (tab === "member") {
+        if (m.box === "operation") return false;
+        if (memberFilterVal && m.member !== memberFilterVal) return false;
+        if (memberSearchTerm) {
+          var hay2 = [m.from, m.title, m.preview, m.tag].concat(m.lines || []).join(" ").toLowerCase();
+          if (hay2.indexOf(memberSearchTerm) === -1) return false;
+        }
+        return true;
+      }
       if (tab === "operation") return m.box === "operation";
       return true;
     });
@@ -734,7 +813,12 @@
     if (pill) pill.textContent = "NEW " + unread;
 
     if (!filtered.length) {
-      list.innerHTML = '<div class="messages-empty">아직 이 탭에 표시할 문자가 없어요.<br>도착한 마음은 이곳에 차곡차곡 모여요.</div>';
+      var emptyMsg = (tab === "saved" && (savedFilterVal || savedSearchTerm))
+        ? "조건에 맞는 소장 문자가 없어요."
+        : (tab === "member" && (memberFilterVal || memberSearchTerm))
+        ? "조건에 맞는 멤버 문자가 없어요."
+        : "아직 이 탭에 표시할 문자가 없어요.<br>도착한 마음은 이곳에 차곡차곡 모여요.";
+      list.innerHTML = '<div class="messages-empty">' + emptyMsg + '</div>';
       return;
     }
 

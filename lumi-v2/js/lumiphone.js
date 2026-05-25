@@ -23,7 +23,7 @@ window.LumiPhone = (function () {
     /* ── Home 1 ── */
     { id: "ticket",       labelKey: "app.ticket",        iconText: "T",   badge: "1", group: "main", color: "linear-gradient(145deg,#ffe0ef,#fff7fb)", renderer: "native" },
     { id: "messages",     labelKey: "app.messages",      iconText: "M",   badge: "2", group: "main", color: "linear-gradient(145deg,#f0ebff,#fff7fb)", renderer: "native" },
-    { id: "mail",         labelKey: "app.mail",          iconText: "L",               group: "main", color: "linear-gradient(145deg,#fff5df,#fff7fb)", renderer: "empty" },
+    { id: "mail",         labelKey: "app.mail",          iconText: "L",               group: "main", color: "linear-gradient(145deg,#fff5df,#fff7fb)", renderer: "native" },
     { id: "lumitalk",     labelKey: "app.lumitalk",      iconText: "톡",              group: "main", color: "linear-gradient(145deg,#ffe0ef,#f0ebff)", renderer: "placeholder" },
 
     { id: "timeline",     labelKey: "app.timeline",      iconText: "R",               group: "main", color: "linear-gradient(145deg,#ecfff8,#fff7fb)", renderer: "empty" },
@@ -341,6 +341,10 @@ window.LumiPhone = (function () {
 
     if (appId === "messages" && typeof window.LumiApps.bindMessages === "function") {
       window.LumiApps.bindMessages(els.appBody);
+    }
+
+    if (appId === "mail" && typeof window.LumiApps.bindMail === "function") {
+      window.LumiApps.bindMail(els.appBody);
     }
   }
 
