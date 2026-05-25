@@ -22,7 +22,7 @@ window.LumiPhone = (function () {
   var APP_REGISTRY = [
     /* ── Home 1 ── */
     { id: "ticket",       labelKey: "app.ticket",        iconText: "T",   badge: "1", group: "main", color: "linear-gradient(145deg,#ffe0ef,#fff7fb)", renderer: "native" },
-    { id: "messages",     labelKey: "app.messages",      iconText: "M",   badge: "2", group: "main", color: "linear-gradient(145deg,#f0ebff,#fff7fb)", renderer: "empty" },
+    { id: "messages",     labelKey: "app.messages",      iconText: "M",   badge: "2", group: "main", color: "linear-gradient(145deg,#f0ebff,#fff7fb)", renderer: "native" },
     { id: "mail",         labelKey: "app.mail",          iconText: "L",               group: "main", color: "linear-gradient(145deg,#fff5df,#fff7fb)", renderer: "empty" },
     { id: "lumitalk",     labelKey: "app.lumitalk",      iconText: "톡",              group: "main", color: "linear-gradient(145deg,#ffe0ef,#f0ebff)", renderer: "placeholder" },
 
@@ -73,6 +73,7 @@ window.LumiPhone = (function () {
     appStack:        [],
     recentApps:      [],
     currentPage:     1,
+    returnPage:      1,
     _scrollLocked:   false,
     _syncTimer:      null,
     _scrollLockTimer: null
@@ -312,6 +313,10 @@ window.LumiPhone = (function () {
     var app = _getApp(appId);
     if (!app || !els.appWindow) return;
 
+    if (!state.currentApp) {
+      state.returnPage = state.currentPage;
+    }
+
     state.currentApp = app.id;
     state.appStack   = [app.id];
     _addRecentApp(app.id);
@@ -332,6 +337,10 @@ window.LumiPhone = (function () {
 
     if (appId === "ticket" && typeof window.LumiApps.bindTicket === "function") {
       window.LumiApps.bindTicket(els.appBody);
+    }
+
+    if (appId === "messages" && typeof window.LumiApps.bindMessages === "function") {
+      window.LumiApps.bindMessages(els.appBody);
     }
   }
 
@@ -372,7 +381,7 @@ window.LumiPhone = (function () {
   /* ─────────────────────────────────────────
      홈 / 뒤로가기
   ───────────────────────────────────────── */
-  function goHome() {
+  function _closeAppWindow() {
     if (els.appWindow) {
       els.appWindow.classList.remove("is-open");
       els.appWindow.setAttribute("aria-hidden", "true");
@@ -381,6 +390,11 @@ window.LumiPhone = (function () {
     state.currentApp = null;
     state.appStack   = [];
     _closeRecentApps();
+  }
+
+  function goHome() {
+    _closeAppWindow();
+    state.returnPage = 1;
     goToPage(1);
   }
 
@@ -391,7 +405,15 @@ window.LumiPhone = (function () {
       /* 추후: 서브페이지 라우팅 로직 추가 */
       return;
     }
-    goHome();
+
+    if (state.currentApp) {
+      var page = Number.isInteger(state.returnPage) ? state.returnPage : state.currentPage;
+      _closeAppWindow();
+      goToPage(page);
+      return;
+    }
+
+    goToPage(state.currentPage);
   }
 
   /* ─────────────────────────────────────────
