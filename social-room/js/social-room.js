@@ -284,16 +284,39 @@ function renderTimeline() {
   function showFallback(message = "8초 안에 응답이 없어 표시를 중단했습니다.") {
     if (settled) return;
     settled = true;
-    $("#embedStatus").textContent = "임베드 실패";
+    clearTimeout(timeout);
+    $("#embedStatus").textContent = "임베드 불가";
     target.innerHTML = "";
+
+    // ── 뷰 타입별 스마트 링크 자동 생성 ──────────────────────────────────
+    // X 임베드가 막혀도 계정의 여러 뷰를 원클릭으로 열 수 있는 버튼 세트.
+    const xHandle = handle;
+    const links = [
+      { label: "타임라인",   url: `https://x.com/${xHandle}`,                          icon: "🐦" },
+      { label: "미디어",     url: `https://x.com/${xHandle}/media`,                    icon: "🖼" },
+      { label: "최신 검색",  url: `https://x.com/search?q=from:${xHandle}&f=live`,     icon: "🔍" },
+    ];
+    const linkBtns = links.map(({ label, url, icon }) =>
+      `<button type="button" class="fallback-link-btn" data-url="${escapeHtml(url)}" data-label="${escapeHtml(label)}">${icon} ${escapeHtml(label)}</button>`
+    ).join("");
+
     loading.innerHTML = `
       <strong>${escapeHtml(account.name)}</strong>
-      <span>${escapeHtml(message)}</span>
-      <span>X 공식 임베드는 로그인 상태, 쿠키 설정, 확장 프로그램, X 정책에 따라 이곳에서 바로 열리지 않을 수 있습니다.</span>
-      <button type="button" class="js-open-current-x inline-x-open">X에서 최신 보기</button>
+      <span class="fallback-reason">${escapeHtml(message)}</span>
+      <div class="fallback-link-row">${linkBtns}</div>
+      <div class="fallback-hint">
+        아래 버튼은 X를 <strong>사이드 패널 창</strong>으로 엽니다.
+        같은 계정을 다시 누르면 열린 창의 URL이 교체됩니다.
+      </div>
     `;
-    const fallbackButton = loading.querySelector(".js-open-current-x");
-    if (fallbackButton) fallbackButton.addEventListener("click", openCurrentX);
+
+    // 버튼 이벤트: 같은 팝업 이름("x_side_panel")으로 열어서
+    // 계정 탭 전환 시 URL이 교체되는 사이드 패널 효과
+    loading.querySelectorAll(".fallback-link-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        openXSidePanel(btn.dataset.url);
+      });
+    });
   }
 
   function markSuccess() {
@@ -311,7 +334,7 @@ function renderTimeline() {
     target.innerHTML = `
       <a class="twitter-timeline"
          data-height="560"
-         data-chrome="noheader nofooter transparent"
+         data-chrome="noheader nofooter"
          href="${escapeHtml(embedUrl)}">
         Tweets by ${escapeHtml(handle)}
       </a>
@@ -322,6 +345,7 @@ function renderTimeline() {
     }
 
     return window.twttr.widgets.load(target).then((widgets) => {
+      console.log("[사교장] widgets.load 반환:", widgets);
       if (Array.isArray(widgets) && widgets.length > 0) {
         clearTimeout(timeout);
         markSuccess();
@@ -341,8 +365,9 @@ function renderTimeline() {
     return window.twttr.widgets.createTimeline(
       { sourceType: "profile", screenName: handle },
       target,
-      { height: 560, chrome: "noheader nofooter transparent" }
+      { height: 560, chrome: "noheader nofooter" }  // transparent 제거 (오류 가능성)
     ).then((widget) => {
+      console.log("[사교장] createTimeline 반환 element:", widget);
       if (widget) {
         clearTimeout(timeout);
         markSuccess();
@@ -352,18 +377,40 @@ function renderTimeline() {
     });
   }
 
+  // ─── v0.1.4: runEmbed 개선 ───────────────────────────────────────────────
+  // 변경:
+  //   1. "twttr.ready 없음" 가드 제거.
+  //      index.html 스니펫으로 twttr.ready는 항상 존재하므로 가드가 오히려
+  //      widgets.js 로드 전에 조기 종료시키는 버그였음.
+  //   2. transparent 옵션 제거 (일부 widgets.js 버전에서 오류 보고 있음).
+  //   3. 진단용 console.log 추가 → DevTools에서 실패 원인 식별 가능.
+  //   4. createTimeline에서 undefined 반환 시 메시지를 더 구체적으로 표시.
+  // ─────────────────────────────────────────────────────────────────────────
   function runEmbed() {
-    if (!window.twttr || !window.twttr.ready) {
-      return showFallback("X 위젯 스크립트를 확인하지 못했습니다.");
-    }
+    console.log("[사교장] runEmbed 시작 — handle:", handle, "embedUrl:", embedUrl);
 
-    window.twttr.ready(() => {
+    // twttr.ready()는 index.html 스니펫에 의해 항상 존재.
+    // widgets.js 로드 전: _e 큐에 등록 → 로드 완료 후 실행.
+    // widgets.js 로드 후: 즉시 실행.
+    window.twttr.ready(function(tw) {
+      console.log("[사교장] twttr.ready 콜백 실행. twttr.widgets 존재:", !!(tw && tw.widgets));
+
       tryOfficialAnchorLoad()
-        .then((loaded) => loaded || tryCreateTimeline())
-        .then((loaded) => {
-          if (!loaded) showFallback("X 위젯이 타임라인을 만들지 못했습니다.");
+        .then(function(loaded) {
+          console.log("[사교장] anchor load 결과:", loaded);
+          return loaded ? true : tryCreateTimeline();
         })
-        .catch(() => {
+        .then(function(loaded) {
+          console.log("[사교장] createTimeline 결과:", loaded);
+          if (!loaded) {
+            showFallback(
+              "X 위젯이 타임라인을 만들지 못했습니다.\n" +
+              "가능한 원인: 브라우저 서드파티 쿠키 차단, X 로그인 없음, 광고차단 확장 프로그램."
+            );
+          }
+        })
+        .catch(function(err) {
+          console.error("[사교장] 임베드 오류:", err);
           showFallback("X 위젯을 불러오는 중 오류가 발생했습니다.");
         });
     });
@@ -406,6 +453,15 @@ function selectAccount(id) {
   state.currentAccountId = id;
   saveState();
   renderAll({ reloadTimeline: true });
+
+  // ★ v0.1.4: 사이드 패널이 이미 열려있으면 선택한 계정 URL로 자동 교체
+  if (_xSidePanelRef && !_xSidePanelRef.closed) {
+    const account = getCurrentAccount();
+    if (account) {
+      _xSidePanelRef.location.href = normalizeXUrl(account.url);
+      _xSidePanelRef.focus();
+    }
+  }
 }
 
 function openCurrentX() {
@@ -420,6 +476,29 @@ function openCurrentX() {
 function reloadEmbed() {
   renderTimeline();
   toast("초대장을 다시 불러왔습니다. 최신순 확인은 X에서 바로 보는 쪽이 가장 안정적입니다.");
+}
+
+// ─── openXSidePanel v0.1.4 ───────────────────────────────────────────────────
+// 같은 이름("x_side_panel")의 팝업 창으로 X를 열어서 사이드 패널 효과를 냄.
+// 이미 열린 창이 있으면 URL만 교체됨 (window.open의 named window 동작).
+// 화면 오른쪽에 붙는 크기로 설정.
+// ─────────────────────────────────────────────────────────────────────────────
+let _xSidePanelRef = null;
+
+function openXSidePanel(url) {
+  const w = 480;
+  const h = Math.min(screen.availHeight, 900);
+  const left = screen.availLeft + screen.availWidth - w - 10;
+  const top = screen.availTop + 30;
+  const features = `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`;
+
+  // 이미 열린 창이 닫히지 않았으면 URL만 교체 (새 창 안 뜸)
+  if (_xSidePanelRef && !_xSidePanelRef.closed) {
+    _xSidePanelRef.location.href = url;
+    _xSidePanelRef.focus();
+  } else {
+    _xSidePanelRef = window.open(url, "x_side_panel", features);
+  }
 }
 
 function openSearch(id) {
