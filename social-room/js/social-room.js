@@ -227,7 +227,7 @@ function renderHeader() {
   const account = getCurrentAccount();
   if (!account) {
     $("#currentTitle").textContent = "계정을 선택해주세요";
-    $("#currentMeta").textContent = "공개 계정 타임라인은 로그인된 브라우저에서 표시됩니다.";
+    $("#currentMeta").textContent = "공개 계정 테라스 입장은 로그인된 브라우저에서 표시됩니다.";
     return;
   }
 
@@ -252,7 +252,7 @@ function renderTimeline() {
     frame.innerHTML = `
       <div class="empty-timeline">
         <strong>초대장을 선택해주세요.</strong>
-        <span>자주 보는 계정을 선택하면 이곳에 미니 타임라인이 표시됩니다.</span>
+        <span>자주 보는 계정을 선택하면 이곳에 미니 테라스 입장이 표시됩니다.</span>
       </div>
     `;
     $("#embedStatus").textContent = "대기 중";
@@ -267,9 +267,9 @@ function renderTimeline() {
   frame.innerHTML = `
     <div class="embed-loading" id="embedLoading">
       <strong>${escapeHtml(account.name)}</strong>
-      <span>초대장을 불러오는 중입니다. X 공식 임베드는 브라우저 로그인/쿠키 설정에 따라 늦게 뜰 수 있습니다.</span>
+      <span>초대장을 불러오는 중입니다. 사교장 정문을 확인하는 중입니다. 열리지 않으면 테라스 모드로 안내합니다.</span>
       ${location.protocol === "file:" ? `<small class="file-protocol-notice">file:// 환경에서는 X 쿠키 인증이 차단될 수 있습니다. localhost 또는 실제 도메인에서 테스트해주세요.</small>` : ""}
-      <button type="button" class="js-open-current-x inline-x-open">X에서 최신 보기</button>
+      <button type="button" class="js-open-current-x inline-x-open">테라스 입장</button>
     </div>
     <div class="twitter-embed-target" id="twitterEmbedTarget"></div>
   `;
@@ -281,20 +281,20 @@ function renderTimeline() {
   const loading = frame.querySelector("#embedLoading");
   let settled = false;
 
-  function showFallback(message = "8초 안에 응답이 없어 표시를 중단했습니다.") {
+  function showFallback(message = "정문에서 응답이 없어 테라스 모드로 안내합니다.") {
     if (settled) return;
     settled = true;
     clearTimeout(timeout);
-    $("#embedStatus").textContent = "임베드 불가";
+    $("#embedStatus").textContent = "정문 출입 제한";
     target.innerHTML = "";
 
     // ── 뷰 타입별 스마트 링크 자동 생성 ──────────────────────────────────
     // X 임베드가 막혀도 계정의 여러 뷰를 원클릭으로 열 수 있는 버튼 세트.
     const xHandle = handle;
     const links = [
-      { label: "타임라인",   url: `https://x.com/${xHandle}`,                          icon: "🐦" },
-      { label: "미디어",     url: `https://x.com/${xHandle}/media`,                    icon: "🖼" },
-      { label: "최신 검색",  url: `https://x.com/search?q=from:${xHandle}&f=live`,     icon: "🔍" },
+      { label: "테라스 입장",   url: `https://x.com/${xHandle}`,                          icon: "🐦" },
+      { label: "사진첩 보기",     url: `https://x.com/${xHandle}/media`,                    icon: "🖼" },
+      { label: "최신 소식 검색",  url: `https://x.com/search?q=from:${xHandle}&f=live`,     icon: "🔍" },
     ];
     const linkBtns = links.map(({ label, url, icon }) =>
       `<button type="button" class="fallback-link-btn" data-url="${escapeHtml(url)}" data-label="${escapeHtml(label)}">${icon} ${escapeHtml(label)}</button>`
@@ -327,7 +327,7 @@ function renderTimeline() {
   }
 
   const timeout = setTimeout(() => {
-    showFallback("8초 안에 응답이 없어 표시를 중단했습니다.");
+    showFallback("정문에서 응답이 없어 테라스 모드로 안내합니다.");
   }, 8000);
 
   function tryOfficialAnchorLoad() {
@@ -404,14 +404,14 @@ function renderTimeline() {
           console.log("[사교장] createTimeline 결과:", loaded);
           if (!loaded) {
             showFallback(
-              "X 위젯이 타임라인을 만들지 못했습니다.\n" +
+              "X 위젯이 테라스 입장을 만들지 못했습니다.\n" +
               "가능한 원인: 브라우저 서드파티 쿠키 차단, X 로그인 없음, 광고차단 확장 프로그램."
             );
           }
         })
         .catch(function(err) {
           console.error("[사교장] 임베드 오류:", err);
-          showFallback("X 위젯을 불러오는 중 오류가 발생했습니다.");
+          showFallback("사교장 정문 확인 중 문제가 생겨 테라스 모드를 준비했습니다.");
         });
     });
   }
@@ -475,7 +475,7 @@ function openCurrentX() {
 
 function reloadEmbed() {
   renderTimeline();
-  toast("초대장을 다시 불러왔습니다. 최신순 확인은 X에서 바로 보는 쪽이 가장 안정적입니다.");
+  toast("정문을 다시 확인했습니다. 열리지 않으면 테라스 모드를 이용해주세요.");
 }
 
 // ─── openXSidePanel v0.1.4 ───────────────────────────────────────────────────
