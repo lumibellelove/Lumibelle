@@ -267,7 +267,7 @@ function renderTimeline() {
   frame.innerHTML = `
     <div class="embed-loading" id="embedLoading">
       <strong>${escapeHtml(account.name)}</strong>
-      <span>초대장을 불러오는 중입니다. 사교장 정문을 확인하는 중입니다. 열리지 않으면 테라스 모드로 안내합니다.</span>
+      <span>초대장을 불러오는 중입니다. 사교장 정문을 확인하는 중입니다. 열리지 않으면 테라스 안내로 안내합니다.</span>
       ${location.protocol === "file:" ? `<small class="file-protocol-notice">file:// 환경에서는 X 쿠키 인증이 차단될 수 있습니다. localhost 또는 실제 도메인에서 테스트해주세요.</small>` : ""}
       <button type="button" class="js-open-current-x inline-x-open">테라스 입장</button>
     </div>
@@ -281,11 +281,11 @@ function renderTimeline() {
   const loading = frame.querySelector("#embedLoading");
   let settled = false;
 
-  function showFallback(message = "정문에서 응답이 없어 테라스 모드로 안내합니다.") {
+  function showFallback(message = "정문에서 응답이 없어 테라스 창을 준비했습니다.") {
     if (settled) return;
     settled = true;
     clearTimeout(timeout);
-    $("#embedStatus").textContent = "정문 출입 제한";
+    $("#embedStatus").textContent = "정문 확인 필요";
     target.innerHTML = "";
 
     // ── 뷰 타입별 스마트 링크 자동 생성 ──────────────────────────────────
@@ -305,13 +305,13 @@ function renderTimeline() {
       <span class="fallback-reason">${escapeHtml(message)}</span>
       <div class="fallback-link-row">${linkBtns}</div>
       <div class="fallback-hint">
-        아래 버튼은 X를 <strong>사이드 패널 창</strong>으로 엽니다.
+        아래 버튼은 X를 <strong>테라스 창 창</strong>으로 엽니다.
         같은 계정을 다시 누르면 열린 창의 URL이 교체됩니다.
       </div>
     `;
 
     // 버튼 이벤트: 같은 팝업 이름("x_side_panel")으로 열어서
-    // 계정 탭 전환 시 URL이 교체되는 사이드 패널 효과
+    // 계정 탭 전환 시 URL이 교체되는 테라스 창 효과
     loading.querySelectorAll(".fallback-link-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         openXSidePanel(btn.dataset.url);
@@ -327,7 +327,7 @@ function renderTimeline() {
   }
 
   const timeout = setTimeout(() => {
-    showFallback("정문에서 응답이 없어 테라스 모드로 안내합니다.");
+    showFallback("정문에서 응답이 없어 테라스 창을 준비했습니다.");
   }, 8000);
 
   function tryOfficialAnchorLoad() {
@@ -411,7 +411,7 @@ function renderTimeline() {
         })
         .catch(function(err) {
           console.error("[사교장] 임베드 오류:", err);
-          showFallback("사교장 정문 확인 중 문제가 생겨 테라스 모드를 준비했습니다.");
+          showFallback("사교장 정문 확인 중 문제가 생겨 테라스 창을 준비했습니다.");
         });
     });
   }
@@ -454,7 +454,7 @@ function selectAccount(id) {
   saveState();
   renderAll({ reloadTimeline: true });
 
-  // ★ v0.1.4: 사이드 패널이 이미 열려있으면 선택한 계정 URL로 자동 교체
+  // ★ v0.1.4: 테라스 창이 이미 열려있으면 선택한 계정 URL로 자동 교체
   if (_xSidePanelRef && !_xSidePanelRef.closed) {
     const account = getCurrentAccount();
     if (account) {
@@ -475,11 +475,11 @@ function openCurrentX() {
 
 function reloadEmbed() {
   renderTimeline();
-  toast("정문을 다시 확인했습니다. 열리지 않으면 테라스 모드를 이용해주세요.");
+  toast("정문을 다시 확인했습니다. 열리지 않으면 테라스 안내를 이용해주세요.");
 }
 
 // ─── openXSidePanel v0.1.4 ───────────────────────────────────────────────────
-// 같은 이름("x_side_panel")의 팝업 창으로 X를 열어서 사이드 패널 효과를 냄.
+// 같은 이름("x_side_panel")의 팝업 창으로 X를 열어서 테라스 창 효과를 냄.
 // 이미 열린 창이 있으면 URL만 교체됨 (window.open의 named window 동작).
 // 화면 오른쪽에 붙는 크기로 설정.
 // ─────────────────────────────────────────────────────────────────────────────
