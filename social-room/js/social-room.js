@@ -135,6 +135,20 @@ function normalizeXUrl(value) {
   return `https://x.com/${text.replace(/^@/, "")}`;
 }
 
+function normalizeTwitterEmbedUrl(value) {
+  const xUrl = normalizeXUrl(value);
+  try {
+    const parsed = new URL(xUrl);
+    const parts = parsed.pathname.split("/").filter(Boolean);
+    const handle = parts[0] || "";
+    if (!handle) return xUrl.replace("x.com", "twitter.com");
+    return `https://twitter.com/${handle}?ref_src=twsrc%5Etfw`;
+  } catch {
+    const handle = String(value || "").replace(/^@/, "").trim();
+    return handle ? `https://twitter.com/${handle}?ref_src=twsrc%5Etfw` : "";
+  }
+}
+
 function extractHandle(url) {
   const normalized = normalizeXUrl(url);
   try {
@@ -245,119 +259,118 @@ function renderTimeline() {
     return;
   }
 
-  const url = normalizeXUrl(account.url);
-  const handle = account.handle || extractHandle(url);
-  $("#embedStatus").textContent = "불러오는 중…";
+  const openUrl = normalizeXUrl(account.url);
+  const embedUrl = normalizeTwitterEmbedUrl(account.url);
+  const handle = account.handle || extractHandle(openUrl);
+  $("#embedStatus").textContent = location.protocol === "file:" ? "file:// 제한" : "불러오는 중";
 
-  // ── file:// 환경 감지 ──────────────────────────────────────────────────────
-  // file:// Origin은 null이라 X syndication 서버의 쿠키 인증을 통과 못할 수 있음.
-  // localhost(npx serve / python -m http.server)로 열면 해결될 가능성이 높음.
-  const isFileProtocol = location.protocol === "file:";
-
-  // ── fallback 영역과 위젯 대상 영역 분리 ──────────────────────────────────
-  // fallback: 임베드 실패 또는 로딩 중 안내. 성공 시 hidden 처리.
-  // embedTarget: createTimeline()이 여기에 iframe을 삽입함.
   frame.innerHTML = `
     <div class="embed-loading" id="embedLoading">
-      <span>X 타임라인 불러오는 중…</span>
-      ${isFileProtocol ? `<small class="file-protocol-notice">⚠ file:// 환경 감지. 임베드가 안 뜨면 localhost로 열어주세요.</small>` : ""}
-    </div>
-    <div class="empty-timeline embed-fallback" id="embedFallback" style="display:none">
       <strong>${escapeHtml(account.name)}</strong>
-      <span id="embedFallbackReason">X 임베드를 표시하지 못했습니다.</span>
-      ${isFileProtocol ? `<small>file:// 환경에서는 X 쿠키 인증이 차단될 수 있습니다. <code>npx serve .</code> 또는 <code>python -m http.server</code>로 localhost에서 열어보세요.</small>` : ""}
-      <div class="embed-fallback-actions">
-        <button type="button" class="js-open-current-x">X에서 최신 보기</button>
-      </div>
+      <span>초대장을 불러오는 중입니다. X 공식 임베드는 브라우저 로그인/쿠키 설정에 따라 늦게 뜰 수 있습니다.</span>
+      ${location.protocol === "file:" ? `<small class="file-protocol-notice">file:// 환경에서는 X 쿠키 인증이 차단될 수 있습니다. localhost 또는 실제 도메인에서 테스트해주세요.</small>` : ""}
+      <button type="button" class="js-open-current-x inline-x-open">X에서 최신 보기</button>
     </div>
-    <div id="embedTarget"></div>
+    <div class="twitter-embed-target" id="twitterEmbedTarget"></div>
   `;
 
-  frame.querySelector(".js-open-current-x")
-    .addEventListener("click", openCurrentX);
+  const openButton = frame.querySelector(".js-open-current-x");
+  if (openButton) openButton.addEventListener("click", openCurrentX);
 
-  const embedTarget = frame.querySelector("#embedTarget");
-  const embedLoading = frame.querySelector("#embedLoading");
-  const embedFallback = frame.querySelector("#embedFallback");
-  const embedFallbackReason = frame.querySelector("#embedFallbackReason");
-
-  // ── 성공/실패 처리 헬퍼 ──────────────────────────────────────────────────
-  function onEmbedSuccess() {
-    embedLoading.style.display = "none";
-    embedFallback.style.display = "none";
-    $("#embedStatus").textContent = "표시 중";
-  }
-
-  function onEmbedFail(reason) {
-    embedLoading.style.display = "none";
-    embedTarget.style.display = "none";
-    embedFallback.style.display = "";
-    if (reason) embedFallbackReason.textContent = reason;
-    $("#embedStatus").textContent = isFileProtocol ? "file:// 제한" : "임베드 실패";
-  }
-
-  // ── 임베드 타임아웃 (8초) ────────────────────────────────────────────────
+  const target = frame.querySelector("#twitterEmbedTarget");
+  const loading = frame.querySelector("#embedLoading");
   let settled = false;
-  const fallbackTimer = setTimeout(() => {
-    if (!settled) {
-      onEmbedFail("8초 안에 응답이 없어 표시를 중단했습니다.");
-    }
-  }, 8000);
 
-  function settle(success, reason) {
+  function showFallback(message = "8초 안에 응답이 없어 표시를 중단했습니다.") {
     if (settled) return;
     settled = true;
-    clearTimeout(fallbackTimer);
-    if (success) onEmbedSuccess();
-    else onEmbedFail(reason);
+    $("#embedStatus").textContent = "임베드 실패";
+    target.innerHTML = "";
+    loading.innerHTML = `
+      <strong>${escapeHtml(account.name)}</strong>
+      <span>${escapeHtml(message)}</span>
+      <span>X 공식 임베드는 로그인 상태, 쿠키 설정, 확장 프로그램, X 정책에 따라 이곳에서 바로 열리지 않을 수 있습니다.</span>
+      <button type="button" class="js-open-current-x inline-x-open">X에서 최신 보기</button>
+    `;
+    const fallbackButton = loading.querySelector(".js-open-current-x");
+    if (fallbackButton) fallbackButton.addEventListener("click", openCurrentX);
   }
 
-  // ── twttr.ready() + createTimeline() ─────────────────────────────────────
-  // twttr.ready()는 widgets.js 로드 전에 호출해도 안전:
-  //   - widgets.js가 이미 로드됐으면 즉시 콜백 실행
-  //   - 아직 로드 중이면 로드 완료 후 콜백 실행 (내부 큐에 등록)
-  function runCreateTimeline(tw) {
-    tw.widgets.createTimeline(
-      { sourceType: "profile", screenName: handle },
-      embedTarget,
-      {
-        height: 560,
-        chrome: "noheader nofooter transparent",
-        lang: "ja"   // J-pop/아이돌 계정이 많아 ja 기본, 필요시 변경
+  function markSuccess() {
+    if (settled) return;
+    settled = true;
+    $("#embedStatus").textContent = "표시 중";
+    if (loading) loading.style.display = "none";
+  }
+
+  const timeout = setTimeout(() => {
+    showFallback("8초 안에 응답이 없어 표시를 중단했습니다.");
+  }, 8000);
+
+  function tryOfficialAnchorLoad() {
+    target.innerHTML = `
+      <a class="twitter-timeline"
+         data-height="560"
+         data-chrome="noheader nofooter transparent"
+         href="${escapeHtml(embedUrl)}">
+        Tweets by ${escapeHtml(handle)}
+      </a>
+    `;
+
+    if (!window.twttr || !window.twttr.widgets) {
+      return Promise.resolve(false);
+    }
+
+    return window.twttr.widgets.load(target).then((widgets) => {
+      if (Array.isArray(widgets) && widgets.length > 0) {
+        clearTimeout(timeout);
+        markSuccess();
+        return true;
       }
-    ).then(function(el) {
-      // el이 undefined = 위젯 생성 실패 (로그인 필요, 계정 없음 등)
-      if (el) {
-        settle(true);
-      } else {
-        settle(false, isFileProtocol
-          ? "file:// 환경에서 X 쿠키를 읽지 못했습니다. localhost로 열어보세요."
-          : "X 임베드 응답 없음. 로그인 상태와 쿠키 설정을 확인해주세요."
-        );
-      }
-    }).catch(function(err) {
-      settle(false, "X 위젯 오류: " + (err && err.message ? err.message : "알 수 없는 오류"));
+      return false;
     });
   }
 
-  if (window.twttr && window.twttr.ready) {
-    window.twttr.ready(runCreateTimeline);
-  } else {
-    // widgets.js가 아직 DOM에 없거나 로드 전인 경우
-    // → twttr 객체를 미리 만들고 ready 큐를 설정
-    window.twttr = window.twttr || {};
-    const _callbacks = window.twttr._e = window.twttr._e || [];
-    _callbacks.push(runCreateTimeline);
+  function tryCreateTimeline() {
+    if (!window.twttr || !window.twttr.widgets || !window.twttr.widgets.createTimeline) {
+      return Promise.resolve(false);
+    }
 
-    // 추가 안전망: 10초 후에도 twttr.ready가 없으면 fallback
-    setTimeout(() => {
-      if (!settled && !(window.twttr && window.twttr.widgets)) {
-        settle(false, "widgets.js 로드 실패. 네트워크 연결을 확인해주세요.");
+    target.innerHTML = "";
+
+    return window.twttr.widgets.createTimeline(
+      { sourceType: "profile", screenName: handle },
+      target,
+      { height: 560, chrome: "noheader nofooter transparent" }
+    ).then((widget) => {
+      if (widget) {
+        clearTimeout(timeout);
+        markSuccess();
+        return true;
       }
-    }, 10000);
+      return false;
+    });
   }
+
+  function runEmbed() {
+    if (!window.twttr || !window.twttr.ready) {
+      return showFallback("X 위젯 스크립트를 확인하지 못했습니다.");
+    }
+
+    window.twttr.ready(() => {
+      tryOfficialAnchorLoad()
+        .then((loaded) => loaded || tryCreateTimeline())
+        .then((loaded) => {
+          if (!loaded) showFallback("X 위젯이 타임라인을 만들지 못했습니다.");
+        })
+        .catch(() => {
+          showFallback("X 위젯을 불러오는 중 오류가 발생했습니다.");
+        });
+    });
+  }
+
+  runEmbed();
 }
-// ─── renderTimeline 끝 ───────────────────────────────────────────────────────
 
 function renderTimer() {
   const display = $("#timerDisplay");
