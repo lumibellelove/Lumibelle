@@ -1,5 +1,5 @@
 /**
- * lumiphone.js — 멤버폰 OS 본체 (MH-01 이름갈아끼우기)
+ * lumiphone.js — 루미폰 v2 OS 본체
  *
  * 규칙:
  *   - 앱 내부 UI 로직은 여기 넣지 않음 (js/apps/*.js 담당)
@@ -20,50 +20,49 @@ window.LumiPhone = (function () {
        "native"      — js/apps/{id}.js 담당 (추후)
   ───────────────────────────────────────── */
   var APP_REGISTRY = [
-    /* ── Home Ground 1 / 멤버 핵심 실사용 앱 ── */
-    { id: "lumiroom",     labelKey: "app.lumiroom",      iconText: "집",  badge: "N", group: "main", color: "linear-gradient(145deg,#ecfff8,#f0ebff)", renderer: "placeholder" },
-    { id: "lumitalk",     labelKey: "app.lumitalk",      iconText: "톡",  badge: "2", group: "main", color: "linear-gradient(145deg,#ffe0ef,#f0ebff)", renderer: "placeholder" },
-    { id: "lumiletter",   labelKey: "app.lumiletter",    iconText: "편",              group: "main", color: "linear-gradient(145deg,#fff5df,#fff7fb)", renderer: "placeholder" },
-    { id: "schedule",     labelKey: "app.schedule",      iconText: "S",               group: "main", color: "linear-gradient(145deg,#e9f7ff,#fff7fb)", renderer: "empty" },
+    /* ── Home Ground 1 / 핵심 실사용 앱 ── */
+    { id: "lumiroom",      labelKey: "app.lumiroom",      iconText: "ROOM", group: "main", color: "linear-gradient(145deg,#ecfff8,#f0ebff)", renderer: "placeholder" },
+    { id: "lumitalk",      labelKey: "app.lumitalk",      iconText: "톡",   badge: "2", group: "main", color: "linear-gradient(145deg,#ffe0ef,#f0ebff)", renderer: "placeholder" },
+    { id: "lumiletter",    labelKey: "app.lumiletter",    iconText: "✉",              group: "main", color: "linear-gradient(145deg,#fff5df,#ffe0ef)", renderer: "placeholder" },
+    { id: "schedule",      labelKey: "app.schedule",      iconText: "CAL",            group: "main", color: "linear-gradient(145deg,#e9f7ff,#fff7fb)", renderer: "placeholder" },
 
-    { id: "dday",         labelKey: "app.dday",          iconText: "D",               group: "main", color: "linear-gradient(145deg,#f0ebff,#fff)",    renderer: "empty" },
-    { id: "setlist",      labelKey: "app.setlist",       iconText: "♪",              group: "main", color: "linear-gradient(145deg,#fff5df,#fff7fb)", renderer: "empty" },
-    { id: "homeworkCheki",labelKey: "app.homeworkCheki", iconText: "C",   badge: "2", group: "main", color: "linear-gradient(145deg,#ffe0ef,#fff)",    renderer: "empty" },
-    { id: "prep",         labelKey: "app.prep",          iconText: "준",              group: "main", color: "linear-gradient(145deg,#fff6de,#fff7fb)", renderer: "empty" },
+    { id: "dday",          labelKey: "app.dday",          iconText: "D",              group: "main", color: "linear-gradient(145deg,#f0ebff,#fff)", renderer: "placeholder" },
+    { id: "setlist",       labelKey: "app.setlist",       iconText: "SET",            group: "main", color: "linear-gradient(145deg,#fff5df,#fff0f7)", renderer: "placeholder" },
+    { id: "homeworkCheki", labelKey: "app.homeworkCheki", iconText: "C",   badge: "1", group: "main", color: "linear-gradient(145deg,#ffe0ef,#fff)", renderer: "placeholder" },
+    { id: "prep",          labelKey: "app.prep",          iconText: "BAG",            group: "main", color: "linear-gradient(145deg,#fff6de,#fff7fb)", renderer: "placeholder" },
 
-    { id: "lumilog",      labelKey: "app.lumilog",       iconText: "LOG",             group: "main", color: "linear-gradient(145deg,#ecfff8,#fff)",    renderer: "empty" },
-    { id: "onair",        labelKey: "app.onair",         iconText: "ON",              group: "main", color: "linear-gradient(145deg,#e9f7ff,#fff7fb)", renderer: "empty" },
-    { id: "archive",      labelKey: "app.archive",       iconText: "A",               group: "main", color: "linear-gradient(145deg,#fff,#ffe8f4)",   renderer: "empty" },
-    { id: "sos",          labelKey: "app.sos",           iconText: "SOS",             group: "main", color: "linear-gradient(145deg,#ffe9f4,#fff)",    renderer: "empty" },
+    { id: "lumilog",       labelKey: "app.lumilog",       iconText: "LOG",            group: "main", color: "linear-gradient(145deg,#ecfff8,#fff)", renderer: "placeholder" },
+    { id: "onair",         labelKey: "app.onair",         iconText: "ON",             group: "main", color: "linear-gradient(145deg,#e9f7ff,#f0ebff)", renderer: "placeholder" },
+    { id: "archive",       labelKey: "app.archive",       iconText: "FILE",           group: "main", color: "linear-gradient(145deg,#fff,#fff5df)", renderer: "placeholder" },
+    { id: "sos",           labelKey: "app.sos",           iconText: "SOS",            group: "main", color: "linear-gradient(145deg,#ffe7ea,#fff7fb)", renderer: "placeholder" },
 
     /* ── Home Ground 2 / 확장·예정 앱 ── */
-    { id: "lumicheki",    labelKey: "app.lumicheki",     iconText: "체",              group: "more", color: "linear-gradient(145deg,#ffe0ef,#fff)",    renderer: "placeholder" },
-    { id: "songbook",     labelKey: "app.songbook",      iconText: "♪",              group: "more", color: "linear-gradient(145deg,#f0ebff,#fff)",    renderer: "placeholder" },
-    { id: "photo",        labelKey: "app.photo",         iconText: "P",               group: "more", color: "linear-gradient(145deg,#e9f7ff,#fff7fb)", renderer: "placeholder" },
-    { id: "voice",        labelKey: "app.voice",         iconText: "V",               group: "more", color: "linear-gradient(145deg,#fff5df,#fff)",    renderer: "placeholder" },
+    { id: "lumicheki",     labelKey: "app.lumicheki",     iconText: "LC",             group: "more", color: "linear-gradient(145deg,#ffe0ef,#fff)", renderer: "placeholder" },
+    { id: "songbook",      labelKey: "app.songbook",      iconText: "♪",              group: "more", color: "linear-gradient(145deg,#f0ebff,#fff)", renderer: "placeholder" },
+    { id: "photo",         labelKey: "app.photo",         iconText: "PH",             group: "more", color: "linear-gradient(145deg,#fff5df,#fff7fb)", renderer: "placeholder" },
+    { id: "voice",         labelKey: "app.voice",         iconText: "VC",             group: "more", color: "linear-gradient(145deg,#ecfff8,#fff)", renderer: "placeholder" },
 
-    { id: "guide",        labelKey: "app.guide",         iconText: "?",               group: "more", color: "linear-gradient(145deg,#fff5df,#fff)",    renderer: "placeholder" },
-    { id: "history",      labelKey: "app.history",       iconText: "H",               group: "more", color: "linear-gradient(145deg,#ecfff8,#fff)",    renderer: "placeholder" },
-    { id: "settings",     labelKey: "app.settings",      iconText: "⚙",              group: "more", color: "linear-gradient(145deg,#fff,#f0ebff)",    renderer: "empty" },
-    { id: "more",         labelKey: "app.more",          iconText: "+",               group: "more", color: "linear-gradient(145deg,#f3f0f4,#fff)", renderer: "placeholder" }
+    { id: "messages",      labelKey: "app.messages",      iconText: "M",              group: "more", color: "linear-gradient(145deg,#f0ebff,#fff7fb)", renderer: "placeholder" },
+    { id: "guide",         labelKey: "app.guide",         iconText: "?",              group: "more", color: "linear-gradient(145deg,#fff5df,#fff)", renderer: "placeholder" },
+    { id: "settings",      labelKey: "app.settings",      iconText: "⚙",              group: "more", color: "linear-gradient(145deg,#fff,#f0ebff)", renderer: "placeholder" },
+    { id: "more",          labelKey: "app.more",          iconText: "+",              group: "more", color: "linear-gradient(145deg,#f3f0f4,#fff)", renderer: "placeholder" }
   ];
   /* ─────────────────────────────────────────
      Today 더미 데이터
      실제 API 붙이면 이 블록만 교체
   ───────────────────────────────────────── */
   var TODAY_STATE = {
-    weather:     { temp: "21°C", desc: "공연장/연습실 이동 전 확인해요." },
-    reservation: { title: "오늘 일정", meta: "16:00 연습 · 19:30 방송 준비", status: "확인 필요" },
+    weather:     { temp: "21°C", desc: "공연장이나 연습실 이동 전에 날씨를 확인해요." },
+    reservation: { title: "오늘 일정 : 연습실 체크", meta: "16:00 연습 · 19:30 방송 준비", status: "확인 필요" },
     dday:        { label: "D-DAY", value: 27, unit: "NEXT STAGE" },
     summary: [
       { labelKey: "today.summary.messages", value: "2", unit: "개" },
       { labelKey: "today.summary.stamps",   value: "4", unit: "/ 6" },
-      { labelKey: "today.summary.points",   value: "2", unit: "대기" },
+      { labelKey: "today.summary.points",   value: "1", unit: "대기" },
       { labelKey: "today.summary.cheki",    value: "1", unit: "건" }
     ],
-    onair: { status: "다음 방송 준비 대기 중", badge: "STANDBY" }
+    onair: { status: "오늘 방송 준비 상태를 확인해요.", badge: "STANDBY" }
   };
-
   /* ─────────────────────────────────────────
      OS 상태
   ───────────────────────────────────────── */
@@ -72,6 +71,7 @@ window.LumiPhone = (function () {
     appStack:        [],
     recentApps:      [],
     currentPage:     1,
+    returnPage:      1,
     _scrollLocked:   false,
     _syncTimer:      null,
     _scrollLockTimer: null
@@ -311,6 +311,10 @@ window.LumiPhone = (function () {
     var app = _getApp(appId);
     if (!app || !els.appWindow) return;
 
+    if (!state.currentApp) {
+      state.returnPage = state.currentPage;
+    }
+
     state.currentApp = app.id;
     state.appStack   = [app.id];
     _addRecentApp(app.id);
@@ -362,7 +366,7 @@ window.LumiPhone = (function () {
   /* ─────────────────────────────────────────
      홈 / 뒤로가기
   ───────────────────────────────────────── */
-  function goHome() {
+  function _closeAppWindow() {
     if (els.appWindow) {
       els.appWindow.classList.remove("is-open");
       els.appWindow.setAttribute("aria-hidden", "true");
@@ -371,6 +375,11 @@ window.LumiPhone = (function () {
     state.currentApp = null;
     state.appStack   = [];
     _closeRecentApps();
+  }
+
+  function goHome() {
+    _closeAppWindow();
+    state.returnPage = 1;
     goToPage(1);
   }
 
@@ -381,7 +390,15 @@ window.LumiPhone = (function () {
       /* 추후: 서브페이지 라우팅 로직 추가 */
       return;
     }
-    goHome();
+
+    if (state.currentApp) {
+      var page = Number.isInteger(state.returnPage) ? state.returnPage : state.currentPage;
+      _closeAppWindow();
+      goToPage(page);
+      return;
+    }
+
+    goToPage(state.currentPage);
   }
 
   /* ─────────────────────────────────────────
