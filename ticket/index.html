@@ -2087,8 +2087,33 @@
         });
       }
 
+      function pickFirstText(){
+        for(const value of arguments){
+          const text = textOrEmpty(value);
+          if(text) return text;
+        }
+        return '';
+      }
+
       function updatePoster(item, memo){
-        const posterUrl = textOrEmpty(item.posterUrl || memo.posterUrl || item.heroImageUrl || item.heroImage);
+        const isMobileView = window.matchMedia && window.matchMedia('(max-width: 780px)').matches;
+        const posterUrl = isMobileView
+          ? pickFirstText(
+            item.mobilePosterUrl, memo.mobilePosterUrl,
+            item.posterMobileUrl, memo.posterMobileUrl,
+            item.mobileImageUrl, memo.mobileImageUrl,
+            item.mobilePoster, memo.mobilePoster,
+            item.posterUrl, memo.posterUrl,
+            item.heroImageUrl, item.heroImage
+          )
+          : pickFirstText(
+            item.posterUrl, memo.posterUrl,
+            item.heroImageUrl, item.heroImage,
+            item.mobilePosterUrl, memo.mobilePosterUrl,
+            item.posterMobileUrl, memo.posterMobileUrl,
+            item.mobileImageUrl, memo.mobileImageUrl,
+            item.mobilePoster, memo.mobilePoster
+          );
         const posterBox = document.querySelector('.poster-box');
         if(!posterBox || !posterUrl) return;
         const title = textOrEmpty(item.title || 'Lumibelle Ticket Poster');
@@ -2201,8 +2226,25 @@
         const rawPrice = textOrEmpty(reservation.price || item.priceText || '10000');
         const priceText = rawPrice.match(/원|₩/) ? rawPrice : rawPrice + '원';
         const description = textOrEmpty(reservation.description || '일반 입장권 / 입금 확인 후 예약 확정');
-        const account = textOrEmpty(reservation.account || item.accountText);
-        const holder = textOrEmpty(reservation.holder || item.accountHolder);
+        const account = pickFirstText(
+          reservation.account, reservation.accountText,
+          reservation.bankAccount, reservation.accountNumber,
+          reservation.bank, reservation.bankName,
+          memo.account, memo.accountText,
+          memo.bankAccount, memo.accountNumber,
+          memo.bank, memo.bankName,
+          item.accountText, item.account,
+          item.bankAccount, item.accountNumber,
+          item.bank, item.bankName
+        );
+        const holder = pickFirstText(
+          reservation.holder, reservation.accountHolder,
+          reservation.accountName, reservation.depositor,
+          memo.holder, memo.accountHolder,
+          memo.accountName, memo.depositor,
+          item.accountHolder, item.accountName,
+          item.depositor
+        );
         const ticketStatus = normalizeTicketOpenStatus(memo.ticketStatus || item.ticketStatus || item.status || 'open');
         const isReservable = ticketStatus === 'open';
         const closedText = ticketStatus === 'soon' ? '예매 오픈 전입니다. 관리자에서 예매 상태를 예매중으로 바꾸면 신청 버튼이 열려요.' : '현재 예매를 받을 수 없는 상태입니다.';
