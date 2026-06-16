@@ -3,94 +3,123 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#f9d9e5" />
-  <title>루미벨 스탭 OS - 로그인</title>
+  <meta name="theme-color" content="#f7dce5" />
+  <title>루미폰 스탭 로그인</title>
   <link rel="stylesheet" href="css/staff-login.css" />
   <link rel="stylesheet" href="css/staff-login.iphone.css" />
   <link rel="stylesheet" href="css/staff-login.galaxy.css" />
 </head>
 <body>
-  <main class="staff-login-page" data-screen="staff-login">
-    <div class="login-bg-slot" aria-hidden="true"></div>
-
-    <section class="login-shell" aria-label="루미벨 스탭 OS 로그인">
-      <header class="login-statusbar" aria-label="기기 상태 영역">
-        <span class="status-brand">Lumibelle Staff OS</span>
-        <span class="status-time" id="statusTime">--:--</span>
-        <span class="status-battery" aria-hidden="true">◇</span>
+  <main class="staff-login-page" data-screen="regular-staff-login">
+    <section class="login-shell" aria-label="루미폰 정규 스탭 로그인">
+      <header class="device-chrome" aria-label="상단 상태 영역">
+        <div class="status-left">
+          <span class="brand-name">Lumiphone</span>
+          <svg class="status-icon wifi-svg" aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+            <path d="M3.2 8.4C8.1 4.2 15.9 4.2 20.8 8.4"/>
+            <path d="M6.7 12.1C9.7 9.6 14.3 9.6 17.3 12.1"/>
+            <path d="M10 15.6C11.1 14.8 12.9 14.8 14 15.6"/>
+            <circle cx="12" cy="18.5" r="1.15"/>
+          </svg>
+        </div>
+        <span class="status-time">10:27</span>
+        <div class="status-right">
+          <span class="signal-bars" aria-hidden="true">
+            <i></i><i></i><i></i><i></i>
+          </span>
+          <span class="battery-text">100%</span>
+          <span class="battery-icon" aria-hidden="true"><span></span></span>
+        </div>
       </header>
 
-      <section class="login-hero">
-        <div class="asset-slot crown-slot" aria-hidden="true"></div>
-        <div class="asset-slot logo-slot" aria-label="Lumiphone Staff Mode">
-          <span class="logo-text">Lumiphone</span>
+      <section class="login-hero" aria-label="로그인 상단 영역">
+        <div class="hero-art" aria-hidden="true"></div>
+        <div class="hero-crown" aria-hidden="true">♡</div>
+        <div class="hero-logo">Lumiphone</div>
+        <div class="hero-ribbon">STAFF MODE</div>
+        <h1 class="hero-title">루미폰 스탭 로그인</h1>
+        <div class="event-pill" role="status" aria-live="polite">
+          <span class="event-pill-icon" aria-hidden="true">✓</span>
+          <span>오늘 공연 연결 완료</span>
         </div>
-        <div class="asset-slot ribbon-slot" aria-hidden="true">
-          <span>STAFF MODE</span>
-        </div>
-        <p class="hero-copy">공연장 접수 데스크 전용 로그인</p>
       </section>
 
-      <section class="login-panel">
-        <div class="asset-slot panel-corner panel-corner-left" aria-hidden="true"></div>
-        <div class="asset-slot panel-corner panel-corner-right" aria-hidden="true"></div>
-
-        <div class="panel-heading">
-          <p class="eyebrow">Maison Lumibelle</p>
-          <h1>스탭 로그인</h1>
-          <p>오늘 공연을 선택하고 담당 계정으로 입장해 주세요.</p>
-        </div>
-
-        <form class="login-form" id="staffLoginForm">
-          <label class="field-group" for="staffId">
-            <span>스탭 ID</span>
-            <input id="staffId" name="staffId" type="text" inputmode="text" autocomplete="username" placeholder="staff id" />
+      <section class="login-panel" aria-label="정규 스탭 로그인 카드">
+        <form class="regular-login-form" id="regularLoginForm">
+          <label class="staff-code-field" for="staffCode">
+            <span class="field-label">
+              <span class="field-icon" aria-hidden="true">⌘</span>
+              <span>스탭 코드</span>
+            </span>
+            <input id="staffCode" name="staffCode" type="text" inputmode="text" autocomplete="username" placeholder="스탭 코드를 입력하세요" />
           </label>
 
-          <label class="field-group" for="staffPassword">
-            <span>비밀번호</span>
-            <input id="staffPassword" name="staffPassword" type="password" autocomplete="current-password" placeholder="password" />
-          </label>
+          <div class="section-divider" aria-hidden="true">
+            <span></span>
+            <em>♥</em>
+            <span></span>
+          </div>
 
-          <label class="field-group" for="todayEvent">
-            <span>오늘 공연</span>
-            <select id="todayEvent" name="todayEvent">
-              <option value="debut-live">Shine Me UP : 루미벨 데뷔 라이브</option>
-              <option value="manual">공연 선택 예정</option>
-            </select>
-          </label>
+          <section class="pin-login-section" aria-label="빠른 로그인">
+            <div class="pin-copy">
+              <p class="pin-title"><span class="field-icon" aria-hidden="true">⌂</span> 빠른 로그인</p>
+              <p class="pin-desc">PIN 4자리를 입력하세요</p>
+            </div>
 
-          <button class="login-submit" type="submit">
-            <span class="button-shine" aria-hidden="true"></span>
-            <span>로그인</span>
+            <div class="pin-dots" id="pinDots" aria-label="PIN 입력 상태">
+              <span class="pin-dot"></span>
+              <span class="pin-dot"></span>
+              <span class="pin-dot"></span>
+              <span class="pin-dot"></span>
+            </div>
+
+            <input id="pinValue" name="pinValue" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="current-password" class="sr-only" />
+
+            <div class="keypad" aria-label="숫자 키패드">
+              <button type="button" class="keypad-key" data-key="1">1</button>
+              <button type="button" class="keypad-key" data-key="2">2</button>
+              <button type="button" class="keypad-key" data-key="3">3</button>
+              <button type="button" class="keypad-key" data-key="4">4</button>
+              <button type="button" class="keypad-key" data-key="5">5</button>
+              <button type="button" class="keypad-key" data-key="6">6</button>
+              <button type="button" class="keypad-key" data-key="7">7</button>
+              <button type="button" class="keypad-key" data-key="8">8</button>
+              <button type="button" class="keypad-key" data-key="9">9</button>
+              <button type="button" class="keypad-key keypad-key--icon" data-action="love" aria-label="하트 키">♥</button>
+              <button type="button" class="keypad-key" data-key="0">0</button>
+              <button type="button" class="keypad-key keypad-key--icon" data-action="delete" aria-label="삭제">⌫</button>
+            </div>
+          </section>
+
+          <div class="section-divider section-divider--text" aria-hidden="true">
+            <span></span>
+            <strong>또는 비밀번호 로그인</strong>
+            <span></span>
+          </div>
+
+          <button class="password-toggle" id="passwordToggle" type="button" aria-expanded="false" aria-controls="passwordLoginPanel">
+            <span class="password-toggle-left">
+              <span class="field-icon" aria-hidden="true">⌂</span>
+              <span>비밀번호로 로그인</span>
+            </span>
+            <span class="password-toggle-arrow" aria-hidden="true">›</span>
           </button>
 
-          <button class="login-reset" type="button">비밀번호 재설정 / 계정 문의</button>
+          <div class="password-login-panel" id="passwordLoginPanel" hidden>
+            <label class="field-group" for="staffPassword">
+              <span class="field-label">비밀번호</span>
+              <input id="staffPassword" name="staffPassword" type="password" autocomplete="current-password" placeholder="비밀번호를 입력하세요" />
+            </label>
+          </div>
+
+          <button class="login-submit" type="submit">로그인</button>
           <p class="login-message" id="loginMessage" role="status" aria-live="polite"></p>
         </form>
       </section>
 
-      <section class="today-event-card" aria-label="오늘 공연 정보">
-        <div class="event-text">
-          <p class="event-label">TODAY EVENT</p>
-          <h2>Shine Me UP</h2>
-          <p class="event-desc">루미벨 데뷔 라이브 운영 준비 화면</p>
-          <dl class="event-meta">
-            <div>
-              <dt>공연일</dt>
-              <dd>2026.07.12</dd>
-            </div>
-            <div>
-              <dt>스탭 체크인</dt>
-              <dd>현장 도착 후 확인</dd>
-            </div>
-          </dl>
-        </div>
-        <div class="asset-slot event-illust-slot" aria-hidden="true"></div>
-      </section>
-
-      <footer class="login-footer">
-        <span>입장 확인 · 물판 · 특전 사용 · 정산 보조</span>
+      <footer class="security-note" aria-label="보안 접속 안내">
+        <p class="security-title">보안 접속</p>
+        <p class="security-copy">모든 접속은 암호화되어 안전하게 보호됩니다.</p>
       </footer>
     </section>
   </main>
