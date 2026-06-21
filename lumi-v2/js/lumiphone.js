@@ -51,12 +51,11 @@ window.LumiPhone = (function () {
   var TODAY_STATE = {
     weather:     { temp: "24°C", desc: "홍대 상상마당 · 24°C 맑음" },
     reservation: { title: "루미벨 데뷔 라이브", date: "2026.07.12 (일) 오후 6:00", meta: "홍대 상상마당 라이브홀", status: "예약 완료" },
-    dday:        { label: "D-DAY", value: 21, unit: "일 남음" },
     summary: [
-      { labelKey: "today.summary.messages", value: "2", unit: "새 소식" },
-      { labelKey: "today.summary.stamps",   value: "3", unit: "/ 20" },
-      { labelKey: "today.summary.points",   value: "120", unit: "P" },
-      { labelKey: "today.summary.cheki",    value: "1", unit: "수령 가능" }
+      { labelKey: "today.summary.messages", value: "2", icon: "assets/icons/message-envelope.webp", iconAlt: "" },
+      { labelKey: "today.summary.stamps",   value: "3", icon: "assets/icons/stamp.webp", iconAlt: "" },
+      { labelKey: "today.summary.points",   value: "120P", icon: "assets/icons/point-heart.webp", iconAlt: "" },
+      { labelKey: "today.summary.cheki",    value: "1", icon: "assets/icons/homework-cheki.webp", iconAlt: "" }
     ],
     onair: { status: "다음 방송 알림 대기 중", badge: "STANDBY" }
   };
@@ -86,8 +85,6 @@ window.LumiPhone = (function () {
     _renderAppGrids();
     _bindEvents();
     _applyI18n();
-    _updateClock();
-    setInterval(_updateClock, 30000);
     goToPage(0);
   }
 
@@ -113,22 +110,6 @@ window.LumiPhone = (function () {
     if (window.LumiI18n) window.LumiI18n.apply(document);
   }
 
-  /* ─────────────────────────────────────────
-     시계 — "FRI · MAY" 포맷 고정
-  ───────────────────────────────────────── */
-  function _updateClock() {
-    var now      = new Date();
-    var timeText = now.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", hour12: false });
-    var weekday  = now.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase();
-    var month    = now.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
-    var dateText = weekday + " · " + month;
-
-    document.querySelectorAll('[data-role="status-time"], [data-role="clock-time"]').forEach(function (el) {
-      el.textContent = timeText;
-    });
-    var dateEl = document.querySelector('[data-role="clock-date"]');
-    if (dateEl) dateEl.textContent = dateText;
-  }
 
   /* ─────────────────────────────────────────
      Today View 렌더
@@ -138,13 +119,10 @@ window.LumiPhone = (function () {
     _setText('[data-role="reservation-title"]', TODAY_STATE.reservation.title);
     _setText('[data-role="reservation-date"]', TODAY_STATE.reservation.date);
     _setText('[data-role="reservation-meta"]', TODAY_STATE.reservation.meta);
-    _setText('[data-role="dday-label"]', TODAY_STATE.dday.label);
-    _setText('[data-role="dday-value"]', TODAY_STATE.dday.value);
-
     var summaryEl = document.querySelector('[data-role="today-summary"]');
     if (summaryEl) {
       summaryEl.innerHTML = TODAY_STATE.summary.map(function (item) {
-        return '<article class="mini-info"><span>' + _t(item.labelKey) + '</span><strong>' + _escHtml(item.value) + '</strong><em>' + _escHtml(item.unit) + '</em></article>';
+        return '<article class="mini-info"><span class="mini-icon-slot" aria-hidden="true"><img src="' + _escHtml(item.icon || '') + '" alt=""></span><div class="mini-info-copy"><span>' + _t(item.labelKey) + '</span><strong>' + _escHtml(item.value) + '</strong></div></article>';
       }).join('');
     }
   }

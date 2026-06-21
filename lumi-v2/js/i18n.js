@@ -43,8 +43,8 @@ window.LUMI_I18N = {
     "today.message":          "오늘의 한마디",
     "today.onair":            "ON AIR 현황",
     "today.summary.messages": "새 메시지",
-    "today.summary.stamps":   "스탬프 현황",
-    "today.summary.points":   "보유 포인트",
+    "today.summary.stamps":   "스탬프",
+    "today.summary.points":   "포인트",
     "today.summary.cheki":    "숙제체키",
 
     "home.stamp.label": "LUMI STAMP",
