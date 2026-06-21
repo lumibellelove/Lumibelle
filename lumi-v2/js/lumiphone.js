@@ -20,32 +20,28 @@ window.LumiPhone = (function () {
        "native"      — js/apps/{id}.js 담당 (추후)
   ───────────────────────────────────────── */
   var APP_REGISTRY = [
-    /* ── Home 1 ── */
-    { id: "ticket",       labelKey: "app.ticket",        iconText: "T",   badge: "1", group: "main", color: "linear-gradient(145deg,#ffe0ef,#fff7fb)", renderer: "native" },
-    { id: "messages",     labelKey: "app.messages",      iconText: "M",   badge: "2", group: "main", color: "linear-gradient(145deg,#f0ebff,#fff7fb)", renderer: "native" },
-    { id: "mail",         labelKey: "app.mail",          iconText: "L",               group: "main", color: "linear-gradient(145deg,#fff5df,#fff7fb)", renderer: "native" },
-    { id: "lumitalk",     labelKey: "app.lumitalk",      iconText: "톡",              group: "main", color: "linear-gradient(145deg,#ffe0ef,#f0ebff)", renderer: "placeholder" },
+    { id: "ticket",       labelKey: "app.ticket",        iconText: "티켓", badge: "1", group: "main", color: "#fff4f7", renderer: "native" },
+    { id: "benefitQueue", labelKey: "app.benefitQueue",  iconText: "대기",             group: "main", color: "#fff0f5", renderer: "native" },
+    { id: "messages",     labelKey: "app.messages",      iconText: "문자", badge: "2", group: "main", color: "#fdf4fa", renderer: "native" },
+    { id: "stamp",        labelKey: "app.stamp",         iconText: "스탬프",           group: "main", color: "#fff5f8", renderer: "native" },
+    { id: "point",        labelKey: "app.point",         iconText: "포인트",           group: "main", color: "#fff2f6", renderer: "native" },
+    { id: "homeworkCheki",labelKey: "app.homeworkCheki", iconText: "숙체",             group: "main", color: "#fdf5f7", renderer: "native" },
+    { id: "mail",         labelKey: "app.mail",          iconText: "우편",             group: "main", color: "#fff7f4", renderer: "native" },
+    { id: "timeline",     labelKey: "app.timeline",      iconText: "기록",             group: "main", color: "#fff5f8", renderer: "native" },
 
-    { id: "timeline",     labelKey: "app.timeline",      iconText: "R",               group: "main", color: "linear-gradient(145deg,#ecfff8,#fff7fb)", renderer: "empty" },
-    { id: "profile",      labelKey: "app.profile",       iconText: "P",               group: "main", color: "linear-gradient(145deg,#fff,#ffe8f4)",   renderer: "empty" },
-    { id: "stamp",        labelKey: "app.stamp",         iconText: "S",               group: "main", color: "linear-gradient(145deg,#ffe9f4,#fff7fb)", renderer: "empty" },
-    { id: "point",        labelKey: "app.point",         iconText: "P",               group: "main", color: "linear-gradient(145deg,#fff6de,#fff7fb)", renderer: "empty" },
-
-    { id: "achievement",  labelKey: "app.achievement",   iconText: "A",               group: "main", color: "linear-gradient(145deg,#f0ebff,#fff)",    renderer: "empty" },
-    { id: "homeworkCheki",labelKey: "app.homeworkCheki", iconText: "C",               group: "main", color: "linear-gradient(145deg,#ffe0ef,#fff)",    renderer: "empty" },
-    { id: "onair",        labelKey: "app.onair",         iconText: "ON",              group: "main", color: "linear-gradient(145deg,#e9f7ff,#fff7fb)", renderer: "empty" },
-    { id: "lumilog",      labelKey: "app.lumilog",       iconText: "LOG",             group: "main", color: "linear-gradient(145deg,#ecfff8,#fff)",    renderer: "empty" },
-
-    /* ── Home 2 ── */
-    { id: "exchange",     labelKey: "app.exchange",      iconText: "EX",              group: "more", color: "linear-gradient(145deg,#fff6de,#fff7fb)", renderer: "empty" },
-    { id: "songbook",     labelKey: "app.songbook",      iconText: "♪",              group: "more", color: "linear-gradient(145deg,#f0ebff,#fff)",    renderer: "empty" },
-    { id: "themeShop",    labelKey: "app.themeShop",     iconText: "TH",              group: "more", color: "linear-gradient(145deg,#ffe0ef,#fff)",    renderer: "placeholder" },
-    { id: "settings",     labelKey: "app.settings",      iconText: "⚙",              group: "more", color: "linear-gradient(145deg,#fff,#f0ebff)",    renderer: "empty" },
-
-    { id: "attendance",   labelKey: "app.attendance",    iconText: "出",              group: "more", color: "linear-gradient(145deg,#ffe9f4,#fff)",    renderer: "placeholder" },
-    { id: "gameZone",     labelKey: "app.gameZone",      iconText: "G",               group: "more", color: "linear-gradient(145deg,#ecfff8,#fff)",    renderer: "placeholder" },
-    { id: "guide",        labelKey: "app.guide",         iconText: "?",               group: "more", color: "linear-gradient(145deg,#fff5df,#fff)",    renderer: "empty" },
-    { id: "more",         labelKey: "app.more",          iconText: "+",               group: "more", color: "linear-gradient(145deg,#f3f0f4,#fff)",    renderer: "placeholder" }
+    { id: "boothBank",    labelKey: "app.boothBank",     iconText: "통장",             group: "more", color: "#fff4f7", renderer: "native" },
+    { id: "achievement",  labelKey: "app.achievement",   iconText: "업적",             group: "more", color: "#fdf5f7", renderer: "native" },
+    { id: "onair",        labelKey: "app.onair",         iconText: "ON",               group: "more", color: "#f5f6ff", renderer: "empty" },
+    { id: "profile",      labelKey: "app.profile",       iconText: "MY",               group: "more", color: "#fff3f7", renderer: "empty" },
+    { id: "lumitalk",     labelKey: "app.lumitalk",      iconText: "톡",               group: "more", color: "#fff3f8", renderer: "placeholder" },
+    { id: "lumilog",      labelKey: "app.lumilog",       iconText: "로그",             group: "more", color: "#f6fbf9", renderer: "empty" },
+    { id: "exchange",     labelKey: "app.exchange",      iconText: "교환",             group: "more", color: "#fffaf1", renderer: "empty" },
+    { id: "songbook",     labelKey: "app.songbook",      iconText: "노래",             group: "more", color: "#f7f3ff", renderer: "empty" },
+    { id: "themeShop",    labelKey: "app.themeShop",     iconText: "테마",             group: "more", color: "#fff3f7", renderer: "placeholder" },
+    { id: "settings",     labelKey: "app.settings",      iconText: "설정",             group: "more", color: "#f9f7fa", renderer: "empty" },
+    { id: "attendance",   labelKey: "app.attendance",    iconText: "출석",             group: "more", color: "#fff3f8", renderer: "placeholder" },
+    { id: "gameZone",     labelKey: "app.gameZone",      iconText: "게임",             group: "more", color: "#f5fbf8", renderer: "placeholder" },
+    { id: "guide",        labelKey: "app.guide",         iconText: "안내",             group: "more", color: "#fffaf2", renderer: "empty" }
   ];
 
   /* ─────────────────────────────────────────
@@ -53,14 +49,14 @@ window.LumiPhone = (function () {
      실제 API 붙이면 이 블록만 교체
   ───────────────────────────────────────── */
   var TODAY_STATE = {
-    weather:     { temp: "21°C", desc: "공연장 날씨 또는 현재 위치 기준으로 표시돼요." },
-    reservation: { title: "Shine Me UP : 루미벨 데뷔 라이브", meta: "입금 확인 완료 · 홍대 상상마당", status: "입금 확인 대기" },
-    dday:        { label: "D-DAY", value: 27, unit: "LIVE LIFE" },
+    weather:     { temp: "24°C", desc: "홍대 상상마당 · 24°C 맑음" },
+    reservation: { title: "루미벨 데뷔 라이브", date: "2026.07.12 (일) 오후 6:00", meta: "홍대 상상마당 라이브홀", status: "예약 완료" },
+    dday:        { label: "D-DAY", value: 21, unit: "일 남음" },
     summary: [
-      { labelKey: "today.summary.messages", value: "2",   unit: "개" },
-      { labelKey: "today.summary.stamps",   value: "3",   unit: "/ 20" },
+      { labelKey: "today.summary.messages", value: "2", unit: "새 소식" },
+      { labelKey: "today.summary.stamps",   value: "3", unit: "/ 20" },
       { labelKey: "today.summary.points",   value: "120", unit: "P" },
-      { labelKey: "today.summary.cheki",    value: "1",   unit: "수령 가능" }
+      { labelKey: "today.summary.cheki",    value: "1", unit: "수령 가능" }
     ],
     onair: { status: "다음 방송 알림 대기 중", badge: "STANDBY" }
   };
@@ -92,7 +88,7 @@ window.LumiPhone = (function () {
     _applyI18n();
     _updateClock();
     setInterval(_updateClock, 30000);
-    goToPage(1);
+    goToPage(0);
   }
 
   function _cacheElements() {
@@ -138,35 +134,19 @@ window.LumiPhone = (function () {
      Today View 렌더
   ───────────────────────────────────────── */
   function _renderToday() {
-    _setText('[data-role="weather-temp"]', TODAY_STATE.weather.temp);
     _setText('[data-role="weather-desc"]', TODAY_STATE.weather.desc);
+    _setText('[data-role="reservation-title"]', TODAY_STATE.reservation.title);
+    _setText('[data-role="reservation-date"]', TODAY_STATE.reservation.date);
+    _setText('[data-role="reservation-meta"]', TODAY_STATE.reservation.meta);
+    _setText('[data-role="dday-label"]', TODAY_STATE.dday.label);
+    _setText('[data-role="dday-value"]', TODAY_STATE.dday.value);
 
-    /* 공연명: 콜론 기준 줄바꿈 */
-    var titleEl = document.querySelector('[data-role="reservation-title"]');
-    if (titleEl) titleEl.innerHTML = _formatEventTitle(TODAY_STATE.reservation.title);
-
-    _setText('[data-role="reservation-meta"]',   TODAY_STATE.reservation.meta);
-    _setText('[data-role="reservation-status"]', TODAY_STATE.reservation.status);
-    _setText('[data-role="dday-label"]',         TODAY_STATE.dday.label);
-    _setText('[data-role="dday-value"]',         TODAY_STATE.dday.value);
-    _setText('[data-role="dday-unit"]',          TODAY_STATE.dday.unit);
-
-    /* mini-info 그리드 — 01-fix 태그 구조(span/strong/em) 유지 */
     var summaryEl = document.querySelector('[data-role="today-summary"]');
     if (summaryEl) {
       summaryEl.innerHTML = TODAY_STATE.summary.map(function (item) {
-        return (
-          '<article class="mini-info">' +
-            '<span>' + _t(item.labelKey) + '</span>' +
-            '<strong>' + _escHtml(item.value) + '</strong>' +
-            '<em>' + _escHtml(item.unit) + '</em>' +
-          '</article>'
-        );
-      }).join("");
+        return '<article class="mini-info"><span>' + _t(item.labelKey) + '</span><strong>' + _escHtml(item.value) + '</strong><em>' + _escHtml(item.unit) + '</em></article>';
+      }).join('');
     }
-
-    _setText('[data-role="onair-status"]', TODAY_STATE.onair.status);
-    _setText('[data-role="onair-badge"]',  TODAY_STATE.onair.badge);
   }
 
   function _formatEventTitle(title) {
@@ -195,8 +175,8 @@ window.LumiPhone = (function () {
       : "";
     return (
       '<article class="app-icon">' +
-        '<button type="button" class="app-button" data-app-id="' + app.id + '" style="--app-bg:' + app.color + '">' +
-          '<span>' + _escHtml(app.iconText) + '</span>' + badge +
+        '<button type="button" class="app-button" data-app-id="' + app.id + '" data-asset-slot="app-' + app.id + '" style="--app-bg:' + app.color + '">' +
+          '<span class="app-image-slot">아이콘 이미지</span>' + badge +
         '</button>' +
         '<p class="app-label">' + _t(app.labelKey) + '</p>' +
       '</article>'
@@ -208,7 +188,8 @@ window.LumiPhone = (function () {
   ───────────────────────────────────────── */
   function _renderPageDots() {
     if (!els.pageDots) return;
-    els.pageDots.innerHTML = [0, 1, 2].map(function (i) {
+    var count = els.screens ? els.screens.querySelectorAll(".screen-page").length : 2;
+    els.pageDots.innerHTML = Array.from({ length: count }, function (_, i) { return i; }).map(function (i) {
       return '<span class="dot' + (i === state.currentPage ? " is-active" : "") + '"></span>';
     }).join("");
   }
@@ -271,7 +252,8 @@ window.LumiPhone = (function () {
       if (Math.abs(dx) < 42 || Math.abs(dx) < Math.abs(dy) * 1.15) return;
 
       var next = state.currentPage + (dx < 0 ? 1 : -1);
-      next = Math.max(0, Math.min(2, next));
+      var pageCount = els.screens ? els.screens.querySelectorAll(".screen-page").length : 2;
+      next = Math.max(0, Math.min(pageCount - 1, next));
       if (next !== state.currentPage) goToPage(next);
     }, { passive: true });
   }
@@ -281,7 +263,7 @@ window.LumiPhone = (function () {
   ───────────────────────────────────────── */
   function goToPage(index) {
     if (!els.screens) return;
-    var pageCount = els.screens.querySelectorAll(".screen-page").length || 3;
+    var pageCount = els.screens.querySelectorAll(".screen-page").length || 2;
     var next = Math.max(0, Math.min(pageCount - 1, index));
     state.currentPage = next;
     _renderPageDots();
@@ -346,6 +328,30 @@ window.LumiPhone = (function () {
     if (appId === "mail" && typeof window.LumiApps.bindMail === "function") {
       window.LumiApps.bindMail(els.appBody);
     }
+
+    if (appId === "boothBank" && typeof window.LumiApps.bindBoothBank === "function") {
+      window.LumiApps.bindBoothBank(els.appBody);
+    }
+
+    if (appId === "point" && typeof window.LumiApps.bindPoint === "function") {
+      window.LumiApps.bindPoint(els.appBody);
+    }
+  
+    if (appId === "stamp" && typeof window.LumiApps.bindStamp === "function") {
+      window.LumiApps.bindStamp(els.appBody);
+    }
+  
+    if (appId === "homeworkCheki" && typeof window.LumiApps.bindHomeworkCheki === "function") {
+      window.LumiApps.bindHomeworkCheki(els.appBody);
+    }
+  
+    if (appId === "timeline" && typeof window.LumiApps.bindTimeline === "function") {
+      window.LumiApps.bindTimeline(els.appBody);
+    }
+  
+    if (appId === "achievement" && typeof window.LumiApps.bindAchievement === "function") {
+      window.LumiApps.bindAchievement(els.appBody);
+    }
   }
 
   /**
@@ -398,8 +404,8 @@ window.LumiPhone = (function () {
 
   function goHome() {
     _closeAppWindow();
-    state.returnPage = 1;
-    goToPage(1);
+    state.returnPage = 0;
+    goToPage(0);
   }
 
   function goBack() {

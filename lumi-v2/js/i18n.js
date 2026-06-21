@@ -8,6 +8,7 @@ window.LUMI_I18N = {
   ko: {
     /* 앱 이름 */
     "app.ticket":       "티켓",
+    "app.benefitQueue": "특전회 대기",
     "app.messages":     "문자",
     "app.mail":         "우편함",
     "app.lumitalk":     "루미톡",
@@ -15,6 +16,7 @@ window.LUMI_I18N = {
     "app.profile":      "프로필",
     "app.stamp":        "스탬프",
     "app.point":        "포인트",
+    "app.boothBank":    "물판 통장",
     "app.achievement":  "업적",
     "app.homeworkCheki":"숙제체키",
     "app.onair":        "ON AIR",
