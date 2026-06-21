@@ -175,8 +175,8 @@ window.LumiPhone = (function () {
       : "";
     return (
       '<article class="app-icon">' +
-        '<button type="button" class="app-button" data-app-id="' + app.id + '" data-asset-slot="app-' + app.id + '" style="--app-bg:' + app.color + '">' +
-          '<span class="app-image-slot">아이콘 이미지</span>' + badge +
+        '<button type="button" class="app-button" data-app-id="' + app.id + '" style="--app-bg:' + app.color + '">' +
+          '<span>' + _escHtml(app.iconText) + '</span>' + badge +
         '</button>' +
         '<p class="app-label">' + _t(app.labelKey) + '</p>' +
       '</article>'

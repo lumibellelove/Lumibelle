@@ -3,7 +3,6 @@ window.LumiApps.benefitQueue = function (app, ctx) {
   return (
     '<section class="queue-app">' +
       '<article class="queue-app-card">' +
-        '<div class="queue-app-image-slot" data-asset-slot="benefit-queue-main">특전회 메인 이미지</div>' +
         '<span class="queue-open-badge">사전 접수 오픈</span>' +
         '<h2>루미벨 데뷔 라이브 특전회</h2>' +
         '<p>사전 접수로 원하는 멤버와 특전을 선택할 수 있어요. 실제 연동 전까지는 화면 구조와 더미 상태만 표시합니다.</p>' +
