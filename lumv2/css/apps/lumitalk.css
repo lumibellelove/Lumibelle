@@ -2776,6 +2776,8 @@
   background: transparent;
 }
 
+/* 헤더 사진 자체만 아래에서 투명해지고, 별도 핑크 레이어는 두지 않는다.
+   별도 레이어의 끝이 보이던 가로 경계선을 제거한다. */
 .lumitalk-profile-home-hero::after {
   content: none;
 }
@@ -2793,6 +2795,21 @@
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+  /* 사진 레이어 자체를 아래에서 투명하게 지워서 끝선이 생기지 않게 한다. */
+  -webkit-mask-image: linear-gradient(to bottom,
+    #000 0%,
+    #000 46%,
+    rgba(0,0,0,.94) 58%,
+    rgba(0,0,0,.66) 72%,
+    rgba(0,0,0,.28) 86%,
+    transparent 100%);
+  mask-image: linear-gradient(to bottom,
+    #000 0%,
+    #000 46%,
+    rgba(0,0,0,.94) 58%,
+    rgba(0,0,0,.66) 72%,
+    rgba(0,0,0,.28) 86%,
+    transparent 100%);
 }
 
 .lumitalk-profile-home-hero-nav {
@@ -2907,6 +2924,7 @@
 .lumitalk-profile-home-gallery {
   position: relative;
   z-index: 2;
+  overflow: hidden;
   margin: 6px 12px 0;
   padding: 18px 18px 20px;
   border: 1px solid rgba(255,255,255,.86);
@@ -3913,7 +3931,7 @@
 }
 
 
-/* Viewer profile: device album picker and upload crop flow. */
+/* Viewer profile: upload crop flow. */
 .lumitalk-image-slot.is-uploaded-image,
 .lumitalk-profile-home-avatar-slot.is-uploaded-image,
 .lumitalk-viewer-profile-editor-current-slot.is-uploaded-image {
@@ -3921,17 +3939,15 @@
   background-color: #f8edf3;
 }
 
-.lumitalk-upload-album,
 .lumitalk-upload-crop {
   position: absolute;
   inset: 0;
   z-index: 80;
   overflow: auto;
-  background: #fff;
-  color: #171217;
+  background: #050505;
+  color: #fff;
 }
 
-.lumitalk-upload-album-head,
 .lumitalk-upload-crop-head {
   position: sticky;
   top: 0;
@@ -3941,11 +3957,16 @@
   align-items: center;
   min-height: 64px;
   padding: 0 12px;
-  border-bottom: 1px solid rgba(30,20,25,.08);
-  background: rgba(255,255,255,.98);
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  background: #050505;
 }
 
-.lumitalk-upload-album-head button,
+.lumitalk-upload-crop-head strong {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 800;
+}
+
 .lumitalk-upload-crop-head button {
   border: 0;
   background: transparent;
@@ -3956,62 +3977,102 @@
   font-weight: 800;
 }
 
-.lumitalk-upload-album-title {
-  justify-self: start;
-  min-width: 0;
-  font-size: 22px !important;
-  font-weight: 900 !important;
-  letter-spacing: -.05em;
-}
-.lumitalk-upload-album-title b { font-size: 16px; }
-
-.lumitalk-upload-album-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 2px;
-  padding: 2px;
-  background: #f3f3f3;
+.lumitalk-upload-crop-head button:last-child {
+  justify-self: end;
+  font-size: 17px;
 }
 
-.lumitalk-upload-album-add,
-.lumitalk-upload-album-empty {
-  aspect-ratio: 1 / 1;
-  min-height: 114px;
-  border: 0;
-  background: #fff;
+.lumitalk-upload-crop-stage {
+  position: relative;
+  min-height: calc(100dvh - 64px);
+  overflow: hidden;
+  touch-action: none;
 }
-.lumitalk-upload-album-add {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: #777;
-  font: inherit;
-  font-weight: 800;
-}
-.lumitalk-upload-album-add span { font-size: 36px; line-height: 1; }
-.lumitalk-upload-album-add small { font-size: 11px; }
-.lumitalk-upload-album-empty {
-  grid-column: span 2;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 16px;
-  background: linear-gradient(145deg, #faf4f7, #f4edf2);
-}
-.lumitalk-upload-album-empty strong { font-size: 14px; font-weight: 900; }
-.lumitalk-upload-album-empty p { margin: 5px 0 0; color: #9b8792; font-size: 11px; line-height: 1.4; font-weight: 700; }
 
-.lumitalk-upload-album-list-dim { position: fixed; inset: 0; z-index: 86; background: rgba(0,0,0,.26); }
-.lumitalk-upload-album-list { position: fixed; left: 50%; top: 78px; z-index: 87; width: min(78vw, 330px); max-height: min(70vh, 580px); overflow: auto; transform: translateX(-50%); padding: 12px 0; border-radius: 24px; background: #fff; box-shadow: 0 12px 36px rgba(0,0,0,.18); }
-.lumitalk-upload-album-list button { width: 100%; display: flex; align-items: baseline; gap: 8px; padding: 15px 22px; border: 0; background: transparent; color: #222; font: inherit; text-align: left; font-size: 17px; font-weight: 800; }
-.lumitalk-upload-album-list small { color: #9b9b9b; font-size: 14px; font-weight: 600; }
+.lumitalk-upload-crop-stage img {
+  position: absolute;
+  display: block;
+  max-width: none;
+  user-select: none;
+  transform-origin: center;
+  will-change: transform;
+}
 
-.lumitalk-upload-crop { background: #050505; color: #fff; }
-.lumitalk-upload-crop-head { background: #050505; border-bottom-color: rgba(255,255,255,.1); }
-.lumitalk-upload-crop-head strong { text-align: center; font-size: 15px; font-weight: 800; }
-.lumitalk-upload-crop-head button:last-child { justify-self: end; font-size: 17px; }
-.lumitalk-upload-crop-stage { position: relative; min-height: calc(100dvh - 64px); overflow: hidden; touch-action: none; }
-.lumitalk-upload-crop-stage img { position: absolute; display: block; max-width: none; user-select: none; transform-origin: center; will-change: transform; }
-.lumitalk-upload-crop-guide { position: absolute; left: 50%; top: 50%; width: min(68vw, 260px); aspect-ratio: 1; transform: translate(-50%, -50%); border: 2px solid rgba(255,255,255,.95); border-radius: 50%; box-shadow: 0 0 0 9999px rgba(0,0,0,.48); pointer-events: none; }
+.lumitalk-upload-crop-guide {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(68vw, 260px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(255,255,255,.95);
+  border-radius: 50%;
+  box-shadow: 0 0 0 9999px rgba(0,0,0,.48);
+  pointer-events: none;
+}
+
+
+/* Compact choice between the main profile settings sheet and the two media editors. */
+.lumitalk-viewer-profile-settings-sheet--edit-choice { max-width: 560px; }
+.lumitalk-viewer-profile-edit-choice .lumitalk-viewer-profile-settings-row {
+  min-height: 88px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+.lumitalk-viewer-profile-settings-image-slot--header { border-radius: 16px; }
+.lumitalk-viewer-header-editor-section { margin-top: 14px; }
+.lumitalk-viewer-header-editor-preview {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 5 / 6;
+  min-height: 248px;
+  max-height: 360px;
+  margin-top: 12px;
+  overflow: hidden;
+  border: 1px solid var(--theme-line);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(252,239,246,.92));
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+.lumitalk-viewer-header-editor-preview::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    rgba(255, 249, 251, 0) 0%,
+    rgba(255, 247, 250, 0) 50%,
+    rgba(249, 223, 235, .18) 68%,
+    rgba(240, 184, 208, .52) 84%,
+    rgba(233, 157, 192, .82) 100%);
+  pointer-events: none;
+}
+.lumitalk-profile-home-cover-slot.is-uploaded-image { background-color: rgba(255,244,249,.58); }
+@media (max-width: 400px) {
+  .lumitalk-viewer-profile-edit-choice .lumitalk-viewer-profile-settings-row {
+    min-height: 78px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+  .lumitalk-viewer-header-editor-preview {
+    min-height: 220px;
+    border-radius: 14px;
+  }
+}
+
+
+/* Header photo crop: keep the editor compact and remove the extra instruction band. */
+.lumitalk-upload-crop--header {
+  overflow: hidden;
+}
+.lumitalk-upload-crop--header .lumitalk-upload-crop-stage {
+  min-height: calc(100dvh - 64px);
+}
+.lumitalk-upload-crop-guide--header {
+  top: 44%;
+  width: min(90vw, 360px);
+  aspect-ratio: 5 / 6;
+  border-radius: 18px;
+}
