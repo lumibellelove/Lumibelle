@@ -224,7 +224,7 @@ window.LumiApps = window.LumiApps || {};
         media: [{ slot: 1 }, { slot: 2 }, { slot: 3 }],
         time: '방금',
         reactions: { heart: 24, gift: 7 },
-        saved: true
+        saved: false
       },
       {
         id: 'lulu-reply-1',
@@ -299,20 +299,6 @@ window.LumiApps = window.LumiApps || {};
     threads: cloneThreads(),
     detailScrollByChannel: {},
     panelMode: null,
-    viewerProfileSettingsOpen: false,
-    viewerDisplayNameEditorOpen: false,
-    viewerStatusMessageEditorOpen: false,
-    viewerProfileEditorOpen: false,
-    viewerProfileEditorSelectedCandidate: 0,
-    viewerProfileCandidateIndex: null,
-    viewerProfileEditorSelectedSavedMediaId: null,
-    viewerProfileUploadAlbumOpen: false,
-    viewerProfileUploadAlbumListOpen: false,
-    viewerProfileUploadSelectedAlbum: '전체보기',
-    viewerProfileUploadCrop: null,
-    viewerProfileUploadedPreview: null,
-    viewerProfileUploadedImage: null,
-    viewerSavedMediaPickerOpen: false,
     panelMediaFilter: 'all',
     panelMediaViewerIndex: null,
     panelMediaViewerReturnTo: 'gallery',
@@ -354,199 +340,55 @@ window.LumiApps = window.LumiApps || {};
 
   function readViewerProfileFromStorage() {
     var storageKeys = ['lumiphone-v2-profile', 'lumiphone-profile', 'lumiphone-v2-settings'];
-    var sources = [];
     for (var i = 0; i < storageKeys.length; i += 1) {
       try {
         var raw = window.localStorage && window.localStorage.getItem(storageKeys[i]);
         if (!raw) continue;
         var stored = JSON.parse(raw);
-        if (stored && typeof stored === 'object') sources.push(stored);
+        if (stored && typeof stored === 'object') return stored;
       } catch (error) {}
     }
-    return sources;
-  }
-
-  function readLumitalkViewerProfileOverride() {
-    try {
-      var raw = window.localStorage && window.localStorage.getItem('lumitalk-viewer-profile');
-      var stored = raw ? JSON.parse(raw) : null;
-      return stored && typeof stored === 'object' ? stored : {};
-    } catch (error) {
-      return {};
-    }
-  }
-
-  function saveLumitalkViewerProfileOverride(next) {
-    try {
-      window.localStorage && window.localStorage.setItem('lumitalk-viewer-profile', JSON.stringify(next || {}));
-    } catch (error) {}
-  }
-
-  function normalizeViewerProfileCandidateIndex(value) {
-    var index = Number(value);
-    return Number.isInteger(index) && index >= 0 && index <= 5 ? index : 0;
-  }
-
-  function getViewerProfileCandidateIndex() {
-    if (session && session.viewerProfileCandidateIndex !== null && session.viewerProfileCandidateIndex !== undefined) {
-      return normalizeViewerProfileCandidateIndex(session.viewerProfileCandidateIndex);
-    }
-    var override = readLumitalkViewerProfileOverride();
-    var index = normalizeViewerProfileCandidateIndex(override.profileCandidateIndex);
-    if (session) session.viewerProfileCandidateIndex = index;
-    return index;
-  }
-
-
-  function getViewerProfileUploadedImage() {
-    if (session && session.viewerProfileUploadedImage && session.viewerProfileUploadedImage.dataUrl) return session.viewerProfileUploadedImage;
-    var override = readLumitalkViewerProfileOverride();
-    var image = override && override.profileUploadedImage ? override.profileUploadedImage : null;
-    if (session) session.viewerProfileUploadedImage = image;
-    return image;
-  }
-
-  function getViewerProfileImageStyle(image) {
-    if (!image || !image.dataUrl) return '';
-    return ' style="background-image:url(\'' + esc(image.dataUrl) + '\');background-size:cover;background-position:center"';
-  }
-
-  function getViewerProfileAvatarClass(baseClass) {
-    return baseClass + (getViewerProfileUploadedImage() ? ' is-uploaded-image' : '');
-  }
-
-  function firstProfileText(candidates, fallback) {
-    for (var i = 0; i < candidates.length; i += 1) {
-      if (typeof candidates[i] === 'string' && candidates[i].trim()) return candidates[i].trim();
-    }
-    return fallback || '';
-  }
-
-  function getOshiProfileConfig(sources) {
-    var profileObjects = sources.map(function (source) {
-      return source && (source.profile || source.viewer || source);
-    });
-    var rawCandidates = [
-      window.LumiProfile && (window.LumiProfile.oshi || window.LumiProfile.favoriteMember || window.LumiProfile.favorite || window.LumiProfile.selectedOshi),
-      window.LumiUser && (window.LumiUser.oshi || window.LumiUser.favoriteMember || window.LumiUser.favorite || window.LumiUser.selectedOshi)
-    ];
-    profileObjects.forEach(function (profile) {
-      rawCandidates.push(profile && (profile.oshi || profile.favoriteMember || profile.favorite || profile.selectedOshi));
-    });
-
-    var idCandidates = [
-      window.LumiProfile && (window.LumiProfile.oshiId || window.LumiProfile.oshiMemberId || window.LumiProfile.favoriteMemberId),
-      window.LumiUser && (window.LumiUser.oshiId || window.LumiUser.oshiMemberId || window.LumiUser.favoriteMemberId)
-    ];
-    var nameCandidates = [
-      window.LumiProfile && (window.LumiProfile.oshiName || window.LumiProfile.favoriteMemberName),
-      window.LumiUser && (window.LumiUser.oshiName || window.LumiUser.favoriteMemberName)
-    ];
-    profileObjects.forEach(function (profile) {
-      idCandidates.push(profile && (profile.oshiId || profile.oshiMemberId || profile.favoriteMemberId));
-      nameCandidates.push(profile && (profile.oshiName || profile.favoriteMemberName));
-    });
-
-    rawCandidates.forEach(function (raw) {
-      if (typeof raw === 'string') {
-        idCandidates.push(raw);
-        nameCandidates.push(raw);
-      } else if (raw && typeof raw === 'object') {
-        idCandidates.push(raw.id, raw.memberId, raw.channelId, raw.key, raw.slug);
-        nameCandidates.push(raw.name, raw.memberName, raw.label, raw.nickname);
-      }
-    });
-
-    var aliases = {
-      lulu: { id: 'lulu', name: '루루' },
-      '루루': { id: 'lulu', name: '루루' },
-      mariring: { id: 'mariring', name: '마리링' },
-      '마리링': { id: 'mariring', name: '마리링' },
-      iro: { id: 'iro', name: '이로' },
-      '이로': { id: 'iro', name: '이로' },
-      lunar: { id: 'lunar', name: 'LUNAR' },
-      'lunar': { id: 'lunar', name: 'LUNAR' },
-      '루나': { id: 'lunar', name: 'LUNAR' }
-    };
-
-    var rawId = firstProfileText(idCandidates, 'lulu');
-    var rawName = firstProfileText(nameCandidates, '');
-    var mapped = aliases[String(rawId).toLowerCase()] || aliases[rawId] || aliases[String(rawName).toLowerCase()] || aliases[rawName];
-    return {
-      id: mapped ? mapped.id : rawId,
-      name: mapped ? mapped.name : (rawName || rawId || '루루')
-    };
+    return null;
   }
 
   function getViewerProfile() {
-    var override = readLumitalkViewerProfileOverride();
-    var sources = readViewerProfileFromStorage();
-    var profileObjects = sources.map(function (source) {
-      return source && (source.profile || source.viewer || source);
-    });
+    var stored = readViewerProfileFromStorage() || {};
+    var storedProfile = stored.profile || stored.viewer || {};
     var nicknameCandidates = [
-      override.displayName,
-      override.nickname,
       window.LumiProfile && window.LumiProfile.nickname,
       window.LumiUser && window.LumiUser.nickname,
       window.LumiTicketStore && window.LumiTicketStore.viewerNickname,
-      window.LumiTicketStore && window.LumiTicketStore.profile && window.LumiTicketStore.profile.nickname
+      window.LumiTicketStore && window.LumiTicketStore.profile && window.LumiTicketStore.profile.nickname,
+      stored.nickname,
+      storedProfile.nickname
     ];
     var idCandidates = [
       window.LumiProfile && (window.LumiProfile.lumiId || window.LumiProfile.id),
       window.LumiUser && (window.LumiUser.lumiId || window.LumiUser.id),
       window.LumiTicketStore && window.LumiTicketStore.viewerId,
-      window.LumiTicketStore && window.LumiTicketStore.profile && (window.LumiTicketStore.profile.lumiId || window.LumiTicketStore.profile.id)
+      window.LumiTicketStore && window.LumiTicketStore.profile && (window.LumiTicketStore.profile.lumiId || window.LumiTicketStore.profile.id),
+      stored.lumiId,
+      stored.viewerId,
+      stored.id,
+      storedProfile.lumiId,
+      storedProfile.viewerId,
+      storedProfile.id
     ];
-    var statusCandidates = [
-      override.statusMessage,
-      window.LumiProfile && (window.LumiProfile.statusMessage || window.LumiProfile.profileMessage || window.LumiProfile.tagline || window.LumiProfile.bio || window.LumiProfile.introduction),
-      window.LumiUser && (window.LumiUser.statusMessage || window.LumiUser.profileMessage || window.LumiUser.tagline || window.LumiUser.bio || window.LumiUser.introduction),
-      window.LumiTicketStore && window.LumiTicketStore.profile && (window.LumiTicketStore.profile.statusMessage || window.LumiTicketStore.profile.profileMessage || window.LumiTicketStore.profile.tagline || window.LumiTicketStore.profile.bio || window.LumiTicketStore.profile.introduction)
-    ];
-    profileObjects.forEach(function (profile) {
-      nicknameCandidates.push(profile && profile.nickname);
-      idCandidates.push(profile && (profile.lumiId || profile.viewerId || profile.id));
-      statusCandidates.push(profile && (profile.statusMessage || profile.profileMessage || profile.tagline || profile.bio || profile.introduction));
-    });
-    return {
-      nickname: firstProfileText(nicknameCandidates, '율'),
-      lumiId: firstProfileText(idCandidates, 'LB-0002'),
-      statusMessage: firstProfileText(statusCandidates, ''),
-      oshi: getOshiProfileConfig(sources)
-    };
-  }
-
-  function getViewerDefaultNickname() {
-    var sources = readViewerProfileFromStorage();
-    var profileObjects = sources.map(function (source) {
-      return source && (source.profile || source.viewer || source);
-    });
-    var candidates = [
-      window.LumiProfile && window.LumiProfile.nickname,
-      window.LumiUser && window.LumiUser.nickname,
-      window.LumiTicketStore && window.LumiTicketStore.viewerNickname,
-      window.LumiTicketStore && window.LumiTicketStore.profile && window.LumiTicketStore.profile.nickname
-    ];
-    profileObjects.forEach(function (profile) {
-      candidates.push(profile && profile.nickname);
-    });
-    return firstProfileText(candidates, '율');
-  }
-
-  function getViewerOshi() {
-    return getViewerProfile().oshi;
-  }
-
-  function isViewerOshiChannel(channel) {
-    var oshi = getViewerOshi();
-    return Boolean(channel && oshi && channel.id === oshi.id);
-  }
-
-  function getChannelMeta(channel, baseMeta) {
-    return (baseMeta || []).filter(function (item) {
-      return item !== '오시 채널' || isViewerOshiChannel(channel);
-    });
+    var nickname = '율';
+    var lumiId = 'LB-0002';
+    for (var i = 0; i < nicknameCandidates.length; i += 1) {
+      if (typeof nicknameCandidates[i] === 'string' && nicknameCandidates[i].trim()) {
+        nickname = nicknameCandidates[i].trim();
+        break;
+      }
+    }
+    for (var j = 0; j < idCandidates.length; j += 1) {
+      if (typeof idCandidates[j] === 'string' && idCandidates[j].trim()) {
+        lumiId = idCandidates[j].trim();
+        break;
+      }
+    }
+    return { nickname: nickname, lumiId: lumiId };
   }
 
   function getViewerNickname() {
@@ -681,7 +523,7 @@ window.LumiApps = window.LumiApps || {};
       return {
         name: channel.name,
         preview: left ? '다시 추가하면 그 시점부터 대화가 시작돼요.' : '채널을 추가하면 지금부터 루미톡을 받을 수 있어요.',
-        meta: getChannelMeta(channel, ['오시 채널']),
+        meta: ['오시 채널'],
         stateLabel: left ? '다시 추가' : '추가하기',
         stateText: left ? 'OFF' : 'NEW',
         isInactive: true
@@ -691,7 +533,7 @@ window.LumiApps = window.LumiApps || {};
       return {
         name: channel.name,
         preview: '채널이 추가되었어요. 지금부터 루미톡을 받을 수 있어요.',
-        meta: getChannelMeta(channel, ['오시 채널']),
+        meta: ['오시 채널'],
         stateLabel: '추가됨',
         stateText: '방금',
         isRecentlyJoined: true
@@ -793,7 +635,7 @@ window.LumiApps = window.LumiApps || {};
     var dynamic = getChannelListCopy(channel);
     var name = dynamic ? dynamic.name : channel.name;
     var preview = dynamic ? dynamic.preview : channel.preview;
-    var meta = dynamic ? dynamic.meta : getChannelMeta(channel, channel.meta);
+    var meta = dynamic ? dynamic.meta : channel.meta;
     var inactive = Boolean(dynamic && dynamic.isInactive);
     return [
       '<article class="lumitalk-channel-row', unavailable ? ' is-unavailable' : '', inactive ? ' is-inactive-channel' : '', '"', unavailable ? '' : ' data-lumitalk-channel="' + esc(channel.id) + '"', '>',
@@ -828,214 +670,13 @@ window.LumiApps = window.LumiApps || {};
   function renderProfileRow() {
     return [
       '<button type="button" class="lumitalk-profile-row" data-lumitalk-action="open-viewer-profile">',
-        '<span class="' + getViewerProfileAvatarClass('lumitalk-image-slot lumitalk-image-slot--profile lumitalk-image-slot--profile-candidate-' + esc(String(getViewerProfileCandidateIndex()))) + '" aria-hidden="true"' + getViewerProfileImageStyle(getViewerProfileUploadedImage()) + '></span>',
+        '<span class="lumitalk-image-slot lumitalk-image-slot--profile" aria-hidden="true"></span>',
         '<div>',
           '<span class="lumitalk-profile-kicker">내 프로필</span>',
           '<strong>', esc(getViewerNickname()), '</strong>',
-          '<p>', esc(getViewerLumiId()), ' · 오시 ', esc(getViewerOshi().name), '</p>',
+          '<p>', esc(getViewerLumiId()), ' · 내 프로필</p>',
         '</div>',
       '</button>'
-    ].join('');
-  }
-
-  function renderViewerProfileSettingsSheet() {
-    return [
-      '<div class="lumitalk-viewer-profile-settings" data-viewer-profile-settings>',
-        '<button type="button" class="lumitalk-viewer-profile-settings-dim" data-lumitalk-action="close-viewer-profile-settings" aria-label="내 프로필 설정 닫기"></button>',
-        '<section class="lumitalk-viewer-profile-settings-sheet" role="dialog" aria-modal="true" aria-labelledby="lumitalk-viewer-profile-settings-title">',
-          '<span class="lumitalk-viewer-profile-settings-handle" aria-hidden="true"></span>',
-          '<header class="lumitalk-viewer-profile-settings-head">',
-            '<h3 id="lumitalk-viewer-profile-settings-title">내 프로필 설정</h3>',
-          '</header>',
-          '<div class="lumitalk-viewer-profile-settings-list">',
-            '<button type="button" class="lumitalk-viewer-profile-settings-row" data-lumitalk-action="open-viewer-display-name-editor">',
-              '<span class="lumitalk-viewer-profile-settings-image-slot" aria-label="표시 이름 편집 이미지 자리"></span>',
-              '<span class="lumitalk-viewer-profile-settings-copy">',
-                '<strong>표시 이름 편집</strong>',
-                '<small>나에게만 보이는 이름을 바꿀 수 있어요.</small>',
-              '</span>',
-              '<span class="lumitalk-viewer-profile-settings-arrow" aria-hidden="true">›</span>',
-            '</button>',
-            '<button type="button" class="lumitalk-viewer-profile-settings-row" data-lumitalk-action="open-viewer-status-message-editor">',
-              '<span class="lumitalk-viewer-profile-settings-image-slot" aria-label="상태 메시지 수정 이미지 자리"></span>',
-              '<span class="lumitalk-viewer-profile-settings-copy">',
-                '<strong>상태 메시지 수정</strong>',
-                '<small>내 프로필에 보이는 한마디를 바꿀 수 있어요.</small>',
-              '</span>',
-              '<span class="lumitalk-viewer-profile-settings-arrow" aria-hidden="true">›</span>',
-            '</button>',
-            '<button type="button" class="lumitalk-viewer-profile-settings-row" data-lumitalk-action="open-viewer-profile-editor">',
-              '<span class="lumitalk-viewer-profile-settings-image-slot" aria-label="프로필 편집 이미지 자리"></span>',
-              '<span class="lumitalk-viewer-profile-settings-copy">',
-                '<strong>프로필 편집</strong>',
-                '<small>프로필 사진과 헤더 배경을 바꿀 수 있어요.</small>',
-              '</span>',
-              '<span class="lumitalk-viewer-profile-settings-arrow" aria-hidden="true">›</span>',
-            '</button>',
-          '</div>',
-        '</section>',
-      '</div>'
-    ].join('');
-  }
-
-  function renderViewerDisplayNameEditor(viewer) {
-    var defaultName = getViewerDefaultNickname();
-    var status = viewer.statusMessage || '상태 메시지를 추가해보세요.';
-    return [
-      '<div class="lumitalk-settings-modal lumitalk-settings-modal--viewer-display-name" role="dialog" aria-modal="true" aria-labelledby="lumitalk-viewer-display-name-title">',
-        '<div class="lumitalk-settings-modal-dim" data-lumitalk-action="close-viewer-display-name-editor"></div>',
-        '<div class="lumitalk-settings-modal-sheet">',
-          '<div class="lumitalk-settings-modal-head">',
-            '<h4 id="lumitalk-viewer-display-name-title">표시 이름 편집</h4>',
-            '<p>나에게만 보이는 이름을 설정할 수 있어요.</p>',
-          '</div>',
-          '<div class="lumitalk-settings-name-preview lumitalk-settings-name-preview--viewer">',
-            '<span class="lumitalk-settings-name-preview-slot" aria-label="내 프로필 이미지 자리"></span>',
-            '<span class="lumitalk-settings-name-preview-copy">',
-              '<strong data-lumitalk-viewer-name-preview>' + esc(viewer.nickname) + '</strong>',
-              '<small>' + esc(status) + '</small>',
-            '</span>',
-          '</div>',
-          '<label class="lumitalk-settings-field">',
-            '<span class="lumitalk-settings-field-label">표시 이름</span>',
-            '<span class="lumitalk-settings-field-input-wrap">',
-              '<input type="text" class="lumitalk-settings-field-input" data-lumitalk-viewer-name-input maxlength="12" value="' + esc(viewer.nickname) + '" placeholder="표시 이름 입력" />',
-              '<span class="lumitalk-settings-field-side-slot" aria-hidden="true"></span>',
-            '</span>',
-          '</label>',
-          '<p class="lumitalk-settings-field-help">최대 12자까지 입력할 수 있어요.</p>',
-          '<div class="lumitalk-settings-modal-actions">',
-            '<button type="button" class="lumitalk-settings-modal-button" data-lumitalk-action="close-viewer-display-name-editor">취소</button>',
-            '<button type="button" class="lumitalk-settings-modal-button is-primary" data-lumitalk-action="save-viewer-display-name">저장하기</button>',
-          '</div>',
-        '</div>',
-      '</div>'
-    ].join('');
-  }
-
-  function renderViewerStatusMessageEditor(viewer) {
-    var status = viewer.statusMessage || '';
-    var previewStatus = status || '상태 메시지를 추가해보세요.';
-    return [
-      '<div class="lumitalk-settings-modal lumitalk-settings-modal--viewer-display-name" role="dialog" aria-modal="true" aria-labelledby="lumitalk-viewer-status-message-title">',
-        '<div class="lumitalk-settings-modal-dim" data-lumitalk-action="close-viewer-status-message-editor"></div>',
-        '<div class="lumitalk-settings-modal-sheet">',
-          '<div class="lumitalk-settings-modal-head">',
-            '<h4 id="lumitalk-viewer-status-message-title">상태 메시지 수정</h4>',
-            '<p>내 프로필에 보이는 한마디를 설정할 수 있어요.</p>',
-          '</div>',
-          '<div class="lumitalk-settings-name-preview lumitalk-settings-name-preview--viewer">',
-            '<span class="lumitalk-settings-name-preview-slot" aria-label="내 프로필 이미지 자리"></span>',
-            '<span class="lumitalk-settings-name-preview-copy">',
-              '<strong>' + esc(viewer.nickname) + '</strong>',
-              '<small data-lumitalk-viewer-status-preview>' + esc(previewStatus) + '</small>',
-            '</span>',
-          '</div>',
-          '<label class="lumitalk-settings-field">',
-            '<span class="lumitalk-settings-field-label">상태 메시지</span>',
-            '<span class="lumitalk-settings-field-input-wrap">',
-              '<input type="text" class="lumitalk-settings-field-input" data-lumitalk-viewer-status-input maxlength="30" value="' + esc(status) + '" placeholder="상태 메시지를 입력하세요" />',
-              '<span class="lumitalk-settings-field-side-slot" aria-hidden="true"></span>',
-            '</span>',
-          '</label>',
-          '<p class="lumitalk-settings-field-help">최대 30자까지 입력할 수 있어요. 비워두면 상태 메시지가 표시되지 않아요.</p>',
-          '<div class="lumitalk-settings-modal-actions">',
-            '<button type="button" class="lumitalk-settings-modal-button" data-lumitalk-action="close-viewer-status-message-editor">취소</button>',
-            '<button type="button" class="lumitalk-settings-modal-button is-primary" data-lumitalk-action="save-viewer-status-message">저장하기</button>',
-          '</div>',
-        '</div>',
-      '</div>'
-    ].join('');
-  }
-
-  function renderViewerProfileEditor() {
-    var selectedCandidate = Number(session.viewerProfileEditorSelectedCandidate || 0);
-    var selectedSavedMediaId = session.viewerProfileEditorSelectedSavedMediaId || '';
-    return [
-      '<div class="lumitalk-settings-modal lumitalk-settings-modal--viewer-profile-editor" role="dialog" aria-modal="true" aria-labelledby="lumitalk-viewer-profile-editor-title">',
-        '<div class="lumitalk-settings-modal-dim" data-lumitalk-action="close-viewer-profile-editor"></div>',
-        '<div class="lumitalk-settings-modal-sheet lumitalk-viewer-profile-editor-sheet">',
-          '<div class="lumitalk-settings-modal-head lumitalk-viewer-profile-editor-head">',
-            '<h4 id="lumitalk-viewer-profile-editor-title">프로필 편집</h4>',
-            '<p>프로필 사진과 헤더 배경을 바꿀 수 있어요.</p>',
-          '</div>',
-          '<section class="lumitalk-viewer-profile-editor-section">',
-            '<div class="lumitalk-viewer-profile-editor-section-head">',
-              '<strong>현재 프로필</strong>',
-            '</div>',
-            '<div class="lumitalk-viewer-profile-editor-current">',
-              '<span class="' + getViewerProfileAvatarClass('lumitalk-viewer-profile-editor-current-slot lumitalk-viewer-profile-editor-current-slot--' + esc(String(selectedCandidate)) + (selectedSavedMediaId ? ' is-saved-media' : '')) + '" data-selected-saved-media-id="' + esc(selectedSavedMediaId) + '" aria-label="선택한 프로필 이미지 자리"' + getViewerProfileImageStyle(session.viewerProfileUploadedPreview || getViewerProfileUploadedImage()) + '></span>',
-              '<span>' + (selectedSavedMediaId ? '소장 사진 선택됨' : '프로필 후보') + '</span>',
-            '</div>',
-            '<div class="lumitalk-viewer-profile-editor-candidates" aria-label="프로필 후보 이미지 자리">',
-              [0, 1, 2, 3, 4, 5].map(function (index) {
-                var isSelected = index === selectedCandidate;
-                return '<button type="button" class="lumitalk-viewer-profile-editor-candidate lumitalk-viewer-profile-editor-candidate--' + esc(String(index)) + (isSelected ? ' is-selected' : '') + '" data-lumitalk-profile-editor-candidate data-profile-candidate-index="' + esc(String(index)) + '" aria-pressed="' + (isSelected ? 'true' : 'false') + '" aria-label="프로필 후보 ' + (index + 1) + ' 선택"></button>';
-              }).join(''),
-            '</div>',
-          '</section>',
-          '<section class="lumitalk-viewer-profile-editor-options">',
-            '<button type="button" class="lumitalk-viewer-profile-editor-option" data-lumitalk-action="open-viewer-saved-media-picker">',
-              '<span class="lumitalk-viewer-profile-editor-option-slot" aria-hidden="true"></span>',
-              '<span>소장 사진에서 선택</span>',
-              '<b aria-hidden="true">›</b>',
-            '</button>',
-            '<button type="button" class="lumitalk-viewer-profile-editor-option" data-lumitalk-action="open-viewer-upload-album">',
-              '<span class="lumitalk-viewer-profile-editor-option-slot" aria-hidden="true"></span>',
-              '<span>앨범에서 업로드</span>',
-              '<b aria-hidden="true">›</b>',
-            '</button>',
-            '<input type="file" accept="image/*" data-lumitalk-profile-upload-input hidden />',
-            '<button type="button" class="lumitalk-viewer-profile-editor-option" data-lumitalk-action="reset-viewer-profile-candidate">',
-              '<span class="lumitalk-viewer-profile-editor-option-slot" aria-hidden="true"></span>',
-              '<span>기본 이미지로 되돌리기</span>',
-              '<b aria-hidden="true">›</b>',
-            '</button>',
-          '</section>',
-          '<div class="lumitalk-settings-modal-actions lumitalk-viewer-profile-editor-actions">',
-            '<button type="button" class="lumitalk-settings-modal-button" data-lumitalk-action="close-viewer-profile-editor">취소</button>',
-            '<button type="button" class="lumitalk-settings-modal-button is-primary" data-lumitalk-action="save-viewer-profile-editor">저장</button>',
-          '</div>',
-        '</div>',
-      '</div>'
-    ].join('');
-  }
-
-  function renderViewerUploadAlbumView() {
-    var albums = [
-      { id: 'all', name: '전체보기', count: '내 사진' },
-      { id: 'camera', name: 'Camera', count: '기기 카메라' },
-      { id: 'download', name: 'Download', count: '다운로드' },
-      { id: 'other', name: '다른 앱', count: '사진첩' }
-    ];
-    return [
-      '<section class="lumitalk-upload-album" data-lumitalk-panel-view="viewer-upload-album">',
-        '<input type="file" accept="image/*" data-lumitalk-profile-upload-input hidden />',
-        '<header class="lumitalk-upload-album-head">',
-          '<button type="button" data-lumitalk-action="close-viewer-upload-album" aria-label="뒤로가기">×</button>',
-          '<button type="button" class="lumitalk-upload-album-title" data-lumitalk-action="toggle-viewer-upload-album-list">' + esc(session.viewerProfileUploadSelectedAlbum || '전체보기') + ' <b aria-hidden="true">' + (session.viewerProfileUploadAlbumListOpen ? '⌃' : '⌄') + '</b></button>',
-          '<span aria-hidden="true"></span>',
-        '</header>',
-        '<div class="lumitalk-upload-album-grid">',
-          '<button type="button" class="lumitalk-upload-album-add" data-lumitalk-action="request-viewer-profile-upload"><span aria-hidden="true">＋</span><small>사진 가져오기</small></button>',
-          '<div class="lumitalk-upload-album-empty"><strong>내 기기 사진</strong><p>사진을 가져오면 이곳에서 선택할 수 있어요.</p></div>',
-        '</div>',
-        session.viewerProfileUploadAlbumListOpen ? '<div class="lumitalk-upload-album-list-dim" data-lumitalk-action="toggle-viewer-upload-album-list"></div><section class="lumitalk-upload-album-list">' + albums.map(function(album){ return '<button type="button" data-lumitalk-action="select-viewer-upload-album" data-upload-album-id="' + album.id + '" data-upload-album-name="' + esc(album.name) + '"><span>' + esc(album.name) + '</span><small>' + esc(album.count) + '</small></button>'; }).join('') + '</section>' : '',
-      '</section>'
-    ].join('');
-  }
-
-  function renderViewerUploadCropView() {
-    var crop = session.viewerProfileUploadCrop;
-    if (!crop || !crop.dataUrl) return renderViewerUploadAlbumView();
-    return [
-      '<section class="lumitalk-upload-crop" data-lumitalk-panel-view="viewer-upload-crop">',
-        '<header class="lumitalk-upload-crop-head"><button type="button" data-lumitalk-action="back-to-viewer-upload-album" aria-label="뒤로가기">‹</button><strong>프로필 사진 편집</strong><button type="button" data-lumitalk-action="confirm-viewer-upload-crop">확인</button></header>',
-        '<div class="lumitalk-upload-crop-stage" data-lumitalk-upload-crop-stage>',
-          '<img src="' + esc(crop.dataUrl) + '" alt="선택한 사진" draggable="false" data-lumitalk-upload-crop-image />',
-          '<span class="lumitalk-upload-crop-guide" aria-hidden="true"></span>',
-        '</div>',
-      '</section>'
     ].join('');
   }
 
@@ -1050,39 +691,28 @@ window.LumiApps = window.LumiApps || {};
               '<button type="button" class="lumitalk-profile-home-nav-button" data-lumitalk-action="close-viewer-profile" aria-label="뒤로가기">‹</button>',
               '<div class="lumitalk-profile-home-hero-actions">',
                 '<button type="button" class="lumitalk-profile-home-nav-button" data-lumitalk-action="open-collection" data-collection-origin="viewer-profile" aria-label="소장함">♥</button>',
-                '<button type="button" class="lumitalk-profile-home-nav-button" data-lumitalk-action="open-viewer-profile-settings" aria-label="내 프로필 설정">•••</button>',
+                '<button type="button" class="lumitalk-profile-home-nav-button" aria-label="더보기">•••</button>',
               '</div>',
             '</div>',
             '<div class="lumitalk-profile-home-identity">',
-              '<span class="' + getViewerProfileAvatarClass('lumitalk-profile-home-avatar-slot lumitalk-profile-home-avatar-slot--candidate-' + esc(String(getViewerProfileCandidateIndex()))) + '" aria-label="내 프로필 이미지 자리"' + getViewerProfileImageStyle(getViewerProfileUploadedImage()) + '></span>',
-              '<div class="lumitalk-profile-home-copy lumitalk-viewer-profile-copy">',
+              '<span class="lumitalk-profile-home-avatar-slot" aria-label="내 프로필 이미지 자리"></span>',
+              '<div class="lumitalk-profile-home-copy">',
                 '<h3>' + esc(viewer.nickname) + '</h3>',
-                '<p class="lumitalk-viewer-profile-id">' + esc(viewer.lumiId) + '</p>',
-                '<p class="lumitalk-viewer-profile-status' + (viewer.statusMessage ? '' : ' is-empty') + '">' + esc(viewer.statusMessage) + '</p>',
+                '<p>' + esc(viewer.lumiId) + ' · 내 프로필</p>',
               '</div>',
-            '</div>',
-            '<div class="lumitalk-profile-home-actions lumitalk-viewer-profile-actions">',
-              '<button type="button" class="lumitalk-viewer-profile-action">루미폰 프로필</button>',
-              '<button type="button" class="lumitalk-viewer-profile-action">오시 ' + esc(viewer.oshi.name) + '</button>',
             '</div>',
           '</section>',
           '<section class="lumitalk-profile-home-gallery lumitalk-viewer-profile-gallery">',
             '<div class="lumitalk-profile-home-gallery-head">',
-              '<strong>내가 소장한 사진</strong>',
-              '<button type="button" data-lumitalk-action="open-viewer-saved-media">전체 보기</button>',
+              '<strong>내가 남긴 사진</strong>',
             '</div>',
             '<div class="lumitalk-profile-home-gallery-grid">',
-              '<span class="lumitalk-profile-home-gallery-slot" aria-label="소장한 사진 이미지 자리"></span>',
-              '<span class="lumitalk-profile-home-gallery-slot" aria-label="소장한 사진 이미지 자리"></span>',
-              '<span class="lumitalk-profile-home-gallery-slot" aria-label="소장한 사진 이미지 자리"></span>',
+              '<span class="lumitalk-profile-home-gallery-slot" aria-label="내 사진 이미지 자리"></span>',
+              '<span class="lumitalk-profile-home-gallery-slot" aria-label="내 사진 이미지 자리"></span>',
+              '<span class="lumitalk-profile-home-gallery-slot" aria-label="내 사진 이미지 자리"></span>',
             '</div>',
-            '<p class="lumitalk-profile-home-gallery-intro">내가 소장한 사진과 순간들을 천천히 모아두는 공간이에요.</p>',
           '</section>',
         '</div>',
-        session.viewerProfileSettingsOpen ? renderViewerProfileSettingsSheet() : '',
-        session.viewerDisplayNameEditorOpen ? renderViewerDisplayNameEditor(viewer) : '',
-        session.viewerStatusMessageEditorOpen ? renderViewerStatusMessageEditor(viewer) : '',
-        session.viewerProfileEditorOpen ? renderViewerProfileEditor() : '',
       '</section>'
     ].join('');
   }
@@ -1143,81 +773,39 @@ window.LumiApps = window.LumiApps || {};
     });
   }
 
-  function formatCollectionDateLabel(rawDate) {
-    if (!rawDate) return '';
-    var match = String(rawDate).match(/(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일\s*(일요일|월요일|화요일|수요일|목요일|금요일|토요일)?/);
-    if (!match) return rawDate;
-    var dayMap = {
-      '일요일': '일',
-      '월요일': '월',
-      '화요일': '화',
-      '수요일': '수',
-      '목요일': '목',
-      '금요일': '금',
-      '토요일': '토'
-    };
-    var year = match[1];
-    var month = String(match[2]).padStart(2, '0');
-    var day = String(match[3]).padStart(2, '0');
-    var weekday = match[4] && dayMap[match[4]] ? ' (' + dayMap[match[4]] + ')' : '';
-    return year + '.' + month + '.' + day + weekday;
-  }
-
-  function formatCollectionOriginalStamp(channel, message) {
-    var detail = getDetail(channel.id);
-    var date = formatCollectionDateLabel((detail && detail.date) ? detail.date : '');
-    var time = message && message.time ? message.time : '';
-    if (date && time) return date + ' | ' + time;
-    return date || time || '원본 발신 시간';
-  }
-
   function renderCollectionMessageCard(channel, message) {
     var text = resolveViewerText(message.text || message.title || '소장한 메시지');
     var sender = message.senderName || channel.profileHomeName || channel.name;
-    var originalStamp = formatCollectionOriginalStamp(channel, message);
-    var typeBadge = isViewerOshiChannel(channel)
-      ? '<span class="lumitalk-collection-detail-badge lumitalk-collection-detail-badge--oshi">오시 채널</span>'
-      : '';
+    var date = message.time || '원본 발신 시간';
     var media = message.media && message.media.length
-      ? [
-          '<section class="lumitalk-collection-detail-media-wrap">',
-            '<strong>함께 첨부된 미디어 (' + esc(String(message.media.length)) + ')</strong>',
-            '<div class="lumitalk-collection-detail-media">',
-              message.media.map(function () {
-                return '<span class="lumitalk-collection-detail-media-slot" aria-label="첨부 이미지 자리"></span>';
-              }).join(''),
-            '</div>',
-          '</section>'
-        ].join('')
+      ? '<div class="lumitalk-collection-detail-media">' + message.media.map(function () {
+          return '<span class="lumitalk-collection-detail-media-slot" aria-label="첨부 이미지 자리"></span>';
+        }).join('') + '</div>'
       : '';
     return [
       '<article class="lumitalk-collection-detail-card">',
-        '<header class="lumitalk-collection-detail-card-head">',
+        '<div class="lumitalk-collection-detail-card-head">',
           '<span class="lumitalk-collection-detail-card-avatar" aria-label="채널 프로필 이미지 자리"></span>',
           '<div class="lumitalk-collection-detail-card-copy">',
             '<strong>' + esc(channel.name) + '</strong>',
-            '<div class="lumitalk-collection-detail-badges">' + typeBadge + '<span class="lumitalk-collection-detail-badge lumitalk-collection-detail-badge--saved"><span class="lumitalk-collection-detail-badge-check" aria-hidden="true">✓</span>소장 완료</span></div>',
-            '<span class="lumitalk-collection-detail-original-stamp">' + esc(originalStamp) + ' (원본 발신 시간)</span>',
+            '<span>소장 메시지 · 원본 ' + esc(date) + '</span>',
           '</div>',
-        '</header>',
-        '<div class="lumitalk-collection-detail-divider" aria-hidden="true"></div>',
-        '<section class="lumitalk-collection-detail-message">',
+        '</div>',
+        '<div class="lumitalk-collection-detail-saved-label">소장 완료</div>',
+        '<div class="lumitalk-collection-detail-message">',
           '<span class="lumitalk-collection-detail-avatar" aria-label="보낸 사람 프로필 이미지 자리"></span>',
-          '<div class="lumitalk-collection-detail-message-copy">',
+          '<div>',
             '<strong>' + esc(sender) + '</strong>',
             '<p>' + esc(text) + '</p>',
           '</div>',
-        '</section>',
+        '</div>',
         media,
-        '<aside class="lumitalk-collection-detail-note">',
-          '<strong>소장한 메시지</strong>',
-          '<span>나만 볼 수 있는 보관함에 저장되었어요.</span>',
-        '</aside>',
-        '<footer class="lumitalk-collection-detail-actions">',
+        '<div class="lumitalk-collection-detail-note">나만 볼 수 있도록 소장함에 저장된 메시지예요.</div>',
+        '<div class="lumitalk-collection-detail-actions">',
           '<button type="button" data-lumitalk-action="open-collection-thread" data-collection-channel-id="' + esc(channel.id) + '">채널로 이동</button>',
           '<button type="button" class="lumitalk-collection-detail-share" aria-label="공유하기">공유하기</button>',
           '<button type="button" data-lumitalk-action="remove-collection-save" data-message-id="' + esc(message.id) + '">소장 해제</button>',
-        '</footer>',
+        '</div>',
       '</article>'
     ].join('');
   }
@@ -1232,7 +820,7 @@ window.LumiApps = window.LumiApps || {};
           '<button type="button" class="lumitalk-collection-back" data-lumitalk-action="close-collection-detail" aria-label="소장함으로 돌아가기">‹</button>',
           '<div>',
             '<h3>소장 메시지</h3>',
-            '<p>다시 보고 싶은 메시지를 보관했어요.</p>',
+            '<p>' + esc(channel.name) + '</p>',
           '</div>',
         '</header>',
         '<div class="lumitalk-collection-scroll lumitalk-collection-detail-scroll">',
@@ -1287,8 +875,14 @@ window.LumiApps = window.LumiApps || {};
   }
 
   function renderActionRow(message) {
+    var entries = getSortedReactionEntries(message.reactions || {});
+    var visible = entries.slice(0, 3);
+    var hiddenCount = Math.max(entries.length - visible.length, 0);
     return [
-      '<div class="lumitalk-message-actions lumitalk-message-actions--save-only">',
+      '<div class="lumitalk-message-actions">',
+        visible.map(renderReactionCount).join(''),
+        renderReactionSummaryButton(message.id, hiddenCount),
+        '<button type="button" class="lumitalk-action-chip" data-lumitalk-action="open-reaction-picker" data-message-id="', esc(message.id), '">❤︎ 반응</button>',
         '<button type="button" class="lumitalk-action-chip', message.saved ? ' is-active' : '', '" data-lumitalk-action="toggle-save" data-message-id="', esc(message.id), '">소장</button>',
       '</div>'
     ].join('');
@@ -1416,29 +1010,6 @@ window.LumiApps = window.LumiApps || {};
     return items.filter(function (item) { return item.type === filterId; });
   }
 
-  function getSavedMediaItems() {
-    var items = [];
-    CHANNELS.forEach(function (channel) {
-      if (channel.id === 'help') return;
-      getVisibleThread(channel.id).forEach(function (message) {
-        if (!message || !message.saved || !message.media || !message.media.length) return;
-        message.media.forEach(function (_, index) {
-          var isVideo = index === message.media.length - 1 && message.media.length > 2;
-          items.push({
-            id: message.id + '-saved-media-' + index,
-            channelId: channel.id,
-            channelName: channel.name,
-            sourceMediaIndex: getMediaViewerIndex(channel.id, message.id, index),
-            type: isVideo ? 'video' : 'photo',
-            label: isVideo ? 'VIDEO' : 'PHOTO',
-            time: isVideo ? '4:07' : ''
-          });
-        });
-      });
-    });
-    return items;
-  }
-
   function renderPanelMediaStrip(items) {
     if (!items.length) {
       return '<div class="lumitalk-panel-empty">아직 사진과 동영상이 없어요.</div>';
@@ -1533,7 +1104,7 @@ window.LumiApps = window.LumiApps || {};
               '<span class="lumitalk-profile-home-avatar-slot" aria-label="멤버가 지정할 프로필 이미지 자리"></span>',
               '<div class="lumitalk-profile-home-copy">',
                 '<h3>' + esc(channel.name) + '</h3>',
-                '<p>' + esc(isViewerOshiChannel(channel) ? (detail && detail.metaLine ? detail.metaLine : '오시 채널 · 알림 켜짐') : (isPersonalMemberChannel(channel) ? '멤버 채널 · 알림 켜짐' : (detail && detail.metaLine ? detail.metaLine : '멤버의 반짝이는 이야기를 만나보세요.'))) + '</p>',
+                '<p>' + esc(detail && detail.metaLine ? detail.metaLine : '멤버의 반짝이는 이야기를 만나보세요.') + '</p>',
               '</div>',
             '</div>',
             joined ? [
@@ -1782,70 +1353,6 @@ window.LumiApps = window.LumiApps || {};
     return '<button type="button" data-lumitalk-action="set-panel-media-filter" data-media-filter="' + esc(filterId) + '" class="' + (session.panelMediaFilter === filterId ? 'is-active' : '') + '">' + esc(label) + '</button>';
   }
 
-  function renderViewerSavedMediaPickerView() {
-    var items = getSavedMediaItems().filter(function (item) { return item.type === 'photo'; });
-    return [
-      '<section class="lumitalk-panel lumitalk-panel--media lumitalk-panel--viewer-saved-media" data-lumitalk-panel-view="viewer-saved-media-picker">',
-        '<header class="lumitalk-detail-header lumitalk-detail-header--panel">',
-          '<button type="button" class="lumitalk-detail-nav" data-lumitalk-action="close-viewer-saved-media-picker" aria-label="뒤로가기">‹</button>',
-          '<div class="lumitalk-detail-copy lumitalk-detail-copy--panel">',
-            '<strong>소장 사진에서 선택</strong>',
-            '<p>프로필로 사용할 사진을 골라주세요.</p>',
-          '</div>',
-          '<span class="lumitalk-detail-nav lumitalk-detail-nav--heart" aria-hidden="true">♥</span>',
-        '</header>',
-        '<div class="lumitalk-panel-scroll lumitalk-panel-scroll--gallery">',
-          items.length
-            ? '<div class="lumitalk-panel-gallery">' + items.map(function (item) {
-                return '<article class="lumitalk-panel-gallery-card">' +
-                  '<button type="button" class="lumitalk-panel-gallery-art" data-lumitalk-action="select-viewer-saved-media" data-saved-media-id="' + esc(item.id) + '" aria-label="' + esc(item.channelName) + '의 소장 사진 선택">' +
-                    '<span class="lumitalk-panel-gallery-slot" aria-hidden="true"></span>' +
-                    '<span class="lumitalk-panel-gallery-badge">PHOTO</span>' +
-                  '</button>' +
-                '</article>';
-              }).join('') + '</div>'
-            : '<div class="lumitalk-panel-empty">프로필로 고를 수 있는 소장 사진이 아직 없어요.</div>',
-        '</div>',
-      '</section>'
-    ].join('');
-  }
-
-  function renderViewerSavedMediaView() {
-    var items = getSavedMediaItems();
-    var visibleItems = filterPanelMediaItems(items, session.panelMediaFilter);
-    return [
-      '<section class="lumitalk-panel lumitalk-panel--media lumitalk-panel--viewer-saved-media" data-lumitalk-panel-view="viewer-saved-media">',
-        '<header class="lumitalk-detail-header lumitalk-detail-header--panel">',
-          '<button type="button" class="lumitalk-detail-nav" data-lumitalk-action="close-viewer-saved-media" aria-label="뒤로가기">‹</button>',
-          '<div class="lumitalk-detail-copy lumitalk-detail-copy--panel">',
-            '<strong>소장한 사진</strong>',
-            '<p>내가 저장한 사진과 동영상</p>',
-          '</div>',
-          '<span class="lumitalk-detail-nav lumitalk-detail-nav--heart" aria-hidden="true">♥</span>',
-        '</header>',
-        '<div class="lumitalk-panel-scroll lumitalk-panel-scroll--gallery">',
-          '<nav class="lumitalk-media-filter" aria-label="소장한 사진과 동영상 필터">',
-            renderGalleryFilterButton('all', '전체'),
-            renderGalleryFilterButton('photo', '사진'),
-            renderGalleryFilterButton('video', '동영상'),
-          '</nav>',
-          visibleItems.length
-            ? '<div class="lumitalk-panel-gallery">' + visibleItems.map(function (item) {
-                return '<article class="lumitalk-panel-gallery-card">' +
-                  '<button type="button" class="lumitalk-panel-gallery-art" data-lumitalk-action="open-viewer-saved-media-origin" data-source-channel-id="' + esc(item.channelId) + '" data-source-media-index="' + esc(String(item.sourceMediaIndex)) + '" aria-label="' + esc(item.channelName) + '의 ' + esc(item.label) + ' 열기">' +
-                    '<span class="lumitalk-panel-gallery-slot" aria-hidden="true"></span>' +
-                    '<span class="lumitalk-panel-gallery-badge">' + esc(item.label) + '</span>' +
-                    (item.time ? '<span class="lumitalk-panel-gallery-time">' + esc(item.time) + '</span>' : '') +
-                    '<span class="lumitalk-panel-gallery-like" aria-hidden="true">♥</span>' +
-                  '</button>' +
-                '</article>';
-              }).join('') + '</div>'
-            : '<div class="lumitalk-panel-empty">아직 소장한 사진이 없어요.</div>',
-        '</div>',
-      '</section>'
-    ].join('');
-  }
-
   function renderChannelMediaView(channelId) {
     var channel = getChannel(channelId);
     var items = getPanelMediaItems(channelId);
@@ -2040,7 +1547,7 @@ window.LumiApps = window.LumiApps || {};
     var body = renderListView(selected);
     if (session.view === 'detail' && session.activeChannelId) {
       body = renderDetailView(session.activeChannelId);
-    } else if (session.view === 'panel' && (session.activeChannelId || session.panelMode === 'viewer-profile' || session.panelMode === 'viewer-saved-media' || session.panelMode === 'viewer-saved-media-picker' || session.panelMode === 'viewer-upload-album' || session.panelMode === 'viewer-upload-crop' || session.panelMode === 'collection' || session.panelMode === 'collection-detail')) {
+    } else if (session.view === 'panel' && (session.activeChannelId || session.panelMode === 'viewer-profile' || session.panelMode === 'collection' || session.panelMode === 'collection-detail')) {
       if (session.panelMode === 'media' && session.panelMediaViewerIndex !== null) {
         body = renderChannelMediaViewer(session.activeChannelId);
       } else if (session.panelMode === 'media') {
@@ -2051,14 +1558,6 @@ window.LumiApps = window.LumiApps || {};
         body = renderProfileHomeView(session.activeChannelId);
       } else if (session.panelMode === 'viewer-profile') {
         body = renderViewerProfileHome();
-      } else if (session.panelMode === 'viewer-saved-media') {
-        body = renderViewerSavedMediaView();
-      } else if (session.panelMode === 'viewer-upload-album') {
-        body = renderViewerUploadAlbumView();
-      } else if (session.panelMode === 'viewer-upload-crop') {
-        body = renderViewerUploadCropView();
-      } else if (session.panelMode === 'viewer-saved-media-picker') {
-        body = renderViewerSavedMediaPickerView();
       } else if (session.panelMode === 'collection') {
         body = renderCollectionView();
       } else if (session.panelMode === 'collection-detail') {
@@ -2111,13 +1610,13 @@ window.LumiApps = window.LumiApps || {};
       if (detailScroll) {
         if (scrollMode === 'top') {
           detailScroll.scrollTop = 0;
+        } else if (scrollMode === 'bottom') {
+          detailScroll.scrollTop = detailScroll.scrollHeight;
+        } else if (scrollMode === 'saved') {
+          var savedScroll = getStoredDetailScroll(session.activeChannelId);
+          detailScroll.scrollTop = savedScroll === null ? detailScroll.scrollHeight : savedScroll;
         } else {
-          var moveToLatest = function () {
-            detailScroll.scrollTop = detailScroll.scrollHeight;
-          };
-          moveToLatest();
-          window.requestAnimationFrame(moveToLatest);
-          window.setTimeout(moveToLatest, 80);
+          detailScroll.scrollTop = previousScroll;
         }
       }
       root.scrollTop = 0;
@@ -2183,12 +1682,6 @@ window.LumiApps = window.LumiApps || {};
             session.panelMode = null;
           }
           renderInto(appRoot);
-        } else if (session.panelMode === 'viewer-saved-media') {
-          session.view = 'panel';
-          session.activeChannelId = null;
-          session.panelMode = 'viewer-profile';
-          session.panelMediaFilter = 'all';
-          renderInto(appRoot);
         } else if (session.panelMode === 'viewer-profile') {
           session.view = 'list';
           session.activeChannelId = null;
@@ -2209,7 +1702,7 @@ window.LumiApps = window.LumiApps || {};
         } else {
           session.view = 'detail';
           session.panelMode = null;
-          renderInto(appRoot, 'bottom');
+          renderInto(appRoot, 'saved');
         }
         return true;
       });
@@ -2260,7 +1753,7 @@ window.LumiApps = window.LumiApps || {};
     session.reactionSheetMessageId = null;
     session.reactionSheetMode = null;
     markChannelRead(channel);
-    renderInto(root, 'bottom');
+    renderInto(root, getStoredDetailScroll(channelId) === null ? 'bottom' : 'saved');
   }
 
   function closeDetail(root) {
@@ -2303,7 +1796,7 @@ window.LumiApps = window.LumiApps || {};
     }
     session.view = 'detail';
     session.panelMode = null;
-    renderInto(root, 'bottom');
+    renderInto(root, 'saved');
   }
 
   function openPanelMedia(root) {
@@ -2471,162 +1964,6 @@ window.LumiApps = window.LumiApps || {};
     root.__lumiTalkBound = true;
     syncBackHandler();
 
-    root.addEventListener('input', function (event) {
-      var viewerNameInput = event.target.closest('[data-lumitalk-viewer-name-input]');
-      if (viewerNameInput) {
-        var viewerNamePreview = root.querySelector('[data-lumitalk-viewer-name-preview]');
-        if (viewerNamePreview) viewerNamePreview.textContent = String(viewerNameInput.value || '').trim() || getViewerDefaultNickname();
-        return;
-      }
-      var viewerStatusInput = event.target.closest('[data-lumitalk-viewer-status-input]');
-      if (viewerStatusInput) {
-        var viewerStatusPreview = root.querySelector('[data-lumitalk-viewer-status-preview]');
-        if (viewerStatusPreview) viewerStatusPreview.textContent = String(viewerStatusInput.value || '').trim() || '상태 메시지를 추가해보세요.';
-      }
-    });
-
-    root.addEventListener('change', function (event) {
-      var uploadInput = event.target.closest('[data-lumitalk-profile-upload-input]');
-      if (!uploadInput || !uploadInput.files || !uploadInput.files[0]) return;
-      var file = uploadInput.files[0];
-      if (!/^image\//.test(file.type || '')) return;
-      var reader = new FileReader();
-      reader.onload = function () {
-        session.viewerProfileUploadCrop = { dataUrl: reader.result, scale: 1, panX: 0, panY: 0 };
-        session.view = 'panel';
-        session.activeChannelId = null;
-        session.panelMode = 'viewer-upload-crop';
-        renderInto(root);
-      };
-      reader.readAsDataURL(file);
-    });
-
-    var cropPointers = {};
-    var cropDrag = null;
-    var cropPinch = null;
-    function cropDistance() {
-      var keys = Object.keys(cropPointers);
-      if (keys.length < 2) return 0;
-      var a = cropPointers[keys[0]], b = cropPointers[keys[1]];
-      return Math.hypot(a.x - b.x, a.y - b.y);
-    }
-    function getCropGeometry() {
-      var stage = root.querySelector('[data-lumitalk-upload-crop-stage]');
-      var guide = root.querySelector('.lumitalk-upload-crop-guide');
-      var image = root.querySelector('[data-lumitalk-upload-crop-image]');
-      var crop = session.viewerProfileUploadCrop;
-      if (!stage || !guide || !image || !crop || !image.naturalWidth || !image.naturalHeight) return null;
-      var stageRect = stage.getBoundingClientRect();
-      var guideRect = guide.getBoundingClientRect();
-      var size = Math.min(guideRect.width, guideRect.height);
-      var ratio = image.naturalWidth / image.naturalHeight;
-      var baseWidth = ratio >= 1 ? size * ratio : size;
-      var baseHeight = ratio >= 1 ? size : size / ratio;
-      return { stage: stage, image: image, size: size, baseWidth: baseWidth, baseHeight: baseHeight, stageRect: stageRect, guideRect: guideRect };
-    }
-    function constrainCrop() {
-      var crop = session.viewerProfileUploadCrop;
-      var geometry = getCropGeometry();
-      if (!crop || !geometry) return;
-      crop.scale = Math.max(1, Math.min(4, Number(crop.scale || 1)));
-      var renderedW = geometry.baseWidth * crop.scale;
-      var renderedH = geometry.baseHeight * crop.scale;
-      var limitX = Math.max(0, (renderedW - geometry.size) / 2);
-      var limitY = Math.max(0, (renderedH - geometry.size) / 2);
-      crop.panX = Math.max(-limitX, Math.min(limitX, Number(crop.panX || 0)));
-      crop.panY = Math.max(-limitY, Math.min(limitY, Number(crop.panY || 0)));
-    }
-    function updateCropImage() {
-      var crop = session.viewerProfileUploadCrop;
-      var geometry = getCropGeometry();
-      if (!crop || !geometry) return;
-      constrainCrop();
-      var image = geometry.image;
-      image.style.width = geometry.baseWidth + 'px';
-      image.style.height = geometry.baseHeight + 'px';
-      image.style.left = 'calc(50% + ' + Number(crop.panX || 0) + 'px)';
-      image.style.top = 'calc(50% + ' + Number(crop.panY || 0) + 'px)';
-      image.style.transform = 'translate(-50%, -50%) scale(' + Number(crop.scale || 1) + ')';
-    }
-    function makeProfileCropDataUrl() {
-      var crop = session.viewerProfileUploadCrop;
-      var geometry = getCropGeometry();
-      if (!crop || !geometry) return crop && crop.dataUrl ? crop.dataUrl : null;
-      constrainCrop();
-      var outputSize = 640;
-      var renderedW = geometry.baseWidth * crop.scale;
-      var renderedH = geometry.baseHeight * crop.scale;
-      var leftInStage = (geometry.stageRect.width - renderedW) / 2 + Number(crop.panX || 0);
-      var topInStage = (geometry.stageRect.height - renderedH) / 2 + Number(crop.panY || 0);
-      var guideLeftInStage = geometry.guideRect.left - geometry.stageRect.left;
-      var guideTopInStage = geometry.guideRect.top - geometry.stageRect.top;
-      var sx = (guideLeftInStage - leftInStage) / renderedW * geometry.image.naturalWidth;
-      var sy = (guideTopInStage - topInStage) / renderedH * geometry.image.naturalHeight;
-      var sw = geometry.size / renderedW * geometry.image.naturalWidth;
-      var sh = geometry.size / renderedH * geometry.image.naturalHeight;
-      var canvas = document.createElement('canvas');
-      canvas.width = outputSize;
-      canvas.height = outputSize;
-      var ctx = canvas.getContext('2d');
-      if (!ctx) return crop.dataUrl;
-      ctx.drawImage(geometry.image, sx, sy, sw, sh, 0, 0, outputSize, outputSize);
-      return canvas.toDataURL('image/jpeg', .92);
-    }
-    root.addEventListener('load', function (event) {
-      var image = event.target && event.target.closest && event.target.closest('[data-lumitalk-upload-crop-image]');
-      if (!image || !session.viewerProfileUploadCrop) return;
-      requestAnimationFrame(updateCropImage);
-    }, true);
-    root.addEventListener('pointerdown', function (event) {
-      var cropStage = event.target.closest('[data-lumitalk-upload-crop-stage]');
-      if (!cropStage || !session.viewerProfileUploadCrop) return;
-      cropPointers[event.pointerId] = { x: event.clientX, y: event.clientY };
-      var pointerKeys = Object.keys(cropPointers);
-      if (pointerKeys.length === 1) {
-        cropDrag = { id: event.pointerId, x: event.clientX, y: event.clientY, panX: Number(session.viewerProfileUploadCrop.panX || 0), panY: Number(session.viewerProfileUploadCrop.panY || 0) };
-      } else if (pointerKeys.length === 2) {
-        cropPinch = { distance: cropDistance(), scale: Number(session.viewerProfileUploadCrop.scale || 1) };
-        cropDrag = null;
-      }
-      try { cropStage.setPointerCapture(event.pointerId); } catch (e) {}
-      event.preventDefault();
-    });
-    root.addEventListener('pointermove', function (event) {
-      if (!cropPointers[event.pointerId] || !session.viewerProfileUploadCrop) return;
-      cropPointers[event.pointerId] = { x: event.clientX, y: event.clientY };
-      if (cropPinch && Object.keys(cropPointers).length >= 2) {
-        var nextDistance = cropDistance();
-        if (nextDistance > 0 && cropPinch.distance > 0) {
-          session.viewerProfileUploadCrop.scale = Math.max(1, Math.min(4, cropPinch.scale * (nextDistance / cropPinch.distance)));
-          updateCropImage();
-        }
-        return;
-      }
-      if (!cropDrag || cropDrag.id !== event.pointerId) return;
-      session.viewerProfileUploadCrop.panX = cropDrag.panX + (event.clientX - cropDrag.x);
-      session.viewerProfileUploadCrop.panY = cropDrag.panY + (event.clientY - cropDrag.y);
-      updateCropImage();
-    });
-    function releaseCropPointer(event) {
-      delete cropPointers[event.pointerId];
-      if (Object.keys(cropPointers).length < 2) cropPinch = null;
-      if (Object.keys(cropPointers).length === 1) {
-        var key = Object.keys(cropPointers)[0], point = cropPointers[key];
-        cropDrag = { id: Number(key), x: point.x, y: point.y, panX: Number(session.viewerProfileUploadCrop && session.viewerProfileUploadCrop.panX || 0), panY: Number(session.viewerProfileUploadCrop && session.viewerProfileUploadCrop.panY || 0) };
-      } else {
-        cropDrag = null;
-      }
-    }
-    root.addEventListener('pointerup', releaseCropPointer);
-    root.addEventListener('pointercancel', releaseCropPointer);
-    root.addEventListener('wheel', function (event) {
-      var cropStage = event.target.closest('[data-lumitalk-upload-crop-stage]');
-      if (!cropStage || !session.viewerProfileUploadCrop) return;
-      event.preventDefault();
-      session.viewerProfileUploadCrop.scale = Math.max(1, Math.min(4, Number(session.viewerProfileUploadCrop.scale || 1) + (event.deltaY < 0 ? .1 : -.1)));
-      updateCropImage();
-    }, { passive: false });
-
     root.addEventListener('click', function (event) {
       var tab = event.target.closest('[data-lumitalk-tab]');
       if (tab) {
@@ -2650,16 +1987,6 @@ window.LumiApps = window.LumiApps || {};
       if (viewer && !event.target.closest('[data-lumitalk-action]') && !event.target.closest('[data-lumitalk-media-stage]')) {
         session.panelMediaViewerUiHidden = !session.panelMediaViewerUiHidden;
         viewer.classList.toggle('is-ui-hidden', session.panelMediaViewerUiHidden);
-        return;
-      }
-
-      var profileEditorCandidateButton = event.target.closest('[data-lumitalk-profile-editor-candidate]');
-      if (profileEditorCandidateButton) {
-        session.viewerProfileEditorSelectedCandidate = Number(profileEditorCandidateButton.getAttribute('data-profile-candidate-index') || 0);
-        session.viewerProfileEditorSelectedSavedMediaId = null;
-        session.viewerProfileUploadedPreview = null;
-        session.viewerProfileUploadedImage = null;
-        renderInto(root);
         return;
       }
 
@@ -2757,147 +2084,12 @@ window.LumiApps = window.LumiApps || {};
         session.view = 'panel';
         session.activeChannelId = null;
         session.panelMode = 'viewer-profile';
-        session.viewerProfileSettingsOpen = false;
-        session.viewerDisplayNameEditorOpen = false;
-        session.viewerStatusMessageEditorOpen = false;
-        session.viewerProfileEditorOpen = false;
         session.profileHomeReturnToList = true;
         session.panelMediaViewerIndex = null;
         renderInto(root);
         return;
       }
-      if (action === 'open-viewer-profile-settings') {
-        session.viewerProfileSettingsOpen = true;
-        session.viewerDisplayNameEditorOpen = false;
-        session.viewerStatusMessageEditorOpen = false;
-        session.viewerProfileEditorOpen = false;
-        renderInto(root);
-        return;
-      }
-      if (action === 'close-viewer-profile-settings') {
-        session.viewerProfileSettingsOpen = false;
-        session.viewerDisplayNameEditorOpen = false;
-        session.viewerStatusMessageEditorOpen = false;
-        session.viewerProfileEditorOpen = false;
-        renderInto(root);
-        return;
-      }
-      if (action === 'open-viewer-profile-editor') {
-        session.viewerProfileSettingsOpen = false;
-        session.viewerDisplayNameEditorOpen = false;
-        session.viewerStatusMessageEditorOpen = false;
-        session.viewerProfileEditorSelectedCandidate = getViewerProfileCandidateIndex();
-        session.viewerProfileEditorSelectedSavedMediaId = readLumitalkViewerProfileOverride().savedMediaId || null;
-        session.viewerProfileUploadedPreview = getViewerProfileUploadedImage();
-        session.viewerProfileUploadedImage = session.viewerProfileUploadedPreview;
-        session.viewerProfileEditorOpen = true;
-        renderInto(root);
-        return;
-      }
-      if (action === 'close-viewer-profile-editor') {
-        session.viewerProfileEditorOpen = false;
-        session.viewerProfileSettingsOpen = true;
-        renderInto(root);
-        return;
-      }
-      if (action === 'reset-viewer-profile-candidate') {
-        session.viewerProfileEditorSelectedCandidate = 0;
-        session.viewerProfileEditorSelectedSavedMediaId = null;
-        session.viewerProfileUploadedPreview = null;
-        session.viewerProfileUploadedImage = null;
-        renderInto(root);
-        return;
-      }
-      if (action === 'save-viewer-profile-editor') {
-        var profileOverride = readLumitalkViewerProfileOverride();
-        var selectedProfileCandidate = normalizeViewerProfileCandidateIndex(session.viewerProfileEditorSelectedCandidate);
-        profileOverride.profileCandidateIndex = selectedProfileCandidate;
-        profileOverride.savedMediaId = session.viewerProfileEditorSelectedSavedMediaId || null;
-        if (session.viewerProfileUploadedPreview && session.viewerProfileUploadedPreview.dataUrl) {
-          profileOverride.profileUploadedImage = session.viewerProfileUploadedPreview;
-          profileOverride.savedMediaId = null;
-          session.viewerProfileUploadedImage = session.viewerProfileUploadedPreview;
-        } else {
-          delete profileOverride.profileUploadedImage;
-          session.viewerProfileUploadedImage = null;
-        }
-        session.viewerProfileCandidateIndex = selectedProfileCandidate;
-        saveLumitalkViewerProfileOverride(profileOverride);
-        session.viewerProfileEditorOpen = false;
-        session.viewerProfileSettingsOpen = true;
-        renderInto(root);
-        return;
-      }
-
-      if (action === 'open-viewer-display-name-editor') {
-        session.viewerProfileSettingsOpen = false;
-        session.viewerProfileEditorOpen = false;
-        session.viewerDisplayNameEditorOpen = true;
-        renderInto(root);
-        var viewerNameInput = root.querySelector('[data-lumitalk-viewer-name-input]');
-        if (viewerNameInput) {
-          viewerNameInput.focus();
-          viewerNameInput.select();
-        }
-        return;
-      }
-      if (action === 'close-viewer-display-name-editor') {
-        session.viewerDisplayNameEditorOpen = false;
-        session.viewerProfileSettingsOpen = true;
-        renderInto(root);
-        return;
-      }
-      if (action === 'save-viewer-display-name') {
-        var viewerNameInputToSave = root.querySelector('[data-lumitalk-viewer-name-input]');
-        var nextViewerName = viewerNameInputToSave ? String(viewerNameInputToSave.value || '').trim().slice(0, 12) : '';
-        var override = readLumitalkViewerProfileOverride();
-        if (!nextViewerName || nextViewerName === getViewerDefaultNickname()) {
-          delete override.displayName;
-        } else {
-          override.displayName = nextViewerName;
-        }
-        saveLumitalkViewerProfileOverride(override);
-        session.viewerDisplayNameEditorOpen = false;
-        session.viewerProfileSettingsOpen = true;
-        renderInto(root);
-        return;
-      }
-      if (action === 'open-viewer-status-message-editor') {
-        session.viewerProfileSettingsOpen = false;
-        session.viewerDisplayNameEditorOpen = false;
-        session.viewerProfileEditorOpen = false;
-        session.viewerStatusMessageEditorOpen = true;
-        renderInto(root);
-        var viewerStatusInput = root.querySelector('[data-lumitalk-viewer-status-input]');
-        if (viewerStatusInput) viewerStatusInput.focus();
-        return;
-      }
-      if (action === 'close-viewer-status-message-editor') {
-        session.viewerStatusMessageEditorOpen = false;
-        session.viewerProfileSettingsOpen = true;
-        renderInto(root);
-        return;
-      }
-      if (action === 'save-viewer-status-message') {
-        var viewerStatusInputToSave = root.querySelector('[data-lumitalk-viewer-status-input]');
-        var nextViewerStatus = viewerStatusInputToSave ? String(viewerStatusInputToSave.value || '').trim().slice(0, 30) : '';
-        var viewerOverride = readLumitalkViewerProfileOverride();
-        if (!nextViewerStatus) {
-          delete viewerOverride.statusMessage;
-        } else {
-          viewerOverride.statusMessage = nextViewerStatus;
-        }
-        saveLumitalkViewerProfileOverride(viewerOverride);
-        session.viewerStatusMessageEditorOpen = false;
-        session.viewerProfileSettingsOpen = true;
-        renderInto(root);
-        return;
-      }
       if (action === 'close-viewer-profile') {
-        session.viewerProfileSettingsOpen = false;
-        session.viewerDisplayNameEditorOpen = false;
-        session.viewerStatusMessageEditorOpen = false;
-        session.viewerProfileEditorOpen = false;
         session.view = 'list';
         session.activeChannelId = null;
         session.panelMode = null;
@@ -3081,125 +2273,6 @@ window.LumiApps = window.LumiApps || {};
         showSettingsToast(!isMutedNow ? '알림을 껐어요. 새 메세지는 조용히 쌓여요.' : '알림을 켰어요.', root);
         return;
       }
-      if (action === 'open-viewer-upload-album') {
-        // 웹 단계에서는 기기 사진첩 목록을 앱 안에서 빈 목업으로 만들지 않는다.
-        // 실제 기기 사진 선택기를 열고, 선택 후 루미톡 크롭 화면으로 바로 이어진다.
-        var directUploadControl = root.querySelector('[data-lumitalk-profile-upload-input]');
-        if (directUploadControl) {
-          directUploadControl.value = '';
-          directUploadControl.click();
-        }
-        return;
-      }
-      if (action === 'close-viewer-upload-album') {
-        session.view = 'panel';
-        session.activeChannelId = null;
-        session.panelMode = 'viewer-profile';
-        session.viewerProfileEditorOpen = true;
-        renderInto(root);
-        return;
-      }
-      if (action === 'toggle-viewer-upload-album-list') {
-        session.viewerProfileUploadAlbumListOpen = !session.viewerProfileUploadAlbumListOpen;
-        renderInto(root);
-        return;
-      }
-      if (action === 'select-viewer-upload-album') {
-        session.viewerProfileUploadSelectedAlbum = actionEl.getAttribute('data-upload-album-name') || '전체보기';
-        session.viewerProfileUploadAlbumListOpen = false;
-        renderInto(root);
-        return;
-      }
-      if (action === 'request-viewer-profile-upload') {
-        var uploadControl = root.querySelector('[data-lumitalk-profile-upload-input]');
-        if (uploadControl) uploadControl.click();
-        return;
-      }
-      if (action === 'back-to-viewer-upload-album') {
-        // 사진 선택을 취소하면 비어 있는 앨범 목업으로 가지 않고 프로필 편집으로 복귀한다.
-        session.viewerProfileUploadCrop = null;
-        session.view = 'panel';
-        session.activeChannelId = null;
-        session.panelMode = 'viewer-profile';
-        session.viewerProfileEditorOpen = true;
-        renderInto(root);
-        return;
-      }
-      if (action === 'confirm-viewer-upload-crop') {
-        var finalizedCropDataUrl = makeProfileCropDataUrl();
-        session.viewerProfileUploadedPreview = finalizedCropDataUrl ? {
-          dataUrl: finalizedCropDataUrl,
-          scale: 1,
-          panX: 0,
-          panY: 0
-        } : null;
-        session.viewerProfileUploadCrop = null;
-        session.view = 'panel';
-        session.activeChannelId = null;
-        session.panelMode = 'viewer-profile';
-        session.viewerProfileEditorOpen = true;
-        renderInto(root);
-        return;
-      }
-      if (action === 'open-viewer-saved-media-picker') {
-        session.view = 'panel';
-        session.activeChannelId = null;
-        session.panelMode = 'viewer-saved-media-picker';
-        session.viewerProfileEditorOpen = false;
-        session.panelMediaFilter = 'photo';
-        renderInto(root);
-        return;
-      }
-      if (action === 'close-viewer-saved-media-picker') {
-        session.view = 'panel';
-        session.activeChannelId = null;
-        session.panelMode = 'viewer-profile';
-        session.viewerProfileEditorOpen = true;
-        renderInto(root);
-        return;
-      }
-      if (action === 'select-viewer-saved-media') {
-        session.viewerProfileEditorSelectedSavedMediaId = actionEl.getAttribute('data-saved-media-id') || null;
-        session.viewerProfileUploadedPreview = null;
-        session.viewerProfileUploadedImage = null;
-        session.view = 'panel';
-        session.activeChannelId = null;
-        session.panelMode = 'viewer-profile';
-        session.viewerProfileEditorOpen = true;
-        renderInto(root);
-        return;
-      }
-      if (action === 'open-viewer-saved-media') {
-        session.view = 'panel';
-        session.activeChannelId = null;
-        session.panelMode = 'viewer-saved-media';
-        session.panelMediaFilter = 'all';
-        session.panelMediaViewerIndex = null;
-        renderInto(root);
-        return;
-      }
-      if (action === 'close-viewer-saved-media') {
-        session.view = 'panel';
-        session.activeChannelId = null;
-        session.panelMode = 'viewer-profile';
-        session.panelMediaFilter = 'all';
-        renderInto(root);
-        return;
-      }
-      if (action === 'open-viewer-saved-media-origin') {
-        var sourceChannelId = actionEl.getAttribute('data-source-channel-id');
-        var sourceMediaIndex = Number(actionEl.getAttribute('data-source-media-index'));
-        if (!sourceChannelId) return;
-        session.activeChannelId = sourceChannelId;
-        session.view = 'panel';
-        session.panelMode = 'media';
-        session.panelMediaFilter = 'all';
-        session.panelMediaViewerIndex = isNaN(sourceMediaIndex) ? 0 : sourceMediaIndex;
-        session.panelMediaViewerReturnTo = 'viewer-saved-media';
-        session.panelMediaViewerUiHidden = false;
-        renderInto(root);
-        return;
-      }
       if (action === 'open-panel-media') {
         openPanelMedia(root);
         return;
@@ -3228,15 +2301,10 @@ window.LumiApps = window.LumiApps || {};
         if (returnTo === 'thread') {
           session.view = 'detail';
           session.panelMode = null;
-          renderInto(root, 'bottom');
+          renderInto(root, 'saved');
           return;
         }
-        if (returnTo === 'viewer-saved-media') {
-          session.activeChannelId = null;
-          session.panelMode = 'viewer-saved-media';
-        } else {
-          session.panelMode = returnTo === 'panel' ? null : 'media';
-        }
+        session.panelMode = returnTo === 'panel' ? null : 'media';
         renderInto(root);
         return;
       }
@@ -3245,7 +2313,7 @@ window.LumiApps = window.LumiApps || {};
         session.panelMode = null;
         session.panelMediaViewerIndex = null;
         session.panelMediaViewerUiHidden = false;
-        renderInto(root, 'bottom');
+        renderInto(root, 'saved');
         return;
       }
       if (action === 'panel-media-prev') {

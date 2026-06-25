@@ -3,8 +3,72 @@
 /* ── 앱 컨테이너 ── */
 .messages-app {
   display: grid;
-  gap: 12px;
+  gap: 14px;
+  padding: 4px 0 12px;
   font-style: normal;
+}
+
+/* 문자함만 공통 앱 제목을 숨기고, 시안의 입구 영역부터 바로 시작한다. */
+.app-window.is-messages-view .app-header {
+  display: none;
+}
+.app-window.is-messages-view .app-body {
+  padding-top: 14px;
+}
+
+/* 입구는 배너 이미지와 제목 영역만 둔다. 리본·장식은 실제 이미지로 교체할 자리다. */
+.messages-entry-hero {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 2px 0 0;
+}
+.messages-entry-banner {
+  position: relative;
+  width: 100%;
+  min-height: 108px;
+}
+.messages-entry-image-slot {
+  background: rgba(255,255,255,0.5);
+  border: 1px dashed rgba(240, 172, 204, 0.82);
+}
+.messages-entry-banner-slot {
+  width: 100%;
+  min-height: 108px;
+  border-radius: 20px;
+}
+.messages-entry-copy {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  width: calc(100% - 48px);
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+}
+.messages-entry-copy h2 {
+  margin: 0;
+  color: #503144;
+  font-size: 22px;
+  font-weight: 950;
+  letter-spacing: -0.06em;
+}
+.messages-entry-copy p {
+  margin: 8px 0 0;
+  color: #a97a91;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* 목록·탭·검색은 기존 구조와 기능을 그대로 사용한다. */
+.messages-entry-panel {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(244, 191, 216, 0.58);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,247,251,0.94));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.7);
 }
 
 /* ── 툴바 ── */
@@ -13,26 +77,41 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 0;
 }
-.messages-toolbar h2 {
+.messages-toolbar-title {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.messages-entry-icon-slot {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border-radius: 16px;
+}
+.messages-toolbar h3 {
   margin: 0;
   color: #503144;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 950;
   letter-spacing: -0.055em;
 }
 .messages-new-pill {
-  min-height: 24px;
+  min-height: 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 10px;
+  padding: 0 14px;
   border-radius: 999px;
   background: #fff;
   color: #e56aa5;
   font-size: 10px;
   font-weight: 900;
-  box-shadow: 0 7px 15px rgba(224,126,178,0.12);
+  border: 1px solid rgba(240, 186, 213, 0.58);
+  box-shadow: 0 7px 15px rgba(224,126,178,0.10);
 }
 
 /* ── 탭 ── */
@@ -66,13 +145,14 @@
 .messages-list {
   display: grid;
   gap: 10px;
+  padding-top: 2px;
 }
 .messages-card {
   position: relative;
   display: grid;
-  grid-template-columns: 44px minmax(0,1fr);
-  gap: 10px;
-  padding: 13px 14px;
+  grid-template-columns: 74px minmax(0,1fr);
+  gap: 12px;
+  padding: 14px 15px;
   border: 1px solid rgba(247,184,215,0.42);
   border-radius: 22px;
   background:
@@ -88,7 +168,7 @@
   position: relative;
   width: 44px; height: 44px;
   display: grid; place-items: center;
-  border-radius: 16px;
+  border-radius: 50%;
   overflow: hidden;
   background: linear-gradient(145deg,#ffd9e8,#fff7fb);
   border: 1px solid rgba(247,184,215,0.5);
@@ -97,23 +177,32 @@
 }
 .messages-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .messages-avatar em  { position: relative; z-index: 1; font-style: normal; }
+.messages-avatar.has-photo em { display: none; }
+
+.messages-card > .messages-avatar {
+  width: 68px;
+  height: 68px;
+  align-self: center;
+}
+
 
 .messages-mini-avatar {
   position: relative;
-  width: 26px; height: 26px;
-  border-radius: 10px;
+  width: 34px; height: 34px;
+  border-radius: 50%;
   display: grid; place-items: center;
-  flex: 0 0 auto; margin-top: 4px;
+  flex: 0 0 auto; margin-top: 2px;
   overflow: hidden;
   background: #fff;
   border: 1px solid rgba(247,184,215,0.44);
-  color: #e56aa5; font-size: 12px; font-weight: 900;
+  color: #e56aa5; font-size: 14px; font-weight: 900;
 }
 .messages-mini-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .messages-mini-avatar em  { position: relative; z-index: 1; font-style: normal; }
+.messages-mini-avatar.has-photo em { display: none; }
 
 /* ── 카드 내용 ── */
-.messages-card-main { min-width: 0; }
+.messages-card-main { min-width: 0; padding-top: 2px; }
 .messages-card-top  { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
 .messages-sender    { min-width: 0; color: #5f4053; font-size: 12px; font-weight: 950; letter-spacing: -0.04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .messages-date      { flex: 0 0 auto; color: #c597ae; font-size: 8.5px; font-weight: 850; white-space: nowrap; }
@@ -177,7 +266,22 @@
 }
 
 /* ── 채팅 본문 ── */
-.messages-room-body { min-height: 0; overflow-y: auto; padding: 14px 14px 18px; }
+.messages-room-body {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px 14px 18px;
+  overscroll-behavior: contain;
+  overflow-anchor: none;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+/* 문자방은 스크롤만 가능하고 스크롤바는 표시하지 않는다. */
+.messages-room-body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
 .messages-room-notice {
   width: fit-content; max-width: 88%;
   margin: 0 auto 12px;
@@ -185,6 +289,45 @@
   border-radius: 999px;
   background: rgba(255,255,255,0.66);
   color: #b4879d; font-size: 8.5px; font-weight: 850; text-align: center;
+}
+
+
+/* 운영 문자 날짜 구분 */
+.messages-date-divider {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 18px 4px 13px;
+  color: #b4879d;
+  font-size: 9px;
+  font-weight: 900;
+  text-align: center;
+}
+.messages-date-divider::before,
+.messages-date-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: rgba(247,184,215,0.58);
+}
+.messages-date-divider span {
+  flex: 0 0 auto;
+  padding: 0 3px;
+}
+.messages-operation-item + .messages-operation-item {
+  margin-top: 2px;
+}
+.messages-operation-action-wrap {
+  margin: -1px 0 10px 41px;
+}
+.messages-operation-action {
+  border: 0;
+  background: transparent;
+  padding: 2px 8px 2px 0;
+  color: #f05d9d;
+  font-size: 10px;
+  font-weight: 900;
+  cursor: pointer;
 }
 
 /* ── 말풍선 ── */
@@ -392,3 +535,13 @@
 .messages-saved-search:focus {
   border-color: rgba(245,106,166,0.5);
 }
+
+/* 운영방 티켓·양도 결과 메시지: 기존 말풍선 구조 안에서 제목·설명·이동 버튼만 추가 */
+.messages-operation-item-result { margin-top: 4px; }
+.messages-operation-result-row { margin: 9px 0; }
+.messages-operation-result-bubble { min-width: 0; }
+.messages-operation-result-title { display: block; font-size: 11.7px; font-weight: 900; color: #624459; }
+.messages-operation-result-copy { margin: 8px 0 0; color: #8a6f82; font-size: 10.8px; line-height: 1.45; font-weight: 780; }
+.messages-operation-result-bubble .messages-operation-action-wrap { margin: 9px 0 0; }
+.messages-operation-result-bubble .messages-operation-action { font-size: 10.5px; }
+.messages-operation-result-bubble .messages-time { display: block; margin-top: 8px; }

@@ -1,5 +1,5 @@
 /**
- * messages.js — Patch 03A-fix6 기반
+ * messages.js — 문자함 기준본
  * 인터랙션: 진입 시 선택지 펼침 → 허공 터치 시 접힘 → 선택 시 marquee + 체크 → 전송 → 읽음 → 답장 → 잠금
  */
 (function () {
@@ -14,11 +14,30 @@
 
   window.LumiApps = window.LumiApps || {};
 
+  /* 전역 변경 이벤트는 한 번만 연결하고, 현재 열린 문자 화면만 갱신한다. */
+  var activeMessagesApp = null;
+  var messagesChangeListenerBound = false;
+
+  function handleMessagesChange() {
+    var app = activeMessagesApp;
+    if (!app || !app.isConnected) return;
+    renderList(app);
+    if (app.__lumiMessagesCurrent === "staff-lumi-guide") {
+      appendNewOperationThreadItems(app);
+    }
+  }
+
+  function bindMessagesChangeListenerOnce() {
+    if (messagesChangeListenerBound) return;
+    document.addEventListener("lumi:messages-change", handleMessagesChange);
+    messagesChangeListenerBound = true;
+  }
+
   var MEMBER_PROFILE = {
-    mariring: { name: "마리링", mark: "🎀⭐️", icon: "🎀", photo: "../img/member/mariring/mariring.webp" },
-    lulu:     { name: "루루",   mark: "🍼🐰",  icon: "🐰", photo: "../img/member/lulu/lulu.webp" },
-    system:   { name: "운영",   mark: "",      icon: "✉️", photo: "" },
-    letter:   { name: "루미레터", mark: "",    icon: "💌", photo: "" }
+    mariring: { name: "마리링", mark: "🎀⭐️", icon: "", photo: "" },
+    lulu:     { name: "루루",   mark: "🍼🐰",  icon: "", photo: "" },
+    system:   { name: "운영",   mark: "",      icon: "", photo: "" },
+    letter:   { name: "루미레터", mark: "",    icon: "", photo: "" }
   };
 
   var DEFAULT_MESSAGES = [
@@ -68,6 +87,7 @@
       box: "operation",
       status: "unread",
       date: "운영 안내",
+      receivedAt: "2026-06-25T04:54:00+09:00",
       from: "루미폰 운영",
       tag: "운영",
       title: "루미폰 기록 안내",
@@ -95,11 +115,84 @@
     }
   ];
 
+  /*
+   * 운영방에 새로 도착하는 처리 결과(티켓·양도·환불 등)를 쌓아 두는 수신 창구.
+   * 문자함 카드나 기존 선택지 흐름은 건드리지 않고, 루미폰 운영 대화방 안에만 추가한다.
+   * 기본 화면에는 예시 티켓 문자를 넣지 않는다.
+   */
+  var OPERATION_THREAD_STORAGE = "lumi_v2_operation_thread_items";
+
+  /* 실제 운영본: 티켓/양도 결과는 처리 시 addSystemMessage()로만 들어온다.
+   * 자동 테스트 문자는 기본값으로 끈다. */
+  var TEST_TICKET_MESSAGE_MODE = false;
+  var TEST_TICKET_MESSAGE_IDS = [
+    "operation-animation-test-ticket-issued-v7",
+    "operation-animation-test-transfer-complete-v7"
+  ];
+  var TEST_TICKET_SCHEMA_KEY = "lumi_v2_operation_ticket_test_schema";
+  var TEST_TICKET_SCHEMA_VERSION = "v7";
+
+  function isOperationTestItem(item) {
+    var id = String(item && item.id || "");
+    return id.indexOf("operation-animation-test-") === 0 || id.indexOf("operation-test-") === 0;
+  }
+
+  /* 테스트본을 새로 열었을 때만 이전 테스트 문자 기록을 정리한다.
+     한 번 표시된 테스트 문자는 같은 페이지 안에서 다시 만들지 않는다. */
+  function prepareOperationTicketTestState() {
+    if (!TEST_TICKET_MESSAGE_MODE) return;
+    try {
+      if (localStorage.getItem(TEST_TICKET_SCHEMA_KEY) === TEST_TICKET_SCHEMA_VERSION) return;
+      var raw = JSON.parse(localStorage.getItem(OPERATION_THREAD_STORAGE) || "[]");
+      var clean = (Array.isArray(raw) ? raw : []).filter(function (item) { return !isOperationTestItem(item); });
+      localStorage.setItem(OPERATION_THREAD_STORAGE, JSON.stringify(clean));
+      var seen = getArray(STORAGE.operationSeen).filter(function (id) {
+        return !isOperationTestItem({ id: id });
+      });
+      setArray(STORAGE.operationSeen, seen);
+      localStorage.setItem(TEST_TICKET_SCHEMA_KEY, TEST_TICKET_SCHEMA_VERSION);
+    } catch (e) {}
+  }
+
+  window.LumiPhoneMessages = window.LumiPhoneMessages || {};
+  window.LumiPhoneMessages.addSystemMessage = function (payload) {
+    payload = payload || {};
+    var viewerId = window.LumiTicketStore && window.LumiTicketStore.viewerId;
+    if (payload.audienceId && viewerId && payload.audienceId !== viewerId) return null;
+
+    var items = getOperationThreadStoredItems();
+    var receivedAt = payload.receivedAt || payload.createdAt || new Date().toISOString();
+    var id = payload.id || ("operation-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7));
+    if (items.some(function (item) { return item && item.id === id; })) return id;
+
+    var providedLines = Array.isArray(payload.lines) ? payload.lines.filter(Boolean) : [];
+    var lines = providedLines.length ? providedLines :
+      String(payload.body || "").split("\\n").filter(Boolean);
+    if (!lines.length && !payload.title && !payload.preview) return null;
+
+    items.push({
+      id: id,
+      receivedAt: receivedAt,
+      lines: lines,
+      kind: payload.kind || ((payload.title || payload.preview || payload.actionLabel) ? "result" : "plain"),
+      actionLabel: payload.actionLabel || "",
+      actionTarget: payload.actionTarget || payload.route || "",
+      actionType: payload.actionType || "ticket",
+      title: payload.title || "",
+      preview: payload.preview || lines[0] || "",
+      audienceId: payload.audienceId || ""
+    });
+    setOperationThreadStoredItems(items);
+    document.dispatchEvent(new CustomEvent("lumi:messages-change"));
+    return id;
+  };
+
   var STORAGE = {
     read:    "lumi_v2_messages_read",
     saved:   "lumi_v2_messages_saved",
     replies: "lumi_v2_messages_replies_v4",
-    times:   "lumi_v2_messages_times"
+    times:   "lumi_v2_messages_times",
+    operationSeen: "lumi_v2_operation_seen_items_v2"
   };
 
   function nowTime() {
@@ -122,43 +215,57 @@
   window.LumiApps.messages = function () {
     return (
       '<section class="messages-app" data-messages-app>' +
-        '<div class="messages-toolbar">' +
-          '<h2>문자함</h2>' +
-          '<span class="messages-new-pill" data-messages-new>NEW 0</span>' +
-        '</div>' +
-        '<div class="messages-tabs" role="tablist" aria-label="문자함 탭">' +
-          '<button type="button" class="messages-tab is-active" data-message-tab="all">전체</button>' +
-          '<button type="button" class="messages-tab" data-message-tab="member">멤버</button>' +
-          '<button type="button" class="messages-tab" data-message-tab="operation">운영</button>' +
-          '<button type="button" class="messages-tab" data-message-tab="saved">소장</button>' +
-        '</div>' +
-        '<div class="messages-member-tools" data-message-member-tools>' +
-          '<div class="messages-saved-filter-row">' +
-            '<select class="messages-saved-select" data-member-select>' +
-              '<option value="">전체</option>' +
-              '<option value="mariring">마리링</option>' +
-              '<option value="lulu">루루</option>' +
-              '<option value="iro">이로</option>' +
-              '<option value="luna">루나</option>' +
-            '</select>' +
-            '<input class="messages-saved-search" data-member-search type="search" placeholder="검색할 내용을 입력하세요.">' +
+        '<section class="messages-entry-hero" aria-label="문자함 안내">' +
+          '<div class="messages-entry-banner">' +
+            '<div class="messages-entry-image-slot messages-entry-banner-slot" data-message-image-slot="messages-hero" aria-hidden="true"></div>' +
+            '<div class="messages-entry-copy">' +
+              '<h2>문자함</h2>' +
+              '<p>받은 문자를 확인해보세요.</p>' +
+            '</div>' +
           '</div>' +
-        '</div>' +
-        '<div class="messages-saved-tools" data-message-saved-tools>' +
-          '<div class="messages-saved-filter-row">' +
-            '<select class="messages-saved-select" data-saved-select>' +
-              '<option value="">전체</option>' +
-              '<option value="mariring">마리링</option>' +
-              '<option value="lulu">루루</option>' +
-              '<option value="iro">이로</option>' +
-              '<option value="luna">루나</option>' +
-              '<option value="system">운영</option>' +
-              '<option value="letter">루미레터</option>' +
-            '</select>' +
-            '<input class="messages-saved-search" data-saved-search type="search" placeholder="검색할 내용을 입력하세요.">' +
+        '</section>' +
+        '<section class="messages-entry-panel">' +
+          '<div class="messages-toolbar">' +
+            '<div class="messages-toolbar-title">' +
+              '<div class="messages-entry-image-slot messages-entry-icon-slot" data-message-image-slot="messages-icon" aria-hidden="true"></div>' +
+              '<h3>문자함</h3>' +
+            '</div>' +
+            '<span class="messages-new-pill" data-messages-new>NEW 0</span>' +
           '</div>' +
-        '</div>' +
-        '<div class="messages-list" data-message-list></div>' +
+          '<div class="messages-tabs" role="tablist" aria-label="문자함 탭">' +
+            '<button type="button" class="messages-tab is-active" data-message-tab="all">전체</button>' +
+            '<button type="button" class="messages-tab" data-message-tab="member">멤버</button>' +
+            '<button type="button" class="messages-tab" data-message-tab="operation">운영</button>' +
+            '<button type="button" class="messages-tab" data-message-tab="saved">소장</button>' +
+          '</div>' +
+          '<div class="messages-member-tools" data-message-member-tools>' +
+            '<div class="messages-saved-filter-row">' +
+              '<select class="messages-saved-select" data-member-select>' +
+                '<option value="">전체</option>' +
+                '<option value="mariring">마리링</option>' +
+                '<option value="lulu">루루</option>' +
+                '<option value="iro">이로</option>' +
+                '<option value="luna">루나</option>' +
+              '</select>' +
+              '<input class="messages-saved-search" data-member-search type="search" placeholder="검색할 내용을 입력하세요.">' +
+            '</div>' +
+          '</div>' +
+          '<div class="messages-saved-tools" data-message-saved-tools>' +
+            '<div class="messages-saved-filter-row">' +
+              '<select class="messages-saved-select" data-saved-select>' +
+                '<option value="">전체</option>' +
+                '<option value="mariring">마리링</option>' +
+                '<option value="lulu">루루</option>' +
+                '<option value="iro">이로</option>' +
+                '<option value="luna">루나</option>' +
+                '<option value="system">운영</option>' +
+                '<option value="letter">루미레터</option>' +
+              '</select>' +
+              '<input class="messages-saved-search" data-saved-search type="search" placeholder="검색할 내용을 입력하세요.">' +
+            '</div>' +
+          '</div>' +
+          '<div class="messages-list" data-message-list></div>' +
+        '</section>' +
         '<section class="messages-detail-sheet" data-message-detail aria-hidden="true"></section>' +
       '</section>'
     );
@@ -172,6 +279,8 @@
     app.__lumiMessagesTab = "all";
     app.__lumiMessagesCurrent = null;
     app.__lumiMessagesTimers = [];
+    activeMessagesApp = app;
+    bindMessagesChangeListenerOnce();
 
     /* saved-tools / member-tools 초기 숨김 */
     var initTools = app.querySelector("[data-message-saved-tools]");
@@ -220,6 +329,13 @@
       /* 소장 */
       var save = e.target.closest("[data-message-save]");
       if (save) { toggleSaveCurrent(app, save); return; }
+
+      /* 운영 결과의 티켓 이동 */
+      var operationAction = e.target.closest("[data-operation-action]");
+      if (operationAction) {
+        openOperationAction(app, operationAction);
+        return;
+      }
 
       /* 선택지 클릭 */
       var choice = e.target.closest("[data-message-choice]");
@@ -311,6 +427,7 @@
         return;
       }
     });
+
   };
 
   /* ── 입력창 채우기 (선택지 탭 시) ── */
@@ -486,6 +603,12 @@
     if (existingBox) existingBox.remove();
 
     renderList(app);
+
+    /* 테스트 티켓 문자는 운영 안내에 답한 뒤에만 도착한다.
+       기존 운영 흐름보다 먼저 끼어들지 않는다. */
+    if (app.__lumiMessagesCurrent === "staff-lumi-guide") {
+      scheduleOperationTestMessages(app);
+    }
   }
 
   function showCompletedChoices(app, message, selectedChoice) {
@@ -528,9 +651,12 @@
     if (!message || !sheet) return;
 
     app.__lumiMessagesCurrent = message.id;
+    var wasReadBeforeOpen = getArray(STORAGE.read).indexOf(message.id) !== -1;
     markRead(message.id);
     getMessageTime(message.id);  /* 최초 열람 시각 저장 */
     clearMessageTimers(app);
+
+    if (message.id === "staff-lumi-guide") prepareOperationTicketTestState();
 
     var isSavedTab = app.__lumiMessagesTab === "saved";
     var savedReply = getObject(STORAGE.replies)[message.id];
@@ -538,22 +664,43 @@
     /* 소장탭에서 열면 재선택 가능 */
     var canReselect = isSavedTab && isReplied && message.choices && message.choices.length;
 
-    sheet.innerHTML = renderDetail(message, savedReply, isReplied, canReselect);
+    sheet.innerHTML = renderDetail(message, savedReply, isReplied, canReselect, wasReadBeforeOpen);
     sheet.classList.add("is-open");
     sheet.setAttribute("aria-hidden", "false");
+    bindRoomScrollState(app);
+
+    /* 문자 상세를 보는 동안에는 앱 공통 하단 독을 숨긴다.
+       문자함 목록으로 돌아오면 다시 원래 앱 독 상태를 사용한다. */
+    var appWindow = app.closest(".app-window");
+    if (appWindow) appWindow.classList.add("is-message-detail-open");
+
     renderList(app);
+
+    if (message.id === "staff-lumi-guide") {
+      app.__lumiOperationRenderedIds = getOperationThreadStoredItems().map(function (item) { return item && item.id; }).filter(Boolean);
+      app.__lumiOperationLastDateKey = operationDateKey(getLastOperationRenderedDate(message.receivedAt || "2026-06-25T04:54:00+09:00"));
+
+      /* 기존 운영 문자는 처음 읽을 때만 재생한다. 이미 읽은 뒤 재진입하면 그대로 둔다. */
+      var finishOperationOpening = function () {
+        markOperationItemSeen("staff-lumi-guide");
+        if (!isReplied && message.choices && message.choices.length) expandChoices(app);
+      };
+      if (wasReadBeforeOpen) {
+        if (!isReplied && message.choices && message.choices.length) expandChoices(app);
+      } else {
+        playMemberBubbles(app, finishOperationOpening);
+      }
+      return;
+    }
 
     /* 진입 시 처리 */
     if (isReplied) {
-      /* 완료된 문자: 말풍선 + 응답 시퀀스 모두 순차 등장, 입력창은 잠금 유지 */
       playMemberBubbles(app, null);
     } else if (message.choices && message.choices.length) {
-      /* 미답장 + 선택지 있음: 말풍선 순차 등장 후 선택지 펼치기 */
       playMemberBubbles(app, function () {
         expandChoices(app);
       });
     } else {
-      /* 선택지 없음 (루미레터 등): 말풍선만 순차 등장 */
       playMemberBubbles(app, null);
     }
   }
@@ -566,10 +713,17 @@
     sheet.setAttribute("aria-hidden", "true");
     sheet.innerHTML = "";
     app.__lumiMessagesCurrent = null;
+
+    var appWindow = app.closest(".app-window");
+    if (appWindow) appWindow.classList.remove("is-message-detail-open");
   }
 
   /* ── 상세 HTML ── */
-  function renderDetail(message, savedReply, isReplied, canReselect) {
+  function renderDetail(message, savedReply, isReplied, canReselect, wasReadBeforeOpen) {
+    if (message.member === "system" && message.id === "staff-lumi-guide") {
+      return renderOperationThreadDetail(message, savedReply, isReplied, canReselect, wasReadBeforeOpen);
+    }
+
     var member = getMember(message.member);
     var isSaved = getArray(STORAGE.saved).indexOf(message.id) !== -1;
 
@@ -610,6 +764,282 @@
     );
   }
 
+  /*
+   * 루미폰 운영은 문자함 카드 하나를 유지하면서, 그 안에 날짜별로 메시지가 이어지는 대화방이다.
+   * 기존 안내 문자와 그 선택지 흐름은 가장 먼저 놓고, 이후 처리 결과만 아래에 추가한다.
+   */
+  function renderOperationThreadDetail(message, savedReply, isReplied, canReselect, wasReadBeforeOpen) {
+    var member = getMember("system");
+    var isSaved = getArray(STORAGE.saved).indexOf(message.id) !== -1;
+    var baseDate = message.receivedAt || "2026-06-25T04:54:00+09:00";
+    var baseTime = operationTimeLabel(baseDate);
+    var animateBase = !wasReadBeforeOpen;
+
+    var baseBubbles = message.lines.map(function (line) {
+      return renderBubble({ kind: "member", text: line, time: baseTime }, member, animateBase);
+    }).join("");
+
+    var responseHTML = isReplied ? renderOperationResponseSequence(message, member, savedReply, baseTime, animateBase) : "";
+    var laterItems = getOperationThreadStoredItems()
+      .filter(function (item) { return item && item.id && item.id !== message.id; })
+      .sort(function (a, b) { return operationTimeValue(a.receivedAt) - operationTimeValue(b.receivedAt); });
+
+    var laterHTML = "";
+    var lastDateKey = operationDateKey(baseDate);
+    laterItems.forEach(function (item) {
+      var itemDateKey = operationDateKey(item.receivedAt);
+      var animateItem = !hasOperationItemSeen(item.id);
+      if (itemDateKey && itemDateKey !== lastDateKey) {
+        laterHTML += renderOperationDateDivider(item.receivedAt, animateItem);
+        lastDateKey = itemDateKey;
+      }
+      laterHTML += renderOperationThreadItem(item, member, animateItem);
+    });
+
+    return (
+      '<header class="messages-room-head">' +
+        renderAvatar(member, "messages-avatar") +
+        '<div class="messages-room-title">' +
+          '<b>' + escHtml(message.from || member.name) + '의 문자</b>' +
+          '<span>' + escHtml(message.tag || "운영") + ' · ' + escHtml(message.date || "운영 안내") + '</span>' +
+        '</div>' +
+        '<div class="messages-head-actions">' +
+          '<button type="button" class="messages-save-chip' + (isSaved ? " is-saved" : "") + '" data-message-save>' + (isSaved ? "♥ 해제" : "♡ 소장") + '</button>' +
+          '<button type="button" class="messages-close" data-message-close>닫기</button>' +
+        '</div>' +
+      '</header>' +
+      '<div class="messages-room-body" data-message-room-body>' +
+        '<div class="messages-room-notice">이 문자는 루미나에게만 도착한 메시지예요.</div>' +
+        renderOperationDateDivider(baseDate, animateBase) +
+        baseBubbles +
+        '<div class="messages-response-sequence" data-message-response>' + responseHTML + '</div>' +
+        '<div class="messages-operation-later-items">' + laterHTML + '</div>' +
+      '</div>' +
+      renderReplyArea(message, savedReply, isReplied, canReselect)
+    );
+  }
+
+  function renderOperationThreadItem(item, member, shouldAnimate) {
+    var time = operationTimeLabel(item.receivedAt);
+    if (item.kind === "result") {
+      return renderOperationResultItem(item, member, time, shouldAnimate);
+    }
+
+    var body = (item.lines || []).map(function (line) {
+      return renderBubble({ kind: "member", text: line, time: time }, member, !!shouldAnimate);
+    }).join("");
+    var action = renderOperationAction(item);
+    return '<section class="messages-operation-item" data-operation-item-id="' + escAttr(item.id) + '">' + body + action + '</section>';
+  }
+
+  function renderOperationResultItem(item, member, time, shouldAnimate) {
+    var action = renderOperationAction(item);
+    return (
+      '<section class="messages-operation-item messages-operation-item-result" data-operation-item-id="' + escAttr(item.id) + '">' +
+        '<div class="messages-chat-row is-member messages-operation-result-row' + (shouldAnimate ? ' messages-pending-line' : ' is-visible') + '">' +
+          renderMiniAvatar(member) +
+          '<div class="messages-bubble messages-operation-result-bubble">' +
+            (item.title ? '<strong class="messages-operation-result-title">' + escHtml(item.title) + '</strong>' : '') +
+            (item.preview ? '<p class="messages-operation-result-copy">' + escHtml(item.preview) + '</p>' : '') +
+            action +
+            '<span class="messages-chat-time">' + escHtml(time) + '</span>' +
+          '</div>' +
+        '</div>' +
+      '</section>'
+    );
+  }
+
+  function renderOperationAction(item) {
+    if (!item.actionLabel) return "";
+    return (
+      '<div class="messages-operation-action-wrap">' +
+        '<button type="button" class="messages-operation-action" data-operation-action="' + escAttr(item.actionType || "ticket") + '" data-operation-target="' + escAttr(item.actionTarget || "") + '">' +
+          escHtml(item.actionLabel) + ' ›' +
+        '</button>' +
+      '</div>'
+    );
+  }
+
+  function openOperationAction(app, button) {
+    var target = button.getAttribute("data-operation-target") || "";
+    if (!target || !window.LumiPhone || typeof window.LumiPhone.openApp !== "function") return;
+    var body = app.querySelector("[data-message-room-body]");
+    var route = {
+      appId: "messages",
+      payload: {
+        messageId: app.__lumiMessagesCurrent || "staff-lumi-guide",
+        tab: app.__lumiMessagesTab || "all",
+        scrollTop: body ? body.scrollTop : 0
+      }
+    };
+    window.LumiPhone.openApp("ticket", { returnRoute: route });
+    setTimeout(function () {
+      if (window.LumiApps && typeof window.LumiApps.openTicketNotificationTarget === "function") {
+        window.LumiApps.openTicketNotificationTarget(document, target);
+      }
+    }, 0);
+  }
+
+  function getLastOperationRenderedDate(fallback) {
+    var items = getOperationThreadStoredItems().filter(function (item) { return item && item.id; });
+    if (!items.length) return fallback;
+    items.sort(function (a, b) { return operationTimeValue(a.receivedAt) - operationTimeValue(b.receivedAt); });
+    return items[items.length - 1].receivedAt || fallback;
+  }
+
+  function appendNewOperationThreadItems(app) {
+    var host = app.querySelector(".messages-operation-later-items");
+    if (!host) return;
+    var body = app.querySelector("[data-message-room-body]");
+    var shouldFollowNewMessages = app.__lumiMessagesFollowBottom || isRoomNearBottom(body);
+    var rendered = app.__lumiOperationRenderedIds || [];
+    var fresh = getOperationThreadStoredItems()
+      .filter(function (item) { return item && item.id && rendered.indexOf(item.id) === -1; })
+      .sort(function (a, b) { return operationTimeValue(a.receivedAt) - operationTimeValue(b.receivedAt); });
+    if (!fresh.length) return;
+
+    var member = getMember("system");
+    var lastDateKey = app.__lumiOperationLastDateKey || operationDateKey("2026-06-25T04:54:00+09:00");
+    var pendingNodes = [];
+    fresh.forEach(function (item) {
+      var html = "";
+      var itemDateKey = operationDateKey(item.receivedAt);
+      if (itemDateKey && itemDateKey !== lastDateKey) {
+        html += renderOperationDateDivider(item.receivedAt, true);
+        lastDateKey = itemDateKey;
+      }
+      html += renderOperationThreadItem(item, member, true);
+      var wrap = document.createElement("div");
+      wrap.innerHTML = html;
+      while (wrap.firstChild) host.appendChild(wrap.firstChild);
+      rendered.push(item.id);
+    });
+
+    pendingNodes = Array.prototype.slice.call(host.querySelectorAll(".messages-pending-line:not(.is-visible)"));
+    pendingNodes.forEach(function (node, index) {
+      var timer = setTimeout(function () {
+        node.classList.add("is-visible");
+        if (shouldFollowNewMessages) scrollBody(app, { force: true });
+        var itemRoot = node.closest("[data-operation-item-id]");
+        if (itemRoot) markOperationItemSeen(itemRoot.getAttribute("data-operation-item-id"));
+      }, 260 + index * 620);
+      app.__lumiMessagesTimers = (app.__lumiMessagesTimers || []).concat([timer]);
+    });
+
+    app.__lumiOperationRenderedIds = rendered;
+    app.__lumiOperationLastDateKey = lastDateKey;
+  }
+
+  function scheduleOperationTestMessages(app) {
+    if (!TEST_TICKET_MESSAGE_MODE || app.__lumiOperationTestScheduled) return;
+    app.__lumiOperationTestScheduled = true;
+
+    var testItems = [
+      {
+        id: TEST_TICKET_MESSAGE_IDS[0],
+        receivedAt: "2026-06-27T17:53:00+09:00",
+        kind: "result",
+        title: "티켓을 받았어요.",
+        preview: "Shine Me UP 미니 라이브 · 새 입장 QR 발급 완료",
+        actionLabel: "받은 티켓 보기",
+        actionTarget: "ticket:ticket-shine-B-114",
+        actionType: "ticket"
+      },
+      {
+        id: TEST_TICKET_MESSAGE_IDS[1],
+        receivedAt: "2026-06-27T17:54:00+09:00",
+        kind: "result",
+        title: "티켓 양도가 완료되었어요.",
+        preview: "Shine Me UP 미니 라이브 · 예매번호 B-114",
+        actionLabel: "양도 이력 보기",
+        actionTarget: "ticket:ticket-shine-B-114",
+        actionType: "ticket"
+      }
+    ];
+
+    testItems.forEach(function (item, index) {
+      var timer = setTimeout(function () {
+        /* addSystemMessage가 lumi:messages-change를 발생시키며, 그 한 경로로만 현재 방에 추가한다.
+           직접 한 번 더 append하지 않아 중복 렌더를 막는다. */
+        window.LumiPhoneMessages.addSystemMessage(item);
+      }, 900 + index * 1500);
+      app.__lumiMessagesTimers = (app.__lumiMessagesTimers || []).concat([timer]);
+    });
+  }
+
+  function renderOperationDateDivider(receivedAt, shouldAnimate) {
+    return '<div class="messages-date-divider' + (shouldAnimate ? ' messages-pending-line' : '') + '"><span>' + escHtml(operationDateLabel(receivedAt)) + '</span></div>';
+  }
+
+  function operationDateKey(value) {
+    var d = parseOperationDate(value);
+    if (!d) return "";
+    return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+  }
+
+  function operationDateLabel(value) {
+    var d = parseOperationDate(value);
+    if (!d) return "오늘";
+    var week = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+    return (d.getMonth() + 1) + "월 " + d.getDate() + "일 " + week[d.getDay()];
+  }
+
+  function operationTimeLabel(value) {
+    var d = parseOperationDate(value);
+    if (!d) return "방금";
+    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+
+  function operationTimeValue(value) {
+    var d = parseOperationDate(value);
+    return d ? d.getTime() : 0;
+  }
+
+  function parseOperationDate(value) {
+    if (!value) return null;
+    /* ISO 문자열은 기기 시간대로 바꾸지 않고, 발송 때 기록된 달력 날짜/시각을 그대로 쓴다. */
+    var match = String(value).match(/(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})(?:[T\s]+(\d{1,2}):(\d{2}))?/);
+    if (match) {
+      return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), Number(match[4] || 0), Number(match[5] || 0));
+    }
+    var d = new Date(value);
+    return !isNaN(d.getTime()) ? d : null;
+  }
+
+  function getOperationThreadStoredItems() {
+    var stored = [];
+    try {
+      var raw = JSON.parse(localStorage.getItem(OPERATION_THREAD_STORAGE) || "[]");
+      stored = Array.isArray(raw) ? raw : [];
+    } catch (e) {
+      stored = [];
+    }
+
+    /* 이전 테스트본의 고정 예시 2건은 숨기고, 이번 테스트에서는 새 도착 흐름만 사용한다. */
+    stored = stored.filter(function (item) {
+      return item && item.id !== "operation-test-ticket-issued" && item.id !== "operation-test-transfer-complete";
+    });
+
+    return stored;
+  }
+
+  function hasOperationItemSeen(id) {
+    return getArray(STORAGE.operationSeen).indexOf(id) !== -1;
+  }
+
+  function markOperationItemSeen(id) {
+    if (!id) return;
+    var seen = getArray(STORAGE.operationSeen);
+    if (seen.indexOf(id) === -1) {
+      seen.push(id);
+      setArray(STORAGE.operationSeen, seen);
+    }
+  }
+
+  function setOperationThreadStoredItems(items) {
+    try { localStorage.setItem(OPERATION_THREAD_STORAGE, JSON.stringify(items || [])); } catch (e) {}
+  }
+
   /* ── 말풍선 순차 등장 ── */
   function playMemberBubbles(app, onDone) {
     var sheet   = app.querySelector("[data-message-detail]");
@@ -621,6 +1051,8 @@
     pending.forEach(function (el, i) {
       var t = setTimeout(function () {
         el.classList.add("is-visible");
+        var operationRoot = el.closest ? el.closest("[data-operation-item-id]") : null;
+        if (operationRoot) markOperationItemSeen(operationRoot.getAttribute("data-operation-item-id"));
         scrollBody(app);
         if (i === pending.length - 1) {
           var done = setTimeout(function () {
@@ -715,6 +1147,15 @@
     return items.map(function (item) { return renderBubble(item, member, false); }).join("");
   }
 
+  function renderOperationResponseSequence(message, member, savedReply, time, pending) {
+    if (!savedReply || !savedReply.choice) return "";
+    var items = [{ kind: "me", text: savedReply.choice, time: time, read: true }];
+    (savedReply.after || []).forEach(function (line) {
+      items.push({ kind: "member", text: line, time: time });
+    });
+    return items.map(function (item) { return renderBubble(item, member, pending); }).join("");
+  }
+
   function renderResponseSequencePending(message, member, savedReply) {
     if (!savedReply || !savedReply.choice) return "";
     var replyTime = savedReply.time || getMessageTime(message.id);
@@ -731,7 +1172,7 @@
     var timeStr = item.time || "방금";
     if (item.kind === "me") {
       /* pending(재진입)이면 이미 읽음, 아니면 실시간 전송이라 "나"로 시작 */
-      var myTimeStr = pending ? ("읽음 " + timeStr) : "나";
+      var myTimeStr = (item.read || pending) ? ("읽음 " + timeStr) : "나";
       return (
         '<div class="' + cls + '">' +
           '<div class="messages-bubble">' + escHtml(item.text) + '<span class="messages-chat-time">' + myTimeStr + '</span></div>' +
@@ -748,10 +1189,38 @@
   }
 
   /* ── 스크롤 ── */
-  function scrollBody(app) {
+  function isRoomNearBottom(body, threshold) {
+    if (!body) return false;
+    var gap = body.scrollHeight - body.scrollTop - body.clientHeight;
+    return gap <= (typeof threshold === "number" ? threshold : 42);
+  }
+
+  function bindRoomScrollState(app) {
+    var sheet = app.querySelector("[data-message-detail]");
+    var body = sheet && sheet.querySelector("[data-message-room-body]");
+    if (!body || body.__lumiScrollStateBound) return;
+    body.__lumiScrollStateBound = true;
+    app.__lumiMessagesFollowBottom = isRoomNearBottom(body);
+    body.addEventListener("scroll", function () {
+      app.__lumiMessagesFollowBottom = isRoomNearBottom(body);
+    }, { passive: true });
+  }
+
+  function scrollBody(app, options) {
     var sheet = app.querySelector("[data-message-detail]");
     var body  = sheet && sheet.querySelector("[data-message-room-body]");
-    if (body) body.scrollTop = body.scrollHeight;
+    if (!body) return;
+
+    var force = !!(options && options.force);
+    var follow = force || app.__lumiMessagesFollowBottom || isRoomNearBottom(body);
+    if (!follow) return;
+
+    /* 사용자가 위쪽 기록을 읽는 중이면 절대 끌어내리지 않는다.
+       맨 아래를 보고 있을 때만 새 말풍선을 따라가므로 스크롤 튐이 없다. */
+    var nextTop = Math.max(0, body.scrollHeight - body.clientHeight);
+    if (Math.abs(body.scrollTop - nextTop) < 2) return;
+    body.scrollTop = nextTop;
+    app.__lumiMessagesFollowBottom = true;
   }
 
   /* ── 목록 렌더 ── */
@@ -1018,18 +1487,16 @@
   /* ── 아바타 ── */
   function renderAvatar(member, cls) {
     return (
-      '<span class="' + cls + '">' +
-        (member.photo ? '<img src="' + escAttr(member.photo) + '" alt="" onerror="this.remove()" />' : "") +
-        '<em>' + escHtml(member.icon || "✉️") + '</em>' +
+      '<span class="' + cls + (member.photo ? ' has-photo' : ' is-empty') + '">' +
+        (member.photo ? '<img src="' + escAttr(member.photo) + '" alt="" onerror="this.remove()" />' : '') +
       '</span>'
     );
   }
 
   function renderMiniAvatar(member) {
     return (
-      '<span class="messages-mini-avatar">' +
-        (member.photo ? '<img src="' + escAttr(member.photo) + '" alt="" onerror="this.remove()" />' : "") +
-        '<em>' + escHtml(member.icon || "✉️") + '</em>' +
+      '<span class="messages-mini-avatar' + (member.photo ? ' has-photo' : ' is-empty') + '">' +
+        (member.photo ? '<img src="' + escAttr(member.photo) + '" alt="" onerror="this.remove()" />' : '') +
       '</span>'
     );
   }

@@ -96,6 +96,7 @@
     if (!app || app.__lumiHomeworkChekiBound) return;
     app.__lumiHomeworkChekiBound = true;
     app.__lumiHomeworkChekiTab = "all";
+    app.__lumiHomeworkChekiFocusId = "";
     app.__lumiHomeworkChekiData = normalizeChekiPayload(window.LUMI_HOMEWORK_CHEKI_DATA || DEFAULT_CHEKI_DATA);
 
     app.addEventListener("click", function (e) {
@@ -119,6 +120,7 @@
     var tab = app.__lumiHomeworkChekiTab || "all";
     var data = app.__lumiHomeworkChekiData || normalizeChekiPayload(DEFAULT_CHEKI_DATA);
     var items = filterItems(data.items, tab);
+    var focusId = app.__lumiHomeworkChekiFocusId || "";
 
     body.innerHTML = (
       '<section class="homework-cheki-list">' +
@@ -126,7 +128,7 @@
           '<strong>수령 안내</strong>' +
           '<p>상태가 수령 가능으로 바뀌면 루미벨 특전회에서 받을 수 있어요. 현장에서는 루미 ID 또는 닉네임을 보여주세요.</p>' +
         '</article>' +
-        (items.length ? items.map(renderChekiCard).join("") : '<div class="homework-cheki-empty">조건에 맞는 숙제체키가 없어요.</div>') +
+        (items.length ? items.map(function (item) { return renderChekiCard(item, item.id === focusId); }).join("") : '<div class="homework-cheki-empty">조건에 맞는 숙제체키가 없어요.</div>') +
       '</section>'
     );
   }
@@ -151,14 +153,15 @@
     return items;
   }
 
-  function renderChekiCard(item) {
+  function renderChekiCard(item, isFocus) {
     var status = STATUS[item.status] || STATUS.accepted;
 
     return (
-      '<article class="homework-cheki-card is-' + escHtml(status.tone) + '">' +
+      '<article class="homework-cheki-card is-' + escHtml(status.tone) + (isFocus ? ' is-notification-focus' : '') + '" data-homework-cheki-id="' + escHtml(item.id) + '">' +
         '<div class="homework-cheki-card-top">' +
           '<div>' +
             '<span class="homework-cheki-member">' + escHtml(item.memberMark || '') + ' ' + escHtml(item.member || '') + '</span>' +
+            '<small class="homework-cheki-id">관리번호 ' + escHtml(item.id || '-') + '</small>' +
             '<h3>' + escHtml(item.title || '숙제체키') + '</h3>' +
           '</div>' +
           '<em>' + escHtml(status.label) + '</em>' +
@@ -203,4 +206,18 @@
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
   }
+
+  window.LumiApps.openHomeworkChekiNotificationTarget = function (root, itemId) {
+    var app = root && root.querySelector ? root.querySelector('[data-homework-cheki-app]') : null;
+    if (!app) return;
+    app.__lumiHomeworkChekiTab = 'ready';
+    app.__lumiHomeworkChekiFocusId = itemId || '';
+    app.querySelectorAll('[data-homework-cheki-tab]').forEach(function (button) {
+      button.classList.toggle('is-active', button.getAttribute('data-homework-cheki-tab') === 'ready');
+    });
+    renderHomeworkCheki(app);
+    var target = itemId ? app.querySelector('[data-homework-cheki-id="' + String(itemId).replace(/"/g, '\\"') + '"]') : null;
+    if (target) target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  };
+
 })();

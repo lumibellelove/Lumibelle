@@ -1,0 +1,940 @@
+/* Staff OS — 팬 조회 앱 */
+
+.app-window.is-fan-check-app {
+  border-radius: 0;
+  background: #fcf6f3;
+}
+
+.app-window.is-fan-check-app .app-header {
+  display: none;
+}
+
+.app-window.is-fan-check-app .app-body {
+  padding: 10px 12px calc(var(--system-h) + 22px);
+  background: #fcf6f3;
+}
+
+.fan-check-app {
+  display: grid;
+  gap: 8px;
+  color: #5b3c45;
+}
+
+.fan-check-title {
+  padding: 5px 4px 0;
+  text-align: center;
+}
+
+.fan-check-title span {
+  display: block;
+  margin-bottom: 3px;
+  color: rgba(201, 106, 138, 0.76);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.fan-check-title h2 {
+  margin: 0;
+  color: #5b3c45;
+  font-size: 22px;
+  font-weight: 950;
+  letter-spacing: -0.06em;
+  line-height: 1.05;
+}
+
+.fan-check-title p {
+  margin: 4px 0 0;
+  color: rgba(109, 76, 85, 0.74);
+  font-size: 10px;
+  font-weight: 820;
+}
+
+.fan-search-card,
+.fan-profile-card,
+.fan-action-card,
+.fan-record-card,
+.fan-detail-panel {
+  border: 1px solid rgba(235, 201, 210, 0.82);
+  background: rgba(255, 253, 252, 0.96);
+  box-shadow: none;
+}
+
+.fan-search-card {
+  min-height: 44px;
+  padding: 7px;
+  border-radius: 16px;
+  display: grid;
+  grid-template-columns: 1fr 68px;
+  gap: 7px;
+}
+
+.fan-search-field {
+  min-width: 0;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid rgba(188, 168, 174, 0.44);
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  background: #fffdfc;
+}
+
+.fan-search-field span {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  border: 2px solid #d98aa5;
+  border-radius: 50%;
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.fan-search-field span::after {
+  content: "";
+  width: 7px;
+  height: 2px;
+  border-radius: 999px;
+  background: #d98aa5;
+  position: absolute;
+  right: -6px;
+  bottom: -3px;
+  transform: rotate(45deg);
+}
+
+.fan-search-field input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #5b3c45;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.fan-search-field input::placeholder {
+  color: rgba(188, 168, 174, 0.9);
+}
+
+.fan-search-card button,
+.fan-action-buttons button,
+.fan-record-card button,
+.fan-detail-panel button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.fan-search-card > button {
+  border: 0;
+  border-radius: 14px;
+  background: #e894b2;
+  color: #fffdfc;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.fan-profile-card {
+  padding: 14px;
+  border-radius: 20px;
+  display: grid;
+  grid-template-columns: 108px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.fan-photo-slot {
+  width: 100px;
+  height: 142px;
+  border: 1px solid rgba(235, 201, 210, 0.9);
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 241, 246, 0.9);
+  color: rgba(201, 106, 138, 0.68);
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+}
+
+.fan-photo-slot img {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  display: block;
+  object-fit: cover;
+}
+
+.fan-profile-info {
+  min-width: 0;
+  display: grid;
+  gap: 0;
+  padding-left: 12px;
+  border-left: 1px dashed rgba(239, 216, 222, 0.95);
+}
+
+.fan-profile-info p {
+  min-height: 34px;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px dashed rgba(239, 216, 222, 0.9);
+}
+
+.fan-profile-info p span {
+  color: #6d4c55;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.fan-profile-info p strong {
+  min-width: 0;
+  overflow: hidden;
+  color: #5b3c45;
+  font-size: 12px;
+  font-weight: 920;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fan-profile-info p:nth-of-type(5) {
+  border-bottom: 0;
+}
+
+.fan-profile-badges {
+  padding-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fan-profile-badges span {
+  min-height: 32px;
+  padding: 0 14px;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fffdfc;
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.fan-profile-badges span.is-warn {
+  border-color: #edb6bd;
+  background: #fff8f7;
+  color: #b96a64;
+}
+
+.fan-profile-badges span.is-note {
+  border-color: #e9b7c7;
+  background: #fff8fb;
+  color: #936365;
+}
+
+.fan-profile-badges span.is-muted {
+  border-color: #ded0ca;
+  background: #f3eeeb;
+  color: #8c7b76;
+}
+
+.fan-action-section,
+.fan-record-section {
+  display: grid;
+  gap: 8px;
+}
+
+.fan-action-section h3,
+.fan-record-section h3 {
+  margin: 4px 0 0;
+  color: #5b3c45;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 950;
+  letter-spacing: -0.06em;
+}
+
+.fan-action-card {
+  min-height: 72px;
+  padding: 8px 9px;
+  border-radius: 16px;
+  display: grid;
+  grid-template-columns: 20px 46px minmax(0, 1fr) 86px;
+  gap: 7px;
+  align-items: center;
+}
+
+.fan-action-no {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #e9b7c7;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #f8dce5;
+  color: #c96a8a;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.fan-action-media {
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(235, 201, 210, 0.86);
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 241, 246, 0.82);
+}
+
+.fan-action-media span,
+.fan-record-media span {
+  width: 17px;
+  height: 17px;
+  border: 1px solid rgba(201, 106, 138, 0.34);
+  border-radius: 6px;
+  display: block;
+  background: rgba(255, 255, 255, 0.44);
+}
+
+.fan-action-main {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.fan-action-main header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.fan-action-main header strong {
+  color: #5b3c45;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: -0.05em;
+}
+
+.fan-action-main p {
+  margin: 0;
+  color: rgba(109, 76, 85, 0.86);
+  font-size: 9px;
+  font-weight: 820;
+  line-height: 1.25;
+}
+
+.fan-action-main small {
+  color: #c96a8a;
+  font-size: 9px;
+  font-weight: 880;
+  line-height: 1.25;
+}
+
+.fan-action-buttons {
+  display: grid;
+  gap: 5px;
+}
+
+.fan-action-buttons button {
+  min-height: 28px;
+  border: 0;
+  border-radius: 10px;
+  background: #e894b2;
+  color: #fffdfc;
+  font-size: 9px;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+}
+
+.fan-action-buttons button.is-secondary {
+  border: 1px solid #e3a8ba;
+  background: #fff8f5;
+  color: #b76874;
+}
+
+.fan-action-buttons button:disabled {
+  border: 1px solid #ded0ca;
+  background: #f3eeeb;
+  color: #a79691;
+  cursor: default;
+}
+
+/* 기록 확인: 한 장의 리스트 안에서 4개 기록을 바로 여는 구조 */
+.fan-record-grid {
+  overflow: hidden;
+  border: 1px solid rgba(235, 201, 210, 0.82);
+  border-radius: 16px;
+  background: rgba(255, 253, 252, 0.96);
+}
+
+.fan-record-card {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-bottom: 1px dashed rgba(235, 201, 210, 0.84);
+  background: transparent;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 16px;
+  align-items: center;
+  gap: 8px;
+  color: #5b3c45;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.fan-record-card:last-child {
+  border-bottom: 0;
+}
+
+.fan-record-card strong {
+  overflow: hidden;
+  color: #5b3c45;
+  font-size: 11px;
+  font-weight: 920;
+  letter-spacing: -0.045em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fan-record-card b {
+  color: #5b3c45;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+}
+
+.fan-record-card em {
+  color: #9a676e;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1;
+  text-align: right;
+}
+
+.fan-record-card:active {
+  background: #fff7fa;
+}
+
+.fan-detail-panel {
+  padding: 12px;
+  border-radius: 20px;
+}
+
+.fan-detail-panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.fan-detail-panel header strong {
+  color: #5b3c45;
+  font-size: 17px;
+  font-weight: 950;
+}
+
+.fan-detail-panel header button {
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid #e3a8ba;
+  border-radius: 999px;
+  background: #fff8f5;
+  color: #b76874;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.fan-detail-list {
+  border: 1px solid rgba(235, 201, 210, 0.72);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.fan-detail-list p {
+  min-height: 38px;
+  margin: 0;
+  padding: 8px 10px;
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr) 56px;
+  gap: 8px;
+  align-items: center;
+  border-bottom: 1px dashed rgba(239, 216, 222, 0.9);
+  color: #5b3c45;
+}
+
+.fan-detail-list p:last-child {
+  border-bottom: 0;
+}
+
+.fan-detail-list span,
+.fan-detail-list em {
+  color: rgba(109, 76, 85, 0.82);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 850;
+}
+
+.fan-detail-list b {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fan-check-toast {
+  position: sticky;
+  bottom: calc(var(--system-h) + 10px);
+  z-index: 5;
+  min-height: 38px;
+  padding: 10px 13px;
+  border: 1px solid rgba(235, 201, 210, 0.9);
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 248, 250, 0.96);
+  color: #b76874;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+
+
+.fan-action-main header span {
+  min-height: 18px;
+  padding: 0 6px;
+  font-size: 8px;
+  border-radius: 9px;
+}
+
+
+
+
+
+
+
+/* fan-check today action card / meta chip balance */
+.fan-check-app .fan-action-section {
+  gap: 9px;
+}
+
+.fan-check-app .fan-action-section h3 {
+  margin-top: 4px;
+  font-size: 17px;
+  font-weight: 920;
+  letter-spacing: -0.06em;
+}
+
+.fan-check-app .fan-action-card {
+  min-height: 92px;
+  padding: 10px 12px;
+  grid-template-columns: 52px minmax(0, 1fr) 100px;
+  gap: 10px;
+  border-radius: 17px;
+}
+
+.fan-check-app .fan-action-no {
+  display: none;
+}
+
+.fan-check-app .fan-action-media {
+  width: 48px;
+  height: 48px;
+  border-radius: 13px;
+}
+
+.fan-check-app .fan-action-media span {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+}
+
+.fan-check-app .fan-action-main {
+  min-width: 0;
+  gap: 5px;
+  padding-left: 12px;
+  border-left: 1px dashed rgba(239, 216, 222, 0.96);
+}
+
+.fan-check-app .fan-action-main header {
+  display: grid;
+  gap: 5px;
+  line-height: 1.1;
+}
+
+.fan-check-app .fan-action-main header.is-single-meta {
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+}
+
+.fan-check-app .fan-action-title-row {
+  min-width: 0;
+}
+
+.fan-check-app .fan-action-main header strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 930;
+  letter-spacing: -0.05em;
+  white-space: nowrap;
+}
+
+.fan-check-app .fan-action-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+}
+
+.fan-check-app .fan-action-main header.is-single-meta .fan-action-meta-row {
+  flex-wrap: nowrap;
+}
+
+.fan-check-app .fan-action-main header .fan-action-meta {
+  min-height: 22px;
+  padding: 0 8px;
+  border: 1px solid #e9b7c7;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fffaf8;
+  color: #b76874;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.fan-check-app .fan-action-main p {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 820;
+  line-height: 1.32;
+  letter-spacing: -0.03em;
+}
+
+.fan-check-app .fan-action-main small {
+  display: block;
+  font-size: 9px;
+  font-weight: 860;
+  line-height: 1.3;
+  letter-spacing: -0.03em;
+}
+
+.fan-check-app .fan-action-buttons {
+  align-self: center;
+  gap: 6px;
+}
+
+.fan-check-app .fan-action-buttons button {
+  min-height: 31px;
+  padding: 0 7px;
+  border-radius: 11px;
+  font-size: 10px;
+  font-weight: 930;
+  line-height: 1.15;
+}
+
+
+
+/* 현재 파일의 더미 공연 전환: 실제 운영에서는 로그인/오늘 공연 컨텍스트가 이 값을 공급한다. */
+.fan-event-context {
+  padding: 9px 10px;
+  border: 1px solid rgba(235, 201, 210, 0.82);
+  border-radius: 15px;
+  display: grid;
+  gap: 7px;
+  background: rgba(255, 253, 252, 0.96);
+}
+
+.fan-event-context > div:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.fan-event-context span {
+  color: rgba(157, 102, 119, 0.82);
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.fan-event-context strong {
+  overflow: hidden;
+  color: #6a4550;
+  font-size: 11px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fan-event-context-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.fan-event-context-actions button {
+  min-height: 29px;
+  border: 1px solid rgba(219, 160, 179, 0.72);
+  border-radius: 10px;
+  background: #fffdfc;
+  color: #a36a7c;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.fan-event-context-actions button.is-active {
+  border-color: #d87598;
+  background: #f9dbe6;
+  color: #7a3f53;
+}
+
+
+/* 기록 상세는 하단 확장 패널이 아니라 팬 조회 화면을 대체하는 독립 페이지로 표시한다. */
+.fan-record-detail-view {
+  min-height: calc(100dvh - var(--system-h));
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 4px 0 14px;
+}
+
+.fan-record-detail-topbar {
+  min-height: 46px;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) 36px;
+  align-items: center;
+}
+
+.fan-record-detail-topbar button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #5b3c45;
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.fan-record-detail-topbar h2 {
+  margin: 0;
+  color: #5b3c45;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 950;
+  letter-spacing: -0.06em;
+}
+
+/* 나중에 상세별 이미지 배너를 끼우는 자리. 현재는 빈 슬롯만 둔다. */
+.fan-record-detail-banner {
+  min-height: 132px;
+  border: 1px solid rgba(235, 201, 210, 0.82);
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 253, 252, 0.96);
+}
+
+.fan-record-detail-banner span {
+  color: rgba(201, 106, 138, 0.54);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.fan-record-detail-summary {
+  overflow: hidden;
+  border: 1px solid rgba(235, 201, 210, 0.82);
+  border-radius: 18px;
+  background: rgba(255, 253, 252, 0.96);
+}
+
+.fan-record-detail-summary p {
+  min-height: 44px;
+  margin: 0;
+  padding: 0 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px dashed rgba(239, 216, 222, 0.9);
+}
+
+.fan-record-detail-summary p:last-child {
+  border-bottom: 0;
+}
+
+.fan-record-detail-summary span,
+.fan-record-detail-list span {
+  color: rgba(109, 76, 85, 0.82);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.fan-record-detail-summary strong {
+  color: #d77395;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.fan-record-detail-history {
+  display: grid;
+  gap: 8px;
+}
+
+.fan-record-detail-history h3 {
+  margin: 2px 0 0;
+  color: #5b3c45;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 950;
+  letter-spacing: -0.06em;
+}
+
+.fan-record-detail-list {
+  display: grid;
+  gap: 8px;
+}
+
+.fan-record-detail-list article {
+  min-height: 72px;
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid rgba(235, 201, 210, 0.82);
+  border-radius: 16px;
+  background: rgba(255, 253, 252, 0.96);
+}
+
+.fan-record-detail-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.fan-record-detail-list span {
+  color: #d0839d;
+  font-size: 11px;
+  font-weight: 880;
+}
+
+.fan-record-detail-list strong {
+  min-width: 0;
+  overflow: hidden;
+  color: #5b3c45;
+  font-size: 14px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fan-record-detail-list p {
+  margin: 0;
+  color: rgba(109, 76, 85, 0.88);
+  font-size: 12px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.fan-record-detail-list em {
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid rgba(235, 201, 210, 0.86);
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #c96a8a;
+  background: #fff8fb;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.fan-record-detail-list em.is-pending {
+  color: #b38a95;
+  background: #fffaf9;
+}
+
+.fan-record-detail-back {
+  min-height: 42px;
+  border: 0;
+  border-radius: 15px;
+  background: #e894b2;
+  color: #fffdfc;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+/* 380px 이하 최종 모바일 기준: 기존 중복 보정은 이 블록 하나로 통일한다. */
+@media (max-width: 380px) {
+  .fan-check-app .fan-action-card {
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .fan-check-app .fan-action-media {
+    width: 40px;
+    height: 40px;
+  }
+
+  .fan-check-app .fan-action-main {
+    padding-left: 10px;
+  }
+
+  .fan-check-app .fan-action-main header.is-single-meta {
+    gap: 5px;
+  }
+
+  .fan-check-app .fan-action-main header .fan-action-meta {
+    min-height: 20px;
+    padding: 0 7px;
+    font-size: 8px;
+  }
+
+  .fan-check-app .fan-action-buttons {
+    grid-column: 1 / -1;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.fan-point-adjust-button {
+  min-height: 33px;
+  margin-top: 9px;
+  border: 1px solid #e99ab0;
+  border-radius: 11px;
+  background: #fff4f7;
+  color: #dc5f82;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 950;
+  cursor: pointer;
+}
