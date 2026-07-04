@@ -21,7 +21,7 @@ window.LUMI_I18N = {
     "app.homeworkCheki":"숙제체키",
     "app.onair":        "ON AIR",
     "app.lumilog":      "루미로그",
-    "app.exchange":     "교환소",
+    "app.cheerbook":    "루미 응원북",
     "app.songbook":     "노래책",
     "app.themeShop":    "테마샵",
     "app.settings":     "설정",

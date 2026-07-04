@@ -33,14 +33,14 @@ window.LumiPhone = (function () {
     { id: "boothBank",    labelKey: "app.boothBank",     iconText: "통장",             group: "more", color: "#fff4f7", renderer: "native" },
     { id: "achievement",  labelKey: "app.achievement",   iconText: "업적",             group: "more", color: "#fdf5f7", renderer: "native" },
     { id: "onair",        labelKey: "app.onair",         iconText: "ON",               group: "more", color: "#f5f6ff", renderer: "empty" },
-    { id: "profile",      labelKey: "app.profile",       iconText: "MY",               group: "more", color: "#fff3f7", renderer: "empty" },
+    { id: "profile",      labelKey: "app.profile",       iconText: "MY",               group: "more", color: "#fff3f7", renderer: "native" },
     { id: "lumitalk",     labelKey: "app.lumitalk",      iconText: "톡",               group: "more", color: "#fff3f8", renderer: "native" },
-    { id: "lumilog",      labelKey: "app.lumilog",       iconText: "로그",             group: "more", color: "#f6fbf9", renderer: "empty" },
-    { id: "exchange",     labelKey: "app.exchange",      iconText: "교환",             group: "more", color: "#fffaf1", renderer: "empty" },
+    { id: "lumilog",      labelKey: "app.lumilog",       iconText: "로그",             group: "more", color: "#f6fbf9", renderer: "native" },
+    { id: "cheerbook",    labelKey: "app.cheerbook",     iconText: "응원",             group: "more", color: "#fffaf1", renderer: "native" },
     { id: "songbook",     labelKey: "app.songbook",      iconText: "노래",             group: "more", color: "#f7f3ff", renderer: "empty" },
     { id: "themeShop",    labelKey: "app.themeShop",     iconText: "테마",             group: "more", color: "#fff3f7", renderer: "placeholder" },
     { id: "settings",     labelKey: "app.settings",      iconText: "설정",             group: "more", color: "#f9f7fa", renderer: "native" },
-    { id: "attendance",   labelKey: "app.attendance",    iconText: "출석",             group: "more", color: "#fff3f8", renderer: "placeholder" },
+    { id: "attendance",   labelKey: "app.attendance",    iconText: "출석",             group: "more", color: "#fff3f8", renderer: "native" },
     { id: "gameZone",     labelKey: "app.gameZone",      iconText: "게임",             group: "more", color: "#f5fbf8", renderer: "placeholder" },
     { id: "guide",        labelKey: "app.guide",         iconText: "안내",             group: "more", color: "#fffaf2", renderer: "empty" }
   ];
@@ -67,6 +67,7 @@ window.LumiPhone = (function () {
   var state = {
     currentApp:      null,
     appStack:        [],
+    appHistory:      [],
     recentApps:      [],
     overviewIndex:    0,
     recentObserver:  null,
@@ -283,6 +284,9 @@ window.LumiPhone = (function () {
 
     if (state.currentApp && state.currentApp !== app.id) {
       _captureCurrentAppSnapshot();
+      if (!openOptions.isHistoryBack) {
+        state.appHistory.push(state.currentApp);
+      }
     }
 
     if (!state.currentApp) {
@@ -309,8 +313,19 @@ window.LumiPhone = (function () {
     els.appWindow.classList.toggle("is-ticket-view", app.id === "ticket");
     els.appWindow.classList.toggle("is-notification-view", app.id === "notification");
     els.appWindow.classList.toggle("is-messages-view", app.id === "messages");
+    els.appWindow.classList.toggle("is-mail-view", app.id === "mail");
     els.appWindow.classList.toggle("is-settings-view", app.id === "settings");
+    els.appWindow.classList.toggle("is-profile-view", app.id === "profile");
     els.appWindow.classList.toggle("is-lumitalk-view", app.id === "lumitalk");
+    els.appWindow.classList.toggle("is-homework-cheki-view", app.id === "homeworkCheki");
+    els.appWindow.classList.toggle("is-point-view", app.id === "point");
+    els.appWindow.classList.toggle("is-booth-bank-view", app.id === "boothBank");
+    els.appWindow.classList.toggle("is-benefit-queue-view", app.id === "benefitQueue");
+    els.appWindow.classList.toggle("is-cheerbook-view", app.id === "cheerbook");
+    els.appWindow.classList.toggle("is-attendance-view", app.id === "attendance");
+    els.appWindow.classList.toggle("is-timeline-view", app.id === "timeline");
+    els.appWindow.classList.toggle("is-achievement-view", app.id === "achievement");
+    els.appWindow.classList.toggle("is-lumilog-view", app.id === "lumilog");
     els.appWindow.classList.add("is-open");
     els.appWindow.setAttribute("aria-hidden", "false");
     if (els.dock) els.dock.setAttribute("aria-hidden", "true");
@@ -343,6 +358,10 @@ window.LumiPhone = (function () {
       window.LumiApps.bindBoothBank(els.appBody);
     }
 
+    if (appId === "benefitQueue" && typeof window.LumiApps.bindBenefitQueue === "function") {
+      window.LumiApps.bindBenefitQueue(els.appBody);
+    }
+
     if (appId === "point" && typeof window.LumiApps.bindPoint === "function") {
       window.LumiApps.bindPoint(els.appBody);
     }
@@ -353,6 +372,14 @@ window.LumiPhone = (function () {
   
     if (appId === "homeworkCheki" && typeof window.LumiApps.bindHomeworkCheki === "function") {
       window.LumiApps.bindHomeworkCheki(els.appBody);
+    }
+
+    if (appId === "cheerbook" && typeof window.LumiApps.bindCheerbook === "function") {
+      window.LumiApps.bindCheerbook(els.appBody);
+    }
+
+    if (appId === "attendance" && typeof window.LumiApps.bindAttendance === "function") {
+      window.LumiApps.bindAttendance(els.appBody);
     }
   
     if (appId === "timeline" && typeof window.LumiApps.bindTimeline === "function") {
@@ -367,8 +394,16 @@ window.LumiPhone = (function () {
       window.LumiApps.bindSettings(els.appBody);
     }
 
+    if (appId === "profile" && typeof window.LumiApps.bindProfile === "function") {
+      window.LumiApps.bindProfile(els.appBody);
+    }
+
     if (appId === "lumitalk" && typeof window.LumiApps.bindLumitalk === "function") {
       window.LumiApps.bindLumitalk(els.appBody);
+    }
+
+    if (appId === "lumilog" && typeof window.LumiApps.bindLumilog === "function") {
+      window.LumiApps.bindLumilog(els.appBody);
     }
   }
 
@@ -412,13 +447,14 @@ window.LumiPhone = (function () {
   function _closeAppWindow(options) {
     var closeOptions = options || {};
     if (els.appWindow) {
-      els.appWindow.classList.remove("is-open", "is-ticket-view", "is-notification-view", "is-messages-view", "is-settings-view", "is-lumitalk-view", "is-message-detail-open");
+      els.appWindow.classList.remove("is-open", "is-ticket-view", "is-notification-view", "is-messages-view", "is-settings-view", "is-profile-view", "is-lumitalk-view", "is-homework-cheki-view", "is-benefit-queue-view", "is-cheerbook-view", "is-attendance-view", "is-timeline-view", "is-achievement-view", "is-lumilog-view", "is-message-detail-open");
       els.appWindow.setAttribute("aria-hidden", "true");
     }
     if (els.dock) els.dock.setAttribute("aria-hidden", "false");
     _stopRecentSnapshotTracking();
     state.currentApp = null;
     state.appStack   = [];
+    state.appHistory = [];
     state.backRoute  = null;
     state.appBackHandler = null;
     if (!closeOptions.keepOverview) _closeRecentApps();
@@ -450,6 +486,12 @@ window.LumiPhone = (function () {
     if (state.appStack.length > 1) {
       state.appStack.pop();
       /* 추후: 서브페이지 라우팅 로직 추가 */
+      return;
+    }
+
+    if (state.currentApp && state.appHistory.length) {
+      var previousApp = state.appHistory.pop();
+      openApp(previousApp, { isHistoryBack: true, keepBackRoute: true });
       return;
     }
 

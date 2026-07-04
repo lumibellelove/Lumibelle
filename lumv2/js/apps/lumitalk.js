@@ -1565,6 +1565,7 @@ window.LumiApps = window.LumiApps || {};
 
   function renderViewerProfileHome() {
     var viewer = getViewerProfile();
+    var savedPhotos = getSavedMediaItems().filter(function (item) { return item.type === 'photo'; }).slice(0, 3);
     return [
       '<section class="lumitalk-panel lumitalk-panel--profile-home lumitalk-panel--viewer-profile" data-lumitalk-panel-view="viewer-profile">',
         '<div class="lumitalk-panel-scroll lumitalk-panel-scroll--profile-home">',
@@ -1596,9 +1597,9 @@ window.LumiApps = window.LumiApps || {};
               '<button type="button" data-lumitalk-action="open-viewer-saved-media">전체 보기</button>',
             '</div>',
             '<div class="lumitalk-profile-home-gallery-grid">',
-              '<span class="lumitalk-profile-home-gallery-slot" aria-label="소장한 사진 이미지 자리"></span>',
-              '<span class="lumitalk-profile-home-gallery-slot" aria-label="소장한 사진 이미지 자리"></span>',
-              '<span class="lumitalk-profile-home-gallery-slot" aria-label="소장한 사진 이미지 자리"></span>',
+              savedPhotos.map(function (item) {
+                return '<button type="button" class="lumitalk-profile-home-gallery-slot lumitalk-profile-home-gallery-slot--button" data-lumitalk-action="open-viewer-profile-saved-media" data-source-channel-id="' + esc(item.channelId) + '" data-source-media-index="' + esc(String(item.sourceMediaIndex)) + '" aria-label="' + esc(item.channelName) + '의 소장 사진 열기"></button>';
+              }).join(''),
             '</div>',
             '<p class="lumitalk-profile-home-gallery-intro">내가 소장한 사진과 순간들을 천천히 모아두는 공간이에요.</p>',
           '</section>',
@@ -1903,8 +1904,9 @@ window.LumiApps = window.LumiApps || {};
     var items = [];
     thread.forEach(function (message) {
       if (!message.media || !message.media.length) return;
-      message.media.forEach(function (_, index) {
-        var isVideo = index === message.media.length - 1 && message.media.length > 2;
+      message.media.forEach(function (mediaItem, index) {
+        mediaItem = mediaItem || {};
+        var isVideo = mediaItem.type === 'video' || mediaItem.kind === 'video' || Boolean(mediaItem.duration);
         items.push({
           id: message.id + '-media-' + index,
           type: isVideo ? 'video' : 'photo',
@@ -1934,12 +1936,15 @@ window.LumiApps = window.LumiApps || {};
 
   function getSavedMediaItems() {
     var items = [];
+    var sequence = 0;
     CHANNELS.forEach(function (channel) {
       if (channel.id === 'help') return;
-      getVisibleThread(channel.id).forEach(function (message) {
+      getVisibleThread(channel.id).forEach(function (message, messageIndex) {
         if (!message || !message.saved || !message.media || !message.media.length) return;
-        message.media.forEach(function (_, index) {
-          var isVideo = index === message.media.length - 1 && message.media.length > 2;
+        var messageTime = Number(message.savedAt || message.createdAt || message.sentAt || message.updatedAt || message.timestamp || 0);
+        message.media.forEach(function (mediaItem, index) {
+          mediaItem = mediaItem || {};
+          var isVideo = mediaItem.type === 'video' || mediaItem.kind === 'video' || Boolean(mediaItem.duration);
           items.push({
             id: message.id + '-saved-media-' + index,
             channelId: channel.id,
@@ -1947,12 +1952,17 @@ window.LumiApps = window.LumiApps || {};
             sourceMediaIndex: getMediaViewerIndex(channel.id, message.id, index),
             type: isVideo ? 'video' : 'photo',
             label: isVideo ? 'VIDEO' : 'PHOTO',
-            time: isVideo ? '4:07' : ''
+            time: isVideo ? '4:07' : '',
+            _savedOrder: messageTime || ((messageIndex + 1) * 1000 + index),
+            _sequence: sequence += 1
           });
         });
       });
     });
-    return items;
+    return items.sort(function (a, b) {
+      if (b._savedOrder !== a._savedOrder) return b._savedOrder - a._savedOrder;
+      return b._sequence - a._sequence;
+    });
   }
 
   function renderPanelMediaStrip(items) {
@@ -3103,7 +3113,9 @@ window.LumiApps = window.LumiApps || {};
       var ratio = image.naturalWidth / image.naturalHeight;
       var baseWidth = ratio >= frameRatio ? guideH * ratio : guideW;
       var baseHeight = ratio >= frameRatio ? guideH : guideW / ratio;
-      return { stage: stage, image: image, guideW: guideW, guideH: guideH, frameRatio: frameRatio, baseWidth: baseWidth, baseHeight: baseHeight, stageRect: stageRect, guideRect: guideRect };
+      var guideCenterX = (guideRect.left - stageRect.left) + (guideW / 2);
+      var guideCenterY = (guideRect.top - stageRect.top) + (guideH / 2);
+      return { stage: stage, image: image, guideW: guideW, guideH: guideH, frameRatio: frameRatio, baseWidth: baseWidth, baseHeight: baseHeight, stageRect: stageRect, guideRect: guideRect, guideCenterX: guideCenterX, guideCenterY: guideCenterY };
     }
     function constrainCrop() {
       var crop = getActiveUploadCrop();
@@ -3125,8 +3137,8 @@ window.LumiApps = window.LumiApps || {};
       var image = geometry.image;
       image.style.width = geometry.baseWidth + 'px';
       image.style.height = geometry.baseHeight + 'px';
-      image.style.left = 'calc(50% + ' + Number(crop.panX || 0) + 'px)';
-      image.style.top = 'calc(50% + ' + Number(crop.panY || 0) + 'px)';
+      image.style.left = (geometry.guideCenterX + Number(crop.panX || 0)) + 'px';
+      image.style.top = (geometry.guideCenterY + Number(crop.panY || 0)) + 'px';
       image.style.transform = 'translate(-50%, -50%) scale(' + Number(crop.scale || 1) + ')';
     }
     function makeProfileCropImage() {
@@ -3885,6 +3897,20 @@ window.LumiApps = window.LumiApps || {};
         renderInto(root);
         return;
       }
+      if (action === 'open-viewer-profile-saved-media') {
+        var viewerProfileChannelId = actionEl.getAttribute('data-source-channel-id');
+        var viewerProfileMediaIndex = Number(actionEl.getAttribute('data-source-media-index'));
+        if (!viewerProfileChannelId) return;
+        session.activeChannelId = viewerProfileChannelId;
+        session.view = 'panel';
+        session.panelMode = 'media';
+        session.panelMediaFilter = 'all';
+        session.panelMediaViewerIndex = isNaN(viewerProfileMediaIndex) ? 0 : viewerProfileMediaIndex;
+        session.panelMediaViewerReturnTo = 'viewer-profile';
+        session.panelMediaViewerUiHidden = false;
+        renderInto(root);
+        return;
+      }
       if (action === 'open-viewer-saved-media') {
         session.view = 'panel';
         session.activeChannelId = null;
@@ -3947,7 +3973,10 @@ window.LumiApps = window.LumiApps || {};
           renderInto(root, 'bottom');
           return;
         }
-        if (returnTo === 'viewer-saved-media') {
+        if (returnTo === 'viewer-profile') {
+          session.activeChannelId = null;
+          session.panelMode = 'viewer-profile';
+        } else if (returnTo === 'viewer-saved-media') {
           session.activeChannelId = null;
           session.panelMode = 'viewer-saved-media';
         } else {
