@@ -62,47 +62,92 @@
   }
 
   function apiRequest(action, params, onDone) {
-    var callbackName = '__lumiDigitalApiCallback_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
-    var done = false;
-    var script = document.createElement('script');
-    var query = new URLSearchParams();
+    var finished = false;
+    var attempt = 0;
+    var maxAttempts = 2;
+    var timeoutMs = 25000;
 
-    params = params || {};
-    query.set('action', action);
-    query.set('callback', callbackName);
-
-    Object.keys(params).forEach(function (key) {
-      if (params[key] != null) query.set(key, params[key]);
-    });
-
-    window[callbackName] = function (response) {
-      done = true;
-      cleanup();
+    function finish(response) {
+      if (finished) return;
+      finished = true;
       onDone(response || { ok: false, message: '응답이 비어 있어요.' });
-    };
-
-    function cleanup() {
-      if (script.parentNode) script.parentNode.removeChild(script);
-      try { delete window[callbackName]; } catch (error) { window[callbackName] = undefined; }
     }
 
-    script.onerror = function () {
-      if (done) return;
-      done = true;
-      cleanup();
-      onDone({ ok: false, error: 'API_LOAD_FAILED', message: 'API 호출에 실패했어요. Apps Script 배포/권한을 확인해주세요.' });
-    };
+    function runAttempt() {
+      attempt += 1;
 
-    script.src = API_URL + '?' + query.toString();
-    document.head.appendChild(script);
+      var callbackName = '__lumiDigitalApiCallback_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+      var script = document.createElement('script');
+      var query = new URLSearchParams();
+      var timer = null;
+      var settled = false;
 
-    setTimeout(function () {
-      if (done) return;
-      done = true;
-      cleanup();
-      onDone({ ok: false, error: 'API_TIMEOUT', message: 'API 응답 시간이 초과됐어요.' });
-    }, 9000);
+      params = params || {};
+      query.set('action', action);
+      query.set('callback', callbackName);
+      query.set('_', String(Date.now()));
+
+      Object.keys(params).forEach(function (key) {
+        if (params[key] != null) query.set(key, params[key]);
+      });
+
+      function cleanup() {
+        if (timer) {
+          clearTimeout(timer);
+          timer = null;
+        }
+        if (script.parentNode) script.parentNode.removeChild(script);
+        try { delete window[callbackName]; } catch (error) { window[callbackName] = undefined; }
+      }
+
+      window[callbackName] = function (response) {
+        if (settled || finished) return;
+        settled = true;
+        cleanup();
+        finish(response || { ok: false, message: '응답이 비어 있어요.' });
+      };
+
+      script.onerror = function () {
+        if (settled || finished) return;
+        settled = true;
+        cleanup();
+
+        if (attempt < maxAttempts) {
+          setTimeout(runAttempt, 900);
+          return;
+        }
+
+        finish({
+          ok: false,
+          error: 'API_LOAD_FAILED',
+          message: '이 브라우저가 API 호출을 막았어요. 아이폰 Safari/Chrome 또는 안드 삼성 브라우저로 다시 열어주세요.'
+        });
+      };
+
+      timer = setTimeout(function () {
+        if (settled || finished) return;
+        settled = true;
+        cleanup();
+
+        if (attempt < maxAttempts) {
+          setTimeout(runAttempt, 900);
+          return;
+        }
+
+        finish({
+          ok: false,
+          error: 'API_TIMEOUT',
+          message: 'API 응답 시간이 초과됐어요. 같은 버튼을 한 번 더 누르거나 안드 삼성 브라우저/아이폰 Safari로 열어주세요.'
+        });
+      }, timeoutMs);
+
+      script.src = API_URL + '?' + query.toString();
+      document.head.appendChild(script);
+    }
+
+    runAttempt();
   }
+
 
   function lookupTicket(token) {
     var found = extractToken(token);
@@ -351,7 +396,7 @@
         '</div>' +
         '<article class="digital-staff-scan-guide">' +
           '<strong>스캔 방식</strong>' +
-          '<p>QR 스캔 버튼을 누르면 카메라가 열려요. 안 되면 티켓번호를 직접 입력해요.</p>' +
+          '<p>권장: 아이폰 Safari/Chrome, 안드 삼성 브라우저. 네이버/안드 Chrome은 API 응답이 느리거나 막힐 수 있어요.</p>' +
         '</article>' +
         '<label class="digital-staff-search">' +
           '<span>QR이 안 찍히면 티켓번호나 토큰을 직접 입력해주세요</span>' +
