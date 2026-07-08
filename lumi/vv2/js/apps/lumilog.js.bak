@@ -1,0 +1,258 @@
+(function () {
+  'use strict';
+
+  var LOG_DATA = {
+    featuredId: 'debut-live',
+    events: [
+      {
+        id: 'debut-live',
+        date: '2026.04.11',
+        year: '2026',
+        title: 'LUMIBELLE DEBUT LIVE',
+        venue: '홍대 상상마당 라이브홀',
+        status: ['SETLIST 공개', '사진 기록 업데이트', '멤버 한마디 도착'],
+        tags: ['데뷔 공연', '단독', '홍대'],
+        archiveTitle: '2026 ARCHIVE',
+        members: [
+          { name: '루루', note: '오늘, 정말 잊지 못할 날이야. 빛나줘서 고마워요!' },
+          { name: '링링', note: '처음의 이 설렘을 오래오래 간직할게요.' }
+        ],
+        setlist: ['Stardust Magical', '청춘 서브리미널', '꿈의 조각', '반짝이는 약속', 'Encore  LUMI LOVE!'],
+        memoryNote: '공연 후 남겨준 마음은 루미벨의 기록에 오래 보관돼요.',
+        personal: ['내 체크인 완료', '스탬프 지급', '체키 사진']
+      },
+      {
+        id: 'spring-mini-live',
+        date: '2026.03.20',
+        year: '2026',
+        title: 'SPRING MINI LIVE',
+        venue: '홍대 롤링홀',
+        status: ['SETLIST 공개'],
+        tags: ['봄 공연', '미니', '홍대'],
+        archiveTitle: '2026 ARCHIVE',
+        members: [
+          { name: '루루', note: '따뜻한 봄날처럼 함께 반짝여줘서 고마워요.' },
+          { name: '링링', note: '오늘의 웃음도 오래 기억할게요.' }
+        ],
+        setlist: ['봄빛 한 조각', '청춘 서브리미널', '꿈의 편지', '반짝이는 약속'],
+        memoryNote: '이날 남겨준 마음과 후기는 공연 기록에 함께 보관돼요.',
+        personal: ['내 체크인 완료', '스탬프 지급', '체키 사진']
+      },
+      {
+        id: 'valentine-fan-live',
+        date: '2026.02.14',
+        year: '2026',
+        title: 'VALENTINE FAN LIVE',
+        venue: '신촌 예스24 원더로크홀',
+        status: ['사진 기록 업데이트'],
+        tags: ['팬 라이브', '발렌타인', '신촌'],
+        archiveTitle: '2026 ARCHIVE',
+        members: [
+          { name: '루루', note: '달콤한 응원 덕분에 하루가 더 특별했어요.' },
+          { name: '링링', note: '마음 가득한 오늘을 오래 기억할게요.' }
+        ],
+        setlist: ['Chocolate Wish', '청춘 서브리미널', 'Heart Beat', '반짝이는 약속'],
+        memoryNote: '응원과 후기, 체크인 기록이 공연의 추억으로 남아요.',
+        personal: ['내 체크인 완료', '스탬프 지급', '체키 사진']
+      },
+      {
+        id: 'winter-special-stage',
+        date: '2025.12.24',
+        year: '2025',
+        title: 'WINTER SPECIAL STAGE',
+        venue: '상상마당 라이브홀',
+        status: ['멤버 한마디 도착'],
+        tags: ['겨울 공연', '스페셜', '홍대'],
+        archiveTitle: '2025 ARCHIVE',
+        members: [
+          { name: '루루', note: '겨울밤의 빛 같은 응원이었어요.' },
+          { name: '링링', note: '따뜻한 순간을 하나하나 안고 갈게요.' }
+        ],
+        setlist: ['Snowy Wink', '꿈의 조각', 'Winter Wish', 'LUMI LOVE!'],
+        memoryNote: '겨울 스테이지의 기억도 루미벨의 기록으로 남아요.',
+        personal: ['내 체크인 완료', '스탬프 지급', '체키 사진']
+      }
+    ]
+  };
+
+  window.LumiApps = window.LumiApps || {};
+
+  window.LumiApps.lumilog = function () {
+    return '' +
+      '<section class="lumilog-app" data-lumilog-app>' +
+        '<div class="lumilog-shell">' +
+          '<div class="lumilog-brand">' +
+            '<span>LumiPhone</span><strong>V2</strong>' +
+          '</div>' +
+          '<section class="lumilog-content" data-lumilog-content></section>' +
+        '</div>' +
+      '</section>';
+  };
+
+  window.LumiApps.bindLumilog = function (root) {
+    var app = root.querySelector('[data-lumilog-app]');
+    if (!app || app.__lumiLumilogBound) return;
+    app.__lumiLumilogBound = true;
+    app.__lumiLumilogState = { view: 'list', selectedId: LOG_DATA.featuredId };
+
+    app.addEventListener('click', function (event) {
+      var openButton = event.target.closest('[data-lumilog-open]');
+      if (openButton) {
+        app.__lumiLumilogState.view = 'detail';
+        app.__lumiLumilogState.selectedId = openButton.getAttribute('data-lumilog-open') || LOG_DATA.featuredId;
+        renderLumilog(app);
+        return;
+      }
+
+      var backButton = event.target.closest('[data-lumilog-back]');
+      if (backButton) {
+        app.__lumiLumilogState.view = 'list';
+        renderLumilog(app);
+        return;
+      }
+
+      var navButton = event.target.closest('[data-lumilog-nav]');
+      if (navButton && window.LumiPhone && typeof window.LumiPhone.goHome === 'function') {
+        window.LumiPhone.goHome();
+      }
+    });
+
+    renderLumilog(app);
+  };
+
+  function renderLumilog(app) {
+    var content = app.querySelector('[data-lumilog-content]');
+    if (!content) return;
+    var state = app.__lumiLumilogState || { view: 'list', selectedId: LOG_DATA.featuredId };
+    if (state.view === 'detail') {
+      content.innerHTML = renderDetail(findEvent(state.selectedId));
+      return;
+    }
+    content.innerHTML = renderList();
+  }
+
+  function renderList() {
+    var featured = findEvent(LOG_DATA.featuredId);
+    var archiveList = LOG_DATA.events.filter(function (item) { return item.id !== LOG_DATA.featuredId; });
+
+    return '' +
+      '<section class="lumilog-hero">' +
+        '<span class="lumilog-image-slot lumilog-hero-art" aria-hidden="true"></span>' +
+        '<div class="lumilog-hero-copy">' +
+          '<h2>LUMI LOG</h2>' +
+          '<p class="lumilog-hero-sub">루미벨과 함께한 날들을 오래 기록해요</p>' +
+          '<p class="lumilog-hero-note">참여 횟수나 리프 여부가 마음의 크기를 뜻하지 않아요. 그날 남겨준 마음은 모두 소중히 보관해요.</p>' +
+        '</div>' +
+      '</section>' +
+      '<section class="lumilog-featured-card">' +
+        '<span class="lumilog-image-slot lumilog-featured-image" aria-hidden="true"></span>' +
+        '<div class="lumilog-featured-copy">' +
+          '<span>' + esc(featured.date) + '</span>' +
+          '<strong>' + esc(featured.title) + '</strong>' +
+          '<p>' + esc(featured.venue) + '</p>' +
+          '<button type="button" class="lumilog-primary-btn" data-lumilog-open="' + esc(featured.id) + '">공연 기록 보기</button>' +
+          '<div class="lumilog-status-row">' +
+            featured.status.map(function (item) {
+              return '<span>' + esc(item) + '</span>';
+            }).join('') +
+          '</div>' +
+        '</div>' +
+      '</section>' +
+      '<section class="lumilog-archive-section">' +
+        '<div class="lumilog-section-title"><h3>2026 ARCHIVE</h3></div>' +
+        '<div class="lumilog-archive-list">' + archiveList.map(renderArchiveCard).join('') + '</div>' +
+      '</section>';
+  }
+
+  function renderArchiveCard(item) {
+    return '' +
+      '<article class="lumilog-archive-card">' +
+        '<span class="lumilog-image-slot lumilog-archive-image" aria-hidden="true"></span>' +
+        '<div class="lumilog-archive-copy">' +
+          '<span>' + esc(item.date) + '</span>' +
+          '<strong>' + esc(item.title) + '</strong>' +
+          '<p>' + esc(item.venue) + '</p>' +
+        '</div>' +
+        '<button type="button" class="lumilog-link-btn" data-lumilog-open="' + esc(item.id) + '">기록 보기</button>' +
+      '</article>';
+  }
+
+  function renderDetail(item) {
+    return '' +
+      '<button type="button" class="lumilog-back-btn" data-lumilog-back="list">뒤로</button>' +
+      '<section class="lumilog-detail-hero">' +
+        '<span class="lumilog-image-slot lumilog-detail-main-image" aria-hidden="true"></span>' +
+        '<div class="lumilog-detail-copy">' +
+          '<span>' + esc(item.date) + '</span>' +
+          '<strong>' + esc(item.title) + '</strong>' +
+          '<p>' + esc(item.venue) + '</p>' +
+          '<div class="lumilog-tag-row">' + item.tags.map(function (tag) { return '<span>' + esc(tag) + '</span>'; }).join('') + '</div>' +
+        '</div>' +
+      '</section>' +
+      '<section class="lumilog-detail-section">' +
+        '<div class="lumilog-subtitle"><h3>오늘의 한마디</h3></div>' +
+        '<div class="lumilog-message-grid">' + item.members.map(renderMemberNote).join('') + '</div>' +
+      '</section>' +
+      '<section class="lumilog-detail-split">' +
+        '<article class="lumilog-setlist-card">' +
+          '<div class="lumilog-subtitle"><h3>SETLIST</h3></div>' +
+          '<ol>' + item.setlist.map(function (song, index) { return '<li><span>' + pad(index + 1) + '</span><strong>' + esc(song) + '</strong></li>'; }).join('') + '</ol>' +
+        '</article>' +
+        '<article class="lumilog-photo-card">' +
+          '<div class="lumilog-subtitle"><h3>PHOTO LOG</h3></div>' +
+          '<div class="lumilog-photo-grid">' + new Array(6).fill(0).map(function () { return '<span class="lumilog-image-slot lumilog-photo-slot" aria-hidden="true"></span>'; }).join('') + '</div>' +
+        '</article>' +
+      '</section>' +
+      '<section class="lumilog-memory-card">' +
+        '<div class="lumilog-subtitle"><h3>루미나의 마음</h3></div>' +
+        '<div class="lumilog-memory-inner">' +
+          '<span class="lumilog-image-slot lumilog-memory-image" aria-hidden="true"></span>' +
+          '<p>' + esc(item.memoryNote) + '</p>' +
+          '<span class="lumilog-arrow">›</span>' +
+        '</div>' +
+      '</section>' +
+      '<section class="lumilog-personal-card">' +
+        '<div class="lumilog-subtitle"><h3>이날의 내 추억</h3></div>' +
+        '<div class="lumilog-personal-row">' +
+          item.personal.map(renderPersonalItem).join('') +
+          '<button type="button" class="lumilog-primary-btn lumilog-record-btn">내 기록에서 보기</button>' +
+        '</div>' +
+      '</section>';
+  }
+
+  function renderMemberNote(item) {
+    return '' +
+      '<article class="lumilog-message-card">' +
+        '<span class="lumilog-image-slot lumilog-message-image" aria-hidden="true"></span>' +
+        '<div class="lumilog-message-copy">' +
+          '<strong>' + esc(item.name) + '</strong>' +
+          '<p>' + esc(item.note) + '</p>' +
+        '</div>' +
+      '</article>';
+  }
+
+  function renderPersonalItem(label) {
+    return '' +
+      '<div class="lumilog-personal-item">' +
+        '<span class="lumilog-image-slot lumilog-personal-image" aria-hidden="true"></span>' +
+        '<p>' + esc(label) + '</p>' +
+      '</div>';
+  }
+
+  function pad(value) {
+    return value < 10 ? '0' + value : String(value);
+  }
+
+  function findEvent(id) {
+    return LOG_DATA.events.find(function (item) { return item.id === id; }) || LOG_DATA.events[0];
+  }
+
+  function esc(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+})();
