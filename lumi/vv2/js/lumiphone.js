@@ -211,6 +211,68 @@ window.LumiPhone = (function () {
     runAttempt();
   }
 
+  function _isDigitalPurchasePendingScreenActive() {
+    try {
+      return !!(window.LumiDigitalTicketPurchasePendingActive || document.querySelector('[data-ticket-purchase-pending="true"]'));
+    } catch (error) {
+      return !!window.LumiDigitalTicketPurchasePendingActive;
+    }
+  }
+
+  function _getDigitalPreferredMemberMap() {
+    try {
+      if (!window.localStorage) return {};
+      var raw = window.localStorage.getItem('lumiphone-digital-ticket-member-map');
+      if (!raw) return {};
+      var parsed = JSON.parse(raw);
+      return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function _setDigitalPreferredMemberLocal(token, memberName) {
+    token = String(token || '').trim();
+    memberName = String(memberName || '').trim();
+    if (!token || !memberName) return;
+
+    try {
+      var map = _getDigitalPreferredMemberMap();
+      map[token] = memberName;
+      if (window.localStorage) {
+        window.localStorage.setItem('lumiphone-digital-ticket-member-map', JSON.stringify(map));
+      }
+    } catch (error) {}
+  }
+
+  function _getTicketTokenValue(ticket) {
+    ticket = ticket || {};
+    return String(ticket.token || ticket.ticketToken || ticket.ticket_token || ticket.ticketNumber || ticket.ticket_id || '').trim();
+  }
+
+  function _applyLocalDigitalTicketPreferredMembers(stateData) {
+    if (!stateData || !Array.isArray(stateData.tickets)) return stateData;
+
+    var memberMap = _getDigitalPreferredMemberMap();
+
+    stateData.tickets = stateData.tickets.map(function (ticket) {
+      ticket = ticket || {};
+      var token = _getTicketTokenValue(ticket);
+      var apiMember = String(ticket.preferredMember || ticket.preferred_member || ticket.hopeMember || ticket.member || '').trim();
+      var localMember = token ? String(memberMap[token] || '').trim() : '';
+
+      if (!apiMember && localMember) {
+        ticket.preferredMember = localMember;
+        ticket.preferred_member = localMember;
+        ticket.staffPreferredMember = localMember;
+      }
+
+      return ticket;
+    });
+
+    return stateData;
+  }
+
   function _loadDigitalTicketStateFromApi(force) {
     var user = _getDigitalTicketLoginUser() || _getDigitalTicketLoginUserFromInputs();
     if (!user || !user.nickname || !user.phoneLast4) {
@@ -232,6 +294,10 @@ window.LumiPhone = (function () {
         }));
       }
     } catch (error) {}
+
+    if (_isDigitalPurchasePendingScreenActive() && !window.LumiDigitalTicketAllowPendingRefresh) {
+      return;
+    }
 
     var now = Date.now();
     if (window.__lumiFanDigitalApiLoading) return;
@@ -273,6 +339,8 @@ window.LumiPhone = (function () {
         }) : [],
         loadedAt: new Date().toISOString()
       };
+
+      stateData = _applyLocalDigitalTicketPreferredMembers(stateData);
 
       try {
         window.LumiDigitalTicketState = stateData;
@@ -472,7 +540,7 @@ window.LumiPhone = (function () {
           '<p>입금자명: ' + _escHtml(order.depositorName || '-') + '</p>' +
           '<p>결제 금액 <b>' + _escHtml(_formatDigitalMoney(order.totalAmount)) + '</b></p>' +
         '</div>' +
-        '<button type="button" class="digital-ticket-detail-button" data-app-id="digitalTicketPurchase" data-dock-app="digitalTicketPurchase">입금 QR 보기</button>' +
+        '<button type="button" class="digital-ticket-detail-button" data-digital-pending-order-token="' + _escHtml(order.order_token || order.orderToken || '') + '">입금 QR 보기</button>' +
       '</article>'
     );
   }
@@ -656,6 +724,58 @@ window.LumiPhone = (function () {
     );
   }
 
+  function _saveDigitalTicketPreferredMemberToApi(ticket, memberName) {
+    var token = _getTicketTokenValue(ticket);
+    memberName = String(memberName || '').trim();
+
+    if (!token || !memberName) return;
+
+    _setDigitalPreferredMemberLocal(token, memberName);
+
+    _digitalApiRequest('savePreferredMember', {
+      ticket_token: token,
+      preferred_member: memberName
+    }, function (response) {
+      if (!response || !response.ok) {
+        window.LumiDigitalTicketLoadMessage = '희망 멤버 저장이 지연되고 있어요. QR은 유지되지만 스탭 화면 반영을 다시 확인해 주세요.';
+        _renderDigitalTicketStatus();
+        return;
+      }
+
+      var savedMember = String((response.ticket && (response.ticket.preferred_member || response.ticket.preferredMember)) || memberName).trim();
+      if (!savedMember) savedMember = memberName;
+
+      _setDigitalPreferredMemberLocal(token, savedMember);
+
+      var stateData = _getDigitalTicketState();
+      var tickets = Array.isArray(stateData.tickets) ? stateData.tickets : [];
+
+      tickets.forEach(function (savedTicket, savedIndex) {
+        if (_getTicketTokenValue(savedTicket) !== token) return;
+        savedTicket.preferredMember = savedMember;
+        savedTicket.preferred_member = savedMember;
+        savedTicket.staffPreferredMember = savedMember;
+        savedTicket.displayName = _getDigitalTicketDisplayName(_normalizeDigitalTicket(savedTicket, savedIndex));
+      });
+
+      try {
+        window.LumiDigitalTicketState = stateData;
+        window.LumiDigitalTicketData = stateData;
+        if (window.localStorage) {
+          window.localStorage.setItem('lumiphone-digital-ticket-state', JSON.stringify(stateData));
+        }
+      } catch (error) {}
+
+      if (state.digitalTicketDetail && _getTicketTokenValue(state.digitalTicketDetail) === token) {
+        state.digitalTicketDetail.preferredMember = savedMember;
+        state.digitalTicketDetail.staffPreferredMember = savedMember;
+        state.digitalTicketDetail.displayName = _getDigitalTicketDisplayName(state.digitalTicketDetail);
+      }
+
+      _renderDigitalTicketStatus();
+    });
+  }
+
   function _selectDigitalTicketPreferredMember(memberName) {
     if (!state.digitalTicketDetail) return;
     state.digitalTicketMemberDraft = memberName || '';
@@ -692,13 +812,18 @@ window.LumiPhone = (function () {
       }
     } catch (error) {}
 
+    _setDigitalPreferredMemberLocal(_getTicketTokenValue(state.digitalTicketDetail), memberName);
+    _saveDigitalTicketPreferredMemberToApi(state.digitalTicketDetail, memberName);
+
     _renderDigitalTicketStatus();
     openApp('digitalTicketDetail');
   }
 
   function _renderDigitalTicketMemberSection(ticket) {
-    var selectedMember = state.digitalTicketMemberDraft || ticket.preferredMember || '';
-    var currentMember = ticket.preferredMember || '아직 선택하지 않았어요';
+    var token = _getTicketTokenValue(ticket);
+    var localMember = token ? String(_getDigitalPreferredMemberMap()[token] || '').trim() : '';
+    var selectedMember = state.digitalTicketMemberDraft || ticket.preferredMember || localMember || '';
+    var currentMember = ticket.preferredMember || localMember || '아직 선택하지 않았어요';
     var members = ['루루', '마리링'];
     var buttons = members.map(function(member) {
       var activeClass = selectedMember === member ? ' is-selected' : '';
@@ -734,30 +859,18 @@ window.LumiPhone = (function () {
       return '<img class="digital-qr-image" src="' + _escHtml(directImage || mappedImage) + '" alt="특전권 QR" data-qr-value="' + _escHtml(_getStaffQrValue(ticket)) + '" />';
     }
 
-    return _renderDynamicQrImage(token, '특전권 QR');
+    return _renderDynamicQrImage(_getStaffQrValue({ token: token }), '특전권 QR');
   }
 
   function _renderDynamicQrImage(value, label) {
-    var modules = _makeQrModules(String(value || ''));
-    var size = modules.length;
-    var cell = 4;
-    var quiet = 4;
-    var full = (size + quiet * 2) * cell;
-    var rects = [];
+    var qrValue = String(value || '').trim();
+    if (!qrValue) qrValue = 'TKT-0000-00000';
 
-    for (var y = 0; y < size; y++) {
-      for (var x = 0; x < size; x++) {
-        if (modules[y][x]) {
-          rects.push('<rect x="' + ((x + quiet) * cell) + '" y="' + ((y + quiet) * cell) + '" width="' + cell + '" height="' + cell + '"/>');
-        }
-      }
-    }
+    var qrImageUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=14&data=' + encodeURIComponent(qrValue);
 
-    return '<svg class="digital-qr-image" role="img" aria-label="' + _escHtml(label || 'QR') + '" viewBox="0 0 ' + full + ' ' + full + '" data-qr-value="' + _escHtml(value || '') + '" xmlns="http://www.w3.org/2000/svg">' +
-      '<rect width="' + full + '" height="' + full + '" fill="#fff"/>' +
-      '<g fill="#111">' + rects.join('') + '</g>' +
-    '</svg>';
+    return '<img class="digital-qr-image" src="' + _escHtml(qrImageUrl) + '" alt="' + _escHtml(label || '특전권 QR') + '" data-qr-value="' + _escHtml(qrValue) + '" />';
   }
+
 
   function _makeQrModules(text) {
     var version = 3;
@@ -1118,9 +1231,42 @@ window.LumiPhone = (function () {
       var refreshBtn = e.target.closest("[data-digital-ticket-refresh]");
       if (refreshBtn) { _loadDigitalTicketStateFromApi(true); return; }
 
+      var pendingOrderBtn = e.target.closest("[data-digital-pending-order-token]");
+      if (pendingOrderBtn) {
+        var pendingToken = pendingOrderBtn.getAttribute("data-digital-pending-order-token");
+        var digitalState = _getDigitalTicketState();
+        var pendingOrders = digitalState && Array.isArray(digitalState.orders) ? digitalState.orders : [];
+        var pendingOrder = null;
+
+        for (var pendingIndex = 0; pendingIndex < pendingOrders.length; pendingIndex += 1) {
+          var candidate = pendingOrders[pendingIndex] || {};
+          var candidateToken = String(candidate.order_token || candidate.orderToken || '').trim();
+          if (candidateToken && candidateToken === pendingToken) {
+            pendingOrder = candidate;
+            break;
+          }
+        }
+
+        if (pendingOrder) {
+          window.LumiDigitalTicketPurchaseOpenMode = 'resume';
+          window.LumiDigitalTicketPurchaseResumeOrder = pendingOrder;
+        }
+
+        openApp('digitalTicketPurchase');
+        return;
+      }
+
       /* 1. 앱 아이콘 (그리드 + 최근앱) */
       var appBtn = e.target.closest("[data-app-id]");
-      if (appBtn) { openApp(appBtn.getAttribute("data-app-id")); return; }
+      if (appBtn) {
+        var appId = appBtn.getAttribute("data-app-id");
+        if (appId === 'digitalTicketPurchase') {
+          window.LumiDigitalTicketPurchaseOpenMode = 'new';
+          window.LumiDigitalTicketPurchaseResumeOrder = null;
+        }
+        openApp(appId);
+        return;
+      }
 
       /* 2. 특전권 상세 */
       var detailBtn = e.target.closest("[data-digital-ticket-detail]");
@@ -1854,8 +2000,10 @@ window.LumiPhone = (function () {
       setTimeout(function () {
         var after = _getDigitalTicketState();
         var tickets = after && Array.isArray(after.tickets) ? after.tickets : [];
+        var orders = after && Array.isArray(after.orders) ? after.orders : [];
         if (typeof done === 'function') done({
           tickets: tickets,
+          orders: orders,
           hasTickets: tickets.length > 0,
           changed: tickets.length !== beforeCount
         });

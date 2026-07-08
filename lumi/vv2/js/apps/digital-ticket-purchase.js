@@ -4,6 +4,7 @@
   var BANK_NAME = '우리은행';
   var BANK_NUMBER = '1002-466-445046';
   var BANK_HOLDER = 'ㅇㅅㅇ';
+  var DIGITAL_API_URL = 'https://script.google.com/macros/s/AKfycbzP-LK_SDX-aRkWPPLoVF05Qz-61ubqkP7DC8LqdBNH7QP3cjhPqlse-UiHMduK02bd/exec';
   var STAFF_URL = 'https://lumibellelove.com/staff/index.html';
 
   var ITEMS = [
@@ -26,7 +27,8 @@
         acc[item.id] = 0;
         return acc;
       }, {}),
-      pendingOrder: null
+      pendingOrder: null,
+      message: ''
     };
   }
 
@@ -51,6 +53,159 @@
       acc.selectionCount += qty;
       return acc;
     }, { amount: 0, ticketUnits: 0, selectionCount: 0 });
+  }
+
+  function getSelectedItems() {
+    return ITEMS.map(function (item) {
+      var qty = Number(purchaseState.quantities[item.id] || 0);
+      if (qty <= 0) return null;
+      return {
+        id: item.id,
+        name: item.name,
+        qty: qty,
+        price: item.price,
+        ticketUnits: item.ticketUnits * qty
+      };
+    }).filter(Boolean);
+  }
+
+  function getOrderItemsText() {
+    var selected = getSelectedItems();
+    return selected.map(function (item) {
+      return item.name + ' ' + item.qty + '개';
+    }).join(' / ');
+  }
+
+  function getLoginUser() {
+    if (window.LumiDigitalTicketUser && typeof window.LumiDigitalTicketUser === 'object') {
+      var liveNickname = String(window.LumiDigitalTicketUser.nickname || '').trim();
+      var livePhoneLast4 = String(window.LumiDigitalTicketUser.phoneLast4 || '').replace(/\D/g, '').slice(-4);
+      if (liveNickname && /^\d{4}$/.test(livePhoneLast4)) {
+        return { nickname: liveNickname, phoneLast4: livePhoneLast4 };
+      }
+    }
+
+    try {
+      if (!window.localStorage) return null;
+      var raw = window.localStorage.getItem('lumiphone-digital-ticket-user');
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      var nickname = String(parsed && parsed.nickname || '').trim();
+      var phoneLast4 = String(parsed && parsed.phoneLast4 || '').replace(/\D/g, '').slice(-4);
+      if (!nickname || !/^\d{4}$/.test(phoneLast4)) return null;
+      return { nickname: nickname, phoneLast4: phoneLast4 };
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function apiRequest(action, params, onDone) {
+    var finished = false;
+    var callbackName = '__lumiPurchaseApiCallback_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+    var script = document.createElement('script');
+    var query = new URLSearchParams();
+    var timer = null;
+
+    params = params || {};
+    query.set('action', action);
+    query.set('callback', callbackName);
+    query.set('_', String(Date.now()));
+
+    Object.keys(params).forEach(function (key) {
+      if (params[key] != null) query.set(key, params[key]);
+    });
+
+    function cleanup() {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+      if (script.parentNode) script.parentNode.removeChild(script);
+      try { delete window[callbackName]; } catch (error) { window[callbackName] = undefined; }
+    }
+
+    function finish(response) {
+      if (finished) return;
+      finished = true;
+      cleanup();
+      if (typeof onDone === 'function') onDone(response || { ok: false, message: '응답이 비어 있어요.' });
+    }
+
+    window[callbackName] = function (response) {
+      finish(response);
+    };
+
+    script.onerror = function () {
+      finish({
+        ok: false,
+        message: '구매 신청 저장에 실패했어요. 스탭에게 화면을 보여주세요.'
+      });
+    };
+
+    timer = setTimeout(function () {
+      finish({
+        ok: false,
+        message: '구매 신청 저장이 지연되고 있어요. 스탭에게 화면을 보여주세요.'
+      });
+    }, 18000);
+
+    script.src = DIGITAL_API_URL + '?' + query.toString();
+    document.head.appendChild(script);
+  }
+
+  function mapApiOrderToPendingOrder(order) {
+    order = order || {};
+    var orderToken = String(order.order_token || order.orderToken || '').trim();
+    var orderNumber = String(order.order_id || order.orderNumber || '').trim();
+
+    return {
+      orderNumber: orderNumber,
+      orderToken: orderToken,
+      orderQrValue: orderToken ? STAFF_URL + '?order_token=' + encodeURIComponent(orderToken) : '',
+      depositorName: String(order.depositor_name || order.depositorName || '-').trim(),
+      amount: Number(order.total_amount || order.totalAmount || 0),
+      ticketUnits: Number(order.paid_ticket_count || order.ticketUnits || 0),
+      boothPoint: Number(order.booth_point || order.boothPoint || 0),
+      orderItems: String(order.order_items || order.orderItems || '현장 특전권 신청').trim(),
+      bankName: BANK_NAME,
+      accountNumber: BANK_NUMBER,
+      bankHolder: BANK_HOLDER
+    };
+  }
+
+  function resetPurchaseForm() {
+    stopPendingPoll();
+    purchaseState.view = 'form';
+    purchaseState.pendingOrder = null;
+    purchaseState.message = '';
+    window.LumiDigitalTicketPurchasePendingActive = false;
+  }
+
+  function applyResumePendingOrder() {
+    var openMode = window.LumiDigitalTicketPurchaseOpenMode || '';
+
+    if (openMode === 'new') {
+      resetPurchaseForm();
+      try { delete window.LumiDigitalTicketPurchaseOpenMode; } catch (error) {
+        window.LumiDigitalTicketPurchaseOpenMode = '';
+      }
+      return;
+    }
+
+    if (!window.LumiDigitalTicketPurchaseResumeOrder) return;
+
+    stopPendingPoll();
+    purchaseState.pendingOrder = mapApiOrderToPendingOrder(window.LumiDigitalTicketPurchaseResumeOrder);
+    purchaseState.view = 'pending';
+    purchaseState.message = '입금 확인 상태를 자동으로 확인 중이에요.';
+    window.LumiDigitalTicketPurchasePendingActive = true;
+
+    try { delete window.LumiDigitalTicketPurchaseResumeOrder; } catch (error) {
+      window.LumiDigitalTicketPurchaseResumeOrder = null;
+    }
+    try { delete window.LumiDigitalTicketPurchaseOpenMode; } catch (error) {
+      window.LumiDigitalTicketPurchaseOpenMode = '';
+    }
   }
 
   function getPointValue() {
@@ -80,17 +235,17 @@
 
   function renderOrderQr(order) {
     var token = String(order && order.orderToken || '').trim();
-    var knownQrMap = window.LumiDigitalOrderQrMap || {};
-    var mappedImage = knownQrMap[token] || order.qrDataUrl || order.qrImage || '';
+    var qrValue = String(order && order.orderQrValue || (token ? STAFF_URL + '?order_token=' + encodeURIComponent(token) : '')).trim();
 
-    if (mappedImage) {
-      return '<img class="ticket-pending-qr__image" src="' + escHtml(mappedImage) + '" alt="입금 확인용 주문 QR" data-order-qr-value="' + escHtml(getOrderQrValue(order)) + '" />';
+    if (qrValue) {
+      var qrImageUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=14&data=' + encodeURIComponent(qrValue);
+      return '<img class="ticket-pending-qr__image" src="' + escHtml(qrImageUrl) + '" alt="입금 확인용 주문 QR" data-order-qr-value="' + escHtml(qrValue) + '" />';
     }
 
     return '' +
-      '<div class="ticket-pending-qr__fallback" data-order-qr-value="' + escHtml(getOrderQrValue(order)) + '">' +
-        '<strong>주문 QR 발급 대기</strong>' +
-        '<span>' + escHtml(token) + '</span>' +
+      '<div class="ticket-pending-qr__fallback">' +
+        '<strong>주문 QR 준비 중</strong>' +
+        '<span>신청 정보를 저장하고 있어요.</span>' +
       '</div>';
   }
 
@@ -105,6 +260,8 @@
       depositorName: String(purchaseState.depositorName || '').trim() || '미입력',
       amount: totals.amount,
       ticketUnits: totals.ticketUnits,
+      boothPoint: getPointValue(),
+      orderItems: getOrderItemsText(),
       bankName: BANK_NAME,
       accountNumber: BANK_NUMBER,
       bankHolder: BANK_HOLDER
@@ -184,7 +341,8 @@
           '<h2>입금 확인 대기</h2>' +
           '<p>신청 후 입금이 완료되면 운영 확인 후 특전권이 발급돼요.</p>' +
         '</section>' +
-        '<section class="ticket-purchase-card ticket-pending-status">' +
+        (purchaseState.message ? '<p class="ticket-purchase-api-message">' + escHtml(purchaseState.message) + '</p>' : '') +
+        '<section class="ticket-purchase-card ticket-pending-status" data-ticket-purchase-pending="true">' +
           '<div class="ticket-pending-status__art" aria-hidden="true"></div>' +
           '<div class="ticket-pending-status__body">' +
             '<div class="ticket-purchase-card__label ticket-purchase-card__label--status">입금 확인 대기</div>' +
@@ -204,6 +362,7 @@
           '<div class="ticket-pending-info">' +
             '<div class="ticket-pending-info__row"><span>주문번호</span><strong>' + escHtml(order.orderNumber) + '</strong></div>' +
             '<div class="ticket-pending-info__row"><span>주문토큰</span><strong>' + escHtml(order.orderToken) + '</strong></div>' +
+            '<div class="ticket-pending-info__row"><span>주문내용</span><strong>' + escHtml(order.orderItems || '-') + '</strong></div>' +
             '<div class="ticket-pending-info__row"><span>입금자명</span><strong>' + escHtml(order.depositorName) + '</strong></div>' +
             '<div class="ticket-pending-info__row"><span>결제 금액</span><strong class="ticket-pending-info__price">' + formatNumber(order.amount) + '원</strong></div>' +
             '<div class="ticket-pending-info__row"><span>은행명</span><strong>' + escHtml(order.bankName) + '</strong></div>' +
@@ -235,11 +394,43 @@
   function checkIssuedTickets(root, silent) {
     if (!window.LumiPhone || typeof window.LumiPhone.refreshDigitalTickets !== 'function') return;
 
+    var targetOrder = purchaseState.pendingOrder || {};
+    var targetToken = String(targetOrder.orderToken || '').trim();
+    var targetOrderNumber = String(targetOrder.orderNumber || '').trim();
+
+    if (!targetToken && !targetOrderNumber) {
+      if (!silent && root) {
+        var missingEl = root.querySelector('[data-ticket-pending-live-status]');
+        if (missingEl) missingEl.textContent = '입금 확인용 주문 정보를 다시 불러오는 중이에요.';
+      }
+      return;
+    }
+
+    window.LumiDigitalTicketAllowPendingRefresh = true;
+
     window.LumiPhone.refreshDigitalTickets(true, function (result) {
+      window.LumiDigitalTicketAllowPendingRefresh = false;
+
       if (!purchaseState || purchaseState.view !== 'pending') return;
 
-      if (result && result.hasTickets) {
+      var orders = result && Array.isArray(result.orders) ? result.orders : [];
+      var approved = false;
+      var foundTargetOrder = false;
+
+      orders.forEach(function (order) {
+        var orderToken = String(order.order_token || order.orderToken || '').trim();
+        var orderId = String(order.order_id || order.orderNumber || '').trim();
+        var status = String(order.status || order.order_status || '').trim();
+
+        if ((targetToken && orderToken === targetToken) || (targetOrderNumber && orderId === targetOrderNumber)) {
+          foundTargetOrder = true;
+          if (status === '승인 완료') approved = true;
+        }
+      });
+
+      if (approved) {
         stopPendingPoll();
+        window.LumiDigitalTicketPurchasePendingActive = false;
         if (window.LumiPhone && typeof window.LumiPhone.goHome === 'function') {
           window.LumiPhone.goHome();
         }
@@ -248,10 +439,19 @@
 
       if (!silent && root) {
         var statusEl = root.querySelector('[data-ticket-pending-live-status]');
-        if (statusEl) statusEl.textContent = '아직 확인 중이에요. 입금 확인 후 자동으로 특전권함에 표시돼요.';
+        if (statusEl) {
+          statusEl.textContent = foundTargetOrder
+            ? '아직 확인 중이에요. 입금 확인 후 자동으로 특전권함에 표시돼요.'
+            : '주문 정보를 다시 확인 중이에요. QR 화면은 유지돼요.';
+        }
       }
     });
+
+    setTimeout(function () {
+      window.LumiDigitalTicketAllowPendingRefresh = false;
+    }, 3000);
   }
+
 
   function startPendingPoll(root) {
     if (purchaseState.view !== 'pending') {
@@ -275,6 +475,53 @@
     }, 5000);
   }
 
+  function submitPendingOrderToApi(root) {
+    var order = purchaseState.pendingOrder;
+    var user = getLoginUser();
+
+    if (!order) return;
+
+    if (!user) {
+      purchaseState.message = '로그인 정보 확인이 필요해요. 닉네임과 전화번호 뒤 4자리로 다시 들어와 주세요.';
+      rerender(root);
+      return;
+    }
+
+    purchaseState.message = '구매 신청 정보를 저장 중이에요.';
+
+    apiRequest('createOrder', {
+      nickname: user.nickname,
+      phone_last4: user.phoneLast4,
+      depositor_name: order.depositorName,
+      total_amount: order.amount,
+      paid_ticket_count: order.ticketUnits,
+      booth_point: order.boothPoint,
+      order_items: order.orderItems
+    }, function (response) {
+      if (!purchaseState.pendingOrder) return;
+
+      if (!response || !response.ok) {
+        purchaseState.message = (response && response.message) || '구매 신청 저장에 실패했어요. 스탭에게 화면을 보여주세요.';
+        rerender(root);
+        return;
+      }
+
+      if (response.order) {
+        purchaseState.pendingOrder.orderNumber = response.order.order_id || purchaseState.pendingOrder.orderNumber;
+        purchaseState.pendingOrder.orderToken = response.order.order_token || purchaseState.pendingOrder.orderToken;
+        purchaseState.pendingOrder.orderQrValue = STAFF_URL + '?order_token=' + encodeURIComponent(purchaseState.pendingOrder.orderToken);
+        purchaseState.pendingOrder.depositorName = response.order.depositor_name || purchaseState.pendingOrder.depositorName;
+        purchaseState.pendingOrder.amount = Number(response.order.total_amount || purchaseState.pendingOrder.amount || 0);
+        purchaseState.pendingOrder.ticketUnits = Number(response.order.paid_ticket_count || purchaseState.pendingOrder.ticketUnits || 0);
+        purchaseState.pendingOrder.boothPoint = Number(response.order.booth_point || purchaseState.pendingOrder.boothPoint || 0);
+        purchaseState.pendingOrder.orderItems = response.order.order_items || purchaseState.pendingOrder.orderItems;
+      }
+
+      purchaseState.message = '구매 신청이 저장됐어요. 입금 후 스탭에게 QR을 보여주세요.';
+      rerender(root);
+    });
+  }
+
   function renderRoot() {
     return purchaseState.view === 'pending' ? renderPendingView() : renderFormView();
   }
@@ -289,6 +536,7 @@
 
   function rerender(root) {
     if (!root) return;
+    window.LumiDigitalTicketPurchasePendingActive = purchaseState.view === 'pending';
     root.innerHTML = renderRoot();
     bind(root);
   }
@@ -332,17 +580,23 @@
       }
 
       if (event.target.closest('[data-ticket-purchase-submit]')) {
+        var totals = getTotals();
+        if (totals.selectionCount <= 0) {
+          purchaseState.message = '특전권을 1개 이상 선택해주세요.';
+          rerender(root);
+          return;
+        }
         purchaseState.pendingOrder = createPendingOrder();
         purchaseState.view = 'pending';
+        purchaseState.message = '구매 신청 정보를 저장 중이에요.';
         rerender(root);
+        submitPendingOrderToApi(root);
         return;
       }
 
       if (event.target.closest('[data-ticket-go-home]')) {
         if (window.LumiPhone && typeof window.LumiPhone.goHome === 'function') {
-          stopPendingPoll();
-          purchaseState.view = 'form';
-          purchaseState.pendingOrder = null;
+          resetPurchaseForm();
           window.LumiPhone.goHome();
         }
       }
@@ -357,10 +611,16 @@
   }
 
   window.LumiApps.digitalTicketPurchase = function () {
+    applyResumePendingOrder();
     return renderRoot();
   };
 
   window.LumiApps.bindDigitalTicketPurchase = function (root) {
+    applyResumePendingOrder();
+    if (purchaseState.view === 'pending' && root && !root.querySelector('[data-ticket-purchase-pending="true"]')) {
+      window.LumiDigitalTicketPurchasePendingActive = true;
+      root.innerHTML = renderRoot();
+    }
     bind(root);
   };
 }());
