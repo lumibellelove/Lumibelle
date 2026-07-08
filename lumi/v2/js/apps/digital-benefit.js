@@ -21,6 +21,7 @@
 
   var scanStream = null;
   var scanTimer = null;
+  var html5QrScanner = null;
 
   function esc(value) {
     return String(value == null ? '' : value).replace(/[&<>"]/g, function (c) {
@@ -192,6 +193,17 @@
       clearTimeout(scanTimer);
       scanTimer = null;
     }
+
+    if (html5QrScanner) {
+      try {
+        html5QrScanner.stop().catch(function () {});
+      } catch (error) {}
+      try {
+        html5QrScanner.clear();
+      } catch (error) {}
+      html5QrScanner = null;
+    }
+
     if (scanStream) {
       scanStream.getTracks().forEach(function (track) { track.stop(); });
       scanStream = null;
@@ -204,57 +216,46 @@
   }
 
   function startQrScanner() {
-    var video = document.querySelector('[data-digital-staff-scan-video]');
-    if (!video || !state.scannerOpen) return;
+    var readerId = 'digital-staff-html5-reader';
+    var reader = document.getElementById(readerId);
 
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      state.message = '이 브라우저에서는 카메라 스캔을 사용할 수 없어요. 티켓번호를 직접 입력해주세요.';
-      state.scannerOpen = false;
-      rerender();
-      return;
-    }
+    if (!reader || !state.scannerOpen) return;
 
-    if (!window.BarcodeDetector) {
-      state.message = '이 브라우저에서는 QR 자동 인식이 지원되지 않아요. 스탭폰 기본 카메라로 QR을 찍거나 티켓번호를 직접 입력해주세요.';
-      state.scannerOpen = false;
-      rerender();
-      return;
-    }
-
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }).then(function (stream) {
-      scanStream = stream;
-      video.srcObject = stream;
-      video.setAttribute('playsinline', 'playsinline');
-      return video.play();
-    }).then(function () {
-      var detector = new BarcodeDetector({ formats: ['qr_code'] });
-
-      function detectLoop() {
-        if (!state.scannerOpen || !video || video.readyState < 2) {
-          scanTimer = setTimeout(detectLoop, 300);
-          return;
-        }
-
-        detector.detect(video).then(function (codes) {
-          if (codes && codes.length) {
-            var value = codes[0].rawValue || '';
+    if (window.Html5Qrcode) {
+      try {
+        html5QrScanner = new Html5Qrcode(readerId);
+        html5QrScanner.start(
+          { facingMode: 'environment' },
+          { fps: 10, qrbox: function (viewfinderWidth, viewfinderHeight) {
+              var minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+              var boxSize = Math.max(180, Math.floor(minEdge * 0.72));
+              return { width: boxSize, height: boxSize };
+            }
+          },
+          function (decodedText) {
             stopQrScanner();
-            lookupTicket(value);
-            return;
-          }
-          scanTimer = setTimeout(detectLoop, 350);
-        }).catch(function () {
-          scanTimer = setTimeout(detectLoop, 500);
+            lookupTicket(decodedText);
+          },
+          function () {}
+        ).catch(function () {
+          state.message = '카메라 스캔을 시작하지 못했어요. 네이버 브라우저 또는 기본 카메라 링크 진입을 사용해주세요.';
+          state.scannerOpen = false;
+          rerender();
         });
+        return;
+      } catch (error) {
+        state.message = 'QR 스캔 라이브러리를 시작하지 못했어요. 티켓번호 직접 입력을 사용해주세요.';
+        state.scannerOpen = false;
+        rerender();
+        return;
       }
+    }
 
-      detectLoop();
-    }).catch(function () {
-      state.message = '카메라 권한이 막혔어요. 권한 허용 후 다시 누르거나 티켓번호를 직접 입력해주세요.';
-      state.scannerOpen = false;
-      rerender();
-    });
+    state.message = 'QR 스캔 라이브러리를 불러오지 못했어요. 인터넷 연결을 확인하거나 티켓번호를 직접 입력해주세요.';
+    state.scannerOpen = false;
+    rerender();
   }
+
 
   function memberButton(name) {
     var selected = state.finalMember === name ? ' is-selected' : '';
@@ -280,8 +281,8 @@
           '<strong>QR 스캔</strong>' +
           '<button type="button" data-digital-staff-action="scan-close">닫기</button>' +
         '</div>' +
-        '<video data-digital-staff-scan-video muted playsinline></video>' +
-        '<p>팬 화면의 특전권 QR을 카메라 안에 맞춰주세요.</p>' +
+        '<div id="digital-staff-html5-reader" class="digital-staff-html5-reader"></div>' +
+        '<p>팬 화면의 특전권 QR을 카메라 안에 맞춰주세요. 아이폰은 권한 허용 후 화면이 뜨기까지 시간이 걸릴 수 있어요.</p>' +
       '</section>';
   }
 
@@ -443,6 +444,7 @@
       }
 
       if (action === 'scan') {
+        stopQrScanner();
         state.scannerOpen = true;
         state.message = '';
       }
