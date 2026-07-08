@@ -13,10 +13,12 @@
     issued: false,
     message: '',
     lookupValue: '',
+    orderLookupValue: '',
     scannerOpen: false,
     urlTokenApplied: false,
     loading: false,
-    ticket: null
+    ticket: null,
+    order: null
   };
 
   var scanStream = null;
@@ -29,23 +31,33 @@
     });
   }
 
-  function getQrTokenFromUrl() {
+  function getUrlTokens() {
     try {
       var params = new URLSearchParams(window.location.search || '');
-      return params.get('ticket_token') || params.get('ticket') || params.get('token') || '';
+      return {
+        ticket: params.get('ticket_token') || params.get('ticket') || params.get('token') || '',
+        order: params.get('order_token') || params.get('order') || ''
+      };
     } catch (error) {
-      return '';
+      return { ticket: '', order: '' };
     }
   }
 
-  function extractToken(raw) {
+  function extractQrPayload(raw) {
     var value = String(raw || '').trim();
-    if (!value) return '';
+    if (!value) return { type: 'empty', value: '' };
+
     try {
       var url = new URL(value, window.location.href);
-      return url.searchParams.get('ticket_token') || url.searchParams.get('ticket') || url.searchParams.get('token') || value;
+      var orderToken = url.searchParams.get('order_token') || url.searchParams.get('order') || '';
+      var ticketToken = url.searchParams.get('ticket_token') || url.searchParams.get('ticket') || url.searchParams.get('token') || '';
+
+      if (orderToken) return { type: 'order', value: orderToken };
+      if (ticketToken) return { type: 'ticket', value: ticketToken };
+      return { type: 'ticket', value: value };
     } catch (error) {
-      return value;
+      if (/^ORD[-_]/i.test(value)) return { type: 'order', value: value };
+      return { type: 'ticket', value: value };
     }
   }
 
@@ -59,6 +71,32 @@
     state.status = ticket.status || '사용 가능';
     state.memberEditOpen = false;
     state.scannerOpen = false;
+  }
+
+  function syncOrderToState(order) {
+    if (!order) return;
+    state.order = order;
+    state.orderLookupValue = order.order_token || order.order_id || state.orderLookupValue;
+    state.orderStatus = order.status || order.order_status || '입금 확인 대기';
+    state.issued = state.orderStatus === '승인 완료';
+    state.scannerOpen = false;
+  }
+
+  function lookupQr(raw) {
+    var payload = extractQrPayload(raw);
+
+    if (!payload.value) {
+      state.message = '조회할 QR 토큰이 없어요.';
+      rerender();
+      return;
+    }
+
+    if (payload.type === 'order') {
+      lookupOrder(payload.value);
+      return;
+    }
+
+    lookupTicket(payload.value);
   }
 
   function apiRequest(action, params, onDone) {
@@ -150,7 +188,7 @@
 
 
   function lookupTicket(token) {
-    var found = extractToken(token);
+    var found = extractQrPayload(token).value;
     if (!found) {
       state.message = '조회할 티켓번호나 QR 토큰이 없어요.';
       rerender();
@@ -173,6 +211,34 @@
 
       syncTicketToState(response.ticket);
       state.message = '특전권 조회 완료. 팬 선택 멤버가 사용 멤버로 자동 적용됐어요.';
+      rerender();
+    });
+  }
+
+  function lookupOrder(token) {
+    var found = extractQrPayload(token).value;
+    if (!found) {
+      state.message = '조회할 주문 QR 토큰이 없어요.';
+      rerender();
+      return;
+    }
+
+    stopQrScanner();
+    state.loading = true;
+    state.message = '입금 확인 대기 주문을 조회 중이에요.';
+    state.orderLookupValue = found;
+    rerender();
+
+    apiRequest('lookupOrder', { order_token: found }, function (response) {
+      state.loading = false;
+      if (!response || !response.ok) {
+        state.message = (response && response.message) || '주문 조회에 실패했어요.';
+        rerender();
+        return;
+      }
+
+      syncOrderToState(response.order);
+      state.message = '주문 조회 완료. 입금 확인 후 발급할 수 있어요.';
       rerender();
     });
   }
@@ -211,27 +277,38 @@
   }
 
   function approveOrder() {
+    var orderToken = state.orderLookupValue || (state.order && (state.order.order_token || state.order.order_id)) || '';
+
+    if (!orderToken) {
+      state.message = '먼저 입금 확인용 주문 QR을 조회해주세요.';
+      rerender();
+      return;
+    }
+
     state.loading = true;
     state.message = '입금 확인 후 발급 처리 중이에요.';
     rerender();
 
     apiRequest('approveOrder', {
-      order_id: 'ORDER-0001',
+      order_token: orderToken,
       staff_name: '스탭'
     }, function (response) {
       state.loading = false;
       if (!response || !response.ok) {
         state.message = (response && response.message) || '주문 승인에 실패했어요.';
+        if (response && response.order) syncOrderToState(response.order);
         rerender();
         return;
       }
 
+      if (response.order) syncOrderToState(response.order);
       state.orderStatus = '승인 완료';
       state.issued = true;
-      state.message = response.message || '입금 확인 완료. 특전권 발급 상태로 변경했어요.';
+      state.message = response.message || '입금 확인 완료. 특전권을 발급했어요.';
       rerender();
     });
   }
+
 
   function stopQrScanner() {
     if (scanTimer) {
@@ -279,7 +356,7 @@
           },
           function (decodedText) {
             stopQrScanner();
-            lookupTicket(decodedText);
+            lookupQr(decodedText);
           },
           function () {}
         ).catch(function () {
@@ -327,7 +404,7 @@
           '<button type="button" data-digital-staff-action="scan-close">닫기</button>' +
         '</div>' +
         '<div id="digital-staff-html5-reader" class="digital-staff-html5-reader"></div>' +
-        '<p>팬 화면의 특전권 QR을 카메라 안에 맞춰주세요. 아이폰은 권한 허용 후 화면이 뜨기까지 시간이 걸릴 수 있어요.</p>' +
+        '<p>팬 화면의 입금확인 QR 또는 특전권 QR을 카메라 안에 맞춰주세요. 아이폰은 권한 허용 후 화면이 뜨기까지 시간이 걸릴 수 있어요.</p>' +
       '</section>';
   }
 
@@ -383,20 +460,22 @@
   }
 
   function renderUsePanel() {
-    var urlToken = getQrTokenFromUrl();
-    var inputValue = state.lookupValue || urlToken || '';
+    var urlTokens = getUrlTokens();
+    var inputValue = state.lookupValue || urlTokens.ticket || '';
     var disabled = state.loading ? ' disabled' : '';
     var useDisabled = state.loading || !state.ticket ? ' disabled' : '';
 
     return '' +
       '<section class="digital-staff-panel digital-staff-use-panel">' +
         '<div class="digital-staff-panel-head">' +
-          '<span>특전권 조회 / 사용 처리</span>' +
-          '<strong>특전권 QR 스캔</strong>' +
+          '<span>QR 스캔 / 조회 처리</span>' +
+          '<strong>입금확인 QR · 특전권 QR</strong>' +
         '</div>' +
         '<article class="digital-staff-scan-guide">' +
           '<strong>스캔 방식</strong>' +
-          '<p>권장: 아이폰 Safari/Chrome, 안드 삼성 브라우저. 네이버/안드 Chrome은 API 응답이 느리거나 막힐 수 있어요.</p>' +
+          '<p>아이폰 : 네이버 · 사파리 · 크롬 가능</p>' +
+          '<p>안드로이드 : 삼성 · 네이버 가능</p>' +
+          '<p>크롬 인식 불가</p>' +
         '</article>' +
         '<label class="digital-staff-search">' +
           '<span>QR이 안 찍히면 티켓번호나 토큰을 직접 입력해주세요</span>' +
@@ -411,11 +490,34 @@
       '</section>';
   }
 
+  function formatMoney(value) {
+    var number = Number(value || 0);
+    return number.toLocaleString('ko-KR') + '원';
+  }
+
   function renderOrderPanel() {
+    var order = state.order;
     var approved = state.orderStatus === '승인 완료';
     var buttonLabel = state.loading ? '처리 중' : (approved ? '발급 완료' : '입금 확인 후 발급');
     var buttonClass = approved ? ' is-complete' : '';
-    var disabled = state.loading ? ' disabled' : '';
+    var disabled = state.loading || !order || approved ? ' disabled' : '';
+
+    if (!order) {
+      return '' +
+        '<section class="digital-staff-panel">' +
+          '<div class="digital-staff-panel-head">' +
+            '<span>입금 확인 대기</span>' +
+            '<strong>입금확인 QR 조회</strong>' +
+          '</div>' +
+          '<article class="digital-staff-order-card digital-staff-order-card--empty">' +
+            '<div class="digital-staff-empty-result">' +
+              '<strong>아직 조회된 주문이 없어요.</strong>' +
+              '<p>팬의 입금 확인용 QR을 스캔하면 주문 정보가 표시돼요.</p>' +
+            '</div>' +
+          '</article>' +
+        '</section>';
+    }
+
     return '' +
       '<section class="digital-staff-panel">' +
         '<div class="digital-staff-panel-head">' +
@@ -423,16 +525,19 @@
           '<strong>주문 승인</strong>' +
         '</div>' +
         '<article class="digital-staff-order-card">' +
-          '<div class="digital-staff-order-row"><span>주문자</span><strong>리리 / 4040</strong></div>' +
-          '<div class="digital-staff-order-row"><span>입금자명</span><strong>리리</strong></div>' +
-          '<div class="digital-staff-order-row"><span>주문내용</span><strong>투샷체키 1개</strong></div>' +
-          '<div class="digital-staff-order-row"><span>총금액</span><strong>10,000원</strong></div>' +
-          '<div class="digital-staff-order-row"><span>적립 포인트</span><strong>0P</strong></div>' +
+          '<div class="digital-staff-order-row"><span>주문번호</span><strong>' + esc(order.order_id || '-') + '</strong></div>' +
+          '<div class="digital-staff-order-row"><span>주문토큰</span><strong>' + esc(order.order_token || '-') + '</strong></div>' +
+          '<div class="digital-staff-order-row"><span>주문자</span><strong>' + esc(order.nickname || '-') + ' / ' + esc(order.phone_last4 || '-') + '</strong></div>' +
+          '<div class="digital-staff-order-row"><span>입금자명</span><strong>' + esc(order.depositor_name || '-') + '</strong></div>' +
+          '<div class="digital-staff-order-row"><span>주문내용</span><strong>' + esc(order.order_items || '-') + '</strong></div>' +
+          '<div class="digital-staff-order-row"><span>총금액</span><strong>' + esc(formatMoney(order.total_amount)) + '</strong></div>' +
+          '<div class="digital-staff-order-row"><span>적립 포인트</span><strong>' + esc(order.booth_point || 0) + 'P</strong></div>' +
           '<div class="digital-staff-order-row"><span>주문상태</span><strong data-digital-staff-order-status>' + esc(state.orderStatus) + '</strong></div>' +
           '<button type="button" class="' + buttonClass + '" data-digital-staff-action="approve"' + disabled + '>' + buttonLabel + '</button>' +
         '</article>' +
       '</section>';
   }
+
 
   function renderGuidePanel() {
     return '' +
@@ -447,17 +552,20 @@
   }
 
   window.LumiApps.digitalBenefit = function () {
-    var urlToken = getQrTokenFromUrl();
-    if (urlToken && !state.urlTokenApplied) {
+    var urlTokens = getUrlTokens();
+    if (!state.urlTokenApplied && (urlTokens.ticket || urlTokens.order)) {
       state.urlTokenApplied = true;
-      setTimeout(function () { lookupTicket(urlToken); }, 80);
+      setTimeout(function () {
+        if (urlTokens.order) lookupOrder(urlTokens.order);
+        else lookupTicket(urlTokens.ticket);
+      }, 80);
     }
     return '' +
       '<section class="digital-staff-app" data-digital-staff-app>' +
         '<header class="digital-staff-hero">' +
           '<span>DIGITAL BENEFIT</span>' +
-          '<h2>디지털 특전 관리</h2>' +
-          '<p>입금 승인, QR 조회, 사용 처리를 확인해요.</p>' +
+          '<h2>QR 스캔 관리</h2>' +
+          '<p>입금 확인용 QR과 특전권 사용 QR을 스캔해 처리해요.</p>' +
         '</header>' +
         renderOrderPanel() +
         renderUsePanel() +
@@ -484,7 +592,7 @@
 
       if (action === 'lookup') {
         var tokenInput = document.querySelector('[data-digital-staff-token-input]');
-        lookupTicket(tokenInput ? tokenInput.value : '');
+        lookupQr(tokenInput ? tokenInput.value : '');
         return;
       }
 
