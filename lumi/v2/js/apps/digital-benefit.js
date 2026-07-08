@@ -16,19 +16,7 @@
     scannerOpen: false,
     urlTokenApplied: false,
     loading: false,
-    ticket: {
-      ticket_id: 'TKT-0621-00023',
-      ticket_token: 'TKT-0621-00023',
-      nickname: '리리',
-      phone_last4: '4040',
-      ticket_type: '투샷체키',
-      display_name: '투샷체키',
-      count: 2,
-      remaining: 2,
-      status: '사용 가능',
-      preferred_member: '마리링',
-      used_member: ''
-    }
+    ticket: null
   };
 
   var scanStream = null;
@@ -274,6 +262,7 @@
   }
 
   function renderStatusText() {
+    if (!state.ticket) return '조회 전';
     if (state.remaining <= 0) return '사용 완료';
     return state.status;
   }
@@ -313,14 +302,45 @@
       '</section>';
   }
 
+  function renderTicketResult() {
+    if (!state.ticket) {
+      return '' +
+        '<article class="digital-staff-ticket-card digital-staff-ticket-card--empty">' +
+          '<div class="digital-staff-empty-result">' +
+            '<strong>아직 조회된 특전권이 없어요.</strong>' +
+            '<p>QR 스캔 또는 티켓 조회 후 팬 정보와 잔여 횟수가 표시돼요.</p>' +
+          '</div>' +
+        '</article>';
+    }
+
+    var ticket = state.ticket || {};
+    var nickname = ticket.nickname || '';
+    var phone = ticket.phone_last4 || '';
+    var ticketName = ticket.display_name || ticket.ticket_type || '';
+
+    return '' +
+      '<article class="digital-staff-ticket-card">' +
+        '<div class="digital-staff-ticket-top">' +
+          '<div>' +
+            '<span>팬</span>' +
+            '<strong>' + esc(nickname) + ' / ' + esc(phone) + '</strong>' +
+          '</div>' +
+          '<b>' + esc(renderStatusText()) + '</b>' +
+        '</div>' +
+        '<div class="digital-staff-ticket-grid">' +
+          '<p><span>특전권</span><strong>' + esc(ticketName) + '</strong></p>' +
+          '<p><span>잔여</span><strong data-digital-staff-remaining>' + esc(state.remaining) + '회</strong></p>' +
+          '<p><span>팬 선택 멤버</span><strong>' + esc(state.preferredMember || '미선택') + '</strong></p>' +
+          '<p><span>사용 멤버</span><strong data-digital-staff-final-member>' + esc(state.finalMember || state.preferredMember || '미선택') + '</strong></p>' +
+        '</div>' +
+      '</article>';
+  }
+
   function renderUsePanel() {
     var urlToken = getQrTokenFromUrl();
-    var inputValue = state.lookupValue || urlToken || 'TKT-0621-00023';
-    var ticket = state.ticket || {};
-    var nickname = ticket.nickname || '리리';
-    var phone = ticket.phone_last4 || '4040';
-    var ticketName = ticket.display_name || ticket.ticket_type || '투샷체키';
+    var inputValue = state.lookupValue || urlToken || '';
     var disabled = state.loading ? ' disabled' : '';
+    var useDisabled = state.loading || !state.ticket ? ' disabled' : '';
 
     return '' +
       '<section class="digital-staff-panel digital-staff-use-panel">' +
@@ -334,28 +354,14 @@
         '</article>' +
         '<label class="digital-staff-search">' +
           '<span>QR이 안 찍히면 티켓번호나 토큰을 직접 입력해주세요</span>' +
-          '<input type="text" value="' + esc(inputValue) + '" aria-label="티켓번호 또는 QR 토큰" data-digital-staff-token-input />' +
+          '<input type="text" value="' + esc(inputValue) + '" placeholder="스캔 전에는 비워둬요" aria-label="티켓번호 또는 QR 토큰" data-digital-staff-token-input />' +
           '<button type="button" data-digital-staff-action="scan"' + disabled + '>QR 스캔</button>' +
           '<button type="button" data-digital-staff-action="lookup"' + disabled + '>티켓 조회</button>' +
         '</label>' +
         renderScannerPanel() +
-        '<article class="digital-staff-ticket-card">' +
-          '<div class="digital-staff-ticket-top">' +
-            '<div>' +
-              '<span>팬</span>' +
-              '<strong>' + esc(nickname) + ' / ' + esc(phone) + '</strong>' +
-            '</div>' +
-            '<b>' + esc(renderStatusText()) + '</b>' +
-          '</div>' +
-          '<div class="digital-staff-ticket-grid">' +
-            '<p><span>특전권</span><strong>' + esc(ticketName) + '</strong></p>' +
-            '<p><span>잔여</span><strong data-digital-staff-remaining>' + esc(state.remaining) + '회</strong></p>' +
-            '<p><span>팬 선택 멤버</span><strong>' + esc(state.preferredMember || '미선택') + '</strong></p>' +
-            '<p><span>사용 멤버</span><strong data-digital-staff-final-member>' + esc(state.finalMember || state.preferredMember || '미선택') + '</strong></p>' +
-          '</div>' +
-        '</article>' +
-        renderMemberPanel() +
-        '<button type="button" class="digital-staff-primary" data-digital-staff-action="use"' + disabled + '>1회 사용 처리</button>' +
+        renderTicketResult() +
+        (state.ticket ? renderMemberPanel() : '') +
+        '<button type="button" class="digital-staff-primary" data-digital-staff-action="use"' + useDisabled + '>1회 사용 처리</button>' +
       '</section>';
   }
 
