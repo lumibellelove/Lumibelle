@@ -89,6 +89,7 @@ window.LumiPhone = (function () {
     _renderDigitalTicketGreeting();
     _renderDigitalTicketStatus();
     setTimeout(function () { _loadDigitalTicketStateFromApi(true); }, 180);
+    setTimeout(function () { _loadDigitalTicketStateFromApi(true); }, 2500);
     _renderAppGrids();
     _bindEvents();
     _applyI18n();
@@ -211,8 +212,26 @@ window.LumiPhone = (function () {
   }
 
   function _loadDigitalTicketStateFromApi(force) {
-    var user = _getDigitalTicketLoginUser();
-    if (!user || !user.nickname || !user.phoneLast4) return;
+    var user = _getDigitalTicketLoginUser() || _getDigitalTicketLoginUserFromInputs();
+    if (!user || !user.nickname || !user.phoneLast4) {
+      window.LumiDigitalTicketLoadMessage = '특전권 확인을 위해 닉네임과 전화번호 뒤 4자리가 필요해요.';
+      _renderDigitalTicketStatus();
+      return;
+    }
+
+    try {
+      window.LumiDigitalTicketUser = {
+        nickname: user.nickname,
+        phoneLast4: user.phoneLast4
+      };
+      if (window.localStorage) {
+        window.localStorage.setItem('lumiphone-digital-ticket-user', JSON.stringify({
+          nickname: user.nickname,
+          phoneLast4: user.phoneLast4,
+          recoveredAt: new Date().toISOString()
+        }));
+      }
+    } catch (error) {}
 
     var now = Date.now();
     if (window.__lumiFanDigitalApiLoading) return;
@@ -291,6 +310,29 @@ window.LumiPhone = (function () {
     } catch (error) {
       return null;
     }
+  }
+
+  function _getDigitalTicketLoginUserFromInputs() {
+    var nickname = '';
+    var phoneLast4 = '';
+
+    try {
+      var nicknameInput = document.querySelector('[data-role="digital-login-form"] input[name="nickname"]');
+      var phoneInput = document.querySelector('[data-role="digital-login-form"] input[name="phoneLast4"]');
+
+      if (nicknameInput) nickname = String(nicknameInput.value || '').trim();
+      if (phoneInput) phoneLast4 = String(phoneInput.value || '').replace(/\D/g, '').slice(0, 4);
+    } catch (error) {}
+
+    if (!nickname) nickname = String(_getViewerDisplayName ? _getViewerDisplayName() : '').replace(/님\s*♡?$/, '').trim();
+
+    if (!/^\d{4}$/.test(phoneLast4)) return null;
+    if (!nickname) return null;
+
+    return {
+      nickname: nickname,
+      phoneLast4: phoneLast4
+    };
   }
 
   function _syncDigitalTicketLoginState() {
