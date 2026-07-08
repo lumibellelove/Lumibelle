@@ -15,6 +15,8 @@
   ];
 
   var purchaseState = createInitialState();
+  var pendingPollTimer = null;
+  var pendingPollCount = 0;
 
   function createInitialState() {
     return {
@@ -194,7 +196,8 @@
           '<div class="ticket-purchase-card__label">입금 확인용 QR</div>' +
           '<div class="ticket-pending-qr__box">' + renderOrderQr(order) + '</div>' +
           '<p>이 QR은 입금 확인 대기 주문을 찾는 용도예요.</p>' +
-          '<p>발급 후 상세보기에서 특전권 사용 QR이 새로 표시돼요.</p>' +
+          '<p>발급 후 특전권함으로 자동 이동해요.</p>' +
+          '<strong class="ticket-pending-live-status" data-ticket-pending-live-status>입금 확인 상태를 자동으로 확인 중이에요.</strong>' +
         '</section>' +
         '<section class="ticket-purchase-card ticket-pending-order-card">' +
           '<div class="ticket-purchase-card__label">주문 정보</div>' +
@@ -222,6 +225,56 @@
       '</section>';
   }
 
+  function stopPendingPoll() {
+    if (pendingPollTimer) {
+      clearInterval(pendingPollTimer);
+      pendingPollTimer = null;
+    }
+  }
+
+  function checkIssuedTickets(root, silent) {
+    if (!window.LumiPhone || typeof window.LumiPhone.refreshDigitalTickets !== 'function') return;
+
+    window.LumiPhone.refreshDigitalTickets(true, function (result) {
+      if (!purchaseState || purchaseState.view !== 'pending') return;
+
+      if (result && result.hasTickets) {
+        stopPendingPoll();
+        if (window.LumiPhone && typeof window.LumiPhone.goHome === 'function') {
+          window.LumiPhone.goHome();
+        }
+        return;
+      }
+
+      if (!silent && root) {
+        var statusEl = root.querySelector('[data-ticket-pending-live-status]');
+        if (statusEl) statusEl.textContent = '아직 확인 중이에요. 입금 확인 후 자동으로 특전권함에 표시돼요.';
+      }
+    });
+  }
+
+  function startPendingPoll(root) {
+    if (purchaseState.view !== 'pending') {
+      stopPendingPoll();
+      return;
+    }
+
+    if (pendingPollTimer) return;
+    pendingPollCount = 0;
+
+    checkIssuedTickets(root, true);
+
+    pendingPollTimer = setInterval(function () {
+      if (purchaseState.view !== 'pending') {
+        stopPendingPoll();
+        return;
+      }
+
+      pendingPollCount += 1;
+      checkIssuedTickets(root, pendingPollCount % 3 !== 0);
+    }, 5000);
+  }
+
   function renderRoot() {
     return purchaseState.view === 'pending' ? renderPendingView() : renderFormView();
   }
@@ -244,6 +297,7 @@
     if (!window.LumiPhone || typeof window.LumiPhone.setAppBackHandler !== 'function') return;
     if (purchaseState.view === 'pending') {
       window.LumiPhone.setAppBackHandler(function () {
+        stopPendingPoll();
         purchaseState.view = 'form';
         purchaseState.pendingOrder = null;
         if (window.LumiPhone && typeof window.LumiPhone.openApp === 'function') {
@@ -260,6 +314,9 @@
     if (!root) return;
 
     updateBackHandler();
+
+    if (purchaseState.view === 'pending') startPendingPoll(root);
+    else stopPendingPoll();
 
     root.onclick = function (event) {
       var stepButton = event.target.closest('[data-ticket-step]');
@@ -283,6 +340,7 @@
 
       if (event.target.closest('[data-ticket-go-home]')) {
         if (window.LumiPhone && typeof window.LumiPhone.goHome === 'function') {
+          stopPendingPoll();
           purchaseState.view = 'form';
           purchaseState.pendingOrder = null;
           window.LumiPhone.goHome();

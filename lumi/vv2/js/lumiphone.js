@@ -88,6 +88,7 @@ window.LumiPhone = (function () {
     _renderToday();
     _renderDigitalTicketGreeting();
     _renderDigitalTicketStatus();
+    setTimeout(function () { _loadDigitalTicketStateFromApi(true); }, 180);
     _renderAppGrids();
     _bindEvents();
     _applyI18n();
@@ -209,16 +210,18 @@ window.LumiPhone = (function () {
     runAttempt();
   }
 
-  function _loadDigitalTicketStateFromApi() {
+  function _loadDigitalTicketStateFromApi(force) {
     var user = _getDigitalTicketLoginUser();
     if (!user || !user.nickname || !user.phoneLast4) return;
 
     var now = Date.now();
     if (window.__lumiFanDigitalApiLoading) return;
-    if (window.__lumiFanDigitalApiLastLoad && now - window.__lumiFanDigitalApiLastLoad < 8000) return;
+    if (!force && window.__lumiFanDigitalApiLastLoad && now - window.__lumiFanDigitalApiLastLoad < 8000) return;
 
     window.__lumiFanDigitalApiLoading = true;
     window.__lumiFanDigitalApiLastLoad = now;
+    window.LumiDigitalTicketLoadMessage = '특전권 정보를 확인 중이에요.';
+    _renderDigitalTicketStatus();
 
     _digitalApiRequest('getFanDigitalState', {
       nickname: user.nickname,
@@ -234,7 +237,21 @@ window.LumiPhone = (function () {
 
       var stateData = {
         tickets: Array.isArray(response.tickets) ? response.tickets : [],
-        orders: Array.isArray(response.orders) ? response.orders : [],
+        orders: Array.isArray(response.orders) ? response.orders.map(function (order) {
+          order = order || {};
+          return {
+            orderId: order.orderId || order.order_id || '',
+            orderToken: order.orderToken || order.order_token || '',
+            depositorName: order.depositorName || order.depositor_name || '',
+            status: order.status || order.order_status || '',
+            totalAmount: order.totalAmount || order.total_amount || 0,
+            boothPoint: order.boothPoint || order.booth_point || 0,
+            orderItems: order.orderItems || order.order_items || '',
+            requestedAt: order.requestedAt || order.requested_at || '',
+            approvedAt: order.approvedAt || order.approved_at || '',
+            raw: order
+          };
+        }) : [],
         loadedAt: new Date().toISOString()
       };
 
@@ -370,9 +387,9 @@ window.LumiPhone = (function () {
           '<div class="digital-art-slot digital-art-slot--ticket" aria-hidden="true"></div>' +
           '<div class="digital-empty-copy">' +
             '<strong>아직 발급된 특전권이 없어요</strong>' +
-            '<p>현장 특전권 구매하기 버튼을 눌러 신청할 수 있어요.</p>' +
+            '<p>발급 완료되면 이 화면에 자동으로 표시돼요.</p>' +
           '</div>' +
-          '<button type="button" class="digital-main-action" data-dock-app="digitalTicketPurchase">현장 특전권 구매하기</button>' +
+          '<button type="button" class="digital-main-action" data-app-id="digitalTicketPurchase" data-dock-app="digitalTicketPurchase">현장 특전권 구매하기</button>' +
         '</article>';
       return;
     }
@@ -384,7 +401,7 @@ window.LumiPhone = (function () {
       '<article class="digital-buy-strip">' +
         '<div class="digital-art-slot digital-art-slot--mini" aria-hidden="true"></div>' +
         '<p>현장 특전권을 추가로 신청할 수 있어요.</p>' +
-        '<button type="button" data-dock-app="digitalTicketPurchase">구매하기</button>' +
+        '<button type="button" data-app-id="digitalTicketPurchase" data-dock-app="digitalTicketPurchase">구매하기</button>' +
       '</article>';
   }
 
@@ -413,7 +430,7 @@ window.LumiPhone = (function () {
           '<p>입금자명: ' + _escHtml(order.depositorName || '-') + '</p>' +
           '<p>결제 금액 <b>' + _escHtml(_formatDigitalMoney(order.totalAmount)) + '</b></p>' +
         '</div>' +
-        '<button type="button" class="digital-ticket-detail-button" data-dock-app="digitalTicketPurchase">입금 QR 보기</button>' +
+        '<button type="button" class="digital-ticket-detail-button" data-app-id="digitalTicketPurchase" data-dock-app="digitalTicketPurchase">입금 QR 보기</button>' +
       '</article>'
     );
   }
@@ -1056,6 +1073,9 @@ window.LumiPhone = (function () {
     });
 
     document.addEventListener("click", function (e) {
+      var refreshBtn = e.target.closest("[data-digital-ticket-refresh]");
+      if (refreshBtn) { _loadDigitalTicketStateFromApi(true); return; }
+
       /* 1. 앱 아이콘 (그리드 + 최근앱) */
       var appBtn = e.target.closest("[data-app-id]");
       if (appBtn) { openApp(appBtn.getAttribute("data-app-id")); return; }
@@ -1377,6 +1397,7 @@ window.LumiPhone = (function () {
     _closeAppWindow();
     state.returnPage = 0;
     _renderDigitalTicketStatus();
+    _loadDigitalTicketStateFromApi(true);
     goToPage(0);
   }
 
@@ -1783,7 +1804,24 @@ window.LumiPhone = (function () {
     goBack:   goBack,
     goToPage: goToPage,
     setAppBackHandler: setAppBackHandler,
-    setAppBadge: setAppBadge
+    setAppBadge: setAppBadge,
+    refreshDigitalTickets: function (force, done) {
+      var before = _getDigitalTicketState();
+      var beforeCount = before && Array.isArray(before.tickets) ? before.tickets.length : 0;
+      _loadDigitalTicketStateFromApi(force !== false);
+      setTimeout(function () {
+        var after = _getDigitalTicketState();
+        var tickets = after && Array.isArray(after.tickets) ? after.tickets : [];
+        if (typeof done === 'function') done({
+          tickets: tickets,
+          hasTickets: tickets.length > 0,
+          changed: tickets.length !== beforeCount
+        });
+      }, 1800);
+    },
+    getDigitalTicketState: function () {
+      return _getDigitalTicketState();
+    }
   };
 
 }());
