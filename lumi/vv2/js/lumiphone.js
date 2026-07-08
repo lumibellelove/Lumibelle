@@ -74,7 +74,8 @@ window.LumiPhone = (function () {
     digitalTicketMemberDraft: null,
     _scrollLocked:   false,
     _syncTimer:      null,
-    _scrollLockTimer: null
+    _scrollLockTimer: null,
+    digitalTicketAutoSyncTimer: null
   };
 
   var els = {};
@@ -90,6 +91,7 @@ window.LumiPhone = (function () {
     _renderDigitalTicketStatus();
     setTimeout(function () { _loadDigitalTicketStateFromApi(true); }, 180);
     setTimeout(function () { _loadDigitalTicketStateFromApi(true); }, 2500);
+    _startDigitalTicketAutoSync();
     _renderAppGrids();
     _bindEvents();
     _applyI18n();
@@ -321,6 +323,10 @@ window.LumiPhone = (function () {
       }
 
       var stateData = {
+        user: {
+          nickname: user.nickname,
+          phoneLast4: user.phoneLast4
+        },
         tickets: Array.isArray(response.tickets) ? response.tickets : [],
         orders: Array.isArray(response.orders) ? response.orders.map(function (order) {
           order = order || {};
@@ -412,7 +418,8 @@ window.LumiPhone = (function () {
       };
       document.body.classList.remove('is-digital-login-required');
       document.body.classList.add('is-digital-login-complete');
-      setTimeout(_loadDigitalTicketStateFromApi, 80);
+      setTimeout(function () { _loadDigitalTicketStateFromApi(true); }, 80);
+      _startDigitalTicketAutoSync();
       return;
     }
 
@@ -447,6 +454,12 @@ window.LumiPhone = (function () {
       enteredAt: new Date().toISOString()
     };
 
+    var beforeUser = _getDigitalTicketLoginUser();
+
+    if (beforeUser && !_isSameDigitalUser(beforeUser, user)) {
+      _clearDigitalTicketStateCache();
+    }
+
     try {
       if (window.localStorage) {
         window.localStorage.setItem('lumiphone-digital-ticket-user', JSON.stringify(user));
@@ -458,13 +471,17 @@ window.LumiPhone = (function () {
       phoneLast4: phoneLast4
     };
 
+    _clearDigitalTicketStateCache();
+
     if (els.digitalLoginError) els.digitalLoginError.textContent = '';
     document.body.classList.remove('is-digital-login-required');
     document.body.classList.add('is-digital-login-complete');
     _syncDigitalTicketLoginState();
     _renderDigitalTicketGreeting();
+    window.LumiDigitalTicketLoadMessage = '특전권 정보를 새로 확인 중이에요.';
     _renderDigitalTicketStatus();
-    _loadDigitalTicketStateFromApi();
+    _loadDigitalTicketStateFromApi(true);
+    _startDigitalTicketAutoSync();
     goToPage(0);
   }
 
@@ -515,8 +532,43 @@ window.LumiPhone = (function () {
       '</article>';
   }
 
+  function _isSameDigitalUser(a, b) {
+    if (!a || !b) return false;
+    return String(a.nickname || '').trim() === String(b.nickname || '').trim()
+      && String(a.phoneLast4 || a.phone_last4 || '').replace(/\D/g, '').slice(-4) === String(b.phoneLast4 || b.phone_last4 || '').replace(/\D/g, '').slice(-4);
+  }
+
+  function _clearDigitalTicketStateCache() {
+    try {
+      window.LumiDigitalTicketState = { tickets: [], orders: [], cacheClearedAt: new Date().toISOString() };
+      window.LumiDigitalTicketData = window.LumiDigitalTicketState;
+      if (window.localStorage) {
+        window.localStorage.removeItem('lumiphone-digital-ticket-state');
+      }
+    } catch (error) {}
+  }
+
+  function _startDigitalTicketAutoSync() {
+    if (state.digitalTicketAutoSyncTimer) return;
+
+    state.digitalTicketAutoSyncTimer = setInterval(function () {
+      var user = _getDigitalTicketLoginUser() || _getDigitalTicketLoginUserFromInputs();
+      if (!user || !user.nickname || !user.phoneLast4) return;
+      if (_isDigitalPurchasePendingScreenActive && _isDigitalPurchasePendingScreenActive()) return;
+
+      var current = _getDigitalTicketState();
+      var tickets = Array.isArray(current.tickets) ? current.tickets : [];
+      var orders = Array.isArray(current.orders) ? current.orders : [];
+
+      if (!tickets.length && !orders.length) {
+        _loadDigitalTicketStateFromApi(true);
+      }
+    }, 5000);
+  }
+
   function _getDigitalTicketState() {
     var source = window.LumiDigitalTicketState || window.LumiDigitalTicketData || null;
+    var user = _getDigitalTicketLoginUser();
 
     if (!source && window.localStorage) {
       try {
@@ -525,7 +577,15 @@ window.LumiPhone = (function () {
       } catch (error) {}
     }
 
-    if (!source || typeof source !== 'object') return { tickets: [] };
+    if (!source || typeof source !== 'object') return { tickets: [], orders: [] };
+
+    if (source.user && user && !_isSameDigitalUser(source.user, user)) {
+      return { tickets: [], orders: [], staleUserState: true };
+    }
+
+    if (!Array.isArray(source.tickets)) source.tickets = [];
+    if (!Array.isArray(source.orders)) source.orders = [];
+
     return source;
   }
 
@@ -643,7 +703,7 @@ window.LumiPhone = (function () {
       return '단체 촬영권';
     }
 
-    var memberReflectTargets = ['투샷체키', '핀체키', '샤메권', '영상권'];
+    var memberReflectTargets = ['투샷체키', '핀체키', '샤메권', '영상권', '메아테 이벤트 특전권', '오히로메 메아테 이벤트 특전권'];
     var shouldReflectMember = memberReflectTargets.some(function(target) {
       return baseName.indexOf(target) !== -1;
     });
@@ -657,7 +717,7 @@ window.LumiPhone = (function () {
 
   function _shouldShowDigitalTicketMemberSection(ticket) {
     var baseName = _getDigitalTicketBaseName(ticket);
-    var memberSelectableTargets = ['투샷체키', '핀체키', '샤메권', '영상권'];
+    var memberSelectableTargets = ['투샷체키', '핀체키', '샤메권', '영상권', '메아테 이벤트 특전권', '오히로메 메아테 이벤트 특전권'];
 
     return memberSelectableTargets.some(function(target) {
       return baseName.indexOf(target) !== -1;
@@ -2007,7 +2067,7 @@ window.LumiPhone = (function () {
           hasTickets: tickets.length > 0,
           changed: tickets.length !== beforeCount
         });
-      }, 1800);
+      }, 3200);
     },
     getDigitalTicketState: function () {
       return _getDigitalTicketState();
