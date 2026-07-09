@@ -4,6 +4,313 @@
  */
 window.LumiApps = window.LumiApps || {};
 
+
+/* ============================================================
+   v15: 기존 공연 시트 API(search/checkin)를 입장 QR 스캔에 연결
+   아래 URL만 기존 공연 시트 Apps Script 웹앱 URL로 교체하면 됩니다.
+============================================================ */
+var GATE_ENTRY_API_URL = 'https://script.google.com/macros/s/AKfycbwJRbaZDXnquhBTYaa4R1Onaq0pkDLUWPip0pjzoAcdkcUVNYCCZ2wHWtzCyQLZ0sboJQ/exec';
+
+var gateApiState = {
+  loading: false,
+  scannerOpen: false,
+  message: ''
+};
+
+var gateHtml5QrScanner = null;
+
+function gateEntryApiConfigured() {
+  return !!(GATE_ENTRY_API_URL && GATE_ENTRY_API_URL.indexOf('PASTE_EXISTING') === -1 && /^https?:\/\//.test(GATE_ENTRY_API_URL));
+}
+
+function gateEntryApiRequest(action, params, onDone) {
+  params = params || {};
+  if (!gateEntryApiConfigured()) {
+    onDone({ ok: false, error: 'missingApiUrl', message: '기존 공연 API URL을 gate.js 상단에 넣어주세요.' });
+    return;
+  }
+
+  var callbackName = '__lumiGateEntryCallback_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+  var finished = false;
+  var timeout = null;
+
+  function cleanup() {
+    try { delete window[callbackName]; } catch (error) { window[callbackName] = undefined; }
+    if (timeout) clearTimeout(timeout);
+    var script = document.querySelector('script[data-gate-entry-callback="' + callbackName + '"]');
+    if (script && script.parentNode) script.parentNode.removeChild(script);
+  }
+
+  function finish(response) {
+    if (finished) return;
+    finished = true;
+    cleanup();
+    onDone(response || { ok: false, message: '응답이 비어 있어요.' });
+  }
+
+  window[callbackName] = function (response) {
+    finish(response);
+  };
+
+  var query = new URLSearchParams();
+  query.set('action', action);
+  query.set('callback', callbackName);
+  Object.keys(params).forEach(function (key) {
+    if (params[key] !== undefined && params[key] !== null) query.set(key, params[key]);
+  });
+
+  var script = document.createElement('script');
+  script.setAttribute('data-gate-entry-callback', callbackName);
+  script.onerror = function () {
+    finish({ ok: false, error: 'network', message: '입장 확인 API를 불러오지 못했어요.' });
+  };
+  script.src = GATE_ENTRY_API_URL + (GATE_ENTRY_API_URL.indexOf('?') === -1 ? '?' : '&') + query.toString();
+  document.head.appendChild(script);
+
+  timeout = setTimeout(function () {
+    finish({ ok: false, error: 'timeout', message: '입장 확인 API 응답이 지연되고 있어요.' });
+  }, 25000);
+}
+
+function gateExtractReservationFromQr(raw) {
+  var value = String(raw || '').trim();
+  if (!value) return '';
+
+  try {
+    var url = new URL(value, window.location.href);
+    var fromUrl = url.searchParams.get('ticketId') ||
+      url.searchParams.get('ticket_id') ||
+      url.searchParams.get('reservation') ||
+      url.searchParams.get('reservation_no') ||
+      url.searchParams.get('reservationNumber') ||
+      url.searchParams.get('q') ||
+      url.searchParams.get('id') ||
+      '';
+    if (fromUrl) value = fromUrl;
+  } catch (error) {}
+
+  var match = value.match(/LBT-\d{4}-\d{4}/i);
+  if (match) return match[0].toUpperCase();
+
+  var digits = String(value || '').replace(/\D/g, '');
+  if (digits.length >= 4) return digits.slice(-4);
+
+  return value;
+}
+
+function gatePaymentStatusOk(value) {
+  var raw = String(value == null ? '' : value).trim().toLowerCase().replace(/\s+/g, '');
+  return raw === 'confirmed' ||
+    raw === 'paid' ||
+    raw === '결제완료' ||
+    raw === '입금확인' ||
+    raw === '입금확인완료' ||
+    raw === '예약확정' ||
+    raw === '초대석' ||
+    raw === '관계자' ||
+    raw === '현장결제완료';
+}
+
+function gateEntryStatusEntered(value) {
+  var raw = String(value == null ? '' : value).trim().toLowerCase().replace(/\s+/g, '');
+  return raw === '입장완료' || raw === 'entered' || raw === 'complete' || raw === 'completed' || raw === 'done';
+}
+
+function gateRecordFromApiItem(item) {
+  item = item || {};
+  var ticketId = String(item.ticketId || item.reservationNumber || item.reservation_no || '').trim();
+  var nickname = String(item.nickname || item.name || item.depositor || '예약자').trim();
+  var paymentStatus = String(item.paymentStatus || '').trim();
+  var entryStatus = String(item.entryStatus || '').trim();
+  var entered = gateEntryStatusEntered(entryStatus);
+  var paid = gatePaymentStatusOk(paymentStatus);
+  var entryTime = String(item.entryTime || '').trim();
+
+  return {
+    id: 'gate-api-' + (ticketId || Date.now()).replace(/[^A-Za-z0-9_-]/g, '-'),
+    nickname: nickname,
+    reservation: ticketId || '-',
+    lumiId: item.lumiId ? gateFormatLumiId(item.lumiId) : '미연결',
+    ticket: String(item.ticketType || '사전 예약').trim() || '사전 예약',
+    reservedAt: String(item.reservedAt || item.createdAt || '-').trim() || '-',
+    paidAt: paid ? '입금 확인' : '확인 대기',
+    paymentChecker: '공연 시트',
+    payerName: String(item.depositor || '-').trim() || '-',
+    paymentAmount: '-',
+    paymentMethod: '계좌이체',
+    paymentMemo: '기존 공연 시트 API에서 조회한 예약입니다.' + (item.meate ? ' 메아테: ' + item.meate : ''),
+    entered: entered,
+    enteredAt: entryTime || '',
+    checker: item.processedBy || '스탭',
+    method: 'QR 스캔',
+    entryMemo: item.meate ? '메아테: ' + item.meate : '',
+    isApiEntry: true,
+    apiItem: item,
+    paymentStatusRaw: paymentStatus,
+    entryStatusRaw: entryStatus,
+    meate: String(item.meate || '').trim()
+  };
+}
+
+function gateUpsertApiRecord(record) {
+  if (!record || !record.reservation) return record;
+  var existing = gateRecords.find(function (item) {
+    return String(item.reservation || '') === String(record.reservation || '');
+  });
+  if (existing) {
+    Object.assign(existing, record, { id: existing.id });
+    saveGateRecords();
+    return existing;
+  }
+  gateRecords.unshift(record);
+  saveGateRecords();
+  return record;
+}
+
+function gateRenderApiMessage(root, message, kind) {
+  var card = root.querySelector('[data-gate-result-card]');
+  if (!card) return;
+  card.removeAttribute('data-gate-record-id');
+  card.className = 'gate-card gate-result-card is-single';
+  card.innerHTML = '<div class="gate-reservation-missing ' + (kind ? 'is-' + kind : '') + '"><strong>' + (kind === 'error' ? '확인 필요' : '조회 안내') + '</strong><p>' + message + '</p></div>';
+}
+
+function gateLookupEntry(root, rawValue) {
+  var value = gateExtractReservationFromQr(rawValue);
+  var input = root.querySelector('[data-gate-input]');
+  if (input) input.value = value;
+
+  if (!value) {
+    gateRenderApiMessage(root, '예약번호 QR을 스캔하거나 예약번호를 입력해주세요.', 'error');
+    return;
+  }
+
+  gateApiState.loading = true;
+  gateRenderApiMessage(root, '예약 정보를 조회 중이에요.', 'loading');
+
+  gateEntryApiRequest('search', { q: value }, function (response) {
+    gateApiState.loading = false;
+
+    if (!response || response.ok === false) {
+      gateRenderApiMessage(root, (response && (response.message || response.error)) || '예약 조회에 실패했어요.', 'error');
+      return;
+    }
+
+    var items = Array.isArray(response.items) ? response.items : [];
+    if (!items.length && response.item) items = [response.item];
+
+    if (!items.length) {
+      gateRenderApiMessage(root, '사전예약 내역을 찾지 못했어요. 예약번호를 다시 확인하거나 현장 입장으로 처리해주세요.', 'error');
+      return;
+    }
+
+    if (items.length > 1) {
+      gateRenderApiMessage(root, '조회 결과가 여러 명이에요. QR을 다시 스캔하거나 전체 예약번호 LBT-0712-0000으로 조회해주세요.', 'error');
+      return;
+    }
+
+    var record = gateUpsertApiRecord(gateRecordFromApiItem(items[0]));
+    gateRenderResult(root, { kind: 'record', record: record });
+    gateRenderLogs(root);
+  });
+}
+
+function gateConfirmApiEntry(root, record) {
+  if (!record || !record.reservation) return;
+  if (!gateIsPaid(record)) {
+    window.alert('입금 확인 전에는 입장 완료 처리할 수 없습니다.');
+    return;
+  }
+  if (record.entered) {
+    window.alert('이미 입장 완료된 예약입니다.');
+    return;
+  }
+
+  gateRenderApiMessage(root, '입장 완료 처리 중이에요.', 'loading');
+
+  gateEntryApiRequest('checkin', { ticketId: record.reservation }, function (response) {
+    if (!response || response.ok === false) {
+      gateRenderApiMessage(root, (response && (response.message || response.error)) || '입장 처리에 실패했어요.', 'error');
+      return;
+    }
+
+    var updatedRecord = gateUpsertApiRecord(gateRecordFromApiItem(response.item || record.apiItem || {
+      ticketId: record.reservation,
+      nickname: record.nickname,
+      lumiId: record.lumiId,
+      ticketType: record.ticket,
+      paymentStatus: record.paymentStatusRaw || 'confirmed',
+      entryStatus: '입장완료',
+      entryTime: gateNowStamp()
+    }));
+
+    updatedRecord.entered = true;
+    updatedRecord.enteredAt = updatedRecord.enteredAt || gateNowTime();
+    updatedRecord.checker = '스탭';
+    updatedRecord.method = 'QR 스캔';
+    updatedRecord.entryMemo = response.message || '입장완료 처리되었습니다.';
+
+    saveGateRecords();
+    if (window.GateHomeStore) window.GateHomeStore.adjustEnteredCount(1);
+    gateRenderResult(root, { kind: 'record', record: updatedRecord });
+    gateRenderLogs(root);
+  });
+}
+
+function gateScannerPanelHtml() {
+  return '<section class="gate-entry-scanner" data-gate-scanner hidden>' +
+    '<div class="gate-entry-scanner-head">' +
+      '<strong>입장 QR 스캔</strong>' +
+      '<button type="button" data-gate-action="scan-close">닫기</button>' +
+    '</div>' +
+    '<div id="gate-staff-html5-reader" class="digital-staff-html5-reader gate-entry-reader"></div>' +
+    '<p>팬 예매 화면의 입장 확인용 QR을 카메라 안에 맞춰주세요.</p>' +
+  '</section>';
+}
+
+function gateStopQrScanner() {
+  var panel = document.querySelector('[data-gate-scanner]');
+  if (panel) panel.hidden = true;
+  if (gateHtml5QrScanner) {
+    try {
+      gateHtml5QrScanner.stop().then(function () {
+        try { gateHtml5QrScanner.clear(); } catch (error) {}
+        gateHtml5QrScanner = null;
+      }).catch(function () { gateHtml5QrScanner = null; });
+    } catch (error) {
+      gateHtml5QrScanner = null;
+    }
+  }
+}
+
+function gateStartQrScanner(root) {
+  var panel = root.querySelector('[data-gate-scanner]');
+  if (panel) panel.hidden = false;
+
+  if (!window.Html5Qrcode) {
+    gateRenderApiMessage(root, 'QR 스캔 라이브러리를 불러오지 못했어요. 예약번호를 직접 입력해주세요.', 'error');
+    return;
+  }
+
+  try {
+    if (gateHtml5QrScanner) gateStopQrScanner();
+    gateHtml5QrScanner = new Html5Qrcode('gate-staff-html5-reader');
+    gateHtml5QrScanner.start(
+      { facingMode: 'environment' },
+      { fps: 10, qrbox: { width: 240, height: 240 } },
+      function (decodedText) {
+        gateStopQrScanner();
+        gateLookupEntry(root, decodedText);
+      },
+      function () {}
+    ).catch(function () {
+      gateRenderApiMessage(root, '카메라 권한을 확인하거나 예약번호를 직접 입력해주세요.', 'error');
+    });
+  } catch (error) {
+    gateRenderApiMessage(root, 'QR 스캔을 시작하지 못했어요. 예약번호를 직접 입력해주세요.', 'error');
+  }
+}
+
 var gateRecordDefaults = [
   { id: 'gate-strawberry', nickname: '딸기버터케이크', reservation: '250520-12345', lumiId: 'LB-0018', ticket: 'VIP석', reservedAt: '2026.07.05 19:42', paidAt: '2026.07.06 13:18', paymentChecker: '총괄', payerName: '김딸기', paymentAmount: '₩30,000', paymentMethod: '계좌이체', paymentMemo: '예약자명과 입금자명 일치 확인 후 입금 확인 처리했습니다.', entered: false, enteredAt: '', checker: '', method: '예약번호 확인', entryMemo: '' },
   { id: 'gate-cherry', nickname: '체리슈크림', reservation: '250520-12346', lumiId: 'LB-0019', ticket: '일반석', reservedAt: '2026.07.06 11:05', paidAt: '2026.07.06 11:32', paymentChecker: '총괄', payerName: '박체리', paymentAmount: '₩20,000', paymentMethod: '계좌이체', paymentMemo: '정상 확인 처리되었습니다.', entered: true, enteredAt: '18:57', checker: '김스탭', method: '예약번호 확인', entryMemo: '문제 없이 정상 입장 처리' },
@@ -92,7 +399,7 @@ window.GateHomeStore = window.GateHomeStore || (function () {
 
 var gateRecords = window.GateRecordStore.read();
 function saveGateRecords() { window.GateRecordStore.save(gateRecords); }
-function gateIsPaid(record) { return !!(record && record.paidAt && record.paidAt !== '확인 대기'); }
+function gateIsPaid(record) { return !!(record && (gatePaymentStatusOk(record.paymentStatusRaw) || (record.paidAt && record.paidAt !== '확인 대기'))); }
 function gateIsInviteSeat(record) {
   if (!record) return false;
   return record.isInvite === true || record.ticket === '초대석' || record.entryType === '초대석' || record.paidAt === '초대석' || record.paidAt === '관계자';
@@ -100,6 +407,7 @@ function gateIsInviteSeat(record) {
 function gatePaymentChipLabel(record) {
   if (gateIsInviteSeat(record)) return '초대석';
   if (record && record.isWalkIn) return record.paidAt || '현장 결제 완료';
+  if (record && record.isApiEntry) return gateIsPaid(record) ? '입금 확인' : '입금 확인 필요';
   return gateIsPaid(record) ? '입금 확인' : '확인 대기';
 }
 function syncGateEnteredCount(wasEntered, isEntered) {
@@ -138,10 +446,11 @@ window.LumiApps.gate = function () {
   return '<section class="gate-app" data-gate-app>' +
     '<article class="gate-event-card" aria-label="오늘의 공연"><div><span>오늘의 공연</span><strong>Lumibelle Debut Live</strong></div><em aria-hidden="true">›</em></article>' +
     '<header class="gate-title-block"><p>STAFF CHECK-IN</p><h2>입장 확인</h2><i aria-hidden="true"></i></header>' +
-    '<article class="gate-card gate-search-card" aria-label="검색"><header class="gate-card-head gate-search-head"><div><span>✿</span><strong>검색</strong></div><button type="button" class="gate-walkin-launch" data-gate-action="walkin-direct-open"><b aria-hidden="true">＋</b>현장 입장</button></header>' +
+    '<article class="gate-card gate-search-card" aria-label="입장 QR 조회"><header class="gate-card-head gate-search-head"><div><span>✿</span><strong>입장 QR 조회</strong></div><button type="button" class="gate-walkin-launch" data-gate-action="walkin-direct-open"><b aria-hidden="true">＋</b>현장 입장</button></header>' +
       '<div class="gate-tab-row" role="tablist"><button type="button" class="is-active" data-gate-tab="예약번호">예약번호</button><button type="button" data-gate-tab="루미 ID">루미 ID</button><button type="button" data-gate-tab="닉네임">닉네임</button></div>' +
-      '<div class="gate-search-row"><label class="gate-input-wrap"><span aria-hidden="true">⌕</span><input type="text" value="" placeholder="예약번호를 입력하세요" data-gate-input /><button type="button" class="gate-search-clear" data-gate-action="search-clear" aria-label="검색어 지우기" hidden>×</button></label><button type="button" data-gate-action="search">검색</button></div>' +
-      '<p class="gate-walkin-hint">사전예약 없이 왔다면 현장 입장으로 바로 등록하세요.</p>' +
+      '<div class="gate-search-row gate-search-row--entry-qr"><label class="gate-input-wrap"><span aria-hidden="true">⌕</span><input type="text" value="" placeholder="예약번호 QR 또는 LBT-0712-0000" data-gate-input /><button type="button" class="gate-search-clear" data-gate-action="search-clear" aria-label="검색어 지우기" hidden>×</button></label><div class="gate-entry-qr-actions"><button type="button" data-gate-action="scan">QR 스캔</button><button type="button" data-gate-action="search">조회</button></div></div>' +
+      gateScannerPanelHtml() +
+      '<p class="gate-walkin-hint">사전 예약자 : QR 스캔으로 입장 처리<br>현장 입장자 : + 현장 입장으로 등록</p>' +
     '</article>' +
     '<article class="gate-card gate-result-card is-empty" aria-label="조회 결과" data-gate-result-card></article>' +
     '<section class="gate-log-section" aria-label="최근 입장 로그"><div class="gate-log-head"><h3>최근 입장 로그</h3><button type="button" data-gate-action="logs-open">전체 보기 ›</button></div><div class="gate-log-list" data-gate-log-list></div></section>' +
@@ -239,7 +548,7 @@ function gateRenderResult(root, result) {
   card.className = 'gate-card gate-result-card';
   if (!result) {
     card.classList.add('is-empty');
-    card.innerHTML = gateResultEmpty('예약번호, 루미 ID 또는 닉네임으로<br>입장할 팬을 조회해주세요.');
+    card.innerHTML = gateResultEmpty('입장 QR을 스캔하거나<br>예약번호를 입력해 조회해주세요.');
     return;
   }
   if (result.kind === 'reservation-missing') {
@@ -454,6 +763,7 @@ function gateViewSelector(name) {
   return '[data-gate-' + name + ']';
 }
 function openView(root, kind) {
+  gateStopQrScanner();
   ['detail', 'edit', 'logs', 'payment', 'walkin-find', 'walkin'].forEach(function (name) {
     root.classList.remove('is-' + name + '-open');
     var node = root.querySelector(gateViewSelector(name));
@@ -543,7 +853,7 @@ function bindGateApp() {
   gateSyncSearchClearButton(root);
   var input = root.querySelector('[data-gate-input]');
   input.addEventListener('keydown', function (event) {
-    if (event.key === 'Enter') { event.preventDefault(); gateRenderResult(root, gateFindSearchResult(root)); }
+    if (event.key === 'Enter') { event.preventDefault(); gateLookupEntry(root, input.value); }
   });
   root.addEventListener('input', function (event) {
     if (event.target.closest('[data-gate-input]')) gateSyncSearchClearButton(root);
@@ -566,7 +876,7 @@ function bindGateApp() {
       root.querySelectorAll('[data-gate-tab]').forEach(function (button) { button.classList.toggle('is-active', button === tab); });
       input.value = '';
       input.setAttribute('value', '');
-      input.placeholder = tab.getAttribute('data-gate-tab') === '루미 ID' ? 'LB- 뒤 4자리를 입력하세요' : tab.getAttribute('data-gate-tab') + '를 입력하세요';
+      input.placeholder = tab.getAttribute('data-gate-tab') === '루미 ID' ? 'LB- 뒤 4자리를 입력하세요' : (tab.getAttribute('data-gate-tab') === '예약번호' ? '예약번호 QR 또는 LBT-0712-0000' : tab.getAttribute('data-gate-tab') + '를 입력하세요');
       gateRenderResult(root, null);
       gateSyncSearchClearButton(root);
       input.focus();
@@ -595,9 +905,12 @@ function bindGateApp() {
     var action = event.target.closest('[data-gate-action]');
     if (!action || !root.contains(action)) return;
     var type = action.getAttribute('data-gate-action');
-    if (type === 'search') { gateRenderResult(root, gateFindSearchResult(root)); return; }
+    if (type === 'search') { gateLookupEntry(root, input.value); return; }
+    if (type === 'scan') { gateStartQrScanner(root); return; }
+    if (type === 'scan-close') { gateStopQrScanner(); return; }
     if (type === 'search-clear') {
       input.value = '';
+      gateStopQrScanner();
       gateRenderResult(root, null);
       gateSyncSearchClearButton(root);
       input.focus();
@@ -657,6 +970,10 @@ function bindGateApp() {
       var currentRecord = getCurrentRecord(root);
       if (!currentRecord || currentRecord.entered) return;
       if (!gateIsPaid(currentRecord)) { window.alert('입금 확인 후 입장 완료 처리할 수 있습니다.'); return; }
+      if (currentRecord.isApiEntry) {
+        gateConfirmApiEntry(root, currentRecord);
+        return;
+      }
       var wasEntered = !!currentRecord.entered;
       currentRecord.entered = true;
       currentRecord.enteredAt = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });

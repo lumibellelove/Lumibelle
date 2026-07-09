@@ -40,7 +40,7 @@ window.LUMI_I18N = {
     "app.caution":      "주의사항",
     "app.notice":       "공지",
     "app.pointAdjust":  "포인트 정정",
-    "app.digitalBenefit":"디지털 특전 관리",
+    "app.digitalBenefit":"QR 스캔 관리",
     "app.staffAttendance":"출퇴근",
     "app.staffLog":     "운영 로그",
 

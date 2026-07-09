@@ -23,7 +23,6 @@ window.StaffOS = (function () {
     { id: "gate",       labelKey: "app.gate",       iconText: "입장", group: "main", color: "#fff7fb", renderer: "native" },
     { id: "fanCheck",   labelKey: "app.fanCheck",   iconText: "팬",   group: "main", color: "#fff7fb", renderer: "native" },
     { id: "digitalBenefit", labelKey: "app.digitalBenefit", iconText: "디특", group: "main", color: "#fff7fb", renderer: "native" },
-    { id: "cheki",      labelKey: "app.cheki",      iconText: "특전", group: "main", color: "#fff7fb", renderer: "native" },
     { id: "timer",      labelKey: "app.timer",      iconText: "타",   group: "main", color: "#fff7fb", renderer: "native" },
     { id: "point",      labelKey: "app.point",      iconText: "P",    group: "main", color: "#fff7fb", renderer: "native" },
     { id: "pointAdjust",labelKey: "app.pointAdjust",iconText: "정정", group: "main", color: "#fff7fb", renderer: "native" }

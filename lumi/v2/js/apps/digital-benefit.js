@@ -197,7 +197,7 @@
 
     stopQrScanner();
     state.loading = true;
-    state.message = '특전권을 조회 중이에요.';
+    state.message = '특전권 QR을 조회 중이에요.';
     state.lookupValue = found;
     rerender();
 
@@ -210,7 +210,7 @@
       }
 
       syncTicketToState(response.ticket);
-      state.message = '특전권 조회 완료. 팬 선택 멤버가 사용 멤버로 자동 적용됐어요.';
+      state.message = 'QR 조회 완료. 팬 선택 멤버가 사용 멤버로 자동 적용됐어요.';
       rerender();
     });
   }
@@ -225,7 +225,7 @@
 
     stopQrScanner();
     state.loading = true;
-    state.message = '입금 확인 대기 주문을 조회 중이에요.';
+    state.message = '입금확인 QR을 조회 중이에요.';
     state.orderLookupValue = found;
     rerender();
 
@@ -238,7 +238,7 @@
       }
 
       syncOrderToState(response.order);
-      state.message = '주문 조회 완료. 입금 확인 후 발급할 수 있어요.';
+      state.message = '입금확인 QR 조회 완료. 입금 확인 후 발급할 수 있어요.';
       rerender();
     });
   }
@@ -286,7 +286,7 @@
     }
 
     state.loading = true;
-    state.message = '입금 확인 후 발급 처리 중이에요.';
+    state.message = '발급 처리 중이에요. 잠시만 기다려주세요.';
     rerender();
 
     apiRequest('approveOrder', {
@@ -478,10 +478,10 @@
           '<p>크롬 인식 불가</p>' +
         '</article>' +
         '<label class="digital-staff-search">' +
-          '<span>QR이 안 찍히면 티켓번호나 토큰을 직접 입력해주세요</span>' +
+          '<span>QR이 안 찍힐 때만 QR 토큰을 직접 입력해주세요</span>' +
           '<input type="text" value="' + esc(inputValue) + '" placeholder="스캔 전에는 비워둬요" aria-label="티켓번호 또는 QR 토큰" data-digital-staff-token-input />' +
           '<button type="button" data-digital-staff-action="scan"' + disabled + '>QR 스캔</button>' +
-          '<button type="button" data-digital-staff-action="lookup"' + disabled + '>티켓 조회</button>' +
+          '<button type="button" data-digital-staff-action="lookup"' + disabled + '>QR 토큰 조회</button>' +
         '</label>' +
         renderScannerPanel() +
         renderTicketResult() +
@@ -498,7 +498,7 @@
   function renderOrderPanel() {
     var order = state.order;
     var approved = state.orderStatus === '승인 완료';
-    var buttonLabel = state.loading ? '처리 중' : (approved ? '발급 완료' : '입금 확인 후 발급');
+    var buttonLabel = state.loading ? '발급 처리 중...' : (approved ? '발급 완료' : '입금 확인 후 발급');
     var buttonClass = approved ? ' is-complete' : '';
     var disabled = state.loading || !order || approved ? ' disabled' : '';
 
@@ -544,10 +544,10 @@
       '<section class="digital-staff-panel digital-staff-guide">' +
         '<div class="digital-staff-panel-head">' +
           '<span>운영 기준</span>' +
-          '<strong>디지털 특전 처리</strong>' +
+          '<strong>QR 처리 기준</strong>' +
         '</div>' +
-        '<p>사용 멤버는 팬이 선택한 멤버를 기본으로 자동 적용해요.</p>' +
-        '<p>현장 변경이 필요한 예외 상황에서만 멤버 변경을 눌러 수정해요.</p>' +
+        '<p>이번 임시 운영은 사전 접수 특전 사용 화면을 쓰지 않고 QR 스캔 관리에서만 처리해요.</p>' +
+        '<p>타이머는 이 화면과 연동하지 않고 스탭이 수동으로 진행해요.</p>' +
       '</section>';
   }
 
@@ -563,9 +563,9 @@
     return '' +
       '<section class="digital-staff-app" data-digital-staff-app>' +
         '<header class="digital-staff-hero">' +
-          '<span>DIGITAL BENEFIT</span>' +
+          '<span>QR STAFF MODE</span>' +
           '<h2>QR 스캔 관리</h2>' +
-          '<p>입금 확인용 QR과 특전권 사용 QR을 스캔해 처리해요.</p>' +
+          '<p>이번 임시 운영은 입금 확인과 특전 사용을 QR 스캔으로만 처리해요. 타이머는 별도 수동 진행이에요.</p>' +
         '</header>' +
         renderOrderPanel() +
         renderUsePanel() +
