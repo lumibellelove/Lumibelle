@@ -85,7 +85,7 @@
     var receivedAt = escapeHtml(item.meateReceivedAt || '-');
     var isReceived = (item.meateReceived === '수령 완료');
     var button = isReceived
-      ? '<button type="button" class="team-received-button is-done" disabled>수령 완료</button>'
+      ? '<button type="button" class="team-received-button is-done" data-action="cancelReceive" data-reservation="' + reservation + '" data-nickname="' + nickname + '">수령 취소</button>'
       : '<button type="button" class="team-received-button" data-action="receive" data-reservation="' + reservation + '" data-nickname="' + nickname + '">수령 완료</button>';
 
     return '<article class="team-member-card">' +
@@ -187,6 +187,38 @@
     });
   }
 
+
+  function cancelReceive(button) {
+    var reservation = button.getAttribute('data-reservation') || '';
+    var nickname = button.getAttribute('data-nickname') || '';
+
+    if (!reservation || !currentTeam || !currentCode) {
+      showMessage('처리 실패', '다시 조회 후 처리해주세요.');
+      return;
+    }
+
+    if (!window.confirm('수령 완료를 취소하고 미수령으로 되돌릴까요?')) return;
+
+    button.disabled = true;
+    button.textContent = '취소 중...';
+
+    jsonp('teamMeateCancel', {
+      team: currentTeam,
+      code: currentCode,
+      reservation: reservation,
+      nickname: nickname
+    }, function (response) {
+      if (!response || response.ok === false) {
+        button.disabled = false;
+        button.textContent = '수령 취소';
+        showMessage('처리 실패', response && (response.message || response.error) ? (response.message || response.error) : '수령 취소 처리에 실패했어요.');
+        return;
+      }
+
+      lookup();
+    });
+  }
+
   document.addEventListener('click', function (event) {
     var button = event.target.closest('[data-action]');
     if (!button) return;
@@ -194,6 +226,7 @@
 
     if (action === 'lookup') lookup();
     if (action === 'receive') receive(button);
+    if (action === 'cancelReceive') cancelReceive(button);
     if (action === 'logout' || action === 'back') showView('login');
   });
 
