@@ -219,6 +219,33 @@
     });
   }
 
+
+  function refreshList(button) {
+    if (!currentTeam || !currentCode) {
+      showView('login');
+      return;
+    }
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = '갱신 중...';
+    }
+
+    jsonp('teamMeateList', { team: currentTeam, code: currentCode }, function (response) {
+      if (button) {
+        button.disabled = false;
+        button.textContent = '새로고침';
+      }
+
+      if (!response || response.ok === false) {
+        showMessage('조회 실패', response && (response.message || response.error) ? (response.message || response.error) : '입력 정보를 확인해주세요.');
+        return;
+      }
+
+      renderList(response);
+    });
+  }
+
   document.addEventListener('click', function (event) {
     var button = event.target.closest('[data-action]');
     if (!button) return;
@@ -227,6 +254,7 @@
     if (action === 'lookup') lookup();
     if (action === 'receive') receive(button);
     if (action === 'cancelReceive') cancelReceive(button);
+    if (action === 'refresh') refreshList(button);
     if (action === 'logout' || action === 'back') showView('login');
   });
 
