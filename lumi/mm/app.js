@@ -2,6 +2,8 @@
   var API_URL = window.LUMIBELLE_MEATE_API_URL || '';
   var teamSelect = document.querySelector('[data-team-select]');
   var codeInput = document.querySelector('[data-team-code]');
+  var currentTeam = '';
+  var currentCode = '';
 
   function text(value) {
     return String(value == null ? '' : value).trim();
@@ -79,6 +81,12 @@
     var phone = escapeHtml(item.phoneLast4 || '-');
     var entryStatus = escapeHtml(item.entryStatus || '-');
     var entryTime = escapeHtml(item.entryTime || '-');
+    var received = escapeHtml(item.meateReceived || '미수령');
+    var receivedAt = escapeHtml(item.meateReceivedAt || '-');
+    var isReceived = (item.meateReceived === '수령 완료');
+    var button = isReceived
+      ? '<button type="button" class="team-received-button is-done" disabled>수령 완료</button>'
+      : '<button type="button" class="team-received-button" data-action="receive" data-reservation="' + reservation + '" data-nickname="' + nickname + '">수령 완료</button>';
 
     return '<article class="team-member-card">' +
       '<header><h2>' + (index + 1) + '. ' + nickname + '</h2><b>' + kind + '</b></header>' +
@@ -87,7 +95,10 @@
         '<div><dt>뒤4자리</dt><dd>' + phone + '</dd></div>' +
         '<div><dt>입장상태</dt><dd>' + entryStatus + '</dd></div>' +
         '<div><dt>입장시간</dt><dd>' + entryTime + '</dd></div>' +
+        '<div><dt>수령상태</dt><dd>' + received + '</dd></div>' +
+        '<div><dt>수령시간</dt><dd>' + receivedAt + '</dd></div>' +
       '</dl>' +
+      button +
     '</article>';
   }
 
@@ -97,6 +108,7 @@
     setText('[data-count-total]', String(response.total || items.length || 0));
     setText('[data-count-reserved]', String(response.reservedCount || 0));
     setText('[data-count-walkin]', String(response.walkinCount || 0));
+    setText('[data-count-received]', String(response.receivedCount || 0));
 
     var list = document.querySelector('[data-list]');
     if (!list) return;
@@ -125,6 +137,9 @@
       button.textContent = '조회 중...';
     }
 
+    currentTeam = team;
+    currentCode = code;
+
     jsonp('teamMeateList', { team: team, code: code }, function (response) {
       if (button) {
         button.disabled = false;
@@ -140,12 +155,45 @@
     });
   }
 
+
+  function receive(button) {
+    var reservation = button.getAttribute('data-reservation') || '';
+    var nickname = button.getAttribute('data-nickname') || '';
+
+    if (!reservation || !currentTeam || !currentCode) {
+      showMessage('처리 실패', '다시 조회 후 처리해주세요.');
+      return;
+    }
+
+    if (!window.confirm('메아테 수령 완료로 체크할까요?')) return;
+
+    button.disabled = true;
+    button.textContent = '처리 중...';
+
+    jsonp('teamMeateReceive', {
+      team: currentTeam,
+      code: currentCode,
+      reservation: reservation,
+      nickname: nickname
+    }, function (response) {
+      if (!response || response.ok === false) {
+        button.disabled = false;
+        button.textContent = '수령 완료';
+        showMessage('처리 실패', response && (response.message || response.error) ? (response.message || response.error) : '수령 완료 처리에 실패했어요.');
+        return;
+      }
+
+      lookup();
+    });
+  }
+
   document.addEventListener('click', function (event) {
     var button = event.target.closest('[data-action]');
     if (!button) return;
     var action = button.getAttribute('data-action');
 
     if (action === 'lookup') lookup();
+    if (action === 'receive') receive(button);
     if (action === 'logout' || action === 'back') showView('login');
   });
 
