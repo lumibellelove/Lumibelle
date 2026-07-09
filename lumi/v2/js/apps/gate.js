@@ -19,6 +19,20 @@ var gateApiState = {
 
 var gateHtml5QrScanner = null;
 
+var gateMeateOptions = ['Lumibelle', '이토리', '시로나', '옵시드', '너에게 닿기를', '스이타', '미정'];
+
+function gateMeateOptionsHtml(selected) {
+  selected = String(selected || '').trim();
+  return gateMeateOptions.map(function (option) {
+    return '<option' + (option === selected ? ' selected' : '') + '>' + option + '</option>';
+  }).join('');
+}
+
+function gateMeateText(value) {
+  return String(value || '').trim() || '미정';
+}
+
+
 function gateEntryApiConfigured() {
   return !!(GATE_ENTRY_API_URL && GATE_ENTRY_API_URL.indexOf('PASTE_EXISTING') === -1 && /^https?:\/\//.test(GATE_ENTRY_API_URL));
 }
@@ -348,6 +362,7 @@ window.GateRecordStore = window.GateRecordStore || (function () {
     return records.map(function (record) {
       var copy = Object.assign({}, record);
       if (copy.lumiId && copy.lumiId !== '현장 미연결') copy.lumiId = gateFormatLumiId(copy.lumiId);
+      if (!copy.meate && copy.entryMemo && String(copy.entryMemo).indexOf('메아테:') !== -1) copy.meate = String(copy.entryMemo).split('메아테:').pop().trim();
       return copy;
     });
   }
@@ -458,7 +473,7 @@ window.LumiApps.gate = function () {
     '<section class="gate-logs-view" data-gate-logs-view hidden><header class="gate-logs-topbar"><button type="button" class="gate-logs-home-button" data-gate-action="logs-back" aria-label="입장 확인으로 돌아가기"><span aria-hidden="true">‹</span>입장 확인</button></header><header class="gate-title-block gate-detail-title"><p>ENTRY LOG</p><h2>입장 로그</h2><i aria-hidden="true"></i></header><article class="gate-card gate-logs-card"><p class="gate-log-caption">입장 완료 처리된 기록만 표시됩니다.</p><div class="gate-log-list gate-log-list-full" data-gate-full-log-list></div></article></section>' +
     '<section class="gate-detail-view" data-gate-detail hidden>' +
       '<button type="button" class="gate-detail-back" data-gate-action="detail-back" aria-label="이전으로 돌아가기">‹</button><article class="gate-event-card gate-detail-event gate-static-event"><div><span>오늘의 공연</span><strong>Lumibelle Debut Live</strong></div></article><header class="gate-title-block gate-detail-title"><p>ENTRY LOG DETAIL</p><h2>입장 로그 상세</h2><i aria-hidden="true"></i></header>' +
-      '<article class="gate-card gate-detail-main"><div class="gate-profile gate-detail-profile" aria-hidden="true"><span>♡</span></div><div class="gate-detail-info">' + gateDetailRow('닉네임', '<span data-gate-detail-name></span>') + gateDetailRow('예약번호', '<span data-gate-detail-reservation></span>') + gateDetailRow('루미 ID', '<span data-gate-detail-lumi></span>') + gateDetailRow('권종', '<span data-gate-detail-ticket></span>') + gateDetailRow('입장 상태', '<mark data-gate-detail-status></mark>') + '</div></article>' +
+      '<article class="gate-card gate-detail-main"><div class="gate-profile gate-detail-profile" aria-hidden="true"><span>♡</span></div><div class="gate-detail-info">' + gateDetailRow('닉네임', '<span data-gate-detail-name></span>') + gateDetailRow('예약번호', '<span data-gate-detail-reservation></span>') + gateDetailRow('루미 ID', '<span data-gate-detail-lumi></span>') + gateDetailRow('권종', '<span data-gate-detail-ticket></span>') + gateDetailRow('메아테', '<span data-gate-detail-meate></span>') + gateDetailRow('입장 상태', '<mark data-gate-detail-status></mark>') + '</div></article>' +
       '<article class="gate-detail-meta"><p><span>입장 시각</span><strong data-gate-detail-time></strong></p><p><span>확인 스탭</span><strong data-gate-detail-checker></strong></p><p><span>처리 방식</span><strong data-gate-detail-method></strong></p></article>' +
       '<article class="gate-card gate-detail-record"><header class="gate-card-head"><span>✿</span><strong>입장 상세 정보</strong></header>' + gateDetailRow('예약 일시', '<span data-gate-detail-reserved></span>') + gateDetailRow('입금 확인', '<span data-gate-detail-paid></span>') + gateDetailRow('메모', '<span data-gate-detail-memo></span>') + '</article>' +
       '<div class="gate-detail-actions"><button type="button" class="gate-secondary" data-gate-action="detail-back">목록으로</button><button type="button" class="gate-primary" data-gate-action="edit-open">기록 수정</button></div>' +
@@ -485,7 +500,7 @@ window.LumiApps.gate = function () {
       '<article class="gate-event-card gate-detail-event gate-static-event"><div><span>오늘의 공연</span><strong>Lumibelle Debut Live</strong></div></article>' +
       '<header class="gate-title-block gate-detail-title"><p>WALK-IN CHECK-IN</p><h2>현장 입장 등록</h2><i aria-hidden="true"></i></header>' +
       '<article class="gate-card gate-walkin-summary"><div class="gate-profile" aria-hidden="true"><span>♡</span></div><div class="gate-walkin-summary-copy"><p><span>현장 번호</span><strong data-gate-walkin-number></strong></p><p><span>입장 유형</span><strong>현장 입장</strong></p><p><span>팬 정보</span><strong data-gate-walkin-fan></strong></p><p class="gate-walkin-existing-note" data-gate-walkin-note></p></div></article>' +
-      '<article class="gate-card gate-walkin-form"><label class="gate-edit-row gate-edit-input-row"><span>닉네임</span><input type="text" data-gate-walkin-name placeholder="닉네임을 입력하세요" /></label><label class="gate-edit-row gate-edit-select-row"><span>결제 상태</span><div class="gate-select-wrap"><select data-gate-walkin-payment><option>현장 결제 완료</option><option>무료 입장</option><option>관계자</option></select><em aria-hidden="true">⌄</em></div></label><label class="gate-edit-row gate-edit-select-row"><span>결제 수단</span><div class="gate-select-wrap"><select data-gate-walkin-method><option>현금</option><option>계좌이체</option><option>카드</option><option>해당 없음</option></select><em aria-hidden="true">⌄</em></div></label></article>' +
+      '<article class="gate-card gate-walkin-form"><label class="gate-edit-row gate-edit-input-row"><span>닉네임</span><input type="text" data-gate-walkin-name placeholder="닉네임을 입력하세요" /></label><label class="gate-edit-row gate-edit-select-row"><span>메아테</span><div class="gate-select-wrap"><select data-gate-walkin-meate>' + gateMeateOptionsHtml('Lumibelle') + '</select><em aria-hidden="true">⌄</em></div></label><label class="gate-edit-row gate-edit-select-row"><span>결제 상태</span><div class="gate-select-wrap"><select data-gate-walkin-payment><option>현장 결제 완료</option><option>무료 입장</option><option>관계자</option></select><em aria-hidden="true">⌄</em></div></label><label class="gate-edit-row gate-edit-select-row"><span>결제 수단</span><div class="gate-select-wrap"><select data-gate-walkin-method><option>현금</option><option>계좌이체</option><option>카드</option><option>해당 없음</option></select><em aria-hidden="true">⌄</em></div></label></article>' +
       '<article class="gate-edit-notice"><strong>현장 번호는 자동으로 발급됩니다.</strong><span>등록하면 오늘 공연 방문 기록과 입장 로그에 함께 남습니다.</span></article>' +
       '<div class="gate-edit-actions"><button type="button" class="gate-secondary" data-gate-action="walkin-back">팬 찾기로</button><button type="button" class="gate-primary" data-gate-action="walkin-save">현장 입장 완료</button></div>' +
     '</section>' +
@@ -588,6 +603,7 @@ function gateRenderResult(root, result) {
       '<p><span>닉네임</span><strong>' + record.nickname + '</strong></p>' +
       '<p><span>' + (record.isWalkIn ? '현장 번호' : '예약번호') + '</span><strong>' + record.reservation + '</strong></p>' +
       '<p><span>권종</span><strong>' + record.ticket + '</strong></p>' +
+      '<p><span>메아테</span><strong>' + gateMeateText(record.meate) + '</strong></p>' +
       '<p><span>등록 일시</span><strong>' + record.reservedAt + '</strong></p>' +
       '<p><span>결제 상태</span><mark class="' + (paid ? 'is-paid' : 'is-waiting') + '">' + gatePaymentChipLabel(record) + '</mark></p>' +
       '<p><span>입장 상태</span><mark class="' + (record.entered ? 'is-paid' : 'is-waiting') + '">' + (record.entered ? '입장 완료' : '미입장') + '</mark></p>' +
@@ -600,7 +616,7 @@ function getCurrentRecord(root) {
 }
 function setText(root, selector, text) { root.querySelectorAll(selector).forEach(function (node) { node.textContent = text || '-'; }); }
 function fillGateDetail(root, record) {
-  setText(root, '[data-gate-detail-name]', record.nickname); setText(root, '[data-gate-detail-reservation]', record.reservation); setText(root, '[data-gate-detail-lumi]', record.lumiId); setText(root, '[data-gate-detail-ticket]', record.ticket); setText(root, '[data-gate-detail-time]', record.enteredAt || '—'); setText(root, '[data-gate-detail-checker]', record.checker || '—'); setText(root, '[data-gate-detail-method]', record.method || '—'); setText(root, '[data-gate-detail-reserved]', record.reservedAt); setText(root, '[data-gate-detail-paid]', record.paidAt || '—'); setText(root, '[data-gate-detail-memo]', record.entryMemo || '—');
+  setText(root, '[data-gate-detail-name]', record.nickname); setText(root, '[data-gate-detail-reservation]', record.reservation); setText(root, '[data-gate-detail-lumi]', record.lumiId); setText(root, '[data-gate-detail-ticket]', record.ticket); setText(root, '[data-gate-detail-meate]', gateMeateText(record.meate)); setText(root, '[data-gate-detail-time]', record.enteredAt || '—'); setText(root, '[data-gate-detail-checker]', record.checker || '—'); setText(root, '[data-gate-detail-method]', record.method || '—'); setText(root, '[data-gate-detail-reserved]', record.reservedAt); setText(root, '[data-gate-detail-paid]', record.paidAt || '—'); setText(root, '[data-gate-detail-memo]', record.entryMemo || '—');
   var state = root.querySelector('[data-gate-detail-status]'); state.textContent = record.entered ? '입장 완료' : '미입장'; state.className = record.entered ? 'is-paid' : 'is-waiting';
 }
 function fillGateEdit(root, record) {
@@ -729,24 +745,43 @@ function saveGateWalkin(root) {
   var nameInput = walkinView.querySelector('[data-gate-walkin-name]');
   var payment = walkinView.querySelector('[data-gate-walkin-payment]');
   var method = walkinView.querySelector('[data-gate-walkin-method]');
+  var meateSelect = walkinView.querySelector('[data-gate-walkin-meate]');
   var typedNickname = nameInput && typeof nameInput.value === 'string' ? nameInput.value.trim() : '';
   var nickname = typedNickname || (root.getAttribute('data-gate-walkin-nickname') || '').trim();
   if (!nickname) { window.alert('현장 기록에 남길 닉네임을 입력해주세요.'); if (nameInput) nameInput.focus(); return false; }
   var number = root.getAttribute('data-gate-walkin-number') || gateNextWalkinNumber();
   var nowTime = gateNowTime();
   var status = payment ? payment.value : '현장 결제 완료';
+  var meate = gateMeateText(meateSelect ? meateSelect.value : 'Lumibelle');
   var linkedLumiId = gateNormalizeLumiId(root.getAttribute('data-gate-walkin-lumi') || '');
   var processingStamp = gateNowStamp();
   var record = {
     id: 'gate-walkin-' + Date.now(), nickname: nickname, reservation: number,
     lumiId: linkedLumiId || '현장 미연결', ticket: '현장 입장', reservedAt: processingStamp,
     paidAt: status, paymentChecker: '김스탭', payerName: '현장', paymentAmount: '-',
-    paymentMethod: method ? method.value : '해당 없음', paymentProcessedAt: processingStamp, paymentMemo: '현장 입장으로 등록했습니다.',
+    paymentMethod: method ? method.value : '해당 없음', paymentProcessedAt: processingStamp, paymentMemo: '현장 입장으로 등록했습니다. 메아테: ' + meate,
     entered: true, enteredAt: nowTime, checker: '김스탭', method: '현장 입장 등록',
-    entryMemo: status, isWalkIn: true, walkinNumber: number, entryType: '현장 입장'
+    entryMemo: status + ' · 메아테: ' + meate, isWalkIn: true, walkinNumber: number, entryType: '현장 입장', meate: meate
   };
   gateRecords.push(record);
   saveGateRecords();
+
+  gateEntryApiRequest('walkinRegister', {
+    nickname: nickname,
+    phoneLast4: '',
+    lumiId: linkedLumiId || '',
+    meate: meate,
+    walkinNumber: number,
+    paymentStatus: status,
+    paymentMethod: method ? method.value : '해당 없음',
+    staff: '김스탭',
+    memo: '스탭 OS 현장 입장 등록'
+  }, function (response) {
+    if (!response || response.ok === false) {
+      window.alert((response && (response.message || response.error)) || '현장 메아테 중앙 저장에 실패했어요. 시트 확인이 필요합니다.');
+    }
+  });
+
   if (window.GateHomeStore) window.GateHomeStore.adjustEnteredCount(1);
   gateRenderLogs(root);
   root.removeAttribute('data-gate-walkin-nickname');
