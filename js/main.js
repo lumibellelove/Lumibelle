@@ -693,15 +693,6 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
     return `https://www.youtube.com/embed/${youtubeId}?${params.toString()}`;
   }
 
-  function buildVideoDetailPosterDocument(card) {
-    const youtubeId = sanitizeYoutubeId(card?.dataset.youtubeId);
-    const embedUrl = buildVideoDetailEmbedUrl(card, true);
-    const thumbnailUrl = getYoutubeThumbnailUrl(youtubeId);
-    if (!youtubeId || !embedUrl || !thumbnailUrl) return '';
-
-    return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>*{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#111}a{position:relative;display:block;width:100%;height:100%;color:#fff;text-decoration:none;background:#111}img{display:block;width:100%;height:100%;object-fit:cover}a:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,9,14,.03),rgba(16,9,14,.2))}.play{position:absolute;z-index:2;left:50%;top:50%;width:64px;height:46px;border-radius:13px;background:#ff0033;box-shadow:0 8px 22px rgba(0,0,0,.28);transform:translate(-50%,-50%)}.play:after{content:"";position:absolute;left:26px;top:13px;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:16px solid #fff}</style></head><body><a href="${embedUrl}" target="_self" aria-label="YouTube 영상 재생"><img src="${thumbnailUrl}" alt=""><span class="play" aria-hidden="true"></span></a></body></html>`;
-  }
-
   function formatVideoRelativeAge(value) {
     const publishedAt = new Date(value || '');
     if (Number.isNaN(publishedAt.getTime())) return '';
@@ -1141,7 +1132,6 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
 
     if (videoDetailFrame) {
       videoDetailFrame.removeAttribute('src');
-      videoDetailFrame.srcdoc = '';
       videoDetailFrame.hidden = true;
     }
     if (videoDetailPlaceholder) videoDetailPlaceholder.hidden = false;
@@ -1211,14 +1201,13 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
     }
 
     if (videoDetailFrame && videoDetailPlaceholder && youtubeId) {
-      videoDetailFrame.removeAttribute('src');
-      videoDetailFrame.srcdoc = buildVideoDetailPosterDocument(card);
+      const embedUrl = buildVideoDetailEmbedUrl(card, false);
+      videoDetailFrame.src = embedUrl;
       videoDetailFrame.hidden = false;
       videoDetailPlaceholder.hidden = true;
     } else {
       if (videoDetailFrame) {
         videoDetailFrame.removeAttribute('src');
-        videoDetailFrame.srcdoc = '';
         videoDetailFrame.hidden = true;
       }
       if (videoDetailPlaceholder) videoDetailPlaceholder.hidden = false;
