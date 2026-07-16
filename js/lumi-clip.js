@@ -828,7 +828,7 @@
     const official = comment.official ? '<svg aria-hidden="true" class="lumi-comment-official-badge" viewBox="0 0 24 24"><path d="M12 1.8 15 4l3.7-.1.9 3.5 2.9 2.3-1.3 3.5 1.3 3.5-2.9 2.3-.9 3.5-3.7-.1-3 2.2-3-2.2-3.7.1-.9-3.5-2.9-2.3 1.3-3.5-1.3-3.5 2.9-2.3.9-3.5L9 4l3-2.2Z"></path><path d="m8.4 12.1 2.2 2.2 4.9-5"></path></svg>' : '';
     return `<article${articleClass ? ` class="${articleClass}"` : ''} data-comment-id="${escapeHtml(comment.id)}">
       <span class="lumi-comment-avatar${officialAvatar}">${escapeHtml(comment.avatar)}</span>
-      <div><span class="lumi-comment-meta"><strong>${escapeHtml(comment.author)}</strong>${official}<time datetime="${new Date(comment.createdAt).toISOString()}">${formatRelativeTime(comment.createdAt)}</time></span><p>${escapeHtml(comment.text)}</p><button type="button" data-comment-like class="${comment.liked ? 'is-liked' : ''}">${comment.liked ? '♥' : '♡'} <span>${comment.likes}</span></button>${reply ? '' : '<button type="button" data-comment-reply>답글</button>'}</div>
+      <div><span class="lumi-comment-meta"><strong>${escapeHtml(comment.author)}</strong>${official}<time datetime="${new Date(comment.createdAt).toISOString()}">${formatRelativeTime(comment.createdAt)}</time></span><p>${escapeHtml(comment.text)}</p><div class="lumi-comment-actions"><button type="button" data-comment-like class="${comment.liked ? 'is-liked' : ''}" aria-label="좋아요 ${comment.likes}개"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 20.5S3.5 15.2 3.5 8.6A4.6 4.6 0 0 1 12 6a4.6 4.6 0 0 1 8.5 2.6c0 6.6-8.5 11.9-8.5 11.9Z"></path></svg><span>${comment.likes}</span></button>${reply ? '' : '<button type="button" data-comment-reply>답글</button>'}</div></div>
     </article>`;
   };
 
