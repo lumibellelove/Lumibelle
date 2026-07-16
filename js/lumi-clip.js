@@ -186,6 +186,89 @@
   const feedYoutubeProgressTimers = new WeakMap();
   let feedSoundEnabled = false;
 
+  const tikTokIframe = (root) => root?.querySelector('iframe[data-tiktok-player]') || null;
+
+  const postTikTok = (root, type, value = null) => {
+    const iframe = tikTokIframe(root);
+    if (!iframe?.contentWindow) return false;
+    iframe.contentWindow.postMessage({ type, value, 'x-tiktok-player': true }, '*');
+    return true;
+  };
+
+  const tikTokPlayerUrl = (videoId, { autoplay = false, muted = false } = {}) => {
+    const params = new URLSearchParams({
+      controls: '0',
+      progress_bar: '0',
+      play_button: '0',
+      volume_control: '0',
+      fullscreen_button: '0',
+      timestamp: '0',
+      loop: '1',
+      autoplay: autoplay ? '1' : '0',
+      music_info: '0',
+      description: '0',
+      rel: '0',
+      native_context_menu: '0',
+      closed_caption: '0',
+      muted: muted ? '1' : '0'
+    });
+    return `https://www.tiktok.com/player/v1/${encodeURIComponent(videoId)}?${params.toString()}`;
+  };
+
+  const ensureCardTikTokPlayer = (card) => {
+    const host = card?.querySelector('[data-clip-tiktok-player]');
+    const videoId = card?.dataset.tiktokId;
+    if (!host || !videoId) return null;
+    let iframe = host.querySelector('iframe[data-tiktok-player]');
+    if (iframe) return iframe;
+    iframe = document.createElement('iframe');
+    iframe.dataset.tiktokPlayer = '';
+    iframe.dataset.tiktokContext = 'card';
+    iframe.title = `${card.dataset.title || 'TikTok'} 미리보기`;
+    iframe.allow = 'autoplay; encrypted-media; fullscreen';
+    iframe.src = tikTokPlayerUrl(videoId, { autoplay: true, muted: true });
+    host.append(iframe);
+    return iframe;
+  };
+
+  const ensureFeedTikTokPlayer = (slide) => {
+    const host = slide?.querySelector('[data-lumi-tiktok-player]');
+    const videoId = slide?.dataset.tiktokId;
+    if (!host || !videoId) return null;
+    let iframe = host.querySelector('iframe[data-tiktok-player]');
+    if (iframe) return iframe;
+    iframe = document.createElement('iframe');
+    iframe.dataset.tiktokPlayer = '';
+    iframe.dataset.tiktokContext = 'feed';
+    iframe.title = 'TikTok 공식 임베드 플레이어';
+    iframe.allow = 'autoplay; encrypted-media; fullscreen';
+    iframe.src = tikTokPlayerUrl(videoId);
+    host.append(iframe);
+    return iframe;
+  };
+
+  const pauseFeedTikTokSlide = (slide, reset = false) => {
+    if (!slide?.dataset.tiktokId) return;
+    postTikTok(slide, 'pause');
+    if (reset) postTikTok(slide, 'seekTo', 0);
+    const bar = slide.querySelector('[data-lumi-tiktok-progress] i');
+    if (reset) bar?.style.setProperty('transform', 'scaleX(0)');
+  };
+
+  const activateInstagramSlide = (slide) => {
+    const frame = slide?.querySelector('[data-lumi-instagram-frame]');
+    if (!frame) return;
+    const src = frame.dataset.src;
+    if (src && (!frame.src || frame.src === 'about:blank')) frame.src = src;
+    slide.querySelector('.lumi-feed-stage')?.classList.add('is-playing');
+  };
+
+  const pauseInstagramSlide = (slide, reset = false) => {
+    const frame = slide?.querySelector('[data-lumi-instagram-frame]');
+    if (!frame) return;
+    if (reset || frame.src !== 'about:blank') frame.src = 'about:blank';
+  };
+
   const loadYouTubeApi = () => {
     if (window.YT?.Player) return Promise.resolve(window.YT);
     if (youtubeApiPromise) return youtubeApiPromise;
@@ -414,9 +497,33 @@
     slides.forEach((item) => {
       if (item !== slide) {
         pauseFeedYoutubeSlide(item);
-        item.querySelector('.lumi-feed-stage')?.classList.remove('is-playing', 'is-paused');
+        pauseFeedTikTokSlide(item);
+        pauseInstagramSlide(item);
+        item.querySelector('.lumi-feed-stage')?.classList.remove('is-loading', 'is-playing', 'is-paused');
       }
     });
+
+    if (slide?.dataset.tiktokId) {
+      syncFeedYoutubeStage(slide, 'is-loading');
+      const iframe = ensureFeedTikTokPlayer(slide);
+      if (!iframe) {
+        syncFeedYoutubeStage(slide, 'is-paused');
+        showToast('TikTok 플레이어를 불러오지 못했어요');
+        return;
+      }
+      window.setTimeout(() => {
+        if (activeSlide !== slide || viewer?.hidden) return;
+        postTikTok(slide, feedSoundEnabled ? 'unMute' : 'mute');
+        postTikTok(slide, 'play');
+      }, 220);
+      return;
+    }
+
+    if (slide?.dataset.instagramCode) {
+      activateInstagramSlide(slide);
+      return;
+    }
+
     if (!slide?.dataset.youtubeId) {
       slide?.querySelector('.lumi-feed-stage')?.classList.add('is-playing');
       return;
@@ -448,7 +555,20 @@
     }
   };
 
+  const toggleFeedTikTokSlide = (slide) => {
+    const stage = slide?.querySelector('.lumi-feed-stage');
+    const playing = stage?.classList.contains('is-playing');
+    postTikTok(slide, playing ? 'pause' : 'play');
+  };
+
   const toggleFeedSound = async (slide) => {
+    if (slide?.dataset.tiktokId) {
+      feedSoundEnabled = !feedSoundEnabled;
+      postTikTok(slide, feedSoundEnabled ? 'unMute' : 'mute');
+      syncFeedSoundUi();
+      showToast(feedSoundEnabled ? '영상 소리를 켰어요' : '영상 소리를 껐어요');
+      return;
+    }
     try {
       const player = await ensureFeedYoutubePlayer(slide);
       if (!player) return;
@@ -461,11 +581,59 @@
     }
   };
 
+  window.addEventListener('message', (event) => {
+    if (!String(event.origin || '').includes('tiktok.com')) return;
+    const data = event.data;
+    if (!data || data['x-tiktok-player'] !== true) return;
+    const iframe = Array.from(document.querySelectorAll('iframe[data-tiktok-player]')).find((item) => item.contentWindow === event.source);
+    if (!iframe) return;
+    const card = iframe.closest('[data-clip-card]');
+    const slide = iframe.closest('[data-lumi-slide]');
+
+    if (data.type === 'onPlayerReady') {
+      if (card && previewCard === card) {
+        postTikTok(card, 'mute');
+        postTikTok(card, 'play');
+      }
+      if (slide && activeSlide === slide && viewer && !viewer.hidden) {
+        postTikTok(slide, feedSoundEnabled ? 'unMute' : 'mute');
+        postTikTok(slide, 'play');
+      }
+      return;
+    }
+
+    if (data.type === 'onCurrentTime') {
+      const currentTime = Number(data.value?.currentTime || 0);
+      const duration = Number(data.value?.duration || 0);
+      const ratio = duration > 0 ? Math.min(1, currentTime / duration) : 0;
+      card?.querySelector('.lumi-list-preview-progress i')?.style.setProperty('transform', `scaleX(${ratio})`);
+      slide?.querySelector('[data-lumi-tiktok-progress] i')?.style.setProperty('transform', `scaleX(${ratio})`);
+      return;
+    }
+
+    if (data.type === 'onStateChange' && slide) {
+      if (Number(data.value) === 1) syncFeedYoutubeStage(slide, 'is-playing');
+      else if (Number(data.value) === 2) syncFeedYoutubeStage(slide, 'is-paused');
+      else if (Number(data.value) === 0 && activeSlide === slide && viewer && !viewer.hidden) {
+        postTikTok(slide, 'seekTo', 0);
+        postTikTok(slide, 'play');
+      }
+      return;
+    }
+
+    if (data.type === 'onPlayerError' && slide) {
+      syncFeedYoutubeStage(slide, 'is-paused');
+      showToast('이 TikTok 영상은 임베드 재생을 지원하지 않을 수 있어요');
+    }
+  });
+
   const stopCardPreview = (card = previewCard) => {
     if (!card) return;
     card.classList.remove('is-previewing');
     card.removeAttribute('data-preview-state');
     clearCardYoutubeProgress(card);
+    const tikTokHost = card.querySelector('[data-clip-tiktok-player]');
+    if (tikTokHost) tikTokHost.replaceChildren();
     const youtubePlayer = cardYoutubePlayers.get(card);
     try { if (youtubePlayer?.pauseVideo) youtubePlayer.pauseVideo(); } catch (error) { /* player may still be initializing */ }
     try { if (youtubePlayer?.seekTo) youtubePlayer.seekTo(0, true); } catch (error) { /* player may still be initializing */ }
@@ -489,6 +657,11 @@
     previewCard = card;
     card.classList.add('is-previewing');
     card.dataset.previewState = 'playing';
+
+    if (card.dataset.tiktokId) {
+      ensureCardTikTokPlayer(card);
+      return;
+    }
 
     if (card.dataset.youtubeId) {
       try {
@@ -813,6 +986,8 @@
     document.body.classList.remove('lumi-feed-open');
     slides.forEach((slide) => {
       pauseFeedYoutubeSlide(slide, true);
+      pauseFeedTikTokSlide(slide, true);
+      pauseInstagramSlide(slide, true);
       slide.querySelector('.lumi-feed-stage')?.classList.remove('is-loading', 'is-playing', 'is-paused');
     });
     if (lastFocus instanceof HTMLElement) lastFocus.focus({ preventScroll: true });
@@ -845,6 +1020,10 @@
     sparkleButton?.setAttribute('aria-pressed', String(sparkleIds.has(clipId)));
 
     slide.querySelector('[data-lumi-play]')?.addEventListener('click', () => {
+      if (slide.dataset.tiktokId) {
+        toggleFeedTikTokSlide(slide);
+        return;
+      }
       if (slide.dataset.youtubeId) {
         toggleFeedYoutubeSlide(slide);
         return;
@@ -855,6 +1034,7 @@
       showToast(playing ? '재생 중인 목업 상태입니다' : '일시정지했어요');
     });
     slide.querySelector('[data-lumi-youtube-toggle]')?.addEventListener('click', () => toggleFeedYoutubeSlide(slide));
+    slide.querySelector('[data-lumi-tiktok-toggle]')?.addEventListener('click', () => toggleFeedTikTokSlide(slide));
     slide.querySelector('[data-lumi-sound]')?.addEventListener('click', (event) => {
       event.stopPropagation();
       toggleFeedSound(slide);
@@ -1026,7 +1206,7 @@
         closeActionSheets();
         showToast(copied ? '링크를 복사했어요' : '링크 복사에 실패했어요');
       } else if (action === 'original') {
-        const originalUrl = actionSlide?.dataset.youtubeUrl;
+        const originalUrl = actionSlide?.dataset.tiktokUrl || actionSlide?.dataset.instagramUrl || actionSlide?.dataset.youtubeUrl;
         closeActionSheets();
         if (originalUrl) window.open(originalUrl, '_blank', 'noopener,noreferrer');
         else showToast('원본 영상 연결 전 목업입니다');
