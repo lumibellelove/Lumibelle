@@ -5843,7 +5843,8 @@ body.video-detail-open {
   object-fit: cover;
   transform: scale(1.03);
 }
-.lumi-list-youtube-player {
+.lumi-list-youtube-player,
+.lumi-list-tiktok-player {
   position: absolute;
   z-index: 1;
   inset: 0;
@@ -5851,17 +5852,43 @@ body.video-detail-open {
   pointer-events: none;
   transition: opacity .18s ease;
 }
-.lumi-list-youtube-player iframe {
+.lumi-list-youtube-player iframe,
+.lumi-list-tiktok-player iframe {
   display: block;
   width: 100%;
   height: 100%;
   border: 0;
   pointer-events: none;
 }
-.lumi-list-card.is-previewing .lumi-list-youtube-player { opacity: 1; }
-.lumi-list-card.is-previewing .lumi-list-media--youtube { animation: none; }
+.lumi-list-card.is-previewing .lumi-list-youtube-player,
+.lumi-list-card.is-previewing .lumi-list-tiktok-player { opacity: 1; }
+.lumi-list-card.is-previewing .lumi-list-media--youtube,
+.lumi-list-card.is-previewing .lumi-list-media--tiktok { animation: none; }
 .lumi-list-media--youtube::before,
-.lumi-list-media--youtube::after { display: none; }
+.lumi-list-media--youtube::after,
+.lumi-list-media--tiktok::before,
+.lumi-list-media--tiktok::after,
+.lumi-list-media--instagram::before,
+.lumi-list-media--instagram::after { display: none; }
+.lumi-list-platform-poster {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 2px 10px rgba(42, 22, 36, .28);
+}
+.lumi-list-platform-poster i { font-size: 29px; font-style: normal; line-height: 1; }
+.lumi-list-platform-poster b { font-size: 13px; letter-spacing: .04em; }
+.lumi-list-platform-poster small { font-size: 7px; font-weight: 700; letter-spacing: .08em; opacity: .82; }
+.lumi-list-platform-poster--tiktok { background: linear-gradient(145deg, #20151d 0%, #46303f 48%, #ef5b98 140%); }
+.lumi-list-platform-poster--instagram { background: radial-gradient(circle at 25% 85%, #ffd36b 0 14%, transparent 32%), linear-gradient(145deg, #6547d9 0%, #d34e9e 52%, #f47b55 100%); }
+.lumi-list-card.is-previewing .lumi-list-platform-poster--tiktok { opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
   .lumi-list-card.is-previewing .lumi-list-media,
   .lumi-list-card.is-previewing .lumi-list-media::before,
@@ -6001,26 +6028,31 @@ body.lumi-feed-open { overflow: hidden; }
 }
 .lumi-feed-stage::after { font-size: 42px; text-shadow: 80px -160px 0 rgba(255,255,255,.18), 210px -30px 0 rgba(255,255,255,.16), 130px 190px 0 rgba(255,255,255,.15); }
 .lumi-feed-stage--youtube::before,
-.lumi-feed-stage--youtube::after { display: none; }
-.lumi-feed-youtube-player {
+.lumi-feed-stage--youtube::after,
+.lumi-feed-stage--tiktok::before,
+.lumi-feed-stage--tiktok::after,
+.lumi-feed-stage--instagram::before,
+.lumi-feed-stage--instagram::after { display: none; }
+.lumi-feed-youtube-player,
+.lumi-feed-tiktok-player {
   position: absolute;
   z-index: 1;
   inset: 0;
   background: #000;
 }
-.lumi-feed-youtube-player iframe {
+.lumi-feed-youtube-player iframe,
+.lumi-feed-tiktok-player iframe {
   display: block;
   width: 100%;
   height: 100%;
   border: 0;
-  pointer-events: auto;
+  pointer-events: none;
 }
-.lumi-feed-stage--youtube.is-youtube-started .lumi-feed-youtube-player iframe { pointer-events: none; }
-.lumi-feed-youtube-toggle {
+.lumi-feed-youtube-toggle,
+.lumi-feed-tiktok-toggle {
   position: absolute;
   z-index: 3;
   inset: 0;
-  display: none;
   width: 100%;
   height: 100%;
   padding: 0;
@@ -6028,31 +6060,42 @@ body.lumi-feed-open { overflow: hidden; }
   background: transparent;
   -webkit-tap-highlight-color: transparent;
 }
-.lumi-feed-stage--youtube.is-youtube-started .lumi-feed-youtube-toggle { display: block; }
-.lumi-youtube-start-note {
+.lumi-feed-instagram-player {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #fff;
+}
+.lumi-feed-instagram-player iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+}
+.lumi-platform-test-note {
   position: absolute;
   z-index: 7;
   left: 50%;
-  top: max(104px, calc(env(safe-area-inset-top) + 92px));
-  width: max-content;
-  max-width: calc(100% - 116px);
-  margin: 0;
-  padding: 7px 12px;
-  border: 1px solid rgba(255,255,255,.54);
+  top: max(108px, calc(env(safe-area-inset-top) + 94px));
+  max-width: calc(100% - 36px);
+  padding: 7px 11px;
+  border: 1px solid rgba(255,255,255,.52);
   border-radius: 999px;
-  background: rgba(37, 23, 33, .48);
+  background: rgba(38,22,33,.48);
   color: #fff;
   font-size: 8px;
   font-weight: 700;
-  line-height: 1.35;
   text-align: center;
   transform: translateX(-50%);
-  text-shadow: 0 1px 5px rgba(0,0,0,.28);
   backdrop-filter: blur(8px);
-  transition: opacity .2s ease;
   pointer-events: none;
 }
-.lumi-youtube-start-note.is-hidden { opacity: 0; }
+.lumi-feed-overlay--instagram { background: linear-gradient(180deg, rgba(40,22,33,.18), transparent 22%, transparent 56%, rgba(38,20,33,.74) 100%); }
 .lumi-feed-sound {
   position: absolute;
   z-index: 7;
@@ -6085,62 +6128,53 @@ body.lumi-feed-open { overflow: hidden; }
 .lumi-feed-sound-on { display: none; }
 .lumi-feed-sound.is-unmuted .lumi-feed-sound-off { display: none; }
 .lumi-feed-sound.is-unmuted .lumi-feed-sound-on { display: block; }
-.lumi-feed-stage--youtube:not(.is-youtube-started) .lumi-feed-sound { opacity: 0; pointer-events: none; }
-.lumi-feed-seek {
+.lumi-feed-progress {
   position: absolute;
-  z-index: 7;
+  z-index: 8;
   right: 0;
   bottom: 0;
   left: 0;
-  display: flex;
-  align-items: flex-end;
-  height: 24px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .18s ease;
-}
-.lumi-feed-stage--youtube.is-youtube-started .lumi-feed-seek { opacity: 1; pointer-events: auto; }
-.lumi-feed-seek input {
-  --seek-progress: 0%;
-  width: 100%;
-  height: 24px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  outline: 0;
-  background: linear-gradient(to right, #f05c9c 0 var(--seek-progress), rgba(255,255,255,.32) var(--seek-progress) 100%) left bottom / 100% 3px no-repeat;
-  appearance: none;
-  -webkit-appearance: none;
-  cursor: pointer;
+  height: 18px;
+  overflow: visible;
+  background: transparent;
+  pointer-events: auto;
   touch-action: none;
 }
-.lumi-feed-seek input::-webkit-slider-runnable-track { height: 24px; background: transparent; }
-.lumi-feed-seek input::-webkit-slider-thumb {
-  width: 12px;
-  height: 12px;
-  margin-top: 6px;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  background: #f05c9c;
-  box-shadow: 0 1px 7px rgba(45, 22, 35, .32);
-  appearance: none;
-  -webkit-appearance: none;
+.lumi-feed-progress::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.22);
 }
-.lumi-feed-seek input::-moz-range-track { height: 3px; background: transparent; }
-.lumi-feed-seek input::-moz-range-progress { height: 3px; background: #f05c9c; }
-.lumi-feed-seek input::-moz-range-thumb {
-  width: 10px;
-  height: 10px;
-  border: 2px solid #fff;
-  border-radius: 50%;
+.lumi-feed-progress i {
+  display: block;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  border-radius: 999px;
   background: #f05c9c;
-  box-shadow: 0 1px 7px rgba(45, 22, 35, .32);
+  transform: scaleX(0);
+  transform-origin: left center;
 }
-.lumi-feed-seek input:focus-visible { box-shadow: inset 0 -3px rgba(255,255,255,.78); }
+.lumi-feed-progress:active::before,
+.lumi-feed-stage.is-seeking .lumi-feed-progress::before {
+  background: rgba(255,255,255,.3);
+}
+.lumi-feed-progress:active i,
+.lumi-feed-stage.is-seeking .lumi-feed-progress i {
+  height: 4px;
+}
 .lumi-feed-stage.is-playing .lumi-feed-play,
 .lumi-feed-stage--youtube.is-loading .lumi-feed-play,
-.lumi-feed-stage--youtube:not(.is-youtube-started) .lumi-feed-play { opacity: 0; pointer-events: none; }
-.lumi-feed-stage--youtube.is-youtube-started.is-paused .lumi-feed-play { opacity: 1; pointer-events: auto; }
+.lumi-feed-stage--tiktok.is-loading .lumi-feed-play { opacity: 0; pointer-events: none; }
+.lumi-feed-stage--youtube.is-paused .lumi-feed-play,
+.lumi-feed-stage--tiktok.is-paused .lumi-feed-play { opacity: 1; pointer-events: auto; }
 .lumi-feed-play {
   position: absolute;
   z-index: 4;
