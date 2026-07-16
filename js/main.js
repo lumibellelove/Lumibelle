@@ -573,6 +573,8 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
   const videoDetailModal = document.querySelector('[data-video-detail-modal]');
   const videoDetailDialog = document.querySelector('.video-detail-dialog');
   const videoDetailFrame = document.querySelector('[data-video-detail-frame]');
+  const videoDetailStart = document.querySelector('[data-video-detail-start]');
+  const videoDetailThumbnail = document.querySelector('[data-video-detail-thumbnail]');
   const videoDetailPlaceholder = document.querySelector('[data-video-detail-placeholder]');
   const videoDetailTitle = document.querySelector('[data-video-detail-title]');
   const videoDetailCategory = document.querySelector('[data-video-detail-category]');
@@ -1134,7 +1136,12 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
       videoDetailFrame.removeAttribute('src');
       videoDetailFrame.hidden = true;
     }
-    if (videoDetailPlaceholder) videoDetailPlaceholder.hidden = false;
+    if (videoDetailStart) videoDetailStart.hidden = true;
+    if (videoDetailThumbnail) {
+      videoDetailThumbnail.removeAttribute('src');
+      videoDetailThumbnail.alt = '';
+    }
+    if (videoDetailPlaceholder) videoDetailPlaceholder.hidden = true;
 
     lastVideoDetailTrigger?.focus();
     lastVideoDetailTrigger = null;
@@ -1200,15 +1207,22 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
       videoDetailExternal.tabIndex = externalUrl ? 0 : -1;
     }
 
-    if (videoDetailFrame && videoDetailPlaceholder && youtubeId) {
-      const embedUrl = buildVideoDetailEmbedUrl(card, false);
-      videoDetailFrame.src = embedUrl;
-      videoDetailFrame.hidden = false;
-      videoDetailPlaceholder.hidden = true;
+    if (videoDetailFrame) {
+      videoDetailFrame.removeAttribute('src');
+      videoDetailFrame.hidden = true;
+    }
+
+    if (youtubeId && videoDetailStart && videoDetailThumbnail) {
+      videoDetailThumbnail.src = getYoutubeThumbnailUrl(youtubeId);
+      videoDetailThumbnail.alt = `${card.dataset.title || '영상'} 썸네일`;
+      videoDetailStart.hidden = false;
+      videoDetailStart.setAttribute('aria-label', `${card.dataset.title || '영상'} 재생`);
+      if (videoDetailPlaceholder) videoDetailPlaceholder.hidden = true;
     } else {
-      if (videoDetailFrame) {
-        videoDetailFrame.removeAttribute('src');
-        videoDetailFrame.hidden = true;
+      if (videoDetailStart) videoDetailStart.hidden = true;
+      if (videoDetailThumbnail) {
+        videoDetailThumbnail.removeAttribute('src');
+        videoDetailThumbnail.alt = '';
       }
       if (videoDetailPlaceholder) videoDetailPlaceholder.hidden = false;
     }
@@ -1415,6 +1429,18 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
 
     videoDetailCloseButtons.forEach((button) => {
       button.addEventListener('click', closeVideoDetail);
+    });
+
+    videoDetailStart?.addEventListener('click', () => {
+      if (!currentVideoDetailCard || !videoDetailFrame) return;
+
+      const embedUrl = buildVideoDetailEmbedUrl(currentVideoDetailCard, true);
+      if (!embedUrl) return;
+
+      videoDetailFrame.src = embedUrl;
+      videoDetailFrame.hidden = false;
+      videoDetailStart.hidden = true;
+      if (videoDetailPlaceholder) videoDetailPlaceholder.hidden = true;
     });
 
     videoDetailSparkleButton?.addEventListener('click', () => {
