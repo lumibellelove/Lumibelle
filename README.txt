@@ -1001,12 +1001,10 @@ v165 YouTube 테스트 영상 교체
 - 원본 보기 링크와 YouTube 썸네일도 새 쇼츠 주소로 교체
 - 재생·소리·진행바·루미벨 액션 UI 구조는 v164 그대로 유지
 
-[v166 플랫폼 임베드 비교 테스트]
-- 1번: TikTok / MARIRING Official / 영상 ID 7611383226531089681
-- 2번: Instagram Reels / MARIRING Official / 릴스 코드 DI_rR9mSdl0
-- 3번: YouTube Shorts / IRO Official / 영상 ID 2R5QZYVqeA0
-- TikTok: 공식 Embed Player, 자동 무음 재생·재생/정지·소리·진행바 테스트
-- Instagram: 공식 Reel embed 화면을 그대로 표시해 플랫폼 UI 노출과 루미벨 UI 충돌 여부 비교
-- YouTube: 기존 IFrame Player API 테스트 유지
-- 원본 보기는 각 플랫폼의 실제 원본 주소로 연결
-- !important 추가 없음
+## v167 YouTube 조회수·탐색 테스트 패치 (2026-07-17)
+- TikTok/Instagram 플랫폼 비교 테스트는 제외하고 v165 YouTube 단일 테스트 구조를 기준으로 복귀
+- 전체 뷰어 최초 진입 시 자동재생하지 않고 YouTube 기본 재생 버튼을 직접 눌러 시작하도록 변경
+- 최초 재생 이후 루미벨 재생·일시정지·소리 버튼 제어 활성화
+- 하단 진행바를 클릭·드래그 가능한 탐색바로 변경하여 앞뒤 재생 위치 이동 지원
+- 뷰어를 닫았다 다시 열면 최초 재생 테스트 상태로 초기화
+- YouTube 조회수 반영 여부는 플랫폼 집계 정책에 따라 보장되지 않으므로 실제 게시 후 비교 확인 필요
