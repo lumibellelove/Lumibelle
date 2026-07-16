@@ -184,6 +184,7 @@
   const feedYoutubePlayers = new WeakMap();
   const feedYoutubePlayerPromises = new WeakMap();
   const feedYoutubeProgressTimers = new WeakMap();
+  let feedSoundEnabled = false;
 
   const loadYouTubeApi = () => {
     if (window.YT?.Player) return Promise.resolve(window.YT);
@@ -299,6 +300,28 @@
     stage.classList.add(state);
   };
 
+  const syncFeedSoundUi = () => {
+    slides.forEach((slide) => {
+      const button = slide.querySelector('[data-lumi-sound]');
+      if (!button) return;
+      button.classList.toggle('is-unmuted', feedSoundEnabled);
+      button.setAttribute('aria-pressed', String(feedSoundEnabled));
+      button.setAttribute('aria-label', feedSoundEnabled ? '소리 끄기' : '소리 켜기');
+    });
+  };
+
+  const applyFeedSoundPreference = (player) => {
+    if (!player) return;
+    try {
+      if (feedSoundEnabled) {
+        player.unMute?.();
+        player.setVolume?.(100);
+      } else {
+        player.mute?.();
+      }
+    } catch (error) { /* player may still be initializing */ }
+  };
+
   const startFeedYoutubeProgress = (slide, player) => {
     clearFeedYoutubeProgress(slide);
     const bar = slide.querySelector('[data-lumi-youtube-progress] i');
@@ -341,7 +364,7 @@
         events: {
           onReady(event) {
             settled = true;
-            event.target.mute();
+            applyFeedSoundPreference(event.target);
             feedYoutubePlayers.set(slide, event.target);
             feedYoutubePlayerPromises.delete(slide);
             resolve(event.target);
@@ -402,7 +425,7 @@
     try {
       const player = await ensureFeedYoutubePlayer(slide);
       if (!player || activeSlide !== slide || viewer?.hidden) return;
-      player.mute();
+      applyFeedSoundPreference(player);
       player.playVideo();
     } catch (error) {
       syncFeedYoutubeStage(slide, 'is-paused');
@@ -417,11 +440,24 @@
       if (!player) return;
       if (player.getPlayerState?.() === YT.PlayerState.PLAYING) player.pauseVideo();
       else {
-        player.mute();
+        applyFeedSoundPreference(player);
         player.playVideo();
       }
     } catch (error) {
       showToast('YouTube 플레이어를 불러오지 못했어요');
+    }
+  };
+
+  const toggleFeedSound = async (slide) => {
+    try {
+      const player = await ensureFeedYoutubePlayer(slide);
+      if (!player) return;
+      feedSoundEnabled = !feedSoundEnabled;
+      applyFeedSoundPreference(player);
+      syncFeedSoundUi();
+      showToast(feedSoundEnabled ? '영상 소리를 켰어요' : '영상 소리를 껐어요');
+    } catch (error) {
+      showToast('소리 설정을 변경하지 못했어요');
     }
   };
 
@@ -783,6 +819,8 @@
     queueMobilePreview(180);
   };
 
+  syncFeedSoundUi();
+
   cards.forEach((card) => {
     card.querySelector('[data-clip-open]')?.addEventListener('click', (event) => {
       const index = slides.findIndex((slide) => slide.dataset.id === card.dataset.id);
@@ -817,6 +855,10 @@
       showToast(playing ? '재생 중인 목업 상태입니다' : '일시정지했어요');
     });
     slide.querySelector('[data-lumi-youtube-toggle]')?.addEventListener('click', () => toggleFeedYoutubeSlide(slide));
+    slide.querySelector('[data-lumi-sound]')?.addEventListener('click', (event) => {
+      event.stopPropagation();
+      toggleFeedSound(slide);
+    });
 
     sparkleButton?.addEventListener('click', (event) => {
       if (!requireLogin('루미폰 로그인 후 반짝응원을 보낼 수 있어요')) return;
