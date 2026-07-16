@@ -3971,6 +3971,31 @@ body.member-video-open {
     linear-gradient(155deg, #f08fbd, #b797de 52%, #f6b6d5);
 }
 
+.video-card-media--youtube {
+  background: #171117;
+}
+
+.video-card-youtube-thumbnail {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.video-card-media--youtube::after {
+  content: "";
+  position: absolute;
+  z-index: .5;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(31,18,28,.02), rgba(31,18,28,.16));
+  pointer-events: none;
+}
+
+
 .video-card-media--pink {
   background:
     radial-gradient(circle at 30% 28%, rgba(255,255,255,.8), transparent 22%),
@@ -4049,7 +4074,7 @@ body.member-video-open {
   position: absolute;
   top: 50%;
   left: 50%;
-  z-index: 1;
+  z-index: 2;
   width: 40px;
   height: 40px;
   border: 2px solid rgba(255,255,255,.93);
@@ -4072,6 +4097,7 @@ body.member-video-open {
 
 .video-card-media time {
   position: absolute;
+  z-index: 2;
   right: 7px;
   bottom: 7px;
   padding: 3px 6px;
@@ -5062,14 +5088,16 @@ body.video-filter-open {
 }
 
 .video-detail-player iframe {
-  position: relative;
-  z-index: 2;
+  position: absolute;
+  z-index: 3;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
   border: 0;
   background: #111;
   pointer-events: auto;
+  touch-action: manipulation;
 }
 
 .video-detail-player-placeholder {
