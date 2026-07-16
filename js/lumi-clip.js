@@ -184,92 +184,9 @@
   const feedYoutubePlayers = new WeakMap();
   const feedYoutubePlayerPromises = new WeakMap();
   const feedYoutubeProgressTimers = new WeakMap();
-  const feedProgressMeta = new WeakMap();
-  let feedProgressDrag = null;
+  const feedYoutubeProgressMeta = new WeakMap();
+  let activeProgressDrag = null;
   let feedSoundEnabled = false;
-
-  const tikTokIframe = (root) => root?.querySelector('iframe[data-tiktok-player]') || null;
-
-  const postTikTok = (root, type, value = null) => {
-    const iframe = tikTokIframe(root);
-    if (!iframe?.contentWindow) return false;
-    iframe.contentWindow.postMessage({ type, value, 'x-tiktok-player': true }, '*');
-    return true;
-  };
-
-  const tikTokPlayerUrl = (videoId, { autoplay = false, muted = false } = {}) => {
-    const params = new URLSearchParams({
-      controls: '0',
-      progress_bar: '0',
-      play_button: '0',
-      volume_control: '0',
-      fullscreen_button: '0',
-      timestamp: '0',
-      loop: '1',
-      autoplay: autoplay ? '1' : '0',
-      music_info: '0',
-      description: '0',
-      rel: '0',
-      native_context_menu: '0',
-      closed_caption: '0',
-      muted: muted ? '1' : '0'
-    });
-    return `https://www.tiktok.com/player/v1/${encodeURIComponent(videoId)}?${params.toString()}`;
-  };
-
-  const ensureCardTikTokPlayer = (card) => {
-    const host = card?.querySelector('[data-clip-tiktok-player]');
-    const videoId = card?.dataset.tiktokId;
-    if (!host || !videoId) return null;
-    let iframe = host.querySelector('iframe[data-tiktok-player]');
-    if (iframe) return iframe;
-    iframe = document.createElement('iframe');
-    iframe.dataset.tiktokPlayer = '';
-    iframe.dataset.tiktokContext = 'card';
-    iframe.title = `${card.dataset.title || 'TikTok'} 미리보기`;
-    iframe.allow = 'autoplay; encrypted-media; fullscreen';
-    iframe.src = tikTokPlayerUrl(videoId, { autoplay: true, muted: true });
-    host.append(iframe);
-    return iframe;
-  };
-
-  const ensureFeedTikTokPlayer = (slide) => {
-    const host = slide?.querySelector('[data-lumi-tiktok-player]');
-    const videoId = slide?.dataset.tiktokId;
-    if (!host || !videoId) return null;
-    let iframe = host.querySelector('iframe[data-tiktok-player]');
-    if (iframe) return iframe;
-    iframe = document.createElement('iframe');
-    iframe.dataset.tiktokPlayer = '';
-    iframe.dataset.tiktokContext = 'feed';
-    iframe.title = 'TikTok 공식 임베드 플레이어';
-    iframe.allow = 'autoplay; encrypted-media; fullscreen';
-    iframe.src = tikTokPlayerUrl(videoId);
-    host.append(iframe);
-    return iframe;
-  };
-
-  const pauseFeedTikTokSlide = (slide, reset = false) => {
-    if (!slide?.dataset.tiktokId) return;
-    postTikTok(slide, 'pause');
-    if (reset) postTikTok(slide, 'seekTo', 0);
-    const bar = slide.querySelector('[data-lumi-tiktok-progress] i');
-    if (reset) bar?.style.setProperty('transform', 'scaleX(0)');
-  };
-
-  const activateInstagramSlide = (slide) => {
-    const frame = slide?.querySelector('[data-lumi-instagram-frame]');
-    if (!frame) return;
-    const src = frame.dataset.src;
-    if (src && (!frame.src || frame.src === 'about:blank')) frame.src = src;
-    slide.querySelector('.lumi-feed-stage')?.classList.add('is-playing');
-  };
-
-  const pauseInstagramSlide = (slide, reset = false) => {
-    const frame = slide?.querySelector('[data-lumi-instagram-frame]');
-    if (!frame) return;
-    if (reset || frame.src !== 'about:blank') frame.src = 'about:blank';
-  };
 
   const loadYouTubeApi = () => {
     if (window.YT?.Player) return Promise.resolve(window.YT);
@@ -407,84 +324,6 @@
     } catch (error) { /* player may still be initializing */ }
   };
 
-  const setFeedProgressRatio = (slide, ratio) => {
-    const clamped = Math.max(0, Math.min(1, Number.isFinite(ratio) ? ratio : 0));
-    slide?.querySelector('[data-lumi-youtube-progress] i')?.style.setProperty('transform', `scaleX(${clamped})`);
-    slide?.querySelector('[data-lumi-tiktok-progress] i')?.style.setProperty('transform', `scaleX(${clamped})`);
-    const meta = feedProgressMeta.get(slide) || {};
-    meta.ratio = clamped;
-    feedProgressMeta.set(slide, meta);
-  };
-
-  const rememberFeedProgress = (slide, currentTime, duration) => {
-    if (!slide) return;
-    const safeCurrent = Number(currentTime) || 0;
-    const safeDuration = Number(duration) || 0;
-    const meta = feedProgressMeta.get(slide) || {};
-    meta.currentTime = safeCurrent;
-    meta.duration = safeDuration;
-    meta.ratio = safeDuration > 0 ? Math.max(0, Math.min(1, safeCurrent / safeDuration)) : 0;
-    feedProgressMeta.set(slide, meta);
-  };
-
-  const progressRatioFromEvent = (event, track) => {
-    if (!track) return 0;
-    const rect = track.getBoundingClientRect();
-    const clientX = (event.touches && event.touches[0]?.clientX) || event.clientX || 0;
-    if (!rect.width) return 0;
-    return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-  };
-
-  const seekFeedSlideToRatio = async (slide, ratio, { resume = null } = {}) => {
-    if (!slide) return;
-    const clamped = Math.max(0, Math.min(1, Number.isFinite(ratio) ? ratio : 0));
-    setFeedProgressRatio(slide, clamped);
-
-    if (slide.dataset.youtubeId) {
-      try {
-        const player = await ensureFeedYoutubePlayer(slide);
-        if (!player) return;
-        const duration = Number(player.getDuration?.() || feedProgressMeta.get(slide)?.duration || 0);
-        if (duration > 0) {
-          player.seekTo(duration * clamped, true);
-          rememberFeedProgress(slide, duration * clamped, duration);
-        }
-        if (resume === true) player.playVideo?.();
-        else if (resume === false) player.pauseVideo?.();
-      } catch (error) { /* ignore seek failure */ }
-      return;
-    }
-
-    if (slide.dataset.tiktokId) {
-      const duration = Number(feedProgressMeta.get(slide)?.duration || 0);
-      if (duration > 0) {
-        postTikTok(slide, 'seekTo', duration * clamped);
-        rememberFeedProgress(slide, duration * clamped, duration);
-      }
-      if (resume === true) postTikTok(slide, 'play');
-      else if (resume === false) postTikTok(slide, 'pause');
-    }
-  };
-
-  const stopFeedProgressDrag = () => {
-    if (!feedProgressDrag) return;
-    feedProgressDrag.slide?.querySelector('.lumi-feed-stage')?.classList.remove('is-seeking');
-    feedProgressDrag = null;
-  };
-
-  const beginFeedProgressDrag = (event, slide, track) => {
-    if (!slide || slide !== activeSlide || (viewer && viewer.hidden)) return;
-    const wasPlaying = slide.querySelector('.lumi-feed-stage')?.classList.contains('is-playing') || false;
-    feedProgressDrag = { slide, track, wasPlaying };
-    slide.querySelector('.lumi-feed-stage')?.classList.add('is-seeking');
-    if (slide.dataset.youtubeId) {
-      try { feedYoutubePlayers.get(slide)?.pauseVideo?.(); } catch (error) { /* ignore */ }
-    } else if (slide.dataset.tiktokId) {
-      postTikTok(slide, 'pause');
-    }
-    seekFeedSlideToRatio(slide, progressRatioFromEvent(event, track), { resume: false });
-  };
-
   const startFeedYoutubeProgress = (slide, player) => {
     clearFeedYoutubeProgress(slide);
     const bar = slide.querySelector('[data-lumi-youtube-progress] i');
@@ -492,11 +331,82 @@
       if (!bar) return;
       const duration = Number(player.getDuration?.() || 0);
       const currentTime = Number(player.getCurrentTime?.() || 0);
-      rememberFeedProgress(slide, currentTime, duration);
-      if (duration > 0) setFeedProgressRatio(slide, currentTime / duration);
+      feedYoutubeProgressMeta.set(slide, { duration, currentTime });
+      if (duration > 0 && activeProgressDrag?.slide !== slide) {
+        bar.style.transform = `scaleX(${Math.min(1, currentTime / duration)})`;
+      }
     };
     update();
     feedYoutubeProgressTimers.set(slide, window.setInterval(update, 100));
+  };
+
+  const feedProgressRatio = (event, track) => {
+    const rect = track.getBoundingClientRect();
+    if (!rect.width) return 0;
+    return Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+  };
+
+  const paintFeedProgress = (slide, ratio) => {
+    const bar = slide?.querySelector('[data-lumi-youtube-progress] i');
+    if (!bar) return;
+    bar.style.transform = `scaleX(${Math.max(0, Math.min(1, ratio))})`;
+  };
+
+  const seekFeedYoutube = (slide, ratio) => {
+    const player = feedYoutubePlayers.get(slide);
+    if (!player?.seekTo) return;
+    const meta = feedYoutubeProgressMeta.get(slide) || {};
+    const duration = Number(player.getDuration?.() || meta.duration || 0);
+    if (duration <= 0) return;
+    const clamped = Math.max(0, Math.min(1, ratio));
+    player.seekTo(duration * clamped, true);
+    feedYoutubeProgressMeta.set(slide, { duration, currentTime: duration * clamped });
+  };
+
+  const finishFeedProgressDrag = (event) => {
+    if (!activeProgressDrag || (event && event.pointerId !== activeProgressDrag.pointerId)) return;
+    const { slide, track, wasPlaying, pointerId } = activeProgressDrag;
+    if (event) {
+      const ratio = feedProgressRatio(event, track);
+      paintFeedProgress(slide, ratio);
+      seekFeedYoutube(slide, ratio);
+    }
+    slide.querySelector('.lumi-feed-stage')?.classList.remove('is-seeking');
+    try { track.releasePointerCapture?.(pointerId); } catch (error) { /* pointer capture may already be released */ }
+    activeProgressDrag = null;
+    if (wasPlaying) {
+      try { feedYoutubePlayers.get(slide)?.playVideo?.(); } catch (error) { /* player may still be initializing */ }
+    }
+  };
+
+  const bindFeedProgress = () => {
+    viewer?.querySelectorAll('[data-lumi-youtube-progress]').forEach((track) => {
+      const slide = track.closest('[data-lumi-slide]');
+      if (!slide) return;
+      track.addEventListener('pointerdown', (event) => {
+        if (slide !== activeSlide || viewer?.hidden) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const stage = slide.querySelector('.lumi-feed-stage');
+        const wasPlaying = stage?.classList.contains('is-playing') || false;
+        activeProgressDrag = { slide, track, wasPlaying, pointerId: event.pointerId };
+        stage?.classList.add('is-seeking');
+        try { track.setPointerCapture?.(event.pointerId); } catch (error) { /* pointer capture is optional */ }
+        try { feedYoutubePlayers.get(slide)?.pauseVideo?.(); } catch (error) { /* player may still be initializing */ }
+        const ratio = feedProgressRatio(event, track);
+        paintFeedProgress(slide, ratio);
+        seekFeedYoutube(slide, ratio);
+      });
+      track.addEventListener('pointermove', (event) => {
+        if (!activeProgressDrag || activeProgressDrag.track !== track || activeProgressDrag.pointerId !== event.pointerId) return;
+        event.preventDefault();
+        const ratio = feedProgressRatio(event, track);
+        paintFeedProgress(slide, ratio);
+        seekFeedYoutube(slide, ratio);
+      });
+      track.addEventListener('pointerup', finishFeedProgressDrag);
+      track.addEventListener('pointercancel', finishFeedProgressDrag);
+    });
   };
 
   const ensureFeedYoutubePlayer = async (slide) => {
@@ -570,9 +480,10 @@
     clearFeedYoutubeProgress(slide);
     try { if (player?.pauseVideo) player.pauseVideo(); } catch (error) { /* player may still be initializing */ }
     try { if (reset && player?.seekTo) player.seekTo(0, true); } catch (error) { /* player may still be initializing */ }
+    const bar = slide.querySelector('[data-lumi-youtube-progress] i');
     if (reset) {
-      setFeedProgressRatio(slide, 0);
-      rememberFeedProgress(slide, 0, feedProgressMeta.get(slide)?.duration || 0);
+      bar?.style.setProperty('transform', 'scaleX(0)');
+      feedYoutubeProgressMeta.set(slide, { duration: Number(player?.getDuration?.() || 0), currentTime: 0 });
     }
   };
 
@@ -580,33 +491,9 @@
     slides.forEach((item) => {
       if (item !== slide) {
         pauseFeedYoutubeSlide(item);
-        pauseFeedTikTokSlide(item);
-        pauseInstagramSlide(item);
-        item.querySelector('.lumi-feed-stage')?.classList.remove('is-loading', 'is-playing', 'is-paused');
+        item.querySelector('.lumi-feed-stage')?.classList.remove('is-playing', 'is-paused');
       }
     });
-
-    if (slide?.dataset.tiktokId) {
-      syncFeedYoutubeStage(slide, 'is-loading');
-      const iframe = ensureFeedTikTokPlayer(slide);
-      if (!iframe) {
-        syncFeedYoutubeStage(slide, 'is-paused');
-        showToast('TikTok 플레이어를 불러오지 못했어요');
-        return;
-      }
-      window.setTimeout(() => {
-        if (activeSlide !== slide || viewer?.hidden) return;
-        postTikTok(slide, feedSoundEnabled ? 'unMute' : 'mute');
-        postTikTok(slide, 'play');
-      }, 220);
-      return;
-    }
-
-    if (slide?.dataset.instagramCode) {
-      activateInstagramSlide(slide);
-      return;
-    }
-
     if (!slide?.dataset.youtubeId) {
       slide?.querySelector('.lumi-feed-stage')?.classList.add('is-playing');
       return;
@@ -638,20 +525,7 @@
     }
   };
 
-  const toggleFeedTikTokSlide = (slide) => {
-    const stage = slide?.querySelector('.lumi-feed-stage');
-    const playing = stage?.classList.contains('is-playing');
-    postTikTok(slide, playing ? 'pause' : 'play');
-  };
-
   const toggleFeedSound = async (slide) => {
-    if (slide?.dataset.tiktokId) {
-      feedSoundEnabled = !feedSoundEnabled;
-      postTikTok(slide, feedSoundEnabled ? 'unMute' : 'mute');
-      syncFeedSoundUi();
-      showToast(feedSoundEnabled ? '영상 소리를 켰어요' : '영상 소리를 껐어요');
-      return;
-    }
     try {
       const player = await ensureFeedYoutubePlayer(slide);
       if (!player) return;
@@ -664,60 +538,11 @@
     }
   };
 
-  window.addEventListener('message', (event) => {
-    if (!String(event.origin || '').includes('tiktok.com')) return;
-    const data = event.data;
-    if (!data || data['x-tiktok-player'] !== true) return;
-    const iframe = Array.from(document.querySelectorAll('iframe[data-tiktok-player]')).find((item) => item.contentWindow === event.source);
-    if (!iframe) return;
-    const card = iframe.closest('[data-clip-card]');
-    const slide = iframe.closest('[data-lumi-slide]');
-
-    if (data.type === 'onPlayerReady') {
-      if (card && previewCard === card) {
-        postTikTok(card, 'mute');
-        postTikTok(card, 'play');
-      }
-      if (slide && activeSlide === slide && viewer && !viewer.hidden) {
-        postTikTok(slide, feedSoundEnabled ? 'unMute' : 'mute');
-        postTikTok(slide, 'play');
-      }
-      return;
-    }
-
-    if (data.type === 'onCurrentTime') {
-      const currentTime = Number(data.value?.currentTime || 0);
-      const duration = Number(data.value?.duration || 0);
-      const ratio = duration > 0 ? Math.min(1, currentTime / duration) : 0;
-      card?.querySelector('.lumi-list-preview-progress i')?.style.setProperty('transform', `scaleX(${ratio})`);
-      rememberFeedProgress(slide, currentTime, duration);
-      setFeedProgressRatio(slide, ratio);
-      return;
-    }
-
-    if (data.type === 'onStateChange' && slide) {
-      if (Number(data.value) === 1) syncFeedYoutubeStage(slide, 'is-playing');
-      else if (Number(data.value) === 2) syncFeedYoutubeStage(slide, 'is-paused');
-      else if (Number(data.value) === 0 && activeSlide === slide && viewer && !viewer.hidden) {
-        postTikTok(slide, 'seekTo', 0);
-        postTikTok(slide, 'play');
-      }
-      return;
-    }
-
-    if (data.type === 'onPlayerError' && slide) {
-      syncFeedYoutubeStage(slide, 'is-paused');
-      showToast('이 TikTok 영상은 임베드 재생을 지원하지 않을 수 있어요');
-    }
-  });
-
   const stopCardPreview = (card = previewCard) => {
     if (!card) return;
     card.classList.remove('is-previewing');
     card.removeAttribute('data-preview-state');
     clearCardYoutubeProgress(card);
-    const tikTokHost = card.querySelector('[data-clip-tiktok-player]');
-    if (tikTokHost) tikTokHost.replaceChildren();
     const youtubePlayer = cardYoutubePlayers.get(card);
     try { if (youtubePlayer?.pauseVideo) youtubePlayer.pauseVideo(); } catch (error) { /* player may still be initializing */ }
     try { if (youtubePlayer?.seekTo) youtubePlayer.seekTo(0, true); } catch (error) { /* player may still be initializing */ }
@@ -741,11 +566,6 @@
     previewCard = card;
     card.classList.add('is-previewing');
     card.dataset.previewState = 'playing';
-
-    if (card.dataset.tiktokId) {
-      ensureCardTikTokPlayer(card);
-      return;
-    }
 
     if (card.dataset.youtubeId) {
       try {
@@ -1070,8 +890,6 @@
     document.body.classList.remove('lumi-feed-open');
     slides.forEach((slide) => {
       pauseFeedYoutubeSlide(slide, true);
-      pauseFeedTikTokSlide(slide, true);
-      pauseInstagramSlide(slide, true);
       slide.querySelector('.lumi-feed-stage')?.classList.remove('is-loading', 'is-playing', 'is-paused');
     });
     if (lastFocus instanceof HTMLElement) lastFocus.focus({ preventScroll: true });
@@ -1079,30 +897,7 @@
   };
 
   syncFeedSoundUi();
-
-  viewer?.querySelectorAll('[data-lumi-youtube-progress], [data-lumi-tiktok-progress]').forEach((track) => {
-    const slide = track.closest('[data-lumi-slide]');
-    track.addEventListener('pointerdown', (event) => {
-      event.preventDefault();
-      beginFeedProgressDrag(event, slide, track);
-    });
-  });
-
-  window.addEventListener('pointermove', (event) => {
-    if (!feedProgressDrag) return;
-    event.preventDefault();
-    seekFeedSlideToRatio(feedProgressDrag.slide, progressRatioFromEvent(event, feedProgressDrag.track), { resume: false });
-  }, { passive: false });
-
-  window.addEventListener('pointerup', (event) => {
-    if (!feedProgressDrag) return;
-    const { slide, track, wasPlaying } = feedProgressDrag;
-    const ratio = progressRatioFromEvent(event, track);
-    seekFeedSlideToRatio(slide, ratio, { resume: wasPlaying });
-    stopFeedProgressDrag();
-  });
-
-  window.addEventListener('pointercancel', stopFeedProgressDrag);
+  bindFeedProgress();
 
   cards.forEach((card) => {
     card.querySelector('[data-clip-open]')?.addEventListener('click', (event) => {
@@ -1128,10 +923,6 @@
     sparkleButton?.setAttribute('aria-pressed', String(sparkleIds.has(clipId)));
 
     slide.querySelector('[data-lumi-play]')?.addEventListener('click', () => {
-      if (slide.dataset.tiktokId) {
-        toggleFeedTikTokSlide(slide);
-        return;
-      }
       if (slide.dataset.youtubeId) {
         toggleFeedYoutubeSlide(slide);
         return;
@@ -1142,7 +933,6 @@
       showToast(playing ? '재생 중인 목업 상태입니다' : '일시정지했어요');
     });
     slide.querySelector('[data-lumi-youtube-toggle]')?.addEventListener('click', () => toggleFeedYoutubeSlide(slide));
-    slide.querySelector('[data-lumi-tiktok-toggle]')?.addEventListener('click', () => toggleFeedTikTokSlide(slide));
     slide.querySelector('[data-lumi-sound]')?.addEventListener('click', (event) => {
       event.stopPropagation();
       toggleFeedSound(slide);
@@ -1314,7 +1104,7 @@
         closeActionSheets();
         showToast(copied ? '링크를 복사했어요' : '링크 복사에 실패했어요');
       } else if (action === 'original') {
-        const originalUrl = actionSlide?.dataset.tiktokUrl || actionSlide?.dataset.instagramUrl || actionSlide?.dataset.youtubeUrl;
+        const originalUrl = actionSlide?.dataset.youtubeUrl;
         closeActionSheets();
         if (originalUrl) window.open(originalUrl, '_blank', 'noopener,noreferrer');
         else showToast('원본 영상 연결 전 목업입니다');
