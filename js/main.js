@@ -572,14 +572,7 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
   const videoFilterReturn = document.querySelector('[data-video-filter-return]');
   const videoDetailModal = document.querySelector('[data-video-detail-modal]');
   const videoDetailDialog = document.querySelector('.video-detail-dialog');
-  const videoDetailFrame = document.querySelector('[data-video-detail-frame]');
-  const videoDetailStart = document.querySelector('[data-video-detail-start]');
-  const videoDetailControls = document.querySelector('[data-video-detail-controls]');
-  const videoDetailToggle = document.querySelector('[data-video-detail-toggle]');
-  const videoDetailFullscreen = document.querySelector('[data-video-detail-fullscreen]');
-  const videoDetailPlayer = document.querySelector('.video-detail-player');
-  const videoDetailThumbnail = document.querySelector('[data-video-detail-thumbnail]');
-  const videoDetailPlaceholder = document.querySelector('[data-video-detail-placeholder]');
+  const videoDetailPlayer = document.querySelector('[data-video-detail-player]');
   const videoDetailTitle = document.querySelector('[data-video-detail-title]');
   const videoDetailCategory = document.querySelector('[data-video-detail-category]');
   const videoDetailDescription = document.querySelector('[data-video-detail-description]');
@@ -690,7 +683,6 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
       fs: '1',
       playsinline: '1',
       rel: '0',
-      enablejsapi: '1',
     });
     if (startSec > 0) params.set('start', String(Math.floor(startSec)));
     if (endSec > startSec) params.set('end', String(Math.floor(endSec)));
@@ -1102,7 +1094,6 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
 
   let lastVideoDetailTrigger = null;
   let currentVideoDetailCard = null;
-  let videoDetailIsPlaying = false;
 
   function setVideoDetailStatus(message) {
     if (!videoDetailActionStatus) return;
@@ -1131,56 +1122,56 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
     });
   }
 
-  function sendVideoDetailCommand(command) {
-    if (!videoDetailFrame?.contentWindow) return;
-
-    videoDetailFrame.contentWindow.postMessage(JSON.stringify({
-      event: 'command',
-      func: command,
-      args: [],
-    }), 'https://www.youtube.com');
-  }
-
-  function syncVideoDetailToggle() {
-    if (!videoDetailToggle) return;
-
-    videoDetailToggle.classList.toggle('is-paused', !videoDetailIsPlaying);
-    videoDetailToggle.setAttribute(
-      'aria-label',
-      videoDetailIsPlaying ? '영상 일시정지' : '영상 재생'
-    );
-  }
-
-  async function toggleVideoDetailFullscreen() {
+  function renderVideoDetailPlayerStart(card) {
     if (!videoDetailPlayer) return;
 
-    const activeFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+    videoDetailPlayer.replaceChildren();
 
-    try {
-      if (activeFullscreen) {
-        const exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen;
-        await exitFullscreen?.call(document);
-        return;
-      }
-
-      const requestFullscreen =
-        videoDetailPlayer.requestFullscreen ||
-        videoDetailPlayer.webkitRequestFullscreen;
-
-      if (requestFullscreen) {
-        await requestFullscreen.call(videoDetailPlayer);
-        return;
-      }
-
-      const iframeRequestFullscreen =
-        videoDetailFrame?.requestFullscreen ||
-        videoDetailFrame?.webkitRequestFullscreen;
-      await iframeRequestFullscreen?.call(videoDetailFrame);
-    } catch (error) {
-      if (videoDetailActionStatus) {
-        videoDetailActionStatus.textContent = '이 브라우저에서는 전체 화면을 시작할 수 없어요.';
-      }
+    const youtubeId = sanitizeYoutubeId(card?.dataset.youtubeId);
+    if (!youtubeId) {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'video-detail-player-placeholder';
+      placeholder.innerHTML = '<strong>영상 연결 전</strong><span>실제 영상 URL 연결 후 이 영역에서 재생됩니다.</span>';
+      videoDetailPlayer.appendChild(placeholder);
+      return;
     }
+
+    const startButton = document.createElement('button');
+    startButton.className = 'video-detail-start';
+    startButton.type = 'button';
+    startButton.setAttribute('aria-label', `${card.dataset.title || '영상'} 재생`);
+
+    const thumbnail = document.createElement('img');
+    thumbnail.src = getYoutubeThumbnailUrl(youtubeId);
+    thumbnail.alt = `${card.dataset.title || '영상'} 썸네일`;
+    thumbnail.decoding = 'async';
+
+    const icon = document.createElement('span');
+    icon.className = 'video-detail-start-icon';
+    icon.setAttribute('aria-hidden', 'true');
+
+    startButton.append(thumbnail, icon);
+    startButton.addEventListener('click', () => mountVideoDetailYoutube(card), { once: true });
+    videoDetailPlayer.appendChild(startButton);
+  }
+
+  function mountVideoDetailYoutube(card) {
+    if (!videoDetailPlayer || !card) return;
+
+    const embedUrl = buildVideoDetailEmbedUrl(card, true);
+    if (!embedUrl) return;
+
+    const iframe = document.createElement('iframe');
+    iframe.src = embedUrl;
+    iframe.title = `${card.dataset.title || '영상'} YouTube 플레이어`;
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen';
+    iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+    iframe.allowFullscreen = true;
+    iframe.setAttribute('allowfullscreen', '');
+    iframe.setAttribute('webkitallowfullscreen', '');
+    iframe.setAttribute('mozallowfullscreen', '');
+
+    videoDetailPlayer.replaceChildren(iframe);
   }
 
   function closeVideoDetail() {
@@ -1189,19 +1180,7 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
     videoDetailModal.hidden = true;
     document.body.classList.remove('video-detail-open');
 
-    if (videoDetailFrame) {
-      videoDetailFrame.removeAttribute('src');
-      videoDetailFrame.hidden = true;
-    }
-    videoDetailIsPlaying = false;
-    syncVideoDetailToggle();
-    if (videoDetailControls) videoDetailControls.hidden = true;
-    if (videoDetailStart) videoDetailStart.hidden = true;
-    if (videoDetailThumbnail) {
-      videoDetailThumbnail.removeAttribute('src');
-      videoDetailThumbnail.alt = '';
-    }
-    if (videoDetailPlaceholder) videoDetailPlaceholder.hidden = true;
+    videoDetailPlayer?.replaceChildren();
 
     lastVideoDetailTrigger?.focus();
     lastVideoDetailTrigger = null;
@@ -1267,28 +1246,7 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
       videoDetailExternal.tabIndex = externalUrl ? 0 : -1;
     }
 
-    if (videoDetailFrame) {
-      videoDetailFrame.removeAttribute('src');
-      videoDetailFrame.hidden = true;
-    }
-    videoDetailIsPlaying = false;
-    syncVideoDetailToggle();
-    if (videoDetailControls) videoDetailControls.hidden = true;
-
-    if (youtubeId && videoDetailStart && videoDetailThumbnail) {
-      videoDetailThumbnail.src = getYoutubeThumbnailUrl(youtubeId);
-      videoDetailThumbnail.alt = `${card.dataset.title || '영상'} 썸네일`;
-      videoDetailStart.hidden = false;
-      videoDetailStart.setAttribute('aria-label', `${card.dataset.title || '영상'} 재생`);
-      if (videoDetailPlaceholder) videoDetailPlaceholder.hidden = true;
-    } else {
-      if (videoDetailStart) videoDetailStart.hidden = true;
-      if (videoDetailThumbnail) {
-        videoDetailThumbnail.removeAttribute('src');
-        videoDetailThumbnail.alt = '';
-      }
-      if (videoDetailPlaceholder) videoDetailPlaceholder.hidden = false;
-    }
+    renderVideoDetailPlayerStart(card);
 
     videoDetailModal.hidden = false;
     document.body.classList.add('video-detail-open');
@@ -1494,35 +1452,6 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
       button.addEventListener('click', closeVideoDetail);
     });
 
-    videoDetailStart?.addEventListener('click', () => {
-      if (!currentVideoDetailCard || !videoDetailFrame) return;
-
-      const embedUrl = buildVideoDetailEmbedUrl(currentVideoDetailCard, true);
-      if (!embedUrl) return;
-
-      videoDetailFrame.src = embedUrl;
-      videoDetailFrame.hidden = false;
-      videoDetailStart.hidden = true;
-      videoDetailIsPlaying = true;
-      syncVideoDetailToggle();
-      if (videoDetailControls) videoDetailControls.hidden = false;
-      if (videoDetailPlaceholder) videoDetailPlaceholder.hidden = true;
-    });
-
-    videoDetailToggle?.addEventListener('click', () => {
-      if (!videoDetailFrame || videoDetailFrame.hidden) return;
-
-      if (videoDetailIsPlaying) {
-        sendVideoDetailCommand('pauseVideo');
-        videoDetailIsPlaying = false;
-      } else {
-        sendVideoDetailCommand('playVideo');
-        videoDetailIsPlaying = true;
-      }
-      syncVideoDetailToggle();
-    });
-
-    videoDetailFullscreen?.addEventListener('click', toggleVideoDetailFullscreen);
 
     videoDetailSparkleButton?.addEventListener('click', () => {
       if (!currentVideoDetailCard) return;
