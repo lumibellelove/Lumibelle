@@ -30,6 +30,7 @@
   const commentsBackdrop = document.querySelector('[data-comments-backdrop]');
   const commentsSheet = document.querySelector('[data-comments-sheet]');
   const commentsClose = document.querySelector('[data-comments-close]');
+  const commentsHandle = document.querySelector('[data-comments-handle]');
   const commentsList = document.querySelector('[data-comments-list]');
   const commentsCount = document.querySelector('[data-comments-count]');
   const commentAuth = document.querySelector('[data-comment-auth]');
@@ -66,6 +67,8 @@
   let activeCommentSlide = null;
   let actionSlide = null;
   let replyTarget = null;
+  let commentsCloseTimer = 0;
+  let commentsDrag = null;
   let isMockAuthenticated = window.sessionStorage.getItem('lumiMockAuthenticated') === '1';
   const savedIds = new Set(storage.read('lumibelleSavedClips', []));
   const sparkleIds = new Set(storage.read('lumibelleSparkledClips', []));
@@ -112,6 +115,13 @@
     if (value >= 10000) return `${Math.round(value / 1000)}K`;
     if (value >= 1000) return `${(value / 1000).toFixed(value >= 10000 ? 0 : 1).replace('.0', '')}K`;
     return String(value);
+  };
+
+  const formatPlaybackTime = (seconds) => {
+    const safe = Math.max(0, Math.floor(Number(seconds) || 0));
+    const minutes = Math.floor(safe / 60);
+    const remainder = String(safe % 60).padStart(2, '0');
+    return `${minutes}:${remainder}`;
   };
 
   const formatRelativeTime = (timestamp) => {
@@ -333,7 +343,7 @@
       const currentTime = Number(player.getCurrentTime?.() || 0);
       feedYoutubeProgressMeta.set(slide, { duration, currentTime });
       if (duration > 0 && activeProgressDrag?.slide !== slide) {
-        bar.style.transform = `scaleX(${Math.min(1, currentTime / duration)})`;
+        paintFeedProgress(slide, currentTime / duration, currentTime);
       }
     };
     update();
@@ -346,10 +356,18 @@
     return Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
   };
 
-  const paintFeedProgress = (slide, ratio) => {
-    const bar = slide?.querySelector('[data-lumi-youtube-progress] i');
-    if (!bar) return;
-    bar.style.transform = `scaleX(${Math.max(0, Math.min(1, ratio))})`;
+  const paintFeedProgress = (slide, ratio, previewTime = null) => {
+    const track = slide?.querySelector('[data-lumi-youtube-progress]');
+    if (!track) return;
+    const clamped = Math.max(0, Math.min(1, ratio));
+    track.style.setProperty('--lumi-progress', String(clamped));
+    const time = track.querySelector('[data-lumi-progress-time]');
+    if (time) {
+      const meta = feedYoutubeProgressMeta.get(slide) || {};
+      const duration = Number(meta.duration || 0);
+      const seconds = previewTime == null ? duration * clamped : Number(previewTime || 0);
+      time.textContent = formatPlaybackTime(seconds);
+    }
   };
 
   const seekFeedYoutube = (slide, ratio) => {
@@ -359,8 +377,10 @@
     const duration = Number(player.getDuration?.() || meta.duration || 0);
     if (duration <= 0) return;
     const clamped = Math.max(0, Math.min(1, ratio));
-    player.seekTo(duration * clamped, true);
-    feedYoutubeProgressMeta.set(slide, { duration, currentTime: duration * clamped });
+    const targetTime = duration * clamped;
+    player.seekTo(targetTime, true);
+    feedYoutubeProgressMeta.set(slide, { duration, currentTime: targetTime });
+    paintFeedProgress(slide, clamped, targetTime);
   };
 
   const finishFeedProgressDrag = (event) => {
@@ -480,10 +500,9 @@
     clearFeedYoutubeProgress(slide);
     try { if (player?.pauseVideo) player.pauseVideo(); } catch (error) { /* player may still be initializing */ }
     try { if (reset && player?.seekTo) player.seekTo(0, true); } catch (error) { /* player may still be initializing */ }
-    const bar = slide.querySelector('[data-lumi-youtube-progress] i');
     if (reset) {
-      bar?.style.setProperty('transform', 'scaleX(0)');
       feedYoutubeProgressMeta.set(slide, { duration: Number(player?.getDuration?.() || 0), currentTime: 0 });
+      paintFeedProgress(slide, 0, 0);
     }
   };
 
@@ -823,23 +842,66 @@
     updateCommentButtonCount(activeCommentSlide);
   };
 
-  const closeComments = () => {
+  const finishCommentsClose = () => {
     if (!commentsSheet || !commentsBackdrop) return;
     commentsSheet.hidden = true;
     commentsBackdrop.hidden = true;
+    commentsSheet.style.removeProperty('transform');
+    commentsBackdrop.style.removeProperty('opacity');
+  };
+
+  const closeComments = () => {
+    if (!commentsSheet || !commentsBackdrop || commentsSheet.hidden) return;
+    window.clearTimeout(commentsCloseTimer);
+    commentsDrag = null;
+    commentsSheet.classList.remove('is-dragging');
+    commentsSheet.style.removeProperty('transform');
+    commentsBackdrop.style.removeProperty('opacity');
+    commentsSheet.classList.remove('is-open');
+    commentsBackdrop.classList.remove('is-open');
     replyTarget = null;
     if (replyContext) replyContext.hidden = true;
+    commentsCloseTimer = window.setTimeout(finishCommentsClose, 240);
     feed?.focus({ preventScroll: true });
   };
 
   const openComments = (slide) => {
     if (!commentsSheet || !commentsBackdrop) return;
+    window.clearTimeout(commentsCloseTimer);
     activeCommentSlide = slide || activeSlide;
     renderComments();
     syncAuthUi();
     commentsSheet.hidden = false;
     commentsBackdrop.hidden = false;
+    commentsSheet.classList.remove('is-dragging');
+    commentsSheet.style.removeProperty('transform');
+    commentsBackdrop.style.removeProperty('opacity');
+    requestAnimationFrame(() => {
+      commentsSheet.classList.add('is-open');
+      commentsBackdrop.classList.add('is-open');
+    });
     commentsClose?.focus({ preventScroll: true });
+  };
+
+  const resetCommentsDrag = () => {
+    if (!commentsSheet || !commentsBackdrop) return;
+    commentsDrag = null;
+    commentsSheet.classList.remove('is-dragging');
+    commentsSheet.style.removeProperty('transform');
+    commentsBackdrop.style.removeProperty('opacity');
+  };
+
+  const finishCommentsDrag = (event) => {
+    if (!commentsDrag || (event && event.pointerId !== commentsDrag.pointerId)) return;
+    const delta = Math.max(0, (event?.clientY || commentsDrag.lastY) - commentsDrag.startY);
+    const threshold = Math.max(72, commentsSheet.offsetHeight * .14);
+    try { commentsHandle?.releasePointerCapture?.(commentsDrag.pointerId); } catch (error) { /* optional */ }
+    if (delta >= threshold) {
+      resetCommentsDrag();
+      closeComments();
+      return;
+    }
+    resetCommentsDrag();
   };
 
   const closeActionSheets = () => {
@@ -909,6 +971,24 @@
   closeButton?.addEventListener('click', closeViewer);
   commentsClose?.addEventListener('click', closeComments);
   commentsBackdrop?.addEventListener('click', closeComments);
+  commentsHandle?.addEventListener('pointerdown', (event) => {
+    if (!commentsSheet || commentsSheet.hidden) return;
+    event.preventDefault();
+    commentsDrag = { pointerId: event.pointerId, startY: event.clientY, lastY: event.clientY };
+    commentsSheet.classList.add('is-dragging');
+    try { commentsHandle.setPointerCapture?.(event.pointerId); } catch (error) { /* optional */ }
+  });
+  commentsHandle?.addEventListener('pointermove', (event) => {
+    if (!commentsDrag || event.pointerId !== commentsDrag.pointerId || !commentsSheet || !commentsBackdrop) return;
+    event.preventDefault();
+    commentsDrag.lastY = event.clientY;
+    const delta = Math.max(0, event.clientY - commentsDrag.startY);
+    commentsSheet.style.transform = `translateY(${delta}px)`;
+    const fade = Math.max(0, 1 - delta / Math.max(1, commentsSheet.offsetHeight * .75));
+    commentsBackdrop.style.opacity = String(fade);
+  });
+  commentsHandle?.addEventListener('pointerup', finishCommentsDrag);
+  commentsHandle?.addEventListener('pointercancel', finishCommentsDrag);
   actionsBackdrop?.addEventListener('click', closeActionSheets);
   document.querySelectorAll('[data-action-close]').forEach((button) => button.addEventListener('click', closeActionSheets));
 
@@ -1047,7 +1127,7 @@
     if (replyContext) replyContext.hidden = true;
     commentInput.placeholder = '댓글을 입력하세요';
     renderComments();
-    commentsSheet?.scrollTo({ top: commentsSheet.scrollHeight, behavior: 'smooth' });
+    commentsList?.scrollTo({ top: commentsList.scrollHeight, behavior: 'smooth' });
     showToast('댓글을 등록했어요');
   });
 
