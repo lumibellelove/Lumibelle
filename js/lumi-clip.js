@@ -937,16 +937,39 @@
   };
 
   const openViewer = (index, trigger = null) => {
-    if (!viewer || !feed || !slides[index]) return;
+    const targetSlide = slides[index];
+    if (!viewer || !feed || !targetSlide) return;
     stopCardPreview();
     lastFocus = trigger || document.activeElement;
+
+    // Disable the feed's smooth scrolling while opening. Without this,
+    // opening clip 8 visibly races through clips 1–7 before it settles.
+    viewer.classList.add('is-opening');
+    feed.style.setProperty('scroll-behavior', 'auto');
+    feed.style.setProperty('scroll-snap-type', 'none');
     viewer.hidden = false;
     document.body.classList.add('lumi-feed-open');
     if (total) total.textContent = String(slides.length);
+
+    activeSlide = targetSlide;
+    if (current) current.textContent = String(index + 1);
+
+    const placeTargetImmediately = () => {
+      const targetTop = targetSlide.offsetTop;
+      feed.scrollTo({ top: targetTop, behavior: 'auto' });
+      feed.scrollTop = targetTop;
+    };
+
     requestAnimationFrame(() => {
-      setActiveSlide(index, false);
-      activateSlidePlayback(slides[index]);
-      closeButton?.focus({ preventScroll: true });
+      placeTargetImmediately();
+      requestAnimationFrame(() => {
+        placeTargetImmediately();
+        feed.style.removeProperty('scroll-behavior');
+        feed.style.removeProperty('scroll-snap-type');
+        viewer.classList.remove('is-opening');
+        activateSlidePlayback(targetSlide);
+        closeButton?.focus({ preventScroll: true });
+      });
     });
   };
 
@@ -954,6 +977,7 @@
     if (!viewer) return;
     closeComments();
     closeActionSheets();
+    viewer.classList.remove('is-opening');
     viewer.hidden = true;
     document.body.classList.remove('lumi-feed-open');
     slides.forEach((slide) => {
@@ -1204,6 +1228,7 @@
 
   if ('IntersectionObserver' in window && feed) {
     const observer = new IntersectionObserver((entries) => {
+      if (viewer?.classList.contains('is-opening')) return;
       entries.forEach((entry) => {
         if (!entry.isIntersecting || entry.intersectionRatio < .62) return;
         const index = slides.indexOf(entry.target);

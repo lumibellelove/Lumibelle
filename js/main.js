@@ -1150,7 +1150,10 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
 
     if (videoDetailFrame && videoDetailPlaceholder && youtubeId) {
       const params = new URLSearchParams({
-        autoplay: '1',
+        autoplay: '0',
+        controls: '1',
+        fs: '1',
+        playsinline: '1',
         rel: '0',
       });
       if (startSec > 0) params.set('start', String(startSec));
