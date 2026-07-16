@@ -13,6 +13,72 @@
   next?.addEventListener('click', () => setActive(current + 1));
   dots.forEach((dot, index) => dot.addEventListener('click', () => setActive(index)));
 
+  const noticeRotators = Array.from(document.querySelectorAll('[data-notice-rotator]'));
+  const reduceNoticeMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  noticeRotators.forEach((rotator) => {
+    const slides = Array.from(rotator.querySelectorAll('[data-notice-slide]'));
+    if (slides.length < 2) return;
+
+    let activeIndex = Math.max(0, slides.findIndex((slide) => slide.classList.contains('is-active')));
+    let noticeTimer = 0;
+    let cleanupTimer = 0;
+
+    const syncSlideAccess = () => {
+      slides.forEach((slide, index) => {
+        const active = index === activeIndex;
+        slide.setAttribute('aria-hidden', String(!active));
+        slide.tabIndex = active ? 0 : -1;
+      });
+    };
+
+    const showNotice = (nextIndex) => {
+      if (nextIndex === activeIndex) return;
+
+      window.clearTimeout(cleanupTimer);
+      const currentSlide = slides[activeIndex];
+      const nextSlide = slides[nextIndex];
+
+      currentSlide.classList.remove('is-active');
+      currentSlide.classList.add('is-before');
+      nextSlide.classList.remove('is-before');
+      nextSlide.classList.add('is-active');
+      activeIndex = nextIndex;
+      syncSlideAccess();
+
+      cleanupTimer = window.setTimeout(() => {
+        currentSlide.classList.remove('is-before');
+      }, 480);
+    };
+
+    const stopNoticeRotation = () => {
+      window.clearInterval(noticeTimer);
+      noticeTimer = 0;
+    };
+
+    const startNoticeRotation = () => {
+      if (reduceNoticeMotion || noticeTimer || document.hidden) return;
+      noticeTimer = window.setInterval(() => {
+        showNotice((activeIndex + 1) % slides.length);
+      }, 4600);
+    };
+
+    syncSlideAccess();
+    startNoticeRotation();
+
+    rotator.addEventListener('pointerenter', stopNoticeRotation);
+    rotator.addEventListener('pointerleave', startNoticeRotation);
+    rotator.addEventListener('focusin', stopNoticeRotation);
+    rotator.addEventListener('focusout', (event) => {
+      if (!rotator.contains(event.relatedTarget)) startNoticeRotation();
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopNoticeRotation();
+      else startNoticeRotation();
+    });
+  });
+
   const languagePicker = document.querySelector('.language-picker');
   const languageButton = document.querySelector('.language-button');
   const languageMenu = document.querySelector('.language-menu');
@@ -49,12 +115,28 @@
   const menuClose = document.querySelector('.menu-close');
   const menuLinks = Array.from(document.querySelectorAll('.site-menu a'));
 
+  let menuHideTimer = 0;
+
   function setMenu(open) {
     if (!menuButton || !siteMenu) return;
+
+    window.clearTimeout(menuHideTimer);
     menuButton.setAttribute('aria-expanded', String(open));
     siteMenu.setAttribute('aria-hidden', String(!open));
-    siteMenu.classList.toggle('is-open', open);
     document.body.classList.toggle('menu-open', open);
+
+    if (open) {
+      siteMenu.hidden = false;
+      window.requestAnimationFrame(() => {
+        siteMenu.classList.add('is-open');
+      });
+      return;
+    }
+
+    siteMenu.classList.remove('is-open');
+    menuHideTimer = window.setTimeout(() => {
+      if (!siteMenu.classList.contains('is-open')) siteMenu.hidden = true;
+    }, 220);
   }
 
   menuButton?.addEventListener('click', () => setMenu(true));
@@ -74,8 +156,6 @@
   const newsEmpty = document.querySelector('.news-empty');
   const newsPageButton = document.querySelector('.news-page-button');
   const newsPageButtonLabel = newsPageButton?.querySelector('span');
-  const newsPageCurrent = document.querySelector('.news-page-status b');
-  const newsPageTotal = document.querySelector('.news-page-status span');
   const newsItemsPerPage = 5;
   let newsFilter = 'all';
   let newsSearchQuery = '';
@@ -143,8 +223,6 @@
         : '해당 분류에 등록된 공지가 없습니다.';
     }
 
-    if (newsPageCurrent) newsPageCurrent.textContent = String(newsPage);
-    if (newsPageTotal) newsPageTotal.textContent = String(totalPages);
 
     if (newsPageButton && newsPageButtonLabel) {
       const hasMultiplePages = totalPages > 1;
@@ -928,7 +1006,7 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
     clone.hidden = false;
 
     const trigger = clone.querySelector('.video-card-open');
-    trigger?.addEventListener('click', () => openVideoDetail(clone, trigger));
+    trigger?.addEventListener('click', () => openVideoCard(clone, trigger));
 
     return clone;
   }
@@ -1105,7 +1183,7 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
     }, 1800);
   }
 
-  function syncVideoCardSparkles(card, value) {
+  function syncVideoCardSparkles(card, value, isSparkled) {
     if (!card) return;
 
     const key = card.dataset.videoKey;
@@ -1115,6 +1193,7 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
 
     relatedCards.forEach((relatedCard) => {
       relatedCard.dataset.sparkles = String(value);
+      relatedCard.dataset.sparkled = String(isSparkled);
       const cardSparkleStat = relatedCard.querySelector('[data-video-card-sparkles]');
       if (cardSparkleStat) {
         cardSparkleStat.textContent = formatVideoCompactCount(value);
@@ -1172,6 +1251,32 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
     iframe.setAttribute('mozallowfullscreen', '');
 
     videoDetailPlayer.replaceChildren(iframe);
+  }
+
+  function openEmbeddedLumiClip(clipId, trigger) {
+    const safeId = String(clipId || '').trim();
+    const viewerApi = window.LumiClipViewer;
+
+    if (viewerApi?.openById) {
+      viewerApi.openById(safeId, trigger || null);
+      return;
+    }
+
+    const target = safeId
+      ? `./lumi-clip.html#${encodeURIComponent(safeId)}`
+      : './lumi-clip.html';
+    window.location.href = target;
+  }
+
+  function openVideoCard(card, trigger) {
+    if (!card) return;
+
+    if (card.dataset.type === 'short') {
+      openEmbeddedLumiClip(card.dataset.clipId, trigger);
+      return;
+    }
+
+    openVideoDetail(card, trigger);
   }
 
   function closeVideoDetail() {
@@ -1259,6 +1364,14 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
     const threshold = videoArchiveControls.offsetTop + videoArchiveControls.offsetHeight + 140;
     videoFilterReturn.hidden = window.scrollY < threshold || document.body.classList.contains('video-detail-open');
   }
+
+  document.querySelectorAll('[data-video-lumi-preview] .lumi-clip-card').forEach((card) => {
+    card.addEventListener('click', (event) => {
+      event.preventDefault();
+      const hash = new URL(card.href, window.location.href).hash.replace(/^#/, '');
+      openEmbeddedLumiClip(decodeURIComponent(hash), card);
+    });
+  });
 
   if (videoPage) {
     renderVideoCardStats();
@@ -1445,7 +1558,7 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
 
     videoCards.forEach((card) => {
       const trigger = card.querySelector('.video-card-open');
-      trigger?.addEventListener('click', () => openVideoDetail(card, trigger));
+      trigger?.addEventListener('click', () => openVideoCard(card, trigger));
     });
 
     videoDetailCloseButtons.forEach((button) => {
@@ -1462,7 +1575,7 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
       const isSparkled = !wasSparkled;
 
       currentVideoDetailCard.dataset.sparkled = String(isSparkled);
-      syncVideoCardSparkles(currentVideoDetailCard, nextCount);
+      syncVideoCardSparkles(currentVideoDetailCard, nextCount, isSparkled);
 
       if (videoDetailSparkles) {
         videoDetailSparkles.textContent = formatVideoNumber(nextCount);

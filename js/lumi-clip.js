@@ -21,6 +21,7 @@
   const filterOverlay = document.querySelector('[data-clip-filter-overlay]');
   const filterCount = document.querySelector('[data-clip-filter-count]');
   const viewer = document.querySelector('[data-lumi-viewer]');
+  const embeddedViewer = Boolean(viewer?.hasAttribute('data-lumi-embedded'));
   const feed = document.querySelector('[data-lumi-feed]');
   const slides = Array.from(document.querySelectorAll('[data-lumi-slide]'));
   const closeButton = document.querySelector('[data-lumi-close]');
@@ -62,6 +63,7 @@
   let activeMember = 'ALL';
   let activeFilters = { type: 'ALL', tags: [], period: 'ALL' };
   let lastFocus = null;
+  let embeddedScrollY = 0;
   let toastTimer = 0;
   let activeSlide = slides[0] || null;
   let activeCommentSlide = null;
@@ -117,6 +119,80 @@
     return String(value);
   };
 
+
+  const clipPreviewCards = Array.from(document.querySelectorAll('.lumi-clip-card[href*="#"]'));
+  const clipVideoCards = Array.from(document.querySelectorAll('[data-clip-id]'));
+  const clipBaseSparkles = new Map();
+
+  const getClipBaseSparkles = (clipId) => {
+    if (clipBaseSparkles.has(clipId)) return clipBaseSparkles.get(clipId);
+
+    const card = cards.find((item) => item.dataset.id === clipId);
+    const slide = slides.find((item) => item.dataset.id === clipId);
+    const preview = clipPreviewCards.find((item) => decodeURIComponent(new URL(item.href, window.location.href).hash.slice(1)) === clipId);
+    const videoCard = clipVideoCards.find((item) => item.dataset.clipId === clipId);
+    const base = Math.max(0, Number(
+      card?.dataset.baseSparkles || card?.dataset.sparkles ||
+      slide?.dataset.baseSparkles || slide?.dataset.sparkles ||
+      preview?.dataset.baseSparkles || preview?.dataset.clipSparkles ||
+      videoCard?.dataset.baseSparkles || videoCard?.dataset.sparkles || 0
+    ));
+
+    clipBaseSparkles.set(clipId, base);
+    return base;
+  };
+
+  const syncClipSparkles = (clipId) => {
+    if (!clipId) return;
+
+    const base = getClipBaseSparkles(clipId);
+    const isSparkled = sparkleIds.has(clipId);
+    const displayed = base + (isSparkled ? 1 : 0);
+
+    cards.filter((item) => item.dataset.id === clipId).forEach((card) => {
+      card.dataset.baseSparkles = String(base);
+      card.dataset.sparkles = String(displayed);
+      const listValue = card.querySelector('.lumi-list-body small i:nth-of-type(2)');
+      if (listValue) listValue.textContent = `♥ ${formatCompact(displayed)}`;
+    });
+
+    slides.filter((item) => item.dataset.id === clipId).forEach((slide) => {
+      slide.dataset.baseSparkles = String(base);
+      slide.dataset.sparkles = String(displayed);
+      const button = slide.querySelector('[data-lumi-sparkle]');
+      const value = button?.querySelector('[data-lumi-sparkle-count]');
+      button?.classList.toggle('is-active', isSparkled);
+      button?.setAttribute('aria-pressed', String(isSparkled));
+      if (value) value.textContent = String(displayed);
+    });
+
+    clipPreviewCards.forEach((preview) => {
+      const previewId = decodeURIComponent(new URL(preview.href, window.location.href).hash.slice(1));
+      if (previewId !== clipId) return;
+      preview.dataset.baseSparkles = String(base);
+      preview.dataset.clipSparkles = String(displayed);
+      const value = preview.querySelector('[data-clip-sparkle-text]');
+      if (value) value.textContent = formatCompact(displayed);
+    });
+
+    clipVideoCards.filter((item) => item.dataset.clipId === clipId).forEach((videoCard) => {
+      videoCard.dataset.baseSparkles = String(base);
+      videoCard.dataset.sparkles = String(displayed);
+      const value = videoCard.querySelector('[data-video-card-sparkles]');
+      if (value) value.textContent = formatCompact(displayed);
+    });
+  };
+
+  const syncAllClipSparkles = () => {
+    const clipIds = new Set([
+      ...cards.map((card) => card.dataset.id),
+      ...slides.map((slide) => slide.dataset.id),
+      ...clipVideoCards.map((card) => card.dataset.clipId),
+      ...clipPreviewCards.map((card) => decodeURIComponent(new URL(card.href, window.location.href).hash.slice(1)))
+    ].filter(Boolean));
+    clipIds.forEach(syncClipSparkles);
+  };
+
   const formatPlaybackTime = (seconds) => {
     const safe = Math.max(0, Math.floor(Number(seconds) || 0));
     const minutes = Math.floor(safe / 60);
@@ -144,7 +220,9 @@
   })[character]);
 
   const clipUrl = (slide = activeSlide) => {
-    const url = new URL(location.href);
+    const url = embeddedViewer
+      ? new URL('./lumi-clip.html', location.href)
+      : new URL(location.href);
     const id = slide?.dataset.id || '';
     url.hash = id ? encodeURIComponent(id) : '';
     return url.toString();
@@ -185,6 +263,15 @@
   let previewCard = null;
   let hoverPreviewTimer = 0;
   let scrollStopTimer = 0;
+  let pressPreviewTimer = 0;
+  let pressedPreviewCard = null;
+  let pressedPreviewTrigger = null;
+  let pressPreviewPointerId = null;
+  let pressPreviewStartX = 0;
+  let pressPreviewStartY = 0;
+  let pressPreviewActive = false;
+  let suppressNextCardClick = null;
+  let suppressNextCardClickTimer = 0;
   let lastScrollY = window.scrollY;
   let scrollDirection = 1;
   let youtubeApiPromise = null;
@@ -660,11 +747,42 @@
     scrollStopTimer = window.setTimeout(selectMobilePreview, delay);
   };
 
+  const clearPressPreview = ({ stop = true, suppressClick = false } = {}) => {
+    window.clearTimeout(pressPreviewTimer);
+    pressPreviewTimer = 0;
+
+    const card = pressedPreviewCard;
+    const trigger = pressedPreviewTrigger;
+    const wasActive = pressPreviewActive;
+
+    if (trigger && pressPreviewPointerId != null && trigger.hasPointerCapture?.(pressPreviewPointerId)) {
+      try { trigger.releasePointerCapture(pressPreviewPointerId); } catch (error) { /* capture may already be released */ }
+    }
+
+    if (stop && wasActive && card) stopCardPreview(card);
+
+    if (suppressClick && wasActive && card) {
+      suppressNextCardClick = card;
+      window.clearTimeout(suppressNextCardClickTimer);
+      suppressNextCardClickTimer = window.setTimeout(() => {
+        if (suppressNextCardClick === card) suppressNextCardClick = null;
+      }, 700);
+    }
+
+    pressedPreviewCard = null;
+    pressedPreviewTrigger = null;
+    pressPreviewPointerId = null;
+    pressPreviewActive = false;
+  };
+
   const handlePageScroll = () => {
     const currentY = window.scrollY;
     scrollDirection = currentY >= lastScrollY ? 1 : -1;
     lastScrollY = currentY;
-    if (!finePointer.matches) stopCardPreview();
+    if (!finePointer.matches) {
+      clearPressPreview({ stop: true });
+      stopCardPreview();
+    }
     queueMobilePreview(240);
   };
 
@@ -682,6 +800,45 @@
     trigger?.addEventListener('blur', () => {
       if (finePointer.matches) stopCardPreview(card);
     });
+
+    trigger?.addEventListener('pointerdown', (event) => {
+      if (finePointer.matches || reducedMotion.matches || event.button !== 0 || !event.isPrimary) return;
+
+      clearPressPreview({ stop: true });
+      pressedPreviewCard = card;
+      pressedPreviewTrigger = trigger;
+      pressPreviewPointerId = event.pointerId;
+      pressPreviewStartX = event.clientX;
+      pressPreviewStartY = event.clientY;
+
+      try { trigger.setPointerCapture(event.pointerId); } catch (error) { /* capture is optional */ }
+
+      pressPreviewTimer = window.setTimeout(() => {
+        if (pressedPreviewCard !== card) return;
+        pressPreviewActive = true;
+        startCardPreview(card);
+      }, 320);
+    });
+
+    trigger?.addEventListener('pointermove', (event) => {
+      if (pressedPreviewCard !== card || event.pointerId !== pressPreviewPointerId) return;
+      const moved = Math.hypot(event.clientX - pressPreviewStartX, event.clientY - pressPreviewStartY);
+      if (moved > 12) clearPressPreview({ stop: true });
+    });
+
+    trigger?.addEventListener('pointerup', (event) => {
+      if (pressedPreviewCard !== card || event.pointerId !== pressPreviewPointerId) return;
+      clearPressPreview({ stop: true, suppressClick: true });
+    });
+
+    trigger?.addEventListener('pointercancel', (event) => {
+      if (pressedPreviewCard !== card || event.pointerId !== pressPreviewPointerId) return;
+      clearPressPreview({ stop: true });
+    });
+
+    trigger?.addEventListener('contextmenu', (event) => {
+      if (!finePointer.matches) event.preventDefault();
+    });
   });
 
   window.addEventListener('scroll', handlePageScroll, { passive: true });
@@ -698,7 +855,6 @@
   const renderCards = () => {
     if (!grid) return;
     const query = (search?.value || '').trim().toLowerCase();
-    const referenceDate = Math.max(...cards.map((card) => new Date(card.dataset.published).getTime()));
     const matching = cards.filter((card) => {
       const memberMatch = activeMember === 'ALL' || card.dataset.member === activeMember;
       const haystack = `${card.dataset.title || ''} ${card.dataset.member || ''} ${card.dataset.tags || ''}`.toLowerCase();
@@ -706,8 +862,14 @@
       const typeMatch = activeFilters.type === 'ALL' || type === activeFilters.type;
       const tagText = (card.dataset.tags || '').toLowerCase();
       const tagsMatch = activeFilters.tags.length === 0 || activeFilters.tags.every((tag) => tagText.includes(tag.toLowerCase()));
-      const ageDays = Math.floor((referenceDate - new Date(card.dataset.published).getTime()) / 86400000);
-      const periodMatch = activeFilters.period === 'ALL' || ageDays < Number(activeFilters.period);
+      const publishedAt = new Date(card.dataset.published).getTime();
+      const age = Date.now() - publishedAt;
+      const periodDays = Number(activeFilters.period);
+      const periodMatch = activeFilters.period === 'ALL' || (
+        Number.isFinite(publishedAt) &&
+        age >= 0 &&
+        age <= periodDays * 86400000
+      );
       return memberMatch && typeMatch && tagsMatch && periodMatch && (!query || haystack.includes(query));
     });
 
@@ -936,14 +1098,41 @@
     if (current) current.textContent = String(index + 1);
   };
 
+  const lockEmbeddedPage = () => {
+    if (!embeddedViewer) return;
+    embeddedScrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${embeddedScrollY}px`;
+    document.body.style.right = '0';
+    document.body.style.left = '0';
+    document.body.style.width = '100%';
+  };
+
+  const unlockEmbeddedPage = () => {
+    if (!embeddedViewer) return;
+    document.body.style.removeProperty('position');
+    document.body.style.removeProperty('top');
+    document.body.style.removeProperty('right');
+    document.body.style.removeProperty('left');
+    document.body.style.removeProperty('width');
+    window.scrollTo({ top: embeddedScrollY, behavior: 'auto' });
+  };
+
   const openViewer = (index, trigger = null) => {
     const targetSlide = slides[index];
     if (!viewer || !feed || !targetSlide) return;
     stopCardPreview();
     lastFocus = trigger || document.activeElement;
 
-    // Disable the feed's smooth scrolling while opening. Without this,
-    // opening clip 8 visibly races through clips 1–7 before it settles.
+    if (viewer.hidden && embeddedViewer) {
+      lockEmbeddedPage();
+      if (!history.state?.lumiClipOverlay) {
+        history.pushState({ ...(history.state || {}), lumiClipOverlay: true }, '', location.href);
+      }
+    }
+
+    // Opening must jump directly to the selected slide. Smooth scrolling here
+    // would visibly pass every earlier clip before reaching the target.
     viewer.classList.add('is-opening');
     feed.style.setProperty('scroll-behavior', 'auto');
     feed.style.setProperty('scroll-snap-type', 'none');
@@ -973,8 +1162,8 @@
     });
   };
 
-  const closeViewer = () => {
-    if (!viewer) return;
+  const closeViewerImmediately = () => {
+    if (!viewer || viewer.hidden) return;
     closeComments();
     closeActionSheets();
     viewer.classList.remove('is-opening');
@@ -984,15 +1173,53 @@
       pauseFeedYoutubeSlide(slide, true);
       slide.querySelector('.lumi-feed-stage')?.classList.remove('is-loading', 'is-playing', 'is-paused');
     });
+    unlockEmbeddedPage();
     if (lastFocus instanceof HTMLElement) lastFocus.focus({ preventScroll: true });
     queueMobilePreview(180);
   };
+
+  const closeViewer = () => {
+    if (embeddedViewer && history.state?.lumiClipOverlay) {
+      history.back();
+      return;
+    }
+    closeViewerImmediately();
+  };
+
+  const openViewerById = (id, trigger = null) => {
+    const safeId = String(id || '').trim();
+    const index = safeId
+      ? slides.findIndex((slide) => slide.dataset.id === safeId)
+      : 0;
+    openViewer(index >= 0 ? index : 0, trigger);
+  };
+
+  window.LumiClipViewer = {
+    openById: openViewerById,
+    openByIndex: openViewer,
+    close: closeViewer,
+    isOpen: () => Boolean(viewer && !viewer.hidden),
+  };
+
+  if (embeddedViewer) {
+    window.addEventListener('popstate', () => {
+      if (!viewer || viewer.hidden) return;
+      closeViewerImmediately();
+    });
+  }
 
   syncFeedSoundUi();
   bindFeedProgress();
 
   cards.forEach((card) => {
     card.querySelector('[data-clip-open]')?.addEventListener('click', (event) => {
+      if (suppressNextCardClick === card) {
+        event.preventDefault();
+        suppressNextCardClick = null;
+        window.clearTimeout(suppressNextCardClickTimer);
+        return;
+      }
+
       const index = slides.findIndex((slide) => slide.dataset.id === card.dataset.id);
       openViewer(Math.max(0, index), event.currentTarget);
     });
@@ -1046,23 +1273,13 @@
       toggleFeedSound(slide);
     });
 
-    sparkleButton?.addEventListener('click', (event) => {
+    sparkleButton?.addEventListener('click', () => {
       if (!requireLogin('루미폰 로그인 후 반짝응원을 보낼 수 있어요')) return;
-      const button = event.currentTarget;
-      const value = button.querySelector('[data-lumi-sparkle-count]');
-      const active = !button.classList.contains('is-active');
-      button.classList.toggle('is-active', active);
-      button.setAttribute('aria-pressed', String(active));
-      const next = Number(value?.textContent || 0) + (active ? 1 : -1);
-      if (value) value.textContent = String(Math.max(0, next));
-      const card = cards.find((item) => item.dataset.id === clipId);
-      if (card) {
-        card.dataset.sparkles = String(Math.max(0, next));
-        const listValue = card.querySelector('.lumi-list-body small i:nth-of-type(2)');
-        if (listValue) listValue.textContent = `♥ ${formatCompact(Math.max(0, next))}`;
-      }
+      const active = !sparkleIds.has(clipId);
       if (active) sparkleIds.add(clipId); else sparkleIds.delete(clipId);
       storage.write('lumibelleSparkledClips', Array.from(sparkleIds));
+      syncClipSparkles(clipId);
+      renderCards();
       showToast(active ? '반짝응원을 보냈어요' : '반짝응원을 취소했어요');
     });
 
@@ -1249,11 +1466,12 @@
   });
 
   const hashId = decodeURIComponent(location.hash.replace(/^#/, ''));
-  if (hashId) {
+  if (!embeddedViewer && hashId) {
     const hashIndex = slides.findIndex((slide) => slide.dataset.id === hashId);
     if (hashIndex >= 0) window.setTimeout(() => openViewer(hashIndex), 80);
   }
 
+  syncAllClipSparkles();
   syncAuthUi();
   renderCards();
 })();

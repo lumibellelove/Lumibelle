@@ -1,4 +1,15 @@
-LUMIBELLE 모바일 홈페이지 레이아웃 v123
+LUMIBELLE MOBILE v194 - MUSIC ARCHIVE 1차 구현
+
+- v193 영상 아카이브 최종 수정본을 기준으로 MUSIC ARCHIVE 페이지 추가
+- 별도 css/music.css, js/music.js로 구성해 공통 style.css에 누적 패치하지 않음
+- 전체 음원 / 플레이리스트 전환
+- 유형·멤버·검색·정렬 필터
+- 추천 싱글, 대표 트랙, 디스코그래피, 앨범 상세
+- 공식 플레이리스트와 MARIRING·LULU·IRO·LUNAR 멤버 추천 PICK 추가
+- 실제 음원·스트리밍 링크는 연결 전 안내만 표시
+- 전체 페이지 MUSIC 메뉴와 HOME의 MUSIC 카드 연결
+
+LUMIBELLE 모바일 홈페이지 레이아웃 v193
 
 - 기준본: lumibelle_mobile_layout_v7.zip
 - 기존 멤버 가로 넘김 구조 유지
@@ -1001,12 +1012,98 @@ v165 YouTube 테스트 영상 교체
 - 원본 보기 링크와 YouTube 썸네일도 새 쇼츠 주소로 교체
 - 재생·소리·진행바·루미벨 액션 UI 구조는 v164 그대로 유지
 
-[v166 플랫폼 임베드 비교 테스트]
-- 1번: TikTok / MARIRING Official / 영상 ID 7611383226531089681
-- 2번: Instagram Reels / MARIRING Official / 릴스 코드 DI_rR9mSdl0
-- 3번: YouTube Shorts / IRO Official / 영상 ID 2R5QZYVqeA0
-- TikTok: 공식 Embed Player, 자동 무음 재생·재생/정지·소리·진행바 테스트
-- Instagram: 공식 Reel embed 화면을 그대로 표시해 플랫폼 UI 노출과 루미벨 UI 충돌 여부 비교
-- YouTube: 기존 IFrame Player API 테스트 유지
-- 원본 보기는 각 플랫폼의 실제 원본 주소로 연결
-- !important 추가 없음
+
+## v168 자동재생 + 플랫 드래그 재생바 패치 (2026-07-17)
+- v165 YouTube 자동재생 테스트 구조를 기준으로 작업
+- 하단 재생바의 돌출 원형 손잡이를 제거하고 3px 라인형 진행바로 변경
+- 재생바 클릭 및 좌우 드래그로 앞뒤 탐색 가능
+- 드래그 중에만 진행바가 4px로 살짝 두꺼워지며 별도 thumb는 표시하지 않음
+- TikTok/Instagram 플랫폼 테스트 코드는 포함하지 않음
+
+
+[v170] LUMI CLIP 댓글 분할 모드
+- 댓글 열기 시 전체 영상 위에 덮는 대신 영상이 상단 미리보기 영역으로 접혀 올라갑니다.
+- 영상 재생은 유지되고, 하단 댓글 목록만 독립 스크롤됩니다.
+- 댓글 닫기/아래 드래그 시 영상이 전체 화면으로 자연스럽게 복귀합니다.
+
+
+[v171 댓글 패널 높이 보정]
+- 댓글 분할 모드에서 상단 영상 영역을 약 40dvh로 확대하고 댓글 패널은 약 60dvh로 축소했습니다.
+- 댓글이 많아지면 패널 높이가 늘어나지 않고 댓글 목록 내부만 스크롤됩니다.
+- 댓글 패널 상단 모서리를 30px로 더 둥글게 정리했습니다.
+
+
+[v175]
+- 댓글 시트 바깥 띠처럼 보이던 그림자 제거
+- 상단 모서리 30px로 정리
+- 내부 스크롤바 숨김 유지
+- 작성자/시간 기준선 및 시간 크기 보정
+- 하트 아이콘을 SVG로 교체하고 숫자/답글 한 줄 정렬
+
+
+[v178]
+- LUMI CLIP 카드 선택 시 중간 슬라이드가 스쳐 지나가지 않도록 최초 위치 이동을 즉시 점프로 수정.
+- 일반 VIDEO YouTube 임베드의 재생/일시정지/전체화면 조작 권한 및 플레이어 파라미터 수정.
+
+[v179]
+- YouTube ID가 연결된 일반 VIDEO 카드에 YouTube 썸네일 자동 표시
+- 일반 VIDEO 상세는 썸네일 재생 버튼을 사용자가 누르면 iframe을 로드·재생하는 모바일 안정형 구조로 변경
+- YouTube 기본 재생/일시정지/전체화면 컨트롤 유지
+
+[v180]
+- 일반 VIDEO 목록 카드 썸네일의 중앙 장식용 재생 아이콘 제거
+- YouTube ID가 연결된 상세 화면은 srcdoc 중간 문서 없이 실제 YouTube iframe을 직접 로드
+- 상세 진입 시 YouTube 기본 썸네일과 재생 버튼을 표시하고, 사용자 터치로 재생 시작
+- YouTube 기본 재생·일시정지·전체화면 컨트롤 및 시작·종료 구간 유지
+- 상세 닫기 시 iframe src 제거로 재생 종료
+
+
+v182 VIDEO 상세 재생 버튼 표시 수정
+- hidden 속성이 적용된 빈 YouTube iframe이 display:block 규칙으로 썸네일과 재생 버튼을 덮던 문제 수정
+- 상세 진입 시 YouTube 썸네일과 재생 버튼이 먼저 표시되고, 재생 버튼을 누른 뒤에만 iframe 표시
+- VIDEO ARCHIVE의 세로형 SHORT/REELS 카드와 하단 LUMI CLIP 미리보기의 시간 배지 숨김
+- 일반 가로 VIDEO 카드의 시간 표시는 유지
+
+
+[v185]
+- 모바일 영상 상세 플레이어의 강제 최소 높이를 제거했습니다.
+- 16:9 비율과 중앙 정렬을 유지하도록 너비/여백 계산을 수정했습니다.
+- 상세 모달의 가로 넘침을 차단했습니다.
+
+
+[v186 typography normalization]
+- Added viewport-fit=cover consistently across pages.
+- Added Noto Sans KR webfont loading to reduce iOS/Android font rendering differences.
+- Disabled mobile browser automatic text enlargement with text-size-adjust: 100%.
+- Made form controls inherit the site font.
+- Slightly increased only the smallest VIDEO/LUMI CLIP title, tag, and metadata text.
+- Updated shared asset query version to v186 for cache refresh.
+
+
+[v191]
+- LUMI CLIP 2열 카드에서 모바일 길게 누르기 미리보기를 지원합니다.
+- 좌우 열과 관계없이 누른 카드가 미리보기되며, 손을 떼거나 스크롤하면 종료됩니다.
+- 길게 누른 뒤 손을 뗄 때 상세 뷰어가 함께 열리지 않도록 클릭을 분리했습니다.
+- 모바일 기본 길게 누르기 메뉴를 차단했습니다.
+- VIDEO ARCHIVE와 LUMI CLIP의 모바일 좌우 패딩을 12px로 통일했습니다.
+- 두 페이지의 폰트 로딩 구성을 통일해 탭 전환 시 상단의 미세한 흔들림을 줄였습니다.
+
+
+[v192]
+- HOME / VIDEO ARCHIVE / LUMI CLIP 공지 바를 3개 공지가 위로 자동 순환하는 공지 롤링 배너(공지 티커)로 변경
+- 공지: 공식 영상 아카이브 / 홈페이지 개편 안내 / 굿즈 발매 예정 안내
+- VIDEO / LUMI CLIP 상단 전환 탭을 두 페이지에서 동일한 고정 높이·독립 박스 구조로 통일
+- VIDEO의 전체/HOT CLIP/LIVE 패널을 상단 전환 탭과 분리해 페이지 전환 시 메뉴 영역 미세 재배치 감소
+- 활성 탭 표시를 박스 밖 삼각형 대신 내부 하단 바 형태로 변경해 잘림·움찔 현상 방지
+- 데스크톱 및 모바일 에뮬레이션에서 스크롤바 유무에 따른 좌우 흔들림을 줄이도록 scrollbar-gutter 적용
+
+
+[v193]
+- 완성된 VIDEO ARCHIVE로 가는 공통 메뉴 및 멤버 상세 MORE VIDEO 링크 12곳을 ./video.html로 연결
+- LUMI CLIP 최근 기간 필터를 실제 현재 시각(Date.now) 기준으로 변경하고 미래 공개일 제외
+- HOT CLIP 원본/복제 카드의 반짝응원 숫자와 활성 상태를 함께 동기화
+- LUMI CLIP 반짝응원 표시를 기본 숫자 + 저장된 활성 상태로 계산해 새로고침 후 증감 오류 방지
+- VIDEO 내장 LUMI CLIP 뷰어·미리보기 카드·숏폼 카드까지 같은 반짝응원 상태 반영
+- 중복 html/.lumi-feed-viewer 규칙과 430px 검색행 중복 규칙 병합
+- 사용하지 않는 video-filter-select 화살표, video-detail-play-icon, lumi-clip-note CSS 및 news-page-status JS 잔여 코드 제거
+- 공통 CSS/JS 캐시 버전 v193으로 갱신
