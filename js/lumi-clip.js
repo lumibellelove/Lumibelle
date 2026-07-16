@@ -848,6 +848,8 @@
     commentsBackdrop.hidden = true;
     commentsSheet.style.removeProperty('transform');
     commentsBackdrop.style.removeProperty('opacity');
+    viewer?.classList.remove('is-comments-mode');
+    slides.forEach((slide) => slide.classList.remove('is-comments-active'));
   };
 
   const closeComments = () => {
@@ -859,6 +861,8 @@
     commentsBackdrop.style.removeProperty('opacity');
     commentsSheet.classList.remove('is-open');
     commentsBackdrop.classList.remove('is-open');
+    viewer?.classList.remove('is-comments-mode');
+    activeCommentSlide?.classList.remove('is-comments-active');
     replyTarget = null;
     if (replyContext) replyContext.hidden = true;
     commentsCloseTimer = window.setTimeout(finishCommentsClose, 240);
@@ -869,6 +873,7 @@
     if (!commentsSheet || !commentsBackdrop) return;
     window.clearTimeout(commentsCloseTimer);
     activeCommentSlide = slide || activeSlide;
+    slides.forEach((item) => item.classList.toggle('is-comments-active', item === activeCommentSlide));
     renderComments();
     syncAuthUi();
     commentsSheet.hidden = false;
@@ -877,6 +882,7 @@
     commentsSheet.style.removeProperty('transform');
     commentsBackdrop.style.removeProperty('opacity');
     requestAnimationFrame(() => {
+      viewer?.classList.add('is-comments-mode');
       commentsSheet.classList.add('is-open');
       commentsBackdrop.classList.add('is-open');
     });
@@ -984,8 +990,6 @@
     commentsDrag.lastY = event.clientY;
     const delta = Math.max(0, event.clientY - commentsDrag.startY);
     commentsSheet.style.transform = `translateY(${delta}px)`;
-    const fade = Math.max(0, 1 - delta / Math.max(1, commentsSheet.offsetHeight * .75));
-    commentsBackdrop.style.opacity = String(fade);
   });
   commentsHandle?.addEventListener('pointerup', finishCommentsDrag);
   commentsHandle?.addEventListener('pointercancel', finishCommentsDrag);
