@@ -5,6 +5,7 @@
   const grid = document.querySelector('[data-clip-grid]');
   const count = document.querySelector('[data-clip-count]');
   const empty = document.querySelector('[data-clip-empty]');
+  const collectionButtons = Array.from(document.querySelectorAll('[data-clip-collection]'));
   const memberButtons = Array.from(document.querySelectorAll('[data-clip-member]'));
   const search = document.querySelector('[data-clip-search]');
   const sort = document.querySelector('[data-clip-sort]');
@@ -60,6 +61,7 @@
     }
   };
 
+  let activeCollection = 'ALL';
   let activeMember = 'ALL';
   let activeFilters = { type: 'ALL', tags: [], period: 'ALL' };
   let lastFocus = null;
@@ -856,6 +858,8 @@
     if (!grid) return;
     const query = (search?.value || '').trim().toLowerCase();
     const matching = cards.filter((card) => {
+      const collections = String(card.dataset.collections || '').split(',').map((value) => value.trim()).filter(Boolean);
+      const collectionMatch = activeCollection === 'ALL' || collections.includes(activeCollection);
       const memberMatch = activeMember === 'ALL' || card.dataset.member === activeMember;
       const haystack = `${card.dataset.title || ''} ${card.dataset.member || ''} ${card.dataset.tags || ''}`.toLowerCase();
       const type = card.querySelector('.lumi-list-badges em')?.textContent?.trim().toUpperCase() || '';
@@ -870,7 +874,7 @@
         age >= 0 &&
         age <= periodDays * 86400000
       );
-      return memberMatch && typeMatch && tagsMatch && periodMatch && (!query || haystack.includes(query));
+      return collectionMatch && memberMatch && typeMatch && tagsMatch && periodMatch && (!query || haystack.includes(query));
     });
 
     const mode = sort?.value || 'latest';
@@ -887,6 +891,18 @@
     if (previewCard && !matching.includes(previewCard)) stopCardPreview(previewCard);
     queueMobilePreview(120);
   };
+
+  collectionButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      activeCollection = button.dataset.clipCollection || 'ALL';
+      collectionButtons.forEach((item) => {
+        const active = item === button;
+        item.classList.toggle('is-active', active);
+        item.setAttribute('aria-pressed', String(active));
+      });
+      renderCards();
+    });
+  });
 
   memberButtons.forEach((button) => {
     button.addEventListener('click', () => {

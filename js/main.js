@@ -79,7 +79,7 @@
     });
   });
 
-  const languagePicker = document.querySelector('.language-picker');
+  const languagePicker = document.querySelector('.language-wrap');
   const languageButton = document.querySelector('.language-button');
   const languageMenu = document.querySelector('.language-menu');
   const languageOptions = Array.from(document.querySelectorAll('.language-menu button'));

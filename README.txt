@@ -1,3 +1,118 @@
+LUMIBELLE MOBILE LAYOUT v251
+- VIDEO ARCHIVE와 LUMI CLIP의 공지·히어로·상단 전환·컬렉션 탭·멤버 필터·검색/필터/정렬 영역을 js/video-shared-shell.js 하나로 분리
+- 공용 영역은 각 페이지의 결과 목록 바로 위에서 끝나며, 영상 카드와 루미클립 카드/뷰어는 기존 페이지 전용 구조 유지
+- 두 페이지의 공용 상단이 동일한 DOM과 간격 규칙을 사용해 전환 시 위치 흔들림 방지
+- LUMI CLIP에도 전체/HOT CLIP/LIVE 공용 컬렉션 탭을 연결하고 기존 검색·멤버·필터·정렬 기능 유지
+- VIDEO/LUMI CLIP 관련 캐시 버전을 v251로 갱신
+
+LUMIBELLE MOBILE LAYOUT v250
+- 플레이리스트 수록곡 검색 시 검색어와 직접 일치한 곡만 TRACKS에 표시
+- MUSIC CSS/JS 캐시 버전을 v250으로 통일
+- music.css의 동일 컨텍스트 반복 선택자를 최종값 기준으로 병합
+- 현재 플레이리스트 전체보기는 별도 페이지가 아니라 music.html 내부 플레이리스트 탭을 사용
+- MUSIC 디자인과 기존 재생·필터·상세 기능은 유지
+
+LUMIBELLE MOBILE LAYOUT v235
+- 루미벨 라이브 셋리스트 소개 카드와 곡 목록을 서로 다른 영역으로 분리
+- 셋리스트 곡을 알송처럼 얇은 구분선 중심의 독립 세로 리스트로 변경
+- 셋리스트 곡별 점 세 개 옵션 버튼 제거, 개별 재생과 재생 상태 동기화 유지
+- 멤버 추천 PICK은 가로 스와이프를 유지하고 작은 정사각형 썸네일 + 넓은 정보 영역으로 재구성
+- 멤버 추천 첫 카드가 MARIRING에서 시작하도록 렌더 후 스크롤 위치 초기화
+- 전체 플레이어의 LUMIBELLE MUSIC 헤더 유지, 오른쪽 점 세 개 제거
+- 전체 플레이어의 좋아요·재생목록·가사·공유하기 액션바 제거
+- 깨져 보이던 셔플 아이콘을 선형 SVG 아이콘으로 교체
+- 전체 음원·플레이리스트 상단 필터·검색·정렬·기존 상세 모달과 다른 페이지 UI는 변경하지 않음
+
+LUMIBELLE MOBILE LAYOUT v234
+- 플레이리스트 기본 화면의 루미벨 라이브 셋리스트를 곡별 세로 목록으로 변경
+- 각 곡에 썸네일·번호·제목·아티스트·재생시간·개별 재생·더보기 배치
+- 전체 재생과 개별 재생 모두 같은 셋리스트 순서를 현재 재생목록으로 유지
+- 멤버 추천 PICK 4개를 큰 가로 스와이프 카드로 변경
+- 카드·곡 행·미니 플레이어의 재생/일시정지 상태 동기화
+- 미니 플레이어의 곡 정보 영역을 누르면 전체 플레이어가 열리도록 추가
+- 전체 플레이어에 진행바·이전/다음·셔플·반복·가사·현재 재생목록 추가
+- 전체 음원·필터·검색·정렬·기존 상세 모달과 다른 페이지는 변경하지 않음
+
+LUMIBELLE MOBILE LAYOUT v230
+- 누락되어 상세 모달을 중단시키던 renderInfoRows() 공통 함수를 복구
+- 추천 신곡·전체 음원·플레이리스트·멤버 PICK 상세를 하나의 위임 클릭 경로로 통일
+- 플레이리스트 상세의 개별 곡 재생이 현재 플레이리스트 순서를 유지하도록 수정
+- 음원 검색 대상에 곡 제목·아티스트·한국어 유형명을 추가
+- 메인 미리보기와 전체 음원 페이지에 공통 동일 높이 카드 골격 적용
+- 중복된 v215/v220/v221 미리보기 카드·푸터 CSS를 기존 규칙에 병합
+- music-discography.html에서도 전체 메뉴의 MUSIC 활성 표시
+- MUSIC CSS·JS·site-chrome 캐시 버전을 v223으로 갱신
+
+- v216 재생목록 바텀시트를 기본 높이와 확장 높이의 2단계 구조로 변경
+- 상단 핸들 또는 헤더를 위로 드래그하면 확장, 아래로 드래그하면 축소, 기본 상태에서 더 내리면 닫기
+- 핸들 탭과 키보드 조작으로도 확장·축소 가능
+- 곡 수와 화면 높이에 맞춰 기본·확장 높이를 자동 계산하고 목록 영역만 내부 스크롤
+- 재생목록의 앨범 커버·곡명·아티스트를 하나의 곡 선택 영역으로 묶어 어느 부분을 눌러도 해당 곡 재생
+- 오른쪽 순서 핸들을 곡 재생 버튼 밖으로 분리해 추후 순서 변경 기능과 클릭 충돌 방지
+- 재생목록에서 곡을 바꿔도 바텀시트가 닫히지 않고 현재 곡 강조와 위치 정보만 갱신
+- 실제 Spotify 연동·재생 상세 화면·순서 변경 기능은 다음 단계로 유지
+- MUSIC CSS·JS 캐시 버전을 v219로 갱신
+
+LUMIBELLE mobile layout v212
+- 전체 음원 전용 페이지의 큰 소개 박스를 제거하고 VIDEO 전체보기처럼 MUSIC 홈 뒤로가기와 전체 음원 제목을 한 줄에 배치
+- 전체 음원 카드의 오리지널/커버 유형 칩을 하단에서 커버 이미지 우측 상단으로 이동
+- 카드 제목·설명·멤버 정보와 하단 액션 간격을 압축하고 재생·더보기 중심으로 정리
+- MUSIC 메인의 전체 음원 아래에 루미벨 플레이리스트 정사각형 가로 스와이프 미리보기 추가
+- 플레이리스트 미리보기 모두 보기는 기존 플레이리스트 탭으로 이동
+- 하단 미니 플레이어를 하단 독 바로 위에 붙은 일체형 바텀시트 형태로 변경
+- 미니 플레이어 닫기 X 추가: 재생 정지·플레이어 숨김 후 새 곡 재생 시 다시 표시
+- 음악 진행 바의 트랙과 핸들을 핑크 계열로 정리
+- 추천 신곡과 앨범 상세 모달 구조는 유지
+- !important 추가 없음
+
+LUMIBELLE mobile layout v203
+- v202를 기준으로 MUSIC의 추천 신곡과 전체 음원 영역만 재구성
+- 추천 신곡에 발매일·총 곡 수·분류 아이콘 메타와 큰 원형 전체 재생 버튼 적용
+- 추천 앨범 수록곡 미리보기에 작은 아트·트랙 번호·분류·시간·개별 재생·더보기 버튼 적용
+- '앨범의 모든 곡 보기'와 기존 앨범 상세 모달 구조 유지
+- 모바일 전체 음원을 2열 컴팩트 카드로 변경하고, PC는 3열 카드로 별도 구성
+- 유형·멤버·검색·정렬·재생·상세 연결 기능 유지
+- 플레이리스트·하단 미니 플레이어·상단 탭과 필터 UI는 변경하지 않음
+- 기존 MUSIC CSS 상단 블록을 교체해 누적 선택자와 !important 추가 없음
+
+LUMIBELLE mobile layout v202
+- VIDEO / LUMI CLIP / MUSIC의 메인 시작점을 같은 화면 구간의 HOME 공지 기준으로 정렬
+- PC는 좌우 18px, 모바일은 좌우 14px을 유지해 PC·모바일 UI를 서로 통일하지 않고 각 반응형 기준 안에서 맞춤
+- 아카이브 페이지의 상단 추가 패딩과 공지 10px 추가 마진 제거
+- LUMI CLIP에 누락된 공통 아카이브 main·공지·히어로·탭·컨트롤 구조 클래스 복원
+- LUMI CLIP의 잘못 닫힌 meta·input 태그 수정
+- LUMI CLIP 전용 중복 상단 margin 규칙 제거 후 공통 아카이브 간격 규칙으로 단일화
+- 로컬 CSS·JS 캐시 버전 표기를 v202로 통일
+
+LUMIBELLE mobile layout v201
+- 전 공홈 기본 글꼴 순서(Pretendard 우선) 복원
+- Noto Sans KR 강제 웹폰트 로드 제거
+- VIDEO / LUMI CLIP / MUSIC의 Playfair Display 제목용 로드는 유지
+- 모바일 롤링 공지의 좌우 패딩·gap이 바깥 박스에 중복되지 않고 실제 슬라이드에 적용되도록 원본 규칙 수정
+- PC·모바일 반응형 UI와 각 구간의 기존 레이아웃 값은 변경하지 않음
+- 로컬 CSS·JS 캐시 버전 표기를 v201로 통일
+
+LUMIBELLE mobile layout v199
+- MUSIC filter sheet z-index fixed
+- MUSIC/VIDEO shared archive variables and top tab styling unified
+- MUSIC hero border/shadow restored
+- album detail modal slightly reduced and internal scrollbar hidden
+- mini player lifted above bottom navigation
+- featured footer expanded to full width
+- music page bottom clearance corrected
+
+LUMIBELLE MOBILE LAYOUT v198
+
+- v197 공통 헤더·메뉴 구조를 유지하고 MUSIC ARCHIVE 본문을 재구현
+- MUSIC 상단 탭·유형·멤버·검색·필터·정렬 UI를 VIDEO ARCHIVE 공통 컴포넌트로 통일
+- 추천 앨범 카드에 전체 재생 버튼과 트랙별 재생 버튼 추가
+- 세로형 앨범 상세 모달 복원: 큰 커버, 앨범 정보, 트랙, 플랫폼 버튼 순서 유지
+- 공식 플레이리스트와 멤버 추천 PICK을 계속 추가 가능한 가로 스크롤 카드로 구성
+- 플레이리스트 상세에 전체 재생·랜덤 재생·트랙 목록 적용
+- 하단 미니 플레이어에 이전·재생/정지·다음·진행 바 적용
+- 저작권 없는 12초 테스트 오디오 3개 포함; 실제 음원 연결 시 경로만 교체 가능
+- MUSIC CSS는 기존 잘못된 규칙을 교체한 단일 파일이며 !important와 동일 선택자 중복 없음
+
 LUMIBELLE MOBILE v194 - MUSIC ARCHIVE 1차 구현
 
 - v193 영상 아카이브 최종 수정본을 기준으로 MUSIC ARCHIVE 페이지 추가
@@ -1107,3 +1222,44 @@ v182 VIDEO 상세 재생 버튼 표시 수정
 - 중복 html/.lumi-feed-viewer 규칙과 430px 검색행 중복 규칙 병합
 - 사용하지 않는 video-filter-select 화살표, video-detail-play-icon, lumi-clip-note CSS 및 news-page-status JS 잔여 코드 제거
 - 공통 CSS/JS 캐시 버전 v193으로 갱신
+
+
+[v195 MUSIC ARCHIVE 헤더·상세 모달 정리]
+- MUSIC 상단 공통 헤더/공지/히어로 폭과 간격을 VIDEO ARCHIVE 기준으로 통일
+- MUSIC 히어로 높이와 제목 크기를 VIDEO ARCHIVE와 같은 규격으로 정리
+- 앨범 상세 모달의 1st SINGLE 유형 표기를 키워 가독성 보정
+- 앨범 아트와 정보 박스를 2열 요약으로 재배치
+- 트랙/플랫폼 버튼 간격을 축소해 397x814 기준 한 화면에 들어오도록 정리
+- 작은 화면에서만 상세 본문 스크롤을 허용하고 스크롤바는 숨김
+
+
+v197: VIDEO/MUSIC 공통 아카이브 히어로 통합, MUSIC 장식 점 제거, 앨범 상세 2열 정보 배치 깨짐 수정.
+
+
+v219 수정
+- 재생목록 순서 변경 핸들의 pointer-events 차단 오류 수정
+- 모바일/마우스 드래그로 곡 순서 변경 가능
+- 키보드 방향키 순서 변경 지원
+- 같은 곡의 재생 버튼을 다시 누르면 일시정지되도록 수정
+- 이전/다음 및 자동 다음 곡은 일시정지 토글 없이 정상 재생 유지
+
+
+[v220 MUSIC featured detail + equal card height fix]
+- Featured album footer now has a direct click binding to open the album detail modal.
+- Added explicit pointer/touch interaction styles to the featured footer button.
+- Discography preview rail cards now stretch to one equal row height.
+- Release cards use fixed art/body/footer grid rows so one-line and two-line titles no longer create different card heights.
+- Preserved compact footer spacing while reserving two title lines and one description line.
+
+[v224 MUSIC]
+- Removed album-card overflow menus to keep the discography interaction focused on card detail and album play.
+- Public releases keep the album play button; unreleased releases retain their disabled play state.
+
+- v225: 플레이리스트 상세를 전체 음원 상세와 동일한 공통 모달 레이아웃으로 통일.
+
+v230 MUSIC PLAYLIST ARCHIVE
+- 플레이리스트 탭: 대표 추천 1개 + 멤버 추천 PICK 구조
+- 플레이리스트 전체보기는 music.html 내부 플레이리스트 탭으로 연결
+- 플레이리스트 유형/멤버 필터, 수록곡 검색, 정렬 추가
+- 수록곡 검색 시 포함 곡 표시
+- 앨범 상세와 동일한 공통 상세 모달 및 플레이리스트 순서 재생 유지
