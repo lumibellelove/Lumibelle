@@ -1,3 +1,65 @@
+[v309 MARIRING story hero spacing + profile bridge]
+- Changed the “루미벨의 중심” role chip to a clearer cool lavender-blue treatment so it no longer blends into the hero background.
+- Added breathing room below the role chip and between the hero tagline and summary, while keeping the existing hero structure.
+- Kept the member-profile-to-story link in the profile information area rather than placing it beside MORE VIDEO, and made it a clearer secondary pill link.
+- No chapter, PV, episode, related-member, or shared navigation structure changes.
+
+[v307 MARIRING story film visual cleanup]
+- Removed the inset white frame and centered play icon from the STORY FILM thumbnail.
+- Kept the whole thumbnail clickable and retained the temporary COMING SOON badge.
+- Added a small chevron to every related-member story card.
+- Reviewed vertical spacing and kept the existing section gaps because they are already balanced on mobile.
+
+[v306 MARIRING story hub structure]
+- Kept the MARIRING hero and moved the three-scene summary directly below it.
+- Rebuilt STORY FILM as a single 16:9 clickable card and reused the existing VIDEO detail modal behavior.
+- Added two format-neutral MARIRING story episode cards for future text, webtoon, or image-story content.
+- Removed the standalone MARIRING'S MESSAGE card and the long film-description footer.
+- Kept the related-member cards unchanged and removed the blue click/tap highlight from STORY links while preserving keyboard focus.
+- No !important rules or unrelated page redesigns.
+
+[v305 MARIRING member story master page]
+- Rebuilt story-mariring.html from the v303 baseline as the first shared member-story master layout.
+- Removed the duplicated archive hero and COMING SOON placeholder card.
+- Added a compact STORY heading with circular back control, a two-column MARIRING hero, profile bridge, STORY FILM slot, three chapter rows, MARIRING'S MESSAGE, and three related-member cards.
+- Added a reciprocal “마리링 이야기 보기” link to member-mariring.html.
+- Kept all image and video areas as empty design slots; no temporary person imagery was added.
+- No !important rules and no unrelated page changes.
+
+[v297 STORY member-card compact + theme balance]
+- Extended the plain divider below the official story title.
+- Kept The Core layout unchanged.
+- Removed COMING SOON labels from the four MEMBER STORY cards.
+- Reduced member card height and replaced the dashed image divider with a subtle solid divider.
+- Kept all four member cards and buttons linked to their STORY pages.
+- Enlarged only the clock and bloom worldview icons by 8%; winter and hand remain unchanged.
+- Controlled the final worldview caption break as “다음 사람에게 / 이어지는 빛” to prevent an orphaned final word.
+- No emoji, no !important, no unrelated layout changes.
+
+[v296 STORY typography + linked member pages]
+- Added a plain divider below the OFFICIAL STORY title and rebalanced quote/body alignment and spacing.
+- Removed the three inner THE CORE boxes while retaining the parent panel; enlarged icons and descriptions with simple column dividers.
+- Enlarged the hand artwork by trimming transparent margins and improved the four worldview captions.
+- Added image-based sparkle decorations around WORLDVIEW THEME and MEMBER STORY labels.
+- Replaced member teaser copy with the four confirmed descriptions, retained COMING SOON, and linked every card to a dedicated placeholder story page.
+- Added story-mariring.html, story-lulu.html, story-iro.html, and story-luna.html for later content insertion.
+- No !important rules or emoji were added.
+
+[v294 STORY layout slot alignment]
+- Removed the OFFICIAL STORY image slot to reduce density.
+- Removed the extra "루미벨이라는 이름" heading and rebuilt THE CORE as three inner cards with circular image slots.
+- Rebuilt MEMBER STORY to follow the approved 2x2 visual-card layout with member image slots, copy, and inactive COMING SOON pills.
+- Kept all unrelated pages and shared chrome unchanged.
+
+[v293 STORY layout + image slots]
+- Added story.html using the approved compact order: shared top, official story, The Core, worldview theme, member story, history entry.
+- Added empty image slots only; no temporary people, emoji, decorative icons, or generated images.
+- Added assets/story/README.txt with the intended image filenames.
+- Added story-history.html with the confirmed 2026.07.12 record only.
+- Linked HOME and the full menu STORY entry to story.html and added STORY active-menu detection.
+- Kept the existing shared header, notice rhythm, archive hero, and common bottom navigation.
+- No !important rules added.
+
 LUMIBELLE MOBILE LAYOUT v251
 - VIDEO ARCHIVE와 LUMI CLIP의 공지·히어로·상단 전환·컬렉션 탭·멤버 필터·검색/필터/정렬 영역을 js/video-shared-shell.js 하나로 분리
 - 공용 영역은 각 페이지의 결과 목록 바로 위에서 끝나며, 영상 카드와 루미클립 카드/뷰어는 기존 페이지 전용 구조 유지
@@ -1263,3 +1325,119 @@ v230 MUSIC PLAYLIST ARCHIVE
 - 플레이리스트 유형/멤버 필터, 수록곡 검색, 정렬 추가
 - 수록곡 검색 시 포함 곡 표시
 - 앨범 상세와 동일한 공통 상세 모달 및 플레이리스트 순서 재생 유지
+
+
+v264 FANNAME targeted alignment update:
+- Match FANNAME hero title color to VIDEO ARCHIVE.
+- Align keyword and related-link label baselines.
+- Adjust callout/emblem columns to 60/40.
+- Reduce bottom spacing below the final CTA.
+
+[v284 SCHEDULE upcoming bar + date typography]
+- Restored selected schedule secondary action label from 공지 to DETAIL.
+- Unified calendar month, calendar date numbers, and selected detail date with the main UI font.
+- Rebuilt UPCOMING SCHEDULE as a compact three-column bar: month.day / weekday, category + title + time/place, one direct action.
+- Upcoming action priority: TICKET when a ticket URL exists, otherwise DETAIL when only a live notice URL exists; no action when neither exists.
+- Upcoming rows no longer open the calendar detail when the row body is pressed.
+
+
+[v285 SCHEDULE same-day detail carousel]
+- When a date has one schedule, the selected detail remains a single full-width card.
+- When a date has multiple schedules, each schedule becomes its own horizontal snap card that can be swiped by hand.
+- Added small pagination dots below multi-schedule detail cards and kept each card's badges, TICKET, and DETAIL actions independent.
+- Calendar cells now show the first schedule type plus +N for additional schedules on the same date.
+
+[v286 schedule same-day swipe test data]
+- Added one temporary EVENT schedule on 2026-07-12 so the same-day swipe carousel can be checked immediately.
+- Test card: 데뷔 기념 팬미팅 / 18:00 / KT&G 상상마당 홍대 / DETAIL only.
+- No layout or shared-page changes were made.
+
+
+
+[v287]
+- Same-day schedule detail carousel now shows exactly one full-width card at a time.
+- Removed the next-card preview while keeping touch swipe, snap, and pagination dots.
+- Test schedule from v286 remains for verification.
+
+
+[v288]
+- Changed only the schedule notice copy into a two-item bulleted list.
+- Kept the notice icon, title, card dimensions, and all schedule/calendar behavior unchanged.
+- Test schedule from v286 remains for verification.
+
+[v289]
+- Aligned both schedule notice sentence starts with the 스케줄 안내 heading; bullets now sit just outside the shared text line.
+- Removed the temporary 2026-07-12 fanmeeting test event.
+- Kept the same-day swipe carousel implementation and all other schedule behavior unchanged.
+
+
+[v290]
+- Increased only the gap between the schedule notice bell icon and its aligned text block.
+- Kept the notice heading and bullet text alignment unchanged.
+
+[v291 SCHEDULE runtime closeout]
+- Removed the expired debut TICKET action and cleared its fixed NEW badge; DETAIL remains linked to the live notice.
+- The calendar now always opens on the visitor's current month instead of jumping to the first event month.
+- Removed the past-event fallback from UPCOMING SCHEDULE; when no future event exists, only the existing empty state is shown.
+- Assigned id="ticket" to the existing HOME upcoming-live card so current bottom TICKET anchors have a valid destination until a dedicated ticket page is built.
+- Updated site-chrome.js cache versions across all HTML files and video-shared-shell.js cache versions on every page that uses it.
+- Updated schedule.js cache version to v291.
+
+[v295 STORY icon + readability patch]
+- Restored the compact OFFICIAL STORY image slot and rebalanced the copy into a two-column card.
+- Reduced the official quote weight/size and split the body copy into readable lines.
+- Converted and applied seven transparent WebP icons with English filenames for The Core and Worldview Theme.
+- Reduced the Worldview Theme title size and increased the four supporting descriptions.
+- Tightened MEMBER STORY heading spacing and replaced the repeated PV sentence with a shorter staged-release message.
+- Kept all member image slots and COMING SOON states unchanged.
+
+
+[v298 STORY main-page closeout]
+- Added small sparkle images to both sides of the OFFICIAL STORY divider and The Core heading.
+- Updated the official quote to the approved three-line quoted copy and reorganized the body into two centered paragraphs.
+- Preserved The Core layout and Worldview Theme icon sizing; kept the final phrase grouped as two stable lines.
+- Rebuilt MEMBER STORY as a 2x2 grid of vertical poster cards with image above and information below.
+- Removed title arrows while keeping the card and detail button links active.
+- Kept shared header, notice, hero, history card, and other pages unchanged.
+
+[v299 STORY spacing + card compactness]
+- Reduced the OFFICIAL STORY title-to-divider and divider-to-quote spacing.
+- Lowered the approved quote weight for a softer visual balance.
+- Locked the OFFICIAL STORY body into intentional semantic lines to prevent awkward automatic wrapping.
+- Shortened the MEMBER STORY poster cards by reducing the image ratio, information-area height, padding, and button height.
+- Added intentional member-description line breaks while preserving the approved copy and the 2x2 vertical-card structure.
+- Kept The Core, Worldview Theme, history, shared chrome, and all other pages unchanged.
+
+
+[v300 STORY main text balance]
+- OFFICIAL STORY 구분선 시각 두께 완화
+- 대표 인용문 강조 복구
+- 본문 원문 유지 + 왼쪽 정렬/문단 위치 조정
+- 이로 소개 문구 축약 및 네 카드 줄바꿈 통일
+- MEMBER STORY 정보 영역 높이 소폭 축소
+
+
+[v303 STORY official body readability]
+- Increased only the OFFICIAL STORY body-copy size and contrast slightly.
+- Reduced the line-height and removed extra paragraph gaps so the three centered lines read as one compact block.
+- Kept the quote, divider, image slot, member cards, and every other section unchanged.
+
+[v308] MARIRING STORY hero hierarchy polish
+- Thinned the MARIRING name divider lines and separated MEMBER STORY / MARIRING / 마리링 spacing.
+- Gave the role chip a soft rose-lavender filled treatment.
+- Strengthened the tagline/summary hierarchy and enlarged/lowered the member profile link.
+- Applied deep Mariring pink to Mariring section titles and lavender to the related-member heading.
+- No structural, PV, chapter, episode, or related-card changes.
+
+[v312 MEMBER STORY SHARED]
+- Member-story detail styles extracted from css/story.css into css/member-story.css.
+- All member-story and Mariring episode pages load the same shared stylesheet.
+- Common icon asset folder prepared at assets/story/member-story-icons/.
+- No chapter visuals changed yet; numeric fallback remains until approved icons arrive.
+
+
+[v313] 마리링 STORY 챕터 아이콘 반영
+- 공용 아이콘 폴더 assets/story/member-story-icons/ 에 웹용 WEBP 자산 추가
+- story-icon-star-pink.webp / story-icon-ribbon-pink.webp / story-icon-crown-pink.webp
+- story-mariring.html 챕터 01~03 숫자 마커를 아이콘 슬롯으로 전환
+- 매핑: CHAPTER 01 별 / CHAPTER 02 리본 / CHAPTER 03 왕관

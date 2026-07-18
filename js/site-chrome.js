@@ -33,7 +33,7 @@
             <a href="./index.html" data-menu-key="home"><strong>HOME</strong><span>홈</span></a>
             <a href="./news.html" data-menu-key="news"><strong>NEWS</strong><span>공지사항</span></a>
             <a href="./members.html" data-menu-key="members"><strong>MEMBER</strong><span>멤버 소개</span></a>
-            <a href="./index.html#schedule"><strong>SCHEDULE</strong><span>스케줄</span></a>
+            <a href="./schedule.html" data-menu-key="schedule"><strong>SCHEDULE</strong><span>스케줄</span></a>
             <a href="#"><strong>TICKET</strong><span>예매</span></a>
             <a href="#"><strong>GOODS</strong><span>굿즈</span></a>
             <a href="#"><strong>SETLIST</strong><span>응원 가이드</span></a>
@@ -45,8 +45,8 @@
             <a href="./music.html" data-menu-key="music"><strong>MUSIC</strong><span>음악 아카이브</span><i aria-hidden="true"></i></a>
             <a href="./video.html" data-menu-key="video"><strong>MORE VIDEO</strong><span>영상 아카이브</span><i aria-hidden="true"></i></a>
             <a href="#"><strong>LUMI LOG</strong><span>공연 기록</span><i aria-hidden="true"></i></a>
-            <a href="#"><strong>MOMENTS</strong><span>순간들</span><i aria-hidden="true"></i></a>
-            <a href="#"><strong>STORY</strong><span>스토리</span><i aria-hidden="true"></i></a>
+            <a href="./photo.html" data-menu-key="photo"><strong>MOMENTS</strong><span>순간들</span><i aria-hidden="true"></i></a>
+            <a href="./story.html" data-menu-key="story"><strong>STORY</strong><span>스토리</span><i aria-hidden="true"></i></a>
           </section>
           <details class="menu-more-group">
             <summary>FAN CONTENTS <i aria-hidden="true"></i></summary>
@@ -67,7 +67,10 @@
   else if (pageName === 'members.html' || pageName.startsWith('member-')) currentKey = 'members';
   else if (pageName.startsWith('music')) currentKey = 'music';
   else if (pageName === 'video.html' || pageName === 'lumi-clip.html') currentKey = 'video';
+  else if (pageName === 'photo.html') currentKey = 'photo';
+  else if (pageName === 'schedule.html') currentKey = 'schedule';
   else if (pageName === 'fanname.html') currentKey = 'fanname';
+  else if (pageName === 'story.html' || pageName.startsWith('story-')) currentKey = 'story';
 
   if (currentKey) {
     document.querySelector(`[data-menu-key="${currentKey}"]`)?.setAttribute('aria-current', 'page');

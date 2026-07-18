@@ -592,7 +592,7 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
   });
 
 
-  const videoPage = document.querySelector('.video-archive-page');
+  const videoPage = document.querySelector('.video-archive-page, [data-video-detail-host]');
   const videoCards = Array.from(document.querySelectorAll('[data-video-card]'));
   const videoCollectionButtons = Array.from(document.querySelectorAll('[data-video-collection]'));
   const videoMemberButtons = Array.from(document.querySelectorAll('[data-video-member]'));
@@ -1324,7 +1324,7 @@ const memberVoiceButton = document.querySelector('[data-member-voice-button]');
       videoDetailMembers.textContent = String(card.dataset.members || 'ALL').replaceAll(',', ' · ');
     }
     if (videoDetailEvent) videoDetailEvent.textContent = card.dataset.event || 'VIDEO';
-    if (videoDetailDate) videoDetailDate.textContent = formatVideoDate(card.dataset.publishedAt);
+    if (videoDetailDate) videoDetailDate.textContent = formatVideoDate(card.dataset.publishedAt) || card.dataset.dateLabel || '공개 예정';
     if (videoDetailViews) videoDetailViews.textContent = formatVideoNumber(card.dataset.views);
     if (videoDetailSparkles) videoDetailSparkles.textContent = formatVideoNumber(card.dataset.sparkles);
 
