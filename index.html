@@ -1,196 +1,446 @@
-<!DOCTYPE html>
-
+<!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
-<meta content="#fff9fc" name="theme-color"/>
-<title>LUMIBELLE</title>
-<link href="./css/style.css?v=202" rel="stylesheet"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#fff8f4" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Lumibelle | 홈페이지 정비 중</title>
+  <style>
+    :root {
+      --cream: #fff9f3;
+      --cream-deep: #fff1e8;
+      --pink: #ff69a8;
+      --pink-deep: #d84d88;
+      --pink-pale: #ffe4ef;
+      --rose: #aa657e;
+      --ink: #5e4350;
+      --muted: #8f7581;
+      --line: rgba(190, 103, 137, .22);
+      --white: rgba(255,255,255,.82);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      min-height: 100svh;
+      color: var(--ink);
+      font-family:
+        "Noto Sans KR", Pretendard, "Apple SD Gothic Neo",
+        system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 14% 14%, rgba(255, 192, 218, .38) 0 1px, transparent 2px),
+        radial-gradient(circle at 83% 19%, rgba(255, 132, 183, .22) 0 1px, transparent 2px),
+        radial-gradient(circle at 67% 78%, rgba(255, 184, 214, .32) 0 1px, transparent 2px),
+        linear-gradient(180deg, #fff8fb 0%, var(--cream) 46%, #fff5f9 100%);
+      background-size: 72px 72px, 96px 96px, 120px 120px, auto;
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      z-index: -1;
+      border-radius: 50%;
+      filter: blur(3px);
+      pointer-events: none;
+    }
+
+    body::before {
+      width: 420px;
+      height: 420px;
+      top: -220px;
+      left: -150px;
+      background: radial-gradient(circle, rgba(255, 192, 217, .34), transparent 68%);
+    }
+
+    body::after {
+      width: 500px;
+      height: 500px;
+      right: -220px;
+      bottom: -260px;
+      background: radial-gradient(circle, rgba(255, 178, 210, .28), transparent 70%);
+    }
+
+    .page {
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .site-header {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-small {
+      color: var(--rose);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 10px;
+      letter-spacing: .34em;
+      text-transform: uppercase;
+      padding-left: .34em;
+    }
+
+    .brand-main {
+      color: var(--pink-deep);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(29px, 5vw, 42px);
+      font-style: italic;
+      font-weight: 700;
+      letter-spacing: .015em;
+      text-shadow: 0 4px 18px rgba(216, 77, 136, .13);
+    }
+
+    .brand-stars {
+      color: var(--pink);
+      font-size: 10px;
+      letter-spacing: .52em;
+      padding-left: .52em;
+    }
+
+    .hero {
+      flex: 1;
+      width: min(100%, 980px);
+      margin: 0 auto;
+      padding:
+        clamp(54px, 9vh, 104px)
+        22px
+        clamp(48px, 8vh, 90px);
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+
+    .hero-inner {
+      width: min(100%, 680px);
+      text-align: center;
+      position: relative;
+    }
+
+    .ornament {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 13px;
+      margin-bottom: 23px;
+      color: var(--pink);
+    }
+
+    .ornament::before,
+    .ornament::after {
+      content: "";
+      width: 74px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(216, 77, 136, .42));
+    }
+
+    .ornament::after {
+      transform: scaleX(-1);
+    }
+
+    .ornament span {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 17px;
+      letter-spacing: .23em;
+      padding-left: .23em;
+    }
+
+    .kicker {
+      margin: 0 0 11px;
+      color: var(--pink-deep);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      padding-left: .3em;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", "Noto Serif KR", serif;
+      font-size: clamp(36px, 8.7vw, 68px);
+      line-height: 1.08;
+      font-weight: 500;
+      letter-spacing: -.045em;
+    }
+
+    h1 em {
+      display: block;
+      margin-top: 10px;
+      color: var(--pink-deep);
+      font-size: .48em;
+      font-style: normal;
+      font-family:
+        "Noto Sans KR", Pretendard, "Apple SD Gothic Neo",
+        system-ui, sans-serif;
+      font-weight: 800;
+      letter-spacing: -.03em;
+    }
+
+    .intro {
+      margin: 29px auto 0;
+      max-width: 520px;
+      color: var(--muted);
+      font-size: clamp(14px, 2vw, 16px);
+      line-height: 2;
+      word-break: keep-all;
+    }
+
+    .notice {
+      width: min(100%, 560px);
+      margin: 34px auto 0;
+      padding: 22px 24px;
+      position: relative;
+      background: linear-gradient(180deg, rgba(255,255,255,.76), rgba(255,249,252,.82));
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      box-shadow: 0 16px 42px rgba(165, 91, 121, .09);
+    }
+
+    .notice::before,
+    .notice::after {
+      content: "✦";
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(216, 77, 136, .34);
+      font-size: 10px;
+    }
+
+    .notice::before { left: 10px; }
+    .notice::after { right: 10px; }
+
+    .notice-title {
+      margin: 0 0 9px;
+      color: var(--pink-deep);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      padding-left: .24em;
+    }
+
+    .notice p {
+      margin: 0;
+      color: #775e69;
+      font-size: 13px;
+      line-height: 1.85;
+      word-break: keep-all;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 11px;
+      flex-wrap: wrap;
+      margin-top: 27px;
+    }
+
+    .button {
+      min-width: 190px;
+      min-height: 48px;
+      padding: 13px 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      border: 1px solid var(--pink-deep);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      transition: .18s ease;
+    }
+
+    .button-primary {
+      color: white;
+      background: var(--pink-deep);
+      box-shadow: 0 10px 25px rgba(216, 77, 136, .18);
+    }
+
+    .button-secondary {
+      color: var(--pink-deep);
+      background: rgba(255,255,255,.68);
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+    }
+
+    .button-symbol {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 14px;
+    }
+
+    .reopen {
+      margin: 23px 0 0;
+      color: #ab8c99;
+      font-size: 11px;
+      letter-spacing: .03em;
+    }
+
+    .site-footer {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 18px 0 25px;
+      text-align: center;
+      border-top: 1px solid var(--line);
+      color: #ac8e9a;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .floating-star {
+      position: absolute;
+      color: rgba(216, 77, 136, .22);
+      font-family: Georgia, "Times New Roman", serif;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .star-a { top: 12%; left: 5%; font-size: 24px; }
+    .star-b { top: 24%; right: 8%; font-size: 12px; }
+    .star-c { bottom: 20%; left: 11%; font-size: 10px; }
+    .star-d { bottom: 13%; right: 5%; font-size: 22px; }
+
+    @media (max-width: 600px) {
+      .site-header {
+        padding-top: 20px;
+      }
+
+      .hero {
+        padding-top: 54px;
+      }
+
+      .ornament::before,
+      .ornament::after {
+        width: 48px;
+      }
+
+      .notice {
+        padding: 20px 24px;
+      }
+
+      .actions {
+        display: grid;
+      }
+
+      .button {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .floating-star {
+        opacity: .7;
+      }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .brand-stars,
+      .ornament span {
+        animation: twinkle 2.8s ease-in-out infinite;
+      }
+
+      @keyframes twinkle {
+        0%, 100% { opacity: .55; }
+        50% { opacity: 1; }
+      }
+    }
+  </style>
 </head>
 <body>
-<div class="site-shell">
-<div data-site-chrome=""></div><script src="./js/site-chrome.js?v=297"></script>
+  <div class="page">
+    <header class="site-header">
+      <div class="brand" aria-label="Lumibelle">
+        <span class="brand-small">Shining Smile Girls</span>
+        <span class="brand-main">Lumibelle</span>
+        <span class="brand-stars" aria-hidden="true">✦ ✦ ✦</span>
+      </div>
+    </header>
 
-<main class="site-main" id="top">
-<section aria-label="주요 공지" class="notice-bar notice-rotator" data-notice-rotator="">
-<div class="notice-rotator-viewport">
-<a aria-hidden="false" class="notice-slide is-active" data-notice-slide="" href="./video.html">
-<span class="notice-label">공지</span>
-<span class="notice-text">LUMIBELLE 공식 영상 아카이브</span>
-<span class="notice-link">자세히 보기 <i aria-hidden="true"></i></span>
-</a>
-<a aria-hidden="true" class="notice-slide" data-notice-slide="" href="./news-detail.html" tabindex="-1">
-<span class="notice-label">공지</span>
-<span class="notice-text">LUMIBELLE 홈페이지 개편 안내</span>
-<span class="notice-link">자세히 보기 <i aria-hidden="true"></i></span>
-</a>
-<a aria-hidden="true" class="notice-slide" data-notice-slide="" href="./news.html" tabindex="-1">
-<span class="notice-label">공지</span>
-<span class="notice-text">LUMIBELLE 굿즈 발매 예정 안내</span>
-<span class="notice-link">자세히 보기 <i aria-hidden="true"></i></span>
-</a>
-</div>
-</section>
-<section aria-label="메인 비주얼" class="hero-section">
-<div aria-label="메인 비주얼 이미지 자리" class="image-slot hero-image" role="img"></div>
-<button aria-label="이전 슬라이드" class="hero-arrow hero-arrow-prev" type="button"></button>
-<button aria-label="다음 슬라이드" class="hero-arrow hero-arrow-next" type="button"></button>
-<div aria-label="슬라이드 위치" class="hero-dots">
-<button aria-label="1번 슬라이드" class="is-active" type="button"></button>
-<button aria-label="2번 슬라이드" type="button"></button>
-<button aria-label="3번 슬라이드" type="button"></button>
-<button aria-label="4번 슬라이드" type="button"></button>
-</div>
-</section>
-<section aria-label="주요 메뉴" class="quick-grid">
-<a class="quick-card" href="./news.html" id="news">
-<div aria-hidden="true" class="image-slot quick-image">
-<img alt="" decoding="async" loading="lazy" src="./assets/icons/news.webp"/>
-</div>
-<strong>NEWS</strong>
-<span>뉴스</span>
-<i aria-hidden="true"></i>
-</a>
-<a class="quick-card" href="#">
-<div aria-hidden="true" class="image-slot quick-image">
-<img alt="" decoding="async" loading="lazy" src="./assets/icons/info.webp"/>
-</div>
-<strong>INFO</strong>
-<span>이용 안내</span>
-<i aria-hidden="true"></i>
-</a>
-<a class="quick-card" href="#">
-<div aria-hidden="true" class="image-slot quick-image">
-<img alt="" decoding="async" loading="lazy" src="./assets/icons/setlist.webp"/>
-</div>
-<strong>SETLIST</strong>
-<span>세트리스트</span>
-<i aria-hidden="true"></i>
-</a>
-<a class="quick-card" href="#">
-<div aria-hidden="true" class="image-slot quick-image">
-<img alt="" decoding="async" loading="lazy" src="./assets/icons/lumi-log.webp"/>
-</div>
-<strong>LUMI LOG</strong>
-<span>공연 기록</span>
-<i aria-hidden="true"></i>
-</a>
-</section>
-<section class="live-card" id="ticket">
-<div class="live-copy">
-<span class="section-badge">UPCOMING LIVE</span>
-<h1>루미벨 다음 공연</h1>
-<p class="live-subtitle">LUMIBELLE LIVE</p>
-<dl class="live-meta">
-<div><dt>DATE</dt><dd>2026.00.00</dd></div>
-<div><dt>TIME</dt><dd>00:00</dd></div>
-<div><dt>PLACE</dt><dd>공연장 안내</dd></div>
-</dl>
-<a aria-label="티켓 예매 페이지 준비 중" class="primary-button" href="#">티켓 예매하기 <i aria-hidden="true"></i></a>
-</div>
-<div aria-label="공연 이미지 자리" class="image-slot live-image" role="img"></div>
-</section>
-<section class="content-section members-section" id="members">
-<div class="section-heading">
-<h2>MEMBER</h2>
-<a href="./members.html">전체보기 <i aria-hidden="true"></i></a>
-</div>
-<div class="member-scroller">
-<article class="member-card">
-<div aria-hidden="true" class="image-slot member-image"></div>
-<h3>마리링</h3><p>리더</p>
-</article>
-<article class="member-card">
-<div aria-hidden="true" class="image-slot member-image"></div>
-<h3>루루</h3><p>멤버</p>
-</article>
-<article class="member-card">
-<div aria-hidden="true" class="image-slot member-image"></div>
-<h3>이로</h3><p>멤버</p>
-</article>
-<article class="member-card">
-<div aria-hidden="true" class="image-slot member-image"></div>
-<h3>루나</h3><p>멤버</p>
-</article>
-</div>
-</section>
-<section class="story-section">
-<div aria-hidden="true" class="image-slot story-image"></div>
-<div class="story-copy">
-<span>LUMIBELLE STORY</span>
-<h2>루미벨의 이야기</h2>
-<p>빛나는 아름다움이라는 이름처럼, 무대 위에서 가장 반짝이는 순간을 함께 만들어가는 루미벨을 소개합니다.</p>
-<a class="story-button" href="./story.html">스토리 보기 <i aria-hidden="true"></i></a>
-</div>
-</section>
-<section class="content-section media-section">
-<div class="section-heading media-section-heading">
-<h2>LUMI CONTENT</h2>
-</div>
-<div class="media-grid">
-<a aria-label="MUSIC 음악 아카이브로 이동" class="media-card" href="./music.html">
-<span class="media-card-icon-frame"><img alt="" aria-hidden="true" class="media-card-icon" src="./assets/icons/music-icon.png"/></span>
-<strong>MUSIC</strong>
-<span>음원 아카이브</span>
-</a>
-<a aria-label="MORE VIDEO 영상 아카이브로 이동" class="media-card" href="./video.html">
-<span class="media-card-icon-frame"><img alt="" aria-hidden="true" class="media-card-icon" src="./assets/icons/more-video-icon.png"/></span>
-<strong>MORE VIDEO</strong>
-<span>영상 아카이브</span>
-</a>
-<a aria-label="MOMENTS 순간들로 이동" class="media-card" href="./photo.html">
-<span class="media-card-icon-frame"><img alt="" aria-hidden="true" class="media-card-icon" src="./assets/icons/moments-icon.png"/></span>
-<strong>MOMENTS</strong>
-<span>순간들</span>
-</a>
-<a aria-label="ON AIR 페이지 준비 중" class="media-card media-card--onair" href="#">
-<span aria-hidden="true" class="media-card-icon-frame">
-<img alt="" class="media-card-icon" src="./assets/icons/on-air-icon.png"/>
-</span>
-<strong>ON AIR</strong>
-<span>방송 준비 중</span>
-</a>
-</div>
-</section>
-<section class="content-section lounge-section">
-<div class="section-heading lounge-heading">
-<div class="lounge-heading-copy">
-<h2>LUMINA LOUNGE</h2>
-<p class="lounge-subtitle">루미폰 회원 전용 커뮤니티</p>
-</div>
-<a href="#">더보기 <i aria-hidden="true"></i></a>
-</div>
-<div class="lounge-list">
-<a href="#">
-<span class="lounge-tag is-notice">공지</span>
-<strong>루미나 라운지에 오신 것을 환영합니다</strong>
-<span class="lounge-meta">운영팀 · 방금 전</span>
-<i aria-hidden="true"></i>
-</a>
-<a href="#">
-<span class="lounge-tag is-new">NEW</span>
-<strong>오늘 공연에서 가장 좋았던 순간</strong>
-<span class="lounge-meta">루미나 · 12분 전</span>
-<i aria-hidden="true"></i>
-</a>
-<a href="#">
-<span class="lounge-tag is-cheer">응원</span>
-<strong>멤버들에게 남기는 응원 메시지</strong>
-<span class="lounge-meta">루미나 · 31분 전</span>
-<i aria-hidden="true"></i>
-</a>
-</div>
-</section>
-</main>
-<nav aria-label="하단 메뉴" class="bottom-nav">
-<a class="is-active" href="#top"><svg aria-hidden="true" class="nav-icon nav-home" focusable="false" viewbox="0 0 64 64"><path d="M9 29.5 32 8l23 21.5a4 4 0 0 1-2.7 6.9H48v17.2a4.4 4.4 0 0 1-4.4 4.4H37V42.5a5 5 0 0 0-10 0V58h-6.6a4.4 4.4 0 0 1-4.4-4.4V36.4h-4.3A4 4 0 0 1 9 29.5Z" stroke-width="4"></path></svg><b>HOME</b></a>
-<a href="./schedule.html"><svg aria-hidden="true" class="nav-icon nav-schedule" focusable="false" viewbox="0 0 64 64"><rect height="39" rx="8" stroke-width="4" width="42" x="11" y="15"></rect><path d="M11 27h42M20 11v9m24-9v9" stroke-width="4"></path><path d="M24 39c0-3.2 2.2-5.4 5-5.4 1.6 0 2.7.7 3 1.8.4-1.1 1.5-1.8 3-1.8 2.8 0 5 2.2 5 5.4 0 4.7-8 9.6-8 9.6s-8-4.9-8-9.6Z" stroke-width="3.2"></path></svg><b>SCHEDULE</b></a>
-<a href="#ticket"><svg aria-hidden="true" class="nav-icon nav-ticket" focusable="false" viewbox="0 0 64 64"><g transform="rotate(-11 32 32)"><path d="M11 19h42a4 4 0 0 1 4 4v7a6 6 0 0 0 0 12v7a4 4 0 0 1-4 4H11a4 4 0 0 1-4-4v-7a6 6 0 0 0 0-12v-7a4 4 0 0 1 4-4Z" stroke-width="4"></path><path d="M39 22v7m0 6v7m0 6v3" stroke-width="3.2"></path><path d="m24 28 2.2 4.4 4.8.7-3.5 3.4.8 4.8-4.3-2.2-4.3 2.2.8-4.8-3.5-3.4 4.8-.7L24 28Z" stroke-width="3"></path></g></svg><b>TICKET</b></a>
-<a href="./members.html"><svg aria-hidden="true" class="nav-icon nav-members" focusable="false" viewbox="0 0 64 64"><circle cx="32" cy="20" r="9" stroke-width="4"></circle><circle cx="17" cy="24" r="6.5" stroke-width="3.6"></circle><circle cx="47" cy="24" r="6.5" stroke-width="3.6"></circle><path d="M8 53c0-11 9.5-18 24-18s24 7 24 18" stroke-width="4"></path></svg><b>MEMBERS</b></a>
-<a href="#"><svg aria-hidden="true" class="nav-icon nav-my" focusable="false" viewbox="0 0 64 64"><circle cx="32" cy="20" r="11" stroke-width="4"></circle><path d="M14 54c0-12 8-20 18-20s18 8 18 20" stroke-width="4"></path></svg><b class="nav-my-label">MY · 루미폰</b></a>
-</nav>
-</div>
-<script src="./js/main.js?v=202"></script>
+    <main class="hero">
+      <span class="floating-star star-a" aria-hidden="true">✦</span>
+      <span class="floating-star star-b" aria-hidden="true">✧</span>
+      <span class="floating-star star-c" aria-hidden="true">✦</span>
+      <span class="floating-star star-d" aria-hidden="true">✧</span>
+
+      <section class="hero-inner" aria-labelledby="page-title">
+        <div class="ornament" aria-hidden="true">
+          <span>✦</span>
+        </div>
+
+        <p class="kicker">Official Website Renewal</p>
+
+        <h1 id="page-title">
+          Under Renewal
+          <em>루미벨 홈페이지 정비 중</em>
+        </h1>
+
+        <p class="intro">
+          루미벨 공식 홈페이지와 시스템을 새롭게 정비하고 있습니다.<br />
+          더욱 편리하고 안정적인 모습으로 다시 찾아뵙겠습니다.
+        </p>
+
+        <div class="notice">
+          <h2 class="notice-title">Information</h2>
+          <p>
+            기존 오히로메 예약·입장 및 임시 특전권 관련 기능은 종료되었습니다.<br />
+            새로운 공연과 활동 안내, 홈페이지 재오픈 소식은 공식 X를 통해 안내드립니다.
+          </p>
+        </div>
+
+        <div class="actions">
+          <a
+            class="button button-primary"
+            href="https://x.com/Lumibelle_love"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="button-symbol" aria-hidden="true">✦</span>
+            OFFICIAL X
+          </a>
+
+          <a
+            class="button button-secondary"
+            href="mailto:lumibelle.love@gmail.com"
+          >
+            CONTACT
+          </a>
+        </div>
+
+        <p class="reopen">재오픈 일정은 공식 X를 통해 안내드릴 예정입니다.</p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      © 2026 Lumibelle All Rights Reserved.
+    </footer>
+  </div>
 </body>
 </html>
